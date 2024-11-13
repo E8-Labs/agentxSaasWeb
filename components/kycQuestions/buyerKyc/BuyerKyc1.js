@@ -8,7 +8,7 @@ import Footer from '@/components/onboarding/Footer';
 import { Modal } from '@mui/material';
 import { Box, style } from '@mui/system';
 
-const KYC1 = ({ handleContinue }) => {
+const BuyerKyc1 = ({ handleContinue }) => {
 
     const router = useRouter();
     const [toggleClick, setToggleClick] = useState(1);
@@ -26,17 +26,17 @@ const KYC1 = ({ handleContinue }) => {
     const [needKYCQuestions, setNeedKYCQuestions] = useState([
         {
             id: 1,
-            question: "Why have you decided to sell your home?",
+            question: "What area are you looking in?",
             sampleAnswers: []
         },
         {
             id: 2,
-            question: "Have you outgrown your current home, or is it too large now?",
+            question: "What type of home are you looking for? Single family, townhouse, condo, apartment, etc",
             sampleAnswers: []
         },
         {
             id: 3,
-            question: "Are there any significant life changes prompting this decision, such as job relocation or changes in the family?",
+            question: "Are you a first time home buyer?",
             sampleAnswers: []
         },
     ]);
@@ -165,10 +165,11 @@ const KYC1 = ({ handleContinue }) => {
             selectedUrgencyKyc.some((selectedItem) => selectedItem.id === question.id)
         );
 
+        console.log("Working");
         console.log("Selected Questions are: ", selectedQuestions);
         console.log("Selected motivation questions are: ----", selectedMotivationQuestions);
         console.log("Selected urgency questions are: ----", selectedUrgencyQuestions);
-        router.push("/buyerskycquestions")
+        router.push("/pipeline");
         // handleContinue();
     }
 
@@ -219,10 +220,10 @@ const KYC1 = ({ handleContinue }) => {
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full'>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
-                            What would you like to ask sellers?
+                            What would you like to ask buyers?
                         </div>
                         <button className='mt-10 underline text-purple' style={styles.inputStyle}>
-                            I don't need questions for sellers
+                            I don't need questions for buyers
                         </button>
                         <div className='flex flex-row items-center gap-10 mt-10'>
                             {
@@ -455,4 +456,4 @@ const KYC1 = ({ handleContinue }) => {
     )
 }
 
-export default KYC1;
+export default BuyerKyc1;

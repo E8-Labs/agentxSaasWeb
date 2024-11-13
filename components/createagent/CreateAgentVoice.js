@@ -22,7 +22,7 @@ const CreateAgentVoice = ({ handleBack }) => {
     }
 
     const handleContinue = () => {
-        router.push("/kycQuestions")
+        router.push("/sellerskycquestions")
     }
 
     const voices = [
