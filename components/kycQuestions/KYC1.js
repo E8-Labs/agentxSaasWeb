@@ -354,7 +354,7 @@ const KYC1 = ({ handleContinue }) => {
                         <button className='mt-2 w-10/12 md:w-6/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
                             Add Question
                         </button>
-                        {/* Modal to add demeanor */}
+                        {/* Modal to add KYC */}
                         <Modal
                             open={addKYCQuestion}
                             // onClose={() => setAddKYCQuestion(false)}
