@@ -1,45 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import { useRouter } from 'next/navigation';
 import Header from './Header';
 import Footer from './Footer';
 import Image from 'next/image';
 
-const CreateAccount2 = ({ handleContinue, handleBack }) => {
+const CreateAccount2 = ({ handleContinue, handleBack, DefaultData }) => {
 
     const router = useRouter();
     const [toggleClick, setToggleClick] = useState(false);
+    const [loader, setLoader] = useState(false);
+    const [focusData, setFocusData] = useState([]);
 
-    const TestData = [
-        {
-            id: 1,
-            title: 'Commercial real estate',
-        },
-        {
-            id: 2,
-            title: 'Residential real estate',
-        },
-        {
-            id: 3,
-            title: 'Investment property',
-        },
-        {
-            id: 4,
-            title: 'Land broker',
-        },
-        {
-            id: 5,
-            title: 'Sale associate',
-        },
-        {
-            id: 6,
-            title: 'Relocation consultant',
-        },
-        {
-            id: 7,
-            title: 'Real estate management',
-        },
-    ];
+    useEffect(() => {
+        if (DefaultData) {
+            setLoader(false);
+            console.log("Area of focus is ::", DefaultData.areaOfFocus);
+            setFocusData(DefaultData.areaOfFocus);
+        } else {
+            setLoader(true);
+        }
+        console.log("");
+    }, [DefaultData]);
+
+    const handleNext = () => {
+        const data = localStorage.getItem("registerDetails");
+        if (data) {
+            const details = JSON.parse(data);
+            details.focusAreaId = toggleClick;
+            localStorage.setItem("registerDetails", JSON.stringify(details));
+            handleContinue();
+        }
+    }
 
     const handleToggleClick = (id) => {
         setToggleClick(prevId => (prevId === id ? null : id))
@@ -57,7 +49,7 @@ const CreateAccount2 = ({ handleContinue, handleBack }) => {
                     </div>
                     <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh] overflow-auto'>
 
-                        {TestData.map((item, index) => (
+                        {focusData.map((item, index) => (
                             <button key={item.id} onClick={() => { handleToggleClick(item.id) }} className='border-none outline-none'>
                                 <div className='border bg-white flex flex-row items-start justify-between px-4 rounded-2xl py-2' style={{ borderColor: item.id === toggleClick ? "#402FFF" : "" }}>
                                     <div className='text-start'>
@@ -65,7 +57,7 @@ const CreateAccount2 = ({ handleContinue, handleBack }) => {
                                             {item.title}
                                         </div>
                                         <div>
-                                            Detail
+                                            {item.description}
                                         </div>
                                     </div>
                                     {
@@ -84,7 +76,7 @@ const CreateAccount2 = ({ handleContinue, handleBack }) => {
                     <ProgressBar value={60} />
                 </div>
 
-                <Footer handleContinue={handleContinue} handleBack={handleBack} />
+                <Footer handleContinue={handleNext} handleBack={handleBack} />
             </div>
         </div>
     )

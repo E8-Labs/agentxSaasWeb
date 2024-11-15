@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import LinearProgress from '@mui/material/LinearProgress';
 
-const ProgressBar = ({value}) => {
+const ProgressBar = ({ value }) => {
 
-    const [progress, setProgress] = useState(value);
+    const [progress, setProgress] = useState(0);
+    
+    useEffect(() => {
+        console.log("Value of progress is :", value);
+        setProgress(value);
+    }, [value]);
 
     return (
         <div className='mt-8'>

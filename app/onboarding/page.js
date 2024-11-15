@@ -50,7 +50,10 @@ const Page = ({ params }) => {
             });
 
             if (response) {
-                console.log("Response of api is : -----", response);
+                console.log("Response of api is : -----", response.data);
+                setDefaultData(response.data.data);
+            }else{
+                alert(response.data)
             }
 
         } catch (error) {
@@ -60,13 +63,13 @@ const Page = ({ params }) => {
 
     useEffect(() => {
         getDefaultData();
-    }), []
+    }, [])
 
 
 
     return (
         <div style={backgroundImage} className="overflow-y-none flex flex-row justify-center items-center">
-            <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
+            <CurrentComp handleContinue={handleContinue} handleBack={handleBack} DefaultData={DefaultData} />
         </div>
     )
 }

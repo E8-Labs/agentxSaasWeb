@@ -8,13 +8,18 @@ import Footer from '@/components/onboarding/Footer';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import Apis from '../apis/Apis';
+import axios from 'axios';
+import { Box, Modal } from '@mui/material';
 
 const CreateAccount3 = ({ handleContinue, handleBack }) => {
 
   const router = useRouter();
   const [userName, setUserName] = useState("");
+  const [showVerifyPopup, setShowVerifyPopup] = useState(false);
+  const [registerLoader, setRegisterLoader] = useState(false);
   const [userEmail, setUserEmail] = useState("");
-  const [emailErr, setEmailErr] = useState(false);
+  // const [emailErr, setEmailErr] = useState(false);
   const [userFarm, setUserFarm] = useState("");
   const [userBrokage, setUserBrokage] = useState("");
   const [userTransaction, setUserTransaction] = useState("");
@@ -23,9 +28,19 @@ const CreateAccount3 = ({ handleContinue, handleBack }) => {
   const [countryCode, setCountryCode] = useState('');
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const [userData, setUserData] = useState(null);
 
   // Function to get the user's location and set the country code
   useEffect(() => {
+    const registerationDetails = localStorage.getItem("registerDetails");
+    // let registerationData = null;
+    if (registerationDetails) {
+      const registerationData = JSON.parse(registerationDetails);
+      console.log("User registeration data is :--", registerationData);
+      setUserData(registerationData);
+    } else {
+      alert("Add details to continue");
+    }
     const fetchCountry = async () => {
       try {
         // Get user's geolocation
@@ -69,17 +84,61 @@ const CreateAccount3 = ({ handleContinue, handleBack }) => {
   };
 
   //email validation function
-  const validateEmail = (email) => {
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  // const validateEmail = (email) => {
+  //   const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-    // Check if email contains consecutive dots, which are invalid
-    if (/\.\./.test(email)) {
-      return false;
+  //   // Check if email contains consecutive dots, which are invalid
+  //   if (/\.\./.test(email)) {
+  //     return false;
+  //   }
+
+  //   // Check the general pattern for a valid email
+  //   return emailPattern.test(email);
+  // };
+
+  //code for verify number popup
+  const handleVerifyPopup = () => {
+    console.log("Mike testing 123");
+    setShowVerifyPopup(true);
+  }
+
+  const handleClose = () => {
+    setShowVerifyPopup(false);
+  }
+
+  //code for registering user
+  const handleRegister = async () => {
+    try {
+      setRegisterLoader(true);
+      const ApiPath = Apis.register;
+      const formData = new FormData();
+      formData.append("name", userName);
+      formData.append("email", userEmail);
+      formData.append("phone", userPhoneNumber);
+      formData.append("farm", userFarm);
+      formData.append("brokerage", userBrokage);
+      formData.append("averageTransactionPerYear", userTransaction);
+      formData.append("agentService", userData.serviceID);
+      formData.append("areaOfFocus", userData.focusAreaId);
+      formData.append("userType", "RealEstateAgent");
+
+      console.log("Data for user registeration is :-----");
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+
+      return
+      const response = await axios.post(ApiPath, formData);
+      if (response) {
+        console.log("Response of register api is:--", response);
+      }
+
+    } catch (error) {
+      console.error("Error occured in register api is: ", error);
+    } finally {
+      setRegisterLoader(false);
     }
-
-    // Check the general pattern for a valid email
-    return emailPattern.test(email);
-  };
+  }
 
   const styles = {
     headingStyle: {
@@ -89,7 +148,18 @@ const CreateAccount3 = ({ handleContinue, handleBack }) => {
     inputStyle: {
       fontSize: 15,
       fontWeight: "500"
-    }
+    },
+    verifyPopup: {
+      height: "auto",
+      bgcolor: "transparent",
+      // p: 2,
+      mx: "auto",
+      my: "50vh",
+      transform: "translateY(-55%)",
+      borderRadius: 2,
+      border: "none",
+      outline: "none",
+    },
   }
 
   return (
@@ -129,11 +199,6 @@ const CreateAccount3 = ({ handleContinue, handleBack }) => {
             <div style={styles.headingStyle}>
               What's your phone number
             </div>
-            {/* <input
-              placeholder='Phone Number'
-              className='border-2 rounded p-2 outline-none'
-              style={styles.inputStyle}
-            /> */}
 
             {/* <PhoneInput
               className="border-2 rounded outline-none bg-white"
@@ -171,7 +236,7 @@ const CreateAccount3 = ({ handleContinue, handleBack }) => {
               country={countryCode} // Set the default country
               value={userPhoneNumber}
               onChange={handlePhoneNumberChange}
-              placeholder="Enter phone number"
+              placeholder="Loading location ..."
               disabled={loading} // Disable input if still loading
               inputStyle={{
                 width: '100%',
@@ -214,7 +279,7 @@ const CreateAccount3 = ({ handleContinue, handleBack }) => {
               className='border-2 rounded p-2 outline-none'
               style={styles.inputStyle}
               value={userFarm}
-              onChange={(e) => {setUserFarm(e.target.value)}}
+              onChange={(e) => { setUserFarm(e.target.value) }}
             />
 
             <div style={styles.headingStyle}>
@@ -224,6 +289,8 @@ const CreateAccount3 = ({ handleContinue, handleBack }) => {
               placeholder='Brokerage'
               className='border-2 rounded p-2 outline-none'
               style={styles.inputStyle}
+              value={userBrokage}
+              onChange={(e) => { setUserBrokage(e.target.value) }}
             />
 
             <div style={styles.headingStyle}>
@@ -233,7 +300,41 @@ const CreateAccount3 = ({ handleContinue, handleBack }) => {
               placeholder='Value'
               className='border-2 rounded p-2 outline-none'
               style={styles.inputStyle}
+              value={userTransaction}
+              onChange={(e) => { setUserTransaction(e.target.value) }}
             />
+
+            <Modal
+              open={showVerifyPopup}
+              // onClose={() => setAddKYCQuestion(false)}
+              closeAfterTransition
+              BackdropProps={{
+                timeout: 1000,
+                sx: {
+                  backgroundColor: "#00000020",
+                  // backdropFilter: "blur(20px)",
+                },
+              }}
+            >
+              <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.verifyPopup}>
+                <div className="flex flex-row justify-center w-full">
+                  <div
+                    className="sm:w-7/12 w-full"
+                    style={{
+                      backgroundColor: "#ffffff",
+                      padding: 20,
+                      borderRadius: "13px",
+                    }}
+                  >
+                    <div className='flex flex-row justify-end'>
+                      <button onClick={handleClose}>
+                        <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </Box>
+            </Modal>
 
           </div>
         </div>
@@ -241,7 +342,7 @@ const CreateAccount3 = ({ handleContinue, handleBack }) => {
           <ProgressBar value={80} />
         </div>
 
-        <Footer handleContinue={handleContinue} handleBack={handleBack} />
+        <Footer handleContinue={handleVerifyPopup} handleBack={handleBack} registerLoader={registerLoader} />
       </div>
     </div>
   )
