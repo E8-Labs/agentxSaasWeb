@@ -1,7 +1,7 @@
 import Body from '@/components/onboarding/Body';
 import Header from '@/components/onboarding/Header';
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
@@ -10,10 +10,12 @@ import 'react-phone-input-2/lib/style.css';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import Apis from '../apis/Apis';
 import axios from 'axios';
-import { Box, Modal } from '@mui/material';
+import { Alert, Box, CircularProgress, Fade, Modal, Snackbar } from '@mui/material';
+import VerificationCodeInput from '../test/VerificationCodeInput';
 
-const CreateAccount3 = ({ handleContinue, handleBack }) => {
+const CreateAccount3 = ({ handleContinue, handleBack, length = 6, onComplete }) => {
 
+  const verifyInputRef = useRef([]);
   const router = useRouter();
   const [userName, setUserName] = useState("");
   const [showVerifyPopup, setShowVerifyPopup] = useState(false);
@@ -29,6 +31,9 @@ const CreateAccount3 = ({ handleContinue, handleBack }) => {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [userData, setUserData] = useState(null);
+  const [phoneVerifiedSuccessSnack, setPhoneVerifiedSuccessSnack] = useState(false);
+  //verify code input fields
+  const [VerifyCode, setVerifyCode] = useState(Array(length).fill(''));
 
   // Function to get the user's location and set the country code
   useEffect(() => {
@@ -64,6 +69,13 @@ const CreateAccount3 = ({ handleContinue, handleBack }) => {
     fetchCountry();
   }, []);
 
+  //code to focus the verify code input field
+  useEffect(() => {
+    if (showVerifyPopup && verifyInputRef.current[0]) {
+      verifyInputRef.current[0].focus();
+    }
+  }, [showVerifyPopup]);
+
   // Handle phone number change and validation
   const handlePhoneNumberChange = (phone) => {
     setUserPhoneNumber(phone);
@@ -98,12 +110,74 @@ const CreateAccount3 = ({ handleContinue, handleBack }) => {
 
   //code for verify number popup
   const handleVerifyPopup = () => {
-    console.log("Mike testing 123");
     setShowVerifyPopup(true);
-  }
+    setTimeout(() => {
+      if (verifyInputRef.current[0]) {
+        verifyInputRef.current[0].focus();
+      }
+    }, 100); // Adjust the delay as needed, 0 should be enough
+  };
+
 
   const handleClose = () => {
     setShowVerifyPopup(false);
+  }
+
+  //code for handling verify code changes
+
+  const handleVerifyInputChange = (e, index) => {
+    const { value } = e.target;
+    if (!/[0-9]/.test(value) && value !== '') return; // Allow only numeric input
+
+    const newValues = [...VerifyCode];
+    newValues[index] = value;
+    setVerifyCode(newValues);
+
+    // Move focus to the next field if a number is entered
+    if (value && index < length - 1) {
+      verifyInputRef.current[index + 1].focus();
+    }
+
+    // Trigger onComplete callback if all fields are filled
+    if (newValues.every((num) => num !== '') && onComplete) {
+      onComplete(newValues.join('')); // Convert array to a single string here
+    }
+  };
+
+  const handleBackspace = (e, index) => {
+    if (e.key === 'Backspace') {
+      if (VerifyCode[index] === '' && index > 0) {
+        verifyInputRef.current[index - 1].focus();
+      }
+      const newValues = [...VerifyCode];
+      newValues[index] = '';
+      setVerifyCode(newValues);
+    }
+  };
+
+  const handlePaste = (e) => {
+    const pastedText = e.clipboardData.getData('text').slice(0, length);
+    const newValues = pastedText.split('').map((char) => (/[0-9]/.test(char) ? char : ''));
+    setVerifyCode(newValues);
+
+    // Set each input's value and move focus to the last filled input
+    newValues.forEach((char, index) => {
+      verifyInputRef.current[index].value = char;
+      if (index === newValues.length - 1) {
+        verifyInputRef.current[index].focus();
+      }
+    });
+
+    if (newValues.every((num) => num !== '') && onComplete) {
+      onComplete(newValues.join(''));
+    }
+  };
+
+  //code for number verification
+  const handleVerifyCode = () => {
+    console.log("Verify code is :", VerifyCode.join(""));
+    setPhoneVerifiedSuccessSnack(true);
+    handleRegister();
   }
 
   //code for registering user
@@ -127,10 +201,16 @@ const CreateAccount3 = ({ handleContinue, handleBack }) => {
         console.log(`${key}: ${value}`);
       }
 
-      return
+      // return
       const response = await axios.post(ApiPath, formData);
       if (response) {
         console.log("Response of register api is:--", response);
+        if (response.data.status === true) {
+          console.log("Status is :---", response.data.status);
+          localStorage.removeItem("registerDetails");
+          localStorage.setItem("User", JSON.stringify(response.data.data));
+          handleContinue();
+        }
       }
 
     } catch (error) {
@@ -199,37 +279,6 @@ const CreateAccount3 = ({ handleContinue, handleBack }) => {
             <div style={styles.headingStyle}>
               What's your phone number
             </div>
-
-            {/* <PhoneInput
-              className="border-2 rounded outline-none bg-white"
-              country={countryCode} // Default to 'us' if countryCode is not yet available
-              value={userPhoneNumber}
-              onChange={setUserPhoneNumber}
-              placeholder="Enter phone number"
-              disabled={loading} // Disable input if still loading
-              inputStyle={{
-                width: '100%',
-                borderWidth: '0px',
-                backgroundColor: 'transparent',
-                paddingLeft: '60px',
-                paddingTop: "12px",
-                paddingBottom: "12px"
-              }}
-              buttonStyle={{
-                border: 'none',
-                backgroundColor: 'transparent',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              dropdownStyle={{
-                maxHeight: '150px',
-                overflowY: 'auto'
-              }}
-              // Conditionally render a loader or the flag
-              countryCodeEditable={true}
-              defaultMask={loading ? 'Loading...' : undefined}
-            /> */}
 
             <PhoneInput
               className="border-2 rounded outline-none bg-white"
@@ -316,7 +365,7 @@ const CreateAccount3 = ({ handleContinue, handleBack }) => {
                 },
               }}
             >
-              <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.verifyPopup}>
+              <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.verifyPopup}>
                 <div className="flex flex-row justify-center w-full">
                   <div
                     className="sm:w-7/12 w-full"
@@ -331,10 +380,88 @@ const CreateAccount3 = ({ handleContinue, handleBack }) => {
                         <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
                       </button>
                     </div>
+                    <div style={{
+                      fontSize: 26,
+                      fontWeight: "700"
+                    }}>
+                      Verify phone number
+                    </div>
+                    <div className='mt-8' style={{ ...styles.inputStyle, color: "#00000060" }}>
+                      Enter code that was sent to number ending with *{userPhoneNumber.slice(-4)}.
+                    </div>
+                    {/* <VerificationCodeInput /> */}
+                    <div className='mt-8' style={{ display: 'flex', gap: '10px' }}>
+                      {Array.from({ length }).map((_, index) => (
+                        <input
+                          key={index}
+                          ref={(el) => (verifyInputRef.current[index] = el)}
+                          type="text"
+                          maxLength="1"
+                          value={VerifyCode[index]}
+                          onChange={(e) => handleVerifyInputChange(e, index)}
+                          onKeyDown={(e) => handleBackspace(e, index)}
+                          onPaste={handlePaste}
+                          placeholder='-'
+                          style={{
+                            width: '40px',
+                            height: '40px',
+                            textAlign: 'center',
+                            fontSize: '20px',
+                            border: '1px solid #ccc',
+                            borderRadius: '5px',
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <div className='mt-8' style={styles.inputStyle}>
+                      Didn't receive code? <button className='outline-none border-none text-purple'>Resed</button>
+                    </div>
+                    {
+                      registerLoader ?
+                        <div className='flex fex-row items-center justify-center mt-8'>
+                          <CircularProgress size={35} />
+                        </div>
+                        :
+                        <button
+                          className='text-white bg-purple outline-none rounded-xl w-full mt-8'
+                          style={{ height: "50px" }}
+                          onClick={handleVerifyCode}
+                        >
+                          Continue
+                        </button>
+                    }
                   </div>
                 </div>
               </Box>
             </Modal>
+
+            <div>
+              <Snackbar
+                open={phoneVerifiedSuccessSnack}
+                autoHideDuration={3000}
+                onClose={() => {
+                  setPhoneVerifiedSuccessSnack(false);
+                }}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'center'
+                }}
+                TransitionComponent={Fade}
+                TransitionProps={{
+                  direction: 'center'
+                }}
+              >
+                <Alert
+                  onClose={() => {
+                    setPhoneVerifiedSuccessSnack(false)
+                  }} severity="success"
+                  // className='bg-purple rounded-lg text-white'
+                  sx={{ width: 'auto', fontWeight: '700', fontFamily: 'inter', fontSize: '22' }}
+                >
+                  Phone number verified
+                </Alert>
+              </Snackbar>
+            </div>
 
           </div>
         </div>

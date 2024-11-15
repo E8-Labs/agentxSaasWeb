@@ -6,14 +6,31 @@ import ProgressBar from '@/components/onboarding/ProgressBar';
 import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
 import PricingBox from '../test/PricingBox';
+import { Box, Modal } from '@mui/material';
 
 const CreatAgent3 = ({ handleContinue }) => {
 
     const router = useRouter();
     const [togglePlan, setTogglePlan] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState(false);
+    const [addPaymentPopUp, setAddPaymentPopUp] = useState(false);
+    const [addPaymentSuccessPopUp, setAddPaymentSuccessPopUp] = useState(false);
 
     const handleTogglePlanClick = (id) => {
-        setTogglePlan(prevId => (prevId === id ? null : id))
+        if (paymentMethod) {
+            setTogglePlan(prevId => (prevId === id ? null : id));
+        } else {
+            setAddPaymentPopUp(true);
+        }
+    }
+
+    const handleClose = () => {
+        if (addPaymentPopUp) {
+            setAddPaymentPopUp(false);
+            setAddPaymentSuccessPopUp(true);
+        } else if (addPaymentSuccessPopUp) {
+            setAddPaymentSuccessPopUp(false);
+        }
     }
 
     const facilities = [
@@ -91,7 +108,9 @@ const CreatAgent3 = ({ handleContinue }) => {
             fontSize: 15,
             fontWeight: "700"
         },
-
+        cardStyles: {
+            fontSize: "14", fontWeight: "500"
+        },
         pricingBox: {
             position: 'relative',
             padding: '15px',
@@ -132,6 +151,17 @@ const CreatAgent3 = ({ handleContinue }) => {
             fontWeight: 'bold',
             fontSize: '18px',
             marginLeft: '10px',
+        },
+        paymentModal: {
+            height: "auto",
+            bgcolor: "transparent",
+            // p: 2,
+            mx: "auto",
+            my: "50vh",
+            transform: "translateY(-55%)",
+            borderRadius: 2,
+            border: "none",
+            outline: "none",
         },
     }
 
@@ -242,6 +272,127 @@ const CreatAgent3 = ({ handleContinue }) => {
                     >
                         Claim 30 mins
                     </button>
+
+                    {/* Add Payment Modal */}
+                    <Modal
+                        open={addPaymentPopUp}
+                        closeAfterTransition
+                        BackdropProps={{
+                            timeout: 1000,
+                            sx: {
+                                backgroundColor: "#00000020",
+                                // backdropFilter: "blur(20px)",
+                            },
+                        }}
+                    >
+                        <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.paymentModal}>
+                            <div className="flex flex-row justify-center w-full">
+                                <div
+                                    className="sm:w-7/12 w-full"
+                                    style={{
+                                        backgroundColor: "#ffffff",
+                                        padding: 20,
+                                        borderRadius: "13px",
+                                    }}
+                                >
+                                    <div className='flex flex-row justify-end'>
+                                        <button onClick={handleClose}>
+                                            <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                        </button>
+                                    </div>
+                                    <div className='text-center mt-2' style={{ fontWeight: "700", fontSize: 24 }}>
+                                        Start for Free. Then Pay as you go!
+                                    </div>
+
+                                    <div className='text-center mt-4' style={styles.headingStyle}>
+                                        Payment starts after your free 30 mins
+                                    </div>
+
+                                    <div className='mt-4' style={styles.cardStyles}>
+                                        Card number
+                                    </div>
+                                    <input type='number' className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='1212 1212 1212 1212' maxLength={16} />
+
+                                    <div className='flex flex-row gap-2 mt-4'>
+                                        <div className='w-6/12'>
+                                            <div style={styles.cardStyles}>
+                                                Expiry
+                                            </div>
+                                            <input type='number' className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='MM / YY' maxLength={6} />
+                                        </div>
+                                        <div className='w-6/12'>
+                                            <div style={styles.cardStyles}>
+                                                Card number
+                                            </div>
+                                            <input type='number' className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='CVC' maxLength={3} />
+                                        </div>
+                                    </div>
+
+                                    <div className='mt-4' style={styles.cardStyles}>
+                                        Postal Code
+                                    </div>
+                                    <input type='number' className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='48530' maxLength={5} />
+
+                                    <div className='mt-4' style={styles.cardStyles}>
+                                        AgentX Code (optional)
+                                    </div>
+                                    <input type='number' className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='Enter the code here' maxLength={16} />
+
+                                    <button className='bg-purple text-white w-full rounded-xl mt-12' style={{ ...styles.headingStyle, height: "50px" }} onClick={handleClose}>
+                                        Continue
+                                    </button>
+
+                                    {/* Can be use full to add shadow */}
+                                    {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                                </div>
+                            </div>
+                        </Box>
+                    </Modal>
+
+                    {/* Add Payment Success Modal */}
+                    <Modal
+                        open={addPaymentSuccessPopUp}
+                        closeAfterTransition
+                        BackdropProps={{
+                            timeout: 1000,
+                            sx: {
+                                backgroundColor: "#00000020",
+                                // backdropFilter: "blur(20px)",
+                            },
+                        }}
+                    >
+                        <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.paymentModal}>
+                            <div className="flex flex-row justify-center w-full">
+                                <div
+                                    className="sm:w-7/12 w-full"
+                                    style={{
+                                        backgroundColor: "#ffffff",
+                                        padding: 20,
+                                        borderRadius: "13px",
+                                    }}
+                                >
+                                    <div className='flex flex-row justify-end'>
+                                        <button onClick={handleClose}>
+                                            <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                        </button>
+                                    </div>
+                                    <div className='mt-4 flex flex-row justify-center w-full'>
+                                        <Image src={"/assets/successTick.png"} height={85} width={85} alt='*' />
+                                    </div>
+                                    <div className='text-center mt-4' style={{ fontWeight: "700", fontSize: 24 }}>
+                                        Payment Successful
+                                    </div>
+
+                                    <button className='bg-purple text-white w-full rounded-xl mt-6 mb-6' style={{ ...styles.headingStyle, height: "50px" }} onClick={handleContinue}>
+                                        Continue
+                                    </button>
+
+                                    {/* Can be use full to add shadow */}
+                                    {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                                </div>
+                            </div>
+                        </Box>
+                    </Modal>
 
                 </div>
             </div>
