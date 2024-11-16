@@ -11,11 +11,62 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Apis from '../apis/Apis';
+import axios from 'axios';
+import { CircularProgress } from '@mui/material';
 
 const CreateAgentVoice = ({ handleBack }) => {
 
+    let synthKey = process.env.NEXT_PUBLIC_SynthFlowApiKey;
+
     const router = useRouter();
     const [toggleClick, setToggleClick] = useState(false);
+    const [voices, setVoices] = useState([]);
+
+    const [voicesLoader, setVoicesLoader] = useState(false);
+
+    useEffect(() => {
+        getVoices();
+    }, []);
+
+    const getVoices = async () => {
+        try {
+            setVoicesLoader(true);
+            const ApiPath = Apis.getVoices;
+            // let AuthToken = null;
+            // const LocalData = localStorage.getItem("User");
+            // if (LocalData) {
+            //     const UserDetails = JSON.parse(LocalData);
+            //     AuthToken = UserDetails.token;
+            // }
+
+            console.log("Authentication key is :--", synthKey);
+            console.log("Api Path is :--", ApiPath);
+
+            const apiData = {
+                workspace: "1711297163700x954223200313016300"
+            }
+
+            const response = await axios.post(ApiPath, { apiData }, {
+                headers: {
+                    "Authorization": "Bearer " + synthKey,
+                    // "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of getVoices api is :---", response);
+                // setVoices(response.data.data.voices);
+            }
+
+        } catch (error) {
+            // console.error("Error occured in vooices api is :--", error);
+            console.error("Error making API call:", error.response ? error.response.data : error.message);
+        } finally {
+            setVoicesLoader(false);
+        }
+    }
+
 
     const handleToggleClick = (id) => {
         setToggleClick(prevId => (prevId === id ? null : id))
@@ -25,33 +76,7 @@ const CreateAgentVoice = ({ handleBack }) => {
         router.push("/sellerskycquestions")
     }
 
-    const voices = [
-        {
-            id: 1,
-            avatar: "/assets/avatar1.png",
-            name: "Barbara.ai",
-        },
-        {
-            id: 2,
-            avatar: "/assets/avatar2.png",
-            name: "Cardone.ai",
-        },
-        {
-            id: 3,
-            avatar: "/assets/avatar3.png",
-            name: "Tristan.ai",
-        },
-        {
-            id: 4,
-            avatar: "/assets/avatar2.png",
-            name: "Tate.ai",
-        },
-        {
-            id: 5,
-            avatar: "/assets/avatar1.png",
-            name: "Neutra.ai",
-        },
-    ]
+
 
     const styles = {
         headingStyle: {
@@ -86,34 +111,40 @@ const CreateAgentVoice = ({ handleBack }) => {
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
                             Select your preferred voice
                         </div>
-                        <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh] overflow-auto'>
-                            <div className='w-full'>
-                                {
-                                    voices.map((item, index) => (
-                                        <div style={{ border: item.id === toggleClick ? "2px solid #402FFF" : "" }} key={item.id} className='flex flex-row items-center border mt-4 p-2 justify-between h-[100px] px-8 rounded-xl'>
-                                            <div className='flex flex-row items-center gap-4'>
-                                                <div className='flex flex-row items-center justify-center' style={{ height: "62px", width: "62px", borderRadius: "50%", backgroundColor: item.id === toggleClick ? "white" : "#d3d3d380" }}>
-                                                    <Image src={item.avatar} height={40} width={35} alt='*' />
-                                                </div>
-                                                <div>
-                                                    {item.name}
-                                                </div>
-                                            </div>
-                                            <div className='flex flex-row items-center gap-2'>
-                                                <div>
-                                                    <Image src={"/assets/voice.png"} height={15} width={23} alt='*' />
-                                                </div>
-                                                <button onClick={(e) => { handleToggleClick(item.id) }}>
-                                                    <div className='flex flex-row items-center justify-center bg-white' style={{ height: "36px", width: "36px", border: "1px solid #00000080", borderRadius: "50%" }}>
-                                                        <Image src={"/assets/play.png"} height={16} width={16} style={{ borderRadius: "50%" }} alt='*' />
+                        {
+                            voicesLoader ?
+                                <div className='w-full flex flex-row justify-center mt-8'>
+                                    <CircularProgress size={35} />
+                                </div> :
+                                <div className='w-full flex flex-row justify-center'>
+                                    <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh] overflow-auto'>
+                                        {
+                                            voices.map((item, index) => (
+                                                <div style={{ border: item.id === toggleClick ? "2px solid #402FFF" : "" }} key={item.id} className='flex flex-row items-center border mt-4 p-2 justify-between h-[100px] px-8 rounded-xl'>
+                                                    <div className='flex flex-row items-center gap-4'>
+                                                        <div className='flex flex-row items-center justify-center' style={{ height: "62px", width: "62px", borderRadius: "50%", backgroundColor: item.id === toggleClick ? "white" : "#d3d3d380" }}>
+                                                            <Image src={item.avatar} height={40} width={35} alt='*' />
+                                                        </div>
+                                                        <div>
+                                                            {item.name}
+                                                        </div>
                                                     </div>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))
-                                }
-                            </div>
-                        </div>
+                                                    <div className='flex flex-row items-center gap-2'>
+                                                        <div>
+                                                            <Image src={"/assets/voice.png"} height={15} width={23} alt='*' />
+                                                        </div>
+                                                        <button onClick={(e) => { handleToggleClick(item.id) }}>
+                                                            <div className='flex flex-row items-center justify-center bg-white' style={{ height: "36px", width: "36px", border: "1px solid #00000080", borderRadius: "50%" }}>
+                                                                <Image src={"/assets/play.png"} height={16} width={16} style={{ borderRadius: "50%" }} alt='*' />
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        }
+                                    </div>
+                                </div>
+                        }
                     </div>
                 </div>
 

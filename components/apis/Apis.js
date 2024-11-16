@@ -6,7 +6,9 @@ const Apis = {
     buildAgent: `${BasePath}api/agent/buildAgent`,
     findPhoneNumber: `${BasePath}api/agent/findPhoneNumbers`,
     purchaseNumber: `${BasePath}api/agent/purchasePhone`,
-    addSellerKyc: `${BasePath}api/agent/addKyc`
+    addKyc: `${BasePath}api/agent/addKyc`,
+    getVoices: "https://fine-tuner.ai/api/1.1/wf/v2_voice_agent_voices",
+    getKYCs: `${BasePath}api/agent/getKycs`
 }
 
 export default Apis

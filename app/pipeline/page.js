@@ -1,12 +1,13 @@
 "use client"
 import Pipeline1 from '@/components/pipeline/Pipeline1';
+import Pipeline2 from '@/components/pipeline/Pipeline2';
 import React, { useState } from 'react';
 
 const page = () => {
 
 
     const [index, setIndex] = useState(0)
-    let components = [Pipeline1]
+    let components = [Pipeline1, Pipeline2];
 
     let CurrentComp = components[index]
 

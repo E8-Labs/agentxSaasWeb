@@ -320,7 +320,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                     Number
                                                 </div>
                                                 <div className='mt-2'>
-                                                    <input className='border outline-none p-2 rounded-lg w-full' type='number' placeholder='Ex: 619, 213, 313'
+                                                    <input className='border outline-none p-2 rounded-lg w-full' type='' placeholder='Ex: 619, 213, 313'
                                                         value={findNumber}
                                                         onChange={(e) => { setFindNumber(e.target.value) }}
                                                     />

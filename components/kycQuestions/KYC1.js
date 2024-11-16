@@ -196,7 +196,7 @@ const KYC1 = ({ handleContinue }) => {
 
             }
 
-            const ApiPath = Apis.addSellerKyc;
+            const ApiPath = Apis.addKyc;
             let ApiData = [];
 
             if (selectedNeedQuestions.length > 0) {
