@@ -14,6 +14,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { CircularProgress, Modal } from '@mui/material';
 import Apis from '../apis/Apis';
 import axios from 'axios';
+import PurchaseNumberSuccess from './PurchaseNumberSuccess';
 
 const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
@@ -32,6 +33,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     const [selectedPurchasedIndex, setSelectedPurchasedIndex] = useState(false);
     const [selectedPurchasedNumber, setSelectedPurchasedNumber] = useState(null);
     const [purchaseLoader, setPurchaseLoader] = useState(false);
+    const [openPurchaseSuccessModal, setOpenPurchaseSuccessModal] = useState(false);
 
     const handleSelectNumber = (event) => {
         setSelectNumber(event.target.value);
@@ -141,7 +143,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             if (response) {
                 console.log("Response of purchase number api is :--", response.data);
                 if (response.data.status === true) {
-
+                    localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
+                    setOpenPurchaseSuccessModal(true);
+                    // handleContinue();
                 }
             }
 
@@ -266,9 +270,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                 </Box>
                             </div>
 
+                            {/* Code for Purchase and find number popup */}
                             <Modal
                                 open={showClaimPopup}
-                                // onClose={() => setAddKYCQuestion(false)}
                                 closeAfterTransition
                                 BackdropProps={{
                                     timeout: 1000,
@@ -350,7 +354,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                                                 </div>
                                                                                 <div>
                                                                                     {
-                                                                                        index === selectedPurchasedIndex ?
+                                                                                        index == selectedPurchasedIndex ?
                                                                                             <Image src={"/assets/charmTick.png"} height={35} width={35} alt='*' /> :
                                                                                             <Image src={"/assets/charmUnMark.png"} height={35} width={35} alt='*' />
                                                                                     }
@@ -388,10 +392,48 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                 </Box>
                             </Modal>
 
+                            {/* Code for Purchase number success popup */}
+                            <Modal
+                                open={openPurchaseSuccessModal}
+                                // onClose={() => setAddKYCQuestion(false)}
+                                closeAfterTransition
+                                BackdropProps={{
+                                    timeout: 1000,
+                                    sx: {
+                                        backgroundColor: "#00000020",
+                                        // backdropFilter: "blur(20px)",
+                                    },
+                                }}
+                            >
+                                <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.claimPopup}>
+                                    <div className="flex flex-row justify-center w-full">
+                                        <div
+                                            className="sm:w-8/12 w-full min-h-[50vh] max-h-[80vh] flex flex-col justify-between"
+                                            style={{
+                                                backgroundColor: "#ffffff",
+                                                padding: 20,
+                                                borderRadius: "13px",
+                                            }}
+                                        >
+                                            <div>
+                                                <div className='flex flex-row justify-end'>
+                                                    <button onClick={() => { setOpenPurchaseSuccessModal(false) }}>
+                                                        <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                                    </button>
+                                                </div>
+                                                <PurchaseNumberSuccess handleContinue={handleContinue} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Box>
+                            </Modal>
 
-                            <div style={styles.headingStyle}>
+
+
+
+                            <button onClick={() => { setOpenPurchaseSuccessModal(true) }} style={styles.headingStyle}>
                                 What number should we forward live transfers to when a lead wants to talk to you?
-                            </div>
+                            </button>
 
                             <div className='flex flex-row items-center gap-4'>
                                 <button className='flex flex-row items-center justify-center'

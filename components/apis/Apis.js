@@ -5,7 +5,8 @@ const Apis = {
     defaultData: `${BasePath}api/data/loadDefaualtData`,
     buildAgent: `${BasePath}api/agent/buildAgent`,
     findPhoneNumber: `${BasePath}api/agent/findPhoneNumbers`,
-    purchaseNumber: `${BasePath}api/agent/purchasePhone`
+    purchaseNumber: `${BasePath}api/agent/purchasePhone`,
+    addSellerKyc: `${BasePath}api/agent/addKyc`
 }
 
 export default Apis

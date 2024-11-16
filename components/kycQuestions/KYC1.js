@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
 import { Modal } from '@mui/material';
 import { Box, style } from '@mui/system';
+import Apis from '../apis/Apis';
+import axios from 'axios';
 
 const KYC1 = ({ handleContinue }) => {
 
@@ -20,7 +22,8 @@ const KYC1 = ({ handleContinue }) => {
     //code for motivation KYC
     const [selectedMotivationKyc, setSelectedMotivationKYC] = useState([]);
     //code for need kyc
-    const [selectedUrgencyKyc, setSelectedUrgencyKyc] = useState([])
+    const [selectedUrgencyKyc, setSelectedUrgencyKyc] = useState([]);
+    const [sellerKycLoader, setSellerKycLoader] = useState(false);
 
     //needKYCQuestions
     const [needKYCQuestions, setNeedKYCQuestions] = useState([
@@ -151,9 +154,9 @@ const KYC1 = ({ handleContinue }) => {
         setAddKYCQuestion(false);
     }
 
-    const handleNextclick = () => {
+    const handleNextclick = async () => {
         // Get only the selected questions
-        const selectedQuestions = needKYCQuestions.filter((question) =>
+        const selectedNeedQuestions = needKYCQuestions.filter((question) =>
             selectedNeedKYC.some((selectedItem) => selectedItem.id === question.id)
         );
 
@@ -165,11 +168,101 @@ const KYC1 = ({ handleContinue }) => {
             selectedUrgencyKyc.some((selectedItem) => selectedItem.id === question.id)
         );
 
-        console.log("Selected Questions are: ", selectedQuestions);
-        console.log("Selected motivation questions are: ----", selectedMotivationQuestions);
-        console.log("Selected urgency questions are: ----", selectedUrgencyQuestions);
-        router.push("/buyerskycquestions")
+        // console.log("Selected Questions are: ", selectedNeedQuestions);
+        // console.log("Selected motivation questions are: ----", selectedMotivationQuestions);
+        // console.log("Selected urgency questions are: ----", selectedUrgencyQuestions);
+        // router.push("/buyerskycquestions")
         // handleContinue();
+
+        //code for api call
+
+        setSellerKycLoader(true);
+
+        try {
+            let AuthToken = null;
+            const LocalData = localStorage.getItem("User");
+            const agentDetails = localStorage.getItem("agentDetails");
+            let MyAgentData = null;
+            if (LocalData) {
+                const UserDetails = JSON.parse(LocalData);
+                AuthToken = UserDetails.token;
+            }
+
+            if (agentDetails) {
+                console.log("trying")
+                const agentData = JSON.parse(agentDetails);
+                console.log("ActualAgent details are :--", agentData);
+                MyAgentData = agentData;
+
+            }
+
+            const ApiPath = Apis.addSellerKyc;
+            let ApiData = [];
+
+            if (selectedNeedQuestions.length > 0) {
+                // console.log("#need Question details are :", selectedNeedQuestions);
+                const data = {
+                    kycQuestions: selectedNeedQuestions.map(item => ({
+                        question: item.question,
+                        category: "need",
+                        type: "seller",
+                        examples: item.sampleAnswers.filter(answer => answer)
+                    })),
+                    mainAgentId: MyAgentData.id
+                };
+                // console.log("Data to send in api is", data);
+                ApiData = data;
+            } else if (selectedMotivationQuestions.length > 0) {
+                console.log("#motivation Question details are :", selectedMotivationQuestions);
+                const data = {
+                    kycQuestions: selectedMotivationQuestions.map(item => ({
+                        question: item.question,
+                        category: "need",
+                        type: "seller",
+                        examples: item.sampleAnswers.filter(answer => answer)
+                    })),
+                    mainAgentId: MyAgentData.id
+                };
+                // console.log("Data to send in api is", data);
+                ApiData = data;
+            } else if (selectedUrgencyQuestions.length > 0) {
+                console.log("#urgency Question details are :", selectedUrgencyQuestions);
+                const data = {
+                    kycQuestions: selectedUrgencyQuestions.map(item => ({
+                        question: item.question,
+                        category: "need",
+                        type: "seller",
+                        examples: item.sampleAnswers.filter(answer => answer)
+                    })),
+                    mainAgentId: MyAgentData.id
+                };
+                // console.log("Data to send in api is", data);
+                ApiData = data;
+            }
+
+            console.log("APi data is :--", ApiData);
+
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of add KYC api is :--", response.data);
+                if (response.data.status === true) {
+                    router.push("/buyerskycquestions")
+                }
+            }
+
+        } catch (error) {
+            console.error("Error occured in api is :--", error);
+        } finally {
+            setSellerKycLoader(false);
+        }
+
+
     }
 
 
@@ -448,7 +541,7 @@ const KYC1 = ({ handleContinue }) => {
                         <ProgressBar value={33} />
                     </div>
 
-                    <Footer handleContinue={handleNextclick} donotShowBack={true} />
+                    <Footer handleContinue={handleNextclick} donotShowBack={true} registerLoader={sellerKycLoader} />
                 </div>
             </div>
         </div>
