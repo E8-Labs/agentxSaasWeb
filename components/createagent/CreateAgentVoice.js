@@ -47,21 +47,24 @@ const CreateAgentVoice = ({ handleBack }) => {
                 workspace: "1711297163700x954223200313016300"
             }
 
-            const response = await axios.post(ApiPath, { apiData }, {
+            // const formData = new FormData();
+            // formData.append("workspace", "1729549070290x741353643392630800")
+
+            const response = await axios.post(ApiPath, apiData, {
                 headers: {
                     "Authorization": "Bearer " + synthKey,
-                    // "Content-Type": "application/json"
+                    "Content-Type": "application/json"
                 }
             });
 
             if (response) {
-                console.log("Response of getVoices api is :---", response);
                 // setVoices(response.data.data.voices);
+                const data = JSON.parse(response.data);
+                console.log("Response of getVoices api is :---", data);
             }
 
         } catch (error) {
-            // console.error("Error occured in vooices api is :--", error);
-            console.error("Error making API call:", error.response ? error.response.data : error.message);
+            console.error("Error occured in vooices api is :--", error);
         } finally {
             setVoicesLoader(false);
         }
