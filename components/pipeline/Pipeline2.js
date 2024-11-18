@@ -9,6 +9,7 @@ import { Box, FormControl, MenuItem, Modal, Popover, Select, TextField } from '@
 import { CaretDown, DotsThree } from '@phosphor-icons/react';
 import Apis from '../apis/Apis';
 import axios from 'axios';
+import TagInput from '../test/TagInput';
 
 const Pipeline2 = ({ handleContinue }) => {
 
@@ -52,7 +53,7 @@ const Pipeline2 = ({ handleContinue }) => {
 
             console.log("Main agent id is :", ApiData);
             // return
-            const response = await axios.get(ApiPath, ApiData, {
+            const response = await axios.get(ApiPath, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken,
                     "Content-Type": "application/json"
@@ -148,7 +149,9 @@ const Pipeline2 = ({ handleContinue }) => {
                                 Call Script
                             </div>
                             <div className='mt-6'>
-                                <TextField
+                            <TagInput />
+                                {/*
+                            <TextField
                                     placeholder="Call script here"
                                     variant="outlined"
                                     fullWidth
@@ -169,6 +172,7 @@ const Pipeline2 = ({ handleContinue }) => {
                                         },
                                     }}
                                 />
+                            */}
                             </div>
                         </div>
                         <div className='w-7/12 mt-4'>
@@ -241,7 +245,7 @@ const Pipeline2 = ({ handleContinue }) => {
                         <ProgressBar value={33} />
                     </div>
 
-                    <Footer handleContinue={handleContinue} donotShowBack={true} />
+                    <Footer handleContinue={handleContinue} />
                 </div>
             </div>
         </div>

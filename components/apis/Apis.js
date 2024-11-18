@@ -9,7 +9,8 @@ const Apis = {
     addKyc: `${BasePath}api/agent/addKyc`,
     getVoices: "https://fine-tuner.ai/api/1.1/wf/v2_voice_agent_voices",
     getKYCs: `${BasePath}api/agent/getKycs`,
-    getPipelines: `${BasePath}api/pipeline/getPipelines`
+    getPipelines: `${BasePath}api/pipeline/getPipelines`,
+    createPipeLine: `${BasePath}api/pipeline/createPipelineCadence`
 }
 
 export default Apis
