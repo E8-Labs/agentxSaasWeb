@@ -5,12 +5,12 @@ import React, { useEffect, useState } from 'react';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
-import { Modal } from '@mui/material';
+import { CircularProgress, Modal } from '@mui/material';
 import { Box, style } from '@mui/system';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 
-const BuyerKyc1 = ({ handleContinue }) => {
+const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc }) => {
 
     const router = useRouter();
     const [toggleClick, setToggleClick] = useState(1);
@@ -154,7 +154,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
         setAddKYCQuestion(false);
     }
 
-    const handleNextclick = async () => {
+    const handleAddNewKyc = async () => {
         // Get only the selected questions
         const selectedNeedQuestions = needKYCQuestions.filter((question) =>
             selectedNeedKYC.some((selectedItem) => selectedItem.id === question.id)
@@ -252,7 +252,9 @@ const BuyerKyc1 = ({ handleContinue }) => {
             if (response) {
                 console.log("Response of add KYC api is :--", response.data);
                 if (response.data.status === true) {
-                    router.push("/pipeline")
+                    // router.push("/pipeline")
+                    handleCloseSellerKyc();
+                    handleAddBuyerKycData(response.data.data);
                 }
             }
 
@@ -304,16 +306,21 @@ const BuyerKyc1 = ({ handleContinue }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-gray-100 rounded-lg w-10/12 h-[90vh] py-4 overflow-auto flex flex-col justify-between'>
+            <div className='rounded-lg w-10/12 h-[90vh] py-4 overflow-auto flex flex-col justify-between'>
                 <div>
                     {/* header */}
-                    <Header />
+                    {/* <Header /> */}
+                    <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' />
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full'>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
                             What would you like to ask buyers?
                         </div>
-                        <button className='mt-10 underline text-purple' style={styles.inputStyle}>
+                        <button
+                            className='mt-10 underline text-purple'
+                            style={styles.inputStyle}
+                            onClick={handleCloseSellerKyc}
+                        >
                             I don't need questions for buyers
                         </button>
                         <div className='flex flex-row items-center gap-10 mt-10'>
@@ -346,7 +353,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                         {
                             toggleClick === 1 ?
                                 (
-                                    <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto'>
+                                    <div className='mt-8 w-full max-h-[37vh] overflow-auto'>
                                         {
                                             needKYCQuestions.map((item, index) => (
                                                 <button
@@ -374,7 +381,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                                 ) :
                                 toggleClick === 2 ?
                                     (
-                                        <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto'>
+                                        <div className='mt-8 w-full max-h-[37vh] overflow-auto'>
                                             {
                                                 motivationKycQuestions.map((item, index) => (
                                                     <button
@@ -401,7 +408,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                                     ) :
                                     toggleClick === 3 ?
                                         (
-                                            <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto'>
+                                            <div className='mt-8 w-full max-h-[37vh] overflow-auto'>
                                                 {
                                                     urgencyKycQuestions.map((item, index) => (
                                                         <button
@@ -443,7 +450,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                             ))}
                         </div> */}
 
-                        <button className='mt-2 w-10/12 md:w-6/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
+                        <button className='mt-2 w-full outline-none border-none justify-start flex max-h-[37vh] overflow-auto text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
                             Add Question
                         </button>
                         {/* Modal to add demeanor */}
@@ -533,18 +540,33 @@ const BuyerKyc1 = ({ handleContinue }) => {
                                 </div>
                             </Box>
                         </Modal>
+                        <div className='mt-8 w-full flex flex-row justify-center'>
+                            {
+                                buyerKycLoader ?
+                                    <div className='flex flex-row justify-center w-full'>
+                                        <CircularProgress size={30} />
+                                    </div>
+                                    :
+                                    <button
+                                        className='w-full h-[50px] rounded-lg bg-purple text-white'
+                                        style={styles.headingStyle}
+                                        onClick={handleAddNewKyc}>
+                                        Save & Close
+                                    </button>
+                            }
+                        </div>
                     </div>
                 </div>
-                <div>
+                {/* <div>
                     <div>
                         <ProgressBar value={33} />
                     </div>
 
                     <Footer handleContinue={handleNextclick} donotShowBack={true} registerLoader={buyerKycLoader} />
-                </div>
+                </div> */}
             </div>
         </div>
     )
 }
 
-export default BuyerKyc1;
+export default AddBuyerKyc;

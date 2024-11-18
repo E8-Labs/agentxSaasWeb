@@ -217,7 +217,7 @@ const KYC1 = ({ handleContinue }) => {
                 const data = {
                     kycQuestions: selectedMotivationQuestions.map(item => ({
                         question: item.question,
-                        category: "need",
+                        category: "motivation",
                         type: "seller",
                         examples: item.sampleAnswers.filter(answer => answer)
                     })),
@@ -230,7 +230,7 @@ const KYC1 = ({ handleContinue }) => {
                 const data = {
                     kycQuestions: selectedUrgencyQuestions.map(item => ({
                         question: item.question,
-                        category: "need",
+                        category: "urgency",
                         type: "seller",
                         examples: item.sampleAnswers.filter(answer => answer)
                     })),
@@ -273,7 +273,7 @@ const KYC1 = ({ handleContinue }) => {
         },
         {
             id: 2,
-            title: "Motivation2"
+            title: "Motivation"
         },
         {
             id: 3,

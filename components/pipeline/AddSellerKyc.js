@@ -5,41 +5,41 @@ import React, { useEffect, useState } from 'react';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
-import { Modal } from '@mui/material';
+import { CircularProgress, Modal } from '@mui/material';
 import { Box, style } from '@mui/system';
-import Apis from '@/components/apis/Apis';
+import Apis from '../apis/Apis';
 import axios from 'axios';
 
-const BuyerKyc1 = ({ handleContinue }) => {
+const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
 
     const router = useRouter();
     const [toggleClick, setToggleClick] = useState(1);
     const [addKYCQuestion, setAddKYCQuestion] = useState(false);
     const [inputs, setInputs] = useState([{ id: 1, value: '' }, { id: 2, value: '' }, { id: 3, value: '' }]);
     const [newQuestion, setNewQuestion] = useState('');
-    const [buyerKycLoader, setBuyerKycLoader] = useState(false);
     //code for need kyc
     const [selectedNeedKYC, setSelectedNeedKYC] = useState([]);
     //code for motivation KYC
     const [selectedMotivationKyc, setSelectedMotivationKYC] = useState([]);
     //code for need kyc
-    const [selectedUrgencyKyc, setSelectedUrgencyKyc] = useState([])
+    const [selectedUrgencyKyc, setSelectedUrgencyKyc] = useState([]);
+    const [sellerKycLoader, setSellerKycLoader] = useState(false);
 
     //needKYCQuestions
     const [needKYCQuestions, setNeedKYCQuestions] = useState([
         {
             id: 1,
-            question: "What area are you looking in?",
+            question: "Why have you decided to sell your home?",
             sampleAnswers: []
         },
         {
             id: 2,
-            question: "What type of home are you looking for? Single family, townhouse, condo, apartment, etc",
+            question: "Have you outgrown your current home, or is it too large now?",
             sampleAnswers: []
         },
         {
             id: 3,
-            question: "Are you a first time home buyer?",
+            question: "Are there any significant life changes prompting this decision, such as job relocation or changes in the family?",
             sampleAnswers: []
         },
     ]);
@@ -154,7 +154,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
         setAddKYCQuestion(false);
     }
 
-    const handleNextclick = async () => {
+    const handleAddNewKyc = async () => {
         // Get only the selected questions
         const selectedNeedQuestions = needKYCQuestions.filter((question) =>
             selectedNeedKYC.some((selectedItem) => selectedItem.id === question.id)
@@ -168,15 +168,15 @@ const BuyerKyc1 = ({ handleContinue }) => {
             selectedUrgencyKyc.some((selectedItem) => selectedItem.id === question.id)
         );
 
-        console.log("Working");
         // console.log("Selected Questions are: ", selectedNeedQuestions);
         // console.log("Selected motivation questions are: ----", selectedMotivationQuestions);
         // console.log("Selected urgency questions are: ----", selectedUrgencyQuestions);
-        // router.push("/pipeline");
+        // router.push("/buyerskycquestions")
         // handleContinue();
 
-        //code for buyer kyc api
-        setBuyerKycLoader(true);
+        //code for api call
+
+        setSellerKycLoader(true);
 
         try {
             let AuthToken = null;
@@ -205,7 +205,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                     kycQuestions: selectedNeedQuestions.map(item => ({
                         question: item.question,
                         category: "need",
-                        type: "buyer",
+                        type: "seller",
                         examples: item.sampleAnswers.filter(answer => answer)
                     })),
                     mainAgentId: MyAgentData.id
@@ -218,7 +218,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                     kycQuestions: selectedMotivationQuestions.map(item => ({
                         question: item.question,
                         category: "motivation",
-                        type: "buyer",
+                        type: "seller",
                         examples: item.sampleAnswers.filter(answer => answer)
                     })),
                     mainAgentId: MyAgentData.id
@@ -231,7 +231,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                     kycQuestions: selectedUrgencyQuestions.map(item => ({
                         question: item.question,
                         category: "urgency",
-                        type: "buyer",
+                        type: "seller",
                         examples: item.sampleAnswers.filter(answer => answer)
                     })),
                     mainAgentId: MyAgentData.id
@@ -241,6 +241,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
             }
 
             console.log("APi data is :--", ApiData);
+            // return
 
             const response = await axios.post(ApiPath, ApiData, {
                 headers: {
@@ -252,15 +253,18 @@ const BuyerKyc1 = ({ handleContinue }) => {
             if (response) {
                 console.log("Response of add KYC api is :--", response.data);
                 if (response.data.status === true) {
-                    router.push("/pipeline")
+                    handleCloseSellerKyc();
+                    handleAddSellerKycData(response.data.data);
+                    // router.push("/buyerskycquestions")
                 }
             }
 
         } catch (error) {
             console.error("Error occured in api is :--", error);
         } finally {
-            setBuyerKycLoader(false);
+            setSellerKycLoader(false);
         }
+
 
     }
 
@@ -272,7 +276,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
         },
         {
             id: 2,
-            title: "Motivation2"
+            title: "Motivation"
         },
         {
             id: 3,
@@ -304,17 +308,18 @@ const BuyerKyc1 = ({ handleContinue }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-gray-100 rounded-lg w-10/12 h-[90vh] py-4 overflow-auto flex flex-col justify-between'>
+            <div className='w-full py-4 overflow-auto flex flex-col justify-between'>
                 <div>
                     {/* header */}
-                    <Header />
+                    {/* <Header /> */}
+                    <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' />
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full'>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
-                            What would you like to ask buyers?
+                            What would you like to ask sellers?
                         </div>
-                        <button className='mt-10 underline text-purple' style={styles.inputStyle}>
-                            I don't need questions for buyers
+                        <button className='mt-10 underline text-purple' style={styles.inputStyle} onClick={handleCloseSellerKyc}>
+                            I don't need questions for sellers
                         </button>
                         <div className='flex flex-row items-center gap-10 mt-10'>
                             {
@@ -346,7 +351,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                         {
                             toggleClick === 1 ?
                                 (
-                                    <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto'>
+                                    <div className='mt-8 w-10/12 max-h-[37vh] overflow-auto'>
                                         {
                                             needKYCQuestions.map((item, index) => (
                                                 <button
@@ -374,7 +379,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                                 ) :
                                 toggleClick === 2 ?
                                     (
-                                        <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto'>
+                                        <div className='mt-8 w-10/12 max-h-[37vh] overflow-auto'>
                                             {
                                                 motivationKycQuestions.map((item, index) => (
                                                     <button
@@ -401,7 +406,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                                     ) :
                                     toggleClick === 3 ?
                                         (
-                                            <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto'>
+                                            <div className='mt-8 w-10/12 max-h-[37vh] overflow-auto'>
                                                 {
                                                     urgencyKycQuestions.map((item, index) => (
                                                         <button
@@ -428,25 +433,10 @@ const BuyerKyc1 = ({ handleContinue }) => {
                         }
 
 
-                        {/* <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto'>
-                            {needKYCQuestions.map((item, index) => (
-                                <div className='mb-4 border rounded-xl flex flex-row items-center justify-between px-4 sm:h-[10vh]' key={index}>
-                                    <div style={{ width: "90%" }}>{item.question}</div>
-                                    <button className='outline-none border-none' onClick={() => handleSelectNeedKYC(item)} style={{ width: "10%" }}>
-                                        {
-                                            selectedNeedKYC.some(selectedItem => selectedItem.id === item.id)
-                                                ? <Image src={"/assets/charmTick.png"} height={35} width={35} alt='*' />
-                                                : <Image src={"/assets/charmUnMark.png"} height={35} width={35} alt='*' />
-                                        }
-                                    </button>
-                                </div>
-                            ))}
-                        </div> */}
-
-                        <button className='mt-2 w-10/12 md:w-6/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
+                        <button className='mt-2 w-10/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
                             Add Question
                         </button>
-                        {/* Modal to add demeanor */}
+                        {/* Modal to add KYC */}
                         <Modal
                             open={addKYCQuestion}
                             // onClose={() => setAddKYCQuestion(false)}
@@ -535,16 +525,23 @@ const BuyerKyc1 = ({ handleContinue }) => {
                         </Modal>
                     </div>
                 </div>
-                <div>
-                    <div>
-                        <ProgressBar value={33} />
-                    </div>
-
-                    <Footer handleContinue={handleNextclick} donotShowBack={true} registerLoader={buyerKycLoader} />
+                <div className='mt-8 flex flex-row justify-center'>
+                    {
+                        sellerKycLoader ?
+                            <div className='flex flex-row justify-center'>
+                                <CircularProgress />
+                            </div> :
+                            <button className='bg-purple text-white rounded-lg w-10/12 h-[50px]'
+                                style={styles.headingStyle}
+                                onClick={handleAddNewKyc}
+                            >
+                                Save & Close
+                            </button>
+                    }
                 </div>
             </div>
         </div>
     )
 }
 
-export default BuyerKyc1;
+export default AddSellerKyc;

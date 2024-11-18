@@ -1,62 +1,44 @@
-import React, { useRef } from "react";
+import React from "react";
+import { Editor, EditorState, CompositeDecorator } from "draft-js";
 
 const TagInput = () => {
-    const inputRef = useRef(null);
+  const findTag = (contentBlock, callback, contentState) => {
+    const text = contentBlock.getText();
+    const regex = /{(.*?)}/g;
+    let matchArr;
+    while ((matchArr = regex.exec(text)) !== null) {
+      callback(matchArr.index, matchArr.index + matchArr[0].length);
+    }
+  };
 
-    const handleInput = () => {
-        const inputBox = inputRef.current;
-        const content = inputBox.innerHTML;
-
-        // Check if "{}" is typed
-        if (content.includes("{}")) {
-            // Replace "{}" with editable content styled in blue
-            const updatedContent = content.replace(
-                "{}",
-                `<span contenteditable="false" style="color: black;">{</span>
-         <span class="tag" contenteditable="true" style="
-            color: blue;
-            font-weight: bold;
-            display: inline;
-         "></span>
-         <span contenteditable="false" style="color: black;">}</span>&nbsp;`
-            );
-
-            // Update the input box
-            inputBox.innerHTML = updatedContent;
-
-            // Move caret inside the tag span
-            const tagSpan = inputBox.querySelector(".tag");
-            placeCaretInside(tagSpan);
-        }
-    };
-
-    const placeCaretInside = (el) => {
-        const range = document.createRange();
-        const selection = window.getSelection();
-        range.selectNodeContents(el);
-        range.collapse(false);
-        selection.removeAllRanges();
-        selection.addRange(range);
-    };
-
+  const TagSpan = (props) => {
     return (
-        <div
-            style={{
-                width: "100%",
-                border: "1px solid #ccc",
-                padding: "10px",
-                borderRadius: "5px",
-                minHeight: "50px",
-                textAlign: "left",
-                whiteSpace: "nowrap", // Prevent line breaks
-                overflowX: "auto", // Allow horizontal scrolling if needed
-                fontSize: "16px",
-            }}
-            ref={inputRef}
-            contentEditable
-            onInput={handleInput}
-        ></div>
+      <span style={{ backgroundColor: "#e0f7fa", color: "#004d40" }}>
+        {props.children}
+      </span>
     );
+  };
+
+  const decorator = new CompositeDecorator([
+    {
+      strategy: findTag,
+      component: TagSpan,
+    },
+  ]);
+
+  const [editorState, setEditorState] = React.useState(
+    EditorState.createEmpty(decorator)
+  );
+
+  return (
+    <div style={{ border: "1px solid #ccc", padding: "10px" }}>
+      <Editor
+        editorState={editorState}
+        onChange={setEditorState}
+        placeholder="Type here..."
+      />
+    </div>
+  );
 };
 
 export default TagInput;

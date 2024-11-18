@@ -10,19 +10,28 @@ import { CaretDown, DotsThree } from '@phosphor-icons/react';
 import Apis from '../apis/Apis';
 import axios from 'axios';
 import TagInput from '../test/TagInput';
+import MentionsInputTest from '../test/MentionsInput';
+import Objection from './advancedsettings/Objection';
+import GuardianSetting from './advancedsettings/GuardianSetting';
+import KYCs from './KYCs';
 
-const Pipeline2 = ({ handleContinue }) => {
+const Pipeline2 = ({ handleContinue, handleBack }) => {
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [kycsData, setKycsData] = useState(null);
+    const open = Boolean(anchorEl);
+    const id = open ? 'simple-popover' : undefined;
 
-    const handleOpenPopover = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
+    //variables for advance setting variables
+    const [advancedSettingModal, setAdvancedSettingModal] = useState(false);
+    const [settingToggleClick, setSettingToggleClick] = useState(1);
 
-    const handleClosePopover = () => {
-        setAnchorEl(null);
-    };
+
+    const handleAdvanceSettingToggleClick = (id) => {
+        setSettingToggleClick(prevId => (prevId === id ? null : id));
+    }
+
+    
 
     const getKyc = async () => {
 
@@ -45,7 +54,7 @@ const Pipeline2 = ({ handleContinue }) => {
 
             console.log("Auth token is :--", AuthToken);
 
-            const ApiPath = Apis.getKYCs;
+            const ApiPath = `${Apis.getKYCs}?mainAgentId=${MainAgentData}`;
             console.log("Api path is :--", ApiPath);
             const ApiData = {
                 mainAgentId: MainAgentData
@@ -62,21 +71,36 @@ const Pipeline2 = ({ handleContinue }) => {
 
             if (response) {
                 console.log("Response of get kycs api is :--", response);
+                const filteredSellerQuestions = response.data.data.filter(item => item.type === 'seller');
+                const filteredBuyerQuestions = response.data.data.filter(item => item.type === 'buyer');
+                console.log("Seler kycs are :=--", filteredSellerQuestions);
+                console.log("Buyer Kycs are :--", filteredBuyerQuestions);
+            } else {
+                console.log("No data found")
             }
         } catch (error) {
             console.error("Error occured in gett kyc api is :--", error);
         } finally {
-            console.log("api call completed")
+            console.log("Get kycs api call completed");
         }
 
     }
 
-    useEffect(() => {
-        getKyc()
-    }, [])
+    const advanceSettingType = [
+        {
+            id: 1,
+            title: "Objection"
+        },
+        {
+            id: 2,
+            title: "Guardrails"
+        }
+    ]
 
-    const open = Boolean(anchorEl);
-    const id = open ? 'simple-popover' : undefined;
+    // useEffect(() => {
+    //     getKyc()
+    // }, [])
+
 
     const styles = {
         headingStyle: {
@@ -92,7 +116,7 @@ const Pipeline2 = ({ handleContinue }) => {
             fontWeight: "500",
             color: "#00000070"
         },
-        AddNewKYCQuestionModal: {
+        modalsStyle: {
             height: "auto",
             bgcolor: "transparent",
             // p: 2,
@@ -138,10 +162,12 @@ const Pipeline2 = ({ handleContinue }) => {
                                 Greeting
                             </div>
 
-                            <input
+                            {/* <input
                                 className='border p-2 rounded-lg outline-none bg-transparent'
                                 placeholder="Hey {name}, It's {Agent Name} with {Brokerage Name}! How's it going?"
-                            />
+                            /> */}
+                            <TagInput />
+                            {/* <MentionsInputTest /> */}
 
                         </div>
                         <div className='w-7/12 mt-4 ps-8'>
@@ -149,9 +175,8 @@ const Pipeline2 = ({ handleContinue }) => {
                                 Call Script
                             </div>
                             <div className='mt-6'>
-                            <TagInput />
-                                {/*
-                            <TextField
+
+                                <TextField
                                     placeholder="Call script here"
                                     variant="outlined"
                                     fullWidth
@@ -172,7 +197,7 @@ const Pipeline2 = ({ handleContinue }) => {
                                         },
                                     }}
                                 />
-                            */}
+
                             </div>
                         </div>
                         <div className='w-7/12 mt-4'>
@@ -181,71 +206,100 @@ const Pipeline2 = ({ handleContinue }) => {
                                     style={{
                                         fontSize: 15,
                                         fontWeight: "700"
-                                    }}>
+                                    }}
+                                    onClick={() => { setAdvancedSettingModal(true) }}
+                                >
                                     Advanced Settings
                                 </button>
                             </div>
-                            <div style={styles.headingStyle} className='mt-4'>
-                                KYC - Seller
-                            </div>
-                            <div className='border p-2 rounded-lg p-4 w-full mt-4'>
-                                <div className='flex flex-row items-center justify-between w-full'>
-                                    <div style={styles.inputStyle}>
-                                        Title
-                                    </div>
-                                    <div className='flex flex-row items-center gap-2'>
-                                        <div className='border flex flex-row items-center justify-center' style={{ height: "20px", width: "18px", fontSize: 12, fontWeight: "700", borderRadius: "50%" }}>
-                                            2
-                                        </div>
-                                        <button>
-                                            <CaretDown size={25} weight='bold' />
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className='mt-4'>
-                                    <div className='flex flex-row items-center justify-between mt-4'>
-                                        <div>
-                                            What's your primary motivation for selling now rather than waiting?
-                                        </div>
-                                        <button aria-describedby={id} onClick={handleOpenPopover}>
-                                            <DotsThree size={35} weight='bold' />
-                                        </button>
-                                        <Popover
-                                            id={id}
-                                            open={open}
-                                            anchorEl={anchorEl}
-                                            onClose={handleClosePopover}
-                                            anchorOrigin={{
-                                                vertical: 'bottom',
-                                                horizontal: 'right',
-                                            }}
-                                            transformOrigin={{
-                                                vertical: 'top',
-                                                horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
-                                            }}
-                                        >
-                                            <button className='p-2 flex flex-row items-center gap-2'>
-                                                <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
-                                                <div className='text-red' style={styles.inputStyle}>Delete</div>
-                                            </button>
-                                        </Popover>
-                                    </div>
-                                    <div className='underline text-purple' style={styles.inputStyle}>
-                                        Add Question
-                                    </div>
-                                </div>
-
-                            </div>
+                            <KYCs />
                         </div>
                     </div>
                 </div>
+
+                {/* Modals code goes here */}
+                <Modal
+                    open={advancedSettingModal}
+                    onClose={() => setAdvancedSettingModal(false)}
+                    closeAfterTransition
+                    BackdropProps={{
+                        timeout: 1000,
+                        sx: {
+                            backgroundColor: "#00000020",
+                            // backdropFilter: "blur(20px)",
+                        },
+                    }}
+                >
+                    <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.modalsStyle}>
+                        <div className="flex flex-row justify-center w-full">
+                            <div
+                                className="sm:w-7/12 w-full"
+                                style={{
+                                    backgroundColor: "#ffffff",
+                                    padding: 20,
+                                    borderRadius: "13px",
+                                }}
+                            >
+                                <div className='flex flex-row justify-end'>
+                                    <button onClick={() => { setAdvancedSettingModal(false) }}>
+                                        <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                    </button>
+                                </div>
+                                <div className='text-center mt-2' style={{ fontWeight: "700", fontSize: 24 }}>
+                                    Advance Settings
+                                </div>
+
+                                <div className='flex flex-col items-center gap-2'>
+                                    <div className='flex flex-row items-center gap-10 mt-10'>
+                                        {
+                                            advanceSettingType.map((item, index) => (
+                                                <button key={item.id} style={{ ...styles.inputStyle, color: item.id === settingToggleClick ? "#402FFF" : "" }} onClick={(e) => { handleAdvanceSettingToggleClick(item.id) }}>
+                                                    {item.title}
+                                                </button>
+                                            ))
+                                        }
+                                    </div>
+                                    <div>
+                                        {
+                                            settingToggleClick === 1 ?
+                                                (
+                                                    <Image src={"/assets/objectionSetting.png"} height={5} width={200} alt='*' />
+                                                ) :
+                                                settingToggleClick === 2 ?
+                                                    (
+                                                        <Image src={"/assets/motivationSetting.png"} height={5} width={200} alt='*' />
+                                                    ) : ""
+                                        }
+                                    </div>
+                                </div>
+
+                                <div className='w-full'>
+                                    {
+                                        settingToggleClick === 1 ?
+                                            (
+                                                <Objection />
+                                            ) :
+                                            settingToggleClick === 2 ?
+                                                (
+                                                    <GuardianSetting />
+                                                ) : ""
+                                    }
+                                </div>
+
+
+                                {/* Can be use full to add shadow */}
+                                {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                            </div>
+                        </div>
+                    </Box>
+                </Modal>
+
                 <div>
                     <div>
                         <ProgressBar value={33} />
                     </div>
 
-                    <Footer handleContinue={handleContinue} />
+                    <Footer handleContinue={handleContinue} handleBack={handleBack} />
                 </div>
             </div>
         </div>
