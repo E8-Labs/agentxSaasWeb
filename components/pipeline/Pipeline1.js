@@ -799,7 +799,7 @@ const Pipeline1 = ({ handleContinue }) => {
                         <ProgressBar value={33} />
                     </div>
 
-                    <Footer handleContinue={handleContinue} donotShowBack={true} registerLoader={createPipelineLoader} />
+                    <Footer handleContinue={printAssignedLeadsData} donotShowBack={true} registerLoader={createPipelineLoader} />
                 </div>
             </div>
         </div>

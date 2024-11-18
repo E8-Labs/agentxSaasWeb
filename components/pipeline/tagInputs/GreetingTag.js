@@ -1,20 +1,24 @@
 import React from "react";
-import { Editor, EditorState, CompositeDecorator, Modifier } from "draft-js";
+import { Editor, EditorState, CompositeDecorator } from "draft-js";
 
-const TagInput = () => {
-    const [warning, setWarning] = React.useState(null);
+const TagInput = ({handleGreetingTag}) => {
+    const [warning, setWarning] = React.useState(null); // Warning message
+    const [fullText, setFullText] = React.useState(""); // Full text entered by the user
 
     const findTag = (contentBlock, callback, contentState) => {
         const text = contentBlock.getText();
-        const regex = /{(.*?)}/g;
+        const regex = /{(.*?)}/g; // Match everything within {}
         let matchArr;
         while ((matchArr = regex.exec(text)) !== null) {
-            const tagContent = matchArr[1].trim();
+            const tagContent = matchArr[1].trim(); // Extract content inside {}
+            // Validate content inside {}
             if (!["name", "email", "phone"].includes(tagContent)) {
                 setWarning(`Invalid tag: "${tagContent}". Only "name", "email", or "phone" are allowed.`);
             } else {
                 setWarning(null);
             }
+
+            // Highlight the tag in the editor
             callback(matchArr.index, matchArr.index + matchArr[0].length);
         }
     };
@@ -39,24 +43,13 @@ const TagInput = () => {
     );
 
     const handleEditorChange = (state) => {
-        const contentState = state.getCurrentContent();
-        const text = contentState.getPlainText();
-        const regex = /{(.*?)}/g;
-        let matchArr;
-        let invalid = false;
-        while ((matchArr = regex.exec(text)) !== null) {
-            const tagContent = matchArr[1].trim();
-            if (!["name", "email", "phonenumber"].includes(tagContent)) {
-                invalid = true;
-            }
-        }
-
-        if (invalid) {
-            setWarning("Invalid input inside {}. Only 'name', 'email', or 'phonenumber' are allowed.");
-        } else {
-            setWarning(null);
-        }
         setEditorState(state);
+
+        // Get the full text from the editor
+        const content = state.getCurrentContent();
+        const fullText = content.getPlainText(); // Extract plain text
+        setFullText(fullText);
+        handleGreetingTag(fullText);
     };
 
     return (

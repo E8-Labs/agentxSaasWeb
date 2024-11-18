@@ -6,7 +6,7 @@ import ProgressBar from '@/components/onboarding/ProgressBar';
 import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
 import { Box, FormControl, MenuItem, Modal, Popover, Select, TextField } from '@mui/material';
-import { CaretDown, DotsThree } from '@phosphor-icons/react';
+import { CaretDown, CaretUp, DotsThree } from '@phosphor-icons/react';
 import Apis from '../apis/Apis';
 import axios from 'axios';
 import TagInput from '../test/TagInput';
@@ -14,6 +14,7 @@ import MentionsInputTest from '../test/MentionsInput';
 import Objection from './advancedsettings/Objection';
 import GuardianSetting from './advancedsettings/GuardianSetting';
 import KYCs from './KYCs';
+import GreetingTag from './tagInputs/GreetingTag';
 
 const Pipeline2 = ({ handleContinue, handleBack }) => {
 
@@ -22,20 +23,31 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
 
+    //code for tag inputs
+    const [greetingTagInput, setGreetingTagInput] = useState("");
+
+    const [loader, setLoader] = useState(false);
     //variables for advance setting variables
     const [advancedSettingModal, setAdvancedSettingModal] = useState(false);
     const [settingToggleClick, setSettingToggleClick] = useState(1);
+    const [showObjectiveDetail, setShowObjectiveDetails] = useState(false);
 
 
     const handleAdvanceSettingToggleClick = (id) => {
         setSettingToggleClick(prevId => (prevId === id ? null : id));
     }
 
-    
+    //code for getting tag value from input fields
+    const handleGreetingTag = (value) => {
+        console.log("Greeting value is :--", value);
+        setGreetingTagInput(value);
+    }
 
-    const getKyc = async () => {
 
+    const handleNextClick = async () => {
         try {
+            setLoader(true);
+
             let AuthToken = null;
             const localData = localStorage.getItem("User");
             if (localData) {
@@ -54,37 +66,17 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
             console.log("Auth token is :--", AuthToken);
 
-            const ApiPath = `${Apis.getKYCs}?mainAgentId=${MainAgentData}`;
+            const ApiPath = Apis.updateAgent;
             console.log("Api path is :--", ApiPath);
-            const ApiData = {
-                mainAgentId: MainAgentData
-            }
 
-            console.log("Main agent id is :", ApiData);
-            // return
-            const response = await axios.get(ApiPath, {
-                headers: {
-                    "Authorization": "Bearer " + AuthToken,
-                    "Content-Type": "application/json"
-                }
-            });
-
-            if (response) {
-                console.log("Response of get kycs api is :--", response);
-                const filteredSellerQuestions = response.data.data.filter(item => item.type === 'seller');
-                const filteredBuyerQuestions = response.data.data.filter(item => item.type === 'buyer');
-                console.log("Seler kycs are :=--", filteredSellerQuestions);
-                console.log("Buyer Kycs are :--", filteredBuyerQuestions);
-            } else {
-                console.log("No data found")
-            }
         } catch (error) {
-            console.error("Error occured in gett kyc api is :--", error);
+            console.error("Error occured in update agent api is:", error);
         } finally {
-            console.log("Get kycs api call completed");
+            setLoader(false);
+            console.log("update agent api completed");
         }
-
     }
+
 
     const advanceSettingType = [
         {
@@ -166,8 +158,10 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                 className='border p-2 rounded-lg outline-none bg-transparent'
                                 placeholder="Hey {name}, It's {Agent Name} with {Brokerage Name}! How's it going?"
                             /> */}
-                            <TagInput />
-                            {/* <MentionsInputTest /> */}
+
+                            {/* <MentionsInputTest /> <TagInput /> */}
+
+                            <GreetingTag handleGreetingTag={handleGreetingTag} />
 
                         </div>
                         <div className='w-7/12 mt-4 ps-8'>
@@ -213,6 +207,48 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                 </button>
                             </div>
                             <KYCs />
+                            <div className='mt-4' style={styles.headingStyle}>
+                                Agent's Objective
+                            </div>
+                            <div className='bg-white rounded-xl p-2 px-4 mt-4'>
+                                <div className='flex flex-row items-center justify-between'>
+                                    <div style={styles.inputStyle}>
+                                        Community Update
+                                    </div>
+                                    <div>
+                                        <button onClick={() => { setShowObjectiveDetails(!showObjectiveDetail) }}>
+                                            {
+                                                showObjectiveDetail ?
+                                                    <CaretUp size={25} weight='bold' /> :
+                                                    <CaretDown size={25} weight='bold' />
+                                            }
+                                        </button>
+                                    </div>
+                                </div>
+                                {
+                                    showObjectiveDetail && (
+                                        <div>
+                                            <div className='mt-2' style={styles.inputStyle}>
+                                                Provide local homeowners with relevant updates on community events, real estate trends, or new listings in the area.
+                                            </div>
+                                            <div className='flex flex-row items-center justify-between mt-2'>
+                                                <div style={{ ...styles.inputStyle, color: "#00000060" }}>
+                                                    Status
+                                                </div>
+                                                <div style={styles.inputStyle}>
+                                                    Comming Soon
+                                                </div>
+                                            </div>
+                                            <div className='flex flex-row items-center justify-between mt-4'>
+                                                <input className='outline-none' style={{ ...styles.inputStyle, width: "70%" }} placeholder='Address' />
+                                                <div style={{ ...styles.inputStyle }}>
+                                                    Address goes here
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -299,7 +335,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                         <ProgressBar value={33} />
                     </div>
 
-                    <Footer handleContinue={handleContinue} handleBack={handleBack} />
+                    <Footer handleContinue={handleNextClick} handleBack={handleBack} registerLoader={loader} />
                 </div>
             </div>
         </div>
