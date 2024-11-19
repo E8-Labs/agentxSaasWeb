@@ -39,7 +39,7 @@ const PurchaseNumberSuccess = ({ handleContinue }) => {
                 fontSize: 20,
                 fontWeight: "400", textAlign: "center"
             }}>
-                You've claimed a number!
+                {`You've claimed a number!`}
             </div>
             <div className='border-2 border-green text-green p-2 rounded-lg mt-6 flex flex-row items-center gap-4'>
                 <Image src={"/assets/successTick.png"} height={18} width={18} alt='*' />

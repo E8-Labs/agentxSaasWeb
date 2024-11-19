@@ -6,13 +6,14 @@ import CreateAccount3 from '@/components/onboarding/CreateAccount3';
 import Congrats from '@/components/onboarding/Congrats';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
+import UserType from '@/components/onboarding/UserType';
 
 const Page = ({ params }) => {
 
     const [index, setIndex] = useState(0);
     const [DefaultData, setDefaultData] = useState(null);
 
-    let components = [CreateAccount1, CreateAccount2, CreateAccount3, Congrats]
+    let components = [UserType, CreateAccount1, CreateAccount2, CreateAccount3, Congrats]
 
     let CurrentComp = components[index]
 

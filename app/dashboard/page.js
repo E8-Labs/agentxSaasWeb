@@ -1,12 +1,14 @@
 "use client"
-import KYC1 from '@/components/kycQuestions/KYC1';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import Apis from '@/components/apis/Apis';
+import axios from 'axios';
+import Leads1 from '@/components/dashboard/leads/Leads1';
 
-const Page = () => {
+const Page = ({ params }) => {
 
+    const [index, setIndex] = useState(0);
 
-    const [index, setIndex] = useState(0)
-    let components = [KYC1]
+    let components = [Leads1];
 
     let CurrentComp = components[index]
 
@@ -22,7 +24,7 @@ const Page = () => {
     };
 
     const backgroundImage = {
-        backgroundImage: 'url("/assets/background.png")',
+        // backgroundImage: 'url("/assets/background.png")',
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center",
@@ -31,8 +33,10 @@ const Page = () => {
         overflow: "hidden",
     };
 
+
+
     return (
-        <div style={backgroundImage} className="overflow-y-none flex flex-row justify-center items-center">
+        <div style={backgroundImage} className="overflow-y-none flex flex-row justify-center items-center bg-gray-100">
             <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
         </div>
     )

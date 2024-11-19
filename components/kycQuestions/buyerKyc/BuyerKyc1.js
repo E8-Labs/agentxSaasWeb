@@ -314,7 +314,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                             What would you like to ask buyers?
                         </div>
                         <button className='mt-10 underline text-purple' style={styles.inputStyle}>
-                            I don't need questions for buyers
+                            {`I don't need questions for buyers`}
                         </button>
                         <div className='flex flex-row items-center gap-10 mt-10'>
                             {

@@ -3,7 +3,7 @@ import BuyerKyc1 from '@/components/kycQuestions/buyerKyc/BuyerKyc1';
 import KYC1 from '@/components/kycQuestions/KYC1';
 import React, { useState } from 'react';
 
-const page = () => {
+const Page = () => {
 
 
     const [index, setIndex] = useState(0)
@@ -39,4 +39,4 @@ const page = () => {
     )
 }
 
-export default page
+export default Page

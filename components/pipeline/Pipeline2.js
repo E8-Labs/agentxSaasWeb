@@ -15,16 +15,20 @@ import Objection from './advancedsettings/Objection';
 import GuardianSetting from './advancedsettings/GuardianSetting';
 import KYCs from './KYCs';
 import GreetingTag from './tagInputs/GreetingTag';
+import CallScriptTag from './tagInputs/CallScriptTag';
 
 const Pipeline2 = ({ handleContinue, handleBack }) => {
 
+    const router = useRouter();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [kycsData, setKycsData] = useState(null);
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
 
+    const [AgentDetails, setAgentDetails] = useState(null);
     //code for tag inputs
     const [greetingTagInput, setGreetingTagInput] = useState("");
+    const [scriptTagInput, setScriptTagInput] = useState("");
 
     const [loader, setLoader] = useState(false);
     //variables for advance setting variables
@@ -32,19 +36,34 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     const [settingToggleClick, setSettingToggleClick] = useState(1);
     const [showObjectiveDetail, setShowObjectiveDetails] = useState(false);
 
+    useEffect(() => {
+        const agentDetailsLocal = localStorage.getItem("agentDetails");
+        if (agentDetailsLocal) {
+            const localAgentData = JSON.parse(agentDetailsLocal);
+            console.log("Locla agent details are :-", localAgentData);
+            setAgentDetails(localAgentData);
+        }
+    }, [])
 
     const handleAdvanceSettingToggleClick = (id) => {
         setSettingToggleClick(prevId => (prevId === id ? null : id));
     }
 
     //code for getting tag value from input fields
-    const handleGreetingTag = (value) => {
-        console.log("Greeting value is :--", value);
-        setGreetingTagInput(value);
-    }
+    // const handleGreetingTag = (value) => {
+    //     console.log("Greeting value is :--", value);
+    //     setGreetingTagInput(value);
+    // }
+
+    // const handleCallScriptTag = (value) => {
+    //     console.log("Script tag value is :--", value);
+    //     setScriptTagInput(value);
+    // }
 
 
     const handleNextClick = async () => {
+        router.push("/dashboard");
+        return
         try {
             setLoader(true);
 
@@ -56,18 +75,62 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 AuthToken = Data.token;
             }
 
-            let MainAgentData = null;
+            let mainAgentId = null;
+            let AgentName = null;
+            let AgentObjective = null;
+            let AgentDescription = null;
+            let AgentType = null;
+            let AgentRole = null;
+            let Stat = null;
+            let Address = null;
+            let VoiceId = "Mtewh2emAIf6sPTaximW";
             const mainAgentData = localStorage.getItem("agentDetails");
             if (mainAgentData) {
                 const Data = JSON.parse(mainAgentData);
                 console.log("Localdat recieved is :--", Data);
-                MainAgentData = Data.id;
+                mainAgentId = Data.id;
+                AgentName = Data.name;
+                AgentObjective = Data.agents[0].agentObjective;
+                AgentDescription = Data.agents[0].agentObjectiveDescription;
+                AgentType = Data.agents[0].agentType;
+                Address = Data.agents[0].address;
+                AgentRole = Data.agents[0].agentRole;
             }
 
             console.log("Auth token is :--", AuthToken);
 
             const ApiPath = Apis.updateAgent;
             console.log("Api path is :--", ApiPath);
+
+
+            const formData = new FormData();
+
+            formData.append("name", AgentName);
+            formData.append("agentRole", AgentRole);
+            formData.append("agentObjective", AgentObjective);
+            formData.append("agentObjectiveDescription", AgentDescription);
+            formData.append("agentType", AgentType);
+            formData.append("status", "Just Listed");
+            formData.append("address", Address);
+            formData.append("mainAgentId", mainAgentId);
+            formData.append("voiceId", VoiceId);
+            formData.append("prompt", greetingTagInput);
+            formData.append("greeting", scriptTagInput);
+
+            console.log("Update agent details are is :-----");
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+
+            const response = await axios.post(ApiPath, formData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken
+                }
+            });
+
+            if (response) {
+                console.log("Response of update api is :--", response);
+            }
 
         } catch (error) {
             console.error("Error occured in update agent api is:", error);
@@ -130,7 +193,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full'>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
-                            Let's Review
+                            {`Let's Review`}
                         </div>
                         <div className='mt-8 w-7/12 gap-4 flex flex-col max-h-[50vh] overflow-auto'>
                             <div style={styles.inputStyle} className='flex flex-row items-center gap-2'>
@@ -154,14 +217,16 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                 Greeting
                             </div>
 
-                            {/* <input
+                            <input
                                 className='border p-2 rounded-lg outline-none bg-transparent'
                                 placeholder="Hey {name}, It's {Agent Name} with {Brokerage Name}! How's it going?"
-                            /> */}
+                                value={greetingTagInput}
+                                onChange={(e) => { setGreetingTagInput(e.target.value) }}
+                            />
 
                             {/* <MentionsInputTest /> <TagInput /> */}
 
-                            <GreetingTag handleGreetingTag={handleGreetingTag} />
+                            {/* <GreetingTag handleGreetingTag={handleGreetingTag} /> */}
 
                         </div>
                         <div className='w-7/12 mt-4 ps-8'>
@@ -190,7 +255,10 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                             },
                                         },
                                     }}
+                                    value={scriptTagInput}
+                                    onChange={(e) => { setScriptTagInput(e.target.value) }}
                                 />
+                                {/* <CallScriptTag handleCallScriptTag={handleCallScriptTag} /> */}
 
                             </div>
                         </div>
@@ -208,7 +276,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                             </div>
                             <KYCs />
                             <div className='mt-4' style={styles.headingStyle}>
-                                Agent's Objective
+                                {`Agent's Objective`}
                             </div>
                             <div className='bg-white rounded-xl p-2 px-4 mt-4'>
                                 <div className='flex flex-row items-center justify-between'>

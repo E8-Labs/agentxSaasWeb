@@ -319,7 +319,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
                             What would you like to ask sellers?
                         </div>
                         <button className='mt-10 underline text-purple' style={styles.inputStyle} onClick={handleCloseSellerKyc}>
-                            I don't need questions for sellers
+                            {`I don't need questions for sellers`}
                         </button>
                         <div className='flex flex-row items-center gap-10 mt-10'>
                             {

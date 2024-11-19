@@ -223,12 +223,12 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full'>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
-                            Let's talk digits
+                            {`Let's talk digits`}
                         </div>
                         <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh] overflow-auto'>
 
                             <div style={styles.headingStyle}>
-                                Select a phone number you'd like to use to call with
+                                {`Select a phone number you'd like to use to call with`}
                             </div>
 
                             <div className='border rounded-lg'>
@@ -303,7 +303,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                     fontWeight: "700",
                                                     textAlign: "center"
                                                 }}>
-                                                    Let's claim your phone number
+                                                    {`Let's claim your phone number`}
                                                 </div>
                                                 <div className='mt-2' style={{
                                                     fontSize: 15,
@@ -489,7 +489,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                     }
                                 </button>
                                 <div style={{ color: "#151515", fontSize: 15, fontWeight: "600" }}>
-                                    Don't make live transfers. Prefer the AI Agent schedules them for a call back.
+                                    {`Don't make live transfers. Prefer the AI Agent schedules them for a call back.`}
                                 </div>
                             </div>
 

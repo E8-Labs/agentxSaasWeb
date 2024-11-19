@@ -28,7 +28,7 @@ const Congrats = () => {
                         Your account is created!
                     </div>
                     <div className='mt-1 text-[#151515]' style={{ fontWeight: "700", fontSize: 16 }}>
-                        Let's build your AI AgentX
+                        {`Let's build your AI AgentX`}
                     </div>
                     <button className='rounded-lg text-white bg-purple mt-8' style={{ fontWeight: "700", fontSize: "16", height: "50px", width: "130px" }} onClick={handleNext}>
                         Build  AI AgentX

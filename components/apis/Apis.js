@@ -11,7 +11,8 @@ const Apis = {
     getKYCs: `${BasePath}api/agent/getKycs`,
     getPipelines: `${BasePath}api/pipeline/getPipelines`,
     createPipeLine: `${BasePath}api/pipeline/createPipelineCadence`,
-    updateAgent: `${BasePath}api/agent/updateAgent`
+    updateAgent: `${BasePath}api/agent/updateAgent`,
+    createLead: `${BasePath}api/leads/addLeads`
 }
 
 export default Apis

@@ -59,7 +59,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
             details: "Identify, engage, and attract potential real estate agents to expand your team with top talent. Recruit new agents to your team."
         },
         {
-            id: 6,
+            id: 100,
             icon: "",
             title: "others",
             details: ""
@@ -68,13 +68,13 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
 
     //code for selecting outbound calls
     const handleInboundCallClick = () => {
-        setOutBoundCalls(false);
+        // setOutBoundCalls(false);
         setInBoundCalls(!InBoundCalls);
     }
 
     //code for selecting inbound calls
     const handleOutBoundCallClick = () => {
-        setInBoundCalls(false);
+        // setInBoundCalls(false);
         setOutBoundCalls(!OutBoundCalls);
     }
 
@@ -97,7 +97,9 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
             formData.append("agentObjective", agentObjective.title);
             formData.append("agentObjectiveDescription", agentObjective.details);
             let agentType = null
-            if (InBoundCalls) {
+            if (InBoundCalls && OutBoundCalls) {
+                agentType = "both"
+            } else if (InBoundCalls) {
                 agentType = "inbound"
             } else if (OutBoundCalls) {
                 agentType = "outbound"
@@ -105,12 +107,14 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
             formData.append("agentType", agentType);
             formData.append("status", "Just listed");
             formData.append("address", "Chakwal");
+            formData.append("agentObjectiveId", agentObjective.id);
 
             console.log("Build agent details are is :-----");
             for (let [key, value] of formData.entries()) {
                 console.log(`${key}: ${value}`);
             }
 
+            // return
             const response = await axios.post(ApiPath, formData, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken
@@ -158,7 +162,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                     <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh] overflow-auto'>
 
                         <div style={styles.headingStyle}>
-                            What's your AI agent's name?
+                            {`What's your AI agent's name?`}
                         </div>
                         <input
                             placeholder="Ex: Ana's AI, Ana.ai, Ana's Assistant"
@@ -169,7 +173,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                         />
 
                         <div style={styles.headingStyle}>
-                            What's this agent's task?
+                            {`What's this agent's task?`}
                         </div>
 
                         <div className='flex flex-row items-center gap-4'>
@@ -201,7 +205,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                         </div>
 
                         <div style={styles.headingStyle}>
-                            What's this agent's role?
+                            {`What's this agent's role?`}
                         </div>
                         <input
                             placeholder="Ex: Senior Property Acquisition Specialist"
@@ -212,7 +216,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                         />
 
                         <div style={styles.headingStyle}>
-                            What's this agent's primary objective during the call
+                            {`What's this agent's primary objective during the call`}
                         </div>
 
                         <div style={styles.inputStyle}>
@@ -235,7 +239,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                         </div>
 
                         <div style={styles.headingStyle}>
-                            Agent's Objective
+                            {`Agent's Objective`}
                         </div>
                         <input
                             placeholder="Type Here.... "

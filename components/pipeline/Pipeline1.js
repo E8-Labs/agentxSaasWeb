@@ -454,7 +454,7 @@ const Pipeline1 = ({ handleContinue }) => {
                             </Modal>
 
                             <div className='mt-4' style={styles.inputStyle}>
-                                This agent will call leads when they're added to the selected stage.
+                                {`This agent will call leads when they're added to the selected stage.`}
                             </div>
 
                             <div>
@@ -799,7 +799,7 @@ const Pipeline1 = ({ handleContinue }) => {
                         <ProgressBar value={33} />
                     </div>
 
-                    <Footer handleContinue={printAssignedLeadsData} donotShowBack={true} registerLoader={createPipelineLoader} />
+                    <Footer handleContinue={handleContinue} donotShowBack={true} registerLoader={createPipelineLoader} />
                 </div>
             </div>
         </div>

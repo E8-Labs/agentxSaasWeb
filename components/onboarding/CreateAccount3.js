@@ -255,7 +255,7 @@ const CreateAccount3 = ({ handleContinue, handleBack, length = 6, onComplete }) 
           <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh] overflow-auto'>
 
             <div style={styles.headingStyle}>
-              What's your full name
+              {`What's your full name`}
             </div>
             <input
               placeholder='Name'
@@ -266,7 +266,7 @@ const CreateAccount3 = ({ handleContinue, handleBack, length = 6, onComplete }) 
             />
 
             <div style={styles.headingStyle}>
-              What's your email address
+              {`What's your email address`}
             </div>
             <input
               placeholder='Email address'
@@ -277,7 +277,7 @@ const CreateAccount3 = ({ handleContinue, handleBack, length = 6, onComplete }) 
             />
 
             <div style={styles.headingStyle}>
-              What's your phone number
+              {`What's your phone number`}
             </div>
 
             <PhoneInput
@@ -321,7 +321,7 @@ const CreateAccount3 = ({ handleContinue, handleBack, length = 6, onComplete }) 
             </div>
 
             <div style={styles.headingStyle}>
-              What's your farm
+              {`What's your farm`}
             </div>
             <input
               placeholder='Your territory  '
@@ -414,7 +414,7 @@ const CreateAccount3 = ({ handleContinue, handleBack, length = 6, onComplete }) 
                       ))}
                     </div>
                     <div className='mt-8' style={styles.inputStyle}>
-                      Didn't receive code? <button className='outline-none border-none text-purple'>Resed</button>
+                      {`Didn't receive code?`} <button className='outline-none border-none text-purple'>Resed</button>
                     </div>
                     {
                       registerLoader ?

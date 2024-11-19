@@ -6,7 +6,7 @@ import ProgressBar from './ProgressBar';
 import Footer from './Footer';
 import { CircularProgress } from '@mui/material';
 
-const CreateAccount1 = ({ handleContinue, DefaultData }) => {
+const CreateAccount1 = ({ handleContinue, DefaultData, handleBack }) => {
 
     const router = useRouter();
     const [toggleClick, setToggleClick] = useState(false);
@@ -109,13 +109,13 @@ const CreateAccount1 = ({ handleContinue, DefaultData }) => {
 
                 </div>
                 <div>
-                    <ProgressBar value={value} />
+                    <ProgressBar value={33} />
                 </div>
 
                 <div style={{ height: "55px" }}>
                     {
                         toggleClick && (
-                            <Footer handleContinue={handleNext} donotShowBack={true} />
+                            <Footer handleContinue={handleNext} handleBack={handleBack} />
                         )
                     }
                 </div>

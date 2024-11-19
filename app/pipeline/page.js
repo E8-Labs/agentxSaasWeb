@@ -3,7 +3,7 @@ import Pipeline1 from '@/components/pipeline/Pipeline1';
 import Pipeline2 from '@/components/pipeline/Pipeline2';
 import React, { useState } from 'react';
 
-const page = () => {
+const Page = () => {
 
 
     const [index, setIndex] = useState(0)
@@ -39,4 +39,4 @@ const page = () => {
     )
 }
 
-export default page
+export default Page

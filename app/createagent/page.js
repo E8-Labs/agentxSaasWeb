@@ -4,13 +4,14 @@ import CreateAgent1 from '@/components/createagent/CreateAgent1';
 import CreateAgent2 from '@/components/createagent/CreateAgent2';
 import CreateAgent4 from '@/components/createagent/CreateAgent4';
 import CreateAgentVoice from '@/components/createagent/CreateAgentVoice';
-import React, { useState } from 'react';
+import React from 'react';
+import { useState } from 'react';
 
-const page = () => {
+const Page = () => {
 
 
     const [index, setIndex] = useState(0)
-    let components = [CreateAgent1, CreateAgent2, CreatAgent3, CreateAgent4, CreateAgentVoice]
+    let components = [CreateAgent1, CreatAgent3, CreateAgent4, CreateAgentVoice]
 
     let CurrentComp = components[index]
 
@@ -42,4 +43,4 @@ const page = () => {
     )
 }
 
-export default page
+export default Page
