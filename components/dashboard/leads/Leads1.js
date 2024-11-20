@@ -23,7 +23,7 @@ const Leads1 = () => {
     const [showPopUp, setShowPopUp] = useState(false);
     const [sheetName, setSheetName] = useState("");
     const [Loader, setLoader] = useState(false);
-    const [userLeads, setUserLeads] = useState(null);
+    const [userLeads, setUserLeads] = useState("loading");
     const [SuccessSnack, setSuccessSnack] = useState(null);
     const [initialLoader, setInitialLoader] = useState(false);
     //File handling
@@ -54,6 +54,10 @@ const Leads1 = () => {
         } finally {
             setInitialLoader(false);
         }
+    }
+
+    const handleShowAddLeadModal = (status) => {
+        setShowAddLeadModal(status);
     }
 
     //code for csv file drag and drop
@@ -249,6 +253,11 @@ const Leads1 = () => {
         }
     }
 
+    //code to check if lead sheets exists or not
+    const handleShowUserLeads = (status) => {
+        setUserLeads(status);
+    }
+
     const styles = {
         headingStyle: {
             fontSize: 17, fontWeight: "700"
@@ -283,9 +292,9 @@ const Leads1 = () => {
                     </div> :
                     <div className='w-full'>
                         {
-                            !userLeads ?
+                            userLeads ?
                                 <div className='h-screen w-full'>
-                                    <Userleads />
+                                    <Userleads handleShowAddLeadModal={handleShowAddLeadModal} handleShowUserLeads={handleShowUserLeads} />
                                 </div> :
                                 <div>
                                     <Image src={"/assets/placeholder.png"} height={145} width={710} alt='*' />
@@ -325,41 +334,46 @@ const Leads1 = () => {
                                         </div>
                                     </div>
 
-                                    {/* Modal to add lead */}
-                                    <Modal
-                                        open={showAddLeadModal}
-                                        // onClose={() => setShowAddLeadModal(false)}
-                                        closeAfterTransition
-                                        BackdropProps={{
-                                            timeout: 1000,
-                                            sx: {
-                                                backgroundColor: "#00000020",
-                                                // backdropFilter: "blur(20px)",
-                                            },
-                                        }}
-                                    >
-                                        <Box className="lg:w-6/12 sm:w-9/12 w-10/12" sx={styles.modalsStyle}>
-                                            <div className="flex flex-row justify-center w-full">
-                                                <div
-                                                    className="w-full"
-                                                    style={{
-                                                        backgroundColor: "#ffffff",
-                                                        padding: 20,
-                                                        borderRadius: "13px",
-                                                    }}
-                                                >
-                                                    <div className='flex flex-row justify-end'>
-                                                        <button onClick={() => { setShowAddLeadModal(false) }}>
-                                                            <Image src={"/assets/cross.png"} height={14} width={14} alt='*' />
-                                                        </button>
-                                                    </div>
-                                                    <div className='mt-2' style={styles.subHeadingStyle}>
-                                                        Import Leads
-                                                    </div>
+                                </div>
+                        }
+                    </div>
+            }
 
-                                                    {/* CSV File drag and drop logic */}
-                                                    {/* <ReadFile /> */}
-                                                    {/* {
+            {/* Modal to add lead */}
+            <Modal
+                open={showAddLeadModal}
+                // onClose={() => setShowAddLeadModal(false)}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 1000,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        // backdropFilter: "blur(20px)",
+                    },
+                }}
+            >
+                <Box className="lg:w-6/12 sm:w-9/12 w-10/12" sx={styles.modalsStyle}>
+                    <div className="flex flex-row justify-center w-full">
+                        <div
+                            className="w-full"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                            }}
+                        >
+                            <div className='flex flex-row justify-end'>
+                                <button onClick={() => { setShowAddLeadModal(false) }}>
+                                    <Image src={"/assets/cross.png"} height={14} width={14} alt='*' />
+                                </button>
+                            </div>
+                            <div className='mt-2' style={styles.subHeadingStyle}>
+                                Import Leads
+                            </div>
+
+                            {/* CSV File drag and drop logic */}
+                            {/* <ReadFile /> */}
+                            {/* {
                                         SelectedFile ?
                                             <div>
                                                 File here:
@@ -405,435 +419,357 @@ const Leads1 = () => {
                                             </div>
                                     } */}
 
-                                                    <div className='w-8/12 h-[40vh] flex flex-col justify-center '
-                                                        {...getRootProps()}
-                                                        style={{
-                                                            border: "2px dashed #ddd",
-                                                            padding: "20px",
-                                                            textAlign: "center",
-                                                            borderRadius: "10px",
-                                                            cursor: "pointer",
-                                                            // width: "430px",
-                                                            margin: "auto",
-                                                            marginTop: "20px"
-                                                        }}
-                                                    >
-                                                        <input {...getInputProps()} />
-                                                        <div className="w-full flex-row flex justify-center" style={{ marginBottom: "15px" }}>
-                                                            <Image
-                                                                src="/assets/docIcon.png"
-                                                                alt="Upload Icon"
-                                                                height={30}
-                                                                width={30}
-                                                            // style={{ marginBottom: "10px" }}
-                                                            />
-                                                        </div>
-                                                        <p style={{ ...styles.subHeadingStyle, }}>
-                                                            Drag & drop your leads
-                                                        </p>
-                                                        <p style={{ ...styles.subHeadingStyle, }}>or</p>
-                                                        <button className='underline outline-none border-none'
-                                                            style={{
-                                                                ...styles.subHeadingStyle,
-                                                                cursor: "pointer",
-                                                            }}
-                                                        >
-                                                            Browse your Computer
-                                                        </button>
-                                                        <p style={{ fontSize: 12, color: "#888", marginTop: "10px", fontWeight: '500' }}>
-                                                            Upload only a CSV or Excel file
-                                                        </p>
-                                                    </div>
-
-                                                    <div className='mt-8' style={{ height: "50px" }}>
-                                                        {
-                                                            SelectedFile && (
-                                                                <div className='w-full mt-4 flex flex-row justify-center'>
-                                                                    <button
-                                                                        className='bg-purple text-white flex flex-row items-center justify-center rounded-lg gap-2'
-                                                                        style={{ ...styles.subHeadingStyle, height: "50px", width: "170px" }}
-                                                                        onClick={() => {
-                                                                            setShowUploadLeadModal(true);
-                                                                            setShowAddLeadModal(false);
-                                                                        }}
-                                                                    >
-                                                                        <Image src={"/assets/addLeadIcon.png"} height={24} width={24} alt='*' />
-                                                                        <span>
-                                                                            Add Leads
-                                                                        </span>
-                                                                    </button>
-                                                                </div>
-                                                            )
-                                                        }
-                                                    </div>
-
-
-                                                    {/* Can be use full to add shadow */}
-                                                    {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-                                                </div>
-                                            </div>
-                                        </Box>
-                                    </Modal>
-
-                                    {/* modal to upload lead */}
-                                    <Modal
-                                        open={ShowUploadLeadModal}
-                                        onClose={() => setShowUploadLeadModal(false)}
-                                        closeAfterTransition
-                                        BackdropProps={{
-                                            timeout: 1000,
-                                            sx: {
-                                                backgroundColor: "#00000020",
-                                                // backdropFilter: "blur(20px)",
-                                            },
-                                        }}
-                                    >
-                                        <Box className="lg:w-6/12 sm:w-9/12 w-10/12" sx={styles.modalsStyle}>
-                                            <div className="flex flex-row justify-center w-full">
-                                                <div
-                                                    className="w-full"
-                                                    style={{
-                                                        backgroundColor: "#ffffff",
-                                                        padding: 20,
-                                                        borderRadius: "13px",
-                                                    }}
-                                                >
-                                                    <div className='flex flex-row justify-end'>
-                                                        <button onClick={() => { setShowUploadLeadModal(false) }}>
-                                                            <Image src={"/assets/cross.png"} height={14} width={14} alt='*' />
-                                                        </button>
-                                                    </div>
-                                                    <div className='mt-2' style={styles.subHeadingStyle}>
-                                                        Leads
-                                                    </div>
-
-                                                    <div className='flex flex-row items-center gap-2 mt-2'>
-                                                        <span style={styles.subHeadingStyle}>List Name</span> <Image src={"/assets/infoIcon.png"} height={18} width={18} alt='*' />
-                                                    </div>
-
-                                                    <div className='border rounded p-2 w-full mt-4' style={styles.subHeadingStyle}>
-                                                        <input
-                                                            className="outline-none border-roundedp-2 w-full"
-                                                            value={sheetName.split(".")[0]} // Only show the base name in the input
-                                                            onChange={handleSheetNameChange}
-                                                            placeholder="Enter sheet name"
-                                                        />
-                                                    </div>
-
-                                                    <div className='mt-4' style={styles.paragraph}>
-                                                        Match columns in your file to column fields
-                                                    </div>
-
-                                                    <div className='flex flex-row items-center mt-4' style={{ ...styles.paragraph, color: "#00000070" }}>
-                                                        <div className='w-2/12'>Matched</div>
-                                                        <div className='w-4/12'>Column Header from File</div>
-                                                        <div className='w-3/12'>Preview Info</div>
-                                                        <div className='w-3/12'>Column Fields</div>
-                                                    </div>
-
-                                                    <div className='max-h-[40vh] overflow-auto'>
-                                                        {
-                                                            columnMappingsList.map((item, index) => {
-                                                                const matchingValue = processedData.find((data) =>
-                                                                    Object.keys(data).includes(item.columnNameTransformed)
-                                                                );
-                                                                return (
-                                                                    <div key={index} className='flex flex-row items-center mt-4' style={{ ...styles.paragraph }}>
-                                                                        <div className='w-2/12'>
-                                                                            {
-                                                                                matchingValue ?
-                                                                                    <Image className='ms-4' src={"/assets/checkDone.png"} alt='*' height={24} width={24} /> :
-                                                                                    <Image className='ms-4' src={"/assets/warning.png"} alt='*' height={24} width={24} />
-                                                                            }
-                                                                            {/* <Image className='ms-4' src={"/assets/checkDone.png"} alt='*' height={24} width={24} /> */}
-                                                                        </div>
-                                                                        <div className='w-4/12'>
-                                                                            {item.columnNameInSheet}
-                                                                        </div>
-                                                                        <div className='w-3/12'>
-                                                                            {matchingValue
-                                                                                ? matchingValue[item.columnNameTransformed]
-                                                                                : "N/A"}
-                                                                        </div>
-                                                                        <div className='w-3/12 border rounded p-2'>
-                                                                            <button className='flex flex-row items-center justify-between w-full' onClick={(event) => {
-                                                                                if (columnAnchorEl) {
-                                                                                    handleColumnPopoverClose();
-                                                                                } else {
-                                                                                    if (index > 4) {
-                                                                                        setSelectedItem(index);
-                                                                                        console.log("Selected index is", index)
-                                                                                        console.log('Item selected is :', item)
-                                                                                        setUpdateColumnValue(item.columnNameTransformed)
-                                                                                        handleColumnPopoverClick(event);
-                                                                                        setUpdateHeader(item);
-                                                                                    }
-                                                                                }
-                                                                            }}>
-                                                                                <p>{item.columnNameTransformed}</p>
-                                                                                {
-                                                                                    selectedItem === index ?
-                                                                                        <CaretUp size={20} weight='bold' /> :
-                                                                                        <CaretDown size={20} weight='bold' />
-                                                                                }
-                                                                            </button>
-                                                                            <Popover
-                                                                                id={id}
-                                                                                open={open}
-                                                                                anchorEl={columnAnchorEl}
-                                                                                onClose={handleColumnPopoverClose}
-                                                                                anchorOrigin={{
-                                                                                    vertical: 'bottom',
-                                                                                    horizontal: 'center',
-                                                                                }}
-                                                                                transformOrigin={{
-                                                                                    vertical: 'top',
-                                                                                    horizontal: 'center', // Ensures the Popover's top right corner aligns with the anchor point
-                                                                                }}
-                                                                                PaperProps={{
-                                                                                    elevation: 0, // This will remove the shadow
-                                                                                    style: {
-                                                                                        boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
-                                                                                    },
-                                                                                }}
-                                                                            >
-                                                                                <div className='w-[170px] p-2' style={styles.paragraph}>
-                                                                                    <div>Option 1</div>
-                                                                                    <div>Option 2</div>
-                                                                                    <button className='underline text-purple' onClick={() => {
-                                                                                        setShowPopUp(true);
-                                                                                    }}>Add New column</button>
-                                                                                </div>
-                                                                            </Popover>
-                                                                        </div>
-                                                                    </div>
-                                                                )
-                                                            })
-                                                        }
-                                                    </div>
-
-                                                    <div className='mt-4 flex flex-row justify-center'>
-                                                        {
-                                                            Loader ?
-                                                                <CircularProgress size={27} /> :
-                                                                <button className='bg-purple text-white rounded-lg h-[50px] w-4/12' onClick={handleAddLead}>
-                                                                    Continue
-                                                                </button>
-                                                        }
-                                                    </div>
-
-                                                    {/* <div className="max-h-[40vh] overflow-auto">
-                                        {columnMappingsList.map((item, index) => {
-                                            // Find the first matching object in `processedData` based on the transformed column name
-                                            const matchingValue = processedData.find((data) =>
-                                                Object.keys(data).includes(item.columnNameTransformed)
-                                            );
-        
-                                            return (
-                                                <div
-                                                    key={index}
-                                                    className="flex flex-row items-center mt-4"
-                                                    style={{ ...styles.paragraph }}
-                                                >
-                                                    <div className="w-2/12">
-                                                        <Image
-                                                            className="ms-4"
-                                                            src={
-                                                                matchingValue ? "/assets/checkDone.png" : "/assets/warning.png"
-                                                            }
-                                                            alt={matchingValue ? "Check" : "Warning"}
-                                                            height={24}
-                                                            width={24}
-                                                        />
-                                                    </div>
-                                                    <div className="w-4/12">
-                                                        {item.columnNameInSheet}
-                                                    </div>
-                                                    <div className="w-3/12">
-                                                        {matchingValue
-                                                            ? matchingValue[item.columnNameTransformed]
-                                                            : "Not Found"}
-                                                    </div>
-                                                    <div className="w-3/12 border rounded p-2">
-                                                        <button
-                                                            className="flex flex-row items-center justify-between w-full"
-                                                            onClick={(event) => {
-                                                                if (columnAnchorEl) {
-                                                                    handleColumnPopoverClose();
-                                                                } else {
-                                                                    handleColumnPopoverClick(event);
-                                                                }
-                                                            }}
-                                                        >
-                                                            <p>{item.columnNameTransformed}</p>
-                                                            {columnAnchorEl ? (
-                                                                <CaretUp size={20} weight="bold" />
-                                                            ) : (
-                                                                <CaretDown size={20} weight="bold" />
-                                                            )}
-                                                        </button>
-                                                        <Popover
-                                                            id={id}
-                                                            open={open}
-                                                            anchorEl={columnAnchorEl}
-                                                            onClose={handleColumnPopoverClose}
-                                                            anchorOrigin={{
-                                                                vertical: "bottom",
-                                                                horizontal: "center",
-                                                            }}
-                                                            transformOrigin={{
-                                                                vertical: "top",
-                                                                horizontal: "center",
-                                                            }}
-                                                            PaperProps={{
-                                                                elevation: 0,
-                                                                style: {
-                                                                    boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.08)",
-                                                                },
-                                                            }}
-                                                        >
-                                                            <div className="w-[170px] p-2">Hey there</div>
-                                                        </Popover>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div> */}
-
-
-
-                                                    {/* Can be use full to add shadow */}
-                                                    {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-                                                </div>
-                                            </div>
-                                        </Box>
-                                    </Modal>
-
-                                    {/* Modal to update header */}
-                                    <Modal
-                                        open={showPopUp}
-                                        onClose={() => setShowPopUp(false)}
-                                        closeAfterTransition
-                                        BackdropProps={{
-                                            timeout: 1000,
-                                            sx: {
-                                                backgroundColor: "#00000020",
-                                                backdropFilter: "blur(5px)",
-                                            },
-                                        }}
-                                    >
-                                        <Box className="lg:w-6/12 sm:w-9/12 w-10/12" sx={styles.modalsStyle}>
-                                            <div className="flex flex-row justify-center w-full">
-                                                <div
-                                                    className="w-full"
-                                                    style={{
-                                                        backgroundColor: "#ffffff",
-                                                        padding: 20,
-                                                        borderRadius: "13px",
-                                                    }}
-                                                >
-                                                    <div className='flex flex-row justify-end'>
-                                                        <button onClick={() => { setShowPopUp(false) }}>
-                                                            <Image src={"/assets/cross.png"} height={14} width={14} alt='*' />
-                                                        </button>
-                                                    </div>
-                                                    <div className='mt-2' style={styles.subHeadingStyle}>
-                                                        Update Column
-                                                    </div>
-
-                                                    <input
-                                                        className='border outline-none rounded p-2 mt-2 w-full'
-                                                        value={updateColumnValue}
-                                                        // onChange={(e) => { setUpdateColumnValue(e.target.value) }}
-                                                        onChange={(e) => {
-                                                            const regex = /^[a-zA-Z_]*$/; // Allow only alphabets
-                                                            if (regex.test(e.target.value)) {
-                                                                setUpdateColumnValue(e.target.value);
-                                                            }
-                                                        }}
-                                                    />
-
-                                                    <button className='w-full h-[50px] rounded-xl bg-purple text-white mt-8' style={styles.subHeadingStyle}
-                                                        onClick={() => {
-                                                            console.log("Change column name here", updateColumnValue)
-                                                            console.log("Old column value ", UpdateHeader.columnNameTransformed)
-                                                            let pd = processedData
-                                                            let mappingList = columnMappingsList
-                                                            for (let i = 0; i < pd.length; i++) {
-                                                                let d = pd[i]
-                                                                let value = d.extraColumns[UpdateHeader.columnNameTransformed]
-                                                                delete d.extraColumns[UpdateHeader.columnNameTransformed]
-                                                                // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
-                                                                d.extraColumns[updateColumnValue] = value;
-                                                                pd[i] = d;
-                                                            }
-
-
-                                                            for (let i = 0; i < mappingList.length; i++) {
-                                                                let map = mappingList[i];
-                                                                if (map.columnNameTransformed == UpdateHeader.columnNameTransformed) {
-                                                                    // update the column
-                                                                    map.columnNameTransformed = updateColumnValue;
-                                                                }
-                                                                mappingList[i] = map;
-                                                            }
-                                                            console.log(`Processed data changed`, pd)
-                                                            setProcessedData(pd)
-                                                            setColumnMappingsList(mappingList)
-                                                            console.log("Mapping list changed", mappingList)
-                                                            if (pd && mappingList) {
-                                                                setShowPopUp(false);
-                                                                setcolumnAnchorEl(null);
-                                                                setSelectedItem(null);
-                                                            }
-
-                                                        }}
-                                                    >
-                                                        Save & Close
-                                                    </button>
-
-
-                                                    {/* Can be use full to add shadow */}
-                                                    {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-                                                </div>
-                                            </div>
-                                        </Box>
-                                    </Modal>
-
-
-
-                                    <div>
-                                        <Snackbar
-                                            open={SuccessSnack}
-                                            autoHideDuration={3000}
-                                            onClose={() => {
-                                                setSuccessSnack(null);
-                                            }}
-                                            anchorOrigin={{
-                                                vertical: 'top',
-                                                horizontal: 'center'
-                                            }}
-                                            TransitionComponent={Fade}
-                                            TransitionProps={{
-                                                direction: 'center'
-                                            }}
-                                        >
-                                            <Alert
-                                                onClose={() => {
-                                                    setSuccessSnack(null);
-                                                }} severity="success"
-                                                // className='bg-purple rounded-lg text-white'
-                                                sx={{ width: 'auto', fontWeight: '700', fontFamily: 'inter', fontSize: '22' }}
-                                            >
-                                                {SuccessSnack}
-                                            </Alert>
-                                        </Snackbar>
-                                    </div>
-
+                            <div className='w-8/12 h-[40vh] flex flex-col justify-center '
+                                {...getRootProps()}
+                                style={{
+                                    border: "2px dashed #ddd",
+                                    padding: "20px",
+                                    textAlign: "center",
+                                    borderRadius: "10px",
+                                    cursor: "pointer",
+                                    // width: "430px",
+                                    margin: "auto",
+                                    marginTop: "20px"
+                                }}
+                            >
+                                <input {...getInputProps()} />
+                                <div className="w-full flex-row flex justify-center" style={{ marginBottom: "15px" }}>
+                                    <Image
+                                        src="/assets/docIcon.png"
+                                        alt="Upload Icon"
+                                        height={30}
+                                        width={30}
+                                    // style={{ marginBottom: "10px" }}
+                                    />
                                 </div>
-                        }
+                                <p style={{ ...styles.subHeadingStyle, }}>
+                                    Drag & drop your leads
+                                </p>
+                                <p style={{ ...styles.subHeadingStyle, }}>or</p>
+                                <button className='underline outline-none border-none'
+                                    style={{
+                                        ...styles.subHeadingStyle,
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    Browse your Computer
+                                </button>
+                                <p style={{ fontSize: 12, color: "#888", marginTop: "10px", fontWeight: '500' }}>
+                                    Upload only a CSV or Excel file
+                                </p>
+                            </div>
+
+                            <div className='mt-8' style={{ height: "50px" }}>
+                                {
+                                    SelectedFile && (
+                                        <div className='w-full mt-4 flex flex-row justify-center'>
+                                            <button
+                                                className='bg-purple text-white flex flex-row items-center justify-center rounded-lg gap-2'
+                                                style={{ ...styles.subHeadingStyle, height: "50px", width: "170px" }}
+                                                onClick={() => {
+                                                    setShowUploadLeadModal(true);
+                                                    setShowAddLeadModal(false);
+                                                }}
+                                            >
+                                                <Image src={"/assets/addLeadIcon.png"} height={24} width={24} alt='*' />
+                                                <span>
+                                                    Add Leads
+                                                </span>
+                                            </button>
+                                        </div>
+                                    )
+                                }
+                            </div>
+
+
+                            {/* Can be use full to add shadow */}
+                            {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                        </div>
                     </div>
-            }
+                </Box>
+            </Modal>
+
+            {/* modal to upload lead */}
+            <Modal
+                open={ShowUploadLeadModal}
+                onClose={() => setShowUploadLeadModal(false)}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 1000,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        // backdropFilter: "blur(20px)",
+                    },
+                }}
+            >
+                <Box className="lg:w-6/12 sm:w-9/12 w-10/12" sx={styles.modalsStyle}>
+                    <div className="flex flex-row justify-center w-full">
+                        <div
+                            className="w-full"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                            }}
+                        >
+                            <div className='flex flex-row justify-end'>
+                                <button onClick={() => { setShowUploadLeadModal(false) }}>
+                                    <Image src={"/assets/cross.png"} height={14} width={14} alt='*' />
+                                </button>
+                            </div>
+                            <div className='mt-2' style={styles.subHeadingStyle}>
+                                Leads
+                            </div>
+
+                            <div className='flex flex-row items-center gap-2 mt-2'>
+                                <span style={styles.subHeadingStyle}>List Name</span> <Image src={"/assets/infoIcon.png"} height={18} width={18} alt='*' />
+                            </div>
+
+                            <div className='border rounded p-2 w-full mt-4' style={styles.subHeadingStyle}>
+                                <input
+                                    className="outline-none border-roundedp-2 w-full"
+                                    value={sheetName.split(".")[0]} // Only show the base name in the input
+                                    onChange={handleSheetNameChange}
+                                    placeholder="Enter sheet name"
+                                />
+                            </div>
+
+                            <div className='mt-4' style={styles.paragraph}>
+                                Match columns in your file to column fields
+                            </div>
+
+                            <div className='flex flex-row items-center mt-4' style={{ ...styles.paragraph, color: "#00000070" }}>
+                                <div className='w-2/12'>Matched</div>
+                                <div className='w-4/12'>Column Header from File</div>
+                                <div className='w-3/12'>Preview Info</div>
+                                <div className='w-3/12'>Column Fields</div>
+                            </div>
+
+                            <div className='max-h-[40vh] overflow-auto'>
+                                {
+                                    columnMappingsList.map((item, index) => {
+                                        const matchingValue = processedData.find((data) =>
+                                            Object.keys(data).includes(item.columnNameTransformed)
+                                        );
+                                        return (
+                                            <div key={index} className='flex flex-row items-center mt-4' style={{ ...styles.paragraph }}>
+                                                <div className='w-2/12'>
+                                                    {
+                                                        matchingValue ?
+                                                            <Image className='ms-4' src={"/assets/checkDone.png"} alt='*' height={24} width={24} /> :
+                                                            <Image className='ms-4' src={"/assets/warning.png"} alt='*' height={24} width={24} />
+                                                    }
+                                                    {/* <Image className='ms-4' src={"/assets/checkDone.png"} alt='*' height={24} width={24} /> */}
+                                                </div>
+                                                <div className='w-4/12'>
+                                                    {item.columnNameInSheet}
+                                                </div>
+                                                <div className='w-3/12'>
+                                                    {matchingValue
+                                                        ? matchingValue[item.columnNameTransformed]
+                                                        : "N/A"}
+                                                </div>
+                                                <div className='w-3/12 border rounded p-2'>
+                                                    <button className='flex flex-row items-center justify-between w-full' onClick={(event) => {
+                                                        if (columnAnchorEl) {
+                                                            handleColumnPopoverClose();
+                                                        } else {
+                                                            if (index > 4) {
+                                                                setSelectedItem(index);
+                                                                console.log("Selected index is", index)
+                                                                console.log('Item selected is :', item)
+                                                                setUpdateColumnValue(item.columnNameTransformed)
+                                                                handleColumnPopoverClick(event);
+                                                                setUpdateHeader(item);
+                                                            }
+                                                        }
+                                                    }}>
+                                                        <p>{item.columnNameTransformed}</p>
+                                                        {
+                                                            selectedItem === index ?
+                                                                <CaretUp size={20} weight='bold' /> :
+                                                                <CaretDown size={20} weight='bold' />
+                                                        }
+                                                    </button>
+                                                    <Popover
+                                                        id={id}
+                                                        open={open}
+                                                        anchorEl={columnAnchorEl}
+                                                        onClose={handleColumnPopoverClose}
+                                                        anchorOrigin={{
+                                                            vertical: 'bottom',
+                                                            horizontal: 'center',
+                                                        }}
+                                                        transformOrigin={{
+                                                            vertical: 'top',
+                                                            horizontal: 'center', // Ensures the Popover's top right corner aligns with the anchor point
+                                                        }}
+                                                        PaperProps={{
+                                                            elevation: 0, // This will remove the shadow
+                                                            style: {
+                                                                boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
+                                                            },
+                                                        }}
+                                                    >
+                                                        <div className='w-[170px] p-2' style={styles.paragraph}>
+                                                            <div>Option 1</div>
+                                                            <div>Option 2</div>
+                                                            <button className='underline text-purple' onClick={() => {
+                                                                setShowPopUp(true);
+                                                            }}>Add New column</button>
+                                                        </div>
+                                                    </Popover>
+                                                </div>
+                                            </div>
+                                        )
+                                    })
+                                }
+                            </div>
+
+                            <div className='mt-4 flex flex-row justify-center'>
+                                {
+                                    Loader ?
+                                        <CircularProgress size={27} /> :
+                                        <button className='bg-purple text-white rounded-lg h-[50px] w-4/12' onClick={handleAddLead}>
+                                            Continue
+                                        </button>
+                                }
+                            </div>
+
+
+
+
+                            {/* Can be use full to add shadow */}
+                            {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+
+            {/* Modal to update header */}
+            <Modal
+                open={showPopUp}
+                onClose={() => setShowPopUp(false)}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 1000,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        backdropFilter: "blur(5px)",
+                    },
+                }}
+            >
+                <Box className="lg:w-6/12 sm:w-9/12 w-10/12" sx={styles.modalsStyle}>
+                    <div className="flex flex-row justify-center w-full">
+                        <div
+                            className="w-full"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                            }}
+                        >
+                            <div className='flex flex-row justify-end'>
+                                <button onClick={() => { setShowPopUp(false) }}>
+                                    <Image src={"/assets/cross.png"} height={14} width={14} alt='*' />
+                                </button>
+                            </div>
+                            <div className='w-full text-center mt-2' style={{ fontSize: 25, fontWeight: "700" }}>
+                                Add Column
+                            </div>
+                            <div className='mt-2' style={styles.subHeadingStyle}>
+                                Update Column
+                            </div>
+
+                            <input
+                                className='border outline-none rounded p-2 mt-2 w-full'
+                                value={updateColumnValue}
+                                // onChange={(e) => { setUpdateColumnValue(e.target.value) }}
+                                onChange={(e) => {
+                                    const regex = /^[a-zA-Z_]*$/; // Allow only alphabets
+                                    if (regex.test(e.target.value)) {
+                                        setUpdateColumnValue(e.target.value);
+                                    }
+                                }}
+                                placeholder='Type here ...'
+                            />
+
+                            <button className='w-full h-[50px] rounded-xl bg-purple text-white mt-8' style={styles.subHeadingStyle}
+                                onClick={() => {
+                                    console.log("Change column name here", updateColumnValue)
+                                    console.log("Old column value ", UpdateHeader.columnNameTransformed)
+                                    let pd = processedData
+                                    let mappingList = columnMappingsList
+                                    for (let i = 0; i < pd.length; i++) {
+                                        let d = pd[i]
+                                        let value = d.extraColumns[UpdateHeader.columnNameTransformed]
+                                        delete d.extraColumns[UpdateHeader.columnNameTransformed]
+                                        // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
+                                        d.extraColumns[updateColumnValue] = value;
+                                        pd[i] = d;
+                                    }
+
+
+                                    for (let i = 0; i < mappingList.length; i++) {
+                                        let map = mappingList[i];
+                                        if (map.columnNameTransformed == UpdateHeader.columnNameTransformed) {
+                                            // update the column
+                                            map.columnNameTransformed = updateColumnValue;
+                                        }
+                                        mappingList[i] = map;
+                                    }
+                                    console.log(`Processed data changed`, pd)
+                                    setProcessedData(pd)
+                                    setColumnMappingsList(mappingList)
+                                    console.log("Mapping list changed", mappingList)
+                                    if (pd && mappingList) {
+                                        setShowPopUp(false);
+                                        setcolumnAnchorEl(null);
+                                        setSelectedItem(null);
+                                    }
+
+                                }}
+                            >
+                                Create
+                            </button>
+
+
+                            {/* Can be use full to add shadow */}
+                            {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+
+
+
+            <div>
+                <Snackbar
+                    open={SuccessSnack}
+                    autoHideDuration={3000}
+                    onClose={() => {
+                        setSuccessSnack(null);
+                    }}
+                    anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center'
+                    }}
+                    TransitionComponent={Fade}
+                    TransitionProps={{
+                        direction: 'center'
+                    }}
+                >
+                    <Alert
+                        onClose={() => {
+                            setSuccessSnack(null);
+                        }} severity="success"
+                        // className='bg-purple rounded-lg text-white'
+                        sx={{ width: 'auto', fontWeight: '700', fontFamily: 'inter', fontSize: '22' }}
+                    >
+                        {SuccessSnack}
+                    </Alert>
+                </Snackbar>
+            </div>
         </div>
     )
 }

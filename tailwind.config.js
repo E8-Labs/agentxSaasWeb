@@ -12,7 +12,8 @@ module.exports = {
         foreground: "var(--foreground)",
         purple: "#402FFF",
         green: "#01CB76",
-        red: "#FF4E4E"
+        red: "#FF4E4E",
+        purple2: "#1C55FF"
       },
     },
   },

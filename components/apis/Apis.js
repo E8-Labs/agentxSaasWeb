@@ -12,7 +12,10 @@ const Apis = {
     getPipelines: `${BasePath}api/pipeline/getPipelines`,
     createPipeLine: `${BasePath}api/pipeline/createPipelineCadence`,
     updateAgent: `${BasePath}api/agent/updateAgent`,
-    createLead: `${BasePath}api/leads/addLeads`
+    createLead: `${BasePath}api/leads/addLeads`,
+    getLeads: `${BasePath}api/leads/getLeads`,
+    getSheets: `${BasePath}api/leads/getSheets`,
+    getAgents: `${BasePath}api/agent/getAgents`
 }
 
 export default Apis

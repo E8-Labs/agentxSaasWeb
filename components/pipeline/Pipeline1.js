@@ -235,6 +235,9 @@ const Pipeline1 = ({ handleContinue }) => {
 
             if (response) {
                 console.log("Response of create pipeline api is :---", response);
+                if(response.data.status === true){
+                    handleContinue();
+                }
             }
 
         } catch (error) {
@@ -799,7 +802,7 @@ const Pipeline1 = ({ handleContinue }) => {
                         <ProgressBar value={33} />
                     </div>
 
-                    <Footer handleContinue={handleContinue} donotShowBack={true} registerLoader={createPipelineLoader} />
+                    <Footer handleContinue={printAssignedLeadsData} donotShowBack={true} registerLoader={createPipelineLoader} />
                 </div>
             </div>
         </div>
