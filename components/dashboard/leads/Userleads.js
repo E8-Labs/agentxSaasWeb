@@ -173,9 +173,12 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                             Buy Lead
                                         </span>
                                     </div>
-                                    <button className='flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center' onClick={() => { setAssignLeadModal(true) }}>
+                                    <button
+                                        style={{ backgroundColor: toggleClick.length > 0 ? "#402FFF" : "", color: toggleClick.length > 0 ? "white" : "#00000060" }}
+                                        className='flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center'
+                                        onClick={() => { setAssignLeadModal(true) }}>
                                         <Image src={"/assets/callOut.png"} height={17} width={17} alt='*' />
-                                        <span className='text-[#00000060]' style={styles.heading}>
+                                        <span style={styles.heading}>
                                             Start Calling
                                         </span>
                                     </button>
@@ -206,7 +209,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                             <Image src={"/assets/cross.png"} height={14} width={14} alt='*' />
                                                         </button>
                                                     </div>
-                                                    <div>
+                                                    <div className='w-full'>
                                                         <AssignLead selectedLead={toggleClick} handleCloseAssignLeadModal={handleCloseAssignLeadModal} />
                                                     </div>
 

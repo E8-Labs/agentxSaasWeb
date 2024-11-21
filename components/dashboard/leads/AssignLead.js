@@ -52,6 +52,7 @@ const AssignLead = () => {
     }
 
     const handleAssignAgent = (id) => {
+        console.log("Id selected is :", id);
         setSelectedAgents((prevSelectedItems) => {
             if (prevSelectedItems.includes(id)) {
                 // Remove the ID if it's already selected
@@ -78,7 +79,7 @@ const AssignLead = () => {
         }
     }
     return (
-        <div>
+        <div className='w-full'>
             <div className='flex flex-row items-center justify-between mt-4'>
                 <div style={{ fontSize: 24, fontWeight: "700" }}>
                     Select your Agent
@@ -94,8 +95,8 @@ const AssignLead = () => {
             <div className='max-h-[40vh] overflow-auto'>
                 {
                     agentsList.map((item, index) => (
-                        <button key={index} className='border rounded-lg p-2 mt-4'
-                            onClick={() => { handleAssignAgent }}>
+                        <button key={index} className='border rounded-lg p-2 mt-4 w-full'
+                            onClick={() => { handleAssignAgent(item.id) }}>
                             <div className='flex flex-row items-center justify-between'>
                                 <div className='flex flex-row items-center gap-2'>
                                     <Image src={"/assets/avatar1.png"} height={42} width={42} alt='*' />
@@ -109,11 +110,11 @@ const AssignLead = () => {
                             </div>
 
                             <div className='flex flex-row items-center gap-2'>
-                                <div style={styles.paragraph}>
+                                <div className='flex flex-row items-center' style={styles.paragraph}>
                                     <span className='text-purple'>Pipeline 1 |</span> Active in
                                 </div>
 
-                                <div className='flex flex-row w-full overflow-auto' style={{ scrollbarWidth: "none" }}>
+                                <div className='flex flex-row gap-2 overflow-auto' style={{ scrollbarWidth: "none" }}>
                                     {
                                         item.stages.map((item, index) => (
                                             <div className='px-3 py-1 rounded-3xl border' style={styles.paragraph} key={index}>
