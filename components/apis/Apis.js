@@ -15,7 +15,9 @@ const Apis = {
     createLead: `${BasePath}api/leads/addLeads`,
     getLeads: `${BasePath}api/leads/getLeads`,
     getSheets: `${BasePath}api/leads/getSheets`,
-    getAgents: `${BasePath}api/agent/getAgents`
+    getAgents: `${BasePath}api/agent/getAgents`,
+    assignLeadToPipeLine: `${BasePath}api/pipeline/assignLeadsToPipeline`,
+    uniqueColumns: `${BasePath}api/leads/getUniqueColumns`
 }
 
 export default Apis

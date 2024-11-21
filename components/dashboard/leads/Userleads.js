@@ -177,7 +177,11 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                         style={{ backgroundColor: toggleClick.length > 0 ? "#402FFF" : "", color: toggleClick.length > 0 ? "white" : "#00000060" }}
                                         className='flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center'
                                         onClick={() => { setAssignLeadModal(true) }}>
-                                        <Image src={"/assets/callOut.png"} height={17} width={17} alt='*' />
+                                        {
+                                            toggleClick.length > 0 ?
+                                                <Image src={"/assets/callBtnFocus.png"} height={17} width={17} alt='*' /> :
+                                                <Image src={"/assets/callBtn.png"} height={17} width={17} alt='*' />
+                                        }
                                         <span style={styles.heading}>
                                             Start Calling
                                         </span>
@@ -210,7 +214,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                         </button>
                                                     </div>
                                                     <div className='w-full'>
-                                                        <AssignLead selectedLead={toggleClick} handleCloseAssignLeadModal={handleCloseAssignLeadModal} />
+                                                        <AssignLead selectedLead={toggleClick} handleCloseAssignLeadModal={handleCloseAssignLeadModal} leadIs={toggleClick} />
                                                     </div>
 
                                                     {/* Can be use full to add shadow */}
@@ -295,34 +299,40 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                                 <div className='w-2/12 flex flex-row items-center gap-2 truncate'>
                                                                     {toggleClick.includes(item.id) ? (
                                                                         <button
-                                                                            className="h-[16px] w-[16px] border rounded bg-purple"
+                                                                            className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
                                                                             onClick={() => handleToggleClick(item.id)}
                                                                         >
+                                                                            <Image src={"/assets/whiteTick.png"} height={10} width={10} alt='*' />
                                                                         </button>
                                                                     ) : (
                                                                         <button
-                                                                            className="h-[16px] w-[16px] border rounded"
+                                                                            className="h-[20px] w-[20px] border-2 rounded outline-none"
                                                                             onClick={() => handleToggleClick(item.id)}
                                                                         >
                                                                         </button>
                                                                     )}
-                                                                    <div className='h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white'>
+                                                                    <div className='h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white'
+                                                                        onClick={() => handleToggleClick(item.id)}>
                                                                         {item.firstName.slice(0, 1)}
                                                                     </div>
-                                                                    <div className='truncate'>
+                                                                    <div className='truncate'
+                                                                        onClick={() => handleToggleClick(item.id)}>
                                                                         {item.firstName}
                                                                     </div>
                                                                 </div>
-                                                                <div className='w-2/12 text-[#00000070] truncate'>
+                                                                <div className='w-2/12 text-[#00000070] truncate'
+                                                                    onClick={() => handleToggleClick(item.id)}>
                                                                     {item.email}
                                                                 </div>
-                                                                <div className='w-2/12 truncate'>
+                                                                <div className='w-2/12 truncate'
+                                                                    onClick={() => handleToggleClick(item.id)}>
                                                                     {item.phone}
                                                                 </div>
-                                                                <div className='w-2/12 truncate'>
+                                                                <div className='w-2/12 truncate'
+                                                                    onClick={() => handleToggleClick(item.id)}>
                                                                     {item.address}
                                                                 </div>
-                                                                <div className='w-2/12 flex flex-row items-center gap-2'>
+                                                                <div className='w-2/12 flex flex-row items-center gap-2' onClick={() => handleToggleClick(item.id)}>
                                                                     <div className='text-[#1C55FF] bg-[#1C55FF10] h-[33px] w-[47px] flex flex-row items-center justify-center rounded'>
                                                                         Tag
                                                                     </div>
@@ -334,7 +344,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                                     </div>
                                                                 </div>
                                                                 <div className='w-2/12 flex flex-row items-center'>
-                                                                    <div className='w-5/12'>
+                                                                    <div className='w-5/12' onClick={() => handleToggleClick(item.id)}>
                                                                         <li style={{
                                                                             fontWeight: "500",
                                                                             fontSize: 12
@@ -342,7 +352,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                                             {item.stage.stageTitle}
                                                                         </li>
                                                                     </div>
-                                                                    <div className='w-5/12 truncate'>
+                                                                    <div className='w-5/12 truncate' onClick={() => handleToggleClick(item.id)}>
                                                                         {moment(item.createdAt).format('MM/DD/YYYY')}
                                                                     </div>
                                                                     <div className='w-2/12 underline text-purple'>

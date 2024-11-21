@@ -1,11 +1,11 @@
 import Body from '@/components/onboarding/Body';
 import Header from '@/components/onboarding/Header';
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
-import { Box, FormControl, MenuItem, Modal, Popover, Select, TextField } from '@mui/material';
+import { Box, FormControl, MenuItem, Modal, Popover, Select, TextField, Typography } from '@mui/material';
 import { CaretDown, CaretUp, DotsThree } from '@phosphor-icons/react';
 import Apis from '../apis/Apis';
 import axios from 'axios';
@@ -27,14 +27,154 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
     const [AgentDetails, setAgentDetails] = useState(null);
     //code for tag inputs
-    const [greetingTagInput, setGreetingTagInput] = useState("");
-    const [scriptTagInput, setScriptTagInput] = useState("");
+    // const [greetingTagInput, setGreetingTagInput] = useState("");
+    // const [scriptTagInput, setScriptTagInput] = useState("");
+    //code for tag input
+    const [greetingTagInput, setGreetingTagInput] = useState('');
+    const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+    const [cursorPosition, setCursorPosition] = useState(0);
+    const greetingInputRef = useRef(null); // Reference to the input element
+
+    const tags = ['name', 'phone', 'email', 'address'];
 
     const [loader, setLoader] = useState(false);
     //variables for advance setting variables
     const [advancedSettingModal, setAdvancedSettingModal] = useState(false);
     const [settingToggleClick, setSettingToggleClick] = useState(1);
     const [showObjectiveDetail, setShowObjectiveDetails] = useState(false);
+    const [columnloader, setColumnloader] = useState(false);
+
+    const handleInputChange = (e) => {
+        const value = e.target.value;
+        const cursorPos = e.target.selectionStart;
+
+        setGreetingTagInput(value);
+        setCursorPosition(cursorPos);
+
+        // Show dropdown if `{` is typed
+        if (value[cursorPos - 1] === '{') {
+            setIsDropdownVisible(true);
+        } else {
+            setIsDropdownVisible(false);
+        }
+    };
+
+    const handleGreetingsTagChange = (tag) => {
+        console.log("Tage is :", tag);
+        const beforeCursor = greetingTagInput.slice(0, cursorPosition);
+        const afterCursor = greetingTagInput.slice(cursorPosition);
+
+        // Replace `{` with the selected tag
+        const updatedInput = beforeCursor.replace(/\{$/, `{${tag}} `) + afterCursor;
+
+        setGreetingTagInput(updatedInput);
+        setIsDropdownVisible(false);
+
+        // Move focus back to the input and place the cursor after the inserted tag
+        const newCursorPosition = beforeCursor.length + tag.length + 2; // Position after the tag
+        setCursorPosition(newCursorPosition);
+
+        // Set focus and cursor position
+        greetingInputRef.current.focus();
+        setTimeout(() => {
+            greetingInputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
+        }, 0);
+    };
+
+    const [scriptTagInput, setScriptTagInput] = useState('');
+    const [promptDropDownVisible, setPromptDropDownVisible] = useState(false);
+    const [kYCSDropDown, setKYCSDropDown] = useState(false)
+    const [promptCursorPosition, setPromptCursorPosition] = useState(0);
+    const textFieldRef = useRef(null); // Reference to the TextField element
+
+    const tags1 = ['name', 'Agent Name', 'Brokerage Name', 'Client Name'];
+
+    // const handlePromptChange = (e) => {
+    //     const value = e.target.value;
+    //     const cursorPos = e.target.selectionStart;
+
+    //     setScriptTagInput(value);
+    //     setPromptCursorPosition(cursorPos);
+
+    //     // Show dropdown if `{` is typed
+    //     if (value[cursorPos - 1] === '{') {
+    //         setPromptDropDownVisible(true);
+    //     } else {
+    //         setPromptDropDownVisible(false);
+    //     }
+    // };
+
+    const handlePromptChange = (e) => {
+        const value = e.target.value;
+        const cursorPos = e.target.selectionStart;
+
+        setScriptTagInput(value);
+        setPromptCursorPosition(cursorPos);
+
+        // Show dropdown if `{kyc|` is typed, case-insensitive
+        const typedText = value.slice(0, cursorPos).toLowerCase(); // Get text up to the cursor in lowercase
+        if (typedText.endsWith('{kyc|')) {
+            setKYCSDropDown(true);
+        } else if (typedText.endsWith('{')) {
+            setPromptDropDownVisible(true);
+        } else {
+            setPromptDropDownVisible(false);
+            setKYCSDropDown(false);
+        }
+    };
+
+
+    // const handlePromptTagSelection = (tag) => {
+    //     const beforeCursor = scriptTagInput.slice(0, promptCursorPosition);
+    //     const afterCursor = scriptTagInput.slice(promptCursorPosition);
+
+    //     // Replace `{` with the selected tag
+    //     const updatedInput = beforeCursor.replace(/\{$/, `{${tag}} `) + afterCursor;
+
+    //     setScriptTagInput(updatedInput);
+    //     setPromptDropDownVisible(false);
+
+    //     // Move focus back to the input and place the cursor after the inserted tag
+    //     const newCursorPosition = beforeCursor.length + tag.length + 2; // Position after the tag
+    //     setPromptCursorPosition(newCursorPosition);
+
+    //     // Set focus and cursor position
+    //     textFieldRef.current.focus();
+    //     setTimeout(() => {
+    //         textFieldRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
+    //     }, 0);
+    // };
+
+    const handlePromptTagSelection = (selectedKYC) => {
+        const beforeCursor = scriptTagInput.slice(0, promptCursorPosition);
+        const afterCursor = scriptTagInput.slice(promptCursorPosition);
+
+        // Insert the selected KYC tag in the desired format
+        const updatedInput = `${beforeCursor} ${selectedKYC} }${afterCursor}`;
+
+        // const updatedInput = beforeCursor.slice(0, 4) + `{ KYC | ${selectedKYC} } ${afterCursor}`;
+
+        // Update the input value and close the dropdown
+        setScriptTagInput(updatedInput);
+        setPromptDropDownVisible(false);
+        setKYCSDropDown(false);
+
+        // Calculate the new cursor position after the selected KYC tag
+        const newCursorPosition = beforeCursor.length + ` KYC | ${selectedKYC} `.length + 2; // Account for brackets and spaces
+
+        // Update the cursor position state
+        setPromptCursorPosition(newCursorPosition);
+
+        // Focus the input field and set the cursor position after the inserted tag
+        setTimeout(() => {
+            if (textFieldRef.current) {
+                textFieldRef.current.focus();
+                textFieldRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
+            }
+        }, 0);
+    };
+
+
 
     useEffect(() => {
         const agentDetailsLocal = localStorage.getItem("agentDetails");
@@ -43,7 +183,48 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             console.log("Locla agent details are :-", localAgentData);
             setAgentDetails(localAgentData);
         }
-    }, [])
+    }, []);
+
+    useEffect(() => {
+        console.log("KYCS DETAILS RECIEVED ARE :", kycsData);
+        // if (isDropdownVisible === true) {
+        //     getUniquesColumn()
+        // }
+    }), [isDropdownVisible, kycsData]
+
+    //code for getting uniqueCcolumns
+    const getUniquesColumn = async () => {
+        try {
+            setColumnloader(true);
+            const localData = localStorage.getItem("User");
+            let AuthToken = null;
+            if (localData) {
+                const UserDetails = JSON.parse(localData);
+                AuthToken = UserDetails.token;
+            }
+
+            console.log("Auth token is :--", AuthToken);
+
+            const ApiPath = Apis.uniqueColumns;
+            console.log("Api path is ", ApiPath);
+
+            const response = await axios.get(ApiPath, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of getColumns api is:", response.data);
+            }
+
+        } catch (error) {
+            console.error("Error occured in getColumn is :", error);
+        } finally {
+            setColumnloader(false)
+        }
+    }
 
     const handleAdvanceSettingToggleClick = (id) => {
         setSettingToggleClick(prevId => (prevId === id ? null : id));
@@ -62,8 +243,13 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
 
     const handleNextClick = async () => {
-        router.push("/dashboard");
-        return
+        // router.push("/dashboard");
+
+        // console.log("Greeting value is :", greetingTagInput);
+
+        // console.log("Promt details are :", scriptTagInput);
+
+        // return
         try {
             setLoader(true);
 
@@ -83,7 +269,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             let AgentRole = null;
             let Stat = null;
             let Address = null;
-            let VoiceId = "Mtewh2emAIf6sPTaximW";
+            // let VoiceId = "Mtewh2emAIf6sPTaximW";
             const mainAgentData = localStorage.getItem("agentDetails");
             if (mainAgentData) {
                 const Data = JSON.parse(mainAgentData);
@@ -113,7 +299,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             formData.append("status", "Just Listed");
             formData.append("address", Address);
             formData.append("mainAgentId", mainAgentId);
-            formData.append("voiceId", VoiceId);
+            // formData.append("voiceId", VoiceId);
             formData.append("prompt", greetingTagInput);
             formData.append("greeting", scriptTagInput);
 
@@ -195,7 +381,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
                             {`Let's Review`}
                         </div>
-                        <div className='mt-8 w-7/12 gap-4 flex flex-col max-h-[50vh] overflow-auto'>
+                        <div className='mt-8 w-7/12 gap-4 flex flex-col'>
                             <div style={styles.inputStyle} className='flex flex-row items-center gap-2'>
                                 <Image src={"/assets/lightBulb.png"} alt='*' height={24} width={24} />  Editing Tips
                             </div>
@@ -217,12 +403,59 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                 Greeting
                             </div>
 
-                            <input
+                            {/* <input
                                 className='border p-2 rounded-lg outline-none bg-transparent'
                                 placeholder="Hey {name}, It's {Agent Name} with {Brokerage Name}! How's it going?"
                                 value={greetingTagInput}
                                 onChange={(e) => { setGreetingTagInput(e.target.value) }}
-                            />
+                            /> */}
+
+                            {/* <div className="relative">
+                                <input
+                                    className="border p-2 rounded-lg outline-none bg-transparent w-full"
+                                    placeholder="Hey {name}, It's {Agent Name} with {Brokerage Name}! How's it going?"
+                                    value={greetingTagInput}
+                                    onChange={handleInputChange}
+                                />
+
+                                {isDropdownVisible && (
+                                    <div className="absolute bg-white border rounded-lg mt-1 shadow-md w-full z-10">
+                                        {tags.map((tag) => (
+                                            <div
+                                                key={tag}
+                                                className="p-2 hover:bg-gray-100 cursor-pointer"
+                                                onClick={() => handleGreetingsTagChange(tag)}
+                                            >
+                                                {tag}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div> */}
+
+                            <div className="relative">
+                                <input
+                                    ref={greetingInputRef} // Attach the ref to the input
+                                    className="border p-2 rounded-lg outline-none bg-transparent w-full"
+                                    placeholder="Hey {name}, It's {Agent Name} with {Brokerage Name}! How's it going?"
+                                    value={greetingTagInput}
+                                    onChange={handleInputChange}
+                                />
+
+                                {isDropdownVisible && (
+                                    <div className="absolute bg-white border rounded-lg mt-1 shadow-md w-full z-10">
+                                        {tags.map((tag) => (
+                                            <div
+                                                key={tag}
+                                                className="p-2 hover:bg-gray-100 cursor-pointer"
+                                                onClick={() => handleGreetingsTagChange(tag)}
+                                            >
+                                                {tag}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
 
                             {/* <MentionsInputTest /> <TagInput /> */}
 
@@ -235,7 +468,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                             </div>
                             <div className='mt-6'>
 
-                                <TextField
+                                {/* <TextField
                                     placeholder="Call script here"
                                     variant="outlined"
                                     fullWidth
@@ -257,8 +490,97 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                     }}
                                     value={scriptTagInput}
                                     onChange={(e) => { setScriptTagInput(e.target.value) }}
-                                />
-                                {/* <CallScriptTag handleCallScriptTag={handleCallScriptTag} /> */}
+                                /> */}
+
+                                <Box sx={{ position: 'relative', width: '100%' }}>
+                                    <TextField
+                                        inputRef={textFieldRef} // Attach the ref to the TextField
+                                        placeholder="Call script here"
+                                        variant="outlined"
+                                        fullWidth
+                                        multiline
+                                        minRows={4}
+                                        maxRows={5}
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                '& fieldset': {
+                                                    border: "1px solid #00000060"
+                                                },
+                                                '&:hover fieldset': {
+                                                    border: "1px solid #00000060"
+                                                },
+                                                '&.Mui-focused fieldset': {
+                                                    border: "1px solid #00000060"
+                                                },
+                                            },
+                                        }}
+                                        value={scriptTagInput}
+                                        onChange={handlePromptChange}
+                                    />
+
+                                    {promptDropDownVisible && (
+                                        <Box
+                                            sx={{
+                                                position: 'absolute',
+                                                background: '#fff',
+                                                border: '1px solid #ddd',
+                                                borderRadius: '4px',
+                                                boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+                                                mt: 1,
+                                                zIndex: 1000,
+                                                width: '100%',
+                                            }}
+                                        >
+                                            {tags.map((tag) => (
+                                                <Typography
+                                                    key={tag}
+                                                    onClick={() => handlePromptTagSelection(tag)}
+                                                    sx={{
+                                                        padding: '8px 12px',
+                                                        cursor: 'pointer',
+                                                        '&:hover': {
+                                                            backgroundColor: '#f0f0f0',
+                                                        },
+                                                    }}
+                                                >
+                                                    {tag}
+                                                </Typography>
+                                            ))}
+                                        </Box>
+                                    )}
+
+                                    {kYCSDropDown && (
+                                        <Box
+                                            sx={{
+                                                position: 'absolute',
+                                                background: '#fff',
+                                                border: '1px solid #ddd',
+                                                borderRadius: '4px',
+                                                boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+                                                mt: 1,
+                                                zIndex: 1000,
+                                                width: '100%',
+                                            }}
+                                        >
+                                            {kycsData.map((tag) => (
+                                                <Typography
+                                                    key={tag.id}
+                                                    onClick={() => handlePromptTagSelection(tag.question)}
+                                                    sx={{
+                                                        padding: '8px 12px',
+                                                        cursor: 'pointer',
+                                                        '&:hover': {
+                                                            backgroundColor: '#f0f0f0',
+                                                        },
+                                                    }}
+                                                >
+                                                    {tag.question}
+                                                </Typography>
+                                            ))}
+                                        </Box>
+                                    )}
+
+                                </Box>
 
                             </div>
                         </div>
@@ -274,7 +596,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                     Advanced Settings
                                 </button>
                             </div>
-                            <KYCs />
+                            <KYCs kycsDetails={setKycsData} />
                             <div className='mt-4' style={styles.headingStyle}>
                                 {`Agent's Objective`}
                             </div>

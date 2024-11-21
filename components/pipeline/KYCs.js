@@ -7,7 +7,7 @@ import Apis from '../apis/Apis'
 import AddSellerKyc from './AddSellerKyc'
 import AddBuyerKyc from './AddBuyerKyc'
 
-const KYCs = () => {
+const KYCs = ({ kycsDetails }) => {
 
     const [anchorEl, setAnchorEl] = useState(null);
     const [BuyerAnchor, setBuyerAnchor] = useState(null);
@@ -90,6 +90,7 @@ const KYCs = () => {
 
             if (response) {
                 console.log("Response of get kycs api is :--", response);
+                kycsDetails(response.data.data)
                 const filteredSellerQuestions = response.data.data.filter(item => item.type === 'seller');
                 const filteredBuyerQuestions = response.data.data.filter(item => item.type === 'buyer');
                 console.log("Seler kycs are :=--", filteredSellerQuestions);
