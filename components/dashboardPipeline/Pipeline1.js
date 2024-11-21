@@ -39,6 +39,7 @@ const Pipeline1 = () => {
             if (localData) {
                 const UserDetails = JSON.parse(localData);
                 AuthToken = UserDetails.token;
+                console.log("Local details are :", UserDetails);
             }
 
             console.log("Auth token is :--", AuthToken);
@@ -295,7 +296,7 @@ const Pipeline1 = () => {
                 <div className="w-[95%] flex flex-col items-start overflow-x-auto mt-8" style={{ scrollbarWidth: "none" }}>
                     <div className="flex flex-row items-center gap-4">
 
-                        {StagesList.map((item, index) => (
+                        {/* {StagesList.map((item, index) => (
                             <div key={index} style={{ width: "300px" }} className="flex flex-row items-center justify-between">
                                 <div
                                     className="h-[36px] flex flex-row items-center justify-center gap-8 rounded px-4"
@@ -331,18 +332,22 @@ const Pipeline1 = () => {
                                     <Typography sx={{ p: 2 }}>The content of the Popover.</Typography>
                                 </Popover>
                             </div>
-                        ))}
+                        ))} */}
 
-                    </div>
-                    <div className="flex flex-row items-center gap-4 mt-4">
+                        {/* </div>
+                    <div className="flex flex-row items-center gap-4 mt-4"> */}
 
-                        {
+                        {/* {
                             LeadsList.map((item, index) => (
                                 <div className='border rounded-xl p-3 h-full' style={{ width: "300px" }} key={index}>
                                     <div className='border rounded-xl px-4 py-2 h-full'>
                                         <div className='flex flex-row items-center gap-3'>
-                                            <div className='bg-black text-white rounded-full flex flex-row item-center justify-center' style={{ height: "27px", width: "27px" }}>A</div>
-                                            <div style={styles.paragraph}>Name</div>
+                                            <div className='bg-black text-white rounded-full flex flex-row item-center justify-center' style={{ height: "27px", width: "27px" }}>
+                                                {item.lead.firstName.slice(0, 1)}
+                                            </div>
+                                            <div style={styles.paragraph}>
+                                                {item.lead.firstName}
+                                            </div>
                                         </div>
                                         <div className='flex flex-row items-center justify-between w-full mt-2'>
                                             <div className='text-[#00000060]' style={styles.agentName}>
@@ -351,7 +356,7 @@ const Pipeline1 = () => {
                                             <div className='flex flex-row items-center gap-4'>
                                                 <Image src={"/assets/colorCircle.png"} height={24} width={24} alt='*' />
                                                 <div className='text-purple underline' style={styles.agentName}>
-                                                    Ai Name
+                                                    {item.agent.name}
                                                 </div>
                                             </div>
                                         </div>
@@ -369,9 +374,104 @@ const Pipeline1 = () => {
                                     </div>
                                 </div>
                             ))
-                        }
+                        } */}
 
                     </div>
+                    <div className="flex flex-row items-center gap-4">
+                        {StagesList.map((stage, index) => (
+                            <div key={index} style={{ width: "300px" }} className="flex flex-col items-start h-full">
+                                {/* Display the stage */}
+                                <div className='flex flex-row items-center w-full justify-between'>
+                                    <div
+                                        className="h-[36px] flex flex-row items-center justify-center gap-8 rounded px-4"
+                                        style={{ ...styles.heading, backgroundColor: stage.defaultColor }}
+                                    >
+                                        <span>{stage.stageTitle}</span>
+                                        <div
+                                            className="h-[20px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center"
+                                            style={{ ...styles.paragraph, fontSize: 14 }}
+                                        >
+                                            {stage.id}
+                                        </div>
+                                    </div>
+
+                                    <button aria-describedby={stageId} variant="contained" onClick={handleShowStagePopover}>
+                                        <DotsThree size={27} weight="bold" />
+                                    </button>
+                                </div>
+                                <Popover
+                                    id={stageId}
+                                    open={openStage}
+                                    anchorEl={StageAnchorel}
+                                    onClose={handleCloseStagePopover}
+                                    anchorOrigin={{
+                                        vertical: 'bottom',
+                                        horizontal: 'left',
+                                    }}
+                                    PaperProps={{
+                                        elevation: 0, // This will remove the shadow
+                                        style: {
+                                            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
+                                        },
+                                    }}
+                                >
+                                    <Typography sx={{ p: 2 }}>The content of the Popover.</Typography>
+                                </Popover>
+
+                                {/* Display leads matching this stage */}
+                                <div className="flex flex-col gap-4 mt-4">
+                                    {LeadsList.filter((lead) => lead.stage === stage.id).map((lead, leadIndex) => (
+                                        <div className="border rounded-xl p-3 h-full" style={{ width: "300px" }} key={leadIndex}>
+                                            <div className="border rounded-xl px-4 py-2 h-full">
+                                                <div className="flex flex-row items-center gap-3">
+                                                    <div
+                                                        className="bg-black text-white rounded-full flex flex-row item-center justify-center"
+                                                        style={{ height: "27px", width: "27px" }}
+                                                    >
+                                                        {lead.lead.firstName.slice(0, 1)}
+                                                    </div>
+                                                    <div style={styles.paragraph}>{lead.lead.firstName}</div>
+                                                </div>
+                                                <div className="flex flex-row items-center justify-between w-full mt-2">
+                                                    <div className="text-[#00000060]" style={styles.agentName}>
+                                                        Email
+                                                    </div>
+                                                    <div className="flex flex-row items-center gap-4">
+                                                        <Image
+                                                            src={"/assets/colorCircle.png"}
+                                                            height={24}
+                                                            width={24}
+                                                            alt="*"
+                                                        />
+                                                        <div className="text-purple underline" style={styles.agentName}>
+                                                            {lead.agent.name}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="w-full flex flex-row items-center justify-between mt-12">
+                                                    <Image
+                                                        src={"/assets/manIcon.png"}
+                                                        height={32}
+                                                        width={32}
+                                                        alt="*"
+                                                    />
+                                                    <div className="flex flex-row items-center gap-3">
+                                                        <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
+                                                            Tag
+                                                        </div>
+                                                        <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
+                                                            Tag
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
                 </div>
             </div>
 

@@ -349,7 +349,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                                             fontWeight: "500",
                                                                             fontSize: 12
                                                                         }}>
-                                                                            {item.stage.stageTitle}
+                                                                            {item.stage?.stageTitle}
                                                                         </li>
                                                                     </div>
                                                                     <div className='w-5/12 truncate' onClick={() => handleToggleClick(item.id)}>

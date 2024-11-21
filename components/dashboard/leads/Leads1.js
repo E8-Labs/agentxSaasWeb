@@ -567,7 +567,7 @@ const Leads1 = () => {
                                                 <div className='w-3/12'>
                                                     {matchingValue
                                                         ? matchingValue[item.columnNameTransformed]
-                                                        : "N/A"}
+                                                        : <div>{processedData[0].extraColumns[item.columnNameTransformed]}</div>}
                                                 </div>
                                                 <div className='w-3/12 border rounded p-2'>
                                                     <button className='flex flex-row items-center justify-between w-full' onClick={(event) => {

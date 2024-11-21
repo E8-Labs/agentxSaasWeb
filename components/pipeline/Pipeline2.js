@@ -316,6 +316,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
             if (response) {
                 console.log("Response of update api is :--", response);
+                if (response.data.status === true) {
+                    router.push("/dashboard");
+                }
             }
 
         } catch (error) {
