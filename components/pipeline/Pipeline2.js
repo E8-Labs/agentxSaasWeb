@@ -30,12 +30,12 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     // const [greetingTagInput, setGreetingTagInput] = useState("");
     // const [scriptTagInput, setScriptTagInput] = useState("");
     //code for tag input
-    const [greetingTagInput, setGreetingTagInput] = useState('');
-    const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-    const [cursorPosition, setCursorPosition] = useState(0);
-    const greetingInputRef = useRef(null); // Reference to the input element
+    // const [greetingTagInput, setGreetingTagInput] = useState('');
+    // const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+    // const [cursorPosition, setCursorPosition] = useState(0);
+    // const greetingInputRef = useRef(null); // Reference to the input element
 
-    const tags = ['name', 'phone', 'email', 'address'];
+    // const tags = ['name', 'phone', 'email', 'address'];
 
     const [loader, setLoader] = useState(false);
     //variables for advance setting variables
@@ -44,6 +44,50 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     const [showObjectiveDetail, setShowObjectiveDetails] = useState(false);
     const [columnloader, setColumnloader] = useState(false);
 
+    // const handleInputChange = (e) => {
+    //     const value = e.target.value;
+    //     const cursorPos = e.target.selectionStart;
+
+    //     setGreetingTagInput(value);
+    //     setCursorPosition(cursorPos);
+
+    //     // Show dropdown if `{` is typed
+    //     if (value[cursorPos - 1] === '{') {
+    //         setIsDropdownVisible(true);
+    //     } else {
+    //         setIsDropdownVisible(false);
+    //     }
+    // };
+
+    // const handleGreetingsTagChange = (tag) => {
+    //     console.log("Tage is :", tag);
+    //     const beforeCursor = greetingTagInput.slice(0, cursorPosition);
+    //     const afterCursor = greetingTagInput.slice(cursorPosition);
+
+    //     // Replace `{` with the selected tag
+    //     const updatedInput = beforeCursor.replace(/\{$/, `{${tag}} `) + afterCursor;
+
+    //     setGreetingTagInput(updatedInput);
+    //     setIsDropdownVisible(false);
+
+    //     // Move focus back to the input and place the cursor after the inserted tag
+    //     const newCursorPosition = beforeCursor.length + tag.length + 2; // Position after the tag
+    //     setCursorPosition(newCursorPosition);
+
+    //     // Set focus and cursor position
+    //     greetingInputRef.current.focus();
+    //     setTimeout(() => {
+    //         greetingInputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
+    //     }, 0);
+    // };
+
+    const tags = ['name', 'phone', 'email', 'address', 'name han'];
+    const [greetingTagInput, setGreetingTagInput] = useState('');
+    const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+    const [cursorPosition, setCursorPosition] = useState(0);
+    const [filteredTags, setFilteredTags] = useState(tags); // Filtered dropdown items
+    const greetingInputRef = useRef(null); // Reference to the input element
+
     const handleInputChange = (e) => {
         const value = e.target.value;
         const cursorPos = e.target.selectionStart;
@@ -51,33 +95,62 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         setGreetingTagInput(value);
         setCursorPosition(cursorPos);
 
-        // Show dropdown if `{` is typed
+        // Extract text after the last `{`
+        const textAfterLastBrace = value.slice(value.lastIndexOf('{') + 1, cursorPos);
+
         if (value[cursorPos - 1] === '{') {
+            setFilteredTags(tags); // Show all tags when `{` is typed
             setIsDropdownVisible(true);
+        } else if (value.includes('{') && isDropdownVisible) {
+            // Filter tags based on input after `{`
+            const filtered = tags.filter((tag) =>
+                tag.startsWith(textAfterLastBrace)
+            );
+            setFilteredTags(filtered);
         } else {
             setIsDropdownVisible(false);
         }
     };
 
+    // const handleGreetingsTagChange = (tag) => {
+    //     // Replace the last `{text` with the selected tag
+    //     const value = greetingTagInput;
+    //     const lastBraceIndex = value.lastIndexOf('{');
+    //     const beforeCursor = greetingTagInput.slice(0, cursorPosition);
+    //     const afterCursor = greetingTagInput.slice(cursorPosition);
+
+    //     // Replace `{` with the selected tag
+    //     const updatedInput = beforeCursor.replace(/\{$/, `{${tag}} `) + afterCursor;
+
+    //     // const newValue = value.slice(0, lastBraceIndex + 1) + tag + value.slice(cursorPosition);
+
+    //     setGreetingTagInput(updatedInput);
+    //     setIsDropdownVisible(false);
+
+    //     // Move the cursor after the inserted tag
+    //     setTimeout(() => {
+    //         const input = greetingInputRef.current;
+    //         input.setSelectionRange(lastBraceIndex + tag.length + 1, lastBraceIndex + tag.length + 1);
+    //         input.focus();
+    //     }, 0);
+    // };
+
     const handleGreetingsTagChange = (tag) => {
-        console.log("Tage is :", tag);
-        const beforeCursor = greetingTagInput.slice(0, cursorPosition);
-        const afterCursor = greetingTagInput.slice(cursorPosition);
+        // Replace the last `{text` with `{ tag }` (with spaces)
+        const value = greetingTagInput;
+        const lastBraceIndex = value.lastIndexOf('{');
+        const newValue =
+            value.slice(0, lastBraceIndex + 1) + ` ${tag} ` + `} ` + value.slice(cursorPosition);
 
-        // Replace `{` with the selected tag
-        const updatedInput = beforeCursor.replace(/\{$/, `{${tag}} `) + afterCursor;
-
-        setGreetingTagInput(updatedInput);
+        setGreetingTagInput(newValue);
         setIsDropdownVisible(false);
 
-        // Move focus back to the input and place the cursor after the inserted tag
-        const newCursorPosition = beforeCursor.length + tag.length + 2; // Position after the tag
-        setCursorPosition(newCursorPosition);
-
-        // Set focus and cursor position
-        greetingInputRef.current.focus();
+        // Move the cursor after the inserted tag
         setTimeout(() => {
-            greetingInputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
+            const input = greetingInputRef.current;
+            const newCursorPosition = lastBraceIndex + tag.length + 5; // Adjust for spaces
+            input.setSelectionRange(newCursorPosition, newCursorPosition);
+            input.focus();
         }, 0);
     };
 
@@ -504,7 +577,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                 )}
                             </div> */}
 
-                            <div className="relative">
+                            {/* <div className="relative">
                                 <input
                                     ref={greetingInputRef} // Attach the ref to the input
                                     className="border p-2 rounded-lg outline-none bg-transparent w-full"
@@ -526,7 +599,36 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                         ))}
                                     </div>
                                 )}
+                            </div> */}
+
+
+
+                            <div className="relative">
+                                <input
+                                    ref={greetingInputRef} // Attach the ref to the input
+                                    className="border p-2 rounded-lg outline-none bg-transparent w-full"
+                                    placeholder="Hey {name}, It's {Agent Name} with {Brokerage Name}! How's it going?"
+                                    value={greetingTagInput}
+                                    onChange={handleInputChange}
+                                />
+
+                                {isDropdownVisible && filteredTags.length > 0 && (
+                                    <div className="absolute bg-white border rounded-lg mt-1 shadow-md w-full z-10">
+                                        {filteredTags.map((tag) => {
+                                            // filteredTags.includes()
+                                            return (
+                                                <div
+                                                    key={tag}
+                                                    className="p-2 hover:bg-gray-100 cursor-pointer"
+                                                    onClick={() => handleGreetingsTagChange(tag)}
+                                                >
+                                                    {tag}
+                                                </div>)
+                                        })}
+                                    </div>
+                                )}
                             </div>
+
 
                             {/* <MentionsInputTest /> <TagInput /> */}
 
