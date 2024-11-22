@@ -182,6 +182,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             const localAgentData = JSON.parse(agentDetailsLocal);
             console.log("Locla agent details are :-", localAgentData);
             setAgentDetails(localAgentData);
+            setScriptTagInput(localAgentData.agents[0].prompt);
         }
     }, []);
 
@@ -317,7 +318,8 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             if (response) {
                 console.log("Response of update api is :--", response);
                 if (response.data.status === true) {
-                    router.push("/dashboard");
+                    handleAddCadence()
+                    // router.push("/dashboard");
                 }
             }
 
@@ -326,6 +328,72 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         } finally {
             setLoader(false);
             console.log("update agent api completed");
+        }
+    }
+
+    const handleAddCadence = async () => {
+        try {
+            setLoader(true);
+            console.log("");
+            let cadence = null;
+            const cadenceData = localStorage.getItem("AddCadenceDetails");
+            if (cadenceData) {
+                const cadenceDetails = JSON.parse(cadenceData);
+                cadence = cadenceDetails;
+            }
+
+            console.log("cadence details are :",
+                cadence
+            );
+
+            let mainAgentId = null;
+            const mainAgentData = localStorage.getItem("agentDetails");
+            if (mainAgentData) {
+                const Data = JSON.parse(mainAgentData);
+                console.log("Localdat recieved is :--", Data);
+                mainAgentId = Data.id;
+            }
+
+            let AuthToken = null;
+            const localData = localStorage.getItem("User");
+            if (localData) {
+                const Data = JSON.parse(localData);
+                console.log("Localdat recieved is :--", Data);
+                AuthToken = Data.token;
+            }
+
+            console.log("Authtoke for add cadence api is :", AuthToken);
+
+            console.log("Main agent id is :", mainAgentId);
+
+            const ApiData = {
+                pipelineId: cadence.pipelineID,
+                mainAgentId: mainAgentId,
+                cadence: cadence.cadenceDetails
+            }
+
+            const ApiPath = Apis.createPipeLine;
+            console.log("Api path is :", ApiPath);
+
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of create pipeline api is :---", response);
+                if (response.data.status === true) {
+                    router.push("/dashboard");
+                }
+            }
+
+
+        } catch (error) {
+            console.error("Error occured in api is :", error);
+        } finally {
+            setLoader(false);
         }
     }
 
@@ -375,7 +443,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-gray-100 rounded-lg w-10/12 h-[90vh] py-4 overflow-auto flex flex-col justify-between'>
+            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple flex flex-col justify-between'>
                 <div>
                     {/* header */}
                     <Header />

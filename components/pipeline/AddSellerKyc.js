@@ -308,7 +308,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='w-full py-4 overflow-auto flex flex-col justify-between'>
+            <div className='w-full py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple flex flex-col justify-between'>
                 <div>
                     {/* header */}
                     {/* <Header /> */}
@@ -351,7 +351,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
                         {
                             toggleClick === 1 ?
                                 (
-                                    <div className='mt-8 w-10/12 max-h-[37vh] overflow-auto'>
+                                    <div className='mt-8 w-10/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                         {
                                             needKYCQuestions.map((item, index) => (
                                                 <button
@@ -379,7 +379,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
                                 ) :
                                 toggleClick === 2 ?
                                     (
-                                        <div className='mt-8 w-10/12 max-h-[37vh] overflow-auto'>
+                                        <div className='mt-8 w-10/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                             {
                                                 motivationKycQuestions.map((item, index) => (
                                                     <button
@@ -406,7 +406,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
                                     ) :
                                     toggleClick === 3 ?
                                         (
-                                            <div className='mt-8 w-10/12 max-h-[37vh] overflow-auto'>
+                                            <div className='mt-8 w-10/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                                 {
                                                     urgencyKycQuestions.map((item, index) => (
                                                         <button
@@ -433,7 +433,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
                         }
 
 
-                        <button className='mt-2 w-10/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
+                        <button className='mt-2 w-10/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
                             Add Question
                         </button>
                         {/* Modal to add KYC */}
@@ -483,7 +483,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
                                             Sample Answers
                                         </div>
 
-                                        <div className='max-h-[30vh] overflow-auto'>
+                                        <div className='max-h-[30vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                             {inputs.map((input, index) => (
                                                 <div key={input.id} className='w-full flex flex-row items-center gap-4 mt-4'>
                                                     <input

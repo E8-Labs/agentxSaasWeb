@@ -15,7 +15,19 @@ module.exports = {
         red: "#FF4E4E",
         purple2: "#1C55FF"
       },
+      scrollbar: {
+        width: '15px', // Customize scrollbar width
+        colors: {
+          thumb: '#402FFF', // Scrollbar thumb (the draggable part)
+          track: 'transparent', // Scrollbar track (background)
+        },
+      }
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwind-scrollbar')({ nocompatible: true }), //scrollbar plugin
+  ],
+  variants: {
+    scrollbar: ['rounded'], // Enable variants for scrollbar
+  },
 };

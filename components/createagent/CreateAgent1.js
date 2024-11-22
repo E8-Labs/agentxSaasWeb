@@ -1,16 +1,19 @@
 import Body from '@/components/onboarding/Body';
 import Header from '@/components/onboarding/Header';
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
 import Apis from '../apis/Apis';
 import axios from 'axios';
+import { Box, Modal } from '@mui/material';
+import AddressPicker from '../test/AddressPicker';
 
 const CreateAgent1 = ({ handleContinue, handleBack }) => {
 
     const router = useRouter();
+    const bottomRef = useRef();
     const [toggleClick, setToggleClick] = useState(false);
     const [OutBoundCalls, setOutBoundCalls] = useState(false);
     const [InBoundCalls, setInBoundCalls] = useState(false);
@@ -20,11 +23,44 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
     const [agentName, setAgentName] = useState("");
     const [agentRole, setAgentRole] = useState("");
 
+    const [showModal, setShowModal] = useState(false);
+    //other status
+    const [showSomtthingElse, setShowSomtthingElse] = useState(false);
+    const [selectedStatus, setSelectedStatus] = useState(null);
+    const [otherStatus, setOtherStatus] = useState("");
+
+    //other objective
+    const [showOtherObjective, setShowOtherObjective] = useState(false);
+    const [otherObjVal, setOtherObjVal] = useState("");
+
     // useEffect(() => {})
+
+    //auto move to the bottom
+    useEffect(() => {
+        if (showOtherObjective && bottomRef.current) {
+            bottomRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [showOtherObjective]);
 
     const handleToggleClick = (item) => {
         setAgentObjective(item);
-        setToggleClick(prevId => (prevId === item.id ? null : item.id));
+        setToggleClick(item.id);
+        // setToggleClick(prevId => (prevId === item.id ? null : item.id));
+
+        if (item.id === 3) {
+            setShowModal(true);
+        }
+        if (item.id === 100) {
+            console.log("Trigered");
+            // if (bottomRef.current) {
+            //     bottomRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+            // }
+            setShowOtherObjective(true);
+        } else {
+            setShowOtherObjective("");
+            setOtherObjVal("")
+        }
+
     }
 
     const AgentObjective = [
@@ -32,37 +68,49 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
             id: 1,
             icon: "",
             title: "Call absentee owners",
-            details: "Reach out to property owners who may not live in the property to discuss potential selling or investment opportunities."
+            details: "Reach out to property owners who may not live in the property to discuss potential selling or investment opportunities.",
+            focusIcn: "/objectiveIcons/obj1FC.png",
+            unFocusIcon: "/objectiveIcons/obj1UF.png"
         },
         {
             id: 2,
             icon: "",
             title: "Circle prospecting",
-            details: "Call homeowners in a specific farm to inform them about recent property activities, and gauge their interest in selling or buying."
+            details: "Call homeowners in a specific farm to inform them about recent property activities, and gauge their interest in selling or buying.",
+            focusIcn: "/objectiveIcons/obj2FC.png",
+            unFocusIcon: "/objectiveIcons/obj2UF.png"
         },
         {
             id: 3,
             icon: "",
             title: "Community update",
-            details: "Provide local homeowners with relevant updates on a property like just listed, just sold, in escrow or something else. "
+            details: "Provide local homeowners with relevant updates on a property like just listed, just sold, in escrow or something else. ",
+            focusIcn: "/objectiveIcons/obj3FC.png",
+            unFocusIcon: "/objectiveIcons/obj3UF.png"
         },
         {
             id: 4,
             icon: "",
             title: "Lead reactivation",
-            details: "Reconnect with past leads who previously expressed interest but did not convert, to reignite their interest in your services."
+            details: "Reconnect with past leads who previously expressed interest but did not convert, to reignite their interest in your services.",
+            focusIcn: "/objectiveIcons/obj4FC.png",
+            unFocusIcon: "/objectiveIcons/obj4UF.png"
         },
         {
             id: 5,
             icon: "",
             title: "Agent Recruiting",
-            details: "Identify, engage, and attract potential real estate agents to expand your team with top talent. Recruit new agents to your team."
+            details: "Identify, engage, and attract potential real estate agents to expand your team with top talent. Recruit new agents to your team.",
+            focusIcn: "/objectiveIcons/obj5FC.png",
+            unFocusIcon: "/objectiveIcons/obj5UF.png"
         },
         {
             id: 100,
             icon: "",
             title: "others",
-            details: ""
+            details: "",
+            focusIcn: "/objectiveIcons/obj6FC.png",
+            unFocusIcon: "/objectiveIcons/obj6UF.png"
         },
     ];
 
@@ -94,8 +142,6 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
             const formData = new FormData();
             formData.append("name", agentName);
             formData.append("agentRole", agentRole);
-            formData.append("agentObjective", agentObjective.title);
-            formData.append("agentObjectiveDescription", agentObjective.details);
             let agentType = null
             if (InBoundCalls && OutBoundCalls) {
                 agentType = "both"
@@ -105,9 +151,23 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                 agentType = "outbound"
             }
             formData.append("agentType", agentType);
-            formData.append("status", "Just listed");
+            if (selectedStatus) {
+                if (selectedStatus.id === 5) {
+                    formData.append("status", otherStatus);
+                } else {
+                    formData.append("status", selectedStatus.title);
+                }
+            }
             formData.append("address", "Chakwal");
-            formData.append("agentObjectiveId", agentObjective.id);
+            if (agentObjective.id === 100) {
+                formData.append("agentObjective", "others");
+                formData.append("agentObjectiveDescription", otherObjVal);
+                formData.append("agentObjectiveId", 100);
+            } else {
+                formData.append("agentObjective", agentObjective.title);
+                formData.append("agentObjectiveDescription", agentObjective.details);
+                formData.append("agentObjectiveId", agentObjective.id);
+            }
 
             console.log("Build agent details are is :-----");
             for (let [key, value] of formData.entries()) {
@@ -137,6 +197,39 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
         }
     }
 
+    //code to select the status
+    const handleSelectStatus = (item) => {
+        if (item.id === 5) {
+            setShowSomtthingElse(true);
+        } else {
+            setShowSomtthingElse(false);
+        }
+        setSelectedStatus((prevId) => prevId === item ? null : item);
+    }
+
+    const status = [
+        {
+            id: 1,
+            title: "Coming soon"
+        },
+        {
+            id: 2,
+            title: "Just sold"
+        },
+        {
+            id: 3,
+            title: "Just listed"
+        },
+        {
+            id: 4,
+            title: "In escrow"
+        },
+        {
+            id: 5,
+            title: "Something else"
+        },
+    ]
+
     const styles = {
         headingStyle: {
             fontSize: 16,
@@ -145,13 +238,24 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
         inputStyle: {
             fontSize: 15,
             fontWeight: "500"
-        }
+        },
+        modalsStyle: {
+            height: "auto",
+            bgcolor: "transparent",
+            // p: 2,
+            mx: "auto",
+            my: "50vh",
+            transform: "translateY(-55%)",
+            borderRadius: 2,
+            border: "none",
+            outline: "none",
+        },
     }
 
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-gray-100 rounded-lg w-10/12 h-[90vh] py-4 overflow-auto'>
+            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
                 {/* header */}
                 <Header />
                 {/* Body */}
@@ -159,7 +263,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                     <button className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }} onClick={handleContinue}>
                         Get started with your AI agent
                     </button>
-                    <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh] overflow-auto'>
+                    <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
 
                         <div style={styles.headingStyle}>
                             {`What's your AI agent's name?`}
@@ -179,10 +283,13 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                         <div className='flex flex-row items-center gap-4'>
                             <button className='flex flex-row items-center justify-center gap-2 border h-[70px] w-[240px] outline-none'
                                 style={{
-                                    borderRadius: "50px", border: OutBoundCalls ? "2px solid #402FFF" : ""
+                                    borderRadius: "23px", border: OutBoundCalls ? "2px solid #402FFF" : ""
                                 }}
                                 onClick={handleOutBoundCallClick}>
-                                <Image src={"/assets/callOut.png"} height={24} width={24} alt='*' />
+                                {OutBoundCalls ?
+                                    <Image src={"/assets/callOutFocus.png"} height={24} width={24} alt='*' /> :
+                                    <Image src={"/assets/callOut.png"} height={24} width={24} alt='*' />
+                                }
                                 <div
                                     // className='font-[500] text-xs md:text-[15px]'
                                     style={styles.inputStyle}
@@ -192,9 +299,12 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                             </button>
                             <button className='flex flex-row items-center justify-center gap-2 border h-[70px] w-[240px] outline-none'
                                 style={{
-                                    borderRadius: "50px", borderRadius: "50px", border: InBoundCalls ? "2px solid #402FFF" : ""
+                                    borderRadius: "23px", border: InBoundCalls ? "2px solid #402FFF" : ""
                                 }} onClick={handleInboundCallClick}>
-                                <Image src={"/assets/callOut.png"} height={24} width={24} alt='*' />
+                                {InBoundCalls ?
+                                    <Image src={"/assets/callInFocus.png"} height={24} width={24} alt='*' /> :
+                                    <Image src={"/assets/callIn.png"} height={24} width={24} alt='*' />
+                                }
                                 <div
                                     // className='font-[500] text-xs md:text-[15px]'
                                     style={styles.inputStyle}
@@ -227,10 +337,14 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                             {AgentObjective.map((item) => (
                                 <div key={item.id} className="w-full text-start md:w-1/2 p-2 flex">
                                     <button
-                                        className="border-2 w-full rounded-xl text-start p-4 h-full flex flex-col justify-between"
+                                        className="border-2 w-full rounded-2xl text-start p-4 h-full flex flex-col justify-between outline-none"
                                         onClick={() => { handleToggleClick(item) }}
                                         style={{ borderColor: item.id === toggleClick ? "#402FFF" : "" }}
                                     >
+                                        {item.id === toggleClick ?
+                                            <Image src={item.focusIcn} height={30} width={30} alt='*' /> :
+                                            <Image src={item.unFocusIcon} height={30} width={30} alt='*' />
+                                        }
                                         <div style={styles.inputStyle}>{item.title}</div>
                                         <div style={{ fontSize: 11, fontWeight: "500" }}>{item.details}</div>
                                     </button>
@@ -238,14 +352,23 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                             ))}
                         </div>
 
-                        <div style={styles.headingStyle}>
-                            {`Agent's Objective`}
-                        </div>
-                        <input
-                            placeholder="Type Here.... "
-                            className='border-2 rounded p-2 outline-none'
-                            style={styles.inputStyle}
-                        />
+
+                        {
+                            showOtherObjective && (
+                                <div>
+                                    <div style={styles.headingStyle}>
+                                        {`Agent's Objective`}
+                                    </div>
+                                    <input ref={bottomRef}
+                                        placeholder="Type Here.... "
+                                        className='border-2 rounded p-2 outline-none w-full mt-1'
+                                        style={styles.inputStyle}
+                                        value={otherObjVal}
+                                        onChange={(e) => { setOtherObjVal(e.target.value) }}
+                                    />
+                                </div>
+                            )
+                        }
 
 
 
@@ -259,6 +382,98 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
 
                 <Footer handleContinue={handleBuildAgent} donotShowBack={true} registerLoader={buildAgentLoader} />
             </div>
+
+
+            <Modal
+                open={showModal}
+                onClose={() => setShowModal(false)}
+                closeAfterTransition
+                BackdropProps={{
+                    sx: {
+                        backgroundColor: "#00000020",
+                        backdropFilter: "blur(5px)",
+                    },
+                }}
+            >
+                <Box className="lg:w-4/12 sm:w-7/12 w-8/12" sx={styles.modalsStyle}>
+                    <div className="flex flex-row justify-center w-full h-[65vh]">
+                        <div
+                            className="w-full"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                            }}
+                        >
+                            <div className='flex flex-row items-center justify-end w-full'>
+                                <button className='outline-none border-none' onClick={() => { setShowModal(false) }}>
+                                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                </button>
+                            </div>
+
+                            <div className='text-center' style={{ fontWeight: "600", fontSize: 24 }}>
+                                Community Update
+                            </div>
+
+                            <div style={styles.headingStyle} className='mt-4'>
+                                {`What's the status?`}
+                            </div>
+
+                            <div className='flex flex-row flex-wrap gap-4 mt-4'>
+                                {
+                                    status.map((item) => (
+                                        <button
+                                            key={item.id}
+                                            onClick={(e) => { handleSelectStatus(item) }}
+                                            className='px-6 border rounded-3xl h-[65px] text-center flex flex-row justify-center items-center'
+                                            style={{ border: selectedStatus?.id === item.id ? "2px solid #402FFF" : "" }}
+                                        >
+                                            {item.title}
+                                        </button>
+                                    ))
+                                }
+                            </div>
+
+                            {
+                                showSomtthingElse && (
+                                    <div>
+                                        <div style={styles.headingStyle} className='mt-4'>
+                                            {`What's that`}
+                                        </div>
+
+                                        <div className='mt-1'>
+                                            <input
+                                                className='h-[50px] border rounded-lg outline-none p-2 w-full'
+                                                // rows={3}
+                                                placeholder='Type here...'
+                                                value={otherStatus}
+                                                onChange={(e) => { setOtherStatus(e.target.value) }}
+                                            />
+                                        </div>
+                                    </div>
+                                )
+                            }
+
+                            <div style={styles.headingStyle} className='mt-4'>
+                                {`What's the address`}
+                            </div>
+
+                            <div className='mt-1'>
+                                <AddressPicker />
+                            </div>
+
+                            <button className='text-white w-full h-[50px] rounded-lg bg-purple mt-4' onClick={() => { setShowModal(false) }}>
+                                Continue
+                            </button>
+
+                            {/* Can be use full to add shadow
+                            <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+
+
         </div>
     )
 }

@@ -209,7 +209,7 @@ const Pipeline1 = () => {
                 </div>
             </div>
 
-            {/* <div className='w-full flex flex-row justify-center overflow-auto'>
+            {/* <div className='w-full flex flex-row justify-center overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                 <div className='w-[95%] flex flex-row items-center gap-2'>
                     <div style={{width: "400px"}} className='flex flex-row items-center border-2 justify-between'>
                         <div

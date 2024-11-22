@@ -9,6 +9,7 @@ import { Modal } from '@mui/material';
 import { Box, style } from '@mui/system';
 import Apis from '../apis/Apis';
 import axios from 'axios';
+import { KycCategory } from '../constants/constants';
 
 const KYC1 = ({ handleContinue }) => {
 
@@ -176,6 +177,38 @@ const KYC1 = ({ handleContinue }) => {
 
         //code for api call
 
+        let kycQuestions = []
+        selectedNeedQuestions.map(item => {
+            kycQuestions.push(
+                {
+                    question: item.question,
+                    category: KycCategory.CategoryNeeds,
+                    type: "seller",
+                    examples: item.sampleAnswers.filter(answer => answer)
+                }
+            )
+        })
+        selectedMotivationQuestions.map(item => {
+            kycQuestions.push(
+                {
+                    question: item.question,
+                    category: KycCategory.CategoryMotivation,
+                    type: "seller",
+                    examples: item.sampleAnswers.filter(answer => answer)
+                }
+            )
+        })
+        selectedUrgencyQuestions.map(item => {
+            kycQuestions.push(
+                {
+                    question: item.question,
+                    category: KycCategory.CategoryUrgency,
+                    type: "seller",
+                    examples: item.sampleAnswers.filter(answer => answer)
+                }
+            )
+        })
+
         setSellerKycLoader(true);
 
         try {
@@ -199,46 +232,48 @@ const KYC1 = ({ handleContinue }) => {
             const ApiPath = Apis.addKyc;
             let ApiData = [];
 
-            if (selectedNeedQuestions.length > 0) {
-                // console.log("#need Question details are :", selectedNeedQuestions);
-                const data = {
-                    kycQuestions: selectedNeedQuestions.map(item => ({
-                        question: item.question,
-                        category: "need",
-                        type: "seller",
-                        examples: item.sampleAnswers.filter(answer => answer)
-                    })),
-                    mainAgentId: MyAgentData.id
-                };
-                // console.log("Data to send in api is", data);
-                ApiData = data;
-            } else if (selectedMotivationQuestions.length > 0) {
-                console.log("#motivation Question details are :", selectedMotivationQuestions);
-                const data = {
-                    kycQuestions: selectedMotivationQuestions.map(item => ({
-                        question: item.question,
-                        category: "motivation",
-                        type: "seller",
-                        examples: item.sampleAnswers.filter(answer => answer)
-                    })),
-                    mainAgentId: MyAgentData.id
-                };
-                // console.log("Data to send in api is", data);
-                ApiData = data;
-            } else if (selectedUrgencyQuestions.length > 0) {
-                console.log("#urgency Question details are :", selectedUrgencyQuestions);
-                const data = {
-                    kycQuestions: selectedUrgencyQuestions.map(item => ({
-                        question: item.question,
-                        category: "urgency",
-                        type: "seller",
-                        examples: item.sampleAnswers.filter(answer => answer)
-                    })),
-                    mainAgentId: MyAgentData.id
-                };
-                // console.log("Data to send in api is", data);
-                ApiData = data;
-            }
+            // if (selectedNeedQuestions.length > 0) {
+            //     // console.log("#need Question details are :", selectedNeedQuestions);
+            //     const data = {
+            //         kycQuestions: kycQuestions,
+            //         mainAgentId: MyAgentData.id
+            //     };
+            //     // console.log("Data to send in api is", data);
+            //     ApiData = data;
+            // } else if (selectedMotivationQuestions.length > 0) {
+            //     console.log("#motivation Question details are :", selectedMotivationQuestions);
+            //     const data = {
+            //         kycQuestions: selectedMotivationQuestions.map(item => ({
+            //             question: item.question,
+            //             category: "motivation",
+            //             type: "seller",
+            //             examples: item.sampleAnswers.filter(answer => answer)
+            //         })),
+            //         mainAgentId: MyAgentData.id
+            //     };
+            //     // console.log("Data to send in api is", data);
+            //     ApiData = data;
+            // } else if (selectedUrgencyQuestions.length > 0) {
+            //     console.log("#urgency Question details are :", selectedUrgencyQuestions);
+            //     const data = {
+            //         kycQuestions: selectedUrgencyQuestions.map(item => ({
+            //             question: item.question,
+            //             category: "urgency",
+            //             type: "seller",
+            //             examples: item.sampleAnswers.filter(answer => answer)
+            //         })),
+            //         mainAgentId: MyAgentData.id
+            //     };
+            //     // console.log("Data to send in api is", data);
+            //     ApiData = data;
+            // }
+
+            const data = {
+                kycQuestions: kycQuestions,
+                mainAgentId: MyAgentData.id
+            };
+            // console.log("Data to send in api is", data);
+            ApiData = data;
 
             console.log("APi data is :--", ApiData);
 
@@ -305,7 +340,7 @@ const KYC1 = ({ handleContinue }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-gray-100 rounded-lg w-10/12 h-[90vh] py-4 overflow-auto flex flex-col justify-between'>
+            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple flex flex-col justify-between'>
                 <div>
                     {/* header */}
                     <Header />
@@ -347,7 +382,7 @@ const KYC1 = ({ handleContinue }) => {
                         {
                             toggleClick === 1 ?
                                 (
-                                    <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto'>
+                                    <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                         {
                                             needKYCQuestions.map((item, index) => (
                                                 <button
@@ -375,7 +410,7 @@ const KYC1 = ({ handleContinue }) => {
                                 ) :
                                 toggleClick === 2 ?
                                     (
-                                        <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto'>
+                                        <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                             {
                                                 motivationKycQuestions.map((item, index) => (
                                                     <button
@@ -402,7 +437,7 @@ const KYC1 = ({ handleContinue }) => {
                                     ) :
                                     toggleClick === 3 ?
                                         (
-                                            <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto'>
+                                            <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                                 {
                                                     urgencyKycQuestions.map((item, index) => (
                                                         <button
@@ -429,7 +464,7 @@ const KYC1 = ({ handleContinue }) => {
                         }
 
 
-                        {/* <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto'>
+                        {/* <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                             {needKYCQuestions.map((item, index) => (
                                 <div className='mb-4 border rounded-xl flex flex-row items-center justify-between px-4 sm:h-[10vh]' key={index}>
                                     <div style={{ width: "90%" }}>{item.question}</div>
@@ -444,7 +479,7 @@ const KYC1 = ({ handleContinue }) => {
                             ))}
                         </div> */}
 
-                        <button className='mt-2 w-10/12 md:w-6/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
+                        <button className='mt-2 w-10/12 md:w-6/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
                             Add Question
                         </button>
                         {/* Modal to add KYC */}
@@ -494,7 +529,7 @@ const KYC1 = ({ handleContinue }) => {
                                             Sample Answers
                                         </div>
 
-                                        <div className='max-h-[30vh] overflow-auto'>
+                                        <div className='max-h-[30vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                             {inputs.map((input, index) => (
                                                 <div key={input.id} className='w-full flex flex-row items-center gap-4 mt-4'>
                                                     <input

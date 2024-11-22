@@ -6,6 +6,8 @@ const Apis = {
     buildAgent: `${BasePath}api/agent/buildAgent`,
     findPhoneNumber: `${BasePath}api/agent/findPhoneNumbers`,
     purchaseNumber: `${BasePath}api/agent/purchasePhone`,
+    userAvailablePhoneNumber: `${BasePath}api/agent/listUsersAvailablePhoneNumbers`,
+    asignPhoneNumber: `${BasePath}api/agent/assignPhoneNumber`,
     addKyc: `${BasePath}api/agent/addKyc`,
     getVoices: "https://fine-tuner.ai/api/1.1/wf/v2_voice_agent_voices",
     getKYCs: `${BasePath}api/agent/getKycs`,
@@ -17,7 +19,10 @@ const Apis = {
     getSheets: `${BasePath}api/leads/getSheets`,
     getAgents: `${BasePath}api/agent/getAgents`,
     assignLeadToPipeLine: `${BasePath}api/pipeline/assignLeadsToPipeline`,
-    uniqueColumns: `${BasePath}api/leads/getUniqueColumns`
+    uniqueColumns: `${BasePath}api/leads/getUniqueColumns`,
+    CheckEmail: `${BasePath}api/user/checkEmailExists`,
+    CheckPhone: `${BasePath}api/user/checkPhoneNumber`,
+
 }
 
 export default Apis

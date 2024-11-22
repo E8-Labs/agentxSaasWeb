@@ -545,7 +545,7 @@ const Leads1 = () => {
                                 <div className='w-3/12'>Column Fields</div>
                             </div>
 
-                            <div className='max-h-[40vh] overflow-auto'>
+                            <div className='max-h-[40vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                 {
                                     columnMappingsList.map((item, index) => {
                                         const matchingValue = processedData.find((data) =>

@@ -134,7 +134,7 @@ const CreateAgentVoice = ({ handleBack }) => {
     }
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-gray-100 rounded-lg w-10/12 h-[90vh] py-4 overflow-auto flex flex-col justify-between'>
+            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple flex flex-col justify-between'>
 
                 <div>
                     {/* header */}
@@ -145,7 +145,7 @@ const CreateAgentVoice = ({ handleBack }) => {
                             Select your preferred voice
                         </div>
                         <div className='w-full flex flex-row justify-center'>
-                            <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh] overflow-auto'>
+                            <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                 {
                                     voices.map((item, index) => (
                                         <button

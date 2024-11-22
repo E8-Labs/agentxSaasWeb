@@ -292,7 +292,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                     <div>
                                         {
                                             LeadsList.length > 0 ?
-                                                <div className='h-[60vh] overflow-auto'>
+                                                <div className='h-[60vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                                     {
                                                         LeadsList.map((item, index) => (
                                                             <div className='w-full flex flex-row items-center mt-4' style={styles.paragraph} key={index}>

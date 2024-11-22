@@ -16,29 +16,67 @@ import VerificationCodeInput from '../test/VerificationCodeInput';
 const CreateAccount3 = ({ handleContinue, handleBack, length = 6, onComplete }) => {
 
   const verifyInputRef = useRef([]);
+  const timerRef = useRef(null);
+
+
   const router = useRouter();
   const [userName, setUserName] = useState("");
   const [showVerifyPopup, setShowVerifyPopup] = useState(false);
   const [registerLoader, setRegisterLoader] = useState(false);
   const [userEmail, setUserEmail] = useState("");
-  // const [emailErr, setEmailErr] = useState(false);
+  // const [emailErr, setEmailCheckResponse] = useState(false);
   const [userFarm, setUserFarm] = useState("");
   const [userBrokage, setUserBrokage] = useState("");
   const [userTransaction, setUserTransaction] = useState("");
   //phone number input variable
   const [userPhoneNumber, setUserPhoneNumber] = useState("");
   const [countryCode, setCountryCode] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [userData, setUserData] = useState(null);
   const [phoneVerifiedSuccessSnack, setPhoneVerifiedSuccessSnack] = useState(false);
   //verify code input fields
   const [VerifyCode, setVerifyCode] = useState(Array(length).fill(''));
+  //check email availability
+  const [emailLoader, setEmailLoader] = useState(false);
+  const [emailCheckResponse, setEmailCheckResponse] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [errMessage, setErrMessage] = useState(null);
+  //check phone number availability
+  const [phoneNumberLoader, setPhoneNumberLoader] = useState(false);
+  const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
+  const [locationLoader, setLocationLoader] = useState(false);
 
   // Function to get the user's location and set the country code
+  // useEffect(() => {
+
+  // }, []);
+
+  //code to focus the verify code input field
   useEffect(() => {
+    if (showVerifyPopup && verifyInputRef.current[0]) {
+      verifyInputRef.current[0].focus();
+    }
+  }, [showVerifyPopup]);
+
+  // Handle phone number change and validation
+  const handlePhoneNumberChange = (phone) => {
+    setUserPhoneNumber(phone);
+    validatePhoneNumber(phone);
+
+    if (!phone) {
+      setErrorMessage("");
+    }
+
+  };
+
+  //code to get user location
+
+  const getLocation = () => {
+    console.log("getlocation trigered")
     const registerationDetails = localStorage.getItem("registerDetails");
     // let registerationData = null;
+    setLocationLoader(true);
     if (registerationDetails) {
       const registerationData = JSON.parse(registerationDetails);
       console.log("User registeration data is :--", registerationData);
@@ -62,25 +100,14 @@ const CreateAccount3 = ({ handleContinue, handleBack, length = 6, onComplete }) 
         });
       } catch (error) {
         console.error("Error fetching location:", error);
-        setLoading(false); // Stop loading if there’s an error
+        setLoading(true); // Stop loading if there’s an error
+      } finally {
+        setLocationLoader(false);
       }
     };
 
     fetchCountry();
-  }, []);
-
-  //code to focus the verify code input field
-  useEffect(() => {
-    if (showVerifyPopup && verifyInputRef.current[0]) {
-      verifyInputRef.current[0].focus();
-    }
-  }, [showVerifyPopup]);
-
-  // Handle phone number change and validation
-  const handlePhoneNumberChange = (phone) => {
-    setUserPhoneNumber(phone);
-    validatePhoneNumber(phone);
-  };
+  }
 
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
@@ -92,6 +119,18 @@ const CreateAccount3 = ({ handleContinue, handleBack, length = 6, onComplete }) 
       setErrorMessage('Enter valid number');
     } else {
       setErrorMessage('');
+
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+
+      // setCheckPhoneResponse(null);
+      console.log("Trigered")
+
+      timerRef.current = setTimeout(() => {
+        checkPhoneNumber(phoneNumber);
+        console.log('I am hit now');
+      }, 300);
     }
   };
 
@@ -109,6 +148,7 @@ const CreateAccount3 = ({ handleContinue, handleBack, length = 6, onComplete }) 
   // };
 
   //code for verify number popup
+
   const handleVerifyPopup = () => {
     setShowVerifyPopup(true);
     setTimeout(() => {
@@ -220,14 +260,88 @@ const CreateAccount3 = ({ handleContinue, handleBack, length = 6, onComplete }) 
     }
   }
 
+  //code to check email and phone
+
+  const checkEmail = async (value) => {
+    try {
+      setEmailLoader(true);
+      const ApiPath = Apis.CheckEmail;
+
+      const ApiData = {
+        email: value
+      }
+
+      console.log("Api data is :", ApiData);
+
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        console.log("Response of check email api is :", response);
+        if (response.data.status === true) {
+          console.log("Response message is :", response.data.message);
+          setEmailCheckResponse(response.data);
+        } else {
+          setEmailCheckResponse(response.data);
+        }
+      }
+
+    } catch (error) {
+      console.error("Error occured in check email api is :", error);
+    } finally {
+      setEmailLoader(false);
+    }
+  }
+
+  const checkPhoneNumber = async (value) => {
+    try {
+      setPhoneNumberLoader(true);
+      const ApiPath = Apis.CheckPhone;
+
+      const ApiData = {
+        phone: value
+      }
+
+      console.log("Api data is :", ApiData);
+
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        console.log("Response of check phone api is :", response);
+        if (response.data.status === true) {
+          console.log("Response message is :", response.data.message);
+          setCheckPhoneResponse(response.data);
+        } else {
+          setCheckPhoneResponse(response.data);
+        }
+      }
+
+    } catch (error) {
+      console.error("Error occured in check phone api is :", error);
+    } finally {
+      setPhoneNumberLoader(false);
+    }
+  }
+
   const styles = {
     headingStyle: {
       fontSize: 16,
-      fontWeight: "700"
+      fontWeight: "600"
     },
     inputStyle: {
       fontSize: 15,
-      fontWeight: "500"
+      fontWeight: "500", borderRadius: "7px"
+    },
+    errmsg: {
+      fontSize: 12,
+      fontWeight: "500", borderRadius: "7px"
     },
     verifyPopup: {
       height: "auto",
@@ -244,111 +358,223 @@ const CreateAccount3 = ({ handleContinue, handleBack, length = 6, onComplete }) 
 
   return (
     <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-      <div className='bg-gray-100 rounded-lg w-10/12 max-h-[90vh] py-4 overflow-auto'>
+      <div className='bg-white rounded-2xl w-10/12 max-h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
         {/* header */}
         <Header />
         {/* Body */}
         <div className='flex flex-col items-center px-4 w-full'>
-          <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
+          <div className='mt-6 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }}>
             Your Contact Information
           </div>
-          <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh] overflow-auto'>
+          <div className='mt-8 w-6/12 flex flex-col max-h-[50vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
 
             <div style={styles.headingStyle}>
               {`What's your full name`}
             </div>
             <input
               placeholder='Name'
-              className='border-2 rounded p-2 outline-none'
-              style={styles.inputStyle}
+              className='border p-2 outline-none'
+              style={{ ...styles.inputStyle, marginTop: "8px" }}
               value={userName}
               onChange={(e) => { setUserName(e.target.value) }}
             />
 
-            <div style={styles.headingStyle}>
-              {`What's your email address`}
+            <div className='flex flex-row items-center w-full justify-between mt-6'>
+              <div style={styles.headingStyle}>
+                {`What's your email address`}
+              </div>
+              <div>
+                {
+                  emailLoader ?
+                    <p style={{ ...styles.errmsg, color: "black" }}>
+                      Checking email ...
+                    </p> :
+                    <div>
+                      {
+                        emailCheckResponse ?
+                          <p style={{ ...styles.errmsg, color: emailCheckResponse.status === true ? "green" : 'red' }}>
+                            {emailCheckResponse.message.slice(0, 1).toUpperCase() + emailCheckResponse.message.slice(1)}
+                          </p> :
+                          <div />
+                      }
+                    </div>
+                }
+              </div>
             </div>
+
             <input
               placeholder='Email address'
-              className='border-2 rounded p-2 outline-none'
-              style={styles.inputStyle}
+              className='border rounded p-2 outline-none'
+              style={{ ...styles.inputStyle, marginTop: "8px" }}
               value={userEmail}
-              onChange={(e) => { setUserEmail(e.target.value) }}
+              onChange={(e) => {
+
+                let value = e.target.value;
+                setUserEmail(value);
+
+                // if (value) {
+                //   const timer = setTimeout(() => {
+                //     checkEmail(value);
+                //     console.log("I am hit now")
+                //   }, 1000);
+                //   return (() => clearTimeout(timer));
+                // } else {
+                //   setEmailCheckResponse(null);
+                // }
+
+                if (timerRef.current) {
+                  clearTimeout(timerRef.current);
+                }
+
+                setEmailCheckResponse(null);
+
+                if (value) {
+                  // Set a new timeout
+                  timerRef.current = setTimeout(() => {
+                    checkEmail(value);
+                    console.log('I am hit now');
+                  }, 300);
+                } else {
+                  // Reset the response if input is cleared
+                  setEmailCheckResponse(null);
+                }
+
+              }}
             />
 
-            <div style={styles.headingStyle}>
-              {`What's your phone number`}
+
+            <div className='flex flex-row items-center justify-between w-full mt-6'>
+              <div style={styles.headingStyle}>
+                {`What's your phone number`}
+              </div>
+              {/* Display error or success message */}
+              <div>
+                {
+                  locationLoader && (<p className='text-purple' style={{ ...styles.errmsg, height: '20px' }}>Getting location ...</p>)
+                }
+                {
+                  errorMessage ?
+                    <p style={{ ...styles.errmsg, color: errorMessage && 'red', height: '20px' }}>
+                      {errorMessage}
+                    </p> :
+                    <div>
+                      {
+                        phoneNumberLoader ?
+                          <p style={{ ...styles.errmsg, color: "black", height: '20px' }}>
+                            Checking phone number ...
+                          </p> :
+                          <div>
+                            {
+                              checkPhoneResponse ?
+                                <p style={{ ...styles.errmsg, color: checkPhoneResponse.status === true ? "green" : 'red', height: '20px' }}>
+                                  {checkPhoneResponse.message.slice(0, 1).toUpperCase() + checkPhoneResponse.message.slice(1)}
+                                </p> :
+                                <div />
+                            }
+                          </div>
+                      }
+                    </div>
+                }
+              </div>
             </div>
 
-            <PhoneInput
-              className="border-2 rounded outline-none bg-white"
-              country={countryCode} // Set the default country
-              value={userPhoneNumber}
-              onChange={handlePhoneNumberChange}
-              placeholder="Loading location ..."
-              disabled={loading} // Disable input if still loading
-              inputStyle={{
-                width: '100%',
-                borderWidth: '0px',
-                backgroundColor: 'transparent',
-                paddingLeft: '60px',
-                paddingTop: "12px",
-                paddingBottom: "12px"
-              }}
-              buttonStyle={{
-                border: 'none',
-                backgroundColor: 'transparent',
-                // display: 'flex',
-                // alignItems: 'center',
-                // justifyContent: 'center',
-              }}
-              dropdownStyle={{
-                maxHeight: '150px',
-                overflowY: 'auto'
-              }}
-              countryCodeEditable={true}
-              defaultMask={loading ? 'Loading...' : undefined}
-            />
-            {/* Display error or success message */}
-            <div style={{ height: "20px" }}>
-              {
-                errorMessage ?
-                  <p style={{ ...styles.inputStyle, color: errorMessage && 'red', height: '20px' }}>
-                    {errorMessage}
-                  </p> :
-                  <div style={{ height: "20px" }} />
-              }
+            <div style={{ marginTop: "8px" }}>
+              <PhoneInput
+                className="border outline-none bg-white"
+                country={countryCode} // Set the default country
+                value={userPhoneNumber}
+                onChange={handlePhoneNumberChange}
+                onFocus={getLocation}
+                placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                disabled={loading} // Disable input if still loading
+                style={{ borderRadius: "7px" }}
+                inputStyle={{
+                  width: '100%',
+                  borderWidth: '0px',
+                  backgroundColor: 'transparent',
+                  paddingLeft: '60px',
+                  paddingTop: "12px",
+                  paddingBottom: "12px",
+                }}
+                buttonStyle={{
+                  border: 'none',
+                  backgroundColor: 'transparent',
+                  // display: 'flex',
+                  // alignItems: 'center',
+                  // justifyContent: 'center',
+                }}
+                dropdownStyle={{
+                  maxHeight: '150px',
+                  overflowY: 'auto'
+                }}
+                countryCodeEditable={true}
+                defaultMask={loading ? 'Loading...' : undefined}
+              />
             </div>
 
-            <div style={styles.headingStyle}>
-              {`What's your farm`}
+            {/* <div
+              onFocus={getLocation}
+              style={{ display: 'inline-block', width: '100%', marginTop: "8px" }}
+            >
+              <PhoneInput
+                className="border outline-none bg-white"
+                country={countryCode}
+                value={userPhoneNumber}
+                onChange={handlePhoneNumberChange}
+                placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                disabled={loading}
+                style={{ borderRadius: "7px" }}
+                inputStyle={{
+                  width: '100%',
+                  borderWidth: '0px',
+                  backgroundColor: 'transparent',
+                  paddingLeft: '60px',
+                  paddingTop: "12px",
+                  paddingBottom: "12px",
+                }}
+                buttonStyle={{
+                  border: 'none',
+                  backgroundColor: 'transparent',
+                }}
+                dropdownStyle={{
+                  maxHeight: '150px',
+                  overflowY: 'auto'
+                }}
+                countryCodeEditable={true}
+                defaultMask={loading ? 'Loading...' : undefined}
+              />
+            </div> */}
+
+
+            <div style={styles.headingStyle} className='mt-6'>
+              {`What’s your market territory`}
             </div>
             <input
               placeholder='Your territory  '
-              className='border-2 rounded p-2 outline-none'
-              style={styles.inputStyle}
+              className='border rounded p-2 outline-none'
+              style={{ ...styles.inputStyle, marginTop: "8px" }}
               value={userFarm}
               onChange={(e) => { setUserFarm(e.target.value) }}
             />
 
-            <div style={styles.headingStyle}>
+            <div style={styles.headingStyle} className='mt-6'>
               Your brokerage
             </div>
             <input
               placeholder='Brokerage'
-              className='border-2 rounded p-2 outline-none'
-              style={styles.inputStyle}
+              className='border rounded p-2 outline-none'
+              style={{ ...styles.inputStyle, marginTop: "8px" }}
               value={userBrokage}
               onChange={(e) => { setUserBrokage(e.target.value) }}
             />
 
-            <div style={styles.headingStyle}>
+            <div style={styles.headingStyle} className='mt-6'>
               Average transaction volume per year
             </div>
             <input
               placeholder='Value'
-              className='border-2 rounded p-2 outline-none'
-              style={styles.inputStyle}
+              className='border rounded p-2 outline-none'
+              style={{ ...styles.inputStyle, marginTop: "8px" }}
               value={userTransaction}
               onChange={(e) => { setUserTransaction(e.target.value) }}
             />
@@ -390,7 +616,7 @@ const CreateAccount3 = ({ handleContinue, handleBack, length = 6, onComplete }) 
                       Enter code that was sent to number ending with *{userPhoneNumber.slice(-4)}.
                     </div>
                     {/* <VerificationCodeInput /> */}
-                    <div className='mt-8' style={{ display: 'flex', gap: '10px' }}>
+                    <div className='mt-8' style={{ display: 'flex', gap: '8px' }}>
                       {Array.from({ length }).map((_, index) => (
                         <input
                           key={index}

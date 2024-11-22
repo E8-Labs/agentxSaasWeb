@@ -5,6 +5,7 @@ import Header from './Header';
 import ProgressBar from './ProgressBar';
 import Footer from './Footer';
 import { Box, CircularProgress, Modal } from '@mui/material';
+import { localeData } from 'moment';
 
 const UserType = ({ handleContinue, DefaultData }) => {
 
@@ -13,12 +14,42 @@ const UserType = ({ handleContinue, DefaultData }) => {
     const [SelectUserType, setSelectUserType] = useState(null);
     const [ShowModal, setShowModal] = useState(false);
 
+    useEffect(() => {
+        const localData = localStorage.getItem("registerDetails");
+        if (localData) {
+            const localDetails = JSON.parse(localData);
+            setSelectUserType(localDetails.userType);
+        }
+    }, [])
+
     const handleUserType = async (item) => {
         if (item.id === 1) {
             setSelectUserType(item.id);
         } else {
             setSelectUserType(null);
             setShowModal(true);
+        }
+    }
+
+    const handleNext = () => {
+
+        const data = localStorage.getItem("registerDetails");
+        if (data) {
+            const details = JSON.parse(data);
+            details.userType = SelectUserType;
+            localStorage.setItem("registerDetails", JSON.stringify(details));
+            // handleContinue();
+        } else {
+            const userData = {
+                serviceID: "",
+                focusAreaId: "",
+                userType: SelectUserType
+            }
+            localStorage.setItem("registerDetails", JSON.stringify(userData));
+        }
+
+        if (SelectUserType) {
+            handleContinue();
         }
     }
 
@@ -67,7 +98,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
-            <div className='bg-gray-100 rounded-lg w-10/12 max-h-[90vh] py-4 overflow-auto'>
+            <div className='bg-white rounded-2xl w-10/12 max-h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
                 {/* header */}
                 <Header />
                 {/* Body */}
@@ -140,7 +171,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
                 </div>
 
                 <div className='mb-8' style={{ height: "55px" }}>
-                    <Footer handleContinue={handleContinue} donotShowBack={true} />
+                    <Footer handleContinue={handleNext} donotShowBack={true} />
                 </div>
             </div>
         </div>

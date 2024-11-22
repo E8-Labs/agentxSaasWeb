@@ -26,8 +26,11 @@
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106",
     "react-dropzone": "^14.3.5",
+    "react-google-places-autocomplete": "^4.1.0",
+    "react-infinite-scroll-component": "^6.1.0",
     "react-mentions": "^4.4.10",
     "react-phone-input-2": "^2.15.1",
+    "tailwind-scrollbar": "^3.1.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

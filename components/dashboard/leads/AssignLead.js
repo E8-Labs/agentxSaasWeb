@@ -221,7 +221,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                 Only outbound models can be selected to make calls
             </div>
 
-            <div className='max-h-[40vh] overflow-auto'>
+            <div className='max-h-[40vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                 {
                     agentsList.map((item, index) => (
                         <button key={index} className='rounded-lg p-2 mt-4 w-full outline-none' style={{ border: SelectedAgents.includes(item) ? "2px solid #402FFF" : "" }}
@@ -258,7 +258,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                                     <span className='text-purple'>{item.pipeline.title} |   </span> Active in
                                 </div>
 
-                                <div className='flex flex-row gap-2 overflow-auto' style={{ scrollbarWidth: "none" }}>
+                                <div className='flex flex-row gap-2 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
                                     {
                                         item.stages.map((item, index) => (
                                             <div className='px-3 py-1 rounded-3xl border' style={styles.paragraph} key={index}>

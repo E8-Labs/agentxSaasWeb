@@ -304,7 +304,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-gray-100 rounded-lg w-10/12 h-[90vh] py-4 overflow-auto flex flex-col justify-between'>
+            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple flex flex-col justify-between'>
                 <div>
                     {/* header */}
                     <Header />
@@ -346,7 +346,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                         {
                             toggleClick === 1 ?
                                 (
-                                    <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto'>
+                                    <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                         {
                                             needKYCQuestions.map((item, index) => (
                                                 <button
@@ -374,7 +374,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                                 ) :
                                 toggleClick === 2 ?
                                     (
-                                        <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto'>
+                                        <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                             {
                                                 motivationKycQuestions.map((item, index) => (
                                                     <button
@@ -401,7 +401,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                                     ) :
                                     toggleClick === 3 ?
                                         (
-                                            <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto'>
+                                            <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                                 {
                                                     urgencyKycQuestions.map((item, index) => (
                                                         <button
@@ -428,7 +428,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                         }
 
 
-                        {/* <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto'>
+                        {/* <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                             {needKYCQuestions.map((item, index) => (
                                 <div className='mb-4 border rounded-xl flex flex-row items-center justify-between px-4 sm:h-[10vh]' key={index}>
                                     <div style={{ width: "90%" }}>{item.question}</div>
@@ -443,7 +443,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                             ))}
                         </div> */}
 
-                        <button className='mt-2 w-10/12 md:w-6/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
+                        <button className='mt-2 w-10/12 md:w-6/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
                             Add Question
                         </button>
                         {/* Modal to add demeanor */}
@@ -493,7 +493,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                                             Sample Answers
                                         </div>
 
-                                        <div className='max-h-[30vh] overflow-auto'>
+                                        <div className='max-h-[30vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                             {inputs.map((input, index) => (
                                                 <div key={input.id} className='w-full flex flex-row items-center gap-4 mt-4'>
                                                     <input

@@ -190,62 +190,74 @@ const Pipeline1 = ({ handleContinue }) => {
             return null; // Ignore unassigned leads
         }).filter(item => item !== null); // Filter out null values
 
-        try {
-            console.log("Check 1 clear");
-            const cadence = allData;
+        const pipelineID = selectedPipelineItem.id;
+        const cadence = allData;
 
-            // console.log("Ray to send in api :--", cadence);
-            // console.log("Assigned Leads Data:", allData);
-
-            const localData = localStorage.getItem("User");
-            let AuthToken = null;
-            if (localData) {
-                const userData = JSON.parse(localData);
-                AuthToken = userData.token;
-            }
-
-            let currentAgentDetails = null;
-            const agentDetails = localStorage.getItem("agentDetails");
-            if (agentDetails) {
-                const agentData = JSON.parse(agentDetails);
-                // console.log("Recieved from are :--", agentData);
-                currentAgentDetails = agentData;
-            }
-            console.log("My agent details are :--", currentAgentDetails);
-
-            const ApiPath = Apis.createPipeLine;
-            console.log("Api path is :", ApiPath);
-
-            const ApiData = {
-                pipelineId: selectedPipelineItem.id,
-                mainAgentId: currentAgentDetails.id,
-                cadence: cadence
-            }
-
-            console.log("Data sending in api is :--", ApiData);
-            // const JSONData = JSON.stringify(ApiData);
-            // console.log("Json data is", JSONData);
-            // return
-            const response = await axios.post(ApiPath, ApiData, {
-                headers: {
-                    "Authorization": "Bearer " + AuthToken,
-                    "Content-Type": "application/json"
-                }
-            });
-
-            if (response) {
-                console.log("Response of create pipeline api is :---", response);
-                if(response.data.status === true){
-                    handleContinue();
-                }
-            }
-
-        } catch (error) {
-            console.error("Error occured in create pipeline is: ---", error);
-        } finally {
-            console.log("Api call completed");
-            setPipelineLoader(false);
+        const cadenceData = {
+            pipelineID: selectedPipelineItem.id,
+            cadenceDetails: cadence
         }
+
+        localStorage.setItem("AddCadenceDetails", JSON.stringify(cadenceData));
+
+        handleContinue();
+
+        // try {
+        //     console.log("Check 1 clear");
+
+        //     // console.log("Ray to send in api :--", cadence);
+        //     // console.log("Assigned Leads Data:", allData);
+
+        //     const localData = localStorage.getItem("User");
+        //     let AuthToken = null;
+        //     if (localData) {
+        //         const userData = JSON.parse(localData);
+        //         AuthToken = userData.token;
+        //     }
+
+        //     let currentAgentDetails = null;
+
+        //     const agentDetails = localStorage.getItem("agentDetails");
+        //     if (agentDetails) {
+        //         const agentData = JSON.parse(agentDetails);
+        //         // console.log("Recieved from are :--", agentData);
+        //         currentAgentDetails = agentData;
+        //     }
+        //     console.log("My agent details are :--", currentAgentDetails);
+
+        //     const ApiPath = Apis.createPipeLine;
+        //     console.log("Api path is :", ApiPath);
+
+        //     const ApiData = {
+        //         pipelineId: selectedPipelineItem.id,
+        //         mainAgentId: currentAgentDetails.id,
+        //         cadence: cadence
+        //     }
+
+        //     console.log("Data sending in api is :--", ApiData);
+        //     // const JSONData = JSON.stringify(ApiData);
+        //     // console.log("Json data is", JSONData);
+        //     // return
+        //     const response = await axios.post(ApiPath, ApiData, {
+        //         headers: {
+        //             "Authorization": "Bearer " + AuthToken,
+        //             "Content-Type": "application/json"
+        //         }
+        //     });
+
+        //     if (response) {
+        //         console.log("Response of create pipeline api is :---", response);
+        //         if(response.data.status === true){
+        //             handleContinue();
+        //         }
+        //     }
+
+        // } catch (error) {
+        //     console.error("Error occured in create pipeline is: ---", error);
+        // } finally {
+        //     console.log("Api call completed");
+        //     setPipelineLoader(false);
+        // }
 
 
     };
@@ -338,7 +350,7 @@ const Pipeline1 = ({ handleContinue }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-gray-100 rounded-lg w-10/12 h-[90vh] py-4 overflow-auto flex flex-col justify-between'>
+            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple flex flex-col justify-between'>
                 <div>
                     {/* header */}
                     <Header />
@@ -347,7 +359,7 @@ const Pipeline1 = ({ handleContinue }) => {
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }} onClick={handleContinue}>
                             Pipeline and Stages
                         </div>
-                        <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh] overflow-auto'>
+                        <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                             <div style={styles.headingStyle}>
                                 Select a pipeline
                             </div>
