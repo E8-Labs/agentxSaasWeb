@@ -9,8 +9,13 @@ import "react-phone-input-2/lib/style.css";
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { useRouter } from 'next/navigation';
 
-const Page = () => {
+const Page = ({ length = 6, onComplete }) => {
 
+
+  let width = 3760
+  let height = 4684
+  // let ImageWidth = window.innerWidth / 2.4
+  // let ImageHeight = window.innerHeight - 
   // const backgroundImage = {
   //     backgroundImage: 'url("/assets/bg2.png")',
   //     backgroundSize: "cover",
@@ -36,7 +41,7 @@ const Page = () => {
   const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
 
-  const length = 6;
+  // const length = 6;
   const [VerifyCode, setVerifyCode] = useState(Array(length).fill(''));
   const [showVerifyPopup, setShowVerifyPopup] = useState(false);
 
@@ -236,7 +241,7 @@ const Page = () => {
   //code for number verification
   const handleVerifyCode = () => {
     console.log("Verify code is :", VerifyCode.join(""));
-    setPhoneVerifiedSuccessSnack(true);
+    // setPhoneVerifiedSuccessSnack(true);
     handleLogin();
   }
 
@@ -246,8 +251,8 @@ const Page = () => {
     backgroundRepeat: "no-repeat",
     // backgroundPosition: "50% 50%",
     backgroundPosition: "center",
-    width: "1080px",
-    height: "90vh",
+    width: "55svw",
+    height: '90svh',
     overflow: "hidden",
     borderRadius: "15px"
   };
@@ -278,17 +283,17 @@ const Page = () => {
           {/* <div>he</div> */}
           <div className='h-[433px] w-[494px] md:w-[594px] bg-white mt-16'>
           </div>
-          <div className='text-white text-5xl mt-8' style={{ fontWeight: "600" }}>
+          <div className='text-white sm:text-4xl md:text-4xl lg:text-5xl mt-8' style={{ fontWeight: "600" }}>
             Building your persona <br />lead gen assistant
           </div>
-          <div className='mt-8' style={{ fontSize: 15, fontWeight: "500" }}>
+          <div className='mt-8' style={{ fontSize: 11.6, fontWeight: "500" }}>
             By signing up to the AgentX platform you understand and agree to our Terms and <br /> Conditions and Privacy Policy. This site is protected by Google reCAPTCHA to<br /> ensure you're not a bot. Learn more
           </div>
         </div>
       </div>
-      <div className='w-4/12 flex flex-row justify-center h-[90vh]'>
-        <div className='w-10/12'>
-          <div>
+      <div className='w-4/12 flex flex-row justify-center h-[90vh] '>
+        <div className='w-10/12 '>
+          <div className='pl-6'>
             <div className='flex flex-row items-center gap-3 mt-44'>
               <Image className='hidden md:flex' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain" }} height={69} width={69} alt='*' />
               <Image className='' src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' />
@@ -379,7 +384,7 @@ const Page = () => {
               </button>
             </div>
 
-            <div className='mt-6' style={{ fontWeight: "500", fontSize: 15 }}>
+            <div className='mt-6' style={{ fontWeight: "500", fontSize: 11.6 }}>
               {`By signing up to the AgentX platform you understand and agree to our Terms and Conditions and Privacy Policy. This site is protected by Google reCAPTCHA to ensure you’re not a bot. Learn more`}
             </div>
 

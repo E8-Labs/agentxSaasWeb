@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 
 export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue }) => {
-    console.log("Scroll Offset Parent ", scrollOffset)
+    //console.log("Scroll Offset Parent ", scrollOffset)
     const [popupVisible, setPopupVisible] = useState(false);
     const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
     const [options] = useState(["name", "address", "email", "phone"]);
@@ -78,12 +78,12 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue })
         parseFloat(computedStyle.lineHeight);
 
 
-        console.log("Line Height ", parseFloat(computedStyle.lineHeight))
-        console.log("Marker Rect", markerRect.left)
-        console.log("Input Rect ", inputRect.left)
+        //console.log("Line Height ", parseFloat(computedStyle.lineHeight))
+        //console.log("Marker Rect", markerRect.left)
+        //console.log("Input Rect ", inputRect.left)
 
-        console.log("Pop Left", popupLeft)
-        console.log("Pop Top ", popupTop)
+        //console.log("Pop Left", popupLeft)
+        //console.log("Pop Top ", popupTop)
         setPopupPosition({ top: popupTop, left: popupLeft });
     };
 
@@ -107,7 +107,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue })
                     }
                 }
                 );
-                console.log("Filered kyc ", filtered)
+                //console.log("Filered kyc ", filtered)
                 setFilteredOptions(filtered);
             }
             else {

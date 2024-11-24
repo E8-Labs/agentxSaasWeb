@@ -57,26 +57,42 @@ const UserType = ({ handleContinue, DefaultData }) => {
         {
             id: 1,
             title: "Real Estate Agent",
+            icon: "/usertype/realStateAgent.png"
         },
         {
             id: 2,
-            title: "Sales Dev Rep"
+            title: "Sales Dev Rep",
+            icon: "/usertype/salesDev.png"
         },
         {
             id: 3,
-            title: "Solar Rep"
+            title: "Solar Rep",
+            icon: "/usertype/home.png"
         },
         {
             id: 4,
-            title: "Insurance Agent"
+            title: "Insurance Agent",
+            icon: "/usertype/insurance.png"
         },
         {
             id: 5,
-            title: "Marketer"
+            title: "Marketer",
+            icon: "/usertype/marketer.png"
         },
         {
             id: 6,
-            title: "Website Owners"
+            title: "Website Owners",
+            icon: "/usertype/websiteagent.png"
+        },
+        {
+            id: 7,
+            title: "Recuiter Agent",
+            icon: "/usertype/recruiter.png"
+        },
+        {
+            id: 8,
+            title: "Tax Agent",
+            icon: "/usertype/taxagent.png"
         },
     ];
 
@@ -98,7 +114,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl w-9/12 max-h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+            <div className='bg-white rounded-2xl w-9/12 h-[90vh] py-4 ' style={{ scrollbarWidth: "none" }}>
                 {/* header */}
                 <Header />
                 {/* Body */}
@@ -107,18 +123,19 @@ const UserType = ({ handleContinue, DefaultData }) => {
                         Which AgentX will you build?
                     </div>
 
-                    <div className='mt-6 w-11/12 md:text-xl text-lg font-[400]' style={{ textAlign: "center" }}>
-                    Scale your salesforce. Handle any business use case. With AgentX,<br></br>you can quickly build an AI agent in minutes.
+                    <div className='mt-6 w-11/12 font-[400]' style={{ textAlign: "center", fontSize: 15 }}>
+                        Scale your salesforce. Handle any business use case. With AgentX,<br></br>you can quickly build an AI agent in minutes.
                     </div>
 
-                    <div className='flex flex-wrap w-6/12 mt-8'>
+                    <div className='flex flex-wrap w-6/12 mt-8 h-[47vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                         {
                             userType.map((item, index) => (
                                 <div key={item.id} className='flex w-4/12 p-2'>
                                     <button className='w-full border rounded-lg p-2' onClick={(e) => { handleUserType(item) }} style={{ border: item.id === SelectUserType ? "2px solid #402FFF" : "" }}>
-                                        <div className='h-[198px] bg-gray-200 rounded w-full' style={{ backgroundColor: "" }}>
+                                        <div className='h-[198px] bg-gray-200 rounded w-full flex flex-col justify-center items-center' style={{ backgroundColor: "#FAF9FF" }}>
+                                            <img src={item.icon} style={{  width: "70%", resize: "contain" }} alt='*' />
                                         </div>
-                                        <div className='text-center mt-2' style={{ fontWeight: "700", fontSize: 17 }}>
+                                        <div className='text-center mt-2' style={{ fontWeight: "600", fontSize: 17 }}>
                                             {item.title}
                                         </div>
                                     </button>

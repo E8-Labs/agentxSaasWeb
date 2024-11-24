@@ -64,7 +64,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     // };
 
     // const handleGreetingsTagChange = (tag) => {
-    //     //console.log("Tage is :", tag);
+    //     ////console.log("Tage is :", tag);
     //     const beforeCursor = greetingTagInput.slice(0, cursorPosition);
     //     const afterCursor = greetingTagInput.slice(cursorPosition);
 
@@ -93,8 +93,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     const greetingInputRef = useRef(null); // Reference to the input element
 
     useEffect(() => {
-        //console.log("Setting scroll offset")
+        ////console.log("Setting scroll offset")
         const handleScroll = () => {
+            console.log("Div scrolled", containerRef.current.scrollTop)
             if (containerRef.current) {
                 setScrollOffset({
                     scrollTop: containerRef.current.scrollTop,
@@ -102,7 +103,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 });
             }
             else {
-                //console.log("No ref div")
+                ////console.log("No ref div")
             }
         };
 
@@ -189,7 +190,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     const [kYCSDropDown, setKYCSDropDown] = useState(false)
     const [promptCursorPosition, setPromptCursorPosition] = useState(0);
     const textFieldRef = useRef(null); // Reference to the TextField element
-    console.log("Tag value is :", scriptTagInput);
+    //console.log("Tag value is :", scriptTagInput);
 
     const tags1 = ['name', 'Agent Name', 'Brokerage Name', 'Client Name'];
 
@@ -284,7 +285,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         const agentDetailsLocal = localStorage.getItem("agentDetails");
         if (agentDetailsLocal) {
             const localAgentData = JSON.parse(agentDetailsLocal);
-            // console.log("Locla agent details are :-", localAgentData);
+            // //console.log("Locla agent details are :-", localAgentData);
             setAgentDetails(localAgentData);
             setGreetingTagInput(localAgentData.greeting);
             setScriptTagInput(localAgentData.callScript);
@@ -292,7 +293,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     }, []);
 
     useEffect(() => {
-        //console.log("KYCS DETAILS RECIEVED ARE :", kycsData);
+        ////console.log("KYCS DETAILS RECIEVED ARE :", kycsData);
         // if (isDropdownVisible === true) {
         //     getUniquesColumn()
         // }
@@ -309,10 +310,10 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 AuthToken = UserDetails.token;
             }
 
-            //console.log("Auth token is :--", AuthToken);
+            ////console.log("Auth token is :--", AuthToken);
 
             const ApiPath = Apis.uniqueColumns;
-            //console.log("Api path is ", ApiPath);
+            ////console.log("Api path is ", ApiPath);
 
             const response = await axios.get(ApiPath, {
                 headers: {
@@ -322,7 +323,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             });
 
             if (response) {
-                //console.log("Response of getColumns api is:", response.data);
+                ////console.log("Response of getColumns api is:", response.data);
             }
 
         } catch (error) {
@@ -338,12 +339,12 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
     //code for getting tag value from input fields
     // const handleGreetingTag = (value) => {
-    //     //console.log("Greeting value is :--", value);
+    //     ////console.log("Greeting value is :--", value);
     //     setGreetingTagInput(value);
     // }
 
     // const handleCallScriptTag = (value) => {
-    //     //console.log("Script tag value is :--", value);
+    //     ////console.log("Script tag value is :--", value);
     //     setScriptTagInput(value);
     // }
 
@@ -351,9 +352,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     const handleNextClick = async () => {
         // router.push("/dashboard");
 
-        // //console.log("Greeting value is :", greetingTagInput);
+        // ////console.log("Greeting value is :", greetingTagInput);
 
-        // //console.log("Promt details are :", scriptTagInput);
+        // ////console.log("Promt details are :", scriptTagInput);
 
         // return
         try {
@@ -363,7 +364,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             const localData = localStorage.getItem("User");
             if (localData) {
                 const Data = JSON.parse(localData);
-                //console.log("Localdat recieved is :--", Data);
+                ////console.log("Localdat recieved is :--", Data);
                 AuthToken = Data.token;
             }
 
@@ -379,7 +380,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             const mainAgentData = localStorage.getItem("agentDetails");
             if (mainAgentData) {
                 const Data = JSON.parse(mainAgentData);
-                //console.log("Local agent dat recieved is :--", Data);
+                ////console.log("Local agent dat recieved is :--", Data);
                 mainAgentId = Data.id;
                 AgentName = Data.name;
                 AgentObjective = Data.agents[0].agentObjective;
@@ -389,10 +390,10 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 AgentRole = Data.agents[0].agentRole;
             }
 
-            //console.log("Auth token is :--", AuthToken);
+            ////console.log("Auth token is :--", AuthToken);
 
             const ApiPath = Apis.updateAgent;
-            //console.log("Api path is :--", ApiPath);
+            ////console.log("Api path is :--", ApiPath);
 
 
             const formData = new FormData();
@@ -409,9 +410,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             formData.append("prompt", greetingTagInput);
             formData.append("greeting", scriptTagInput);
 
-            //console.log("Update agent details are is :-----");
+            ////console.log("Update agent details are is :-----");
             for (let [key, value] of formData.entries()) {
-                //console.log(`${key}: ${value}`);
+                ////console.log(`${key}: ${value}`);
             }
 
             const response = await axios.post(ApiPath, formData, {
@@ -421,7 +422,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             });
 
             if (response) {
-                //console.log("Response of update api is :--", response);
+                ////console.log("Response of update api is :--", response);
                 if (response.data.status === true) {
                     handleAddCadence()
                     // router.push("/dashboard");
@@ -432,14 +433,14 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             console.error("Error occured in update agent api is:", error);
         } finally {
             setLoader(false);
-            //console.log("update agent api completed");
+            ////console.log("update agent api completed");
         }
     }
 
     const handleAddCadence = async () => {
         try {
             setLoader(true);
-            //console.log("");
+            ////console.log("");
             let cadence = null;
             const cadenceData = localStorage.getItem("AddCadenceDetails");
             if (cadenceData) {
@@ -447,7 +448,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 cadence = cadenceDetails;
             }
 
-            //console.log("cadence details are :",
+            ////console.log("cadence details are :",
             //     cadence
             // );
 
@@ -455,7 +456,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             const mainAgentData = localStorage.getItem("agentDetails");
             if (mainAgentData) {
                 const Data = JSON.parse(mainAgentData);
-                //console.log("Localdat recieved is :--", Data);
+                ////console.log("Localdat recieved is :--", Data);
                 mainAgentId = Data.id;
             }
 
@@ -463,13 +464,13 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             const localData = localStorage.getItem("User");
             if (localData) {
                 const Data = JSON.parse(localData);
-                //console.log("Localdat recieved is :--", Data);
+                ////console.log("Localdat recieved is :--", Data);
                 AuthToken = Data.token;
             }
 
-            //console.log("Authtoke for add cadence api is :", AuthToken);
+            ////console.log("Authtoke for add cadence api is :", AuthToken);
 
-            //console.log("Main agent id is :", mainAgentId);
+            ////console.log("Main agent id is :", mainAgentId);
 
             const ApiData = {
                 pipelineId: cadence.pipelineID,
@@ -478,7 +479,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             }
 
             const ApiPath = Apis.createPipeLine;
-            //console.log("Api path is :", ApiPath);
+            ////console.log("Api path is :", ApiPath);
 
             const response = await axios.post(ApiPath, ApiData, {
                 headers: {
@@ -488,7 +489,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             });
 
             if (response) {
-                //console.log("Response of create pipeline api is :---", response);
+                ////console.log("Response of create pipeline api is :---", response);
                 if (response.data.status === true) {
                     localStorage.removeItem("AddCadenceDetails");
                     router.push("/dashboard");
@@ -575,12 +576,12 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div ref={containerRef} className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col justify-between'>
+            <div  className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col justify-between'>
                 <div>
                     {/* header */}
                     <Header />
                     {/* Body */}
-                    <div className='flex flex-col items-center px-4 w-full overflow-auto h-[60vh] scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                    <div ref={containerRef} className='flex flex-col items-center px-4 w-full overflow-auto h-[60vh] scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
                             {`Create a Script`}
                         </div>
@@ -602,7 +603,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                 </button>
                             </div>
                             <div style={{ fontSize: 24, fontWeight: "700" }}>
-                                {AgentDetails.name} Script
+                                {AgentDetails?.name} Script
                             </div>
                             <div style={styles.headingStyle}>
                                 Greeting

@@ -364,160 +364,161 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
   return (
     <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
       <div className='bg-white rounded-2xl w-10/12 max-h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
-        {/* header */}
-        <Header />
-        {/* Body */}
-        <div className='flex flex-col items-center px-4 w-full'>
-          <div className='mt-6 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }}>
-            Your Contact Information
-          </div>
-          <div className='mt-8 w-6/12 flex flex-col max-h-[50vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
-
-            <div style={styles.headingStyle}>
-              {`What's your full name`}
+        <div>
+          {/* header */}
+          <Header />
+          {/* Body */}
+          <div className='flex flex-col items-center px-4 w-full'>
+            <div className='mt-6 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }}>
+              Your Contact Information
             </div>
-            <input
-              placeholder='Name'
-              className='border border-[#00000010] p-3 outline-none mx-2'
-              style={{ ...styles.inputStyle, marginTop: "8px" }}
-              value={userName}
-              onChange={(e) => { setUserName(e.target.value) }}
-            />
+            <div className='mt-8 w-6/12 flex flex-col max-h-[50vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
 
-            <div className='flex flex-row items-center w-full justify-between mt-6'>
               <div style={styles.headingStyle}>
-                {`What's your email address`}
+                {`What's your full name`}
               </div>
-              <div>
-                {
-                  emailLoader ?
-                    <p style={{ ...styles.errmsg, color: "black" }}>
-                      Checking email ...
-                    </p> :
-                    <div>
-                      {
-                        emailCheckResponse ?
-                          <p style={{ ...styles.errmsg, color: emailCheckResponse.status === true ? "green" : 'red' }}>
-                            {emailCheckResponse.message.slice(0, 1).toUpperCase() + emailCheckResponse.message.slice(1)}
-                          </p> :
-                          <div />
-                      }
-                    </div>
-                }
-              </div>
-            </div>
-
-            <input
-              placeholder='Email address'
-              className='border border-[#00000010] rounded p-3 outline-none mx-2'
-              style={{ ...styles.inputStyle, marginTop: "8px" }}
-              value={userEmail}
-              onChange={(e) => {
-
-                let value = e.target.value;
-                setUserEmail(value);
-
-                // if (value) {
-                //   const timer = setTimeout(() => {
-                //     checkEmail(value);
-                //     console.log("I am hit now")
-                //   }, 1000);
-                //   return (() => clearTimeout(timer));
-                // } else {
-                //   setEmailCheckResponse(null);
-                // }
-
-                if (timerRef.current) {
-                  clearTimeout(timerRef.current);
-                }
-
-                setEmailCheckResponse(null);
-
-                if (value) {
-                  // Set a new timeout
-                  timerRef.current = setTimeout(() => {
-                    checkEmail(value);
-                    console.log('I am hit now');
-                  }, 300);
-                } else {
-                  // Reset the response if input is cleared
-                  setEmailCheckResponse(null);
-                }
-
-              }}
-            />
-
-
-            <div className='flex flex-row items-center justify-between w-full mt-6'>
-              <div style={styles.headingStyle}>
-                {`What's your phone number`}
-              </div>
-              {/* Display error or success message */}
-              <div>
-                {
-                  locationLoader && (<p className='text-purple' style={{ ...styles.errmsg, height: '20px' }}>Getting location ...</p>)
-                }
-                {
-                  errorMessage ?
-                    <p style={{ ...styles.errmsg, color: errorMessage && 'red', height: '20px' }}>
-                      {errorMessage}
-                    </p> :
-                    <div>
-                      {
-                        phoneNumberLoader ?
-                          <p style={{ ...styles.errmsg, color: "black", height: '20px' }}>
-                            Checking phone number ...
-                          </p> :
-                          <div>
-                            {
-                              checkPhoneResponse ?
-                                <p style={{ ...styles.errmsg, color: checkPhoneResponse.status === true ? "green" : 'red', height: '20px' }}>
-                                  {checkPhoneResponse.message.slice(0, 1).toUpperCase() + checkPhoneResponse.message.slice(1)}
-                                </p> :
-                                <div />
-                            }
-                          </div>
-                      }
-                    </div>
-                }
-              </div>
-            </div>
-
-            <div style={{ marginTop: "8px" }}>
-              <PhoneInput
-                className="border outline-none bg-white"
-                country={countryCode} // Set the default country
-                value={userPhoneNumber}
-                onChange={handlePhoneNumberChange}
-                onFocus={getLocation}
-                placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
-                disabled={loading} // Disable input if still loading
-                style={{ borderRadius: "7px" }}
-                inputStyle={{
-                  width: '100%',
-                  borderWidth: '0px',
-                  backgroundColor: 'transparent',
-                  paddingLeft: '60px',
-                  paddingTop: "20px",
-                  paddingBottom: "20px",
-                }}
-                buttonStyle={{
-                  border: 'none',
-                  backgroundColor: 'transparent',
-                  // display: 'flex',
-                  // alignItems: 'center',
-                  // justifyContent: 'center',
-                }}
-                dropdownStyle={{
-                  maxHeight: '150px',
-                  overflowY: 'auto'
-                }}
-                countryCodeEditable={true}
-                defaultMask={loading ? 'Loading...' : undefined}
+              <input
+                placeholder='Name'
+                className='border border-[#00000010] p-3 outline-none mx-2'
+                style={{ ...styles.inputStyle, marginTop: "8px" }}
+                value={userName}
+                onChange={(e) => { setUserName(e.target.value) }}
               />
-            </div>
 
-            {/* <div
+              <div className='flex flex-row items-center w-full justify-between mt-6'>
+                <div style={styles.headingStyle}>
+                  {`What's your email address`}
+                </div>
+                <div>
+                  {
+                    emailLoader ?
+                      <p style={{ ...styles.errmsg, color: "black" }}>
+                        Checking email ...
+                      </p> :
+                      <div>
+                        {
+                          emailCheckResponse ?
+                            <p style={{ ...styles.errmsg, color: emailCheckResponse.status === true ? "green" : 'red' }}>
+                              {emailCheckResponse.message.slice(0, 1).toUpperCase() + emailCheckResponse.message.slice(1)}
+                            </p> :
+                            <div />
+                        }
+                      </div>
+                  }
+                </div>
+              </div>
+
+              <input
+                placeholder='Email address'
+                className='border border-[#00000010] rounded p-3 outline-none mx-2'
+                style={{ ...styles.inputStyle, marginTop: "8px" }}
+                value={userEmail}
+                onChange={(e) => {
+
+                  let value = e.target.value;
+                  setUserEmail(value);
+
+                  // if (value) {
+                  //   const timer = setTimeout(() => {
+                  //     checkEmail(value);
+                  //     console.log("I am hit now")
+                  //   }, 1000);
+                  //   return (() => clearTimeout(timer));
+                  // } else {
+                  //   setEmailCheckResponse(null);
+                  // }
+
+                  if (timerRef.current) {
+                    clearTimeout(timerRef.current);
+                  }
+
+                  setEmailCheckResponse(null);
+
+                  if (value) {
+                    // Set a new timeout
+                    timerRef.current = setTimeout(() => {
+                      checkEmail(value);
+                      console.log('I am hit now');
+                    }, 300);
+                  } else {
+                    // Reset the response if input is cleared
+                    setEmailCheckResponse(null);
+                  }
+
+                }}
+              />
+
+
+              <div className='flex flex-row items-center justify-between w-full mt-6'>
+                <div style={styles.headingStyle}>
+                  {`What's your phone number`}
+                </div>
+                {/* Display error or success message */}
+                <div>
+                  {
+                    locationLoader && (<p className='text-purple' style={{ ...styles.errmsg, height: '20px' }}>Getting location ...</p>)
+                  }
+                  {
+                    errorMessage ?
+                      <p style={{ ...styles.errmsg, color: errorMessage && 'red', height: '20px' }}>
+                        {errorMessage}
+                      </p> :
+                      <div>
+                        {
+                          phoneNumberLoader ?
+                            <p style={{ ...styles.errmsg, color: "black", height: '20px' }}>
+                              Checking phone number ...
+                            </p> :
+                            <div>
+                              {
+                                checkPhoneResponse ?
+                                  <p style={{ ...styles.errmsg, color: checkPhoneResponse.status === true ? "green" : 'red', height: '20px' }}>
+                                    {checkPhoneResponse.message.slice(0, 1).toUpperCase() + checkPhoneResponse.message.slice(1)}
+                                  </p> :
+                                  <div />
+                              }
+                            </div>
+                        }
+                      </div>
+                  }
+                </div>
+              </div>
+
+              <div style={{ marginTop: "8px" }}>
+                <PhoneInput
+                  className="border outline-none bg-white"
+                  country={countryCode} // Set the default country
+                  value={userPhoneNumber}
+                  onChange={handlePhoneNumberChange}
+                  onFocus={getLocation}
+                  placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                  disabled={loading} // Disable input if still loading
+                  style={{ borderRadius: "7px" }}
+                  inputStyle={{
+                    width: '100%',
+                    borderWidth: '0px',
+                    backgroundColor: 'transparent',
+                    paddingLeft: '60px',
+                    paddingTop: "20px",
+                    paddingBottom: "20px",
+                  }}
+                  buttonStyle={{
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    // display: 'flex',
+                    // alignItems: 'center',
+                    // justifyContent: 'center',
+                  }}
+                  dropdownStyle={{
+                    maxHeight: '150px',
+                    overflowY: 'auto'
+                  }}
+                  countryCodeEditable={true}
+                  defaultMask={loading ? 'Loading...' : undefined}
+                />
+              </div>
+
+              {/* <div
               onFocus={getLocation}
               style={{ display: 'inline-block', width: '100%', marginTop: "8px" }}
             >
@@ -551,156 +552,161 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
             </div> */}
 
 
-            <div style={styles.headingStyle} className='mt-6'>
-              {`What’s your market territory`}
-            </div>
-            <input
-              placeholder='Your territory  '
-              className='border border-[#00000010] rounded p-3 outline-none mx-2'
-              style={{ ...styles.inputStyle, marginTop: "8px" }}
-              value={userFarm}
-              onChange={(e) => { setUserFarm(e.target.value) }}
-            />
+              <div style={styles.headingStyle} className='mt-6'>
+                {`What’s your market territory`}
+              </div>
+              <input
+                placeholder='Your territory  '
+                className='border border-[#00000010] rounded p-3 outline-none mx-2'
+                style={{ ...styles.inputStyle, marginTop: "8px" }}
+                value={userFarm}
+                onChange={(e) => { setUserFarm(e.target.value) }}
+              />
 
-            <div style={styles.headingStyle} className='mt-6'>
-              Your brokerage
-            </div>
-            <input
-              placeholder='Brokerage'
-              className='border border-[#00000010] rounded p-3 outline-none mx-2'
-              style={{ ...styles.inputStyle, marginTop: "8px" }}
-              value={userBrokage}
-              onChange={(e) => { setUserBrokage(e.target.value) }}
-            />
+              <div style={styles.headingStyle} className='mt-6'>
+                Your brokerage
+              </div>
+              <input
+                placeholder='Brokerage'
+                className='border border-[#00000010] rounded p-3 outline-none mx-2'
+                style={{ ...styles.inputStyle, marginTop: "8px" }}
+                value={userBrokage}
+                onChange={(e) => { setUserBrokage(e.target.value) }}
+              />
 
-            <div style={styles.headingStyle} className='mt-6'>
-              Average transaction volume per year
-            </div>
-            <input
-              placeholder='Value'
-              className='border border-[#00000010] rounded p-3 outline-none mx-2 mb-2'
-              style={{ ...styles.inputStyle, marginTop: "8px" }}
-              value={userTransaction}
-              onChange={(e) => { setUserTransaction(e.target.value) }}
-            />
+              <div style={styles.headingStyle} className='mt-6'>
+                Average transaction volume per year
+              </div>
+              <input
+                placeholder='Value'
+                className='border border-[#00000010] rounded p-3 outline-none mx-2 mb-2'
+                style={{ ...styles.inputStyle, marginTop: "8px" }}
+                value={userTransaction}
+                onChange={(e) => { setUserTransaction(e.target.value) }}
+              />
 
-            <Modal
-              open={showVerifyPopup}
-              // onClose={() => setAddKYCQuestion(false)}
-              closeAfterTransition
-              BackdropProps={{
-                timeout: 1000,
-                sx: {
-                  backgroundColor: "#00000020",
-                  backdropFilter: "blur(20px)",
-                },
-              }}
-            >
-              <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.verifyPopup}>
-                <div className="flex flex-row justify-center w-full">
-                  <div
-                    className="sm:w-7/12 w-full"
-                    style={{
-                      backgroundColor: "#ffffff",
-                      padding: 20,
-                      borderRadius: "13px",
-                    }}
-                  >
-                    <div className='flex flex-row justify-end'>
-                      <button onClick={handleClose}>
-                        <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
-                      </button>
-                    </div>
-                    <div style={{
-                      fontSize: 26,
-                      fontWeight: "700"
-                    }}>
-                      Verify phone number
-                    </div>
-                    <div className='mt-8' style={{ ...styles.inputStyle, color: "#00000060" }}>
-                      Enter code that was sent to number ending with *{userPhoneNumber.slice(-4)}.
-                    </div>
-                    {/* <VerificationCodeInput /> */}
-                    <div className='mt-8' style={{ display: 'flex', gap: '8px' }}>
-                      {Array.from({ length }).map((_, index) => (
-                        <input
-                          key={index}
-                          ref={(el) => (verifyInputRef.current[index] = el)}
-                          type="text"
-                          maxLength="1"
-                          value={VerifyCode[index]}
-                          onChange={(e) => handleVerifyInputChange(e, index)}
-                          onKeyDown={(e) => handleBackspace(e, index)}
-                          onPaste={handlePaste}
-                          placeholder='-'
-                          style={{
-                            width: '40px',
-                            height: '40px',
-                            textAlign: 'center',
-                            fontSize: '20px',
-                            border: '1px solid #ccc',
-                            borderRadius: '5px',
-                          }}
-                        />
-                      ))}
-                    </div>
-                    <div className='mt-8' style={styles.inputStyle}>
-                      {`Didn't receive code?`} <button className='outline-none border-none text-purple'>Resed</button>
-                    </div>
-                    {
-                      registerLoader ?
-                        <div className='flex fex-row items-center justify-center mt-8'>
-                          <CircularProgress size={35} />
-                        </div>
-                        :
-                        <button
-                          className='text-white bg-purple outline-none rounded-xl w-full mt-8'
-                          style={{ height: "50px" }}
-                          onClick={handleVerifyCode}
-                        >
-                          Continue
-                        </button>
-                    }
-                  </div>
-                </div>
-              </Box>
-            </Modal>
-
-            <div>
-              <Snackbar
-                open={phoneVerifiedSuccessSnack}
-                autoHideDuration={3000}
-                onClose={() => {
-                  setPhoneVerifiedSuccessSnack(false);
-                }}
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'center'
-                }}
-                TransitionComponent={Fade}
-                TransitionProps={{
-                  direction: 'center'
+              <Modal
+                open={showVerifyPopup}
+                // onClose={() => setAddKYCQuestion(false)}
+                closeAfterTransition
+                BackdropProps={{
+                  timeout: 1000,
+                  sx: {
+                    backgroundColor: "#00000020",
+                    backdropFilter: "blur(20px)",
+                  },
                 }}
               >
-                <Alert
-                  onClose={() => {
-                    setPhoneVerifiedSuccessSnack(false)
-                  }} severity="success"
-                  // className='bg-purple rounded-lg text-white'
-                  sx={{ width: 'auto', fontWeight: '700', fontFamily: 'inter', fontSize: '22' }}
-                >
-                  Phone number verified
-                </Alert>
-              </Snackbar>
-            </div>
+                <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.verifyPopup}>
+                  <div className="flex flex-row justify-center w-full">
+                    <div
+                      className="sm:w-7/12 w-full"
+                      style={{
+                        backgroundColor: "#ffffff",
+                        padding: 20,
+                        borderRadius: "13px",
+                      }}
+                    >
+                      <div className='flex flex-row justify-end'>
+                        <button onClick={handleClose}>
+                          <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                        </button>
+                      </div>
+                      <div style={{
+                        fontSize: 26,
+                        fontWeight: "700"
+                      }}>
+                        Verify phone number
+                      </div>
+                      <div className='mt-8' style={{ ...styles.inputStyle, color: "#00000060" }}>
+                        Enter code that was sent to number ending with *{userPhoneNumber.slice(-4)}.
+                      </div>
+                      {/* <VerificationCodeInput /> */}
+                      <div className='mt-8' style={{ display: 'flex', gap: '8px' }}>
+                        {Array.from({ length }).map((_, index) => (
+                          <input
+                            key={index}
+                            ref={(el) => (verifyInputRef.current[index] = el)}
+                            type="text"
+                            maxLength="1"
+                            value={VerifyCode[index]}
+                            onChange={(e) => handleVerifyInputChange(e, index)}
+                            onKeyDown={(e) => handleBackspace(e, index)}
+                            onPaste={handlePaste}
+                            placeholder='-'
+                            style={{
+                              width: '40px',
+                              height: '40px',
+                              textAlign: 'center',
+                              fontSize: '20px',
+                              border: '1px solid #ccc',
+                              borderRadius: '5px',
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <div className='mt-8' style={styles.inputStyle}>
+                        {`Didn't receive code?`} <button className='outline-none border-none text-purple'>Resed</button>
+                      </div>
+                      {
+                        registerLoader ?
+                          <div className='flex fex-row items-center justify-center mt-8'>
+                            <CircularProgress size={35} />
+                          </div>
+                          :
+                          <button
+                            className='text-white bg-purple outline-none rounded-xl w-full mt-8'
+                            style={{ height: "50px" }}
+                            onClick={handleVerifyCode}
+                          >
+                            Continue
+                          </button>
+                      }
+                    </div>
+                  </div>
+                </Box>
+              </Modal>
 
+              <div>
+                <Snackbar
+                  open={phoneVerifiedSuccessSnack}
+                  autoHideDuration={3000}
+                  onClose={() => {
+                    setPhoneVerifiedSuccessSnack(false);
+                  }}
+                  anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center'
+                  }}
+                  TransitionComponent={Fade}
+                  TransitionProps={{
+                    direction: 'center'
+                  }}
+                >
+                  <Alert
+                    onClose={() => {
+                      setPhoneVerifiedSuccessSnack(false)
+                    }} severity="success"
+                    // className='bg-purple rounded-lg text-white'
+                    sx={{ width: 'auto', fontWeight: '700', fontFamily: 'inter', fontSize: '22' }}
+                  >
+                    Phone number verified
+                  </Alert>
+                </Snackbar>
+              </div>
+
+            </div>
           </div>
         </div>
+
         <div>
-          <ProgressBar value={80} />
+          <div>
+            <ProgressBar value={80} />
+          </div>
+
+          <Footer handleContinue={handleVerifyPopup} handleBack={handleBack} registerLoader={registerLoader} />
         </div>
 
-        <Footer handleContinue={handleVerifyPopup} handleBack={handleBack} registerLoader={registerLoader} />
       </div>
     </div>
   )

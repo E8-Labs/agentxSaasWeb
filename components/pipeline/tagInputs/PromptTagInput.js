@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 
 export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) => {
-    console.log("Scroll Offset Parent ", scrollOffset)
+    // console.log("Scroll Offset Parent ", scrollOffset)
     const [popupVisible, setPopupVisible] = useState(false);
     const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
     const [options] = useState(["name", "address", "email", "phone"]);
@@ -31,6 +31,17 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
     useEffect(() => {
         setText(promptTag)
     }, [promptTag])
+
+
+    const getTextScrollOffset = () => {
+        if (textFieldRef.current) {
+            const scrollTop = textFieldRef.current.scrollTop;
+            const scrollLeft = textFieldRef.current.scrollLeft;
+            console.log("Scroll Offset - Top:", scrollTop, "Left:", scrollLeft);
+            return { scrollTop, scrollLeft };
+        }
+        return { scrollTop: 0, scrollLeft: 0 };
+    };
 
     const calculatePopupPosition = (input, textBeforeCursor) => {
         const mirrorDiv = mirrorDivRef.current;
@@ -70,20 +81,24 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
 
         mirrorDiv.removeChild(spanMarker);
 
-        const popupLeft = markerRect.left// (window.innerWidth / 2 - (window.innerWidth * 0.58 ) / 2)//markerRect.left + inputRect.left + scrollOffset.scrollLeft - (window.innerWidth * 0.91 / 2) + 300;
-        const popupTop =
-            markerRect.top - (window.innerHeight) + 30
-        // inputRect.top +
-        //   scrollOffset.scrollTop +
-        parseFloat(computedStyle.lineHeight);
+        const popupLeft = markerRect.left// - inputRect.left + scrollOffset.scrollLeft;
+        let maxLines = (markerRect.top - 1005) / 24 + 1
+        let distance = 35 + (markerRect.top - 1005)
+        console.log("Max Lines ", maxLines)
+        // if(maxLines > 18){
+        //     distance = 18 * 24 + 35;
+        // }
+        let textOffset = getTextScrollOffset()
+        let popupTop = distance - textOffset.scrollTop//inputRect.top / markerRect.top * scrollOffset.scrollTop//markerRect.top - inputRect.top + scrollOffset.scrollTop - (markerRect.top - inputRect.top - scrollOffset.scrollTop) * 0.25;//490
+        // markerRect.top - inputRect.top + scrollOffset.scrollTop + parseFloat(computedStyle.lineHeight);
 
+        console.log("Text Offset: ", textOffset);
+        console.log("Scroll Offset: ", scrollOffset);
+        console.log("Marker Rect: ", markerRect);
+        console.log("Input Rect: ", inputRect);
+        console.log("Popup Left: ", popupLeft);
+        console.log("Popup Top: ", popupTop);
 
-        console.log("Line Height ", parseFloat(computedStyle.lineHeight))
-        console.log("Marker Rect", markerRect.left)
-        console.log("Input Rect ", inputRect.left)
-
-        console.log("Pop Left", popupLeft)
-        console.log("Pop Top ", popupTop)
         setPopupPosition({ top: popupTop, left: popupLeft });
     };
 
@@ -218,7 +233,7 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
                 onKeyUp={handleKeyUp}
                 onKeyDown={handleKeyDown}
                 placeholder="Type here..."
-                style={{ fontSize: "16px", padding: "10px", width: "100%", resize: "none", fontWeight: "500", fontSize: 15 }}
+                style={{ fontSize: "16px", padding: "10px", width: "100%", fontWeight: "500", fontSize: 15, height: 500, resize: "none" }}
             />
             {popupVisible && filteredOptions.length > 0 && (
                 <div

@@ -872,11 +872,12 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                     </div>
                                                                                 </MenuItem>
                                                                                 {selectedPipelineStages.map(
-                                                                                    (item) => (
+                                                                                    (dropDownStateItem) => (
                                                                                         <MenuItem
-                                                                                            key={item.id}
+                                                                                        disabled={dropDownStateItem.id <= item.id}
+                                                                                            key={dropDownStateItem.id}
                                                                                             value={
-                                                                                                item.stageTitle
+                                                                                                dropDownStateItem.stageTitle
                                                                                             }
                                                                                             sx={{
                                                                                                 py: 0,
@@ -885,7 +886,7 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                                     "32px",
                                                                                             }}
                                                                                         >
-                                                                                            {item.stageTitle}
+                                                                                            {dropDownStateItem.stageTitle}
                                                                                         </MenuItem>
                                                                                     )
                                                                                 )}
