@@ -530,7 +530,7 @@ const Leads1 = () => {
 
                             <div className='border rounded p-2 w-full mt-4' style={styles.subHeadingStyle}>
                                 <input
-                                    className="outline-none border-roundedp-2 w-full"
+                                    className="outline-none border-roundedp-2 w-full mx-2"
                                     value={sheetName.split(".")[0]} // Only show the base name in the input
                                     onChange={handleSheetNameChange}
                                     placeholder="Enter sheet name"
@@ -685,7 +685,7 @@ const Leads1 = () => {
                             </div>
 
                             <input
-                                className='border outline-none rounded p-2 mt-2 w-full'
+                                className='border outline-none rounded p-2 mt-2 w-full mx-2'
                                 value={updateColumnValue}
                                 // onChange={(e) => { setUpdateColumnValue(e.target.value) }}
                                 onChange={(e) => {

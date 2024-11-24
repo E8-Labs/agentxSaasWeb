@@ -621,7 +621,7 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                     Days
                                                                                 </label>
                                                                                 <input
-                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px]"
+                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px] mx-2"
                                                                                     style={{
                                                                                         ...styles.inputStyle,
                                                                                         height: "42px",
@@ -650,7 +650,7 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                     Hours
                                                                                 </label>
                                                                                 <input
-                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px]"
+                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px] mx-2"
                                                                                     style={{
                                                                                         ...styles.inputStyle,
                                                                                         height: "42px",
@@ -678,7 +678,7 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                     Mins
                                                                                 </label>
                                                                                 <input
-                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px]"
+                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px] mx-2"
                                                                                     style={{
                                                                                         ...styles.inputStyle,
                                                                                         height: "42px",

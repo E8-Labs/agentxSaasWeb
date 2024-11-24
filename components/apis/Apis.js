@@ -2,6 +2,7 @@ const BasePath = "https://www.blindcircle.com/agentx/"
 
 const Apis = {
     register: `${BasePath}api/user/register`,
+    LogIn: `${BasePath}api/user/login`,
     defaultData: `${BasePath}api/data/loadDefaualtData`,
     buildAgent: `${BasePath}api/agent/buildAgent`,
     findPhoneNumber: `${BasePath}api/agent/findPhoneNumbers`,

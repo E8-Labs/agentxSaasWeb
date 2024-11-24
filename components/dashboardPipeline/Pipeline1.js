@@ -197,7 +197,7 @@ const Pipeline1 = () => {
                         <div className='flex fex-row items-center gap-6'>
                             <div className='flex flex-row items-center justify-between w-[25vw] border h-[50px] px-4 gap-8' style={{ borderRadius: "50px" }}>
                                 <input
-                                    className='outline-none bg-transparent w-full'
+                                    className='outline-none bg-transparent w-full mx-2'
                                     placeholder='Search by name, phone email'
                                 />
                                 <button>

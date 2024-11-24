@@ -209,7 +209,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue })
     return (
         <div style={{ position: "relative" }}>
             <input
-                className="outline-none border rounded-xl"
+                className="outline-none border rounded-xl mx-2"
                 ref={textFieldRef}
                 // rows=""
                 // cols="50"

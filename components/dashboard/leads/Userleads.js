@@ -259,7 +259,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                     <div className='flex flex-row items-center gap-1 w-[22vw] border rounded p-2'>
                                         <input
                                             style={styles.paragraph}
-                                            className='outline-none border-none w-full bg-transparent'
+                                            className='outline-none border-none w-full bg-transparent mx-2'
                                             placeholder='Search by name, email or phone'
                                             value={searchLead}
                                             onChange={(e) => {

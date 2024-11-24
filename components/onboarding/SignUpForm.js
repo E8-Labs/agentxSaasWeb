@@ -378,7 +378,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
             </div>
             <input
               placeholder='Name'
-              className='border p-2 outline-none'
+              className='border border-[#00000010] p-3 outline-none mx-2'
               style={{ ...styles.inputStyle, marginTop: "8px" }}
               value={userName}
               onChange={(e) => { setUserName(e.target.value) }}
@@ -409,7 +409,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
 
             <input
               placeholder='Email address'
-              className='border rounded p-2 outline-none'
+              className='border border-[#00000010] rounded p-3 outline-none mx-2'
               style={{ ...styles.inputStyle, marginTop: "8px" }}
               value={userEmail}
               onChange={(e) => {
@@ -498,8 +498,8 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                   borderWidth: '0px',
                   backgroundColor: 'transparent',
                   paddingLeft: '60px',
-                  paddingTop: "12px",
-                  paddingBottom: "12px",
+                  paddingTop: "20px",
+                  paddingBottom: "20px",
                 }}
                 buttonStyle={{
                   border: 'none',
@@ -556,7 +556,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
             </div>
             <input
               placeholder='Your territory  '
-              className='border rounded p-2 outline-none'
+              className='border border-[#00000010] rounded p-3 outline-none mx-2'
               style={{ ...styles.inputStyle, marginTop: "8px" }}
               value={userFarm}
               onChange={(e) => { setUserFarm(e.target.value) }}
@@ -567,7 +567,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
             </div>
             <input
               placeholder='Brokerage'
-              className='border rounded p-2 outline-none'
+              className='border border-[#00000010] rounded p-3 outline-none mx-2'
               style={{ ...styles.inputStyle, marginTop: "8px" }}
               value={userBrokage}
               onChange={(e) => { setUserBrokage(e.target.value) }}
@@ -578,7 +578,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
             </div>
             <input
               placeholder='Value'
-              className='border rounded p-2 outline-none'
+              className='border border-[#00000010] rounded p-3 outline-none mx-2 mb-2'
               style={{ ...styles.inputStyle, marginTop: "8px" }}
               value={userTransaction}
               onChange={(e) => { setUserTransaction(e.target.value) }}

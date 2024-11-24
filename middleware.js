@@ -7,18 +7,25 @@ export function middleware(request) {
     console.log("Running middleware");
 
     // Retrieve the user data from cookies
-    const userCookie = request.cookies.get("User");
-    console.log("User Cookie:", userCookie);
-    if (!userCookie) {
-        if (request.nextUrl.pathname != "/onboarding") {
-            return NextResponse.redirect(new URL("/onboarding", request.url))
+
+    if (request.nextUrl.pathname == "/" || request.nextUrl.pathname == "/onboarding") {
+
+    }
+    else {
+        const userCookie = request.cookies.get("User");
+        console.log("User Cookie:", userCookie);
+        if (!userCookie) {
+            if (request.nextUrl.pathname != ["/", "/onboarding"]) {
+                return NextResponse.redirect(new URL("/", request.url))
+            }
         }
     }
+
 
     // }
 
 }
 
 export const config = {
-    matcher: ["/createagent/:path*", "/pipeline/:path*", "/sellerkycquestions/:path*", "/buyerkycquestions/:path*", "/dashboard/:path*"]
+    matcher: ["/createagent/:path*", "/pipeline/:path*", "/sellerkycquestions/:path*", "/buyerkycquestions/:path*", "/dashboard/:path*", "/onboarding/:path*"]
 }

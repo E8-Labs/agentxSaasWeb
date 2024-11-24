@@ -1,19 +1,500 @@
 "use client"
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import Apis from '@/components/apis/Apis';
+import { Box, CircularProgress, Modal } from '@mui/material';
+import axios from 'axios';
+import Image from 'next/image';
+import React, { useRef, useState } from 'react';
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import { useRouter } from 'next/navigation';
 
-export default function Home() {
+const Page = () => {
 
+  // const backgroundImage = {
+  //     backgroundImage: 'url("/assets/bg2.png")',
+  //     backgroundSize: "cover",
+  //     backgroundRepeat: "no-repeat",
+  //     backgroundPosition: "center",
+  //     backgroundPositionY: "center",
+  //     width: "100%",
+  //     height: "90svh",
+  //     overflow: "hidden",
+  // };
+
+  // const [PhoneNumber, setPhoneNumber] = useState("")
+
+  const verifyInputRef = useRef([]);
+  const timerRef = useRef();
   const router = useRouter();
+  const [countryCode, setCountryCode] = useState(""); // Default country
+  const [userPhoneNumber, setUserPhoneNumber] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [locationLoader, setLocationLoader] = useState(false);
+  const [loginLoader, setLoginLoader] = useState(false);
+  const [phoneNumberLoader, setPhoneNumberLoader] = useState(false);
+  const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
-  useEffect(() => {
-    router.push("/onboarding")
-  }, []);
+  const length = 6;
+  const [VerifyCode, setVerifyCode] = useState(Array(length).fill(''));
+  const [showVerifyPopup, setShowVerifyPopup] = useState(false);
+
+  const handlePhoneNumberChange = (phone) => {
+    setUserPhoneNumber(phone);
+    validatePhoneNumber(phone);
+
+    if (!phone) {
+      setErrorMessage("");
+    }
+  };
+
+  const getLocation = () => {
+    setLocationLoader(true);
+
+    // Check if geolocation is available in the browser
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+
+          try {
+            // Fetch country code based on latitude and longitude
+            const response = await fetch(
+              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+            );
+            const data = await response.json();
+
+            // Set the country code if the API returns it
+            if (data && data.countryCode) {
+              setCountryCode(data.countryCode.toLowerCase());
+            } else {
+              console.error("Unable to fetch country code.");
+            }
+          } catch (error) {
+            console.error("Error fetching geolocation data:", error);
+          } finally {
+            setLocationLoader(false);
+          }
+        },
+        (error) => {
+          console.error("Geolocation error:", error.message);
+          setLocationLoader(false);
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+      setLocationLoader(false);
+    }
+  };
+
+  //number validation
+  const validatePhoneNumber = (phoneNumber) => {
+    // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
+    // parsePhoneNumberFromString(`+${phone}`, countryCode.toUpperCase())
+    const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`, countryCode.toUpperCase());
+    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
+    if (!parsedNumber || !parsedNumber.isValid()) {
+      setErrorMessage('Enter valid number');
+    } else {
+      setErrorMessage('');
+
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+
+      // setCheckPhoneResponse(null);
+      console.log("Trigered")
+
+      timerRef.current = setTimeout(() => {
+        checkPhoneNumber(phoneNumber);
+        console.log('I am hit now');
+      }, 300);
+    }
+  };
+
+  //code to login
+  const handleLogin = async () => {
+    try {
+      setLoginLoader(true);
+      const ApiPath = Apis.LogIn;
+      const AipData = {
+        phone: userPhoneNumber
+      }
+      console.log("Api data for login api is :", AipData);
+
+      const response = await axios.post(ApiPath, AipData, {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        console.log("Response of login api is :", response.data);
+        if (response.data.status === true) {
+          localStorage.setItem("User", JSON.stringify(response.data.data));
+          //set cokie on locastorage to run middle ware
+          document.cookie = `User=${encodeURIComponent(
+            JSON.stringify(response.data.data)
+          )}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+          router.push("/dashboard");
+        }
+      }
+
+    } catch (error) {
+      console.error("ERror occured in login api is :", error);
+    } finally {
+      setLoginLoader(false)
+    }
+  }
+
+  //code to check number
+  const checkPhoneNumber = async (value) => {
+    try {
+      setPhoneNumberLoader(true);
+      const ApiPath = Apis.CheckPhone;
+
+      const ApiData = {
+        phone: value
+      }
+
+      console.log("Api data is :", ApiData);
+
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        console.log("Response of check phone api is :", response);
+        if (response.data.status === true) {
+          console.log("Response message is :", response.data.message);
+          setCheckPhoneResponse(response.data);
+
+        } else {
+          setCheckPhoneResponse(response.data);
+        }
+      }
+
+    } catch (error) {
+      console.error("Error occured in check phone api is :", error);
+    } finally {
+      setPhoneNumberLoader(false);
+    }
+  }
+
+  //verify code 
+  const handleVerifyInputChange = (e, index) => {
+    const { value } = e.target;
+    if (!/[0-9]/.test(value) && value !== '') return; // Allow only numeric input
+
+    const newValues = [...VerifyCode];
+    newValues[index] = value;
+    setVerifyCode(newValues);
+
+    // Move focus to the next field if a number is entered
+    if (value && index < length - 1) {
+      verifyInputRef.current[index + 1].focus();
+    }
+
+    // Trigger onComplete callback if all fields are filled
+    if (newValues.every((num) => num !== '') && onComplete) {
+      onComplete(newValues.join('')); // Convert array to a single string here
+    }
+  };
+
+  const handleBackspace = (e, index) => {
+    if (e.key === 'Backspace') {
+      if (VerifyCode[index] === '' && index > 0) {
+        verifyInputRef.current[index - 1].focus();
+      }
+      const newValues = [...VerifyCode];
+      newValues[index] = '';
+      setVerifyCode(newValues);
+    }
+  };
+
+  const handlePaste = (e) => {
+    const pastedText = e.clipboardData.getData('text').slice(0, length);
+    const newValues = pastedText.split('').map((char) => (/[0-9]/.test(char) ? char : ''));
+    setVerifyCode(newValues);
+
+    // Set each input's value and move focus to the last filled input
+    newValues.forEach((char, index) => {
+      verifyInputRef.current[index].value = char;
+      if (index === newValues.length - 1) {
+        verifyInputRef.current[index].focus();
+      }
+    });
+
+    if (newValues.every((num) => num !== '') && onComplete) {
+      onComplete(newValues.join(''));
+    }
+  };
+
+  //code for number verification
+  const handleVerifyCode = () => {
+    console.log("Verify code is :", VerifyCode.join(""));
+    setPhoneVerifiedSuccessSnack(true);
+    handleLogin();
+  }
+
+  const backgroundImage = {
+    backgroundImage: 'url("/assets/bg2.png")',
+    backgroundSize: "cover",
+    backgroundRepeat: "no-repeat",
+    // backgroundPosition: "50% 50%",
+    backgroundPosition: "center",
+    width: "1080px",
+    height: "90vh",
+    overflow: "hidden",
+    borderRadius: "15px"
+  };
+
+  const styles = {
+    errmsg: {
+      fontSize: 12,
+      fontWeight: "500", borderRadius: "7px"
+    },
+    verifyPopup: {
+      height: "auto",
+      bgcolor: "transparent",
+      // p: 2,
+      mx: "auto",
+      my: "50vh",
+      transform: "translateY(-55%)",
+      borderRadius: 2,
+      border: "none",
+      outline: "none",
+    },
+  }
+
 
   return (
-    <div>
-      Hello there
+    <div className='flex flex-row w-full items-center h-screen'>
+      <div className='w-6/12 ms-8 flex flex-row justify-center ' style={backgroundImage}>
+        <div className='w-11/12'>
+          {/* <div>he</div> */}
+          <div className='h-[433px] w-[494px] md:w-[594px] bg-white mt-16'>
+          </div>
+          <div className='text-white text-5xl mt-8' style={{ fontWeight: "600" }}>
+            Building your persona <br />lead gen assistant
+          </div>
+          <div className='mt-8' style={{ fontSize: 15, fontWeight: "500" }}>
+            By signing up to the AgentX platform you understand and agree to our Terms and <br /> Conditions and Privacy Policy. This site is protected by Google reCAPTCHA to<br /> ensure you're not a bot. Learn more
+          </div>
+        </div>
+      </div>
+      <div className='w-4/12 flex flex-row justify-center h-[90vh]'>
+        <div className='w-10/12'>
+          <div>
+            <div className='flex flex-row items-center gap-3 mt-44'>
+              <Image className='hidden md:flex' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain" }} height={69} width={69} alt='*' />
+              <Image className='' src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' />
+            </div>
+            <div className='mt-8' style={{ fontWeight: "600", fontSize: 24 }}>
+              Welcome to AgentX
+            </div>
+            <div className='flex flex-row items-center w-full justify-between mt-4'>
+              <div className='' style={{ fontWeight: "600", fontSize: 16 }}>
+                {`What’s your phone number`}
+              </div>
+              <div>
+                {errorMessage ?
+                  <div style={styles.errmsg}>
+                    {errorMessage}
+                  </div> :
+                  <div>
+                    {
+                      phoneNumberLoader ?
+                        <div style={styles.errmsg}>
+                          Checking Number
+                        </div> :
+                        <div style={{ ...styles.errmsg, color: checkPhoneResponse?.status === false ? "green" : 'red', height: '20px' }}>
+                          {
+                            checkPhoneResponse && (
+                              <div>
+                                {
+                                  checkPhoneResponse === true ? (
+                                    "No such user"
+                                  ) : (
+                                    ""
+                                  )
+                                }
+                              </div>
+                            )
+                          }
+                        </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+            <div className='' style={{ marginTop: "8px" }}>
+              <PhoneInput
+                className="border outline-none bg-white"
+                country={countryCode} // Default country
+                value={userPhoneNumber}
+                onChange={handlePhoneNumberChange}
+                onFocus={getLocation}
+                placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                disabled={loading} // Disable input if still loading
+                style={{ borderRadius: "7px" }}
+                inputStyle={{
+                  width: "100%",
+                  borderWidth: "0px",
+                  backgroundColor: "transparent",
+                  paddingLeft: "60px",
+                  paddingTop: "12px",
+                  paddingBottom: "12px",
+                }}
+                buttonStyle={{
+                  border: "none",
+                  backgroundColor: "transparent",
+                }}
+                dropdownStyle={{
+                  maxHeight: "150px",
+                  overflowY: "auto",
+                }}
+                countryCodeEditable={true}
+                defaultMask={loading ? "Loading..." : undefined}
+              />
+            </div>
+            {
+              loginLoader ?
+                <div className='flex flex-row justify-center mt-4'>
+                  <CircularProgress size={30} />
+                </div> :
+                <button className='text-white h-[50px] w-full bg-purple rounded-xl mt-4' style={{ fontSize: 16, fontWeight: "600" }} onClick={() => { setShowVerifyPopup(true) }}>
+                  Continue
+                </button>
+            }
+            <div className='flex flex-row items-center gap-2 mt-4' style={{ fontWeight: "500", fontSize: 16 }}>
+              <div>
+                Donot have an account?
+              </div>
+              <button className='text-purple' onClick={() => { router.push("/onboarding") }}>
+                Sign Up
+              </button>
+            </div>
+
+            <div className='mt-6' style={{ fontWeight: "500", fontSize: 15 }}>
+              {`By signing up to the AgentX platform you understand and agree to our Terms and Conditions and Privacy Policy. This site is protected by Google reCAPTCHA to ensure you’re not a bot. Learn more`}
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      {/* Modals code goes here */}
+      <Modal
+        open={showVerifyPopup}
+        // onClose={() => setAddKYCQuestion(false)}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: "#00000020",
+            backdropFilter: "blur(20px)",
+          },
+        }}
+      >
+        <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.verifyPopup}>
+          <div className="flex flex-row justify-center w-full">
+            <div
+              className="sm:w-7/12 w-full"
+              style={{
+                backgroundColor: "#ffffff",
+                padding: 20,
+                borderRadius: "13px",
+              }}
+            >
+              <div className='flex flex-row justify-end'>
+                <button onClick={() => { setShowVerifyPopup(false) }}>
+                  <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                </button>
+              </div>
+              <div style={{
+                fontSize: 26,
+                fontWeight: "700"
+              }}>
+                Verify phone number
+              </div>
+              <div className='mt-8' style={{ ...styles.inputStyle, color: "#00000060" }}>
+                Enter code that was sent to number ending with *{userPhoneNumber.slice(-4)}.
+              </div>
+              {/* <VerificationCodeInput /> */}
+              {/* <div className='mt-8' style={{ display: 'flex', gap: '8px' }}>
+                {Array.from({ length }).map((_, index) => (
+                  <input
+                    key={index}
+                    ref={(el) => (verifyInputRef.current[index] = el)}
+                    type="text"
+                    maxLength="1"
+                    value={VerifyCode[index]}
+                    onChange={(e) => handleVerifyInputChange(e, index)}
+                    onKeyDown={(e) => handleBackspace(e, index)}
+                    onPaste={handlePaste}
+                    placeholder='-'
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      textAlign: 'center',
+                      fontSize: '20px',
+                      border: '1px solid #ccc',
+                      borderRadius: '5px',
+                    }}
+                  />
+                ))}
+              </div> */}
+              <div className='mt-8' style={{ display: 'flex', gap: '8px' }}>
+                {Array.from({ length }).map((_, index) => (
+                  <input
+                    key={index}
+                    ref={(el) => (verifyInputRef.current[index] = el)}
+                    type="text"
+                    maxLength="1"
+                    value={VerifyCode[index]}
+                    onChange={(e) => handleVerifyInputChange(e, index)}
+                    onKeyDown={(e) => handleBackspace(e, index)}
+                    onPaste={handlePaste}
+                    placeholder='-'
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      textAlign: 'center',
+                      fontSize: '20px',
+                      border: '1px solid #ccc',
+                      borderRadius: '5px',
+                    }}
+                  />
+                ))}
+              </div>
+              <div className='mt-8' style={styles.inputStyle}>
+                {`Didn't receive code?`} <button className='outline-none border-none text-purple'>Resed</button>
+              </div>
+              {
+                loginLoader ?
+                  <div className='flex fex-row items-center justify-center mt-8'>
+                    <CircularProgress size={35} />
+                  </div>
+                  :
+                  <button
+                    className='text-white bg-purple outline-none rounded-xl w-full mt-8'
+                    style={{ height: "50px" }}
+                    onClick={handleVerifyCode}
+                  >
+                    Continue
+                  </button>
+              }
+            </div>
+          </div>
+        </Box>
+      </Modal>
+
     </div>
-  );
+  )
 }
+
+export default Page

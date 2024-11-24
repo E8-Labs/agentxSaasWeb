@@ -871,7 +871,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                                 </div>
                                             </div>
                                             <div className='flex flex-row items-center justify-between mt-4'>
-                                                <input className='outline-none' style={{ ...styles.inputStyle, width: "70%" }} placeholder='Address' />
+                                                <input className='outline-none mx-2' style={{ ...styles.inputStyle, width: "70%" }} placeholder='Address' />
                                                 <div style={{ ...styles.inputStyle }}>
                                                     Address goes here
                                                 </div>

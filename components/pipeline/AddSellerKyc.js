@@ -473,7 +473,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData, recallgetK
                                         </div>
                                         <div className='mt-2'>
                                             <input
-                                                className='border outline-none w-full p-2 rounded-lg px-3'
+                                                className='border outline-none w-full p-2 rounded-lg px-3 mx-2'
                                                 style={styles.inputStyle}
                                                 placeholder="Ex: What's your name?"
                                                 value={newQuestion}
@@ -488,7 +488,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData, recallgetK
                                             {inputs.map((input, index) => (
                                                 <div key={input.id} className='w-full flex flex-row items-center gap-4 mt-4'>
                                                     <input
-                                                        className='border p-2 rounded-lg px-3 outline-none'
+                                                        className='border p-2 rounded-lg px-3 outline-none mx-2'
                                                         style={{ width: "90%" }}
                                                         placeholder={`Sample Answer`}
                                                         value={input.value}
