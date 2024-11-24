@@ -29,6 +29,7 @@ const Leads1 = () => {
     //File handling
     const [processedData, setProcessedData] = useState([]);
     const [columnMappingsList, setColumnMappingsList] = useState([]);
+    const [introVideoModal, setIntroVideoModal] = useState(false);
 
     const defaultColumns = {
         firstName: ["first name", "firstname"],
@@ -297,7 +298,9 @@ const Leads1 = () => {
                                     <Userleads handleShowAddLeadModal={handleShowAddLeadModal} handleShowUserLeads={handleShowUserLeads} />
                                 </div> :
                                 <div>
-                                    <Image src={"/assets/placeholder.png"} height={145} width={710} alt='*' />
+                                    <div className='flex flex-row items-center justify-center w-full'>
+                                        <Image src={"/assets/placeholder.png"} height={145} width={710} alt='*' />
+                                    </div>
                                     <div className='mt-12 ms-8 text-center' style={{ fontSize: 30, fontWeight: "700", }}>
                                         {`Looks like you don't have any leads yet`}
                                     </div>
@@ -321,17 +324,17 @@ const Leads1 = () => {
                                             transform: "translateX(-50%)",
                                         }}
                                     >
-                                        <div className='flex flex-row items-center gap-2'>
+                                        <button className='flex flex-row items-center gap-2' onClick={() => { setIntroVideoModal(true) }}>
                                             <Image src={"/assets/youtubeplay.png"} height={93} width={127} alt='*' />
                                             <div>
                                                 <div style={styles.subHeadingStyle}>
                                                     Learn how to add leads to your pipeline
                                                 </div>
-                                                <div style={styles.subHeadingStyle}>
+                                                <div style={styles.subHeadingStyle} className='text-start'>
                                                     2 mins
                                                 </div>
                                             </div>
-                                        </div>
+                                        </button>
                                     </div>
 
                                 </div>
@@ -733,6 +736,62 @@ const Leads1 = () => {
                                 Create
                             </button>
 
+
+                            {/* Can be use full to add shadow */}
+                            {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+
+            {/* Modal for video */}
+            <Modal
+                open={introVideoModal}
+                onClose={() => setIntroVideoModal(false)}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 1000,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        // backdropFilter: "blur(20px)",
+                    },
+                }}
+            >
+                <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.modalsStyle}>
+                    <div className="flex flex-row justify-center w-full">
+                        <div
+                            className="sm:w-full w-full"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                            }}
+                        >
+                            <div className='flex flex-row justify-end'>
+                                <button onClick={() => { setIntroVideoModal(false) }}>
+                                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                </button>
+                            </div>
+
+                            <div className='text-center sm:font-24 font-16' style={{ fontWeight: "700" }}>
+                                Learn more about assigning leads
+                            </div>
+
+                            <div className='mt-6'>
+                                <iframe
+                                    src="https://www.youtube.com/embed/Dy9DM5u_GVg?autoplay=1&mute=1" //?autoplay=1&mute=1 to make it autoplay
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                    title="YouTube video"
+                                    // className='w-20vh h-40vh'
+                                    style={{
+                                        width: "100%",
+                                        height: "50vh",
+                                        borderRadius: 15,
+                                    }}
+                                />
+                            </div>
 
                             {/* Can be use full to add shadow */}
                             {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}

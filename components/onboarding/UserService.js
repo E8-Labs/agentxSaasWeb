@@ -6,7 +6,7 @@ import ProgressBar from './ProgressBar';
 import Footer from './Footer';
 import { CircularProgress } from '@mui/material';
 
-const CreateAccount1 = ({ handleContinue, DefaultData, handleBack }) => {
+const UserService = ({ handleContinue, DefaultData, handleBack }) => {
 
     const router = useRouter();
     const [serviceId, setServiceId] = useState([]);
@@ -143,4 +143,4 @@ const CreateAccount1 = ({ handleContinue, DefaultData, handleBack }) => {
     )
 }
 
-export default CreateAccount1
+export default UserService

@@ -90,7 +90,8 @@ const KYCs = ({ kycsDetails }) => {
 
             if (response) {
                 console.log("Response of get kycs api is :--", response);
-                kycsDetails(response.data.data)
+                kycsDetails(response.data.data);
+                setKycsData(response.data.data);
                 const filteredSellerQuestions = response.data.data.filter(item => item.type === 'seller');
                 const filteredBuyerQuestions = response.data.data.filter(item => item.type === 'buyer');
                 console.log("Seler kycs are :=--", filteredSellerQuestions);
@@ -446,7 +447,7 @@ const KYCs = ({ kycsDetails }) => {
                                 </button>
                             </div>
 
-                            <AddSellerKyc handleCloseSellerKyc={handleCloseSellerKyc} handleAddSellerKycData={handleAddSellerKycData} />
+                            <AddSellerKyc handleCloseSellerKyc={handleCloseSellerKyc} handleAddSellerKycData={handleAddSellerKycData} recallgetKYC={getKyc} />
 
 
                             {/* Can be use full to add shadow */}
@@ -686,7 +687,7 @@ const KYCs = ({ kycsDetails }) => {
                                 </button>
                             </div>
 
-                            <AddBuyerKyc handleCloseSellerKyc={handleCloseSellerKyc} handleAddBuyerKycData={handleAddBuyerKycData} />
+                            <AddBuyerKyc handleCloseSellerKyc={handleCloseSellerKyc} handleAddBuyerKycData={handleAddBuyerKycData} recallgetKYC={getKyc} />
 
 
                             {/* Can be use full to add shadow */}

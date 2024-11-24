@@ -25,6 +25,7 @@ const Pipeline1 = () => {
     const [PipeLines, setPipeLines] = useState([]);
     const [StagesList, setStagesList] = useState([]);
     const [LeadsList, setLeadsList] = useState([]);
+    const [leadCounts, setLeadCounts] = useState(null);
 
     useEffect(() => {
         getPipelines()
@@ -59,6 +60,8 @@ const Pipeline1 = () => {
                 setSelectedPipeline(response.data.data[0]);
                 setStagesList(response.data.data[0].stages);
                 setLeadsList(response.data.data[0].leads);
+                console.log("Leads lis is :", response.data.data[0].leads);
+                setLeadCounts(response.data.data[0].leadsCountInStage);
             }
 
         } catch (error) {
@@ -377,18 +380,19 @@ const Pipeline1 = () => {
                         } */}
 
                     </div>
+
                     <div className="flex flex-row items-center gap-4">
                         {StagesList.map((stage, index) => (
                             <div key={index} style={{ width: "300px" }} className="flex flex-col items-start h-full">
                                 {/* Display the stage */}
                                 <div className='flex flex-row items-center w-full justify-between'>
                                     <div
-                                        className="h-[36px] flex flex-row items-center justify-center gap-8 rounded px-4"
+                                        className="h-[36px] flex flex-row items-center justify-center gap-8 rounded-xl px-4 text-white"
                                         style={{ ...styles.heading, backgroundColor: stage.defaultColor }}
                                     >
                                         <span>{stage.stageTitle}</span>
                                         <div
-                                            className="h-[20px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center"
+                                            className="h-[23px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center text-black"
                                             style={{ ...styles.paragraph, fontSize: 14 }}
                                         >
                                             {stage.id}
@@ -419,7 +423,7 @@ const Pipeline1 = () => {
                                 </Popover>
 
                                 {/* Display leads matching this stage */}
-                                <div className="flex flex-col gap-4 mt-4">
+                                <div className="flex flex-col gap-4 mt-4 max-h-[78vh] overflow-auto" style={{ scrollbarWidth: "none" }}>
                                     {LeadsList.filter((lead) => lead.stage === stage.id).map((lead, leadIndex) => (
                                         <div className="border rounded-xl p-3 h-full" style={{ width: "300px" }} key={leadIndex}>
                                             <div className="border rounded-xl px-4 py-2 h-full">

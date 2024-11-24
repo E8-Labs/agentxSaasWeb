@@ -5,7 +5,7 @@ import Header from './Header';
 import Footer from './Footer';
 import Image from 'next/image';
 
-const CreateAccount2 = ({ handleContinue, handleBack, DefaultData }) => {
+const FocusArea = ({ handleContinue, handleBack, DefaultData }) => {
 
     const router = useRouter();
     const [focusArea, setFocusArea] = useState([]);
@@ -109,4 +109,4 @@ const CreateAccount2 = ({ handleContinue, handleBack, DefaultData }) => {
     )
 }
 
-export default CreateAccount2
+export default FocusArea

@@ -13,7 +13,7 @@ import axios from 'axios';
 import { Alert, Box, CircularProgress, Fade, Modal, Snackbar } from '@mui/material';
 import VerificationCodeInput from '../test/VerificationCodeInput';
 
-const CreateAccount3 = ({ handleContinue, handleBack, length = 6, onComplete }) => {
+const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
 
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
@@ -82,7 +82,7 @@ const CreateAccount3 = ({ handleContinue, handleBack, length = 6, onComplete }) 
       console.log("User registeration data is :--", registerationData);
       setUserData(registerationData);
     } else {
-      alert("Add details to continue");
+      // alert("Add details to continue");
     }
     const fetchCountry = async () => {
       try {
@@ -232,8 +232,8 @@ const CreateAccount3 = ({ handleContinue, handleBack, length = 6, onComplete }) 
       formData.append("farm", userFarm);
       formData.append("brokerage", userBrokage);
       formData.append("averageTransactionPerYear", userTransaction);
-      formData.append("agentService", userData.serviceID);
-      formData.append("areaOfFocus", userData.focusAreaId);
+      formData.append("agentService", JSON.stringify(userData.serviceID));
+      formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
       formData.append("userType", "RealEstateAgent");
 
       console.log("Data for user registeration is :-----");
@@ -587,7 +587,7 @@ const CreateAccount3 = ({ handleContinue, handleBack, length = 6, onComplete }) 
                 timeout: 1000,
                 sx: {
                   backgroundColor: "#00000020",
-                  // backdropFilter: "blur(20px)",
+                  backdropFilter: "blur(20px)",
                 },
               }}
             >
@@ -701,4 +701,4 @@ const CreateAccount3 = ({ handleContinue, handleBack, length = 6, onComplete }) 
   )
 }
 
-export default CreateAccount3
+export default SignUpForm

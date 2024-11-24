@@ -15,6 +15,7 @@ import Apis from '../apis/Apis';
 import axios from 'axios';
 import { CircularProgress } from '@mui/material';
 import voicesList from './Voices';
+import { PauseCircle, PlayCircle } from '@phosphor-icons/react';
 
 const CreateAgentVoice = ({ handleBack }) => {
 
@@ -25,6 +26,7 @@ const CreateAgentVoice = ({ handleBack }) => {
     const [voices, setVoices] = useState([]);
     const [voicesLoader, setVoicesLoader] = useState(false);
     const [selectedVoiceId, setSelectedVoiceId] = useState("");
+    const [preview, setPreview] = useState("");
 
     useEffect(() => {
         setVoices(voicesList);
@@ -154,7 +156,7 @@ const CreateAgentVoice = ({ handleBack }) => {
                                             className='flex flex-row items-center border mt-4 p-2 justify-between h-[100px] px-8 rounded-xl outline-none'
                                             onClick={(e) => {
                                                 handleToggleClick(index, item);
-                                                playVoice(item.preview);
+                                                // playVoice(item.preview);
                                             }}
                                         >
                                             <div className='flex flex-row items-center gap-4'>
@@ -175,10 +177,22 @@ const CreateAgentVoice = ({ handleBack }) => {
                                                 <div>
                                                     <Image src={"/assets/voice.png"} height={15} width={23} alt='*' />
                                                 </div>
-                                                <div>
+                                                {/* <div>
                                                     <div className='flex flex-row items-center justify-center bg-white' style={{ height: "36px", width: "36px", border: "1px solid #00000080", borderRadius: "50%" }}>
                                                         <Image src={"/assets/play.png"} height={16} width={16} style={{ borderRadius: "50%" }} alt='*' />
                                                     </div>
+                                                </div> */}
+                                                <div>
+                                                    {
+                                                        preview === item.preview ?
+                                                            <PauseCircle size={38} weight='regular' /> :
+                                                            <div onClick={(e) => {
+                                                                setPreview(item.preview);
+                                                                playVoice(item.preview);
+                                                            }}>
+                                                                <PlayCircle size={38} weight='regular' />
+                                                            </div>
+                                                    }
                                                 </div>
                                             </div>
                                         </button>

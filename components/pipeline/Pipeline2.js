@@ -16,9 +16,12 @@ import GuardianSetting from './advancedsettings/GuardianSetting';
 import KYCs from './KYCs';
 import GreetingTag from './tagInputs/GreetingTag';
 import CallScriptTag from './tagInputs/CallScriptTag';
+import DynamicDropdown from '../test/DynammicTagField';
+import { PromptTagInput } from '../test/PromptTagInput';
 
 const Pipeline2 = ({ handleContinue, handleBack }) => {
-
+    const containerRef = useRef(null); // Ref to the scrolling container
+    const [scrollOffset, setScrollOffset] = useState({ scrollTop: 0, scrollLeft: 0 });
     const router = useRouter();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [kycsData, setKycsData] = useState(null);
@@ -60,7 +63,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     // };
 
     // const handleGreetingsTagChange = (tag) => {
-    //     console.log("Tage is :", tag);
+    //     //console.log("Tage is :", tag);
     //     const beforeCursor = greetingTagInput.slice(0, cursorPosition);
     //     const afterCursor = greetingTagInput.slice(cursorPosition);
 
@@ -87,6 +90,32 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     const [cursorPosition, setCursorPosition] = useState(0);
     const [filteredTags, setFilteredTags] = useState(tags); // Filtered dropdown items
     const greetingInputRef = useRef(null); // Reference to the input element
+
+    useEffect(() => {
+        //console.log("Setting scroll offset")
+        const handleScroll = () => {
+            if (containerRef.current) {
+                setScrollOffset({
+                    scrollTop: containerRef.current.scrollTop,
+                    scrollLeft: containerRef.current.scrollLeft,
+                });
+            }
+            else {
+                //console.log("No ref div")
+            }
+        };
+
+        const container = containerRef.current;
+        if (container) {
+            container.addEventListener("scroll", handleScroll);
+        }
+
+        return () => {
+            if (container) {
+                container.removeEventListener("scroll", handleScroll);
+            }
+        };
+    }, []);
 
     const handleInputChange = (e) => {
         const value = e.target.value;
@@ -159,6 +188,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     const [kYCSDropDown, setKYCSDropDown] = useState(false)
     const [promptCursorPosition, setPromptCursorPosition] = useState(0);
     const textFieldRef = useRef(null); // Reference to the TextField element
+    console.log("Tag value is :", scriptTagInput);
 
     const tags1 = ['name', 'Agent Name', 'Brokerage Name', 'Client Name'];
 
@@ -186,7 +216,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
         // Show dropdown if `{kyc|` is typed, case-insensitive
         const typedText = value.slice(0, cursorPos).toLowerCase(); // Get text up to the cursor in lowercase
-        if (typedText.endsWith('{kyc|')) {
+        if (typedText.endsWith('{kyc')) {
             setKYCSDropDown(true);
         } else if (typedText.endsWith('{')) {
             setPromptDropDownVisible(true);
@@ -223,7 +253,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         const afterCursor = scriptTagInput.slice(promptCursorPosition);
 
         // Insert the selected KYC tag in the desired format
-        const updatedInput = `${beforeCursor} ${selectedKYC} }${afterCursor}`;
+        const updatedInput = `${beforeCursor} | ${selectedKYC} }${afterCursor}`;
 
         // const updatedInput = beforeCursor.slice(0, 4) + `{ KYC | ${selectedKYC} } ${afterCursor}`;
 
@@ -253,14 +283,15 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         const agentDetailsLocal = localStorage.getItem("agentDetails");
         if (agentDetailsLocal) {
             const localAgentData = JSON.parse(agentDetailsLocal);
-            console.log("Locla agent details are :-", localAgentData);
+            //console.log("Locla agent details are :-", localAgentData);
             setAgentDetails(localAgentData);
-            setScriptTagInput(localAgentData.agents[0].prompt);
+            setGreetingTagInput(localAgentData.greeting);
+            setScriptTagInput(localAgentData.callScript);
         }
     }, []);
 
     useEffect(() => {
-        console.log("KYCS DETAILS RECIEVED ARE :", kycsData);
+        //console.log("KYCS DETAILS RECIEVED ARE :", kycsData);
         // if (isDropdownVisible === true) {
         //     getUniquesColumn()
         // }
@@ -277,10 +308,10 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 AuthToken = UserDetails.token;
             }
 
-            console.log("Auth token is :--", AuthToken);
+            //console.log("Auth token is :--", AuthToken);
 
             const ApiPath = Apis.uniqueColumns;
-            console.log("Api path is ", ApiPath);
+            //console.log("Api path is ", ApiPath);
 
             const response = await axios.get(ApiPath, {
                 headers: {
@@ -290,7 +321,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             });
 
             if (response) {
-                console.log("Response of getColumns api is:", response.data);
+                //console.log("Response of getColumns api is:", response.data);
             }
 
         } catch (error) {
@@ -306,12 +337,12 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
     //code for getting tag value from input fields
     // const handleGreetingTag = (value) => {
-    //     console.log("Greeting value is :--", value);
+    //     //console.log("Greeting value is :--", value);
     //     setGreetingTagInput(value);
     // }
 
     // const handleCallScriptTag = (value) => {
-    //     console.log("Script tag value is :--", value);
+    //     //console.log("Script tag value is :--", value);
     //     setScriptTagInput(value);
     // }
 
@@ -319,9 +350,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     const handleNextClick = async () => {
         // router.push("/dashboard");
 
-        // console.log("Greeting value is :", greetingTagInput);
+        // //console.log("Greeting value is :", greetingTagInput);
 
-        // console.log("Promt details are :", scriptTagInput);
+        // //console.log("Promt details are :", scriptTagInput);
 
         // return
         try {
@@ -331,7 +362,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             const localData = localStorage.getItem("User");
             if (localData) {
                 const Data = JSON.parse(localData);
-                console.log("Localdat recieved is :--", Data);
+                //console.log("Localdat recieved is :--", Data);
                 AuthToken = Data.token;
             }
 
@@ -347,7 +378,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             const mainAgentData = localStorage.getItem("agentDetails");
             if (mainAgentData) {
                 const Data = JSON.parse(mainAgentData);
-                console.log("Localdat recieved is :--", Data);
+                //console.log("Local agent dat recieved is :--", Data);
                 mainAgentId = Data.id;
                 AgentName = Data.name;
                 AgentObjective = Data.agents[0].agentObjective;
@@ -357,10 +388,10 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 AgentRole = Data.agents[0].agentRole;
             }
 
-            console.log("Auth token is :--", AuthToken);
+            //console.log("Auth token is :--", AuthToken);
 
             const ApiPath = Apis.updateAgent;
-            console.log("Api path is :--", ApiPath);
+            //console.log("Api path is :--", ApiPath);
 
 
             const formData = new FormData();
@@ -377,9 +408,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             formData.append("prompt", greetingTagInput);
             formData.append("greeting", scriptTagInput);
 
-            console.log("Update agent details are is :-----");
+            //console.log("Update agent details are is :-----");
             for (let [key, value] of formData.entries()) {
-                console.log(`${key}: ${value}`);
+                //console.log(`${key}: ${value}`);
             }
 
             const response = await axios.post(ApiPath, formData, {
@@ -389,7 +420,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             });
 
             if (response) {
-                console.log("Response of update api is :--", response);
+                //console.log("Response of update api is :--", response);
                 if (response.data.status === true) {
                     handleAddCadence()
                     // router.push("/dashboard");
@@ -400,14 +431,14 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             console.error("Error occured in update agent api is:", error);
         } finally {
             setLoader(false);
-            console.log("update agent api completed");
+            //console.log("update agent api completed");
         }
     }
 
     const handleAddCadence = async () => {
         try {
             setLoader(true);
-            console.log("");
+            //console.log("");
             let cadence = null;
             const cadenceData = localStorage.getItem("AddCadenceDetails");
             if (cadenceData) {
@@ -415,15 +446,15 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 cadence = cadenceDetails;
             }
 
-            console.log("cadence details are :",
-                cadence
-            );
+            //console.log("cadence details are :",
+            //     cadence
+            // );
 
             let mainAgentId = null;
             const mainAgentData = localStorage.getItem("agentDetails");
             if (mainAgentData) {
                 const Data = JSON.parse(mainAgentData);
-                console.log("Localdat recieved is :--", Data);
+                //console.log("Localdat recieved is :--", Data);
                 mainAgentId = Data.id;
             }
 
@@ -431,13 +462,13 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             const localData = localStorage.getItem("User");
             if (localData) {
                 const Data = JSON.parse(localData);
-                console.log("Localdat recieved is :--", Data);
+                //console.log("Localdat recieved is :--", Data);
                 AuthToken = Data.token;
             }
 
-            console.log("Authtoke for add cadence api is :", AuthToken);
+            //console.log("Authtoke for add cadence api is :", AuthToken);
 
-            console.log("Main agent id is :", mainAgentId);
+            //console.log("Main agent id is :", mainAgentId);
 
             const ApiData = {
                 pipelineId: cadence.pipelineID,
@@ -446,7 +477,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             }
 
             const ApiPath = Apis.createPipeLine;
-            console.log("Api path is :", ApiPath);
+            //console.log("Api path is :", ApiPath);
 
             const response = await axios.post(ApiPath, ApiData, {
                 headers: {
@@ -456,7 +487,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             });
 
             if (response) {
-                console.log("Response of create pipeline api is :---", response);
+                //console.log("Response of create pipeline api is :---", response);
                 if (response.data.status === true) {
                     router.push("/dashboard");
                 }
@@ -468,6 +499,32 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         } finally {
             setLoader(false);
         }
+    }
+
+    //handleGet kyc details
+    const handleGetKYCs = () => {
+        const test = [
+            {
+                id: 1,
+                question: 'name'
+            },
+            {
+                id: 2,
+                question: 'phone'
+            },
+            {
+                id: 3,
+                question: 'email'
+            },
+            {
+                id: 4,
+                question: 'address'
+            },
+            {
+                id: 5,
+                question: 'name han'
+            },
+        ]
     }
 
 
@@ -516,7 +573,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple flex flex-col justify-between'>
+            <div ref={containerRef} className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple flex flex-col justify-between'>
                 <div>
                     {/* header */}
                     <Header />
@@ -665,15 +722,16 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                     onChange={(e) => { setScriptTagInput(e.target.value) }}
                                 /> */}
 
-                                <Box sx={{ position: 'relative', width: '100%' }}>
+                                {/* <Box sx={{ position: 'relative', width: '100%' }}>
                                     <TextField
                                         inputRef={textFieldRef} // Attach the ref to the TextField
                                         placeholder="Call script here"
                                         variant="outlined"
                                         fullWidth
                                         multiline
-                                        minRows={4}
-                                        maxRows={5}
+                                        rows={20}
+                                        // minRows={4}
+                                        // maxRows={5}
                                         sx={{
                                             '& .MuiOutlinedInput-root': {
                                                 '& fieldset': {
@@ -753,7 +811,11 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                         </Box>
                                     )}
 
-                                </Box>
+                                </Box> */}
+
+                                <PromptTagInput promptTag={scriptTagInput} kycsList={kycsData} tagValue={setScriptTagInput} scrollOffset={scrollOffset} />
+
+                                {/* <DynamicDropdown /> */}
 
                             </div>
                         </div>

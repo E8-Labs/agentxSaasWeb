@@ -14,6 +14,8 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
     const [SheetsList, setSheetsList] = useState([]);
     const [LeadsLoader, setSheetsLoader] = useState(false);
     const [LeadsList, setLeadsList] = useState([]);
+    const [searchLead, setSearchLead] = useState("");
+    const [FilterLeads, setFilterLeads] = useState([]);
     const [SelectedSheetId, setSelectedSheetId] = useState("");
     const [toggleClick, setToggleClick] = useState([]);
     const [AssignLeadModal, setAssignLeadModal] = useState(false);
@@ -52,6 +54,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
             if (response) {
                 console.log("Response of get leads api is :", response.data);
                 setLeadsList(response.data.data);
+                setFilterLeads(response.data.data);
             }
 
         } catch (error) {
@@ -122,6 +125,30 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
         setAssignLeadModal(status)
     }
 
+    //code for handle search change
+    const handleSearchChange = (value) => {
+        if (value.trim() === "") {
+            // console.log("Should reset to original");
+            // Reset to original list when input is empty
+            setFilterLeads(LeadsList);
+            return;
+        }
+
+        const filtered = LeadsList.filter(item => {
+            const term = value.toLowerCase();
+            return (
+                item.firstName.toLowerCase().includes(term) ||
+                item.lastName.toLowerCase().includes(term) ||
+                item.address.toLowerCase().includes(term) ||
+                item.email.toLowerCase().includes(term) ||
+                (item.phone && item.phone.includes(term))
+            );
+        });
+
+        setFilterLeads(filtered);
+    };
+
+
     const styles = {
         heading: {
             fontWeight: "700",
@@ -186,6 +213,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                             Start Calling
                                         </span>
                                     </button>
+
                                     <Modal
                                         open={AssignLeadModal}
                                         onClose={() => setAssignLeadModal(false)}
@@ -223,15 +251,22 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                             </div>
                                         </Box>
                                     </Modal>
+
                                 </div>
                             </div>
                             <div className='flex flex-row items-center justify-between w-full mt-10'>
                                 <div className='flex flex-row items-center gap-4'>
-                                    <div className='flex flex-row items-center gap-1 w-[19vw] border rounded p-2'>
+                                    <div className='flex flex-row items-center gap-1 w-[22vw] border rounded p-2'>
                                         <input
                                             style={styles.paragraph}
                                             className='outline-none border-none w-full bg-transparent'
                                             placeholder='Search by name, email or phone'
+                                            value={searchLead}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                setSearchLead(e.target.value);
+                                                handleSearchChange(value);
+                                            }}
                                         />
                                         <button className='outline-none border-none'>
                                             <Image src={"/assets/searchIcon.png"} height={24} width={24} alt='*' />
@@ -294,7 +329,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                             LeadsList.length > 0 ?
                                                 <div className='h-[60vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                                     {
-                                                        LeadsList.map((item, index) => (
+                                                        FilterLeads.map((item, index) => (
                                                             <div className='w-full flex flex-row items-center mt-4' style={styles.paragraph} key={index}>
                                                                 <div className='w-2/12 flex flex-row items-center gap-2 truncate'>
                                                                     {toggleClick.includes(item.id) ? (

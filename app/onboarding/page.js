@@ -1,19 +1,19 @@
 "use client"
 import React, { useEffect, useState } from 'react';
-import CreateAccount1 from '@/components/onboarding/CreateAccount1';
-import CreateAccount2 from '@/components/onboarding/CreateAccount2';
-import CreateAccount3 from '@/components/onboarding/CreateAccount3';
 import Congrats from '@/components/onboarding/Congrats';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import UserType from '@/components/onboarding/UserType';
+import UserService from '@/components/onboarding/UserService';
+import FocusArea from '@/components/onboarding/FocusArea';
+import SignUpForm from '@/components/onboarding/SignUpForm';
 
 const Page = ({ params }) => {
 
     const [index, setIndex] = useState(0);
     const [DefaultData, setDefaultData] = useState(null);
 
-    let components = [UserType, CreateAccount1, CreateAccount2, CreateAccount3, Congrats]
+    let components = [UserType, UserService, FocusArea, SignUpForm, Congrats]
 
     let CurrentComp = components[index]
 

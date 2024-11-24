@@ -360,7 +360,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     <Header />
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full'>
-                        <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
+                        <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }} onClick={handleContinue}>
                             {`Let's talk digits`}
                         </div>
                         <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>

@@ -1,5 +1,6 @@
 import Apis from '@/components/apis/Apis';
-import { Box, Modal } from '@mui/material';
+import { Box, CircularProgress, Modal } from '@mui/material';
+import { CalendarDots, CaretLeft } from '@phosphor-icons/react';
 import axios from 'axios';
 import Image from 'next/image';
 import React, { use, useEffect, useState } from 'react'
@@ -12,6 +13,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
     const [SelectedAgents, setSelectedAgents] = useState([]);
     const [CannotAssignLeadModal, setCannotAssignLeadModal] = useState(false);
     const [loader, setLoader] = useState(false);
+    const [lastStepModal, setLastStepModal] = useState(false);
 
     useEffect(() => {
         console.log("Leads asigned are :", leadIs);
@@ -59,6 +61,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
         }
     }
 
+    //can assign stage or not
     const canAssignStage = (item) => {
         console.log("Id selected is:", item);
         //0 unselected
@@ -135,7 +138,6 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
     };
 
 
-
     const handleAssigLead = async () => {
 
         try {
@@ -170,6 +172,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                 console.log("Response of api is:", response);
                 if (response.data.status === true) {
                     handleCloseAssignLeadModal(false);
+                    window.location.reload();
                 }
             }
 
@@ -182,9 +185,10 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
         }
     }
 
+
     const styles = {
         heading: {
-            fontWeight: "700",
+            fontWeight: "600",
             fontSize: 17
         },
         paragraph: {
@@ -194,6 +198,10 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
         paragraph2: {
             fontWeight: "500",
             fontSize: 12
+        },
+        title: {
+            fontWeight: "500",
+            fontSize: 15
         },
         modalsStyle: {
             height: "auto",
@@ -221,61 +229,69 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                 Only outbound models can be selected to make calls
             </div>
 
-            <div className='max-h-[40vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
-                {
-                    agentsList.map((item, index) => (
-                        <button key={index} className='rounded-lg p-2 mt-4 w-full outline-none' style={{ border: SelectedAgents.includes(item) ? "2px solid #402FFF" : "" }}
-                            onClick={() => {
-                                let canAssign = canAssignStage(item);
-                                if (canAssign == 0) {
-                                    //push to the array
-                                    setSelectedAgents([...SelectedAgents, item]);
-                                }
-                                else if (canAssign == 1) {
-                                    //remove from the array
-                                    let agents = SelectedAgents.filter((selectedItem) => selectedItem.id !== item.id);
-                                    setSelectedAgents(agents)
-                                }
-                                else if (canAssign == 2) {
-                                    //can not assign. Show popup
-                                    setCannotAssignLeadModal(true);
-                                }
-                            }}>
-                            <div className='flex flex-row items-center justify-between pt-2'>
-                                <div className='flex flex-row items-center gap-2'>
-                                    <Image src={"/assets/avatar1.png"} height={42} width={42} alt='*' />
-                                    <span style={styles.heading}>
-                                        {item.name}
-                                    </span>
-                                </div>
-                                <div>
-                                    {item.agents[0].agentRole}
-                                </div>
-                            </div>
+            {
+                loader ?
+                    <div className='w-full flex flex-row justify-center mt-4'>
+                        <CircularProgress size={30} />
+                    </div> :
+                    <div className='max-h-[40vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                        {
+                            agentsList.map((item, index) => (
+                                <button key={index} className='rounded-lg p-2 mt-4 w-full outline-none' style={{ border: SelectedAgents.includes(item) ? "2px solid #402FFF" : "" }}
+                                    onClick={() => {
+                                        let canAssign = canAssignStage(item);
+                                        if (canAssign == 0) {
+                                            //push to the array
+                                            setSelectedAgents([...SelectedAgents, item]);
+                                            setLastStepModal(true);
+                                        }
+                                        else if (canAssign == 1) {
+                                            //remove from the array
+                                            let agents = SelectedAgents.filter((selectedItem) => selectedItem.id !== item.id);
+                                            setSelectedAgents(agents);
+                                        }
+                                        else if (canAssign == 2) {
+                                            //can not assign. Show popup
+                                            setCannotAssignLeadModal(true);
+                                        }
+                                    }}>
+                                    <div className='flex flex-row items-center justify-between pt-2'>
+                                        <div className='flex flex-row items-center gap-2'>
+                                            <Image src={"/assets/avatar1.png"} height={42} width={42} alt='*' />
+                                            <span style={styles.heading}>
+                                                {item.name}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            {item.agents[0].agentRole}
+                                        </div>
+                                    </div>
 
-                            <div className='flex flex-row items-center gap-2 mt-6 pb-2'>
-                                <div className='flex flex-row items-center gap-1' style={styles.paragraph}>
-                                    <span className='text-purple'>{item.pipeline.title} |   </span> Active in
-                                </div>
+                                    <div className='flex flex-row items-center gap-2 mt-6 pb-2'>
+                                        <div className='flex flex-row items-center gap-1' style={styles.paragraph}>
+                                            <span className='text-purple'>{item.pipeline.title} |   </span> Active in
+                                        </div>
 
-                                <div className='flex flex-row gap-2 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
-                                    {
-                                        item.stages.map((item, index) => (
-                                            <div className='px-3 py-1 rounded-3xl border' style={styles.paragraph} key={index}>
-                                                {item.stageTitle}
-                                            </div>
-                                        ))
-                                    }
-                                </div>
+                                        <div className='flex flex-row gap-2 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+                                            {
+                                                item.stages.map((item, index) => (
+                                                    <div className='px-3 py-1 rounded-3xl border' style={styles.paragraph} key={index}>
+                                                        {item.stageTitle}
+                                                    </div>
+                                                ))
+                                            }
+                                        </div>
 
-                                {/* <div className='px-3 py-1 rounded-3xl border' style={styles.paragraph}>
+                                        {/* <div className='px-3 py-1 rounded-3xl border' style={styles.paragraph}>
                                     New Lead
                                 </div> */}
-                            </div>
-                        </button>
-                    ))
-                }
-            </div>
+                                    </div>
+                                </button>
+                            ))
+                        }
+                    </div>
+            }
+
 
             <div>
                 <button className='rounded-lg mt-4 w-full h-[50px] text-white bg-purple' style={styles.heading} onClick={handleAssigLead}>
@@ -317,6 +333,100 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
 
                             {/* Can be use full to add shadow
                             <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+
+            {/* last step modal */}
+            <Modal
+                open={lastStepModal}
+                onClose={() => setLastStepModal(false)}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 1000,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        backdropFilter: "blur(5px)",
+                    },
+                }}
+            >
+                <Box className="lg:w-6/12 sm:w-9/12 w-10/12" sx={styles.modalsStyle}>
+                    <div className="flex flex-row justify-center w-full">
+                        <div
+                            className="w-full"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                            }}
+                        >
+                            <div className='flex flex-row justify-between'>
+                                <button className='flex flex-row items-center justify-center gap-2 bg-[#15151515] h-[34px] w-[92px] rounded-2xl pe-2'>
+                                    <CaretLeft size={20} weight='bold' />
+                                    <span style={styles.title}>
+                                        Back
+                                    </span>
+                                </button>
+                                <button onClick={() => { setLastStepModal(false) }}>
+                                    <Image src={"/assets/cross.png"} height={14} width={14} alt='*' />
+                                </button>
+                            </div>
+
+                            <div className='flex flex-row items-center justify-between mt-6'>
+                                <div style={{
+                                    fontWeight: "700",
+                                    fontSize: 24
+                                }}>
+                                    One last thing
+                                </div>
+                                <div className='text-purple' style={{ fontSize: 12, fontWeight: "600" }}>
+                                    2000 Contacts Selected
+                                </div>
+                            </div>
+
+                            <div className='mt-4' style={styles.heading}>
+                                Drip calls per day
+                            </div>
+
+                            <div className='flex flex-row items-center gap-8 mt-4'>
+                                <button className='w-1/2 flex flex-row items-center p-4 rounded-2xl' style={{ border: "1px solid #00000040", height: "50px" }}>
+                                    Ex: 100
+                                </button>
+                                <button className='w-1/2 flex flex-row items-center p-4 rounded-2xl' style={{ border: "1px solid #00000040", height: "50px" }}>
+                                    All 2000
+                                </button>
+                            </div>
+
+
+                            <div className='mt-4' style={styles.heading}>
+                                When to start calling?
+                            </div>
+
+                            <div className='flex flex-row items-center gap-8 mt-4'>
+                                <button className='w-1/2 flex flex-col justify-between p-4 rounded-2xl' style={{ border: "1px solid #00000040", height: "119px" }}>
+                                    <Image src={"/assets/callBtn.png"} height={24} width={24} alt='*' />
+                                    <div style={styles.title}>
+                                        Call Now
+                                    </div>
+                                </button>
+                                <button className='w-1/2 flex flex-col justify-between p-4 rounded-2xl' style={{ border: "1px solid #00000040", height: "119px" }}>
+                                    <CalendarDots size={32} weight='bold' />
+                                    <div style={styles.title}>
+                                        Shedule Call
+                                    </div>
+                                </button>
+                            </div>
+
+                            <div className='mt-4 w-full'>
+                                <butotn className="text-white bg-purple rounded-xl w-full" style={styles.heading} onClick={() => { setLastStepModal(false) }}>
+                                    Continue
+                                </butotn>
+                            </div>
+
+
+                            {/* Can be use full to add shadow */}
+                            {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
                         </div>
                     </div>
                 </Box>

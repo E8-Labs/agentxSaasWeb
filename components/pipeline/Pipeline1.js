@@ -8,6 +8,7 @@ import Footer from '@/components/onboarding/Footer';
 import { Box, FormControl, MenuItem, Modal, Select } from '@mui/material';
 import Apis from '../apis/Apis';
 import axios from 'axios';
+import { CaretDown, YoutubeLogo } from '@phosphor-icons/react';
 
 const Pipeline1 = ({ handleContinue }) => {
 
@@ -33,6 +34,11 @@ const Pipeline1 = ({ handleContinue }) => {
     // const [assignedNewLEad, setAssignedNewLead] = useState(false);
 
     useEffect(() => {
+        const localCadences = localStorage.getItem("AddCadenceDetails");
+        if(localCadences){
+            const localCadenceDetails = JSON.parse(localCadences);
+            console.log("Local cadences recieved are :", localCadenceDetails);
+        }
         getPipelines()
     }, []);
 
@@ -58,6 +64,8 @@ const Pipeline1 = ({ handleContinue }) => {
             if (response) {
                 console.log("Response of getPipelines api is :--", response.data.data);
                 setPipelinesDetails(response.data.data);
+                setSelectedPipelineItem(response.data.data[0]);
+                setSelectedPipelineStages(response.data.data[0].stages);
             }
 
         } catch (error) {
@@ -114,7 +122,7 @@ const Pipeline1 = ({ handleContinue }) => {
         setRowsByIndex((prev) => ({
             ...prev,
             [leadIndex]: prev[leadIndex].map((row) =>
-                row.id === rowId ? { ...row, [field]: value } : row
+                row.id === rowId ? { ...row, [field]: Number(value) || 0 } : row
             ),
         }));
     };
@@ -124,7 +132,7 @@ const Pipeline1 = ({ handleContinue }) => {
             ...prev,
             [index]: [
                 ...(prev[index] || []),
-                { id: (prev[index]?.length || 0) + 1, waitTimeDays: '', waitTimeHours: '', waitTimeMinutes: '' },
+                { id: (prev[index]?.length || 0) + 1, waitTimeDays: 0, waitTimeHours: 0, waitTimeMinutes: 0 },
             ],
         }));
     };
@@ -197,6 +205,8 @@ const Pipeline1 = ({ handleContinue }) => {
             pipelineID: selectedPipelineItem.id,
             cadenceDetails: cadence
         }
+
+        console.log("Cadence data storing on local storage is :", cadenceData);
 
         localStorage.setItem("AddCadenceDetails", JSON.stringify(cadenceData));
 
@@ -360,46 +370,52 @@ const Pipeline1 = ({ handleContinue }) => {
                             Pipeline and Stages
                         </div>
                         <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
-                            <div style={styles.headingStyle}>
-                                Select a pipeline
-                            </div>
-                            <div className='border rounded-lg'>
-                                <Box className="w-full">
-                                    <FormControl className="w-full">
-                                        <Select
-                                            className='border-none rounded-lg outline-none'
-                                            displayEmpty
-                                            value={selectPipleLine}
-                                            onChange={handleSelectPipleLine}
-                                            renderValue={(selected) => {
-                                                if (selected === '') {
-                                                    return <div>Select Pipeline</div>;
-                                                }
-                                                return selected;
-                                            }}
-                                            sx={{
-                                                ...styles.dropdownMenu,
-                                                backgroundColor: '#FFFFFF',
-                                                '& .MuiOutlinedInput-notchedOutline': {
-                                                    border: 'none',
-                                                },
-                                                color: "#000000"
-                                            }}
-                                        >
-                                            <MenuItem value="">
-                                                <div style={styles.dropdownMenu}>None</div>
-                                            </MenuItem>
-                                            {
-                                                pipelinesDetails.map((item, index) => (
-                                                    <MenuItem key={item.id} style={styles.dropdownMenu} value={item.title}>{item.title}</MenuItem>
-                                                ))
-                                            }
-                                            {/* <MenuItem value={20}>03058191079</MenuItem>
+
+                            {pipelinesDetails.length > 1 && (
+                                <div>
+                                    <div style={styles.headingStyle}>
+                                        Select a pipeline
+                                    </div>
+                                    <div className='border rounded-lg'>
+                                        <Box className="w-full">
+                                            <FormControl className="w-full">
+                                                <Select
+                                                    className='border-none rounded-lg outline-none'
+                                                    displayEmpty
+                                                    value={selectPipleLine}
+                                                    onChange={handleSelectPipleLine}
+                                                    renderValue={(selected) => {
+                                                        if (selected === '') {
+                                                            return <div>Select Pipeline</div>;
+                                                        }
+                                                        return selected;
+                                                    }}
+                                                    sx={{
+                                                        ...styles.dropdownMenu,
+                                                        backgroundColor: '#FFFFFF',
+                                                        '& .MuiOutlinedInput-notchedOutline': {
+                                                            border: 'none',
+                                                        },
+                                                        color: "#000000"
+                                                    }}
+                                                >
+                                                    <MenuItem value="">
+                                                        <div style={styles.dropdownMenu}>None</div>
+                                                    </MenuItem>
+                                                    {
+                                                        pipelinesDetails.map((item, index) => (
+                                                            <MenuItem key={item.id} style={styles.dropdownMenu} value={item.title}>{item.title}</MenuItem>
+                                                        ))
+                                                    }
+                                                    {/* <MenuItem value={20}>03058191079</MenuItem>
                                         <MenuItem value={30}>03281575712</MenuItem> */}
-                                        </Select>
-                                    </FormControl>
-                                </Box>
-                            </div>
+                                                </Select>
+                                            </FormControl>
+                                        </Box>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="mt-4" style={styles.headingStyle}>
                                 Assign this agent to a stage
                             </div>
@@ -530,7 +546,7 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                 {(rowsByIndex[index] || []).map((row) => (
                                                                     <div
                                                                         key={row.id}
-                                                                        className="flex flex-row items-center"
+                                                                        className="flex flex-row items-center mb-2"
                                                                     >
                                                                         <div style={styles.headingStyle}>
                                                                             Wait
@@ -555,9 +571,15 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                         index,
                                                                                         row.id,
                                                                                         "waitTimeDays",
-                                                                                        e.target.value
+                                                                                        // e.target.value
+                                                                                        e.target.value.replace(/[^0-9]/g, "")
                                                                                     )
                                                                                 }
+                                                                            // onBlur={(e) => {
+                                                                            //     if (!e.target.value) {
+                                                                            //         handleInputChange(index, row.id, "waitTimeDays", "0"); // Default to 0 if empty
+                                                                            //     }
+                                                                            // }}
                                                                             />
                                                                             <input
                                                                                 className="flex flex-row items-center justify-center text-center outline-none"
@@ -577,9 +599,15 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                         index,
                                                                                         row.id,
                                                                                         "waitTimeHours",
-                                                                                        e.target.value
+                                                                                        // e.target.value
+                                                                                        e.target.value.replace(/[^0-9]/g, "")
                                                                                     )
                                                                                 }
+                                                                            // onBlur={(e) => {
+                                                                            //     if (!e.target.value) {
+                                                                            //         handleInputChange(index, row.id, "waitTimeHours", "0"); // Default to 0 if empty
+                                                                            //     }
+                                                                            // }}
                                                                             />
                                                                             <input
                                                                                 className="flex flex-row items-center justify-center text-center outline-none"
@@ -600,9 +628,15 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                         index,
                                                                                         row.id,
                                                                                         "waitTimeMinutes",
-                                                                                        e.target.value
+                                                                                        // e.target.value
+                                                                                        e.target.value.replace(/[^0-9]/g, "")
                                                                                     )
                                                                                 }
+                                                                            // onBlur={(e) => {
+                                                                            //     if (!e.target.value) {
+                                                                            //         handleInputChange(index, row.id, "waitTimeMinutes", "0"); // Default to 0 if empty
+                                                                            //     }
+                                                                            // }}
                                                                             />
                                                                             <div
                                                                                 className="ms-4"
