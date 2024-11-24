@@ -1,6 +1,8 @@
 "use client"
 import Image from 'next/image';
 import React, { useState } from 'react';
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 const Page = () => {
 
@@ -15,7 +17,25 @@ const Page = () => {
     //     overflow: "hidden",
     // };
 
-    const [PhoneNumber, setPhoneNumber] = useState("")
+    // const [PhoneNumber, setPhoneNumber] = useState("")
+
+    const [countryCode, setCountryCode] = useState("us"); // Default country
+    const [userPhoneNumber, setUserPhoneNumber] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [locationLoader, setLocationLoader] = useState(false);
+
+    const handlePhoneNumberChange = (phone) => {
+        setUserPhoneNumber(phone);
+    };
+
+    const getLocation = () => {
+        setLocationLoader(true);
+        // Simulate an API call to get location
+        setTimeout(() => {
+            setCountryCode("us"); // Example: setting US as default
+            setLocationLoader(false);
+        }, 2000); // Simulate delay
+    };
 
     const backgroundImage = {
         backgroundImage: 'url("/assets/bg2.png")',
@@ -53,6 +73,36 @@ const Page = () => {
                         </div>
                         <div className='mt-4' style={{ fontWeight: "600", fontSize: 17 }}>
                             {`What’s your phone number`}
+                        </div>
+                        <div style={{ marginTop: "8px" }}>
+                            <PhoneInput
+                                className="border outline-none bg-white"
+                                country={countryCode} // Default country
+                                value={userPhoneNumber}
+                                onChange={handlePhoneNumberChange}
+                                onFocus={getLocation}
+                                placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                                disabled={loading} // Disable input if still loading
+                                style={{ borderRadius: "7px" }}
+                                inputStyle={{
+                                    width: "100%",
+                                    borderWidth: "0px",
+                                    backgroundColor: "transparent",
+                                    paddingLeft: "60px",
+                                    paddingTop: "12px",
+                                    paddingBottom: "12px",
+                                }}
+                                buttonStyle={{
+                                    border: "none",
+                                    backgroundColor: "transparent",
+                                }}
+                                dropdownStyle={{
+                                    maxHeight: "150px",
+                                    overflowY: "auto",
+                                }}
+                                countryCodeEditable={true}
+                                defaultMask={loading ? "Loading..." : undefined}
+                            />
                         </div>
                     </div>
                 </div>

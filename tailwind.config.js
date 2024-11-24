@@ -26,8 +26,26 @@ module.exports = {
   },
   plugins: [
     require('tailwind-scrollbar')({ nocompatible: true }), //scrollbar plugin
+    require('@tailwindcss/aspect-ratio'),
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
+    require('tailwind-scrollbar'),
   ],
   variants: {
     scrollbar: ['rounded'], // Enable variants for scrollbar
   },
 };
+
+
+// module.exports = {
+//   content: ['./pages/*/.{js,ts,jsx,tsx}', './components/*/.{js,ts,jsx,tsx}', './app/*/.{js,ts,jsx,tsx}'],
+//   theme: {
+//     extend: {},
+//   },
+//   plugins: [
+//     require('@tailwindcss/aspect-ratio'),
+//     require('@tailwindcss/forms'),
+//     require('@tailwindcss/typography'),
+//     require('tailwind-scrollbar'),
+//   ],
+// };
