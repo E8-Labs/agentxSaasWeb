@@ -2,6 +2,8 @@
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import PhoneInput from 'react-phone-input-2';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
+
 
 const Page = () => {
 
@@ -210,7 +212,7 @@ const Page = () => {
                         </div>
                         <div>
                             <div style={{ marginTop: "8px" }}>
-                                <PhoneInput
+                                {/* <PhoneInput
                                     className="border outline-none bg-white"
                                     country={countryCode} // Set the default country
                                     value={userPhoneNumber}
@@ -240,7 +242,36 @@ const Page = () => {
                                     }}
                                     countryCodeEditable={true}
                                     defaultMask={loading ? 'Loading...' : undefined}
+                                /> */}
+                                <PhoneInput
+                                    className="border outline-none bg-white"
+                                    country={countryCode || 'us'} // Default to 'us' if countryCode is not set
+                                    value={userPhoneNumber}
+                                    onChange={handlePhoneNumberChange}
+                                    onFocus={getLocation}
+                                    placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                                    disabled={loading} // Disable input if still loading
+                                    style={{ borderRadius: "7px" }}
+                                    inputStyle={{
+                                        width: '100%',
+                                        borderWidth: '0px',
+                                        backgroundColor: 'transparent',
+                                        paddingLeft: '60px',
+                                        paddingTop: "12px",
+                                        paddingBottom: "12px",
+                                    }}
+                                    buttonStyle={{
+                                        border: 'none',
+                                        backgroundColor: 'transparent',
+                                    }}
+                                    dropdownStyle={{
+                                        maxHeight: '150px',
+                                        overflowY: 'auto',
+                                    }}
+                                    countryCodeEditable={true}
+                                    defaultMask={loading ? 'Loading...' : undefined}
                                 />
+
                             </div>
                         </div>
                     </div>
