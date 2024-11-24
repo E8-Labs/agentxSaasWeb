@@ -270,7 +270,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                         </div>
                         <input
                             placeholder="Ex: Ana's AI, Ana.ai, Ana's Assistant"
-                            className='border-2 rounded p-2 outline-none'
+                            className='border border-[#00000010] rounded p-3 outline-none'
                             style={styles.inputStyle}
                             value={agentName}
                             onChange={(e) => { setAgentName(e.target.value) }}
@@ -319,7 +319,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                         </div>
                         <input
                             placeholder="Ex: Senior Property Acquisition Specialist"
-                            className='border-2 rounded p-2 outline-none'
+                            className='border border-[#00000010] rounded p-3 outline-none'
                             style={styles.inputStyle}
                             value={agentRole}
                             onChange={(e) => { setAgentRole(e.target.value) }}
@@ -361,7 +361,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                     </div>
                                     <input ref={bottomRef}
                                         placeholder="Type Here.... "
-                                        className='border-2 rounded p-2 outline-none w-full mt-1'
+                                        className='border border-[#00000010] rounded p-3 outline-none w-full mt-1'
                                         style={styles.inputStyle}
                                         value={otherObjVal}
                                         onChange={(e) => { setOtherObjVal(e.target.value) }}
@@ -443,7 +443,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
 
                                         <div className='mt-1'>
                                             <input
-                                                className='h-[50px] border rounded-lg outline-none p-2 w-full'
+                                                className='h-[50px] border rounded-lg outline-none border border-[#00000010] p-3 w-full'
                                                 // rows={3}
                                                 placeholder='Type here...'
                                                 value={otherStatus}

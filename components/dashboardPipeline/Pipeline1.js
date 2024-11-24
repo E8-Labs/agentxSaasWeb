@@ -200,9 +200,9 @@ const Pipeline1 = () => {
                                     className='outline-none bg-transparent w-full'
                                     placeholder='Search by name, phone email'
                                 />
-                                <butotn>
+                                <button>
                                     <Image src={"/assets/searchIcon.png"} height={24} width={24} alt='*' />
-                                </butotn>
+                                </button>
                             </div>
                             <button className='outline-none'>
                                 <Image src={"/assets/notification.png"} height={24} width={24} alt='n*' />
@@ -395,7 +395,11 @@ const Pipeline1 = () => {
                                             className="h-[23px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center text-black"
                                             style={{ ...styles.paragraph, fontSize: 14 }}
                                         >
-                                            {stage.id}
+                                            {leadCounts[stage.id]}
+                                            
+                                            {/* {leadCounts.map((item) => {
+
+                                            })} */}
                                         </div>
                                     </div>
 

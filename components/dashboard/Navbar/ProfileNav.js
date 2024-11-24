@@ -209,8 +209,9 @@ const ProfileNav = () => {
         </div>
         <div className='w-full px-6'>
           <button className='text-red text-start mt-4 bg-[#FF4E4E40] px-3 py-1 rounded-3xl' style={{ fontWeight: "600", fontSize: 17 }} onClick={() => {
-            localStorage.clear();
+            // localStorage.clear();
             localStorage.removeItem("User");
+            document.cookie = "User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
             router.push("/onboarding");
           }}>
             Log Out

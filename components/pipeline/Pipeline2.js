@@ -17,7 +17,8 @@ import KYCs from './KYCs';
 import GreetingTag from './tagInputs/GreetingTag';
 import CallScriptTag from './tagInputs/CallScriptTag';
 import DynamicDropdown from '../test/DynammicTagField';
-import { PromptTagInput } from '../test/PromptTagInput';
+import { PromptTagInput } from './tagInputs/PromptTagInput';
+import { GreetingTagInput } from './tagInputs/GreetingTagInput';
 
 const Pipeline2 = ({ handleContinue, handleBack }) => {
     const containerRef = useRef(null); // Ref to the scrolling container
@@ -283,7 +284,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         const agentDetailsLocal = localStorage.getItem("agentDetails");
         if (agentDetailsLocal) {
             const localAgentData = JSON.parse(agentDetailsLocal);
-            //console.log("Locla agent details are :-", localAgentData);
+            // console.log("Locla agent details are :-", localAgentData);
             setAgentDetails(localAgentData);
             setGreetingTagInput(localAgentData.greeting);
             setScriptTagInput(localAgentData.callScript);
@@ -489,6 +490,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             if (response) {
                 //console.log("Response of create pipeline api is :---", response);
                 if (response.data.status === true) {
+                    localStorage.removeItem("AddCadenceDetails");
                     router.push("/dashboard");
                 }
             }
@@ -573,21 +575,23 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div ref={containerRef} className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple flex flex-col justify-between'>
+            <div ref={containerRef} className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col justify-between'>
                 <div>
                     {/* header */}
                     <Header />
                     {/* Body */}
-                    <div className='flex flex-col items-center px-4 w-full'>
+                    <div className='flex flex-col items-center px-4 w-full overflow-auto h-[60vh] scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
-                            {`Let's Review`}
+                            {`Create a Script`}
                         </div>
                         <div className='mt-8 w-7/12 gap-4 flex flex-col'>
-                            <div style={styles.inputStyle} className='flex flex-row items-center gap-2'>
-                                <Image src={"/assets/lightBulb.png"} alt='*' height={24} width={24} />  Editing Tips
-                            </div>
-                            <div style={styles.inputStyle}>
-                                You can use these variables: <span className='text-purple'>{`{name}`}, {`{column names}`} </span>
+                            <div className='bg-[#00000012] p-4'>
+                                <div style={styles.inputStyle} className='flex flex-row items-center gap-2'>
+                                    <Image src={"/assets/lightBulb.png"} alt='*' height={24} width={24} />  Editing Tips
+                                </div>
+                                <div style={styles.inputStyle}>
+                                    You can use these variables: <span className='text-purple'>{`{name}`}, {`{column names}`} </span>
+                                </div>
                             </div>
                             <div>
                                 <button className='flex flex-row items-center gap-4'>
@@ -598,7 +602,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                 </button>
                             </div>
                             <div style={{ fontSize: 24, fontWeight: "700" }}>
-                                {`{Anna's}`} Script
+                                {AgentDetails.name} Script
                             </div>
                             <div style={styles.headingStyle}>
                                 Greeting
@@ -660,7 +664,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
 
 
-                            <div className="relative">
+                            {/* <div className="relative">
                                 <input
                                     ref={greetingInputRef} // Attach the ref to the input
                                     className="border p-2 rounded-lg outline-none bg-transparent w-full"
@@ -684,7 +688,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                         })}
                                     </div>
                                 )}
-                            </div>
+                            </div> */}
+
+                            <GreetingTagInput greetTag={greetingTagInput} kycsList={kycsData} tagValue={setGreetingTagInput} scrollOffset={scrollOffset} />
 
 
                             {/* <MentionsInputTest /> <TagInput /> */}

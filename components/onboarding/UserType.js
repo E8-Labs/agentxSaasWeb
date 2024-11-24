@@ -98,16 +98,20 @@ const UserType = ({ handleContinue, DefaultData }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl w-10/12 max-h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+            <div className='bg-white rounded-2xl w-9/12 max-h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
                 {/* header */}
                 <Header />
                 {/* Body */}
                 <div className='flex flex-col items-center px-4 w-full'>
-                    <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
-                        What type of user are you?
+                    <div className='mt-6 w-11/12 md:text-5xl text-lg font-[600]' style={{ textAlign: "center" }}>
+                        Which AgentX will you build?
                     </div>
 
-                    <div className='flex flex-wrap w-8/12 mt-8'>
+                    <div className='mt-6 w-11/12 md:text-xl text-lg font-[400]' style={{ textAlign: "center" }}>
+                    Scale your salesforce. Handle any business use case. With AgentX,<br></br>you can quickly build an AI agent in minutes.
+                    </div>
+
+                    <div className='flex flex-wrap w-6/12 mt-8'>
                         {
                             userType.map((item, index) => (
                                 <div key={item.id} className='flex w-4/12 p-2'>

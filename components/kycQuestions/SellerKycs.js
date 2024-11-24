@@ -7,39 +7,40 @@ import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
 import { Modal } from '@mui/material';
 import { Box, style } from '@mui/system';
-import Apis from '@/components/apis/Apis';
+import Apis from '../apis/Apis';
 import axios from 'axios';
+import { KycCategory } from '../constants/constants';
 
-const BuyerKyc1 = ({ handleContinue }) => {
+const SellerKycs = ({ handleContinue }) => {
 
     const router = useRouter();
     const [toggleClick, setToggleClick] = useState(1);
     const [addKYCQuestion, setAddKYCQuestion] = useState(false);
     const [inputs, setInputs] = useState([{ id: 1, value: '' }, { id: 2, value: '' }, { id: 3, value: '' }]);
     const [newQuestion, setNewQuestion] = useState('');
-    const [buyerKycLoader, setBuyerKycLoader] = useState(false);
     //code for need kyc
     const [selectedNeedKYC, setSelectedNeedKYC] = useState([]);
     //code for motivation KYC
     const [selectedMotivationKyc, setSelectedMotivationKYC] = useState([]);
     //code for need kyc
-    const [selectedUrgencyKyc, setSelectedUrgencyKyc] = useState([])
+    const [selectedUrgencyKyc, setSelectedUrgencyKyc] = useState([]);
+    const [sellerKycLoader, setSellerKycLoader] = useState(false);
 
     //needKYCQuestions
     const [needKYCQuestions, setNeedKYCQuestions] = useState([
         {
             id: 1,
-            question: "What area are you looking in?",
+            question: "Why have you decided to sell your home?",
             sampleAnswers: []
         },
         {
             id: 2,
-            question: "What type of home are you looking for? Single family, townhouse, condo, apartment, etc",
+            question: "Have you outgrown your current home, or is it too large now?",
             sampleAnswers: []
         },
         {
             id: 3,
-            question: "Are you a first time home buyer?",
+            question: "Are there any significant life changes prompting this decision, such as job relocation or changes in the family?",
             sampleAnswers: []
         },
     ]);
@@ -168,15 +169,47 @@ const BuyerKyc1 = ({ handleContinue }) => {
             selectedUrgencyKyc.some((selectedItem) => selectedItem.id === question.id)
         );
 
-        console.log("Working");
         // console.log("Selected Questions are: ", selectedNeedQuestions);
         // console.log("Selected motivation questions are: ----", selectedMotivationQuestions);
         // console.log("Selected urgency questions are: ----", selectedUrgencyQuestions);
-        // router.push("/pipeline");
+        // router.push("/buyerskycquestions")
         // handleContinue();
 
-        //code for buyer kyc api
-        setBuyerKycLoader(true);
+        //code for api call
+
+        let kycQuestions = []
+        selectedNeedQuestions.map(item => {
+            kycQuestions.push(
+                {
+                    question: item.question,
+                    category: KycCategory.CategoryNeeds,
+                    type: "seller",
+                    examples: item.sampleAnswers.filter(answer => answer)
+                }
+            )
+        })
+        selectedMotivationQuestions.map(item => {
+            kycQuestions.push(
+                {
+                    question: item.question,
+                    category: KycCategory.CategoryMotivation,
+                    type: "seller",
+                    examples: item.sampleAnswers.filter(answer => answer)
+                }
+            )
+        })
+        selectedUrgencyQuestions.map(item => {
+            kycQuestions.push(
+                {
+                    question: item.question,
+                    category: KycCategory.CategoryUrgency,
+                    type: "seller",
+                    examples: item.sampleAnswers.filter(answer => answer)
+                }
+            )
+        })
+
+        setSellerKycLoader(true);
 
         try {
             let AuthToken = null;
@@ -199,46 +232,48 @@ const BuyerKyc1 = ({ handleContinue }) => {
             const ApiPath = Apis.addKyc;
             let ApiData = [];
 
-            if (selectedNeedQuestions.length > 0) {
-                // console.log("#need Question details are :", selectedNeedQuestions);
-                const data = {
-                    kycQuestions: selectedNeedQuestions.map(item => ({
-                        question: item.question,
-                        category: "need",
-                        type: "buyer",
-                        examples: item.sampleAnswers.filter(answer => answer)
-                    })),
-                    mainAgentId: MyAgentData.id
-                };
-                // console.log("Data to send in api is", data);
-                ApiData = data;
-            } else if (selectedMotivationQuestions.length > 0) {
-                console.log("#motivation Question details are :", selectedMotivationQuestions);
-                const data = {
-                    kycQuestions: selectedMotivationQuestions.map(item => ({
-                        question: item.question,
-                        category: "motivation",
-                        type: "buyer",
-                        examples: item.sampleAnswers.filter(answer => answer)
-                    })),
-                    mainAgentId: MyAgentData.id
-                };
-                // console.log("Data to send in api is", data);
-                ApiData = data;
-            } else if (selectedUrgencyQuestions.length > 0) {
-                console.log("#urgency Question details are :", selectedUrgencyQuestions);
-                const data = {
-                    kycQuestions: selectedUrgencyQuestions.map(item => ({
-                        question: item.question,
-                        category: "urgency",
-                        type: "buyer",
-                        examples: item.sampleAnswers.filter(answer => answer)
-                    })),
-                    mainAgentId: MyAgentData.id
-                };
-                // console.log("Data to send in api is", data);
-                ApiData = data;
-            }
+            // if (selectedNeedQuestions.length > 0) {
+            //     // console.log("#need Question details are :", selectedNeedQuestions);
+            //     const data = {
+            //         kycQuestions: kycQuestions,
+            //         mainAgentId: MyAgentData.id
+            //     };
+            //     // console.log("Data to send in api is", data);
+            //     ApiData = data;
+            // } else if (selectedMotivationQuestions.length > 0) {
+            //     console.log("#motivation Question details are :", selectedMotivationQuestions);
+            //     const data = {
+            //         kycQuestions: selectedMotivationQuestions.map(item => ({
+            //             question: item.question,
+            //             category: "motivation",
+            //             type: "seller",
+            //             examples: item.sampleAnswers.filter(answer => answer)
+            //         })),
+            //         mainAgentId: MyAgentData.id
+            //     };
+            //     // console.log("Data to send in api is", data);
+            //     ApiData = data;
+            // } else if (selectedUrgencyQuestions.length > 0) {
+            //     console.log("#urgency Question details are :", selectedUrgencyQuestions);
+            //     const data = {
+            //         kycQuestions: selectedUrgencyQuestions.map(item => ({
+            //             question: item.question,
+            //             category: "urgency",
+            //             type: "seller",
+            //             examples: item.sampleAnswers.filter(answer => answer)
+            //         })),
+            //         mainAgentId: MyAgentData.id
+            //     };
+            //     // console.log("Data to send in api is", data);
+            //     ApiData = data;
+            // }
+
+            const data = {
+                kycQuestions: kycQuestions,
+                mainAgentId: MyAgentData.id
+            };
+            // console.log("Data to send in api is", data);
+            ApiData = data;
 
             console.log("APi data is :--", ApiData);
 
@@ -252,15 +287,16 @@ const BuyerKyc1 = ({ handleContinue }) => {
             if (response) {
                 console.log("Response of add KYC api is :--", response.data);
                 if (response.data.status === true) {
-                    router.push("/pipeline")
+                    router.push("/buyerskycquestions");
                 }
             }
 
         } catch (error) {
             console.error("Error occured in api is :--", error);
         } finally {
-            setBuyerKycLoader(false);
+            setSellerKycLoader(false);
         }
+
 
     }
 
@@ -272,7 +308,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
         },
         {
             id: 2,
-            title: "Motivation2"
+            title: "Motivation"
         },
         {
             id: 3,
@@ -311,10 +347,13 @@ const BuyerKyc1 = ({ handleContinue }) => {
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full'>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
-                            What would you like to ask buyers?
+                            What would you like to ask sellers?
                         </div>
-                        <button className='mt-10 underline text-purple' style={styles.inputStyle}>
-                            {`I don't need questions for buyers`}
+                        <div className='mt-6 w-11/12 md:text-xl text-lg font-[400]' style={{ textAlign: "center" }}>
+                            Answers to these questions will be saved in the customer profile
+                        </div>
+                        <button className='mt-10 underline text-purple' style={styles.inputStyle} onClick={() => { router.push("/buyerskycquestions"); }}>
+                            {`I don't need questions for sellers`}
                         </button>
                         <div className='flex flex-row items-center gap-10 mt-10'>
                             {
@@ -352,7 +391,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                                                 <button
                                                     className='mb-4 border rounded-xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full'
                                                     style={{
-                                                        border: selectedNeedKYC.some(selectedItem => selectedItem.id === item.id) ? "402FFF" : ""
+                                                        border: selectedNeedKYC.some(selectedItem => selectedItem.id === item.id) ? "2px solid #402FFF" : ""
                                                     }}
                                                     key={index}
                                                     onClick={() => handleSelectNeedKYC(item)}
@@ -446,7 +485,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                         <button className='mt-2 w-10/12 md:w-6/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
                             Add Question
                         </button>
-                        {/* Modal to add demeanor */}
+                        {/* Modal to add KYC */}
                         <Modal
                             open={addKYCQuestion}
                             // onClose={() => setAddKYCQuestion(false)}
@@ -454,7 +493,7 @@ const BuyerKyc1 = ({ handleContinue }) => {
                             BackdropProps={{
                                 timeout: 1000,
                                 sx: {
-                                    backgroundColor: "#00000020",
+                                    backgroundColor: "#00000050",
                                     // backdropFilter: "blur(20px)",
                                 },
                             }}
@@ -493,7 +532,11 @@ const BuyerKyc1 = ({ handleContinue }) => {
                                             Sample Answers
                                         </div>
 
-                                        <div className='max-h-[30vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                                        <div className='mt-2 text-[#00000060]' style={{ fontWeight: "500", fontSize: 12 }}>
+                                            What are possible answers leads will give to this question?
+                                        </div>
+
+                                        <div className='max-h-[30vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple mt-4'>
                                             {inputs.map((input, index) => (
                                                 <div key={input.id} className='w-full flex flex-row items-center gap-4 mt-4'>
                                                     <input
@@ -540,11 +583,11 @@ const BuyerKyc1 = ({ handleContinue }) => {
                         <ProgressBar value={33} />
                     </div>
 
-                    <Footer handleContinue={handleNextclick} donotShowBack={true} registerLoader={buyerKycLoader} />
+                    <Footer handleContinue={handleNextclick} donotShowBack={true} registerLoader={sellerKycLoader} />
                 </div>
             </div>
         </div>
     )
 }
 
-export default BuyerKyc1;
+export default SellerKycs;

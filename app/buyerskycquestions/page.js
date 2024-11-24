@@ -1,13 +1,12 @@
 "use client"
-import BuyerKyc1 from '@/components/kycQuestions/buyerKyc/BuyerKyc1';
-import KYC1 from '@/components/kycQuestions/KYC1';
+import BuyerKycs from '@/components/kycQuestions/buyerKyc/BuyerKycs';
 import React, { useState } from 'react';
 
 const Page = () => {
 
 
     const [index, setIndex] = useState(0)
-    let components = [BuyerKyc1]
+    let components = [BuyerKycs]
 
     let CurrentComp = components[index]
 

@@ -175,9 +175,9 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
         <div className='w-full flex flex-col items-center'>
             <div className='flex flex-row items-center justify-end w-full pe-12 mt-4 pb-4' style={{ borderBottom: "1px solid #15151510" }}>
                 <div className='flex fex-row items-center gap-6'>
-                    <butotn>
+                    <button>
                         <Image src={"/assets/notification.png"} height={24} width={24} alt='*' />
-                    </butotn>
+                    </button>
 
                 </div>
             </div>

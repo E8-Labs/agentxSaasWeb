@@ -419,9 +419,9 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                             </div>
 
                             <div className='mt-4 w-full'>
-                                <butotn className="text-white bg-purple rounded-xl w-full" style={styles.heading} onClick={() => { setLastStepModal(false) }}>
+                                <button className="text-white bg-purple rounded-xl w-full" style={styles.heading} onClick={() => { setLastStepModal(false) }}>
                                     Continue
-                                </butotn>
+                                </button>
                             </div>
 
 

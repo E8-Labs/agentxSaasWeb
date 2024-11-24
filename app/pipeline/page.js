@@ -33,7 +33,7 @@ const Page = () => {
     };
 
     return (
-        <div style={backgroundImage} className="overflow-y-none flex flex-row justify-center items-center">
+        <div style={backgroundImage} className="overflow-y-hidden flex flex-row justify-center items-center">
             <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
         </div>
     )

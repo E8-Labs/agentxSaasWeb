@@ -215,7 +215,7 @@ const CreateAgentVoice = ({ handleBack }) => {
                         <ProgressBar value={33} />
                     </div>
 
-                    <Footer handleContinue={handleContinue} handleBack={handleBack} registerLoader={voicesLoader} />
+                    <Footer handleContinue={handleContinue} handleBack={handleBack} registerLoader={voicesLoader} donotShowBack={true} />
                 </div>
 
             </div>
@@ -223,4 +223,4 @@ const CreateAgentVoice = ({ handleBack }) => {
     )
 }
 
-export default CreateAgentVoice
+export default CreateAgentVoice;

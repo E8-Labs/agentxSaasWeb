@@ -6,7 +6,7 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
     const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
     const [options] = useState(["name", "address", "email", "phone"]);
     const [filteredOptions, setFilteredOptions] = useState(options);
-    const [text, setText] = useState(promptTag);
+    const [text, setText] = useState("");
     const [cursorPosition, setCursorPosition] = useState(0);
     const textFieldRef = useRef(null);
     const mirrorDivRef = useRef(null);
@@ -27,6 +27,10 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
             }
         };
     }, []);
+
+    useEffect(() => {
+        setText(promptTag)
+    }, [promptTag])
 
     const calculatePopupPosition = (input, textBeforeCursor) => {
         const mirrorDiv = mirrorDivRef.current;

@@ -89,7 +89,8 @@ const UserService = ({ handleContinue, DefaultData, handleBack }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl w-10/12 max-h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4' style={{ scrollbarWidth: "none" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+            >
                 {/* header */}
                 <Header />
                 {/* Body */}

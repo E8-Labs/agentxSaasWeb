@@ -57,7 +57,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     const [findNumber, setFindNumber] = useState("");
     const [findeNumberLoader, setFindeNumberLoader] = useState(false);
     const [foundeNumbers, setFoundeNumbers] = useState([]);
-    const [selectedPurchasedIndex, setSelectedPurchasedIndex] = useState(false);
+    const [selectedPurchasedIndex, setSelectedPurchasedIndex] = useState(null);
     const [selectedPurchasedNumber, setSelectedPurchasedNumber] = useState(null);
     const [purchaseLoader, setPurchaseLoader] = useState(false);
     const [openPurchaseSuccessModal, setOpenPurchaseSuccessModal] = useState(false);
@@ -458,7 +458,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                     Number
                                                 </div>
                                                 <div className='mt-2'>
-                                                    <input className='border outline-none p-2 rounded-lg w-full' type='' placeholder='Ex: 619, 213, 313'
+                                                    <input className='border border-[#00000010] outline-none p-3 rounded-lg w-full' type='' placeholder='Ex: 619, 213, 313'
                                                         value={findNumber}
                                                         onChange={(e) => { setFindNumber(e.target.value) }}
                                                     />
@@ -609,7 +609,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
                                     <input
                                         placeholder='Phone Number'
-                                        className='border-2 rounded p-2 outline-none w-full mt-1'
+                                        className='border border-[#00000010] rounded p-3 outline-none w-full mt-1'
                                         style={styles.inputStyle}
                                     />
                                 </div>
@@ -620,7 +620,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                             </div>
                             <input
                                 placeholder='Phone Number'
-                                className='border-2 rounded p-2 outline-none'
+                                className='border border-[#00000010] rounded p-3 outline-none'
                                 style={styles.inputStyle}
                                 value={callBackNumber}
                                 onChange={(e) => { setCallBackNumber(e.target.value) }}

@@ -9,6 +9,7 @@ import AddBuyerKyc from './AddBuyerKyc'
 
 const KYCs = ({ kycsDetails }) => {
 
+
     const [anchorEl, setAnchorEl] = useState(null);
     const [BuyerAnchor, setBuyerAnchor] = useState(null);
     const [kycsData, setKycsData] = useState(null);
@@ -175,7 +176,7 @@ const KYCs = ({ kycsDetails }) => {
         },
         inputStyle: {
             fontSize: 15,
-            fontWeight: "500"
+            fontWeight: "500",
         },
         dropdownMenu: {
             fontSize: 15,
@@ -219,54 +220,57 @@ const KYCs = ({ kycsDetails }) => {
                     </div>
                 </div>
 
-                {
-                    showSellerNeedData && (
-                        <div>
-                            {
-                                SellerNeedData.map((item, index) => (
-                                    <div key={index} className='mt-4'>
-                                        <div className='flex flex-row items-center justify-between mt-4'>
-                                            <div style={styles.inputStyle}>
-                                                {item.question}
-                                            </div>
-                                            <button aria-describedby={id} onClick={(event) => { handleOpenPopover(event, item) }}>
-                                                <DotsThree size={35} weight='bold' />
-                                            </button>
-                                            <Popover
-                                                id={id}
-                                                open={open}
-                                                anchorEl={anchorEl}
-                                                onClose={handleClosePopover}
-                                                anchorOrigin={{
-                                                    vertical: 'bottom',
-                                                    horizontal: 'right',
-                                                }}
-                                                transformOrigin={{
-                                                    vertical: 'top',
-                                                    horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
-                                                }}
-                                                PaperProps={{
-                                                    elevation: 0, // This will remove the shadow
-                                                    style: {
-                                                        boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
-                                                    },
-                                                }}
-                                            >
-                                                <button className='p-2 flex flex-row items-center gap-2'>
-                                                    <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
-                                                    <div className='text-red' style={styles.inputStyle}>Delete</div>
+                <div className='bg-[#98989810] p-2 mt-4'>
+                    {
+                        showSellerNeedData && (
+                            <div>
+                                {
+                                    SellerNeedData.map((item, index) => (
+                                        <div key={index} className=''>
+                                            <div className='flex flex-row items-center justify-between '>
+                                                <div style={styles.inputStyle}>
+                                                    {item.question}
+                                                </div>
+                                                <button aria-describedby={id} onClick={(event) => { handleOpenPopover(event, item) }}>
+                                                    <DotsThree size={35} weight='bold' />
                                                 </button>
-                                            </Popover>
+                                                <Popover
+                                                    id={id}
+                                                    open={open}
+                                                    anchorEl={anchorEl}
+                                                    onClose={handleClosePopover}
+                                                    anchorOrigin={{
+                                                        vertical: 'bottom',
+                                                        horizontal: 'right',
+                                                    }}
+                                                    transformOrigin={{
+                                                        vertical: 'top',
+                                                        horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
+                                                    }}
+                                                    PaperProps={{
+                                                        elevation: 0, // This will remove the shadow
+                                                        style: {
+                                                            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                                                            borderRadius: "13px"
+                                                        },
+                                                    }}
+                                                >
+                                                    <button className='p-2 px-3 flex flex-row items-center gap-2 rounded-xl'>
+                                                        <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
+                                                        <div className='text-red' style={styles.inputStyle}>Delete</div>
+                                                    </button>
+                                                </Popover>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))
-                            }
-                        </div>
-                    )
-                }
+                                    ))
+                                }
+                            </div>
+                        )
+                    }
 
-                <div className='underline text-purple mt-4' style={styles.inputStyle} onClick={() => { setAddSellerKyc(true) }}>
-                    Add Question
+                    <div className='underline text-purple mt-4' style={styles.inputStyle} onClick={() => { setAddSellerKyc(true) }}>
+                        Add Question
+                    </div>
                 </div>
 
             </div>
@@ -290,54 +294,57 @@ const KYCs = ({ kycsDetails }) => {
                     </div>
                 </div>
 
-                {
-                    showSellerMotivationData && (
-                        <div>
-                            {
-                                SellerMotivationData.map((item, index) => (
-                                    <div key={index} className='mt-4'>
-                                        <div className='flex flex-row items-center justify-between mt-4'>
-                                            <div style={styles.inputStyle}>
-                                                {item.question}
-                                            </div>
-                                            <button aria-describedby={id} onClick={(event) => { handleOpenPopover(event, item) }}>
-                                                <DotsThree size={35} weight='bold' />
-                                            </button>
-                                            <Popover
-                                                id={id}
-                                                open={open}
-                                                anchorEl={anchorEl}
-                                                onClose={handleClosePopover}
-                                                anchorOrigin={{
-                                                    vertical: 'bottom',
-                                                    horizontal: 'right',
-                                                }}
-                                                transformOrigin={{
-                                                    vertical: 'top',
-                                                    horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
-                                                }}
-                                                PaperProps={{
-                                                    elevation: 0, // This will remove the shadow
-                                                    style: {
-                                                        boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
-                                                    },
-                                                }}
-                                            >
-                                                <button className='p-2 flex flex-row items-center gap-2'>
-                                                    <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
-                                                    <div className='text-red' style={styles.inputStyle}>Delete</div>
+                <div className='mt-4 bg-[#98989810] p-2'>
+                    {
+                        showSellerMotivationData && (
+                            <div>
+                                {
+                                    SellerMotivationData.map((item, index) => (
+                                        <div key={index}>
+                                            <div className='flex flex-row items-center justify-between '>
+                                                <div style={styles.inputStyle}>
+                                                    {item.question}
+                                                </div>
+                                                <button aria-describedby={id} onClick={(event) => { handleOpenPopover(event, item) }}>
+                                                    <DotsThree size={35} weight='bold' />
                                                 </button>
-                                            </Popover>
+                                                <Popover
+                                                    id={id}
+                                                    open={open}
+                                                    anchorEl={anchorEl}
+                                                    onClose={handleClosePopover}
+                                                    anchorOrigin={{
+                                                        vertical: 'bottom',
+                                                        horizontal: 'right',
+                                                    }}
+                                                    transformOrigin={{
+                                                        vertical: 'top',
+                                                        horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
+                                                    }}
+                                                    PaperProps={{
+                                                        elevation: 0, // This will remove the shadow
+                                                        style: {
+                                                            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                                                            borderRadius: "13px"
+                                                        },
+                                                    }}
+                                                >
+                                                    <button className='p-2 px-3 flex flex-row items-center gap-2 rounded-xl'>
+                                                        <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
+                                                        <div className='text-red' style={styles.inputStyle}>Delete</div>
+                                                    </button>
+                                                </Popover>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))
-                            }
-                        </div>
-                    )
-                }
+                                    ))
+                                }
+                            </div>
+                        )
+                    }
 
-                <div className='underline text-purple mt-4' style={styles.inputStyle} onClick={() => { setAddSellerKyc(true) }}>
-                    Add Question
+                    <div className='underline text-purple mt-4' style={styles.inputStyle} onClick={() => { setAddSellerKyc(true) }}>
+                        Add Question
+                    </div>
                 </div>
 
             </div>
@@ -361,54 +368,57 @@ const KYCs = ({ kycsDetails }) => {
                     </div>
                 </div>
 
-                {
-                    showSellerUrgencyData && (
-                        <div>
-                            {
-                                SellerUrgencyData.map((item, index) => (
-                                    <div key={index} className='mt-4'>
-                                        <div className='flex flex-row items-center justify-between mt-4'>
-                                            <div style={styles.inputStyle}>
-                                                {item.question}
-                                            </div>
-                                            <button aria-describedby={id} onClick={(event) => { handleOpenPopover(event, item) }}>
-                                                <DotsThree size={35} weight='bold' />
-                                            </button>
-                                            <Popover
-                                                id={id}
-                                                open={open}
-                                                anchorEl={anchorEl}
-                                                onClose={handleClosePopover}
-                                                anchorOrigin={{
-                                                    vertical: 'bottom',
-                                                    horizontal: 'right',
-                                                }}
-                                                transformOrigin={{
-                                                    vertical: 'top',
-                                                    horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
-                                                }}
-                                                PaperProps={{
-                                                    elevation: 0, // This will remove the shadow
-                                                    style: {
-                                                        boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
-                                                    },
-                                                }}
-                                            >
-                                                <button className='p-2 flex flex-row items-center gap-2'>
-                                                    <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
-                                                    <div className='text-red' style={styles.inputStyle}>Delete</div>
+                <div className='mt-4 bg-[#98989810] p-2'>
+                    {
+                        showSellerUrgencyData && (
+                            <div>
+                                {
+                                    SellerUrgencyData.map((item, index) => (
+                                        <div key={index}>
+                                            <div className='flex flex-row items-center justify-between'>
+                                                <div style={styles.inputStyle}>
+                                                    {item.question}
+                                                </div>
+                                                <button aria-describedby={id} onClick={(event) => { handleOpenPopover(event, item) }}>
+                                                    <DotsThree size={35} weight='bold' />
                                                 </button>
-                                            </Popover>
+                                                <Popover
+                                                    id={id}
+                                                    open={open}
+                                                    anchorEl={anchorEl}
+                                                    onClose={handleClosePopover}
+                                                    anchorOrigin={{
+                                                        vertical: 'bottom',
+                                                        horizontal: 'right',
+                                                    }}
+                                                    transformOrigin={{
+                                                        vertical: 'top',
+                                                        horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
+                                                    }}
+                                                    PaperProps={{
+                                                        elevation: 0, // This will remove the shadow
+                                                        style: {
+                                                            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                                                            borderRadius: "13px"
+                                                        },
+                                                    }}
+                                                >
+                                                    <button className='p-2 px-3 flex flex-row items-center gap-2 rounded-xl'>
+                                                        <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
+                                                        <div className='text-red' style={styles.inputStyle}>Delete</div>
+                                                    </button>
+                                                </Popover>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))
-                            }
-                        </div>
-                    )
-                }
+                                    ))
+                                }
+                            </div>
+                        )
+                    }
 
-                <div className='underline text-purple mt-4' style={styles.inputStyle} onClick={() => { setAddSellerKyc(true) }}>
-                    Add Question
+                    <div className='underline text-purple mt-4' style={styles.inputStyle} onClick={() => { setAddSellerKyc(true) }}>
+                        Add Question
+                    </div>
                 </div>
 
             </div>
@@ -482,48 +492,57 @@ const KYCs = ({ kycsDetails }) => {
                     </div>
                 </div>
 
-                {
-                    showBuyerNeedData && (
-                        <div>
-                            {
-                                BuyerNeedData.map((item, index) => (
-                                    <div className='mt-4' key={index}>
-                                        <div className='flex flex-row items-center justify-between mt-4'>
-                                            <div>
-                                                {item.question}
-                                            </div>
-                                            <button aria-describedby={buyerId} onClick={handleOpenBuyerKycPopover}>
-                                                <DotsThree size={35} weight='bold' />
-                                            </button>
-                                            <Popover
-                                                id={buyerId}
-                                                open={openBuyerKyc}
-                                                anchorEl={BuyerAnchor}
-                                                onClose={handleClosePopover}
-                                                anchorOrigin={{
-                                                    vertical: 'bottom',
-                                                    horizontal: 'right',
-                                                }}
-                                                transformOrigin={{
-                                                    vertical: 'top',
-                                                    horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
-                                                }}
-                                            >
-                                                <button className='p-2 flex flex-row items-center gap-2'>
-                                                    <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
-                                                    <div className='text-red' style={styles.inputStyle}>Delete</div>
+                <div className='mt-4 bg-[#98989810] p-2'>
+                    {
+                        showBuyerNeedData && (
+                            <div>
+                                {
+                                    BuyerNeedData.map((item, index) => (
+                                        <div key={index}>
+                                            <div className='flex flex-row items-center justify-between'>
+                                                <div>
+                                                    {item.question}
+                                                </div>
+                                                <button aria-describedby={buyerId} onClick={handleOpenBuyerKycPopover}>
+                                                    <DotsThree size={35} weight='bold' />
                                                 </button>
-                                            </Popover>
+                                                <Popover
+                                                    id={buyerId}
+                                                    open={openBuyerKyc}
+                                                    anchorEl={BuyerAnchor}
+                                                    onClose={handleClosePopover}
+                                                    anchorOrigin={{
+                                                        vertical: 'bottom',
+                                                        horizontal: 'right',
+                                                    }}
+                                                    transformOrigin={{
+                                                        vertical: 'top',
+                                                        horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
+                                                    }}
+                                                    PaperProps={{
+                                                        elevation: 0, // This will remove the shadow
+                                                        style: {
+                                                            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                                                            borderRadius: "13px"
+                                                        },
+                                                    }}
+                                                >
+                                                    <button className='p-2 px-3 rounded-xl flex flex-row items-center gap-2'>
+                                                        <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
+                                                        <div className='text-red' style={styles.inputStyle}>Delete</div>
+                                                    </button>
+                                                </Popover>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))
-                            }
-                        </div>
-                    )
-                }
+                                    ))
+                                }
+                            </div>
+                        )
+                    }
 
-                <div className='underline text-purple' style={styles.inputStyle} onClick={() => { setAddBuyerKyc(true) }}>
-                    Add Question
+                    <div className='underline text-purple' style={styles.inputStyle} onClick={() => { setAddBuyerKyc(true) }}>
+                        Add Question
+                    </div>
                 </div>
 
             </div>
@@ -547,48 +566,56 @@ const KYCs = ({ kycsDetails }) => {
                     </div>
                 </div>
 
-                {
-                    showBuyerMotivationData && (
-                        <div>
-                            {
-                                BuyerMotivationData.map((item, index) => (
-                                    <div className='mt-4' key={index}>
-                                        <div className='flex flex-row items-center justify-between mt-4'>
-                                            <div>
-                                                {item.question}
-                                            </div>
-                                            <button aria-describedby={buyerId} onClick={handleOpenBuyerKycPopover}>
-                                                <DotsThree size={35} weight='bold' />
-                                            </button>
-                                            <Popover
-                                                id={buyerId}
-                                                open={openBuyerKyc}
-                                                anchorEl={BuyerAnchor}
-                                                onClose={handleClosePopover}
-                                                anchorOrigin={{
-                                                    vertical: 'bottom',
-                                                    horizontal: 'right',
-                                                }}
-                                                transformOrigin={{
-                                                    vertical: 'top',
-                                                    horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
-                                                }}
-                                            >
-                                                <button className='p-2 flex flex-row items-center gap-2'>
-                                                    <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
-                                                    <div className='text-red' style={styles.inputStyle}>Delete</div>
+                <div className='mt-4 bg-[#98989810] p-2'>
+                    {
+                        showBuyerMotivationData && (
+                            <div>
+                                {
+                                    BuyerMotivationData.map((item, index) => (
+                                        <div key={index}>
+                                            <div className='flex flex-row items-center justify-between '>
+                                                <div>
+                                                    {item.question}
+                                                </div>
+                                                <button aria-describedby={buyerId} onClick={handleOpenBuyerKycPopover}>
+                                                    <DotsThree size={35} weight='bold' />
                                                 </button>
-                                            </Popover>
+                                                <Popover
+                                                    id={buyerId}
+                                                    open={openBuyerKyc}
+                                                    anchorEl={BuyerAnchor}
+                                                    onClose={handleClosePopover}
+                                                    anchorOrigin={{
+                                                        vertical: 'bottom',
+                                                        horizontal: 'right',
+                                                    }}
+                                                    transformOrigin={{
+                                                        vertical: 'top',
+                                                        horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
+                                                    }}
+                                                    PaperProps={{
+                                                        elevation: 0, // This will remove the shadow
+                                                        style: {
+                                                            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                                                            borderRadius: "13px"
+                                                        },
+                                                    }}                                            >
+                                                    <button className='p-2 px-3 rounded-xl flex flex-row items-center gap-2'>
+                                                        <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
+                                                        <div className='text-red' style={styles.inputStyle}>Delete</div>
+                                                    </button>
+                                                </Popover>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))
-                            }
-                        </div>
-                    )
-                }
+                                    ))
+                                }
+                            </div>
+                        )
+                    }
 
-                <div className='underline text-purple' style={styles.inputStyle} onClick={() => { setAddBuyerKyc(true) }}>
-                    Add Question
+                    <div className='underline text-purple' style={styles.inputStyle} onClick={() => { setAddBuyerKyc(true) }}>
+                        Add Question
+                    </div>
                 </div>
 
             </div>
@@ -612,48 +639,56 @@ const KYCs = ({ kycsDetails }) => {
                     </div>
                 </div>
 
-                {
-                    showBuyerUrgencyData && (
-                        <div>
-                            {
-                                BuyerUrgencyData.map((item, index) => (
-                                    <div className='mt-4' key={index}>
-                                        <div className='flex flex-row items-center justify-between mt-4'>
-                                            <div>
-                                                {item.question}
-                                            </div>
-                                            <button aria-describedby={buyerId} onClick={handleOpenBuyerKycPopover}>
-                                                <DotsThree size={35} weight='bold' />
-                                            </button>
-                                            <Popover
-                                                id={buyerId}
-                                                open={openBuyerKyc}
-                                                anchorEl={BuyerAnchor}
-                                                onClose={handleClosePopover}
-                                                anchorOrigin={{
-                                                    vertical: 'bottom',
-                                                    horizontal: 'right',
-                                                }}
-                                                transformOrigin={{
-                                                    vertical: 'top',
-                                                    horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
-                                                }}
-                                            >
-                                                <button className='p-2 flex flex-row items-center gap-2'>
-                                                    <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
-                                                    <div className='text-red' style={styles.inputStyle}>Delete</div>
+                <div className='mt-4 bg-[#98989810] p-2'>
+                    {
+                        showBuyerUrgencyData && (
+                            <div>
+                                {
+                                    BuyerUrgencyData.map((item, index) => (
+                                        <div key={index}>
+                                            <div className='flex flex-row items-center justify-between'>
+                                                <div>
+                                                    {item.question}
+                                                </div>
+                                                <button aria-describedby={buyerId} onClick={handleOpenBuyerKycPopover}>
+                                                    <DotsThree size={35} weight='bold' />
                                                 </button>
-                                            </Popover>
+                                                <Popover
+                                                    id={buyerId}
+                                                    open={openBuyerKyc}
+                                                    anchorEl={BuyerAnchor}
+                                                    onClose={handleClosePopover}
+                                                    anchorOrigin={{
+                                                        vertical: 'bottom',
+                                                        horizontal: 'right',
+                                                    }}
+                                                    transformOrigin={{
+                                                        vertical: 'top',
+                                                        horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
+                                                    }}
+                                                    PaperProps={{
+                                                        elevation: 0, // This will remove the shadow
+                                                        style: {
+                                                            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                                                            borderRadius: "13px"
+                                                        },
+                                                    }}                                            >
+                                                    <button className='p-2 px-3 rounded-xl flex flex-row items-center gap-2'>
+                                                        <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
+                                                        <div className='text-red' style={styles.inputStyle}>Delete</div>
+                                                    </button>
+                                                </Popover>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))
-                            }
-                        </div>
-                    )
-                }
+                                    ))
+                                }
+                            </div>
+                        )
+                    }
 
-                <div className='underline text-purple' style={styles.inputStyle} onClick={() => { setAddBuyerKyc(true) }}>
-                    Add Question
+                    <div className='underline text-purple' style={styles.inputStyle} onClick={() => { setAddBuyerKyc(true) }}>
+                        Add Question
+                    </div>
                 </div>
 
             </div>

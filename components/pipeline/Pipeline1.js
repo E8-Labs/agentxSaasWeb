@@ -8,7 +8,7 @@ import Footer from '@/components/onboarding/Footer';
 import { Box, FormControl, MenuItem, Modal, Select } from '@mui/material';
 import Apis from '../apis/Apis';
 import axios from 'axios';
-import { CaretDown, YoutubeLogo } from '@phosphor-icons/react';
+import { CaretDown, Minus, YoutubeLogo } from '@phosphor-icons/react';
 
 const Pipeline1 = ({ handleContinue }) => {
 
@@ -32,13 +32,71 @@ const Pipeline1 = ({ handleContinue }) => {
     //code for new Lead calls
     // const [rows, setRows] = useState([]);
     // const [assignedNewLEad, setAssignedNewLead] = useState(false);
-
     useEffect(() => {
         const localCadences = localStorage.getItem("AddCadenceDetails");
-        if(localCadences){
+        if (localCadences) {
             const localCadenceDetails = JSON.parse(localCadences);
-            console.log("Local cadences recieved are :", localCadenceDetails);
+            console.log("Local cadences retrieved:", localCadenceDetails);
+
+            // Set the selected pipeline item
+            const storedPipelineItem = localCadenceDetails.pipelineID;
+            const storedCadenceDetails = localCadenceDetails.cadenceDetails;
+
+            // Fetch pipelines to ensure we have the list
+            // getPipelines().then(() => {
+            const selectedPipeline = pipelinesDetails.find(
+                (pipeline) => pipeline.id === storedPipelineItem
+            );
+
+            if (selectedPipeline) {
+                console.log("found selected pipeline")
+                setSelectedPipelineItem(selectedPipeline);
+                setSelectedPipelineStages(selectedPipeline.stages);
+
+                // Restore assigned leads and rows by index
+                const restoredAssignedLeads = {};
+                const restoredRowsByIndex = {};
+                const restoredNextStage = {};
+
+                storedCadenceDetails.forEach((cadence) => {
+                    const stageIndex = selectedPipeline.stages.findIndex(
+                        (stage) => stage.id === cadence.stage
+                    );
+
+                    if (stageIndex !== -1) {
+                        restoredAssignedLeads[stageIndex] = true;
+                        restoredRowsByIndex[stageIndex] = cadence.calls || [];
+                        if (cadence.moveToStage) {
+                            const nextStage = selectedPipeline.stages.find(
+                                (stage) => stage.id === cadence.moveToStage
+                            );
+                            if (nextStage) {
+                                restoredNextStage[stageIndex] = nextStage;
+                            }
+                        }
+                    }
+                });
+
+                setAssignedLeads(restoredAssignedLeads);
+                setRowsByIndex(restoredRowsByIndex);
+                setSelectedNextStage(restoredNextStage);
+            }
+            else {
+                console.log("not found selected pipeline", storedPipelineItem)
+            }
+            // });
+        } else {
+            // getPipelines();
         }
+    }, [pipelinesDetails]);
+
+
+    useEffect(() => {
+        // const localCadences = localStorage.getItem("AddCadenceDetails");
+        // if (localCadences) {
+        //     const localCadenceDetails = JSON.parse(localCadences);
+        //     console.log("Local cadences recieved are :", localCadenceDetails);
+        // }
         getPipelines()
     }, []);
 
@@ -101,15 +159,15 @@ const Pipeline1 = ({ handleContinue }) => {
 
     //code for selecting stages
 
-    const assignNewLead = (index) => {
+    const assignNewStage = (index) => {
         setAssignedLeads((prev) => ({ ...prev, [index]: true }));
         setRowsByIndex((prev) => ({
             ...prev,
-            [index]: [{ id: index, waitTimeDays: '', waitTimeHours: '', waitTimeMinutes: '' }],
+            [index]: [{ id: index, waitTimeDays: 0, waitTimeHours: 0, waitTimeMinutes: 0 }],
         }));
     };
 
-    const handleUnAssignNewLead = (index) => {
+    const handleUnAssignNewStage = (index) => {
         setAssignedLeads((prev) => ({ ...prev, [index]: false }));
         setRowsByIndex((prev) => {
             const updatedRows = { ...prev };
@@ -356,11 +414,17 @@ const Pipeline1 = ({ handleContinue }) => {
             border: "none",
             outline: "none",
         },
+        labelStyle: {
+            backgroundColor: "white",
+            fontWeight: "400",
+            fontSize: 10
+        }
     }
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple flex flex-col justify-between'>
+            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col justify-between' //overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+            >
                 <div>
                     {/* header */}
                     <Header />
@@ -422,7 +486,7 @@ const Pipeline1 = ({ handleContinue }) => {
 
                             <div>
                                 <button className='flex flex-row items-center gap-4' onClick={() => { setIntroVideoModal(true) }}>
-                                    <Image src={"/assets/youtubeplay.png"} height={32} width={32} alt='*' style={{ borderRadius: "7px" }} />
+                                    <Image src={"/assets/youtubeplay.png"} height={71} width={58} alt='*' style={{ borderRadius: "7px" }} />
                                     <div style={styles.inputStyle} className='underline'>
                                         Watch to learn more on assigning agents
                                     </div>
@@ -498,16 +562,16 @@ const Pipeline1 = ({ handleContinue }) => {
                                                 </div>
                                                 {assignedLeads[index] ? (
                                                     <button
-                                                        className="bg-[#00000020] flex flex-row items-center justify-center"
+                                                        className="bg-[#00000020] flex flex-row items-center justify-center gap-2"
                                                         style={{
                                                             ...styles.inputStyle,
                                                             borderRadius: "55px",
                                                             height: "44px",
                                                             width: "104px",
                                                         }}
-                                                        onClick={() => handleUnAssignNewLead(index)}
+                                                        onClick={() => handleUnAssignNewStage(index)}
                                                     >
-                                                        Unassign
+                                                        <Minus size={18} weight='regular' /> Unassign
                                                     </button>
                                                 ) : (
                                                     <button
@@ -518,7 +582,7 @@ const Pipeline1 = ({ handleContinue }) => {
                                                             height: "44px",
                                                             width: "104px",
                                                         }}
-                                                        onClick={() => assignNewLead(index)}
+                                                        onClick={() => assignNewStage(index)}
                                                     >
                                                         <Image
                                                             src={"/assets/addIcon.png"}
@@ -552,92 +616,92 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                             Wait
                                                                         </div>
                                                                         <div className="ms-6 flex flex-row items-center">
-                                                                            <input
-                                                                                className="flex flex-row items-center justify-center text-center outline-none"
-                                                                                style={{
-                                                                                    ...styles.inputStyle,
-                                                                                    height: "42px",
-                                                                                    width: "80px",
-                                                                                    border: "1px solid #00000020",
-                                                                                    borderTopLeftRadius:
-                                                                                        "10px",
-                                                                                    borderBottomLeftRadius:
-                                                                                        "10px",
-                                                                                }}
-                                                                                placeholder="Days"
-                                                                                value={row.waitTimeDays}
-                                                                                onChange={(e) =>
-                                                                                    handleInputChange(
-                                                                                        index,
-                                                                                        row.id,
-                                                                                        "waitTimeDays",
-                                                                                        // e.target.value
-                                                                                        e.target.value.replace(/[^0-9]/g, "")
-                                                                                    )
-                                                                                }
-                                                                            // onBlur={(e) => {
-                                                                            //     if (!e.target.value) {
-                                                                            //         handleInputChange(index, row.id, "waitTimeDays", "0"); // Default to 0 if empty
-                                                                            //     }
-                                                                            // }}
-                                                                            />
-                                                                            <input
-                                                                                className="flex flex-row items-center justify-center text-center outline-none"
-                                                                                style={{
-                                                                                    ...styles.inputStyle,
-                                                                                    height: "42px",
-                                                                                    width: "80px",
-                                                                                    border: "1px solid #00000020",
-                                                                                    borderRight:
-                                                                                        "none",
-                                                                                    borderLeft: "none",
-                                                                                }}
-                                                                                placeholder="Hours"
-                                                                                value={row.waitTimeHours}
-                                                                                onChange={(e) =>
-                                                                                    handleInputChange(
-                                                                                        index,
-                                                                                        row.id,
-                                                                                        "waitTimeHours",
-                                                                                        // e.target.value
-                                                                                        e.target.value.replace(/[^0-9]/g, "")
-                                                                                    )
-                                                                                }
-                                                                            // onBlur={(e) => {
-                                                                            //     if (!e.target.value) {
-                                                                            //         handleInputChange(index, row.id, "waitTimeHours", "0"); // Default to 0 if empty
-                                                                            //     }
-                                                                            // }}
-                                                                            />
-                                                                            <input
-                                                                                className="flex flex-row items-center justify-center text-center outline-none"
-                                                                                style={{
-                                                                                    ...styles.inputStyle,
-                                                                                    height: "42px",
-                                                                                    width: "80px",
-                                                                                    border: "1px solid #00000020",
-                                                                                    borderTopRightRadius:
-                                                                                        "10px",
-                                                                                    borderBottomRightRadius:
-                                                                                        "10px",
-                                                                                }}
-                                                                                placeholder="Minutes"
-                                                                                value={row.waitTimeMinutes}
-                                                                                onChange={(e) =>
-                                                                                    handleInputChange(
-                                                                                        index,
-                                                                                        row.id,
-                                                                                        "waitTimeMinutes",
-                                                                                        // e.target.value
-                                                                                        e.target.value.replace(/[^0-9]/g, "")
-                                                                                    )
-                                                                                }
-                                                                            // onBlur={(e) => {
-                                                                            //     if (!e.target.value) {
-                                                                            //         handleInputChange(index, row.id, "waitTimeMinutes", "0"); // Default to 0 if empty
-                                                                            //     }
-                                                                            // }}
-                                                                            />
+                                                                            <div>
+                                                                                <label className='ms-1 px-2' style={styles.labelStyle}>
+                                                                                    Days
+                                                                                </label>
+                                                                                <input
+                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px]"
+                                                                                    style={{
+                                                                                        ...styles.inputStyle,
+                                                                                        height: "42px",
+                                                                                        width: "80px",
+                                                                                        border: "1px solid #00000020",
+                                                                                        borderTopLeftRadius:
+                                                                                            "10px",
+                                                                                        borderBottomLeftRadius:
+                                                                                            "10px",
+                                                                                    }}
+                                                                                    placeholder="Days"
+                                                                                    value={row.waitTimeDays}
+                                                                                    onChange={(e) =>
+                                                                                        handleInputChange(
+                                                                                            index,
+                                                                                            row.id,
+                                                                                            "waitTimeDays",
+                                                                                            // e.target.value
+                                                                                            e.target.value.replace(/[^0-9]/g, "")
+                                                                                        )
+                                                                                    }
+                                                                                />
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className='ms-1 px-2' style={styles.labelStyle}>
+                                                                                    Hours
+                                                                                </label>
+                                                                                <input
+                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px]"
+                                                                                    style={{
+                                                                                        ...styles.inputStyle,
+                                                                                        height: "42px",
+                                                                                        width: "80px",
+                                                                                        border: "1px solid #00000020",
+                                                                                        borderRight:
+                                                                                            "none",
+                                                                                        borderLeft: "none",
+                                                                                    }}
+                                                                                    placeholder="Hours"
+                                                                                    value={row.waitTimeHours}
+                                                                                    onChange={(e) =>
+                                                                                        handleInputChange(
+                                                                                            index,
+                                                                                            row.id,
+                                                                                            "waitTimeHours",
+                                                                                            // e.target.value
+                                                                                            e.target.value.replace(/[^0-9]/g, "")
+                                                                                        )
+                                                                                    }
+                                                                                />
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className='ms-1 px-2' style={styles.labelStyle}>
+                                                                                    Mins
+                                                                                </label>
+                                                                                <input
+                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px]"
+                                                                                    style={{
+                                                                                        ...styles.inputStyle,
+                                                                                        height: "42px",
+                                                                                        width: "80px",
+                                                                                        border: "1px solid #00000020",
+                                                                                        borderTopRightRadius:
+                                                                                            "10px",
+                                                                                        borderBottomRightRadius:
+                                                                                            "10px",
+                                                                                    }}
+                                                                                    placeholder="Minutes"
+                                                                                    value={row.waitTimeMinutes}
+                                                                                    onChange={(e) =>
+                                                                                        handleInputChange(
+                                                                                            index,
+                                                                                            row.id,
+                                                                                            "waitTimeMinutes",
+                                                                                            // e.target.value
+                                                                                            e.target.value.replace(/[^0-9]/g, "")
+                                                                                        )
+                                                                                    }
+                                                                                />
+                                                                            </div>
                                                                             <div
                                                                                 className="ms-4"
                                                                                 style={styles.inputStyle}
