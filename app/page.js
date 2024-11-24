@@ -287,7 +287,7 @@ const Page = ({ length = 6, onComplete }) => {
             Building your persona <br />lead gen assistant
           </div>
           <div className='mt-8' style={{ fontSize: 11.6, fontWeight: "500" }}>
-            By signing up to the AgentX platform you understand and agree to our Terms and <br /> Conditions and Privacy Policy. This site is protected by Google reCAPTCHA to<br /> ensure you're not a bot. Learn more
+            By signing up to the AgentX platform you understand and agree to our Terms and <br /> Conditions and Privacy Policy. This site is protected by Google reCAPTCHA to<br /> ensure you are not a bot. Learn more
           </div>
         </div>
       </div>
