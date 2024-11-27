@@ -292,12 +292,6 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         }
     }, []);
 
-    useEffect(() => {
-        ////console.log("KYCS DETAILS RECIEVED ARE :", kycsData);
-        // if (isDropdownVisible === true) {
-        //     getUniquesColumn()
-        // }
-    }), [isDropdownVisible, kycsData]
 
     //code for getting uniqueCcolumns
     const getUniquesColumn = async () => {
@@ -576,12 +570,12 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div  className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col justify-between'>
+            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col justify-between'>
                 <div>
                     {/* header */}
                     <Header />
                     {/* Body */}
-                    <div ref={containerRef} className='flex flex-col items-center px-4 w-full overflow-auto h-[60vh] scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                    <div ref={containerRef} className='flex flex-col items-center px-4 w-full overflow-auto h-[65vh] scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
                             {`Create a Script`}
                         </div>
@@ -591,7 +585,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                     <Image src={"/assets/lightBulb.png"} alt='*' height={24} width={24} />  Editing Tips
                                 </div>
                                 <div style={styles.inputStyle}>
-                                    You can use these variables: <span className='text-purple'>{`{name}`}, {`{column names}`} </span>
+                                    You can use these variables: <span className='text-purple'>{`{name}`}, {`{column names}`}, {`{email}`},{`{address}`},{`{kyc}`} </span>
                                 </div>
                             </div>
                             <div>
@@ -699,7 +693,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                             {/* <GreetingTag handleGreetingTag={handleGreetingTag} /> */}
 
                         </div>
-                        <div className='w-7/12 mt-4 ps-8'>
+                        <div className='w-7/12 mt-4'>
                             <div style={styles.headingStyle}>
                                 Call Script
                             </div>

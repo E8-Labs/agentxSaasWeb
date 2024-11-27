@@ -457,7 +457,7 @@ const KYCs = ({ kycsDetails }) => {
                                 </button>
                             </div>
 
-                            <AddSellerKyc handleCloseSellerKyc={handleCloseSellerKyc} handleAddSellerKycData={handleAddSellerKycData} recallgetKYC={getKyc} />
+                            <AddSellerKyc handleCloseSellerKyc={handleCloseSellerKyc} handleAddSellerKycData={handleAddSellerKycData} />
 
 
                             {/* Can be use full to add shadow */}
@@ -722,7 +722,7 @@ const KYCs = ({ kycsDetails }) => {
                                 </button>
                             </div>
 
-                            <AddBuyerKyc handleCloseSellerKyc={handleCloseSellerKyc} handleAddBuyerKycData={handleAddBuyerKycData} recallgetKYC={getKyc} />
+                            <AddBuyerKyc handleCloseSellerKyc={handleCloseSellerKyc} handleAddBuyerKycData={handleAddBuyerKycData} />
 
 
                             {/* Can be use full to add shadow */}

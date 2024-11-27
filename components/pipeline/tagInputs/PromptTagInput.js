@@ -257,7 +257,7 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
                             style={{
                                 padding: "5px 10px",
                                 cursor: "pointer",
-                                borderBottom: "1px solid lightgray",
+                                // borderBottom: "1px solid lightgray",
                             }}
                             onMouseEnter={(e) =>
                                 (e.target.style.backgroundColor = "lightblue")

@@ -234,7 +234,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                     <div className='w-full flex flex-row justify-center mt-4'>
                         <CircularProgress size={30} />
                     </div> :
-                    <div className='max-h-[40vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                    <div className='max-h-[40vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
                         {
                             agentsList.map((item, index) => (
                                 <button key={index} className='rounded-lg p-2 mt-4 w-full outline-none' style={{ border: SelectedAgents.includes(item) ? "2px solid #402FFF" : "" }}
@@ -263,13 +263,13 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                                             </span>
                                         </div>
                                         <div>
-                                            {item.agents[0].agentRole}
+                                            {item.agents[0]?.agentRole}
                                         </div>
                                     </div>
 
                                     <div className='flex flex-row items-center gap-2 mt-6 pb-2'>
                                         <div className='flex flex-row items-center gap-1' style={styles.paragraph}>
-                                            <span className='text-purple'>{item.pipeline.title} |   </span> Active in
+                                            <span className='text-purple'>{item.pipeline?.title} |   </span> Active in
                                         </div>
 
                                         <div className='flex flex-row gap-2 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
@@ -364,7 +364,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                             <div className='flex flex-row justify-between'>
                                 <button className='flex flex-row items-center justify-center gap-2 bg-[#15151515] h-[34px] w-[92px] rounded-2xl pe-2'>
                                     <CaretLeft size={20} weight='bold' />
-                                    <span style={styles.title}>
+                                    <span style={styles.title} onClick={() => { setLastStepModal(false) }}>
                                         Back
                                     </span>
                                 </button>

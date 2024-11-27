@@ -27,10 +27,28 @@ const CreateAgentVoice = ({ handleBack }) => {
     const [voicesLoader, setVoicesLoader] = useState(false);
     const [selectedVoiceId, setSelectedVoiceId] = useState("");
     const [preview, setPreview] = useState("");
+    const [agentDetails, setAgentDetails] = useState(null);
+    const [shouldContinue, setShouldContinue] = useState(true);
 
     useEffect(() => {
         setVoices(voicesList);
     }, []);
+
+    useEffect(() => {
+        if (toggleClick) {
+            setShouldContinue(false);
+        }
+    }, [toggleClick]);
+
+    useEffect(() => {
+        console.log("I m wrodf")
+        const localData = localStorage.getItem("agentDetails");
+        if (localData) {
+            const agentData = JSON.parse(localData);
+            console.log("Response of localagent dta", agentData);
+            setAgentDetails(agentData);
+        }
+    }, [])
 
 
     const handleToggleClick = (id, item) => {
@@ -82,7 +100,8 @@ const CreateAgentVoice = ({ handleBack }) => {
             if (response) {
                 console.log("Response of update api is :", response.data);
                 if (response.data.status === true) {
-                    router.push("/sellerskycquestions")
+                    router.push("/sellerskycquestions");
+                    localStorage.removeItem("claimNumberData");
                 }
             }
 
@@ -136,7 +155,7 @@ const CreateAgentVoice = ({ handleBack }) => {
     }
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple flex flex-col justify-between'>
+            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col justify-between'>
 
                 <div>
                     {/* header */}
@@ -144,10 +163,10 @@ const CreateAgentVoice = ({ handleBack }) => {
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full'>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
-                            Select your preferred voice
+                            Choose a voice for {agentDetails?.name}
                         </div>
                         <div className='w-full flex flex-row justify-center'>
-                            <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                            <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[53vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
                                 {
                                     voices.map((item, index) => (
                                         <button
@@ -190,7 +209,7 @@ const CreateAgentVoice = ({ handleBack }) => {
                                                                 setPreview(item.preview);
                                                                 playVoice(item.preview);
                                                             }}>
-                                                                <PlayCircle size={38} weight='regular' />
+                                                                <Image src={"/assets/play.png"} height={25} width={25} alt='*' />
                                                             </div>
                                                     }
                                                 </div>
@@ -215,7 +234,7 @@ const CreateAgentVoice = ({ handleBack }) => {
                         <ProgressBar value={33} />
                     </div>
 
-                    <Footer handleContinue={handleContinue} handleBack={handleBack} registerLoader={voicesLoader} donotShowBack={true} />
+                    <Footer handleContinue={handleContinue} handleBack={handleBack} registerLoader={voicesLoader} shouldContinue={shouldContinue} />
                 </div>
 
             </div>

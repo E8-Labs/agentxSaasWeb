@@ -11,6 +11,7 @@ const FocusArea = ({ handleContinue, handleBack, DefaultData }) => {
     const [focusArea, setFocusArea] = useState([]);
     const [loader, setLoader] = useState(false);
     const [focusData, setFocusData] = useState([]);
+    const [shouldContinue, setShouldContinue] = useState(true);
 
     useEffect(() => {
         const focusData = localStorage.getItem("registerDetails");
@@ -33,7 +34,12 @@ const FocusArea = ({ handleContinue, handleBack, DefaultData }) => {
     }, [DefaultData]);
 
     useEffect(() => {
-        console.log("Focus area is :", focusArea)
+        console.log("Focus area is :", focusArea);
+        if (focusArea.length > 0) {
+            setShouldContinue(false);
+        } else if (focusArea.length === 0) {
+            setShouldContinue(true);
+        }
     }, [focusArea]);
 
     const handleNext = () => {
@@ -66,7 +72,7 @@ const FocusArea = ({ handleContinue, handleBack, DefaultData }) => {
             <div className='bg-white rounded-2xl flex flex-col justify-between w-10/12 h-[90vh] py-4 ' style={{ scrollbarWidth: "none" }}//overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
             >
 
-                <div>
+                <div className='h-[80vh]'>
                     {/* header */}
                     <Header />
                     {/* Body */}
@@ -78,18 +84,22 @@ const FocusArea = ({ handleContinue, handleBack, DefaultData }) => {
 
                             {focusData.map((item, index) => (
                                 <button key={item.id} onClick={() => { handlefocusArea(item.id) }} className='border-none outline-none'>
-                                    <div className='border bg-white flex flex-row items-center w-full h-[126px] rounded-2xl' style={{ border: focusArea.includes(item.id) ? "2px solid #402FFF" : "", scrollbarWidth: "none" }}>
-                                        <div className='w-full bg-white flex flex-row items-start justify-between px-4 py-2'>
-                                            <div className='text-start'>
+                                    <div className='border bg-white flex flex-row items-start pt-3 w-full h-[126px] rounded-2xl'
+                                        style={{
+                                            border: focusArea.includes(item.id) ? "2px solid #7902DF" : "",
+                                            scrollbarWidth: "none", backgroundColor: focusArea.includes(item.id) ? "#7902DF10" : ""
+                                        }}>
+                                        <div className='w-full flex flex-row items-start justify-between px-4 py-2'>
+                                            <div className='text-start w-[60%]'>
                                                 <div style={{ fontFamily: "", fontWeight: "700", fontSize: 20 }}>
                                                     {item.title}
                                                 </div>
-                                                <div>
+                                                <div className='mt-2'>
                                                     {item.description}
                                                 </div>
                                             </div>
                                             {
-                                                item.id === focusArea ?
+                                                focusArea.includes(item.id) ?
                                                     <Image src={"/assets/charmTick.png"} alt='*' height={36} width={36} /> :
                                                     <Image src={"/assets/charmUnMark.png"} alt='*' height={36} width={36} />
                                             }
@@ -103,12 +113,12 @@ const FocusArea = ({ handleContinue, handleBack, DefaultData }) => {
                     </div>
                 </div>
 
-                <div className='mb-4'>
+                <div className='mb-4 h-[8vh]'>
                     <div>
                         <ProgressBar value={60} />
                     </div>
 
-                    <Footer handleContinue={handleNext} handleBack={handleBack} />
+                    <Footer handleContinue={handleNext} handleBack={handleBack} shouldContinue={shouldContinue} />
                 </div>
 
             </div>

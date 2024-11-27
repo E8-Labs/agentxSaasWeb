@@ -13,6 +13,7 @@ const UserService = ({ handleContinue, DefaultData, handleBack }) => {
     const [servicesData, setServicesData] = useState([]);
     const [loader, setLoader] = useState(false);
     const [value, setValue] = useState(0);
+    const [shouldContinue, setShouldContinue] = useState(true);
 
     useEffect(() => {
         const selectedServiceID = localStorage.getItem("registerDetails");
@@ -35,8 +36,11 @@ const UserService = ({ handleContinue, DefaultData, handleBack }) => {
     }, [DefaultData]);
 
     useEffect(() => {
-        if (serviceId) {
+        if (serviceId.length > 0) {
             console.log("service id is ::", serviceId);
+            setShouldContinue(false);
+        } else if (serviceId.length === 0) {
+            setShouldContinue(true);
         }
     }, [serviceId]);
 
@@ -92,7 +96,7 @@ const UserService = ({ handleContinue, DefaultData, handleBack }) => {
             <div className='bg-white rounded-2xl flex flex-col justify-between w-10/12 h-[90vh] py-4' style={{ scrollbarWidth: "none" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
             >
 
-                <div>
+                <div className='h-[82vh]'>
                     {/* header */}
                     <Header />
                     {/* Body */}
@@ -106,22 +110,26 @@ const UserService = ({ handleContinue, DefaultData, handleBack }) => {
                                 <div className='mt-8'>
                                     <CircularProgress size={35} />
                                 </div> :
-                                <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[55vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+                                <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[57vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
 
                                     {servicesData.map((item, index) => (
                                         <button key={item.id} onClick={() => { handleserviceId(item.id) }} className='border-none outline-none'>
-                                            <div className='border bg-white flex flex-row items-center w-full h-[126px] rounded-2xl' style={{ border: serviceId.includes(item.id) ? "2px solid #402FFF" : "", scrollbarWidth: "none" }}>
+                                            <div className='border bg-white flex flex-row items-start w-full h-[126px] rounded-2xl pt-3'
+                                                style={{
+                                                    border: serviceId.includes(item.id) ? "2px solid #7902DF" : "", scrollbarWidth: "none",
+                                                    backgroundColor: serviceId.includes(item.id) ? "#7902DF10" : ""
+                                                }}>
                                                 <div className='flex flex-row items-start justify-between px-4 w-full py-2'>
-                                                    <div className='text-start'>
+                                                    <div className='text-start w-[60%]'>
                                                         <div style={{ fontFamily: "", fontWeight: "700", fontSize: 20 }}>
                                                             {item.title}
                                                         </div>
-                                                        <div>
+                                                        <div className='mt-2'>
                                                             {item.description}
                                                         </div>
                                                     </div>
                                                     {
-                                                        item.id === serviceId ?
+                                                        serviceId.includes(item.id) ?
                                                             <Image src={"/assets/charmTick.png"} alt='*' height={36} width={36} /> :
                                                             <Image src={"/assets/charmUnMark.png"} alt='*' height={36} width={36} />
                                                     }
@@ -136,13 +144,13 @@ const UserService = ({ handleContinue, DefaultData, handleBack }) => {
                     </div>
                 </div>
 
-                <div className='mb-6'>
+                <div className='mb-6 h-[12vh] flex flex-col justify-end'>
                     <div>
                         <ProgressBar value={33} />
                     </div>
 
-                    <div style={{ height: "55px" }}>
-                        <Footer handleContinue={handleNext} handleBack={handleBack} />
+                    <div style={{ height: "35px" }}>
+                        <Footer handleContinue={handleNext} handleBack={handleBack} shouldContinue={shouldContinue} />
                     </div>
                 </div>
             </div>

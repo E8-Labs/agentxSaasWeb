@@ -10,7 +10,7 @@ import { Box, style } from '@mui/system';
 import Apis from '../apis/Apis';
 import axios from 'axios';
 
-const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData, recallgetKYC }) => {
+const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
 
     const router = useRouter();
     const [toggleClick, setToggleClick] = useState(1);
@@ -253,7 +253,6 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData, recallgetK
             if (response) {
                 console.log("Response of add KYC api is :--", response.data);
                 if (response.data.status === true) {
-                    recallgetKYC();
                     handleCloseSellerKyc();
                     handleAddSellerKycData(response.data.data);
                     // router.push("/buyerskycquestions")
@@ -503,7 +502,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData, recallgetK
 
                                         <div style={{ height: "50px" }}>
                                             {
-                                                inputs.length < 11 && (
+                                                inputs.length < 3 && (
                                                     <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
                                                         fontSize: 15,
                                                         fontWeight: "700"

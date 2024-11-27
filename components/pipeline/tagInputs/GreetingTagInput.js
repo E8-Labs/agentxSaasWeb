@@ -209,7 +209,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue })
     return (
         <div style={{ position: "relative" }}>
             <input
-                className="outline-none border rounded-xl mx-2"
+                className="outline-none border rounded-xl"
                 ref={textFieldRef}
                 // rows=""
                 // cols="50"
@@ -242,7 +242,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue })
                             style={{
                                 padding: "5px 10px",
                                 cursor: "pointer",
-                                borderBottom: "1px solid lightgray",
+                                // borderBottom: "1px solid lightgray",
                             }}
                             onMouseEnter={(e) =>
                                 (e.target.style.backgroundColor = "lightblue")

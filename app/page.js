@@ -3,7 +3,7 @@ import Apis from '@/components/apis/Apis';
 import { Box, CircularProgress, Modal } from '@mui/material';
 import axios from 'axios';
 import Image from 'next/image';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
@@ -44,6 +44,19 @@ const Page = ({ length = 6, onComplete }) => {
   // const length = 6;
   const [VerifyCode, setVerifyCode] = useState(Array(length).fill(''));
   const [showVerifyPopup, setShowVerifyPopup] = useState(false);
+
+  useEffect(() => {
+    const localData = localStorage.getItem("User");
+    if (localData) {
+      console.log("user login details are :", localData);
+      router.push("/dashboard");
+    }
+    // const localAgentData = localStorage.getItem("agentDetails");
+    // if (localAgentData) {
+    //   console.log("user agent details are :", localAgentData);
+    //   // router.push("/dashboard");
+    // }
+  }, [])
 
   const handlePhoneNumberChange = (phone) => {
     setUserPhoneNumber(phone);
@@ -113,7 +126,6 @@ const Page = ({ length = 6, onComplete }) => {
 
       timerRef.current = setTimeout(() => {
         checkPhoneNumber(phoneNumber);
-        console.log('I am hit now');
       }, 300);
     }
   };
@@ -363,7 +375,7 @@ const Page = ({ length = 6, onComplete }) => {
                   overflowY: "auto",
                 }}
                 countryCodeEditable={true}
-                defaultMask={loading ? "Loading..." : undefined}
+                defaultMask={locationLoader ? "Loading..." : undefined}
               />
             </div>
             {
@@ -477,7 +489,7 @@ const Page = ({ length = 6, onComplete }) => {
                 ))}
               </div>
               <div className='mt-8' style={styles.inputStyle}>
-                {`Didn't receive code?`} <button className='outline-none border-none text-purple'>Resed</button>
+                {`Didn't receive code?`} <button className='outline-none border-none text-purple'>Resend</button>
               </div>
               {
                 loginLoader ?

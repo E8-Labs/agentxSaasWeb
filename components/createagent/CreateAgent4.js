@@ -1,7 +1,7 @@
 import Body from '@/components/onboarding/Body';
 import Header from '@/components/onboarding/Header';
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
@@ -11,14 +11,18 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import { CircularProgress, Modal } from '@mui/material';
+import { CircularProgress, Modal, Popover } from '@mui/material';
 import Apis from '../apis/Apis';
 import axios from 'axios';
 import PurchaseNumberSuccess from './PurchaseNumberSuccess';
 import { Key } from '@phosphor-icons/react';
+import "react-phone-input-2/lib/style.css";
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import PhoneInput from "react-phone-input-2";
 
 const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
+    const timerRef = useRef(null);
     const router = useRouter();
     const [toggleClick, setToggleClick] = useState(false);
     const [selectNumber, setSelectNumber] = useState('');
@@ -63,11 +67,45 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     const [openPurchaseSuccessModal, setOpenPurchaseSuccessModal] = useState(false);
 
     const [callBackNumber, setCallBackNumber] = useState("");
+    const [countryCode, setCountryCode] = useState("us");
     const [assignLoader, setAssignLoader] = useState(false);
+    const [shouldContinue, setShouldContinue] = useState(true);
+    const [errorMessage, setErrorMessage] = useState(false);
+    const [officeErrorMessage, setOfficeErrorMessage] = useState(false);
+
 
     useEffect(() => {
-        getAvailabePhoneNumbers()
+        const localData = localStorage.getItem("claimNumberData");
+        if (localData) {
+
+            const claimNumberDetails = JSON.parse(localData);
+
+            console.log("Claim number details are:", claimNumberDetails);
+
+            if (claimNumberDetails.officeNo) {
+                console.log("Should work")
+                setUseOfficeNumber(true);
+                setShowOfficeNumberInput(true);
+                setOfficeNumber(claimNumberDetails.officeNo);
+            } else {
+                setUserSelectedNumber(claimNumberDetails.usernumber2)
+            }
+            setCallBackNumber(claimNumberDetails.callBackNumber);
+            setSelectNumber(claimNumberDetails.userNumber);
+            setShouldContinue(false);
+        }
+        getAvailabePhoneNumbers();
     }, []);
+
+    useEffect(() => {
+        console.log("Main number is :", selectNumber);
+        console.log("User selected number is :", userSelectedNumber);
+        if (userSelectedNumber || useOfficeNumber === true &&
+            selectNumber &&
+            callBackNumber) {
+            setShouldContinue(false)
+        }
+    }, [selectNumber, userSelectedNumber, callBackNumber]);
 
     const handleSelectNumber = (event) => {
         setSelectNumber(event.target.value);
@@ -96,6 +134,62 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         setShowClaimPopup(false)
     }
 
+
+    //code for phone number inputs functions
+    const handleCallBackNumberChange = (phone) => {
+        setCallBackNumber(phone);
+        validatePhoneNumber(phone);
+
+        if (!phone) {
+            setErrorMessage("");
+            setOfficeErrorMessage("");
+        }
+    };
+
+    //code for office number change
+    const handleOfficeNumberChange = (phone, e) => {
+        setOfficeNumber(phone);
+        validatePhoneNumber(phone, e);
+
+        if (!phone) {
+            setErrorMessage("");
+            setOfficeErrorMessage("");
+        }
+    };
+
+
+
+    //phone validation
+    //number validation
+    const validatePhoneNumber = (phoneNumber, e) => {
+        // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
+        // parsePhoneNumberFromString(`+${phone}`, countryCode.toUpperCase())
+        const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`, countryCode.toUpperCase());
+        // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
+        if (!parsedNumber || !parsedNumber.isValid()) {
+            if (e) {
+                setOfficeErrorMessage('Enter valid number');
+            } else {
+                setErrorMessage('Enter valid number');
+            }
+        } else {
+            setErrorMessage('');
+            setOfficeErrorMessage('');
+
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+            }
+
+            // setCheckPhoneResponse(null);
+            console.log("Trigered")
+
+            timerRef.current = setTimeout(() => {
+                // checkPhoneNumber(phoneNumber);
+            }, 300);
+        }
+    };
+
+
     //code to select Purchase number
     const handlePurchaseNumberClick = (item, index) => {
         console.log("Item Selected is :---", item);
@@ -104,10 +198,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     }
 
     //function to fine numbers api
-    const handleFindeNumbers = async () => {
+    const handleFindeNumbers = async (number) => {
         try {
             setFindeNumberLoader(true);
-            const ApiPath = `${Apis.findPhoneNumber}?contains=${findNumber}`;
+            const ApiPath = `${Apis.findPhoneNumber}?contains=${number}`;
             let AuthToken = null;
             const LocalData = localStorage.getItem("User");
             if (LocalData) {
@@ -281,6 +375,13 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                 console.log("Response of assign number api is :", response.data)
                 if (response.data.status === true) {
                     handleContinue();
+                    const calimNoData = {
+                        officeNo: officeNumber,
+                        userNumber: selectNumber,
+                        usernumber2: userSelectedNumber,
+                        callBackNumber: callBackNumber
+                    }
+                    localStorage.setItem("claimNumberData", JSON.stringify(calimNoData))
                 }
             }
 
@@ -311,23 +412,23 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
     const styles = {
         headingStyle: {
-            fontSize: 16,
-            fontWeight: "700"
+            fontSize: 15,
+            fontWeight: "600"
         },
         inputStyle: {
-            fontSize: 15,
-            fontWeight: "500",
+            fontSize: 14,
+            fontWeight: "400",
             color: "#000000"
         },
         dropdownMenu: {
             fontSize: 15,
             fontWeight: "500",
-            color: "#00000070"
+            color: "#000000"
         },
         callBackStyles: {
             height: "71px", //width: "210px",
             border: "1px solid #15151550", borderRadius: "20px",
-            fontWeight: "500", fontSize: 16
+            fontWeight: "500", fontSize: 15
         },
         claimPopup: {
             height: "auto",
@@ -353,21 +454,27 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple flex flex-col justify-between'>
+            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col justify-between'
+            // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+            >
 
                 <div>
                     {/* header */}
                     <Header />
                     {/* Body */}
-                    <div className='flex flex-col items-center px-4 w-full'>
-                        <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }} onClick={handleContinue}>
+                    <div className='flex flex-col items-center px-4 w-full h-[65vh] overflow-auto'>
+                        <div className='mt-6 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }} onClick={handleContinue}>
                             {`Let's talk digits`}
                         </div>
-                        <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                        <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh]'
+                            // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                            style={{ scrollbarWidth: "none" }}
+                        >
 
                             <div style={styles.headingStyle}>
                                 {`Select a phone number you'd like to use to call with`}
                             </div>
+
 
                             <div className='border rounded-lg'>
                                 <Box className="w-full">
@@ -391,16 +498,16 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                 },
                                             }}
                                         >
-                                            <MenuItem value="">
+                                            {/* <MenuItem value="">
                                                 <div style={styles.dropdownMenu}>None</div>
-                                            </MenuItem>
+                                            </MenuItem> */}
                                             {/* {
                                                 PhoneNumbers.map((item, index) => (
                                                     <MenuItem key={item.id} style={styles.dropdownMenu} value={item.number}>{item.number}</MenuItem>
                                                 ))
                                             } */}
                                             <MenuItem style={styles.dropdownMenu} value={14062040550}>+14062040550 (Our global phone number avail to first time users)</MenuItem>
-                                            <div className='ms-4' style={styles.inputStyle}>Get your own unique phone number. <button className='text-purple underline' onClick={() => { setShowClaimPopup(true) }}>Claim one</button></div>
+                                            <div className='ms-4' style={{ ...styles.inputStyle, color: '#00000070' }}><i>Get your own unique phone number.</i> <button className='text-purple underline' onClick={() => { setShowClaimPopup(true) }}>Claim one</button></div>
                                             {/* <MenuItem value={20}>03058191079</MenuItem>
                                         <MenuItem value={30}>03281575712</MenuItem> */}
                                         </Select>
@@ -460,7 +567,21 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                 <div className='mt-2'>
                                                     <input className='border border-[#00000010] outline-none p-3 rounded-lg w-full mx-2' type='' placeholder='Ex: 619, 213, 313'
                                                         value={findNumber}
-                                                        onChange={(e) => { setFindNumber(e.target.value) }}
+                                                        onChange={(e) => {
+
+                                                            if (timerRef.current) {
+                                                                clearTimeout(timerRef.current);
+                                                            }
+
+                                                            const value = e.target.value
+                                                            setFindNumber(e.target.value);
+                                                            handleFindeNumbers(value)
+                                                            if (value) {
+                                                                timerRef.current = setTimeout(() => {
+                                                                    handleFindeNumbers(value);
+                                                                }, 300);
+                                                            }
+                                                        }}
                                                     />
                                                 </div>
 
@@ -507,7 +628,18 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
                                             </div>
                                             <div className='h-[50px]'>
-                                                {selectedPurchasedNumber ? (
+                                                <div>
+                                                    {
+                                                        purchaseLoader ?
+                                                            <div className='w-full flex flex-row justify-center mt-4'>
+                                                                <CircularProgress size={32} />
+                                                            </div> :
+                                                            <button className='text-white bg-purple w-full h-[50px] rounded-lg' onClick={handlePurchaseNumber}>
+                                                                Proceed to Buy
+                                                            </button>
+                                                    }
+                                                </div>
+                                                {/* {selectedPurchasedNumber ? (
                                                     <div>
                                                         {
                                                             purchaseLoader ?
@@ -523,7 +655,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                     <button className='text-white bg-purple w-full h-[50px] rounded-lg' onClick={handleFindeNumbers}>
                                                         Find Number
                                                     </button>
-                                                )}
+                                                )} */}
                                             </div>
                                         </div>
                                     </div>
@@ -570,7 +702,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
 
                             <button onClick={() => { setOpenPurchaseSuccessModal(true) }} style={styles.headingStyle} className='text-start'>
-                                What number should we forward live transfers to when a lead wants to talk to you?
+                                What callback number should we use if someone requests one during a call?
                             </button>
 
                             <div className='flex flex-row items-center gap-4'>
@@ -607,24 +739,89 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                         Enter Number
                                     </div>
 
-                                    <input
+                                    {/* <input
                                         placeholder='Phone Number'
                                         className='border border-[#00000010] rounded p-3 outline-none w-full mt-1 mx-2'
                                         style={styles.inputStyle}
+                                        value={officeNumber}
+                                        onChange={(e) => { setOfficeNumber(e.target.value) }}
+                                    /> */}
+
+                                    <PhoneInput
+                                        className="border outline-none bg-white"
+                                        country={countryCode} // Default country
+                                        value={officeNumber}
+                                        onChange={handleOfficeNumberChange}
+                                        // onFocus={getLocation}
+                                        // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                                        placeholder={"Enter Number"}
+                                        // disabled={loading} // Disable input if still loading
+                                        style={{ borderRadius: "7px" }}
+                                        inputStyle={{
+                                            width: "100%",
+                                            borderWidth: "0px",
+                                            backgroundColor: "transparent",
+                                            paddingLeft: "60px",
+                                            paddingTop: "12px",
+                                            paddingBottom: "12px",
+                                        }}
+                                        buttonStyle={{
+                                            border: "none",
+                                            backgroundColor: "transparent",
+                                        }}
+                                        dropdownStyle={{
+                                            maxHeight: "150px",
+                                            overflowY: "auto",
+                                        }}
+                                        countryCodeEditable={true}
+                                    // defaultMask={locationLoader ? "Loading..." : undefined}
                                     />
+
+                                    <div className='mt-2' style={{ fontWeight: "500", fontSize: 11, color: "red" }}>
+                                        {officeErrorMessage}
+                                    </div>
+
                                 </div>
                             ) : ""}
 
                             <div style={styles.headingStyle}>
                                 What number should we forward live transfers to when a lead wants to talk to you?
                             </div>
-                            <input
-                                placeholder='Phone Number'
-                                className='border border-[#00000010] rounded p-3 outline-none mx-2'
-                                style={styles.inputStyle}
+
+                            {/* Phone number input here */}
+
+                            <PhoneInput
+                                className="border outline-none bg-white"
+                                country={countryCode} // Default country
                                 value={callBackNumber}
-                                onChange={(e) => { setCallBackNumber(e.target.value) }}
+                                onChange={handleCallBackNumberChange}
+                                // onFocus={getLocation}
+                                // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                                placeholder={"Enter Number"}
+                                // disabled={loading} // Disable input if still loading
+                                style={{ borderRadius: "7px" }}
+                                inputStyle={{
+                                    width: "100%",
+                                    borderWidth: "0px",
+                                    backgroundColor: "transparent",
+                                    paddingLeft: "60px",
+                                    paddingTop: "12px",
+                                    paddingBottom: "12px",
+                                }}
+                                buttonStyle={{
+                                    border: "none",
+                                    backgroundColor: "transparent",
+                                }}
+                                dropdownStyle={{
+                                    maxHeight: "150px",
+                                    overflowY: "auto",
+                                }}
+                                countryCodeEditable={true}
+                            // defaultMask={locationLoader ? "Loading..." : undefined}
                             />
+                            <div style={{ fontWeight: "500", fontSize: 11, color: "red" }}>
+                                {errorMessage}
+                            </div>
 
                             <div className='flex flex-row items-center gap-4 justify-start mt-6'>
                                 <button onClick={handleToggleClick}>
@@ -655,7 +852,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         <ProgressBar value={33} />
                     </div>
 
-                    <Footer handleContinue={AssignNumber} handleBack={handleBack} registerLoader={assignLoader} />
+                    <Footer handleContinue={AssignNumber} handleBack={handleBack} registerLoader={assignLoader} shouldContinue={shouldContinue} />
                 </div>
 
             </div>

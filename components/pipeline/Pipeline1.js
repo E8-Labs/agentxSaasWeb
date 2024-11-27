@@ -13,6 +13,7 @@ import { CaretDown, Minus, YoutubeLogo } from '@phosphor-icons/react';
 const Pipeline1 = ({ handleContinue }) => {
 
     const router = useRouter();
+    const [shouldContinue, setShouldContinue] = useState(true);
     const [toggleClick, setToggleClick] = useState(false);
     const [selectedPipelineItem, setSelectedPipelineItem] = useState(null);
     const [selectPipleLine, setSelectPipleLine] = useState("");
@@ -99,6 +100,17 @@ const Pipeline1 = ({ handleContinue }) => {
         // }
         getPipelines()
     }, []);
+
+    useEffect(() => {
+        if (selectedPipelineItem && rowsByIndex) {
+            console.log("Should continue")
+            setShouldContinue(false);
+            return
+        } else if (!selectedPipelineItem || !rowsByIndex) {
+            console.log("Should not continue")
+            setShouldContinue(true);
+        }
+    }, [selectedPipelineItem, selectedPipelineStages])
 
     const getPipelines = async () => {
         try {
@@ -433,7 +445,7 @@ const Pipeline1 = ({ handleContinue }) => {
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }} onClick={handleContinue}>
                             Pipeline and Stages
                         </div>
-                        <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                        <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[52vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
 
                             {pipelinesDetails.length > 1 && (
                                 <div>
@@ -555,14 +567,14 @@ const Pipeline1 = ({ handleContinue }) => {
                             <div>
                                 {selectedPipelineStages.map((item, index) => (
                                     <div key={index}>
-                                        <div className="border rounded-xl p-2 px-4 mb-6">
+                                        <div className="border rounded-xl p-2 px-4 mt-6">
                                             <div className="flex flex-row items-center justify-between">
                                                 <div style={styles.inputStyle}>
                                                     {item.stageTitle}
                                                 </div>
                                                 {assignedLeads[index] ? (
                                                     <button
-                                                        className="bg-[#00000020] flex flex-row items-center justify-center gap-2"
+                                                        className="bg-[#00000020] flex flex-row items-center justify-center gap-1"
                                                         style={{
                                                             ...styles.inputStyle,
                                                             borderRadius: "55px",
@@ -621,7 +633,7 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                     Days
                                                                                 </label>
                                                                                 <input
-                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px] mx-2"
+                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px]"
                                                                                     style={{
                                                                                         ...styles.inputStyle,
                                                                                         height: "42px",
@@ -650,7 +662,7 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                     Hours
                                                                                 </label>
                                                                                 <input
-                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px] mx-2"
+                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px]"
                                                                                     style={{
                                                                                         ...styles.inputStyle,
                                                                                         height: "42px",
@@ -678,7 +690,7 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                     Mins
                                                                                 </label>
                                                                                 <input
-                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px] mx-2"
+                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px]"
                                                                                     style={{
                                                                                         ...styles.inputStyle,
                                                                                         height: "42px",
@@ -718,8 +730,8 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                     src={
                                                                                         "/assets/crossIcon.png"
                                                                                     }
-                                                                                    height={20}
-                                                                                    width={20}
+                                                                                    height={45}
+                                                                                    width={45}
                                                                                     alt="*"
                                                                                 />
                                                                             </button>
@@ -735,13 +747,9 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                 </button>
                                                             </div>
                                                             <div className='flex flex-row items-center gap-2 mt-4'>
-                                                                <button style={styles.inputStyle} onClick={() => {
-                                                                    rows.forEach(row => {
-                                                                        console.log(`Row ID: ${row.id}, Days: ${row.days}, Hours: ${row.hours}, Minutes: ${row.minutes}`);
-                                                                    });
-                                                                }}>
+                                                                <div style={styles.inputStyle}>
                                                                     Then move to
-                                                                </button>
+                                                                </div>
                                                                 <div>
                                                                     {/*<Box className="flex flex-row item-center justify-center" sx={{ width: "141px", py: 0, m: 0 }}>
                                                                         <FormControl fullWidth sx={{ py: 0, my: 0, minHeight: 0 }}>
@@ -855,7 +863,8 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                     },
                                                                                 }}
                                                                             >
-                                                                                <MenuItem
+
+                                                                                {/* <MenuItem
                                                                                     value=""
                                                                                     sx={{
                                                                                         py: 0,
@@ -870,11 +879,12 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                     >
                                                                                         None
                                                                                     </div>
-                                                                                </MenuItem>
+                                                                                </MenuItem> */}
+
                                                                                 {selectedPipelineStages.map(
                                                                                     (dropDownStateItem) => (
                                                                                         <MenuItem
-                                                                                        disabled={dropDownStateItem.id <= item.id}
+                                                                                            disabled={dropDownStateItem.id <= item.id}
                                                                                             key={dropDownStateItem.id}
                                                                                             value={
                                                                                                 dropDownStateItem.stageTitle
@@ -913,7 +923,7 @@ const Pipeline1 = ({ handleContinue }) => {
                         <ProgressBar value={33} />
                     </div>
 
-                    <Footer handleContinue={printAssignedLeadsData} donotShowBack={true} registerLoader={createPipelineLoader} />
+                    <Footer handleContinue={printAssignedLeadsData} donotShowBack={true} registerLoader={createPipelineLoader} shouldContinue={shouldContinue} />
                 </div>
             </div>
         </div>

@@ -40,17 +40,23 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
   //check email availability
   const [emailLoader, setEmailLoader] = useState(false);
   const [emailCheckResponse, setEmailCheckResponse] = useState(null);
+  const [validEmail, setValidEmail] = useState("");
   const [successMessage, setSuccessMessage] = useState(null);
   const [errMessage, setErrMessage] = useState(null);
   //check phone number availability
   const [phoneNumberLoader, setPhoneNumberLoader] = useState(false);
   const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
   const [locationLoader, setLocationLoader] = useState(false);
+  const [shouldContinue, setShouldContinue] = useState(true);
 
   // Function to get the user's location and set the country code
-  // useEffect(() => {
-
-  // }, []);
+  useEffect(() => {
+    if (userName, userEmail, userPhoneNumber, userFarm, userBrokage, userTransaction) {
+      setShouldContinue(false);
+    } else if (!userName || !userEmail || !userPhoneNumber || !userFarm || !userBrokage || !userTransaction) {
+      setShouldContinue(true);
+    }
+  }, [userName, userEmail, userPhoneNumber, userFarm, userBrokage, userTransaction]);
 
   //code to focus the verify code input field
   useEffect(() => {
@@ -135,17 +141,17 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
   };
 
   //email validation function
-  // const validateEmail = (email) => {
-  //   const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const validateEmail = (email) => {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-  //   // Check if email contains consecutive dots, which are invalid
-  //   if (/\.\./.test(email)) {
-  //     return false;
-  //   }
+    // Check if email contains consecutive dots, which are invalid
+    if (/\.\./.test(email)) {
+      return false;
+    }
 
-  //   // Check the general pattern for a valid email
-  //   return emailPattern.test(email);
-  // };
+    // Check the general pattern for a valid email
+    return emailPattern.test(email);
+  };
 
   //code for verify number popup
 
@@ -269,7 +275,9 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
 
   const checkEmail = async (value) => {
     try {
+      setValidEmail("");
       setEmailLoader(true);
+
       const ApiPath = Apis.CheckEmail;
 
       const ApiData = {
@@ -405,6 +413,9 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                         }
                       </div>
                   }
+                  <div style={{ ...styles.errmsg, color: 'red' }}>
+                    {validEmail}
+                  </div>
                 </div>
               </div>
 
@@ -434,17 +445,28 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
 
                   setEmailCheckResponse(null);
 
-                  if (value) {
-                    // Set a new timeout
-                    timerRef.current = setTimeout(() => {
-                      checkEmail(value);
-                      console.log('I am hit now');
-                    }, 300);
-                  } else {
-                    // Reset the response if input is cleared
-                    setEmailCheckResponse(null);
+                  if (!value) {
+                    console.log("Should set the value to null")
+                    setValidEmail("");
+                    return
                   }
 
+                  if (!validateEmail(value)) {
+                    console.log("Invalid email pattern")
+                    setValidEmail("Enter a valid email");
+                  } else {
+                    console.log("No trigered")
+                    if (value) {
+                      // Set a new timeout
+                      timerRef.current = setTimeout(() => {
+                        checkEmail(value);
+                      }, 300);
+                    } else {
+                      // Reset the response if input is cleared
+                      setEmailCheckResponse(null);
+                      setValidEmail("");
+                    }
+                  }
                 }}
               />
 
@@ -646,7 +668,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                         ))}
                       </div>
                       <div className='mt-8' style={styles.inputStyle}>
-                        {`Didn't receive code?`} <button className='outline-none border-none text-purple'>Resed</button>
+                        {`Didn't receive code?`} <button className='outline-none border-none text-purple'>Resend</button>
                       </div>
                       {
                         registerLoader ?
@@ -704,7 +726,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
             <ProgressBar value={80} />
           </div>
 
-          <Footer handleContinue={handleVerifyPopup} handleBack={handleBack} registerLoader={registerLoader} />
+          <Footer handleContinue={handleVerifyPopup} handleBack={handleBack} registerLoader={registerLoader} shouldContinue={shouldContinue} />
         </div>
 
       </div>

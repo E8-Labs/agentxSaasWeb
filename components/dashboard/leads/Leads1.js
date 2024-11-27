@@ -241,6 +241,7 @@ const Leads1 = () => {
                 console.log("Response of ad lead api is :", response.data.data);
                 if (response.data.status === true) {
                     setShowUploadLeadModal(false);
+                    setSelectedFile(null);
                     localStorage.setItem("userLeads", JSON.stringify(response.data.data));
                     setUserLeads(response.data.data);
                     setSuccessSnack(response.data.message);
@@ -366,7 +367,10 @@ const Leads1 = () => {
                             }}
                         >
                             <div className='flex flex-row justify-end'>
-                                <button onClick={() => { setShowAddLeadModal(false) }}>
+                                <button onClick={() => {
+                                    setShowAddLeadModal(false);
+                                    setSelectedFile(null);
+                                }}>
                                     <Image src={"/assets/cross.png"} height={14} width={14} alt='*' />
                                 </button>
                             </div>
@@ -375,52 +379,6 @@ const Leads1 = () => {
                             </div>
 
                             {/* CSV File drag and drop logic */}
-                            {/* <ReadFile /> */}
-                            {/* {
-                                        SelectedFile ?
-                                            <div>
-                                                File here:
-                                            </div> :
-                                            <div
-                                                {...getRootProps()}
-                                                style={{
-                                                    border: "2px dashed #ddd",
-                                                    padding: "20px",
-                                                    textAlign: "center",
-                                                    borderRadius: "10px",
-                                                    cursor: "pointer",
-                                                    width: "400px",
-                                                    margin: "auto",
-                                                    marginTop: "20px"
-                                                }}
-                                            >
-                                                <input {...getInputProps()} />
-                                                <div className="w-full flex-row flex justify-center" style={{ marginBottom: "10px" }}>
-                                                    <Image
-                                                        src="/assets/docIcon.png"
-                                                        alt="Upload Icon"
-                                                        height={30}
-                                                        width={30}
-                                                        style={{ marginBottom: "10px" }}
-                                                    />
-                                                </div>
-                                                <p style={{ ...styles.subHeadingStyle, }}>
-                                                    Drag & drop your leads
-                                                </p>
-                                                <p style={{ ...styles.subHeadingStyle, }}>or</p>
-                                                <button className='underline outline-none border-none'
-                                                    style={{
-                                                        ...styles.subHeadingStyle,
-                                                        cursor: "pointer",
-                                                    }}
-                                                >
-                                                    Browse your Computer
-                                                </button>
-                                                <p style={{ fontSize: 12, color: "#888", marginTop: "10px", fontWeight: '500' }}>
-                                                    Upload only a CSV or Excel file
-                                                </p>
-                                            </div>
-                                    } */}
 
                             <div className='w-8/12 h-[40vh] flex flex-col justify-center '
                                 {...getRootProps()}
@@ -472,6 +430,7 @@ const Leads1 = () => {
                                                 onClick={() => {
                                                     setShowUploadLeadModal(true);
                                                     setShowAddLeadModal(false);
+                                                    setSelectedFile(null);
                                                 }}
                                             >
                                                 <Image src={"/assets/addLeadIcon.png"} height={24} width={24} alt='*' />
@@ -528,9 +487,9 @@ const Leads1 = () => {
                                 <span style={styles.subHeadingStyle}>List Name</span> <Image src={"/assets/infoIcon.png"} height={18} width={18} alt='*' />
                             </div>
 
-                            <div className='border rounded p-2 w-full mt-4' style={styles.subHeadingStyle}>
+                            <div className='w-full mt-4' style={styles.subHeadingStyle}>
                                 <input
-                                    className="outline-none border-roundedp-2 w-full mx-2"
+                                    className="outline-none border-none rounded-lg p-2 w-full"
                                     value={sheetName.split(".")[0]} // Only show the base name in the input
                                     onChange={handleSheetNameChange}
                                     placeholder="Enter sheet name"

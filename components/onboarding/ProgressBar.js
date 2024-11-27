@@ -20,9 +20,9 @@ const ProgressBar = ({ value }) => {
                         value={progress}
                         sx={{
                             '& .MuiLinearProgress-bar': {
-                                backgroundColor: '#402FFF',
+                                backgroundColor: '#7902DF',
                             },
-                            backgroundColor: '#402FFF35',
+                            backgroundColor: '#7902DF35',
                         }} />
                 </Box>
             </div>

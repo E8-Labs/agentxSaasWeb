@@ -197,7 +197,8 @@ const Pipeline1 = () => {
                         <div className='flex fex-row items-center gap-6'>
                             <div className='flex flex-row items-center justify-between w-[25vw] border h-[50px] px-4 gap-8' style={{ borderRadius: "50px" }}>
                                 <input
-                                    className='outline-none bg-transparent w-full mx-2'
+                                    style={{ MozOutline: "none" }}
+                                    className='outline-none bg-transparent w-full mx-2 border-none'
                                     placeholder='Search by name, phone email'
                                 />
                                 <button>
@@ -396,7 +397,7 @@ const Pipeline1 = () => {
                                             style={{ ...styles.paragraph, fontSize: 14 }}
                                         >
                                             {leadCounts[stage.id]}
-                                            
+
                                             {/* {leadCounts.map((item) => {
 
                                             })} */}

@@ -327,7 +327,9 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                     <div>
                                         {
                                             LeadsList.length > 0 ?
-                                                <div className='h-[60vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                                                <div className='h-[60vh] overflow-auto' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                                                    style={{ scrollbarWidth: "none" }}
+                                                >
                                                     {
                                                         FilterLeads.map((item, index) => (
                                                             <div className='w-full flex flex-row items-center mt-4' style={styles.paragraph} key={index}>
@@ -390,7 +392,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                                     <div className='w-5/12 truncate' onClick={() => handleToggleClick(item.id)}>
                                                                         {moment(item.createdAt).format('MM/DD/YYYY')}
                                                                     </div>
-                                                                    <div className='w-2/12 underline text-purple'>
+                                                                    <div className='w-2/12 underline text-purple truncate'>
                                                                         Details
                                                                     </div>
                                                                 </div>

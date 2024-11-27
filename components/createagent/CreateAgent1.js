@@ -7,13 +7,15 @@ import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
 import Apis from '../apis/Apis';
 import axios from 'axios';
-import { Box, Modal } from '@mui/material';
+import { Box, Modal, Popover } from '@mui/material';
 import AddressPicker from '../test/AddressPicker';
 
 const CreateAgent1 = ({ handleContinue, handleBack }) => {
 
     const router = useRouter();
     const bottomRef = useRef();
+    const [loaderModal, setLoaderModal] = useState(false);
+    const [shouldContinue, setShouldContinue] = useState(true);
     const [toggleClick, setToggleClick] = useState(false);
     const [OutBoundCalls, setOutBoundCalls] = useState(false);
     const [InBoundCalls, setInBoundCalls] = useState(false);
@@ -33,6 +35,17 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
     const [showOtherObjective, setShowOtherObjective] = useState(false);
     const [otherObjVal, setOtherObjVal] = useState("");
 
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const open = Boolean(anchorEl);
+
+    const handlePopoverOpen = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handlePopoverClose = () => {
+        setAnchorEl(null);
+    };
+
     // useEffect(() => {})
 
     //auto move to the bottom
@@ -41,6 +54,17 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
             bottomRef.current.scrollIntoView({ behavior: "smooth" });
         }
     }, [showOtherObjective]);
+
+    useEffect(() => {
+        if (OutBoundCalls || InBoundCalls === true && agentName
+            && agentRole
+            && toggleClick) {
+            setShouldContinue(false);
+            console.log("Should continue")
+        } else {
+            console.log("Should Nott continue")
+        }
+    }, [agentName, agentRole, agentObjective, otherObjVal]);
 
     const handleToggleClick = (item) => {
         setAgentObjective(item);
@@ -130,6 +154,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
     const handleBuildAgent = async () => {
         try {
             setBuildAgentLoader(true);
+            setLoaderModal(true);
             const localData = localStorage.getItem("User");
             let AuthToken = null;
             if (localData) {
@@ -194,6 +219,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
             console.error("Error occured in build agent api is: ----", error);
         } finally {
             setBuildAgentLoader(false);
+            setLoaderModal(false);
         }
     }
 
@@ -232,12 +258,13 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
 
     const styles = {
         headingStyle: {
-            fontSize: 16,
-            fontWeight: "700"
+            fontSize: 14,
+            fontWeight: "600"
         },
         inputStyle: {
-            fontSize: 15,
-            fontWeight: "500"
+            fontSize: 13,
+            fontWeight: "400",
+            width: "95%"
         },
         modalsStyle: {
             height: "auto",
@@ -255,132 +282,181 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
-                {/* header */}
-                <Header />
-                {/* Body */}
-                <div className='flex flex-col items-center px-4 w-full'>
-                    <button className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }} onClick={handleContinue}>
-                        Get started with your AI agent
-                    </button>
-                    <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+            <div className='bg-white rounded-2xl w-10/12 h-[90vh] flex flex-col items-center' style={{ scrollbarWidth: "none" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+            >
 
-                        <div style={styles.headingStyle}>
-                            {`What's your AI agent's name?`}
-                        </div>
-                        <input
-                            placeholder="Ex: Ana's AI, Ana.ai, Ana's Assistant"
-                            className='border border-[#00000010] rounded p-3 outline-none mx-2'
-                            style={styles.inputStyle}
-                            value={agentName}
-                            onChange={(e) => { setAgentName(e.target.value) }}
-                        />
+                <div className='w-full h-[78vh]'>
+                    {/* header */}
+                    <Header />
+                    {/* Body */}
+                    <div className='flex flex-col items-center px-4 w-full'>
+                        <button className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }} onClick={handleContinue}>
+                            Get started with your AI agent
+                        </button>
+                        <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[59vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
 
-                        <div style={styles.headingStyle}>
-                            {`What's this agent's task?`}
-                        </div>
-
-                        <div className='flex flex-row items-center gap-4'>
-                            <button className='flex flex-row items-center justify-center gap-2 border h-[70px] w-[240px] outline-none'
-                                style={{
-                                    borderRadius: "23px", border: OutBoundCalls ? "2px solid #402FFF" : ""
+                            <div style={styles.headingStyle} className='flex flex-row items-center gap-2'>
+                                {`What's your AI agent's name?`}
+                                <div
+                                    aria-owns={open ? 'mouse-over-popover' : undefined}
+                                    aria-haspopup="true"
+                                    onMouseEnter={handlePopoverOpen}
+                                    onMouseLeave={handlePopoverClose}
+                                    style={{ cursor: "pointer" }}
+                                >
+                                    <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' />
+                                </div>
+                            </div>
+                            {/* Info popover */}
+                            <Popover
+                                id="mouse-over-popover"
+                                sx={{ pointerEvents: 'none' }}
+                                open={open}
+                                anchorEl={anchorEl}
+                                anchorOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'center',
                                 }}
-                                onClick={handleOutBoundCallClick}>
-                                {OutBoundCalls ?
-                                    <Image src={"/assets/callOutFocus.png"} height={24} width={24} alt='*' /> :
-                                    <Image src={"/assets/callOut.png"} height={24} width={24} alt='*' />
-                                }
-                                <div
-                                    // className='font-[500] text-xs md:text-[15px]'
-                                    style={styles.inputStyle}
-                                >
-                                    Making outbound calls
-                                </div>
-                            </button>
-                            <button className='flex flex-row items-center justify-center gap-2 border h-[70px] w-[240px] outline-none'
-                                style={{
-                                    borderRadius: "23px", border: InBoundCalls ? "2px solid #402FFF" : ""
-                                }} onClick={handleInboundCallClick}>
-                                {InBoundCalls ?
-                                    <Image src={"/assets/callInFocus.png"} height={24} width={24} alt='*' /> :
-                                    <Image src={"/assets/callIn.png"} height={24} width={24} alt='*' />
-                                }
-                                <div
-                                    // className='font-[500] text-xs md:text-[15px]'
-                                    style={styles.inputStyle}
-                                >
-                                    Taking Inbound Calls
-                                </div>
-                            </button>
-                        </div>
-
-                        <div style={styles.headingStyle}>
-                            {`What's this agent's role?`}
-                        </div>
-                        <input
-                            placeholder="Ex: Senior Property Acquisition Specialist"
-                            className='border border-[#00000010] rounded p-3 outline-none mx-2'
-                            style={styles.inputStyle}
-                            value={agentRole}
-                            onChange={(e) => { setAgentRole(e.target.value) }}
-                        />
-
-                        <div style={styles.headingStyle}>
-                            {`What's this agent's primary objective during the call`}
-                        </div>
-
-                        <div style={styles.inputStyle}>
-                            Select only one. You can create new agents to dedicate them to other objectives.
-                        </div>
-
-                        <div className="flex flex-wrap">
-                            {AgentObjective.map((item) => (
-                                <div key={item.id} className="w-full text-start md:w-1/2 p-2 flex">
-                                    <button
-                                        className="border-2 w-full rounded-2xl text-start p-4 h-full flex flex-col justify-between outline-none"
-                                        onClick={() => { handleToggleClick(item) }}
-                                        style={{ borderColor: item.id === toggleClick ? "#402FFF" : "" }}
-                                    >
-                                        {item.id === toggleClick ?
-                                            <Image src={item.focusIcn} height={30} width={30} alt='*' /> :
-                                            <Image src={item.unFocusIcon} height={30} width={30} alt='*' />
-                                        }
-                                        <div style={styles.inputStyle}>{item.title}</div>
-                                        <div style={{ fontSize: 11, fontWeight: "500" }}>{item.details}</div>
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-
-
-                        {
-                            showOtherObjective && (
-                                <div>
-                                    <div style={styles.headingStyle}>
-                                        {`Agent's Objective`}
+                                transformOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'center',
+                                }}
+                                onClose={handlePopoverClose}
+                                disableRestoreFocus
+                            >
+                                <div className='flex flex-row items-center px-2 h-[40px] gap-2'>
+                                    <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' />
+                                    <div style={{ fontWeight: "600", fontSize: 15 }}>
+                                        Your AI will identify itself by this name
                                     </div>
-                                    <input ref={bottomRef}
-                                        placeholder="Type Here.... "
-                                        className='border border-[#00000010] rounded p-3 outline-none w-full mt-1 mx-2'
-                                        style={styles.inputStyle}
-                                        value={otherObjVal}
-                                        onChange={(e) => { setOtherObjVal(e.target.value) }}
-                                    />
                                 </div>
-                            )
-                        }
+                            </Popover>
+                            <input
+                                placeholder="Ex: Ana's AI, Ana.ai, Ana's Assistant"
+                                className='border border-[#00000010] rounded p-1 outline-none mx-2'
+                                style={styles.inputStyle}
+                                value={agentName}
+                                onChange={(e) => { setAgentName(e.target.value) }}
+                            />
+
+                            <div className='mt-2' style={styles.headingStyle}>
+                                {`What's this agent's task?`}
+                            </div>
+
+                            <div className='flex flex-row items-center gap-4'>
+                                <button className='flex flex-row items-center justify-center gap-2 border h-[60px] w-[240px] outline-none px-6'
+                                    style={{
+                                        borderRadius: "23px", border: OutBoundCalls ? "2px solid #402FFF" : ""
+                                    }}
+                                    onClick={handleOutBoundCallClick}>
+                                    {OutBoundCalls ?
+                                        <Image src={"/assets/callOutFocus.png"} height={24} width={24} alt='*' /> :
+                                        <Image src={"/assets/callOut.png"} height={24} width={24} alt='*' />
+                                    }
+                                    <div
+                                        // className='font-[500] text-xs md:text-[15px]'
+                                        style={styles.inputStyle}
+                                    >
+                                        Making outbound calls
+                                    </div>
+                                </button>
+                                <button className='flex flex-row items-center justify-center gap-2 border h-[60px] w-[240px] outline-none px-6'
+                                    style={{
+                                        borderRadius: "23px", border: InBoundCalls ? "2px solid #402FFF" : ""
+                                    }} onClick={handleInboundCallClick}>
+                                    {InBoundCalls ?
+                                        <Image src={"/assets/callInFocus.png"} height={24} width={24} alt='*' /> :
+                                        <Image src={"/assets/callIn.png"} height={24} width={24} alt='*' />
+                                    }
+                                    <div
+                                        // className='font-[500] text-xs md:text-[15px]'
+                                        style={styles.inputStyle}
+                                    >
+                                        Taking Inbound Calls
+                                    </div>
+                                </button>
+                            </div>
+
+                            <div className='mt-2' style={styles.headingStyle}>
+                                {`What's this agent's role?`}
+                            </div>
+                            <input
+                                placeholder="Ex: Senior Property Acquisition Specialist"
+                                className='border border-[#00000010] rounded p-1 outline-none mx-2'
+                                style={styles.inputStyle}
+                                value={agentRole}
+                                onChange={(e) => { setAgentRole(e.target.value) }}
+                            />
+
+                            <div className='mt-2' style={styles.headingStyle}>
+                                {`What's this agent's primary objective during the call`}
+                            </div>
+
+                            <div style={styles.inputStyle}>
+                                Select only one. You can create new agents to dedicate them to other objectives.
+                            </div>
+
+                            <div className="flex flex-wrap">
+                                {AgentObjective.map((item) => (
+                                    <div key={item.id} className="w-full text-start md:w-1/2 p-2 flex py-4">
+                                        <button
+                                            className="border-2 w-full rounded-2xl text-start p-4 h-full flex flex-col justify-between outline-none"
+                                            onClick={() => { handleToggleClick(item) }}
+                                            style={{ borderColor: item.id === toggleClick ? "#402FFF" : "" }}
+                                        >
+                                            {item.id === toggleClick ?
+                                                <Image src={item.focusIcn} height={30} width={30} alt='*' /> :
+                                                <Image src={item.unFocusIcon} height={30} width={30} alt='*' />
+                                            }
+                                            <div className='mt-8' style={styles.inputStyle}>{item.title}</div>
+                                            <div className='mt-4' style={{ fontSize: 11, fontWeight: "300" }}>{item.details}</div>
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+
+
+                            {
+                                showOtherObjective && (
+                                    <div>
+                                        <div style={styles.headingStyle}>
+                                            {`Agent's Objective`}
+                                        </div>
+                                        {/* <input ref={bottomRef}
+                                            placeholder="Type Here.... "
+                                            className='border border-[#00000010] rounded p-3 outline-none w-full mt-1 mx-2'
+                                            style={styles.inputStyle}
+                                            value={otherObjVal}
+                                            onChange={(e) => { setOtherObjVal(e.target.value) }}
+                                        /> */}
+                                        <input
+                                            ref={bottomRef}
+                                            placeholder="Type Here...."
+                                            className="border border-[#00000010] w-6/12 rounded p-1 outline-none w-full mt-1 mx-2 mb-2"
+                                            style={styles.inputStyle}
+                                            value={otherObjVal}
+                                            onChange={(e) => setOtherObjVal(e.target.value)}
+                                        />
+                                    </div>
+                                )
+                            }
 
 
 
 
-                        {/* <Body /> */}
+                            {/* <Body /> */}
+                        </div>
                     </div>
                 </div>
-                <div>
-                    <ProgressBar value={33} />
+
+                <div className='w-full h-[12vh]'>
+                    <div>
+                        <ProgressBar value={33} />
+                    </div>
+
+                    <Footer handleContinue={handleBuildAgent} donotShowBack={true} registerLoader={buildAgentLoader} shouldContinue={shouldContinue} />
                 </div>
 
-                <Footer handleContinue={handleBuildAgent} donotShowBack={true} registerLoader={buildAgentLoader} />
             </div>
 
 
@@ -425,8 +501,8 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                         <button
                                             key={item.id}
                                             onClick={(e) => { handleSelectStatus(item) }}
-                                            className='px-6 border rounded-3xl h-[65px] text-center flex flex-row justify-center items-center'
-                                            style={{ border: selectedStatus?.id === item.id ? "2px solid #402FFF" : "" }}
+                                            className='px-6 border rounded-3xl h-[65px] text-center flex flex-row justify-center items-center outline-none'
+                                            style={{ border: selectedStatus?.id === item.id ? "2px solid #7902DF" : "", backgroundColor: selectedStatus?.id === item.id ? "#7902DF10" : "" }}
                                         >
                                             {item.title}
                                         </button>
@@ -465,6 +541,39 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                             <button className='text-white w-full h-[50px] rounded-lg bg-purple mt-4' onClick={() => { setShowModal(false) }}>
                                 Continue
                             </button>
+
+                            {/* Can be use full to add shadow
+                            <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+
+            <Modal
+                open={loaderModal}
+                // onClose={() => loaderModal(false)}
+                closeAfterTransition
+                BackdropProps={{
+                    sx: {
+                        backgroundColor: "#00000020",
+                        backdropFilter: "blur(5px)",
+                    },
+                }}
+            >
+                <Box className="lg:w-4/12 sm:w-7/12 w-8/12" sx={styles.modalsStyle}>
+                    <div className="flex flex-row justify-center w-full h-[65vh]">
+                        <div
+                            className="w-full"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                            }}
+                        >
+
+                            <div>
+                                Loading......
+                            </div>
 
                             {/* Can be use full to add shadow
                             <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}

@@ -81,6 +81,16 @@ const SellerKycs = ({ handleContinue }) => {
         },
     ]);
 
+    const [shouldContinue, setShouldContinue] = useState(true);
+
+    useEffect(() => {
+        if (selectedNeedKYC.length > 0 || selectedMotivationKyc.length > 0 || selectedUrgencyKyc.length > 0) {
+            setShouldContinue(false);
+        } else if (selectedNeedKYC.length === 0 || selectedMotivationKyc.length === 0 || selectedUrgencyKyc.length === 0) {
+            setShouldContinue(true);
+        }
+    }, [selectedNeedKYC, selectedMotivationKyc, selectedUrgencyKyc])
+
     //code to add kycQuestion in array
     const handleAddKycQuestion = () => {
         const sampleAnswers = inputs.map(input => input.value);
@@ -340,10 +350,10 @@ const SellerKycs = ({ handleContinue }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple flex flex-col justify-between'>
+            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col justify-between'>
                 <div>
                     {/* header */}
-                    <Header />
+                    <Header skipSellerKYC={true} />
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full'>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
@@ -352,9 +362,9 @@ const SellerKycs = ({ handleContinue }) => {
                         <div className='mt-6 w-11/12 md:text-xl text-lg font-[400]' style={{ textAlign: "center" }}>
                             Answers to these questions will be saved in the customer profile
                         </div>
-                        <button className='mt-10 underline text-purple' style={styles.inputStyle} onClick={() => { router.push("/buyerskycquestions"); }}>
+                        {/* <button className='mt-10 underline text-purple' style={styles.inputStyle} onClick={() => { router.push("/buyerskycquestions"); }}>
                             {`I don't need questions for sellers`}
-                        </button>
+                        </button> */}
                         <div className='flex flex-row items-center gap-10 mt-10'>
                             {
                                 KYCQuestionType.map((item, index) => (
@@ -555,7 +565,7 @@ const SellerKycs = ({ handleContinue }) => {
 
                                         <div style={{ height: "50px" }}>
                                             {
-                                                inputs.length < 11 && (
+                                                inputs.length < 3 && (
                                                     <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
                                                         fontSize: 15,
                                                         fontWeight: "700"
@@ -583,7 +593,7 @@ const SellerKycs = ({ handleContinue }) => {
                         <ProgressBar value={33} />
                     </div>
 
-                    <Footer handleContinue={handleNextclick} donotShowBack={true} registerLoader={sellerKycLoader} />
+                    <Footer handleContinue={handleNextclick} donotShowBack={true} registerLoader={sellerKycLoader} shouldContinue={shouldContinue} />
                 </div>
             </div>
         </div>

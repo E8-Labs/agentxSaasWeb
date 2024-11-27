@@ -80,6 +80,17 @@ const BuyerKycs = ({ handleContinue }) => {
             sampleAnswers: []
         },
     ]);
+    const [shouldContinue, setShouldContinue] = useState(true);
+
+    useEffect(() => {
+
+        if (selectedNeedKYC.length > 0 || selectedMotivationKyc.length > 0 || selectedUrgencyKyc.length > 0) {
+            setShouldContinue(false);
+        } else if (selectedNeedKYC.length === 0 || selectedMotivationKyc.length === 0 || selectedUrgencyKyc.length === 0) {
+            setShouldContinue(true);
+        }
+
+    }, [selectedNeedKYC, selectedMotivationKyc, selectedUrgencyKyc])
 
     //code to add kycQuestion in array
     const handleAddKycQuestion = () => {
@@ -347,15 +358,15 @@ const BuyerKycs = ({ handleContinue }) => {
             <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple flex flex-col justify-between'>
                 <div>
                     {/* header */}
-                    <Header />
+                    <Header buyerKYC={true} />
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full'>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
                             What would you like to ask buyers?
                         </div>
-                        <button className='mt-10 underline text-purple' style={styles.inputStyle} onClick={() => { router.push("/pipeline"); }}>
+                        {/* <button className='mt-10 underline text-purple' style={styles.inputStyle} onClick={() => { router.push("/pipeline"); }}>
                             {`I don't need questions for buyers`}
-                        </button>
+                        </button> */}
                         <div className='flex flex-row items-center gap-10 mt-10'>
                             {
                                 KYCQuestionType.map((item, index) => (
@@ -556,7 +567,7 @@ const BuyerKycs = ({ handleContinue }) => {
 
                                         <div style={{ height: "50px" }}>
                                             {
-                                                inputs.length < 11 && (
+                                                inputs.length < 3 && (
                                                     <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
                                                         fontSize: 15,
                                                         fontWeight: "700"
@@ -584,7 +595,7 @@ const BuyerKycs = ({ handleContinue }) => {
                         <ProgressBar value={33} />
                     </div>
 
-                    <Footer handleContinue={handleNextclick} donotShowBack={true} registerLoader={buyerKycLoader} />
+                    <Footer handleContinue={handleNextclick} donotShowBack={true} registerLoader={buyerKycLoader} shouldContinue={shouldContinue} />
                 </div>
             </div>
         </div>

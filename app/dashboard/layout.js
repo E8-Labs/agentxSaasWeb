@@ -7,7 +7,7 @@ export default function RootLayout({ children }) {
         <html lang="en">
             <body className="antialiased">
                 <div className="flex flex-row w-full">
-                    <div className="w-2/12">
+                    <div className="h-screen w-2/12" style={{borderRight: "1px solid #00000010"}}>
                         <ProfileNav />
                     </div>
                     <div className="w-10/12">
