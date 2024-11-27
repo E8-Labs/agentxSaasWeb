@@ -402,12 +402,36 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                     </div>
                                 </div>
 
-                                <button className='flex flex-row items-center justify-center gap-2 bg-none outline-none border h-[43px] w-[101px] rounded' onClick={() => { handleShowAddLeadModal(true) }}>
-                                    <span>
-                                        Import
-                                    </span>
-                                    <Image src={"/assets/downloadIcon.png"} height={15} width={15} alt='*' />
-                                </button>
+                                <div className='flex flex-row items-center gap-2'>
+                                    {
+                                        toggleClick.length === FilterLeads.length ? (
+                                            <button
+                                                className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
+                                                onClick={() => { setToggleClick([]) }}
+                                            >
+                                                <Image src={"/assets/whiteTick.png"} height={10} width={10} alt='*' />
+                                            </button>
+                                        ) : (
+                                            <button
+                                                className="h-[20px] w-[20px] border-2 rounded outline-none"
+                                                onClick={() => {
+                                                    setToggleClick(
+                                                        FilterLeads.map((item) => item.id)
+                                                    );
+                                                }}
+                                            >
+                                            </button>
+                                        )
+                                    }
+
+                                    <button className='flex flex-row items-center justify-center gap-2 bg-none outline-none border h-[43px] w-[101px] rounded' onClick={() => { handleShowAddLeadModal(true) }}>
+                                        <span>
+                                            Import
+                                        </span>
+                                        <Image src={"/assets/downloadIcon.png"} height={15} width={15} alt='*' />
+                                    </button>
+                                </div>
+
                             </div>
 
                             <div className='flex flex-row items-center mt-8' style={styles.paragraph}>
@@ -478,7 +502,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                                     </div>
                                                                     <div className='truncate'
                                                                         onClick={() => handleToggleClick(item.id)}>
-                                                                        {item.firstName}
+                                                                        {item.firstName} {item.lastName}
                                                                     </div>
                                                                 </div>
                                                                 <div className='w-2/12 text-[#00000070] truncate'
@@ -510,7 +534,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                                             fontWeight: "500",
                                                                             fontSize: 12
                                                                         }}>
-                                                                            {item.stage?.stageTitle}
+                                                                            {item.stage?.stageTitle ? (item.stage?.stageTitle) : "No stage"}
                                                                         </li>
                                                                     </div>
                                                                     <div className='w-5/12 truncate' onClick={() => handleToggleClick(item.id)}>
@@ -563,7 +587,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                         </div>
                                                         <div>
                                                             <button
-                                                                style={{ border: "1px solid #00000060" }}
+                                                                style={{ border: "1px solid #00000020" }}
                                                                 className='flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between'
                                                                 onClick={() => { setShowFromDatePicker(true) }}>
                                                                 <p>{selectedFromDate ? selectedFromDate.toDateString() : "Select Date"}</p>
@@ -597,7 +621,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                         </div>
                                                         <div>
                                                             <button
-                                                                style={{ border: "1px solid #00000060" }}
+                                                                style={{ border: "1px solid #00000020" }}
                                                                 className='flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between'
                                                                 onClick={() => { setShowToDatePicker(true) }}>
                                                                 <p>{selectedToDate ? selectedToDate.toDateString() : "Select Date"}</p>
@@ -636,8 +660,8 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                             <div key={index} className='flex flex-row items-center mt-2 justify-start' style={{ fontSize: 15, fontWeight: "500" }}>
                                                                 <button
                                                                     onClick={() => { handleSelectStage(item) }}
-                                                                    className={`p-2 border border-[#00000050] ${selectedStage?.id === item.id ? `bg-purple` : "bg-transparent"} px-6
-                                                                ${selectedStage?.id === item.id ? `text-white` : "text-black"} rounded-xl`}>
+                                                                    className={`p-2 border border-[#00000020] ${selectedStage?.id === item.id ? `bg-purple` : "bg-transparent"} px-6
+                                                                ${selectedStage?.id === item.id ? `text-white` : "text-black"} rounded-2xl`}>
                                                                     {item.title}
                                                                 </button>
                                                             </div>
@@ -647,7 +671,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                             </div>
 
                                             <div className='flex flex-row items-center w-full justify-between mt-4 pb-8'>
-                                                <button className='outline-none w-[105px]' style={{ fontSize: 16.8, fontWeight: "600", }}>
+                                                <button className='outline-none w-[105px]' style={{ fontSize: 16.8, fontWeight: "600", }} onClick={() => { window.location.reload() }}>
                                                     Reset
                                                 </button>
                                                 {

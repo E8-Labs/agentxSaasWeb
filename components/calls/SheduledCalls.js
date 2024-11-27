@@ -15,7 +15,7 @@ function SheduledCalls() {
     const getSheduledCallLogs = async () => {
         try {
             setInitialLoader(true);
-            const ApiPath = `${Apis.getSheduledCallLogs}?name=john`;
+            const ApiPath = `${Apis.getSheduledCallLogs}`;
 
             console.log("Apipath is", ApiPath);
 

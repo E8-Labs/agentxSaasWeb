@@ -441,7 +441,7 @@ const KYCs = ({ kycsDetails }) => {
                     },
                 }}
             >
-                <Box className="sm:w-10/12 w-10/12 max-h-[70vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple" sx={styles.modalsStyle}>
+                <Box className="sm:w-10/12 w-10/12 max-h-[70vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
                     <div className="flex flex-row justify-center w-full">
                         <div
                             className="sm:w-10/12 w-full"
@@ -706,7 +706,7 @@ const KYCs = ({ kycsDetails }) => {
                     },
                 }}
             >
-                <Box className="sm:w-10/12 w-10/12 max-h-[70vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple" sx={styles.modalsStyle}>
+                <Box className="sm:w-10/12 w-10/12 max-h-[70vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
                     <div className="flex flex-row justify-center w-full">
                         <div
                             className="sm:w-10/12 w-full"

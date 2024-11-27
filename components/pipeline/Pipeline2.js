@@ -285,7 +285,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         const agentDetailsLocal = localStorage.getItem("agentDetails");
         if (agentDetailsLocal) {
             const localAgentData = JSON.parse(agentDetailsLocal);
-            // //console.log("Locla agent details are :-", localAgentData);
+            console.log("Locla agent details are :-", localAgentData);
             setAgentDetails(localAgentData);
             setGreetingTagInput(localAgentData.greeting);
             setScriptTagInput(localAgentData.callScript);
@@ -575,7 +575,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                     {/* header */}
                     <Header />
                     {/* Body */}
-                    <div ref={containerRef} className='flex flex-col items-center px-4 w-full overflow-auto h-[65vh] scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+                    <div ref={containerRef} className='flex flex-col items-center px-4 w-full overflow-auto h-[65vh]' style={{ scrollbarWidth: "none" }}>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
                             {`Create a Script`}
                         </div>

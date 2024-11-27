@@ -36,12 +36,16 @@ function Page() {
   // ];
 
   const [callDetails, setCallDetails] = useState([]);
+  const [filteredCallDetails, setFilteredCallDetails] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     getCallLogs()
   }, []);
 
+
+  //code for getting call log details
   const getCallLogs = async () => {
     try {
       setInitialLoader(true);
@@ -68,6 +72,7 @@ function Page() {
         if (response) {
           console.log("response of get call logs api is :", response.data);
           setCallDetails(response.data.data);
+          setFilteredCallDetails(response.data.data);
         }
       }
 
@@ -76,6 +81,30 @@ function Page() {
     } finally {
       setInitialLoader(false);
     }
+  }
+
+  //code to filter search
+  const handleSearchChange = (value) => {
+    if (value.trim() === "") {
+      // console.log("Should reset to original");
+      // Reset to original list when input is empty
+      setFilteredCallDetails(callDetails);
+      return;
+    }
+
+    const filtered = callDetails.filter(item => {
+      const term = value.toLowerCase();
+      return (
+        item.LeadModel?.firstName.toLowerCase().includes(term) ||
+        // item.LeadModel?.lastName.toLowerCase().includes(term) ||
+        // item.LeadModel?.address.toLowerCase().includes(term) ||
+        item.LeadModel?.email.toLowerCase().includes(term) ||
+        (item.LeadModel?.phone && callDetails.LeadModel?.phone.includes(term))
+      );
+    });
+
+    setFilteredCallDetails(filtered);
+
   }
 
 
@@ -92,7 +121,7 @@ function Page() {
       </div>
 
       <div className=" w-full flex mt-10  gap-8 pb-2 mb-4 pl-10">
-        {["All Calls", "Sheduled", "Call Activities"].map((tab) => (
+        {["All Calls", "Call Activities", "Sheduled"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -111,6 +140,12 @@ function Page() {
             type="text"
             placeholder="Search by name, email or phone"
             className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none"
+            value={searchValue}
+            onChange={(e) => {
+              const value = e.target.value;
+              handleSearchChange(value);
+              setSearchValue(e.target.value);
+            }}
           />
           <img
             src={'/otherAssets/searchIcon.png'}
@@ -137,7 +172,7 @@ function Page() {
           <div className='w-full'>
             {
               activeTab === "All Calls" ? (
-                <AllCalls callDetails={callDetails} />
+                <AllCalls callDetails={filteredCallDetails} />
               ) : (
                 activeTab === "Sheduled" ? (
                   <SheduledCalls />

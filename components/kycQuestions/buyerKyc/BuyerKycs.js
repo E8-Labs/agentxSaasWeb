@@ -497,7 +497,7 @@ const BuyerKycs = ({ handleContinue }) => {
                         <button className='mt-2 w-10/12 md:w-6/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
                             Add Question
                         </button>
-                        {/* Modal to add demeanor */}
+                        {/* Modal */}
                         <Modal
                             open={addKYCQuestion}
                             // onClose={() => setAddKYCQuestion(false)}
