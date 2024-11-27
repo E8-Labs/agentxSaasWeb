@@ -18,7 +18,7 @@ module.exports = {
       scrollbar: {
         width: '15px', // Customize scrollbar width
         colors: {
-          thumb: '#402FFF', // Scrollbar thumb (the draggable part)
+          thumb: '#7902DF', // Scrollbar thumb (the draggable part)
           track: 'transparent', // Scrollbar track (background)
         },
       }

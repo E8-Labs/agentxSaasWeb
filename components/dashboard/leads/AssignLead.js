@@ -161,6 +161,8 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
 
             const ApiPath = Apis.assignLeadToPipeLine;
 
+            console.log("Data sending in api is :", Apidata);
+            // return
             const response = await axios.post(ApiPath, Apidata, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken,

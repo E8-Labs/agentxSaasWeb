@@ -1,30 +1,150 @@
 import Apis from '@/components/apis/Apis';
 import { Box, CircularProgress, Modal } from '@mui/material';
-import { DotsThree } from '@phosphor-icons/react'
+import { CalendarDots, DotsThree } from '@phosphor-icons/react'
 import axios from 'axios';
 import { first } from 'draft-js/lib/DefaultDraftBlockRenderMap';
 import moment from 'moment';
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 import AssignLead from './AssignLead';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css'; // Import default styles
+import CalendarInput from '@/components/test/DatePicker';
 
 const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
 
     const [initialLoader, setInitialLoader] = useState(false);
     const [SheetsList, setSheetsList] = useState([]);
-    const [LeadsLoader, setSheetsLoader] = useState(false);
+    const [currentSheet, setCurrentSheet] = useState(null);
+    const [sheetsLoader, setSheetsLoader] = useState(false);
     const [LeadsList, setLeadsList] = useState([]);
     const [searchLead, setSearchLead] = useState("");
     const [FilterLeads, setFilterLeads] = useState([]);
     const [SelectedSheetId, setSelectedSheetId] = useState("");
     const [toggleClick, setToggleClick] = useState([]);
     const [AssignLeadModal, setAssignLeadModal] = useState(false);
+    const [showFilterModal, setShowFilterModal] = useState(false);
+    const [selectedFromDate, setSelectedFromDate] = useState(null);
+    const [showFromDatePicker, setShowFromDatePicker] = useState(false);
+
+    //err msg when no leaad in list
+    const [showNoLeadErr, setShowNoLeadErr] = useState(null);
+
+    //to date filter
+    // const [showFilterModal, setShowFilterModal] = useState(false);
+    const [selectedToDate, setSelectedToDate] = useState(null);
+    const [showToDatePicker, setShowToDatePicker] = useState(false);
+    const stagesList = [
+        {
+            id: 1,
+            title: "New Lead"
+        },
+        {
+            id: 2,
+            title: "Follow Up"
+        },
+        {
+            id: 3,
+            title: "Hot Lead"
+        },
+        {
+            id: 4,
+            title: "Booked"
+        },
+        {
+            id: 5,
+            title: "No Show"
+        },
+        {
+            id: 6,
+            title: "Not Interested"
+        },
+        {
+            id: 7,
+            title: "Unresponsive"
+        },
+        {
+            id: 8,
+            title: "No Stage"
+        },
+    ];
+    const [selectedStage, setSelectedStage] = useState(null);
 
     useEffect(() => {
         // getLeads();
         getSheets();
     }, []);
 
+    useEffect(() => {
+        console.log("Current leads list is :", LeadsList);
+        console.log("Current filtered leads list is :", FilterLeads);
+    }, [LeadsList, FilterLeads])
+
+    //function to select the stage for filters
+    const handleSelectStage = (item) => {
+        setSelectedStage(item);
+    }
+
+    // function to handle select data change
+    const handleFromDateChange = (date) => {
+        setSelectedFromDate(date); // Set the selected date
+        setShowFromDatePicker(false);
+    };
+
+    const handleToDateChange = (date) => {
+        setSelectedToDate(date); // Set the selected date
+        setShowToDatePicker(false);
+    };
+
+    //function for filtering leads
+    const handleFilterLeads = async () => {
+        try {
+            setSheetsLoader(true);
+
+            const localData = localStorage.getItem("User");
+            let AuthToken = null;
+            if (localData) {
+                const UserDetails = JSON.parse(localData);
+                AuthToken = UserDetails.token;
+            }
+
+            console.log("Auth token is :--", AuthToken);
+            const formtFromDate = moment(selectedFromDate).format('MM/DD/YYYY');
+            const formtToDate = moment(selectedToDate).format('MM/DD/YYYY');
+            console.log("updated date is", formtToDate);
+
+            const id = currentSheet.id;
+            const ApiPath = `${Apis.getLeads}?sheetId=${id}&fromDate=${formtFromDate}&toDate=${formtToDate}`;
+            console.log("Api path is :", ApiPath);
+
+            // return
+            const response = await axios.get(ApiPath, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    // "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of get leads filter api is api is :", response.data);
+                if (response.data.status === true) {
+                    setShowFilterModal(false);
+                    setLeadsList(response.data.data);
+                    setFilterLeads(response.data.data);
+                    setShowFilterModal(false);
+                    setShowNoLeadErr(response.data.message);
+                }
+            }
+
+        } catch (error) {
+            console.error("Error occured in api is :", error);
+        } finally {
+            setSheetsLoader(false);
+            console.log("ApiCall completed")
+        }
+    }
+
+    //function for getting the leads
     const getLeads = async (item) => {
         try {
             setSheetsLoader(true);
@@ -65,6 +185,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
         }
     }
 
+    //function for getting the sheets
     const getSheets = async () => {
         try {
             setInitialLoader(true);
@@ -95,6 +216,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                 } else {
                     handleShowUserLeads("leads exist");
                     setSheetsList(response.data.data);
+                    setCurrentSheet(response.data.data[0]);
                     getLeads(response.data.data[0]);
                 }
             }
@@ -194,12 +316,12 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                     Leads
                                 </div>
                                 <div className='flex flex-row items-center gap-6'>
-                                    <div className='flex flex-row items-center gap-2'>
+                                    {/* <div className='flex flex-row items-center gap-2'>
                                         <Image src={"/assets/buyLeadIcon.png"} height={24} width={24} alt='*' />
                                         <span className='text-purple' style={styles.paragraph}>
                                             Buy Lead
                                         </span>
-                                    </div>
+                                    </div> */}
                                     <button
                                         style={{ backgroundColor: toggleClick.length > 0 ? "#402FFF" : "", color: toggleClick.length > 0 ? "white" : "#00000060" }}
                                         className='flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center'
@@ -256,10 +378,10 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                             </div>
                             <div className='flex flex-row items-center justify-between w-full mt-10'>
                                 <div className='flex flex-row items-center gap-4'>
-                                    <div className='flex flex-row items-center gap-1 w-[22vw] border rounded p-2'>
+                                    <div className='flex flex-row items-center gap-1 w-[22vw] border rounded pe-2'>
                                         <input
                                             style={styles.paragraph}
-                                            className='outline-none border-none w-full bg-transparent mx-2'
+                                            className='outline-none border-none w-full bg-transparent'
                                             placeholder='Search by name, email or phone'
                                             value={searchLead}
                                             onChange={(e) => {
@@ -272,7 +394,9 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                             <Image src={"/assets/searchIcon.png"} height={24} width={24} alt='*' />
                                         </button>
                                     </div>
-                                    <Image src={"/assets/filterIcon.png"} height={16} width={16} alt='*' />
+                                    <button className='outline-none' onClick={() => { setShowFilterModal(true) }}>
+                                        <Image src={"/assets/filterIcon.png"} height={16} width={16} alt='*' />
+                                    </button>
                                     <div style={styles.paragraph}>
                                         Date
                                     </div>
@@ -320,7 +444,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                             </div>
 
                             {
-                                LeadsLoader ?
+                                sheetsLoader ?
                                     <div className="w-full flex flex-row justify-center mt-12">
                                         <CircularProgress size={30} />
                                     </div> :
@@ -400,12 +524,155 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                         ))
                                                     }
                                                 </div> :
-                                                <div>
-                                                    No data
+                                                <div className='text-xl text-center mt-8' style={{ fontWeight: "700", fontSize: 22 }}>
+                                                    {showNoLeadErr ? (showNoLeadErr) : "No lead found"}
                                                 </div>
                                         }
                                     </div>
                             }
+
+
+                            <div>
+                                <Modal
+                                    open={showFilterModal}
+                                    closeAfterTransition
+                                    BackdropProps={{
+                                        sx: {
+                                            backgroundColor: "#00000020",
+                                            backdropFilter: "blur(5px)",
+                                        },
+                                    }}
+                                >
+                                    <Box className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh]" sx={styles.modalsStyle}>
+                                        <div className="w-full flex flex-col items-center justify-between h-full">
+
+                                            <div className='mt-2 w-full'>
+                                                <div className='flex flex-row items-center justify-between w-full'>
+                                                    <div>
+                                                        Filter
+                                                    </div>
+                                                    <button onClick={() => { setShowFilterModal(false) }}>
+                                                        <Image src={"/assets/cross.png"} height={17} width={17} alt='*' />
+                                                    </button>
+                                                </div>
+
+                                                <div className='flex flex-row items-start gap-4'>
+                                                    <div className='w-1/2 h-full'>
+                                                        <div className='h-full' style={{ fontWeight: "500", fontSize: 12, color: "#00000060", marginTop: 10 }}>
+                                                            From
+                                                        </div>
+                                                        <div>
+                                                            <button
+                                                                style={{ border: "1px solid #00000060" }}
+                                                                className='flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between'
+                                                                onClick={() => { setShowFromDatePicker(true) }}>
+                                                                <p>{selectedFromDate ? selectedFromDate.toDateString() : "Select Date"}</p>
+                                                                <CalendarDots weight='regular' size={25} />
+                                                            </button>
+                                                            <div>
+                                                                {
+                                                                    showFromDatePicker && (
+                                                                        <div>
+                                                                            {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
+                                                                    <button>
+                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
+                                                                    </button>
+                                                                </div> */}
+                                                                            <Calendar
+                                                                                onChange={handleFromDateChange}
+                                                                                value={selectedFromDate}
+                                                                                locale="en-US"
+                                                                                onClose={() => { setShowFromDatePicker(false) }}
+                                                                            />
+                                                                        </div>
+                                                                    )
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className='w-1/2 h-full'>
+                                                        <div style={{ fontWeight: "500", fontSize: 12, color: "#00000060", marginTop: 10 }}>
+                                                            To
+                                                        </div>
+                                                        <div>
+                                                            <button
+                                                                style={{ border: "1px solid #00000060" }}
+                                                                className='flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between'
+                                                                onClick={() => { setShowToDatePicker(true) }}>
+                                                                <p>{selectedToDate ? selectedToDate.toDateString() : "Select Date"}</p>
+                                                                <CalendarDots weight='regular' size={25} />
+                                                            </button>
+                                                            <div>
+                                                                {
+                                                                    showToDatePicker && (
+                                                                        <div>
+                                                                            {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
+                                                                    <button>
+                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
+                                                                    </button>
+                                                                </div> */}
+                                                                            <Calendar
+                                                                                onChange={handleToDateChange}
+                                                                                value={selectedToDate}
+                                                                                locale="en-US"
+                                                                                onClose={() => { setShowToDatePicker(false) }}
+                                                                            />
+                                                                        </div>
+                                                                    )
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className='mt-6' style={{ fontWeight: "500", fontSize: 12, color: "#00000060", marginTop: 10 }}>
+                                                    Stage
+                                                </div>
+
+                                                <div className='w-full flex flex-wrap gap-4'>
+                                                    {
+                                                        stagesList.map((item, index) => (
+                                                            <div key={index} className='flex flex-row items-center mt-2 justify-start' style={{ fontSize: 15, fontWeight: "500" }}>
+                                                                <button
+                                                                    onClick={() => { handleSelectStage(item) }}
+                                                                    className={`p-2 border border-[#00000050] ${selectedStage?.id === item.id ? `bg-purple` : "bg-transparent"} px-6
+                                                                ${selectedStage?.id === item.id ? `text-white` : "text-black"} rounded-xl`}>
+                                                                    {item.title}
+                                                                </button>
+                                                            </div>
+                                                        ))
+                                                    }
+                                                </div>
+                                            </div>
+
+                                            <div className='flex flex-row items-center w-full justify-between mt-4 pb-8'>
+                                                <button className='outline-none w-[105px]' style={{ fontSize: 16.8, fontWeight: "600", }}>
+                                                    Reset
+                                                </button>
+                                                {
+                                                    sheetsLoader ?
+                                                        <CircularProgress size={25} /> :
+                                                        <button className='bg-purple h-[45px] w-[140px] bg-purple text-white rounded-xl outline-none' style={{ fontSize: 16.8, fontWeight: "600", }}
+                                                            onClick={() => {
+                                                                if (selectedFromDate && selectedToDate && selectedStage) {
+                                                                    console.log("Can continue");
+                                                                    handleFilterLeads()
+                                                                } else {
+                                                                    console.log("Cannot continue");
+                                                                }
+                                                            }}
+                                                        >
+                                                            Apply Filter
+                                                        </button>
+                                                }
+                                            </div>
+
+                                        </div>
+                                    </Box>
+                                </Modal>
+                            </div>
+
 
                         </div>
                 }

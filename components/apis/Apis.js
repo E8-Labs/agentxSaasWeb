@@ -23,6 +23,8 @@ const Apis = {
     uniqueColumns: `${BasePath}api/leads/getUniqueColumns`,
     CheckEmail: `${BasePath}api/user/checkEmailExists`,
     CheckPhone: `${BasePath}api/user/checkPhoneNumber`,
+    getCallLogs: `${BasePath}api/leads/callLogs`,
+    getSheduledCallLogs: `${BasePath}api/pipeline/getScheduledCalls`
 
 }
 

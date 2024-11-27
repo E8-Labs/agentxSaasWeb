@@ -141,7 +141,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
                             Scale your salesforce. Handle any business use case. With AgentX,<br></br>you can quickly build an AI agent in minutes.
                         </div>
 
-                        <div className='flex flex-wrap w-6/12 mt-8 h-[50vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                        <div className='flex flex-wrap md:w-11/12 sm:w-3/6 lg:w-7/12 mt-8 h-[50vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                             {
                                 userType.map((item, index) => (
                                     <div key={item.id} className='flex w-4/12 p-2'>
@@ -149,7 +149,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
                                             <div className='h-[198px] bg-gray-200 rounded w-full flex flex-col justify-end pb-[10px] items-center' style={{ backgroundColor: "#FAF9FF" }}>
                                                 <img src={item.icon} style={{ width: "70%", resize: "contain" }} alt='*' />
                                             </div>
-                                            <div className='text-center mt-2' style={{ fontWeight: "600", fontSize: 17 }}>
+                                            <div className='text-center mt-2 pb-4' style={{ fontWeight: "600", fontSize: 17 }}>
                                                 {item.title}
                                             </div>
                                         </button>

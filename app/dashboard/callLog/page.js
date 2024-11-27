@@ -1,37 +1,84 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { duration } from '@mui/material';
+import { CircularProgress, duration } from '@mui/material';
 import AllCalls from '@/components/calls/AllCalls';
 import SheduledCalls from '@/components/calls/SheduledCalls';
 import CallActivities from '@/components/calls/CallActivties';
+import Apis from '@/components/apis/Apis';
+import axios from 'axios';
 
 
 function Page() {
 
   const [activeTab, setActiveTab] = useState("All Calls")
-  const callDetails = [
-    {
-      id: 1, name: "Rayna Passaquindici Arcand", email: 'arslan@gmail.com', date: 'jul 19,2024', duration: '3:43',
-      stage: 'New Lead', status: 'voicemail', time: "12:12 pm", phone: '00000001212'
-    },
-    {
-      id: 2, name: "Gretchen Workman", email: 'arslan@gmail.com', date: 'jul 19,2024', duration: '3:43',
-      stage: 'New Lead', status: 'voicemail', time: "12:12 pm", phone: '00000001212'
-    },
-    {
-      id: 3, name: "Zain Baptista", email: 'arslan@gmail.com', date: 'jul 19,2024', duration: '3:43',
-      stage: 'New Lead', status: 'voicemail', time: "12:12 pm", phone: '00000001212'
-    },
-    {
-      id: 4, name: "Jordyn Korsgaard", email: 'arslan@gmail.com', date: 'jul 19,2024', duration: '3:43',
-      stage: 'New Lead', status: 'voicemail', time: "12:12 pm", phone: '00000001212'
-    },
-    {
-      id: 5, name: "Lincoln Stanton", email: 'arslan@gmail.com', date: 'jul 19,2024', duration: '3:43',
-      stage: 'New Lead', status: 'voicemail', time: "12:12 pm", phone: '00000001212'
-    },
-  ];
+  // const callDetails = [
+  //   {
+  //     id: 1, name: "Rayna Passaquindici Arcand", email: 'arslan@gmail.com', date: 'jul 19,2024', duration: '3:43',
+  //     stage: 'New Lead', status: 'voicemail', time: "12:12 pm", phone: '00000001212'
+  //   },
+  //   {
+  //     id: 2, name: "Gretchen Workman", email: 'arslan@gmail.com', date: 'jul 19,2024', duration: '3:43',
+  //     stage: 'New Lead', status: 'voicemail', time: "12:12 pm", phone: '00000001212'
+  //   },
+  //   {
+  //     id: 3, name: "Zain Baptista", email: 'arslan@gmail.com', date: 'jul 19,2024', duration: '3:43',
+  //     stage: 'New Lead', status: 'voicemail', time: "12:12 pm", phone: '00000001212'
+  //   },
+  //   {
+  //     id: 4, name: "Jordyn Korsgaard", email: 'arslan@gmail.com', date: 'jul 19,2024', duration: '3:43',
+  //     stage: 'New Lead', status: 'voicemail', time: "12:12 pm", phone: '00000001212'
+  //   },
+  //   {
+  //     id: 5, name: "Lincoln Stanton", email: 'arslan@gmail.com', date: 'jul 19,2024', duration: '3:43',
+  //     stage: 'New Lead', status: 'voicemail', time: "12:12 pm", phone: '00000001212'
+  //   },
+  // ];
+
+  const [callDetails, setCallDetails] = useState([]);
+  const [initialLoader, setInitialLoader] = useState(false);
+
+  useEffect(() => {
+    getCallLogs()
+  }, []);
+
+  const getCallLogs = async () => {
+    try {
+      setInitialLoader(true);
+      const ApiPath = Apis.getCallLogs;
+
+      let AuthToken = null;
+      const localData = localStorage.getItem("User");
+      if (localData) {
+        const Data = JSON.parse(localData);
+        console.log("Localdat recieved is :--", Data);
+        AuthToken = Data.token;
+      }
+
+      console.log("Auth token is:", AuthToken);
+
+      const response = await axios.get(ApiPath, {
+        headers: {
+          "Authorization": "Bearer " + AuthToken,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        if (response) {
+          console.log("response of get call logs api is :", response.data);
+          setCallDetails(response.data.data);
+        }
+      }
+
+    } catch (error) {
+      console.error("Error occured in gtting calls log api is:", error);
+    } finally {
+      setInitialLoader(false);
+    }
+  }
+
+
   return (
     <div className='w-full flex flex-col items-center'>
       <div className=' w-full flex flex-row justify-between items-center py-4 px-10'
@@ -49,7 +96,7 @@ function Page() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`${activeTab === tab ? "text-purple border-b-2 border-purple" : "text-black-500"
+            className={`${activeTab === tab ? "text-purple border-b-2 border-purple" : ""
               }`} style={{ fontSize: 15, fontWeight: '500' }}
           >
             {tab}
@@ -59,11 +106,11 @@ function Page() {
       </div>
 
       <div className='flex w-full pl-10 flex-row items-start gap-3'>
-        <div className="flex w-3/12 items-center border border-gray-300 rounded-lg px-4 py-2 max-w-md shadow-sm">
+        <div className="flex w-3/12 items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm">
           <input
             type="text"
             placeholder="Search by name, email or phone"
-            className="flex-grow outline-none text-gray-600 placeholder-gray-400"
+            className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none"
           />
           <img
             src={'/otherAssets/searchIcon.png'}
@@ -83,18 +130,27 @@ function Page() {
       </div>
 
       {
-        activeTab==="All Calls" ? (
-          <AllCalls />
-        ):(
-          activeTab === "Sheduled"?(
-            <SheduledCalls />
-          ):(
-            <CallActivities />
-          )
-        )
+        initialLoader ?
+          <div className='w-full flex flex-row items-center justify-center mt-12'>
+            <CircularProgress size={35} thickness={2} />
+          </div> :
+          <div className='w-full'>
+            {
+              activeTab === "All Calls" ? (
+                <AllCalls callDetails={callDetails} />
+              ) : (
+                activeTab === "Sheduled" ? (
+                  <SheduledCalls />
+                ) : (
+                  <CallActivities />
+                )
+              )
+            }
+          </div>
       }
 
-      
+
+
     </div>
   )
 }

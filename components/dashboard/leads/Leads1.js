@@ -15,6 +15,7 @@ const Leads1 = () => {
 
     const [showAddLeadModal, setShowAddLeadModal] = useState(false);
     const [SelectedFile, setSelectedFile] = useState(null);
+    const [selectedfileLoader, setSelectedfileLoader] = useState(false);
     const [ShowUploadLeadModal, setShowUploadLeadModal] = useState(false);
     const [columnAnchorEl, setcolumnAnchorEl] = React.useState(null);
     const [selectedItem, setSelectedItem] = useState(null);
@@ -46,6 +47,24 @@ const Leads1 = () => {
     useEffect(() => {
         getUserLeads()
     }, []);
+
+    useEffect(() => {
+        try {
+            setSelectedfileLoader(true);
+            if (SelectedFile) {
+                const timer = setTimeout(() => {
+                    setShowUploadLeadModal(true);
+                    setShowAddLeadModal(false);
+                    setSelectedFile(null);
+                }, 1000);
+                return (() => clearTimeout(timer));
+            }
+        } catch (error) {
+            console.error("Error occured in selecting file is :", error);
+        } finally {
+            setSelectedfileLoader(false);
+        }
+    }, [SelectedFile])
 
     const getUserLeads = async () => {
         try {
@@ -90,6 +109,76 @@ const Leads1 = () => {
         setSelectedItem(null);
         setShowPopUp(false)
     };
+
+
+
+    //code to update column
+    function ChangeColumnName(UpdatedColumnName) {
+        return () => {
+            let defaultColumns = ["firstName", "lastName", "phone", "email", "address"]
+            let isDefaultColumn = false
+            if (defaultColumns.includes(UpdateHeader.columnNameTransformed)) {
+                isDefaultColumn = true;
+                console.log("changing default column")
+            }
+            else {
+                console.log("changing extra column")
+            }
+            console.log("Change column name here", UpdatedColumnName);
+            console.log("Old column value ", UpdateHeader.columnNameTransformed);
+            let pd = processedData;
+            let mappingList = columnMappingsList;
+            for (let i = 0; i < pd.length; i++) {
+                let d = pd[i];
+                if (isDefaultColumn) { // changing the default column
+                    let value = d[UpdateHeader.columnNameTransformed];
+                    delete d[UpdateHeader.columnNameTransformed];
+                    // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
+                    d[UpdatedColumnName] = value;
+                    pd[i] = d;
+                }
+                else {//we are changing the extra column
+                    //Check if the updated name is in default column list or not
+                    if (defaultColumns.includes(UpdatedColumnName)) {
+                        console.log("Updated name is default column")
+                        let value = d.extraColumns[UpdateHeader.columnNameTransformed];
+                        delete d.extraColumns[UpdateHeader.columnNameTransformed];
+                        // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
+                        d[UpdatedColumnName] = value;
+                        pd[i] = d;
+                    }
+                    else {
+                        let value = d.extraColumns[UpdateHeader.columnNameTransformed];
+                        delete d.extraColumns[UpdateHeader.columnNameTransformed];
+                        // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
+                        d.extraColumns[UpdatedColumnName] = value;
+                        pd[i] = d;
+                    }
+
+                }
+            }
+
+
+            for (let i = 0; i < mappingList.length; i++) {
+                let map = mappingList[i];
+                if (map.columnNameTransformed == UpdateHeader.columnNameTransformed) {
+                    // update the column
+                    map.columnNameTransformed = UpdatedColumnName;
+                }
+                mappingList[i] = map;
+            }
+            console.log(`Processed data changed`, pd);
+            setProcessedData(pd);
+            setColumnMappingsList(mappingList);
+            console.log("Mapping list changed", mappingList);
+            if (pd && mappingList) {
+                setShowPopUp(false);
+                setcolumnAnchorEl(null);
+                setSelectedItem(null);
+            }
+
+        };
+    }
 
 
     //File reading logic
@@ -260,6 +349,29 @@ const Leads1 = () => {
         setUserLeads(status);
     }
 
+    const DefaultHeadigs = [
+        {
+            id: 1,
+            title: "firstName"
+        },
+        {
+            id: 2,
+            title: "lastName"
+        },
+        {
+            id: 3,
+            title: "email"
+        },
+        {
+            id: 4,
+            title: "address"
+        },
+        {
+            id: 5,
+            title: "phone"
+        }
+    ];
+
     const styles = {
         headingStyle: {
             fontSize: 17, fontWeight: "700"
@@ -283,6 +395,15 @@ const Leads1 = () => {
         },
     }
 
+
+    function GetDefaultColumnsNotMatched(data) {
+        let columns = Object.keys(data)
+        const ColumnsNotMatched = DefaultHeadigs.filter(value => !columns.includes(value.title));
+        console.log("Columns in Processed Data ", columns)
+        console.log("Columns in Default Headings ", DefaultHeadigs)
+        console.log("Columns not matched ", ColumnsNotMatched)
+        return ColumnsNotMatched
+    }
 
 
     return (
@@ -448,6 +569,23 @@ const Leads1 = () => {
                             {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
                         </div>
                     </div>
+                    <Modal
+                        open={SelectedFile}
+                        // onClose={() => setShowAddLeadModal(false)}
+                        closeAfterTransition
+                        BackdropProps={{
+                            timeout: 1000,
+                            sx: {
+                                backgroundColor: "#00000020",
+                                backdropFilter: "blur(2px)",
+                            },
+                        }}>
+                        <Box className="lg:w-6/12 sm:w-9/12 w-10/12" sx={styles.modalsStyle}>
+                            <div className='w-full flex flex-row items-center justify-center'>
+                                <CircularProgress className='text-purple' size={150} weight="" thickness={1} />
+                            </div>
+                        </Box>
+                    </Modal>
                 </Box>
             </Modal>
 
@@ -464,7 +602,7 @@ const Leads1 = () => {
                     },
                 }}
             >
-                <Box className="lg:w-6/12 sm:w-9/12 w-10/12" sx={styles.modalsStyle}>
+                <Box className="lg:w-7/12 sm:w-10/12 w-10/12" sx={styles.modalsStyle}>
                     <div className="flex flex-row justify-center w-full">
                         <div
                             className="w-full"
@@ -507,12 +645,13 @@ const Leads1 = () => {
                                 <div className='w-3/12'>Column Fields</div>
                             </div>
 
-                            <div className='max-h-[40vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                            <div className='max-h-[40vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
                                 {
                                     columnMappingsList.map((item, index) => {
                                         const matchingValue = processedData.find((data) =>
                                             Object.keys(data).includes(item.columnNameTransformed)
                                         );
+
                                         return (
                                             <div key={index} className='flex flex-row items-center mt-4' style={{ ...styles.paragraph }}>
                                                 <div className='w-2/12'>
@@ -526,27 +665,27 @@ const Leads1 = () => {
                                                 <div className='w-4/12'>
                                                     {item.columnNameInSheet}
                                                 </div>
-                                                <div className='w-3/12'>
+                                                <div className='w-3/12 truncate'>
                                                     {matchingValue
                                                         ? matchingValue[item.columnNameTransformed]
                                                         : <div>{processedData[0].extraColumns[item.columnNameTransformed]}</div>}
                                                 </div>
                                                 <div className='w-3/12 border rounded p-2'>
-                                                    <button className='flex flex-row items-center justify-between w-full' onClick={(event) => {
+                                                    <button className='flex flex-row items-center justify-between w-full outline-none' onClick={(event) => {
                                                         if (columnAnchorEl) {
                                                             handleColumnPopoverClose();
                                                         } else {
-                                                            if (index > 4) {
-                                                                setSelectedItem(index);
-                                                                console.log("Selected index is", index)
-                                                                console.log('Item selected is :', item)
-                                                                setUpdateColumnValue(item.columnNameTransformed)
-                                                                handleColumnPopoverClick(event);
-                                                                setUpdateHeader(item);
-                                                            }
+                                                            // if (index > 4) {
+                                                            setSelectedItem(index);
+                                                            console.log("Selected index is", index)
+                                                            console.log('Item selected is :', item)
+                                                            setUpdateColumnValue(item.columnNameTransformed)
+                                                            handleColumnPopoverClick(event);
+                                                            setUpdateHeader(item);
+                                                            // }
                                                         }
                                                     }}>
-                                                        <p>{item.columnNameTransformed}</p>
+                                                        <p className='truncate'>{item.columnNameTransformed}</p>
                                                         {
                                                             selectedItem === index ?
                                                                 <CaretUp size={20} weight='bold' /> :
@@ -574,8 +713,27 @@ const Leads1 = () => {
                                                         }}
                                                     >
                                                         <div className='w-[170px] p-2' style={styles.paragraph}>
-                                                            <div>Option 1</div>
-                                                            <div>Option 2</div>
+                                                            <div>
+                                                                {/* {
+                                                                    DefaultHeadigs.map((item, index) => (
+                                                                        <div key={index}>
+                                                                            {item.title}
+                                                                        </div>
+                                                                    ))
+                                                                } */}
+                                                                <div className='flex flex-col text-start'>
+                                                                    {
+                                                                        GetDefaultColumnsNotMatched(processedData[0]).map((item, index) => {
+                                                                            return (
+                                                                                <button className='text-start' key={index} onClick={ChangeColumnName(item.title)}>
+                                                                                    {item.title}
+                                                                                </button>
+                                                                            )
+                                                                        })
+                                                                    }
+                                                                </div>
+
+                                                            </div>
                                                             <button className='underline text-purple' onClick={() => {
                                                                 setShowPopUp(true);
                                                             }}>Add New column</button>
@@ -657,40 +815,7 @@ const Leads1 = () => {
                             />
 
                             <button className='w-full h-[50px] rounded-xl bg-purple text-white mt-8' style={styles.subHeadingStyle}
-                                onClick={() => {
-                                    console.log("Change column name here", updateColumnValue)
-                                    console.log("Old column value ", UpdateHeader.columnNameTransformed)
-                                    let pd = processedData
-                                    let mappingList = columnMappingsList
-                                    for (let i = 0; i < pd.length; i++) {
-                                        let d = pd[i]
-                                        let value = d.extraColumns[UpdateHeader.columnNameTransformed]
-                                        delete d.extraColumns[UpdateHeader.columnNameTransformed]
-                                        // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
-                                        d.extraColumns[updateColumnValue] = value;
-                                        pd[i] = d;
-                                    }
-
-
-                                    for (let i = 0; i < mappingList.length; i++) {
-                                        let map = mappingList[i];
-                                        if (map.columnNameTransformed == UpdateHeader.columnNameTransformed) {
-                                            // update the column
-                                            map.columnNameTransformed = updateColumnValue;
-                                        }
-                                        mappingList[i] = map;
-                                    }
-                                    console.log(`Processed data changed`, pd)
-                                    setProcessedData(pd)
-                                    setColumnMappingsList(mappingList)
-                                    console.log("Mapping list changed", mappingList)
-                                    if (pd && mappingList) {
-                                        setShowPopUp(false);
-                                        setcolumnAnchorEl(null);
-                                        setSelectedItem(null);
-                                    }
-
-                                }}
+                                onClick={ChangeColumnName(updateColumnValue)}
                             >
                                 Create
                             </button>

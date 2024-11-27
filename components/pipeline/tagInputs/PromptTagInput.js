@@ -22,9 +22,13 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
         mirrorDivRef.current = mirrorDiv;
 
         return () => {
-            if (mirrorDivRef.current) {
+            // if (mirrorDivRef.current) {
+            //     document.body.removeChild(mirrorDivRef.current);
+            // }
+            if (mirrorDivRef.current && document.body.contains(mirrorDivRef.current)) {
                 document.body.removeChild(mirrorDivRef.current);
             }
+            mirrorDivRef.current = null;
         };
     }, []);
 

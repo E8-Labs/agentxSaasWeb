@@ -48,13 +48,11 @@ function CallActivities() {
             </div>
             {
                 callDetails.map((item, index) => (
-                    <div className='w-full flex flex-row justify-between mt-10 px-10' key={index}>
-                        <div className='w-3/12 flex flex-row gap-2'>
-                            <Image src={'/assets/colorCircle.png'}
-                                height={32}
-                                width={32}
-                                alt='ai'
-                            />
+                    <div className='w-full flex flex-row justify-between mt-10 items-center px-10' key={index}>
+                        <div className='w-3/12 flex flex-row gap-2 items-center'>
+                            <div className='h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white'>
+                                {item.name.slice(0, 1).toUpperCase()}
+                            </div>
                             <div style={styles.text2}>{item.name}</div>
                         </div>
                         <div className='w-2/12 '>
@@ -88,14 +86,15 @@ function CallActivities() {
 export default CallActivities
 const styles = {
     text: {
-        fontSize: 12,
-        color: '#00000090'
+        fontSize: 15,
+        color: '#00000090',
+        fontWeight: "500"
     },
     text2: {
         textAlignLast: 'left',
         fontSize: 15,
         color: '#000000',
-        fontWeight: 500,
+        fontWeight: "500",
         whiteSpace: 'nowrap',  // Prevent text from wrapping
         overflow: 'hidden',    // Hide overflow text
         textOverflow: 'ellipsis'  // Add ellipsis for overflow text
