@@ -85,7 +85,7 @@ const Leads1 = () => {
         console.log(acceptedFiles);
         setSelectedFile(acceptedFiles);
         // Handle the uploaded files
-        setSheetName(acceptedFiles[0].name);
+        setSheetName(acceptedFiles[0].name.split(".")[0]);
         acceptedFiles.forEach((file) => {
             handleFileUpload(file)
         });
@@ -291,7 +291,8 @@ const Leads1 = () => {
         const newBaseName = e.target.value; // Get the user's input for the base name
 
         // Ensure we keep the extension constant
-        setSheetName(`${newBaseName}.${extension}`);
+        // setSheetName(`${newBaseName}.${extension}`);
+        setSheetName(e);
     };
 
 
@@ -318,7 +319,7 @@ const Leads1 = () => {
             console.log("Api path is :", ApiPath);
 
             console.log("Apidata sending in Addlead api is :", ApiData);
-
+            // return
             const response = await axios.post(ApiPath, ApiData, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken,
@@ -628,8 +629,13 @@ const Leads1 = () => {
                             <div className='w-full mt-4' style={styles.subHeadingStyle}>
                                 <input
                                     className="outline-none border-none rounded-lg p-2 w-full"
-                                    value={sheetName.split(".")[0]} // Only show the base name in the input
-                                    onChange={handleSheetNameChange}
+                                    value={sheetName} // Only show the base name in the input.split(".")[0]
+                                    // onChange={handleSheetNameChange}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        console.log("Updated sheet name :", value);
+                                        setSheetName((value));
+                                    }}
                                     placeholder="Enter sheet name"
                                 />
                             </div>

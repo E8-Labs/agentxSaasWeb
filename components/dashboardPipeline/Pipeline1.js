@@ -428,9 +428,9 @@ const Pipeline1 = () => {
                                 </Popover>
 
                                 {/* Display leads matching this stage */}
-                                <div className="flex flex-col gap-4 mt-4 max-h-[78vh] overflow-auto" style={{ scrollbarWidth: "none" }}>
+                                <div className="flex flex-col gap-4 mt-4 max-h-[78vh] overflow-auto border rounded-xl" style={{ scrollbarWidth: "none" }}>
                                     {LeadsList.filter((lead) => lead.stage === stage.id).map((lead, leadIndex) => (
-                                        <div className="border rounded-xl p-3 h-full" style={{ width: "300px" }} key={leadIndex}>
+                                        <div className="p-3 h-full" style={{ width: "300px" }} key={leadIndex}>
                                             <div className="border rounded-xl px-4 py-2 h-full">
                                                 <div className="flex flex-row items-center gap-3">
                                                     <div
