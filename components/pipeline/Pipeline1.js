@@ -619,7 +619,7 @@ const Pipeline1 = ({ handleContinue }) => {
                                                         </div>
                                                         <div className="border rounded-xl py-4 px-4 mt-4">
                                                             <div>
-                                                                {(rowsByIndex[index] || []).map((row) => (
+                                                                {(rowsByIndex[index] || []).map((row, rowIndex) => (
                                                                     <div
                                                                         key={row.id}
                                                                         className="flex flex-row items-center mb-2"
@@ -718,23 +718,27 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                 className="ms-4"
                                                                                 style={styles.inputStyle}
                                                                             >
-                                                                                , then Make Call
+                                                                                , then <span style={{ fontWeight: "600" }}>Make Call</span>
                                                                             </div>
-                                                                            <button
-                                                                                className="ms-2"
-                                                                                onClick={() =>
-                                                                                    removeRow(index, row.id)
-                                                                                }
-                                                                            >
-                                                                                <Image
-                                                                                    src={
-                                                                                        "/assets/crossIcon.png"
+
+                                                                            {rowIndex > 0 && (
+                                                                                <button
+                                                                                    className="ms-2"
+                                                                                    onClick={() =>
+                                                                                        removeRow(index, row.id)
                                                                                     }
-                                                                                    height={45}
-                                                                                    width={45}
-                                                                                    alt="*"
-                                                                                />
-                                                                            </button>
+                                                                                >
+                                                                                    <Image
+                                                                                        src={
+                                                                                            "/assets/crossIcon.png"
+                                                                                        }
+                                                                                        height={45}
+                                                                                        width={45}
+                                                                                        alt="*"
+                                                                                    />
+                                                                                </button>
+                                                                            )}
+
                                                                         </div>
                                                                     </div>
                                                                 ))}

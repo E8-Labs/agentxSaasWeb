@@ -196,7 +196,7 @@ const BuyerKycs = ({ handleContinue }) => {
                 {
                     question: item.question,
                     category: KycCategory.CategoryNeeds,
-                    type: "seller",
+                    type: "buyer",
                     examples: item.sampleAnswers.filter(answer => answer)
                 }
             )
@@ -206,7 +206,7 @@ const BuyerKycs = ({ handleContinue }) => {
                 {
                     question: item.question,
                     category: KycCategory.CategoryMotivation,
-                    type: "seller",
+                    type: "buyer",
                     examples: item.sampleAnswers.filter(answer => answer)
                 }
             )
@@ -216,7 +216,7 @@ const BuyerKycs = ({ handleContinue }) => {
                 {
                     question: item.question,
                     category: KycCategory.CategoryUrgency,
-                    type: "seller",
+                    type: "buyer",
                     examples: item.sampleAnswers.filter(answer => answer)
                 }
             )

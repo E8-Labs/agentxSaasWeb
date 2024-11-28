@@ -211,7 +211,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue })
     };
 
     return (
-        <div style={{ position: "relative" }}>
+        <div className="overflow-none" style={{ position: "relative" }}>
             <input
                 className="outline-none border rounded-xl"
                 ref={textFieldRef}

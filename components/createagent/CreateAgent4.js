@@ -100,7 +100,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     useEffect(() => {
         console.log("Main number is :", selectNumber);
         console.log("User selected number is :", userSelectedNumber);
-        if (userSelectedNumber || useOfficeNumber === true &&
+        if (userSelectedNumber || useOfficeNumber &&
             selectNumber &&
             callBackNumber) {
             setShouldContinue(false)
@@ -462,7 +462,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     {/* header */}
                     <Header />
                     {/* Body */}
-                    <div className='flex flex-col items-center px-4 w-full h-[65vh] overflow-auto'>
+                    <div className='flex flex-col items-center px-4 w-full h-[65vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }} onClick={handleContinue}>
                             {`Let's talk digits`}
                         </div>
@@ -595,7 +595,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                                 foundeNumbers.map((item, index) => (
                                                                     <div key={index} className='h-[8vh] rounded-2xl flex flex-col justify-center p-4 mb-4'
                                                                         style={{
-                                                                            border: index === selectedPurchasedIndex ? "2px solid #402FFF" : "1px solid #00000040"
+                                                                            border: index === selectedPurchasedIndex ? "2px solid #7902DF" : "1px solid #00000040"
                                                                         }}
                                                                     >
                                                                         <button className='flex flex-row items-start justify-between outline-none' onClick={(e) => { handlePurchaseNumberClick(item, index) }}>
@@ -634,9 +634,15 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                             <div className='w-full flex flex-row justify-center mt-4'>
                                                                 <CircularProgress size={32} />
                                                             </div> :
-                                                            <button className='text-white bg-purple w-full h-[50px] rounded-lg' onClick={handlePurchaseNumber}>
-                                                                Proceed to Buy
-                                                            </button>
+                                                            <div>
+                                                                {
+                                                                    selectedPurchasedIndex && (
+                                                                        <button className='text-white bg-purple w-full h-[50px] rounded-lg' onClick={handlePurchaseNumber}>
+                                                                            Proceed to Buy
+                                                                        </button>
+                                                                    )
+                                                                }
+                                                            </div>
                                                     }
                                                 </div>
                                                 {/* {selectedPurchasedNumber ? (

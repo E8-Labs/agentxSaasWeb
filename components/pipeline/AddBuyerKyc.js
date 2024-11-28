@@ -306,8 +306,8 @@ const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='rounded-lg w-10/12 h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple flex flex-col justify-between'>
-                <div>
+            <div className='rounded-lg w-10/12 flex flex-col justify-between'>
+                <div className='h-[60vh] py-4 overflow-auto' style={{ scrollbarWidth: "none" }}>
                     {/* header */}
                     {/* <Header /> */}
                     <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' />
@@ -540,22 +540,22 @@ const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc }) => {
                                 </div>
                             </Box>
                         </Modal>
-                        <div className='mt-8 w-full flex flex-row justify-center'>
-                            {
-                                buyerKycLoader ?
-                                    <div className='flex flex-row justify-center w-full'>
-                                        <CircularProgress size={30} />
-                                    </div>
-                                    :
-                                    <button
-                                        className='w-full h-[50px] rounded-lg bg-purple text-white'
-                                        style={styles.headingStyle}
-                                        onClick={handleAddNewKyc}>
-                                        Save & Close
-                                    </button>
-                            }
-                        </div>
                     </div>
+                </div>
+                <div className='mt-8 w-full flex flex-row justify-center'>
+                    {
+                        buyerKycLoader ?
+                            <div className='flex flex-row justify-center w-full'>
+                                <CircularProgress size={30} />
+                            </div>
+                            :
+                            <button
+                                className='w-full h-[50px] rounded-lg bg-purple text-white'
+                                style={styles.headingStyle}
+                                onClick={handleAddNewKyc}>
+                                Save & Close
+                            </button>
+                    }
                 </div>
                 {/* <div>
                     <div>

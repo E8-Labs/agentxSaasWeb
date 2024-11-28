@@ -390,7 +390,21 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                 className='border border-[#00000010] p-3 outline-none mx-2'
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userName}
-                onChange={(e) => { setUserName(e.target.value) }}
+                onChange={(e) => {
+                  const input = e.target.value;
+                  // const formattedName = input
+                  //   .split(' ')
+                  //   .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                  //   .join(' ');
+
+                  const words = input.split(' ');
+                  const formattedName =
+                    words.length > 1
+                      ? words[0].toLowerCase() + ' ' + words.slice(1).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+                      : words[0].toLowerCase();
+
+                  setUserName(formattedName);
+                }}
               />
 
               <div className='flex flex-row items-center w-full justify-between mt-6'>

@@ -569,13 +569,13 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     }
 
     return (
-        <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
+        <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
             <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col justify-between'>
                 <div>
                     {/* header */}
                     <Header />
                     {/* Body */}
-                    <div ref={containerRef} className='flex flex-col items-center px-4 w-full overflow-auto h-[65vh]' style={{ scrollbarWidth: "none" }}>
+                    <div ref={containerRef} className='flex flex-col items-center px-4 w-full overflow-auto h-[68vh]' style={{ scrollbarWidth: "none" }}>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
                             {`Create a Script`}
                         </div>
@@ -839,7 +839,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                             <div className='bg-white rounded-xl p-2 px-4 mt-4'>
                                 <div className='flex flex-row items-center justify-between'>
                                     <div style={styles.inputStyle}>
-                                        Community Update
+                                        {AgentDetails && (AgentDetails?.agents[0]?.agentObjective)}
                                     </div>
                                     <div>
                                         <button onClick={() => { setShowObjectiveDetails(!showObjectiveDetail) }}>
@@ -862,13 +862,16 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                                     Status
                                                 </div>
                                                 <div style={styles.inputStyle}>
-                                                    Comming Soon
+                                                    {AgentDetails && (AgentDetails?.agents[0]?.status)}
                                                 </div>
                                             </div>
                                             <div className='flex flex-row items-center justify-between mt-4'>
-                                                <input className='outline-none mx-2' style={{ ...styles.inputStyle, width: "70%" }} placeholder='Address' />
+                                                <div style={{ ...styles.inputStyle, color: "#00000060" }}>
+                                                    Address
+                                                </div>
+
                                                 <div style={{ ...styles.inputStyle }}>
-                                                    Address goes here
+                                                    {AgentDetails && (AgentDetails?.agents[0]?.address)}
                                                 </div>
                                             </div>
                                         </div>

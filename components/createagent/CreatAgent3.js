@@ -35,7 +35,6 @@ const CreatAgent3 = ({ handleContinue }) => {
     const handleClose = () => {
         if (addPaymentPopUp) {
             setAddPaymentPopUp(false);
-            setAddPaymentSuccessPopUp(true);
         } else if (addPaymentSuccessPopUp) {
             setAddPaymentSuccessPopUp(false);
         }
@@ -121,7 +120,7 @@ const CreatAgent3 = ({ handleContinue }) => {
             fontWeight: "500"
         },
         cardStyles: {
-            fontSize: "14", fontWeight: "500"
+            fontSize: "14", fontWeight: "500", border: "1px solid #00000020"
         },
         pricingBox: {
             position: 'relative',
@@ -327,37 +326,59 @@ const CreatAgent3 = ({ handleContinue }) => {
                                             Payment starts after your free 30 mins
                                         </div>
 
-                                        <div className='mt-4' style={styles.cardStyles}>
+                                        <div className='mt-4' style={styles.giftTextStyle}>
                                             Card number
                                         </div>
-                                        <input type='number' className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='1212 1212 1212 1212' maxLength={16} />
+                                        <input className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='1212 1212 1212 1212' maxLength={16}
+                                            onInput={(e) => {
+                                                e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+                                            }} />
 
                                         <div className='flex flex-row gap-2 mt-4'>
                                             <div className='w-6/12'>
-                                                <div style={styles.cardStyles}>
+                                                <div style={styles.giftTextStyle}>
                                                     Expiry
                                                 </div>
-                                                <input type='number' className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='MM / YY' maxLength={6} />
+                                                <input
+                                                    className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='MM / YY' maxLength={6}
+                                                    onInput={(e) => {
+                                                        e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+                                                    }} />
                                             </div>
                                             <div className='w-6/12'>
-                                                <div style={styles.cardStyles}>
+                                                <div style={styles.giftTextStyle}>
                                                     Card number
                                                 </div>
-                                                <input type='number' className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='CVC' maxLength={3} />
+                                                <input className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='CVC' maxLength={3}
+                                                    onInput={(e) => {
+                                                        e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+                                                    }} />
                                             </div>
                                         </div>
 
-                                        <div className='mt-4' style={styles.cardStyles}>
+                                        <div className='mt-4' style={styles.giftTextStyle}>
                                             Postal Code
                                         </div>
-                                        <input type='number' className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='48530' maxLength={5} />
+                                        <input className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='48530' maxLength={5}
+                                            onInput={(e) => {
+                                                e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+                                            }} />
 
-                                        <div className='mt-4' style={styles.cardStyles}>
+                                        <div className='mt-4' style={styles.giftTextStyle}>
                                             AgentX Code (optional)
                                         </div>
-                                        <input type='number' className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='Enter the code here' maxLength={16} />
+                                        <input className='outline-none border rounded-lg w-full p-2 mt-2'
+                                            style={styles.cardStyles} placeholder='Enter the code here' maxLength={16}
+                                            onInput={(e) => {
+                                                e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+                                            }}
+                                        />
 
-                                        <button className='bg-purple text-white w-full rounded-xl mt-12' style={{ ...styles.headingStyle, height: "50px" }} onClick={handleClose}>
+                                        <button className='bg-purple text-white w-full rounded-xl mt-12' style={{ ...styles.headingStyle, height: "50px" }}
+                                            onClick={() => {
+                                                handleClose();
+                                                setAddPaymentSuccessPopUp(true);
+                                            }}>
                                             Continue
                                         </button>
 

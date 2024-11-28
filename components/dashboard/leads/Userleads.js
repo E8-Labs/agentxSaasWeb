@@ -68,7 +68,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
             title: "No Stage"
         },
     ];
-    const [selectedStage, setSelectedStage] = useState(null);
+    const [selectedStage, setSelectedStage] = useState([]);
 
     useEffect(() => {
         // getLeads();
@@ -82,7 +82,16 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
 
     //function to select the stage for filters
     const handleSelectStage = (item) => {
-        setSelectedStage(item);
+        // setSelectedStage(item);
+        setSelectedStage((prevIds) => {
+            if (prevIds.includes(item.id)) {
+                // Unselect the item if it's already selected
+                return prevIds.filter((prevId) => prevId !== item.id);
+            } else {
+                // Select the item if it's not already selected
+                return [...prevIds, item.id];
+            }
+        });
     }
 
     // function to handle select data change
@@ -114,6 +123,8 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
             console.log("updated date is", formtToDate);
 
             const id = currentSheet.id;
+            const stages = selectedStage.join(',');
+            console.log("Sages selected are ", stages);
             const ApiPath = `${Apis.getLeads}?sheetId=${id}&fromDate=${formtFromDate}&toDate=${formtToDate}`;
             console.log("Api path is :", ApiPath);
 
@@ -398,39 +409,59 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                         <Image src={"/assets/filterIcon.png"} height={16} width={16} alt='*' />
                                     </button>
                                     <div style={styles.paragraph}>
-                                        Date
+                                        {
+                                            selectedFromDate && selectedToDate && (
+                                                <div className='px-4 py-2 bg-[#402FFF10] text-purple [#7902DF10] rounded-[25px]' style={{ fontWeight: "500", fontSize: 15 }}>
+                                                    {moment(selectedFromDate).format('ddd MM')}th - {moment(selectedToDate).format('ddd MM')}th
+                                                </div>
+                                            )
+                                        }
                                     </div>
                                 </div>
 
-                                <div className='flex flex-row items-center gap-2'>
-                                    {
-                                        toggleClick.length === FilterLeads.length ? (
-                                            <button
-                                                className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
-                                                onClick={() => { setToggleClick([]) }}
-                                            >
-                                                <Image src={"/assets/whiteTick.png"} height={10} width={10} alt='*' />
-                                            </button>
-                                        ) : (
-                                            <button
-                                                className="h-[20px] w-[20px] border-2 rounded outline-none"
-                                                onClick={() => {
-                                                    setToggleClick(
-                                                        FilterLeads.map((item) => item.id)
-                                                    );
-                                                }}
-                                            >
-                                            </button>
-                                        )
-                                    }
+                                {
+                                    LeadsList.length > 0 && (
+                                        <div className='flex flex-row items-center gap-2'>
+                                            {
+                                                toggleClick.length === FilterLeads.length ? (
+                                                    <div className='flex flex-row items-center gap-2'>
+                                                        <button
+                                                            className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
+                                                            onClick={() => { setToggleClick([]) }}
+                                                        >
+                                                            <Image src={"/assets/whiteTick.png"} height={10} width={10} alt='*' />
+                                                        </button>
+                                                        <div style={{ fontSize: "15", fontWeight: "600" }}>
+                                                            Select All
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className='flex flex-row items-center gap-2'>
+                                                        <button
+                                                            className="h-[20px] w-[20px] border-2 rounded outline-none"
+                                                            onClick={() => {
+                                                                setToggleClick(
+                                                                    FilterLeads.map((item) => item.id)
+                                                                );
+                                                            }}
+                                                        >
+                                                        </button>
+                                                        <div style={{ fontSize: "15", fontWeight: "600" }}>
+                                                            Select All
+                                                        </div>
+                                                    </div>
+                                                )
+                                            }
 
-                                    <button className='flex flex-row items-center justify-center gap-2 bg-none outline-none border h-[43px] w-[101px] rounded' onClick={() => { handleShowAddLeadModal(true) }}>
-                                        <span>
-                                            Import
-                                        </span>
-                                        <Image src={"/assets/downloadIcon.png"} height={15} width={15} alt='*' />
-                                    </button>
-                                </div>
+                                            <button className='flex flex-row items-center justify-center gap-2 bg-none outline-none border h-[43px] w-[101px] rounded' onClick={() => { handleShowAddLeadModal(true) }}>
+                                                <span>
+                                                    Import
+                                                </span>
+                                                <Image src={"/assets/downloadIcon.png"} height={15} width={15} alt='*' />
+                                            </button>
+                                        </div>
+                                    )
+                                }
 
                             </div>
 
@@ -567,7 +598,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                         },
                                     }}
                                 >
-                                    <Box className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh]" sx={styles.modalsStyle}>
+                                    <Box className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
                                         <div className="w-full flex flex-col items-center justify-between h-full">
 
                                             <div className='mt-2 w-full'>
@@ -660,8 +691,8 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                             <div key={index} className='flex flex-row items-center mt-2 justify-start' style={{ fontSize: 15, fontWeight: "500" }}>
                                                                 <button
                                                                     onClick={() => { handleSelectStage(item) }}
-                                                                    className={`p-2 border border-[#00000020] ${selectedStage?.id === item.id ? `bg-purple` : "bg-transparent"} px-6
-                                                                ${selectedStage?.id === item.id ? `text-white` : "text-black"} rounded-2xl`}>
+                                                                    className={`p-2 border border-[#00000020] ${selectedStage.includes(item.id) ? `bg-purple` : "bg-transparent"} px-6
+                                                                ${selectedStage.includes(item.id) ? `text-white` : "text-black"} rounded-2xl`}>
                                                                     {item.title}
                                                                 </button>
                                                             </div>
@@ -671,15 +702,27 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                             </div>
 
                                             <div className='flex flex-row items-center w-full justify-between mt-4 pb-8'>
-                                                <button className='outline-none w-[105px]' style={{ fontSize: 16.8, fontWeight: "600", }} onClick={() => { window.location.reload() }}>
+                                                <button className='outline-none w-[105px]' style={{ fontSize: 16.8, fontWeight: "600", }}
+                                                    onClick={() => {
+                                                        // setSelectedFromDate(null);
+                                                        // setSelectedToDate(null);
+                                                        // setSelectedStage(null);
+                                                        // getLeads()
+                                                        window.location.reload();
+                                                    }}>
                                                     Reset
                                                 </button>
                                                 {
                                                     sheetsLoader ?
                                                         <CircularProgress size={25} /> :
-                                                        <button className='bg-purple h-[45px] w-[140px] bg-purple text-white rounded-xl outline-none' style={{ fontSize: 16.8, fontWeight: "600", }}
+                                                        <button
+                                                            className='bg-purple h-[45px] w-[140px] bg-purple text-white rounded-xl outline-none'
+                                                            style={{
+                                                                fontSize: 16.8, fontWeight: "600",
+                                                                backgroundColor: selectedFromDate && selectedToDate && selectedStage.length > 0 ? "" : "#00000050"
+                                                            }}
                                                             onClick={() => {
-                                                                if (selectedFromDate && selectedToDate && selectedStage) {
+                                                                if (selectedFromDate && selectedToDate && selectedStage.length > 0) {
                                                                     console.log("Can continue");
                                                                     handleFilterLeads()
                                                                 } else {
