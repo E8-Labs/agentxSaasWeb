@@ -87,7 +87,7 @@ const FocusArea = ({ handleContinue, handleBack, DefaultData }) => {
                                     <div className='border bg-white flex flex-row items-start pt-3 w-full h-[126px] rounded-2xl'
                                         style={{
                                             border: focusArea.includes(item.id) ? "2px solid #7902DF" : "",
-                                            scrollbarWidth: "none", backgroundColor: focusArea.includes(item.id) ? "#7902DF10" : ""
+                                            scrollbarWidth: "none", backgroundColor: focusArea.includes(item.id) ? "#402FFF05" : ""
                                         }}>
                                         <div className='w-full flex flex-row items-start justify-between px-4 py-2'>
                                             <div className='text-start w-[60%]'>

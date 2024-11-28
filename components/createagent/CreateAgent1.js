@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
 import Apis from '../apis/Apis';
 import axios from 'axios';
-import { Box, Modal, Popover } from '@mui/material';
+import { Box, CircularProgress, Modal, Popover } from '@mui/material';
 import AddressPicker from '../test/AddressPicker';
 
 const CreateAgent1 = ({ handleContinue, handleBack }) => {
@@ -299,7 +299,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                         <button className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }} onClick={handleContinue}>
                             Get started with your AI agent
                         </button>
-                        <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[59vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+                        <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[59vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2' style={{ scrollbarWidth: "none" }}>
 
                             <div style={styles.headingStyle} className='flex flex-row items-center gap-2'>
                                 {`What's your AI agent's name?`}
@@ -339,7 +339,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                             </Popover>
                             <input
                                 placeholder="Ex: Ana's AI, Ana.ai, Ana's Assistant"
-                                className='border border-[#00000010] rounded p-1 outline-none mx-2'
+                                className='border border-[#00000010] rounded p-3 outline-none'
                                 style={styles.inputStyle}
                                 value={agentName}
                                 onChange={(e) => { setAgentName(e.target.value) }}
@@ -388,7 +388,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                             </div>
                             <input
                                 placeholder="Ex: Senior Property Acquisition Specialist"
-                                className='border border-[#00000010] rounded p-1 outline-none mx-2'
+                                className='border border-[#00000010] rounded p-3 outline-none'
                                 style={styles.inputStyle}
                                 value={agentRole}
                                 onChange={(e) => { setAgentRole(e.target.value) }}
@@ -404,11 +404,11 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
 
                             <div className="flex flex-wrap">
                                 {AgentObjective.map((item) => (
-                                    <div key={item.id} className="w-full text-start md:w-1/2 p-2 flex py-4">
+                                    <div key={item.id} className="w-full text-start md:w-1/2 pe-2 flex py-4">
                                         <button
                                             className="border-2 w-full rounded-2xl text-start p-4 h-full flex flex-col justify-between outline-none"
                                             onClick={() => { handleToggleClick(item) }}
-                                            style={{ borderColor: item.id === toggleClick ? "#402FFF" : "" }}
+                                            style={{ borderColor: item.id === toggleClick ? "#7902DF" : "" }}
                                         >
                                             {item.id === toggleClick ?
                                                 <Image src={item.focusIcn} height={30} width={30} alt='*' /> :
@@ -508,7 +508,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                             key={item.id}
                                             onClick={(e) => { handleSelectStatus(item) }}
                                             className='px-6 border rounded-3xl h-[65px] text-center flex flex-row justify-center items-center outline-none'
-                                            style={{ border: selectedStatus?.id === item.id ? "2px solid #7902DF" : "", backgroundColor: selectedStatus?.id === item.id ? "#7902DF10" : "" }}
+                                            style={{ border: selectedStatus?.id === item.id ? "2px solid #7902DF" : "", backgroundColor: selectedStatus?.id === item.id ? "#402FFF05" : "" }}
                                         >
                                             {item.title}
                                         </button>
@@ -525,7 +525,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
 
                                         <div className='mt-1'>
                                             <input
-                                                className='h-[50px] border rounded-lg outline-none border border-[#00000010] p-3 w-full mx-2'
+                                                className='h-[50px] border rounded-lg outline-none border border-[#00000010] p-3 w-full'
                                                 // rows={3}
                                                 placeholder='Type here...'
                                                 value={otherStatus}
@@ -571,14 +571,14 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                         <div
                             className="w-full"
                             style={{
-                                backgroundColor: "#ffffff",
+                                backgroundColor: "transparent",
                                 padding: 20,
                                 borderRadius: "13px",
                             }}
                         >
 
-                            <div>
-                                Loading......
+                            <div className='flex flex-row items-center justify-center h-full'>
+                                <CircularProgress size={200} thickness={1} />
                             </div>
 
                             {/* Can be use full to add shadow

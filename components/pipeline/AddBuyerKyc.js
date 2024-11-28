@@ -160,11 +160,11 @@ const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc }) => {
             selectedNeedKYC.some((selectedItem) => selectedItem.id === question.id)
         );
 
-        const selectedMotivationQuestions = needKYCQuestions.filter((question) =>
+        const selectedMotivationQuestions = motivationKycQuestions.filter((question) =>
             selectedMotivationKyc.some((selectedItem) => selectedItem.id === question.id)
         );
 
-        const selectedUrgencyQuestions = needKYCQuestions.filter((question) =>
+        const selectedUrgencyQuestions = urgencyKycQuestions.filter((question) =>
             selectedUrgencyKyc.some((selectedItem) => selectedItem.id === question.id)
         );
 

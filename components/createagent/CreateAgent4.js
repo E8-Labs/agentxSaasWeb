@@ -201,7 +201,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     const handleFindeNumbers = async (number) => {
         try {
             setFindeNumberLoader(true);
-            const ApiPath = `${Apis.findPhoneNumber}?contains=${number}`;
+            const ApiPath = `${Apis.findPhoneNumber}?areaCode=${number}`;
             let AuthToken = null;
             const LocalData = localStorage.getItem("User");
             if (LocalData) {
@@ -355,7 +355,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             formData.append("phoneNumber", "+14062040550");
             formData.append("callbackNumber", "+14062040550");
             formData.append("mainAgentId", MyAgentData.id);
-            formData.append("liveTransforNumber", "+14062040550");
+            formData.append("liveTransferNumber", "+14062040550");
 
             const ApiPath = Apis.asignPhoneNumber;
 
@@ -590,12 +590,13 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                         <div className='flex flex-row justify-center mt-6'>
                                                             <CircularProgress size={35} />
                                                         </div> :
-                                                        <div className='mt-6 max-h-[40vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                                                        <div className='mt-6 max-h-[40vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                                             {
                                                                 foundeNumbers.map((item, index) => (
-                                                                    <div key={index} className='h-[8vh] rounded-2xl flex flex-col justify-center p-4 mb-4'
+                                                                    <div key={index} className='h-[10vh] rounded-2xl flex flex-col justify-center p-4 mb-4'
                                                                         style={{
-                                                                            border: index === selectedPurchasedIndex ? "2px solid #7902DF" : "1px solid #00000040"
+                                                                            border: index === selectedPurchasedIndex ? "2px solid #7902DF" : "1px solid #00000020",
+                                                                            backgroundColor: index === selectedPurchasedIndex ? "#402FFF05" : ""
                                                                         }}
                                                                     >
                                                                         <button className='flex flex-row items-start justify-between outline-none' onClick={(e) => { handlePurchaseNumberClick(item, index) }}>
@@ -603,7 +604,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                                                 <div style={styles.findNumberTitle}>
                                                                                     {item.phoneNumber}
                                                                                 </div>
-                                                                                <div className='text-start' style={styles.findNumberDescription}>
+                                                                                <div className='text-start mt-2' style={styles.findNumberDescription}>
                                                                                     {item.locality} {item.region}
                                                                                 </div>
                                                                             </div>
@@ -636,7 +637,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                             </div> :
                                                             <div>
                                                                 {
-                                                                    selectedPurchasedIndex && (
+                                                                    selectedPurchasedNumber && (
                                                                         <button className='text-white bg-purple w-full h-[50px] rounded-lg' onClick={handlePurchaseNumber}>
                                                                             Proceed to Buy
                                                                         </button>

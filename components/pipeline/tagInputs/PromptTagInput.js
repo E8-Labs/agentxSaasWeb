@@ -150,6 +150,15 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
         setCursorPosition(cursorPos);
     };
 
+    function removeCharacterAt(string, position) {
+        return string.slice(0, position) + string.slice(position + 1);
+    }
+
+    function removeSubstring(string, start, end) {
+        // Concatenate the part before the range and the part after the range
+        return string.slice(0, start) + string.slice(end + 1);
+    }
+
     const handleKeyDown = (e) => {
         const input = textFieldRef.current;
 
@@ -161,6 +170,60 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
         if (e.key === "Backspace" || e.key === "Delete") {
             const textBeforeCursor = text.substring(0, cursorPos);
             const textAfterCursor = text.substring(cursorPos);
+            // console.log("Text Bef", text)
+            // console.log("Text Aft", textAfterCursor)
+            let CharDel = text.substring(cursorPos - 1, cursorPos);
+            console.log("Char Del", CharDel)
+            let t = text
+            //find the starting position of the text 
+            //if found } don't delete
+            //if found { then delete forward
+            let ShouldDelete = true
+            let indexOfStart = cursorPos;
+            let currentChar = CharDel;
+            while (currentChar != "{") {
+                indexOfStart -= 1
+                currentChar = t.substring(indexOfStart - 1, indexOfStart);
+                if(currentChar == "}"){
+                    ShouldDelete = false
+                }
+                console.log("Chat is ", currentChar)
+            }
+            console.log("Start Del from ", currentChar);
+            console.log("Start Del from Index ", indexOfStart);
+            if(ShouldDelete){
+                const firstOccurrenceEndChar = t.indexOf("}", indexOfStart); //}
+                const firstOccurrenceOfStartChar = t.indexOf("{", indexOfStart); //{
+
+                console.log("First pos of start Char ", firstOccurrenceOfStartChar)
+                console.log("First pos of end Char ", firstOccurrenceEndChar)
+                if(firstOccurrenceEndChar < firstOccurrenceOfStartChar){
+                    //delete all until endCharPos
+                    console.log("char delete falls bet {}")
+                    t = removeSubstring(t, indexOfStart - 1, firstOccurrenceEndChar)
+                    console.log("New Text ", t)
+                }
+                else{
+                    console.log("char delete doesn't fall bet {}")
+                    t = removeSubstring(t, indexOfStart - 1, cursorPos)
+                    console.log("New Text ", t)
+                }
+                e.preventDefault(); // Prevent the default Backspace or Delete action
+                
+                setText(t);
+
+                // Adjust cursor position
+                const newCursorPos = e.key === "Backspace" ? indexOfStart : indexOfStart;
+                setTimeout(() => {
+                    input.focus();
+                    input.setSelectionRange(newCursorPos, newCursorPos);
+                }, 0);
+                
+
+            }
+            return
+
+
 
             // Find all tags using a regular expression
             const tagRegex = /\{[^\}]*\}/g; // Matches {name}, {address}, etc.
@@ -228,7 +291,7 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
     return (
         <div style={{ position: "relative" }}>
             <textarea
-                className="outline-none border rounded-xl"
+                className="outline-none rounded-xl"
                 ref={textFieldRef}
                 rows="20"
                 cols="50"
@@ -237,7 +300,7 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
                 onKeyUp={handleKeyUp}
                 onKeyDown={handleKeyDown}
                 placeholder="Type here..."
-                style={{ fontSize: "16px", padding: "10px", width: "100%", fontWeight: "500", fontSize: 15, height: 500, resize: "none" }}
+                style={{ fontSize: "16px", padding: "15px", width: "100%", fontWeight: "500", fontSize: 15, height: 500, resize: "none", border: "1px solid #00000020" }}
             />
             {popupVisible && filteredOptions.length > 0 && (
                 <div

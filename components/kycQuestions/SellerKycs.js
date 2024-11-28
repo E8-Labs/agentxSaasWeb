@@ -89,6 +89,7 @@ const SellerKycs = ({ handleContinue }) => {
         } else if (selectedNeedKYC.length === 0 || selectedMotivationKyc.length === 0 || selectedUrgencyKyc.length === 0) {
             setShouldContinue(true);
         }
+
     }, [selectedNeedKYC, selectedMotivationKyc, selectedUrgencyKyc])
 
     //code to add kycQuestion in array
@@ -171,11 +172,11 @@ const SellerKycs = ({ handleContinue }) => {
             selectedNeedKYC.some((selectedItem) => selectedItem.id === question.id)
         );
 
-        const selectedMotivationQuestions = needKYCQuestions.filter((question) =>
+        const selectedMotivationQuestions = motivationKycQuestions.filter((question) =>
             selectedMotivationKyc.some((selectedItem) => selectedItem.id === question.id)
         );
 
-        const selectedUrgencyQuestions = needKYCQuestions.filter((question) =>
+        const selectedUrgencyQuestions = urgencyKycQuestions.filter((question) =>
             selectedUrgencyKyc.some((selectedItem) => selectedItem.id === question.id)
         );
 
@@ -198,6 +199,7 @@ const SellerKycs = ({ handleContinue }) => {
                 }
             )
         })
+        console.log("Kyc need", selectedNeedQuestions)
         selectedMotivationQuestions.map(item => {
             kycQuestions.push(
                 {
@@ -208,6 +210,7 @@ const SellerKycs = ({ handleContinue }) => {
                 }
             )
         })
+        console.log("Kyc moti", selectedMotivationQuestions)
         selectedUrgencyQuestions.map(item => {
             kycQuestions.push(
                 {
@@ -218,6 +221,7 @@ const SellerKycs = ({ handleContinue }) => {
                 }
             )
         })
+        console.log("Kyc urg", selectedUrgencyQuestions)
 
         setSellerKycLoader(true);
 
@@ -286,7 +290,7 @@ const SellerKycs = ({ handleContinue }) => {
             ApiData = data;
 
             console.log("APi data is :--", ApiData);
-
+            // return
             const response = await axios.post(ApiPath, ApiData, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken,
@@ -368,7 +372,7 @@ const SellerKycs = ({ handleContinue }) => {
                         <div className='flex flex-row items-center gap-10 mt-10'>
                             {
                                 KYCQuestionType.map((item, index) => (
-                                    <button key={item.id} style={{ ...styles.inputStyle, color: item.id === toggleClick ? "#402FFF" : "" }} onClick={(e) => { handleToggleClick(item.id) }}>
+                                    <button key={item.id} style={{ ...styles.inputStyle, color: item.id === toggleClick ? "#7902DF" : "" }} onClick={(e) => { handleToggleClick(item.id) }}>
                                         {item.title}
                                     </button>
                                 ))
@@ -395,13 +399,13 @@ const SellerKycs = ({ handleContinue }) => {
                         {
                             toggleClick === 1 ?
                                 (
-                                    <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                                    <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                         {
                                             needKYCQuestions.map((item, index) => (
                                                 <button
                                                     className='mb-4 border rounded-xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full'
                                                     style={{
-                                                        border: selectedNeedKYC.some(selectedItem => selectedItem.id === item.id) ? "2px solid #402FFF" : ""
+                                                        border: selectedNeedKYC.some(selectedItem => selectedItem.id === item.id) ? "2px solid #7902DF" : ""
                                                     }}
                                                     key={index}
                                                     onClick={() => handleSelectNeedKYC(item)}
@@ -423,7 +427,7 @@ const SellerKycs = ({ handleContinue }) => {
                                 ) :
                                 toggleClick === 2 ?
                                     (
-                                        <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                                        <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                             {
                                                 motivationKycQuestions.map((item, index) => (
                                                     <button
@@ -431,7 +435,7 @@ const SellerKycs = ({ handleContinue }) => {
                                                         key={index}
                                                         onClick={() => handleSelectMotivationKYC(item)}
                                                         style={{
-                                                            border: selectedMotivationKyc.some(selectedItem => selectedItem.id === item.id) ? "2px solid #402FFF" : ""
+                                                            border: selectedMotivationKyc.some(selectedItem => selectedItem.id === item.id) ? "2px solid #7902DF" : ""
                                                         }}>
                                                         <div style={{ width: "90%" }} className='text-start'>
                                                             {item.question}
@@ -450,14 +454,14 @@ const SellerKycs = ({ handleContinue }) => {
                                     ) :
                                     toggleClick === 3 ?
                                         (
-                                            <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                                            <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                                 {
                                                     urgencyKycQuestions.map((item, index) => (
                                                         <button
                                                             className='mb-4 border rounded-xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full' key={index}
                                                             onClick={() => handleUrgencyKYC(item)}
                                                             style={{
-                                                                border: selectedUrgencyKyc.some(selectedItem => selectedItem.id === item.id) ? "2px solid #402FFf" : ""
+                                                                border: selectedUrgencyKyc.some(selectedItem => selectedItem.id === item.id) ? "2px solid #7902DF" : ""
                                                             }}>
                                                             <div style={{ width: "90%" }} className='text-start'>
                                                                 {item.question}
@@ -492,7 +496,9 @@ const SellerKycs = ({ handleContinue }) => {
                             ))}
                         </div> */}
 
-                        <button className='mt-2 w-10/12 md:w-6/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
+                        <button
+                            className='mt-2 w-10/12 md:w-6/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto'
+                            style={{ fontWeight: "700", fontSize: 15, scrollbarWidth: "none" }} onClick={handleAddKyc}>
                             Add Question
                         </button>
                         {/* Modal to add KYC */}
@@ -546,7 +552,9 @@ const SellerKycs = ({ handleContinue }) => {
                                             What are possible answers leads will give to this question?
                                         </div>
 
-                                        <div className='max-h-[30vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple mt-4'>
+                                        <div className='max-h-[30vh] overflow-auto mt-4' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                                            style={{ scrollbarWidth: "none" }}
+                                        >
                                             {inputs.map((input, index) => (
                                                 <div key={input.id} className='w-full flex flex-row items-center gap-4 mt-4'>
                                                     <input

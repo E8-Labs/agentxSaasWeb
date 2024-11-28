@@ -101,7 +101,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
         {
             id: 8,
             title: "Tax Agent",
-            icon: "/usertype/taxagent.png"
+            icon: "/usertype/tAxagent.png"
         },
     ];
 
@@ -141,7 +141,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
                             Scale your salesforce. Handle any business use case. With AgentX,<br></br>you can quickly build an AI agent in minutes.
                         </div>
 
-                        <div className='flex flex-wrap md:w-11/12 sm:w-3/6 lg:w-7/12 mt-8 h-[50vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                        <div className='flex flex-wrap md:w-11/12 sm:w-3/6 lg:w-7/12 mt-8 h-[50vh] overflow-auto' style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "none" }}>
                             {
                                 userType.map((item, index) => (
                                     <div key={item.id} className='flex w-4/12 p-2'>

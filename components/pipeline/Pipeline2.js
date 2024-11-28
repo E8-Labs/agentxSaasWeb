@@ -92,6 +92,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     const [filteredTags, setFilteredTags] = useState(tags); // Filtered dropdown items
     const greetingInputRef = useRef(null); // Reference to the input element
 
+
     useEffect(() => {
         ////console.log("Setting scroll offset")
         const handleScroll = () => {
@@ -331,15 +332,36 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         setSettingToggleClick(prevId => (prevId === id ? null : id));
     }
 
-    //code for getting tag value from input fields
-    // const handleGreetingTag = (value) => {
-    //     ////console.log("Greeting value is :--", value);
-    //     setGreetingTagInput(value);
-    // }
+    // //code for getting the uniques columns
+    // const getUniqueColumns = async () => {
+    //     try {
+    //         const ApiPath = Apis.getUniqueColumns;
 
-    // const handleCallScriptTag = (value) => {
-    //     ////console.log("Script tag value is :--", value);
-    //     setScriptTagInput(value);
+    //         let AuthToken = null;
+    //         const localData = localStorage.getItem("User");
+    //         if (localData) {
+    //             const userDetails = JSON.parse(localData);
+    //             AuthToken = userDetails.token;
+    //         }
+
+    //         console.log("Authtoken is :", AuthToken);
+
+    //         console.log("Unique column api path is :", ApiPath);
+
+    //         const response = await axios.get(ApiPath, {
+    //             headers: {
+    //                 "Authorization": "Bearer " + AuthToken,
+    //                 "Content-Type": "application/json"
+    //             }
+    //         });
+
+    //         if (response) {
+    //             console.log("Response of get unique columns is :", response.data);
+    //         }
+
+    //     } catch (error) {
+    //         console.error("Error occured in getting unique columns is :", error);
+    //     }
     // }
 
 
@@ -585,7 +607,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                     <Image src={"/assets/lightBulb.png"} alt='*' height={24} width={24} />  Editing Tips
                                 </div>
                                 <div style={styles.inputStyle}>
-                                    You can use these variables: <span className='text-purple'>{`{name}`}, {`{column names}`}, {`{email}`},{`{address}`},{`{kyc}`} </span>
+                                    You can use these variables: <span className='text-purple'>{`{first name}`}, {`{email}`}, {`{address}`},{`{phone}`},{`{kyc}`} </span>
                                 </div>
                             </div>
                             <div>

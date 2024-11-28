@@ -25,7 +25,8 @@ const Apis = {
     CheckPhone: `${BasePath}api/user/checkPhoneNumber`,
     getCallLogs: `${BasePath}api/leads/callLogs`,
     getSheduledCallLogs: `${BasePath}api/pipeline/getScheduledCalls`,
-    pauseAgent: `${BasePath}api/pipeline/pauseAgentCadence`
+    pauseAgent: `${BasePath}api/pipeline/pauseAgentCadence`,
+    getUniqueColumns: `${BasePath}api/leads/getUniqueColumns`
 
 }
 

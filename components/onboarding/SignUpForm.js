@@ -380,28 +380,28 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
             <div className='mt-6 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }}>
               Your Contact Information
             </div>
-            <div className='mt-8 w-6/12 flex flex-col max-h-[50vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+            <div className='mt-8 w-6/12 flex flex-col max-h-[50vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2' style={{ scrollbarWidth: "none" }}>
 
               <div style={styles.headingStyle}>
                 {`What's your full name`}
               </div>
               <input
                 placeholder='Name'
-                className='border border-[#00000010] p-3 outline-none mx-2'
+                className='border border-[#00000010] p-3 outline-none '
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userName}
                 onChange={(e) => {
                   const input = e.target.value;
-                  // const formattedName = input
-                  //   .split(' ')
-                  //   .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                  //   .join(' ');
+                  const formattedName = input
+                    .split(' ')
+                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
 
-                  const words = input.split(' ');
-                  const formattedName =
-                    words.length > 1
-                      ? words[0].toLowerCase() + ' ' + words.slice(1).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
-                      : words[0].toLowerCase();
+                  // const words = input.split(' ');
+                  // const formattedName =
+                  //   words.length > 1
+                  //     ? words[0].toLowerCase() + ' ' + words.slice(1).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+                  //     : words[0].toLowerCase();
 
                   setUserName(formattedName);
                 }}
@@ -435,7 +435,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
 
               <input
                 placeholder='Email address'
-                className='border border-[#00000010] rounded p-3 outline-none mx-2'
+                className='border border-[#00000010] rounded p-3 outline-none '
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userEmail}
                 onChange={(e) => {
@@ -593,7 +593,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
               </div>
               <input
                 placeholder='Your territory  '
-                className='border border-[#00000010] rounded p-3 outline-none mx-2'
+                className='border border-[#00000010] rounded p-3 outline-none '
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userFarm}
                 onChange={(e) => { setUserFarm(e.target.value) }}
@@ -604,7 +604,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
               </div>
               <input
                 placeholder='Brokerage'
-                className='border border-[#00000010] rounded p-3 outline-none mx-2'
+                className='border border-[#00000010] rounded p-3 outline-none '
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userBrokage}
                 onChange={(e) => { setUserBrokage(e.target.value) }}
@@ -615,7 +615,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
               </div>
               <input
                 placeholder='Value'
-                className='border border-[#00000010] rounded p-3 outline-none mx-2 mb-2'
+                className='border border-[#00000010] rounded p-3 outline-none  mb-2'
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userTransaction}
                 onChange={(e) => { setUserTransaction(e.target.value) }}

@@ -192,7 +192,7 @@ const CreateAgentVoice = ({ handleBack }) => {
                                                     {item.name}
                                                 </div>
                                             </div>
-                                            <div className='flex flex-row items-center gap-2'>
+                                            <div className='flex flex-row items-center gap-4'>
                                                 <div>
                                                     <Image src={"/assets/voice.png"} height={15} width={23} alt='*' />
                                                 </div>

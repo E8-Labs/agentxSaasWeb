@@ -715,7 +715,7 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                 />
                                                                             </div>
                                                                             <div
-                                                                                className="ms-4"
+                                                                                className="ms-4 mt-2"
                                                                                 style={styles.inputStyle}
                                                                             >
                                                                                 , then <span style={{ fontWeight: "600" }}>Make Call</span>
@@ -723,17 +723,17 @@ const Pipeline1 = ({ handleContinue }) => {
 
                                                                             {rowIndex > 0 && (
                                                                                 <button
-                                                                                    className="ms-2"
+                                                                                    className="ms-2 mt-2"
                                                                                     onClick={() =>
                                                                                         removeRow(index, row.id)
                                                                                     }
                                                                                 >
                                                                                     <Image
                                                                                         src={
-                                                                                            "/assets/crossIcon.png"
+                                                                                            "/assets/blackBgCross.png"
                                                                                         }
-                                                                                        height={45}
-                                                                                        width={45}
+                                                                                        height={20}
+                                                                                        width={20}
                                                                                         alt="*"
                                                                                     />
                                                                                 </button>

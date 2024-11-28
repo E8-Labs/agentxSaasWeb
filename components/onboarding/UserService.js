@@ -117,7 +117,7 @@ const UserService = ({ handleContinue, DefaultData, handleBack }) => {
                                             <div className='border bg-white flex flex-row items-start w-full h-[126px] rounded-2xl pt-3'
                                                 style={{
                                                     border: serviceId.includes(item.id) ? "2px solid #7902DF" : "", scrollbarWidth: "none",
-                                                    backgroundColor: serviceId.includes(item.id) ? "#7902DF10" : ""
+                                                    backgroundColor: serviceId.includes(item.id) ? "#402FFF05" : ""
                                                 }}>
                                                 <div className='flex flex-row items-start justify-between px-4 w-full py-2'>
                                                     <div className='text-start w-[60%]'>

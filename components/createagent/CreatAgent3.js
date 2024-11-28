@@ -12,6 +12,7 @@ const CreatAgent3 = ({ handleContinue }) => {
 
     const router = useRouter();
     const [togglePlan, setTogglePlan] = useState(false);
+    const [selectedPlan, setSelectedPlan] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState(false);
     const [addPaymentPopUp, setAddPaymentPopUp] = useState(false);
     const [addPaymentSuccessPopUp, setAddPaymentSuccessPopUp] = useState(false);
@@ -24,12 +25,15 @@ const CreatAgent3 = ({ handleContinue }) => {
         }
     }, [togglePlan, agreeTerms])
 
-    const handleTogglePlanClick = (id) => {
-        if (paymentMethod) {
-            setTogglePlan(prevId => (prevId === id ? null : id));
+    const handleTogglePlanClick = (item) => {
+        if (togglePlan) {
+            setTogglePlan(prevId => (prevId === item.id ? null : item.id));
+            setSelectedPlan(prevId => (prevId === item ? null : item));
         } else {
+            setSelectedPlan(prevId => (prevId === item ? null : item));
             setAddPaymentPopUp(true);
         }
+        // setTogglePlan(prevId => (prevId === id ? null : id));
     }
 
     const handleClose = () => {
@@ -126,7 +130,7 @@ const CreatAgent3 = ({ handleContinue }) => {
             position: 'relative',
             // padding: '10px',
             borderRadius: '10px',
-            backgroundColor: '#f9f9ff',
+            // backgroundColor: '#f9f9ff',
             display: 'inline-block',
             width: '100%',
         },
@@ -156,7 +160,7 @@ const CreatAgent3 = ({ handleContinue }) => {
             textDecoration: 'line-through',
             color: '#7902DF65',
             fontSize: '16px',
-            fontWeight: "500"
+            fontWeight: "600"
         },
         discountedPrice: {
             color: '#000000',
@@ -217,14 +221,19 @@ const CreatAgent3 = ({ handleContinue }) => {
 
                             {
                                 plans.map((item, index) => (
-                                    <button key={item.id} className='w-5/12 mt-4' onClick={(e) => handleTogglePlanClick(item.id)}>
-                                        <div className='px-4 py-1 pb-4' style={{ ...styles.pricingBox, border: item.id === togglePlan ? '2px solid #7902DF' : '1px solid #15151540', }}>
+                                    <button key={item.id} className='w-5/12 mt-4' onClick={(e) => handleTogglePlanClick(item)}>
+                                        <div className='px-4 py-1 pb-4'
+                                            style={{
+                                                ...styles.pricingBox,
+                                                border: item.id === togglePlan ? '2px solid #7902DF' : '1px solid #15151540',
+                                                backgroundColor: item.id === togglePlan ? "#402FFF05" : ""
+                                            }}>
                                             <div style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}></div>
                                             <span style={styles.labelText}>
                                                 {item.planStatus}
                                             </span>
-                                            <div className='flex flex-row items-start gap-1' style={styles.content}>
-                                                <div className='mt-2'>
+                                            <div className='flex flex-row items-start gap-3' style={styles.content}>
+                                                <div className='mt-1'>
                                                     <div>
                                                         {
                                                             item.id === togglePlan ?
@@ -242,8 +251,8 @@ const CreatAgent3 = ({ handleContinue }) => {
                                                             {item.details}
                                                         </div>
                                                         <div className='flex flex-row items-center'>
-                                                            <div style={styles.originalPrice}>$45</div>
-                                                            <div style={styles.discountedPrice}>$0</div>
+                                                            <div style={styles.originalPrice}>${item.originalPrice}</div>
+                                                            <div style={styles.discountedPrice}>${item.discountPrice}</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -322,11 +331,18 @@ const CreatAgent3 = ({ handleContinue }) => {
                                             Start for Free. Then Pay as you go!
                                         </div>
 
-                                        <div className='text-center mt-4' style={styles.headingStyle}>
-                                            Payment starts after your free 30 mins
-                                        </div>
+                                        {
+                                            selectedPlan?.id > 1 ?
+                                                <div className='text-center mt-4' style={styles.headingStyle}>
+                                                    Your minutes will renew after using {selectedPlan?.mints}
+                                                </div> :
+                                                <div className='text-center mt-4' style={styles.headingStyle}>
+                                                    Your minutes will renew after using {selectedPlan?.mints}
+                                                </div>
+                                        }
 
-                                        <div className='mt-4' style={styles.giftTextStyle}>
+
+                                        <div className='mt-4 text-[#4F5B76]' style={styles.giftTextStyle}>
                                             Card number
                                         </div>
                                         <input className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='1212 1212 1212 1212' maxLength={16}
@@ -336,7 +352,7 @@ const CreatAgent3 = ({ handleContinue }) => {
 
                                         <div className='flex flex-row gap-2 mt-4'>
                                             <div className='w-6/12'>
-                                                <div style={styles.giftTextStyle}>
+                                                <div className='text-[#4F5B76]' style={styles.giftTextStyle}>
                                                     Expiry
                                                 </div>
                                                 <input
@@ -346,7 +362,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                                     }} />
                                             </div>
                                             <div className='w-6/12'>
-                                                <div style={styles.giftTextStyle}>
+                                                <div className='text-[#4F5B76]' style={styles.giftTextStyle}>
                                                     Card number
                                                 </div>
                                                 <input className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='CVC' maxLength={3}
@@ -356,7 +372,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                             </div>
                                         </div>
 
-                                        <div className='mt-4' style={styles.giftTextStyle}>
+                                        <div className='mt-4 text-[#4F5B76]' style={styles.giftTextStyle}>
                                             Postal Code
                                         </div>
                                         <input className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='48530' maxLength={5}
@@ -364,7 +380,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                                 e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
                                             }} />
 
-                                        <div className='mt-4' style={styles.giftTextStyle}>
+                                        <div className='mt-4 text-[#4F5B76]' style={styles.giftTextStyle}>
                                             AgentX Code (optional)
                                         </div>
                                         <input className='outline-none border rounded-lg w-full p-2 mt-2'
