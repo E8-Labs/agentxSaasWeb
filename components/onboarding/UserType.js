@@ -101,7 +101,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
         {
             id: 8,
             title: "Tax Agent",
-            icon: "/usertype/tAxagent.png"
+            icon: "/usertype/taxAgent.png"
         },
     ];
 

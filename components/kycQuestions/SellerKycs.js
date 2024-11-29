@@ -48,17 +48,17 @@ const SellerKycs = ({ handleContinue }) => {
     const [motivationKycQuestions, setMotivationKycQuestions] = useState([
         {
             id: 1,
-            question: "Why is now the right time?",
+            question: "What's your primary motivation for selling now rather than waiting?", //Why is now the right time?
             sampleAnswers: []
         },
         {
             id: 2,
-            question: "Are you looking to downsize or upsize?",
+            question: "How important is the selling price to you versus the speed of the sale?", //Are you looking to downsize or upsize?
             sampleAnswers: []
         },
         {
             id: 3,
-            question: "Are you relocating for work?",
+            question: "Are there any specific factors that would influence your decision to accept an offer or reject it?", //Are you relocating for work?
             sampleAnswers: []
         },
     ]);
@@ -66,17 +66,17 @@ const SellerKycs = ({ handleContinue }) => {
     const [urgencyKycQuestions, setUrgencyKycQuestions] = useState([
         {
             id: 1,
-            question: "When do you expect to move into your new place?",
+            question: "When do you hope to have your home sold?", //When do you expect to move into your new place?
             sampleAnswers: []
         },
         {
             id: 2,
-            question: "When do you plan on buying a home?",
+            question: "Are there any specific events or dates driving this timeline (e.g., starting a new job, school for kids, purchasing another property)?", //When do you plan on buying a home?
             sampleAnswers: []
         },
         {
             id: 3,
-            question: "When do you plan to move into your new home?",
+            question: "How would it impact you if the sale took longer than anticipated?", //When do you plan to move into your new home?
             sampleAnswers: []
         },
     ]);
@@ -93,6 +93,26 @@ const SellerKycs = ({ handleContinue }) => {
     }, [selectedNeedKYC, selectedMotivationKyc, selectedUrgencyKyc])
 
     //code to add kycQuestion in array
+    // const handleAddKycQuestion = () => {
+    //     const sampleAnswers = inputs.map(input => input.value);
+    //     const newKYCQuestion = {
+    //         id: needKYCQuestions.length + 1,
+    //         question: newQuestion,
+    //         sampleAnswers: sampleAnswers
+    //     };
+    //     if (toggleClick === 1) {
+    //         setNeedKYCQuestions([...needKYCQuestions, newKYCQuestion]);
+    //     } else if (toggleClick === 2) {
+    //         setMotivationKycQuestions([...needKYCQuestions, newKYCQuestion]);
+    //     } else if (toggleClick === 3) {
+    //         setUrgencyKycQuestions([...needKYCQuestions, newKYCQuestion]);
+    //     }
+    //     setAddKYCQuestion(false);
+    //     setNewQuestion(''); // Reset the new question field
+    //     setInputs([{ id: 1, value: '' }]); // Reset the inputs
+    // };
+
+    // Function to handle adding a new KYC question
     const handleAddKycQuestion = () => {
         const sampleAnswers = inputs.map(input => input.value);
         const newKYCQuestion = {
@@ -100,17 +120,33 @@ const SellerKycs = ({ handleContinue }) => {
             question: newQuestion,
             sampleAnswers: sampleAnswers
         };
+
         if (toggleClick === 1) {
-            setNeedKYCQuestions([...needKYCQuestions, newKYCQuestion]);
+            // Add to the "Needs" questions and auto-select the new question
+            setNeedKYCQuestions(prevQuestions => {
+                const updatedQuestions = [...prevQuestions, newKYCQuestion];
+                setSelectedNeedKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+                return updatedQuestions;
+            });
         } else if (toggleClick === 2) {
-            setMotivationKycQuestions([...needKYCQuestions, newKYCQuestion]);
+            setMotivationKycQuestions(prevQuestions => {
+                const updatedQuestions = [...prevQuestions, newKYCQuestion];
+                setSelectedMotivationKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+                return updatedQuestions;
+            });
         } else if (toggleClick === 3) {
-            setUrgencyKycQuestions([...needKYCQuestions, newKYCQuestion]);
+            setUrgencyKycQuestions(prevQuestions => {
+                const updatedQuestions = [...prevQuestions, newKYCQuestion];
+                setSelectedUrgencyKyc(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+                return updatedQuestions;
+            });
         }
+
         setAddKYCQuestion(false);
         setNewQuestion(''); // Reset the new question field
         setInputs([{ id: 1, value: '' }]); // Reset the inputs
     };
+
 
     // Handle change in input field
     const handleInputChange = (id, value) => {
@@ -290,7 +326,7 @@ const SellerKycs = ({ handleContinue }) => {
             ApiData = data;
 
             console.log("APi data is :--", ApiData);
-            // return
+            return
             const response = await axios.post(ApiPath, ApiData, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken,
@@ -357,7 +393,10 @@ const SellerKycs = ({ handleContinue }) => {
             <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col justify-between'>
                 <div>
                     {/* header */}
-                    <Header skipSellerKYC={true} />
+                    <Header skipSellerKYC={true}
+                        selectedSellerNeedKYC={selectedNeedKYC}
+                        selectedSellerMotivationKyc={selectedMotivationKyc}
+                        selectedSellerUrgencyKyc={selectedUrgencyKyc} />
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full'>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
@@ -403,9 +442,10 @@ const SellerKycs = ({ handleContinue }) => {
                                         {
                                             needKYCQuestions.map((item, index) => (
                                                 <button
-                                                    className='mb-4 border rounded-xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full'
+                                                    className='mb-4 border rounded-3xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full'
                                                     style={{
-                                                        border: selectedNeedKYC.some(selectedItem => selectedItem.id === item.id) ? "2px solid #7902DF" : ""
+                                                        border: selectedNeedKYC.some(selectedItem => selectedItem.id === item.id) ? "2px solid #7902DF" : "",
+                                                        backgroundColor: selectedNeedKYC.some(selectedItem => selectedItem.id === item.id) ? "#402FFF15" : "",
                                                     }}
                                                     key={index}
                                                     onClick={() => handleSelectNeedKYC(item)}
@@ -431,11 +471,12 @@ const SellerKycs = ({ handleContinue }) => {
                                             {
                                                 motivationKycQuestions.map((item, index) => (
                                                     <button
-                                                        className='mb-4 border rounded-xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full'
+                                                        className='mb-4 border rounded-3xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full'
                                                         key={index}
                                                         onClick={() => handleSelectMotivationKYC(item)}
                                                         style={{
-                                                            border: selectedMotivationKyc.some(selectedItem => selectedItem.id === item.id) ? "2px solid #7902DF" : ""
+                                                            border: selectedMotivationKyc.some(selectedItem => selectedItem.id === item.id) ? "2px solid #7902DF" : "",
+                                                            backgroundColor: selectedMotivationKyc.some(selectedItem => selectedItem.id === item.id) ? "#402FFF15" : ""
                                                         }}>
                                                         <div style={{ width: "90%" }} className='text-start'>
                                                             {item.question}
@@ -458,10 +499,11 @@ const SellerKycs = ({ handleContinue }) => {
                                                 {
                                                     urgencyKycQuestions.map((item, index) => (
                                                         <button
-                                                            className='mb-4 border rounded-xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full' key={index}
+                                                            className='mb-4 border rounded-3xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full' key={index}
                                                             onClick={() => handleUrgencyKYC(item)}
                                                             style={{
-                                                                border: selectedUrgencyKyc.some(selectedItem => selectedItem.id === item.id) ? "2px solid #7902DF" : ""
+                                                                border: selectedUrgencyKyc.some(selectedItem => selectedItem.id === item.id) ? "2px solid #7902DF" : "",
+                                                                backgroundColor: selectedUrgencyKyc.some(selectedItem => selectedItem.id === item.id) ? "#402FFF15" : ""
                                                             }}>
                                                             <div style={{ width: "90%" }} className='text-start'>
                                                                 {item.question}
@@ -497,7 +539,7 @@ const SellerKycs = ({ handleContinue }) => {
                         </div> */}
 
                         <button
-                            className='mt-2 w-10/12 md:w-6/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto'
+                            className='mt-2 w-10/12 md:w-6/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto text-purple'
                             style={{ fontWeight: "700", fontSize: 15, scrollbarWidth: "none" }} onClick={handleAddKyc}>
                             Add Question
                         </button>
@@ -517,7 +559,7 @@ const SellerKycs = ({ handleContinue }) => {
                             <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.AddNewKYCQuestionModal}>
                                 <div className="flex flex-row justify-center w-full">
                                     <div
-                                        className="sm:w-7/12 w-full"
+                                        className="sm:w-9/12 w-full"
                                         style={{
                                             backgroundColor: "#ffffff",
                                             padding: 20,
@@ -530,7 +572,7 @@ const SellerKycs = ({ handleContinue }) => {
                                             </button>
                                         </div>
                                         <div className='text-center mt-2' style={{ fontWeight: "700", fontSize: 24 }}>
-                                            Add Your Question
+                                            Add New Question
                                         </div>
                                         <div className='text-[#00000060]' style={{ fontWeight: "600", fontSize: 13 }}>
                                             New Question

@@ -26,13 +26,16 @@ const CreatAgent3 = ({ handleContinue }) => {
     }, [togglePlan, agreeTerms])
 
     const handleTogglePlanClick = (item) => {
-        if (togglePlan) {
-            setTogglePlan(prevId => (prevId === item.id ? null : item.id));
-            setSelectedPlan(prevId => (prevId === item ? null : item));
-        } else {
-            setSelectedPlan(prevId => (prevId === item ? null : item));
-            setAddPaymentPopUp(true);
-        }
+        // if (togglePlan) {
+        //     setTogglePlan(prevId => (prevId === item.id ? null : item.id));
+        //     setSelectedPlan(prevId => (prevId === item ? null : item));
+        // } else {
+        //     setSelectedPlan(prevId => (prevId === item ? null : item));
+        //     setAddPaymentPopUp(true);
+        // }
+        // setTogglePlan(prevId => (prevId === item.id ? null : item.id));
+        setTogglePlan(item.id);
+        setSelectedPlan(prevId => (prevId === item ? null : item));
         // setTogglePlan(prevId => (prevId === id ? null : id));
     }
 
@@ -44,7 +47,7 @@ const CreatAgent3 = ({ handleContinue }) => {
         }
     }
 
-    const handleToggleClick = () => {
+    const handleToggleTermsClick = () => {
         setAgreeTerms(!agreeTerms)
     }
 
@@ -159,13 +162,13 @@ const CreatAgent3 = ({ handleContinue }) => {
         originalPrice: {
             textDecoration: 'line-through',
             color: '#7902DF65',
-            fontSize: '16px',
+            fontSize: 18,
             fontWeight: "600"
         },
         discountedPrice: {
             color: '#000000',
             fontWeight: 'bold',
-            fontSize: '18px',
+            fontSize: 18,
             marginLeft: '10px',
         },
         paymentModal: {
@@ -197,16 +200,18 @@ const CreatAgent3 = ({ handleContinue }) => {
                             Start for free, then pay as you go
                         </div>
 
-                        <div className='h-[52vh] overflow-auto w-full flex flex-col items-center' style={{ scrollbarWidth: "none" }}>
+                        <div className='h-[58vh] overflow-auto w-full flex flex-col items-center' style={{ scrollbarWidth: "none" }}>
                             <div className='flex flex-wrap w-4/12'>
                                 {
                                     facilities.map((item, index) => (
-                                        <div key={item.id} className='flex flex-row items-center gap-2 w-1/2 mt-4'>
-                                            <div>
-                                                <Image src={"/assets/tickMark.png"} height={14} width={17} alt='*' />
-                                            </div>
-                                            <div style={{ fontWeight: '500', fontSize: 13 }}>
-                                                {item.title}
+                                        <div key={item.id} className='flex flex-row items-center justify-center gap-2 w-1/2 mt-4'>
+                                            <div className='flex flex-row items-center gap-2 justify-start' style={{ width: "auto" }}>
+                                                <div>
+                                                    <Image src={"/assets/tickMark.png"} height={14} width={17} alt='*' />
+                                                </div>
+                                                <div style={{ fontWeight: '500', fontSize: 13 }}>
+                                                    {item.title}
+                                                </div>
                                             </div>
                                         </div>
                                     ))
@@ -221,11 +226,11 @@ const CreatAgent3 = ({ handleContinue }) => {
 
                             {
                                 plans.map((item, index) => (
-                                    <button key={item.id} className='w-5/12 mt-4' onClick={(e) => handleTogglePlanClick(item)}>
+                                    <button key={item.id} className='w-6/12 mt-4' onClick={(e) => handleTogglePlanClick(item)}>
                                         <div className='px-4 py-1 pb-4'
                                             style={{
                                                 ...styles.pricingBox,
-                                                border: item.id === togglePlan ? '2px solid #7902DF' : '1px solid #15151540',
+                                                border: item.id === togglePlan ? '2px solid #7902DF' : '1px solid #15151520',
                                                 backgroundColor: item.id === togglePlan ? "#402FFF05" : ""
                                             }}>
                                             <div style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}></div>
@@ -263,7 +268,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                             }
 
                             <div
-                                className='w-5/12 mt-4 flex flex-row items-start gap-2'
+                                className='w-6/12 mt-4 flex flex-row items-start gap-2'
                                 style={{ borderRadius: "7px", border: "1px solid #15151540", padding: "15px" }}>
                                 <Image src={"/assets/diamond.png"} className='mt-2' height={18} width={20} alt='*' />
                                 <div>
@@ -282,8 +287,8 @@ const CreatAgent3 = ({ handleContinue }) => {
                             </div>
                         </div>
 
-                        <div className='flex flex-row items-center gap-4 justify-start w-5/12 mt-6'>
-                            <button onClick={handleToggleClick}>
+                        <div className='flex flex-row items-center gap-4 justify-start w-6/12 mt-6'>
+                            <button onClick={handleToggleTermsClick}>
                                 {
                                     agreeTerms ?
                                         <div className='bg-purple flex flex-row items-center justify-center rounded' style={{ height: "24px", width: "24px" }}>
@@ -294,8 +299,37 @@ const CreatAgent3 = ({ handleContinue }) => {
                                 }
                             </button>
                             <div style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}>
-                                I agree to the terms and conditions.
+                                I agree to the <span className='underline'>Terms & Conditions.</span>
                             </div>
+                        </div>
+
+                        <div className='w-full flex-col items-center flex gap-4' style={{ position: "absolute", bottom: 50, }}>
+
+                            {
+                                selectedPlan && (
+                                    <div className='w-full flex-col items-center flex'>
+                                        {
+                                            selectedPlan?.id > 1 ? (
+                                                <button
+                                                    className='bg-purple w-5/12 rounded-lg text-white h-[50px]'
+                                                    style={{ fontSize: 16, fontWeight: "600" }}
+                                                    onClick={() => { setAddPaymentPopUp(true) }}
+                                                >
+                                                    Continue
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    className='bg-purple w-5/12 rounded-lg text-white h-[50px]'
+                                                    style={{ fontSize: 16, fontWeight: "600" }}
+                                                    onClick={() => { setAddPaymentPopUp(true) }}
+                                                >
+                                                    Claim 30 mins
+                                                </button>
+                                            )
+                                        }
+                                    </div>
+                                )
+                            }
                         </div>
 
 
@@ -334,10 +368,10 @@ const CreatAgent3 = ({ handleContinue }) => {
                                         {
                                             selectedPlan?.id > 1 ?
                                                 <div className='text-center mt-4' style={styles.headingStyle}>
-                                                    Your minutes will renew after using {selectedPlan?.mints}
+                                                    Your minutes will renew after using {selectedPlan?.mints} mins
                                                 </div> :
                                                 <div className='text-center mt-4' style={styles.headingStyle}>
-                                                    Your minutes will renew after using {selectedPlan?.mints}
+                                                    Payment starts after your free {selectedPlan?.mints} mins
                                                 </div>
                                         }
 
@@ -435,9 +469,17 @@ const CreatAgent3 = ({ handleContinue }) => {
                                         <div className='mt-4 flex flex-row justify-center w-full'>
                                             <Image src={"/assets/successTick.png"} height={85} width={85} alt='*' />
                                         </div>
-                                        <div className='text-center mt-4' style={{ fontWeight: "700", fontSize: 24 }}>
-                                            Payment Successful
-                                        </div>
+                                        {
+                                            selectedPlan?.id > 1 ? (
+                                                <div className='text-center mt-4' style={{ fontWeight: "700", fontSize: 24 }}>
+                                                    Payment Successfully Added
+                                                </div>
+                                            ) : (
+                                                <div className='text-center mt-4' style={{ fontWeight: "700", fontSize: 24 }}>
+                                                    Payment Successful
+                                                </div>
+                                            )
+                                        }
 
                                         <button
                                             className='bg-purple text-white w-full rounded-xl mt-6 mb-6' style={{ ...styles.headingStyle, height: "50px", }} onClick={handleContinue}>
@@ -452,18 +494,6 @@ const CreatAgent3 = ({ handleContinue }) => {
                         </Modal>
 
                     </div>
-                </div>
-
-
-                <div className='h-[10vh] flex flex-row justify-center items-end'>
-                    <button
-                        disabled={shouldContinue}
-                        className='w-5/12 bg-purple rounded-lg text-white h-[50px] mt-6'
-                        style={{ fontSize: 16, fontWeight: "600", backgroundColor: shouldContinue && "#00000050" }}
-                        onClick={handleContinue}
-                    >
-                        Claim 30 mins
-                    </button>
                 </div>
 
 

@@ -19,10 +19,11 @@ const Header = ({ skipSellerKYC, buyerKYC }) => {
                     {
                         skipSellerKYC && (
                             <button
-                                className='underline text-purple h-full me-8'
+                                className='underline h-full me-8'
                                 style={{
                                     fontSize: 15,
-                                    fontWeight: "600"
+                                    fontWeight: "600",
+                                    color: "#00000060"
                                 }}
                                 onClick={() => { router.push("/buyerskycquestions"); }}>
                                 Skip
@@ -32,10 +33,11 @@ const Header = ({ skipSellerKYC, buyerKYC }) => {
                     {
                         buyerKYC && (
                             <button
-                                className='underline text-purple h-full me-8'
+                                className='underline h-full me-8'
                                 style={{
                                     fontSize: 15,
-                                    fontWeight: "600"
+                                    fontWeight: "600",
+                                    color: "#00000060"
                                 }} onClick={() => { router.push("/pipeline"); }}>
                                 Skip
                             </button>

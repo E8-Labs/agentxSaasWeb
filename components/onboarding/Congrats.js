@@ -24,10 +24,10 @@ const Congrats = () => {
                     <div className='mt-8 gap-4 flex flex-col max-h-[50vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                         <Image src={"/assets/congrats.png"} style={{ height: "318px", width: "466px", resize: "contain" }} height={318} width={466} alt='*' />
                     </div>
-                    <div className='mt-1 text-[#15151580]' style={{ fontWeight: "600", fontSize: 15 }}>
+                    <div className='mt-8 text-[#15151580]' style={{ fontWeight: "600", fontSize: 15 }}>
                         Your account is created!
                     </div>
-                    <div className='mt-1 text-[#151515]' style={{ fontWeight: "600", fontSize: 16 }}>
+                    <div className='mt-2 text-[#151515]' style={{ fontWeight: "600", fontSize: 16 }}>
                         {`Let's build your AI AgentX`}
                     </div>
                     <button className='rounded-xl text-white bg-purple mt-8' style={{ fontWeight: "700", fontSize: "16", height: "50px", width: "191px" }} onClick={handleNext}>

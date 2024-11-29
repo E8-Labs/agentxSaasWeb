@@ -580,52 +580,73 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                                 timerRef.current = setTimeout(() => {
                                                                     handleFindeNumbers(value);
                                                                 }, 300);
+                                                            } else {
+                                                                console.log("Should not search")
+                                                                return
                                                             }
                                                         }}
                                                     />
                                                 </div>
 
                                                 {
-                                                    findeNumberLoader ?
-                                                        <div className='flex flex-row justify-center mt-6'>
-                                                            <CircularProgress size={35} />
-                                                        </div> :
-                                                        <div className='mt-6 max-h-[40vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                                                    findNumber ?
+                                                        <div>
                                                             {
-                                                                foundeNumbers.map((item, index) => (
-                                                                    <div key={index} className='h-[10vh] rounded-2xl flex flex-col justify-center p-4 mb-4'
-                                                                        style={{
-                                                                            border: index === selectedPurchasedIndex ? "2px solid #7902DF" : "1px solid #00000020",
-                                                                            backgroundColor: index === selectedPurchasedIndex ? "#402FFF05" : ""
-                                                                        }}
-                                                                    >
-                                                                        <button className='flex flex-row items-start justify-between outline-none' onClick={(e) => { handlePurchaseNumberClick(item, index) }}>
-                                                                            <div>
-                                                                                <div style={styles.findNumberTitle}>
-                                                                                    {item.phoneNumber}
-                                                                                </div>
-                                                                                <div className='text-start mt-2' style={styles.findNumberDescription}>
-                                                                                    {item.locality} {item.region}
-                                                                                </div>
-                                                                            </div>
-                                                                            <div className="flex flex-row items-start gap-4">
-                                                                                <div style={styles.findNumberTitle}>
-                                                                                    ${item.price}/mo
-                                                                                </div>
-                                                                                <div>
+                                                                findeNumberLoader ?
+                                                                    <div className='flex flex-row justify-center mt-6'>
+                                                                        <CircularProgress size={35} />
+                                                                    </div> :
+                                                                    <div className='mt-6 max-h-[40vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                                                                        {
+                                                                            foundeNumbers.length > 0 ?
+                                                                                <div className='w-full'>
                                                                                     {
-                                                                                        index == selectedPurchasedIndex ?
-                                                                                            <Image src={"/assets/charmTick.png"} height={35} width={35} alt='*' /> :
-                                                                                            <Image src={"/assets/charmUnMark.png"} height={35} width={35} alt='*' />
+                                                                                        foundeNumbers.map((item, index) => (
+                                                                                            <div key={index} className='h-[10vh] rounded-2xl flex flex-col justify-center p-4 mb-4'
+                                                                                                style={{
+                                                                                                    border: index === selectedPurchasedIndex ? "2px solid #7902DF" : "1px solid #00000020",
+                                                                                                    backgroundColor: index === selectedPurchasedIndex ? "#402FFF05" : ""
+                                                                                                }}
+                                                                                            >
+                                                                                                <button className='flex flex-row items-start justify-between outline-none' onClick={(e) => { handlePurchaseNumberClick(item, index) }}>
+                                                                                                    <div>
+                                                                                                        <div style={styles.findNumberTitle}>
+                                                                                                            {item.phoneNumber}
+                                                                                                        </div>
+                                                                                                        <div className='text-start mt-2' style={styles.findNumberDescription}>
+                                                                                                            {item.locality} {item.region}
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                    <div className="flex flex-row items-start gap-4">
+                                                                                                        <div style={styles.findNumberTitle}>
+                                                                                                            ${item.price}/mo
+                                                                                                        </div>
+                                                                                                        <div>
+                                                                                                            {
+                                                                                                                index == selectedPurchasedIndex ?
+                                                                                                                    <Image src={"/assets/charmTick.png"} height={35} width={35} alt='*' /> :
+                                                                                                                    <Image src={"/assets/charmUnMark.png"} height={35} width={35} alt='*' />
+                                                                                                            }
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        ))
                                                                                     }
+                                                                                </div> :
+                                                                                <div className='text-xl font-[600] text-center mt-4'>
+                                                                                    No result found. Try a new search
                                                                                 </div>
-                                                                            </div>
-                                                                        </button>
+                                                                        }
                                                                     </div>
-                                                                ))
                                                             }
+                                                        </div> :
+                                                        <div className='text-xl font-[600] text-center mt-4'>
+                                                            Enter number to search
                                                         </div>
                                                 }
+
+
 
                                             </div>
                                             <div className='h-[50px]'>
@@ -719,7 +740,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                         previousNumber.map((item) => (
                                             <button className='flex flex-row items-center justify-center w-[271px]' key={item}
                                                 style={{
-                                                    ...styles.callBackStyles, border: userSelectedNumber === item ? "2px solid #402FFF" : "1px solid #15151550"
+                                                    ...styles.callBackStyles, border: userSelectedNumber === item ? "2px solid #7902DF" : "1px solid #15151550",
+                                                    backgroundColor: userSelectedNumber === item ? "2px solid #402FFF15" : ""
                                                 }}
                                                 onClick={(e) => { handleSelectedNumberClick(item) }}
                                             >
@@ -732,7 +754,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
                                 <button className='flex flex-row items-center justify-center'
                                     style={{
-                                        ...styles.callBackStyles, width: "242px", border: useOfficeNumber ? "2px solid #402FFF" : "1px solid #15151550"
+                                        ...styles.callBackStyles, width: "242px", border: useOfficeNumber ? "2px solid #7902DF" : "1px solid #15151550",
+                                        backgroundColor: useOfficeNumber ? "2px solid #402FFF15" : ""
                                     }}
                                     onClick={handleOfficeNumberClick}
                                 >
@@ -830,7 +853,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                 {errorMessage}
                             </div>
 
-                            <div className='flex flex-row items-center gap-4 justify-start mt-6'>
+                            <div className='flex flex-row items-center gap-4 justify-start'>
                                 <button onClick={handleToggleClick}>
                                     {
                                         toggleClick ?
@@ -841,7 +864,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                             </div>
                                     }
                                 </button>
-                                <div style={{ color: "#151515", fontSize: 15, fontWeight: "600" }}>
+                                <div style={{ color: "#151515", fontSize: 15, fontWeight: "500" }}>
                                     {`Don't make live transfers. Prefer the AI Agent schedules them for a call back.`}
                                 </div>
                             </div>

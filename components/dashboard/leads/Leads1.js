@@ -33,6 +33,7 @@ const Leads1 = () => {
     const [introVideoModal, setIntroVideoModal] = useState(false);
 
     const defaultColumns = {
+        fullName: ["full name", "name"],
         firstName: ["first name", "firstname"],
         lastName: ["last name", "lastname"],
         email: ["email", "email address", "mail"],

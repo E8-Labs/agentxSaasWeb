@@ -377,7 +377,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
           <Header />
           {/* Body */}
           <div className='flex flex-col items-center px-4 w-full'>
-            <div className='mt-6 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }}>
+            <div className='mt-6 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }} onClick={handleContinue}>
               Your Contact Information
             </div>
             <div className='mt-8 w-6/12 flex flex-col max-h-[50vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2' style={{ scrollbarWidth: "none" }}>

@@ -9,6 +9,7 @@ import Apis from '../apis/Apis';
 import axios from 'axios';
 import { Box, CircularProgress, Modal, Popover } from '@mui/material';
 import AddressPicker from '../test/AddressPicker';
+import LoaderAnimation from '../animations/LoaderAnimation';
 
 const CreateAgent1 = ({ handleContinue, handleBack }) => {
 
@@ -288,7 +289,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl w-10/12 h-[90vh] flex flex-col items-center' style={{ scrollbarWidth: "none" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+            <div  className=' rounded-2xl w-10/12 h-[90vh] flex flex-col items-center' style={{ scrollbarWidth: "none", backgroundColor: '#ffffff' }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
             >
 
                 <div className='w-full h-[78vh]'>
@@ -352,7 +353,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                             <div className='flex flex-row items-center gap-4'>
                                 <button className='flex flex-row items-center justify-center gap-2 border h-[60px] w-[240px] outline-none px-6'
                                     style={{
-                                        borderRadius: "23px", border: OutBoundCalls ? "2px solid #402FFF" : ""
+                                        borderRadius: "23px", border: OutBoundCalls ? "2px solid #7902DF" : ""
                                     }}
                                     onClick={handleOutBoundCallClick}>
                                     {OutBoundCalls ?
@@ -368,7 +369,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                 </button>
                                 <button className='flex flex-row items-center justify-center gap-2 border h-[60px] w-[240px] outline-none px-6'
                                     style={{
-                                        borderRadius: "23px", border: InBoundCalls ? "2px solid #402FFF" : ""
+                                        borderRadius: "23px", border: InBoundCalls ? "2px solid #7902DF" : ""
                                     }} onClick={handleInboundCallClick}>
                                     {InBoundCalls ?
                                         <Image src={"/assets/callInFocus.png"} height={24} width={24} alt='*' /> :
@@ -408,7 +409,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                         <button
                                             className="border-2 w-full rounded-2xl text-start p-4 h-full flex flex-col justify-between outline-none"
                                             onClick={() => { handleToggleClick(item) }}
-                                            style={{ borderColor: item.id === toggleClick ? "#7902DF" : "" }}
+                                            style={{ borderColor: item.id === toggleClick ? "#7902DF" : "", backgroundColor: item.id === toggleClick ? "#402FFF10 " : "" }}
                                         >
                                             {item.id === toggleClick ?
                                                 <Image src={item.focusIcn} height={30} width={30} alt='*' /> :
@@ -480,71 +481,77 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                 <Box className="lg:w-4/12 sm:w-7/12 w-8/12" sx={styles.modalsStyle}>
                     <div className="flex flex-row justify-center w-full h-[65vh]">
                         <div
-                            className="w-full"
+                            className="w-full overflow-auto"
                             style={{
                                 backgroundColor: "#ffffff",
                                 padding: 20,
                                 borderRadius: "13px",
                             }}
                         >
-                            <div className='flex flex-row items-center justify-end w-full'>
-                                <button className='outline-none border-none' onClick={() => { setShowModal(false) }}>
-                                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
-                                </button>
-                            </div>
 
-                            <div className='text-center' style={{ fontWeight: "600", fontSize: 24 }}>
-                                Community Update
-                            </div>
+                            <div className='w-full max-h-[50vh] overflow-auto'>
+                                <div className='flex flex-row items-center justify-end w-full'>
+                                    <button className='outline-none border-none' onClick={() => { setShowModal(false) }}>
+                                        <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                    </button>
+                                </div>
 
-                            <div style={styles.headingStyle} className='mt-4'>
-                                {`What's the status?`}
-                            </div>
+                                <div className='text-center' style={{ fontWeight: "600", fontSize: 24 }}>
+                                    Community Update
+                                </div>
 
-                            <div className='flex flex-row flex-wrap gap-4 mt-4'>
+                                <div style={styles.headingStyle} className='mt-4'>
+                                    {`What's the status?`}
+                                </div>
+
+                                <div className='flex flex-row flex-wrap gap-4 mt-4'>
+                                    {
+                                        status.map((item) => (
+                                            <button
+                                                key={item.id}
+                                                onClick={(e) => { handleSelectStatus(item) }}
+                                                className='px-6 border rounded-3xl h-[65px] text-center flex flex-row justify-center items-center outline-none'
+                                                style={{ border: selectedStatus?.id === item.id ? "2px solid #7902DF" : "", backgroundColor: selectedStatus?.id === item.id ? "#402FFF15" : "" }}
+                                            >
+                                                {item.title}
+                                            </button>
+                                        ))
+                                    }
+                                </div>
+
                                 {
-                                    status.map((item) => (
-                                        <button
-                                            key={item.id}
-                                            onClick={(e) => { handleSelectStatus(item) }}
-                                            className='px-6 border rounded-3xl h-[65px] text-center flex flex-row justify-center items-center outline-none'
-                                            style={{ border: selectedStatus?.id === item.id ? "2px solid #7902DF" : "", backgroundColor: selectedStatus?.id === item.id ? "#402FFF05" : "" }}
-                                        >
-                                            {item.title}
-                                        </button>
-                                    ))
+                                    showSomtthingElse && (
+                                        <div>
+                                            <div style={styles.headingStyle} className='mt-4'>
+                                                {`What's that`}
+                                            </div>
+
+                                            <div className='mt-1'>
+                                                <input
+                                                    className='h-[50px] border rounded-lg outline-none border border-[#00000010] p-3 w-full'
+                                                    // rows={3}
+                                                    placeholder='Type here...'
+                                                    value={otherStatus}
+                                                    onChange={(e) => { setOtherStatus(e.target.value) }}
+                                                />
+                                            </div>
+                                        </div>
+                                    )
                                 }
+
+                                <div style={styles.headingStyle} className='mt-4'>
+                                    {`What's the address`}
+                                </div>
+
+                                <div className='mt-1'>
+                                    <AddressPicker />
+                                </div>
                             </div>
 
-                            {
-                                showSomtthingElse && (
-                                    <div>
-                                        <div style={styles.headingStyle} className='mt-4'>
-                                            {`What's that`}
-                                        </div>
-
-                                        <div className='mt-1'>
-                                            <input
-                                                className='h-[50px] border rounded-lg outline-none border border-[#00000010] p-3 w-full'
-                                                // rows={3}
-                                                placeholder='Type here...'
-                                                value={otherStatus}
-                                                onChange={(e) => { setOtherStatus(e.target.value) }}
-                                            />
-                                        </div>
-                                    </div>
-                                )
-                            }
-
-                            <div style={styles.headingStyle} className='mt-4'>
-                                {`What's the address`}
-                            </div>
-
-                            <div className='mt-1'>
-                                <AddressPicker />
-                            </div>
-
-                            <button className='text-white w-full h-[50px] rounded-lg bg-purple mt-4' onClick={() => { setShowModal(false) }}>
+                            <button
+                                className='text-white w-full h-[50px] rounded-lg bg-purple mb-2'
+                                style={{ position: "absolute", bottom: 0, left: 0 }}
+                                onClick={() => { setShowModal(false) }}>
                                 Continue
                             </button>
 
@@ -555,7 +562,9 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                 </Box>
             </Modal>
 
-            <Modal
+            <LoaderAnimation loaderModal={loaderModal} />
+
+            {/* <Modal
                 open={loaderModal}
                 // onClose={() => loaderModal(false)}
                 closeAfterTransition
@@ -580,13 +589,10 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                             <div className='flex flex-row items-center justify-center h-full'>
                                 <CircularProgress size={200} thickness={1} />
                             </div>
-
-                            {/* Can be use full to add shadow
-                            <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
                         </div>
                     </div>
                 </Box>
-            </Modal>
+            </Modal> */}
 
 
         </div>
