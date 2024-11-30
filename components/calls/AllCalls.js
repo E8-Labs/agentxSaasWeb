@@ -41,6 +41,7 @@ function AllCalls() {
         getCallLogs();
     }, []);
 
+
     //code for getting call log details
     const getCallLogs = async () => {
         try {
@@ -111,7 +112,7 @@ function AllCalls() {
                     <input
                         type="text"
                         placeholder="Search by name, email or phone"
-                        className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none"
+                        className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0"
                         value={searchValue}
                         onChange={(e) => {
                             const value = e.target.value;
@@ -135,6 +136,7 @@ function AllCalls() {
                     />
                 </button>
             </div>
+
 
             <div className='w-full flex flex-row justify-between mt-10 px-10 mt-12'>
                 <div className='w-2/12'>
@@ -170,44 +172,53 @@ function AllCalls() {
                     </div> :
                     <div className='h-[67vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                         {
-                            filteredCallDetails.map((item) => (
-                                <div key={item.id} className='w-full flex flex-row justify-between items-center mt-10 px-10'>
-                                    <div className='w-2/12 flex flex-row gap-2 items-center'>
-                                        <div className='h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white'>
-                                            {item.LeadModel?.firstName.slice(0, 1).toUpperCase()}
-                                        </div>
-                                        <div style={styles.text2}>{item.LeadModel?.firstName}</div>
-                                    </div>
-                                    <div className='w-2/12 '>
-                                        <div style={styles.text2}>{item.LeadModel?.email}</div>
-                                    </div>
-                                    <div className='w-2/12'>
-                                        <div style={styles.text2}>{item.LeadModel?.phone}</div>
-                                    </div>
-                                    <div className='w-1/12'>
-                                        <div style={styles.text2}>{item.LeadModel?.stage ? (item.LeadModel?.stage) : "N/A"}</div>
-                                    </div>
-                                    <div className='w-1/12'>
-                                        <div style={styles.text2}>{item.LeadModel?.status ? (item.LeadModel?.status) : "N/A"}</div>
-                                    </div>
-                                    <div className='w-1/12'>
-                                        <div style={styles.text2}>{moment(item.LeadModel?.createdAt).format('MM/DD/YYYY')}</div>
-                                    </div>
-                                    <div className='w-1/12'>
-                                        <div style={styles.text2}>{moment(item.LeadModel?.createdAt).format('HH:mm:ss A')}</div>
-                                    </div>
-                                    <div className='w-1/12'>
-                                        <button>
-                                            <div style={{ fontSize: 12, color: '#7902DF', textDecorationLine: 'underline' }}>
-                                                Details
+                            filteredCallDetails.length > 0 ?
+                                <div>
+                                    {
+                                        filteredCallDetails.map((item) => (
+                                            <div key={item.id} className='w-full flex flex-row justify-between items-center mt-10 px-10'>
+                                                <div className='w-2/12 flex flex-row gap-2 items-center'>
+                                                    <div className='h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white'>
+                                                        {item.LeadModel?.firstName.slice(0, 1).toUpperCase()}
+                                                    </div>
+                                                    <div style={styles.text2}>{item.LeadModel?.firstName}</div>
+                                                </div>
+                                                <div className='w-2/12 '>
+                                                    <div style={styles.text2}>{item.LeadModel?.email}</div>
+                                                </div>
+                                                <div className='w-2/12'>
+                                                    <div style={styles.text2}>{item.LeadModel?.phone}</div>
+                                                </div>
+                                                <div className='w-1/12'>
+                                                    <div style={styles.text2}>{item.LeadModel?.stage ? (item.LeadModel?.stage) : "N/A"}</div>
+                                                </div>
+                                                <div className='w-1/12'>
+                                                    <div style={styles.text2}>{item.LeadModel?.status ? (item.LeadModel?.status) : "N/A"}</div>
+                                                </div>
+                                                <div className='w-1/12'>
+                                                    <div style={styles.text2}>{moment(item.LeadModel?.createdAt).format('MM/DD/YYYY')}</div>
+                                                </div>
+                                                <div className='w-1/12'>
+                                                    <div style={styles.text2}>{moment(item.LeadModel?.createdAt).format('HH:mm:ss A')}</div>
+                                                </div>
+                                                <div className='w-1/12'>
+                                                    <button>
+                                                        <div style={{ fontSize: 12, color: '#7902DF', textDecorationLine: 'underline' }}>
+                                                            Details
+                                                        </div>
+                                                    </button>
+                                                </div>
                                             </div>
-                                        </button>
-                                    </div>
+                                        ))
+                                    }
+                                </div> :
+                                <div className='text-center mt-4' style={{ fontWeight: "bold", fontSize: 20 }}>
+                                    No call log found
                                 </div>
-                            ))
                         }
                     </div>
             }
+
         </div>
     )
 }

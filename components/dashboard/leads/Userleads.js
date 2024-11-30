@@ -1,6 +1,6 @@
 import Apis from '@/components/apis/Apis';
 import { Box, CircularProgress, Modal } from '@mui/material';
-import { CalendarDots, DotsThree } from '@phosphor-icons/react'
+import { CalendarDots, DotsThree, Plus } from '@phosphor-icons/react'
 import axios from 'axios';
 import { first } from 'draft-js/lib/DefaultDraftBlockRenderMap';
 import moment from 'moment';
@@ -26,6 +26,11 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
     const [showFilterModal, setShowFilterModal] = useState(false);
     const [selectedFromDate, setSelectedFromDate] = useState(null);
     const [showFromDatePicker, setShowFromDatePicker] = useState(false);
+    const [showAddNewSheetModal, setShowAddNewSheetModal] = useState(false);
+
+    //code for array input fields
+    const [inputs, setInputs] = useState([{ id: 1, value: '' }, { id: 2, value: '' }, { id: 3, value: '' }]);
+    const [newQuestion, setNewQuestion] = useState('');
 
     //err msg when no leaad in list
     const [showNoLeadErr, setShowNoLeadErr] = useState(null);
@@ -282,6 +287,24 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
     };
 
 
+    //code for array input fields changes
+    // Handle change in input field
+    const handleInputChange = (id, value) => {
+        setInputs(inputs.map(input => (input.id === id ? { ...input, value } : input)));
+    };
+
+    // Handle deletion of input field
+    const handleDelete = (id) => {
+        setInputs(inputs.filter(input => input.id !== id));
+    };
+
+    // Handle adding a new input field
+    const handleAddInput = () => {
+        const newId = inputs.length ? inputs[inputs.length - 1].id + 1 : 1;
+        setInputs([...inputs, { id: newId, value: '' }]);
+    };
+
+
     const styles = {
         heading: {
             fontWeight: "700",
@@ -334,7 +357,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                         </span>
                                     </div> */}
                                     <button
-                                        style={{ backgroundColor: toggleClick.length > 0 ? "#402FFF" : "", color: toggleClick.length > 0 ? "white" : "#00000060" }}
+                                        style={{ backgroundColor: toggleClick.length > 0 ? "#7902DF" : "", color: toggleClick.length > 0 ? "white" : "#00000060" }}
                                         className='flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center'
                                         onClick={() => { setAssignLeadModal(true) }}>
                                         {
@@ -392,7 +415,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                     <div className='flex flex-row items-center gap-1 w-[22vw] border rounded pe-2'>
                                         <input
                                             style={styles.paragraph}
-                                            className='outline-none border-none w-full bg-transparent'
+                                            className='outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0'
                                             placeholder='Search by name, email or phone'
                                             value={searchLead}
                                             onChange={(e) => {
@@ -463,9 +486,10 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                     )
                                 }
 
+
                             </div>
 
-                            <div className='flex flex-row items-center mt-8' style={styles.paragraph}>
+                            <div className='flex flex-row items-center mt-8 gap-2' style={styles.paragraph}>
                                 <div className='flex flex-row items-center gap-2'>
                                     {
                                         SheetsList.map((item, index) => {
@@ -474,7 +498,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                     key={index}
                                                     className='flex flex-row items-center gap-1 px-3'
                                                     onClick={() => { getLeads(item) }}
-                                                    style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #402FFF" : "", color: SelectedSheetId === item.id ? "#402FFF" : "" }}
+                                                    style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
                                                 >
                                                     <span style={styles.paragraph}>{item.sheetName}</span>
                                                     <DotsThree weight='bold' size={25} color='black' />
@@ -483,6 +507,12 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                         })
                                     }
                                 </div>
+                                <button className='flex flex-row items-center gap-1 text-purple' style={styles.paragraph} onClick={() => { setShowAddNewSheetModal(true) }}>
+                                    <Plus size={15} color='#7902DF' weight='bold' />
+                                    <span>
+                                        New list
+                                    </span>
+                                </button>
                             </div>
 
                             <div className='w-full flex flex-row items-center mt-4' style={{ ...styles.paragraph, color: "#00000060" }}>
@@ -598,7 +628,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                         },
                                     }}
                                 >
-                                    <Box className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
+                                    <Box className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto" sx={{ ...styles.modalsStyle, scrollbarWidth: "none", backgroundColor: "white" }}>
                                         <div className="w-full flex flex-col items-center justify-between h-full">
 
                                             <div className='mt-2 w-full'>
@@ -733,6 +763,85 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                             Apply Filter
                                                         </button>
                                                 }
+                                            </div>
+
+                                        </div>
+                                    </Box>
+                                </Modal>
+                            </div>
+
+                            <div>
+                                <Modal
+                                    open={showAddNewSheetModal}
+                                    closeAfterTransition
+                                    BackdropProps={{
+                                        sx: {
+                                            backgroundColor: "#00000020",
+                                            backdropFilter: "blur(5px)",
+                                        },
+                                    }}
+                                >
+                                    <Box className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto rounded-3xl" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
+                                        <div className="w-full flex flex-col items-center h-full">
+
+                                            <div className='flex flex-row items-center justify-between w-full mt-4 px-2'>
+                                                <div style={{ fontWeight: "500", fontSize: 15 }}>
+                                                    New SmartList
+                                                </div>
+                                                <button onClick={() => { setShowAddNewSheetModal(false) }}>
+                                                    <Image src={"/assets/Cross.png"} height={15} width={15} alt='*' />
+                                                </button>
+                                            </div>
+
+                                            <div className='px-4 w-full'>
+                                                <div className='flex flex-row items-center justify-start mt-6 gap-2'>
+                                                    <span style={styles.paragraph}>
+                                                        List Name
+                                                    </span>
+                                                    <Image src={"/assets/infoIcon.png"} height={15} width={15} alt='*' />
+                                                </div>
+                                                <div className='mt-4'>
+                                                    <input
+                                                        placeholder='Enter list name' className='outline-none focus:outline-none focus:ring-none border w-full rounded-xl h-[53px]'
+                                                        style={{
+                                                            ...styles.paragraph, border: "1px solid #00000020"
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className='mt-4' style={styles.paragraph}>
+                                                    Create Columns
+                                                </div>
+                                                <div className='max-h-[30vh] overflow-auto mt-4' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                                                    style={{ scrollbarWidth: "none" }}
+                                                >
+                                                    {inputs.map((input, index) => (
+                                                        <div key={input.id} className='w-full flex flex-row items-center gap-4 mt-4'>
+                                                            <input
+                                                                className='border p-2 rounded-lg px-3 outline-none mx-2 focus:outline-none focus:ring-0'
+                                                                style={{ width: "95%", borderColor: "#00000020" }}
+                                                                placeholder={`Sample Answer`}
+                                                                value={input.value}
+                                                                onChange={(e) => handleInputChange(input.id, e.target.value)}
+                                                            />
+                                                            <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
+                                                                <Image src={"/assets/blackBgCross.png"} height={15} width={15} alt='*' />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                <div style={{ height: "50px" }}>
+                                                    {
+                                                        inputs.length < 3 && (
+                                                            <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
+                                                                fontSize: 15,
+                                                                fontWeight: "700"
+                                                            }}>
+                                                                Add New
+                                                            </button>
+                                                        )
+                                                    }
+                                                </div>
                                             </div>
 
                                         </div>

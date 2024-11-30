@@ -30,6 +30,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     const id = open ? 'simple-popover' : undefined;
 
     const [AgentDetails, setAgentDetails] = useState(null);
+    const [introVideoModal, setIntroVideoModal] = useState(false);
     //code for tag inputs
     // const [greetingTagInput, setGreetingTagInput] = useState("");
     // const [scriptTagInput, setScriptTagInput] = useState("");
@@ -611,7 +612,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                 </div>
                             </div>
                             <div>
-                                <button className='flex flex-row items-center gap-4'>
+                                <button className='flex flex-row items-center gap-4' onClick={() => { setIntroVideoModal(true) }}>
                                     <Image src={"/assets/youtubeplay.png"} height={36} width={36} alt='*' style={{ borderRadius: "7px" }} />
                                     <div style={styles.inputStyle} className='underline'>
                                         Learn how to customize your script
@@ -973,6 +974,62 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                     }
                                 </div>
 
+
+                                {/* Can be use full to add shadow */}
+                                {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                            </div>
+                        </div>
+                    </Box>
+                </Modal>
+
+                {/* Modal for video */}
+                <Modal
+                    open={introVideoModal}
+                    onClose={() => setIntroVideoModal(false)}
+                    closeAfterTransition
+                    BackdropProps={{
+                        timeout: 1000,
+                        sx: {
+                            backgroundColor: "#00000020",
+                            // backdropFilter: "blur(20px)",
+                        },
+                    }}
+                >
+                    <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.modalsStyle}>
+                        <div className="flex flex-row justify-center w-full">
+                            <div
+                                className="sm:w-full w-full"
+                                style={{
+                                    backgroundColor: "#ffffff",
+                                    padding: 20,
+                                    borderRadius: "13px",
+                                }}
+                            >
+                                <div className='flex flex-row justify-end'>
+                                    <button onClick={() => { setIntroVideoModal(false) }}>
+                                        <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                    </button>
+                                </div>
+
+                                <div className='text-center sm:font-24 font-16' style={{ fontWeight: "700" }}>
+                                    Learn more about assigning leads
+                                </div>
+
+                                <div className='mt-6'>
+                                    <iframe
+                                        src="https://www.youtube.com/embed/Dy9DM5u_GVg?autoplay=1&mute=1" //?autoplay=1&mute=1 to make it autoplay
+                                        frameBorder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                        title="YouTube video"
+                                        // className='w-20vh h-40vh'
+                                        style={{
+                                            width: "100%",
+                                            height: "50vh",
+                                            borderRadius: 15,
+                                        }}
+                                    />
+                                </div>
 
                                 {/* Can be use full to add shadow */}
                                 {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}

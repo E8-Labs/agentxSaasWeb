@@ -387,7 +387,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
               </div>
               <input
                 placeholder='Name'
-                className='border border-[#00000010] p-3 outline-none '
+                className='border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0'
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userName}
                 onChange={(e) => {
@@ -435,7 +435,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
 
               <input
                 placeholder='Email address'
-                className='border border-[#00000010] rounded p-3 outline-none '
+                className='border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0'
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userEmail}
                 onChange={(e) => {
@@ -593,7 +593,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
               </div>
               <input
                 placeholder='Your territory  '
-                className='border border-[#00000010] rounded p-3 outline-none '
+                className='border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0'
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userFarm}
                 onChange={(e) => { setUserFarm(e.target.value) }}
@@ -604,7 +604,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
               </div>
               <input
                 placeholder='Brokerage'
-                className='border border-[#00000010] rounded p-3 outline-none '
+                className='border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0'
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userBrokage}
                 onChange={(e) => { setUserBrokage(e.target.value) }}
@@ -615,7 +615,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
               </div>
               <input
                 placeholder='Value'
-                className='border border-[#00000010] rounded p-3 outline-none  mb-2'
+                className='border border-[#00000010] rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0'
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userTransaction}
                 onChange={(e) => { setUserTransaction(e.target.value) }}
@@ -678,6 +678,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                               border: '1px solid #ccc',
                               borderRadius: '5px',
                             }}
+                            className=' focus:outline-none focus:ring-0'
                           />
                         ))}
                       </div>

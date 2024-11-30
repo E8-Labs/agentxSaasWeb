@@ -31,7 +31,7 @@ function Page() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`${activeTab === tab ? "text-purple border-b-2 border-purple" : ""
+            className={`${activeTab === tab ? "text-purple border-b-2 border-purple outline-none" : ""
               }`} style={{ fontSize: 15, fontWeight: '500' }}
           >
             {tab}

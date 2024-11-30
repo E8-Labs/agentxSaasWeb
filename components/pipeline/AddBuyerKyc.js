@@ -415,7 +415,7 @@ const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc }) => {
                                 ) :
                                 toggleClick === 2 ?
                                     (
-                                        <div className='mt-8 w-full max-h-[37vh] overflow-auto'  style={{ scrollbarWidth: "none" }}>
+                                        <div className='mt-8 w-full max-h-[37vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                             {
                                                 motivationKycQuestions.map((item, index) => (
                                                     <button
@@ -443,7 +443,7 @@ const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc }) => {
                                     ) :
                                     toggleClick === 3 ?
                                         (
-                                            <div className='mt-8 w-full max-h-[37vh] overflow-auto'  style={{ scrollbarWidth: "none" }}>
+                                            <div className='mt-8 w-full max-h-[37vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                                 {
                                                     urgencyKycQuestions.map((item, index) => (
                                                         <button
@@ -518,21 +518,21 @@ const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc }) => {
                                             </button>
                                         </div>
                                         <div className='text-center mt-2' style={{ fontWeight: "700", fontSize: 24 }}>
-                                            Add New Question
-                                        </div>
-                                        <div className='text-[#00000060]' style={{ fontWeight: "600", fontSize: 13 }}>
                                             New Question
+                                        </div>
+                                        <div className='text-[#00000060] mx-2' style={{ fontWeight: "600", fontSize: 13 }}>
+                                            {`What’s the question? `}
                                         </div>
                                         <div className='mt-2'>
                                             <input
-                                                className='border outline-none w-full p-2 rounded-lg px-3 mx-2'
-                                                style={styles.inputStyle}
+                                                className='border outline-none w-full p-2 rounded-lg px-3 mx-2 focus:outline-none focus:ring-0'
+                                                style={{ borderColor: "#00000020", fontWeight: "500", fontSize: 15 }}
                                                 placeholder="Ex: What's your name?"
                                                 value={newQuestion}
                                                 onChange={(e) => setNewQuestion(e.target.value)}
                                             />
                                         </div>
-                                        <div className='mt-4' style={styles.headingStyle}>
+                                        <div className='mt-4 mx-2' style={styles.headingStyle}>
                                             Sample Answers
                                         </div>
 
@@ -540,14 +540,14 @@ const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc }) => {
                                             {inputs.map((input, index) => (
                                                 <div key={input.id} className='w-full flex flex-row items-center gap-4 mt-4'>
                                                     <input
-                                                        className='border p-2 rounded-lg px-3 outline-none mx-2'
-                                                        style={{ width: "90%" }}
+                                                        className='border p-2 rounded-lg px-3 outline-none mx-2 focus:outline-none focus:ring-0'
+                                                        style={{ width: "95%", borderColor: "#00000020", fontWeight: "500", fontSize: 15 }}
                                                         placeholder={`Sample Answer`}
                                                         value={input.value}
                                                         onChange={(e) => handleInputChange(input.id, e.target.value)}
                                                     />
-                                                    <button className='outline-none border-none' style={{ width: "10%" }} onClick={() => handleDelete(input.id)}>
-                                                        <Image src={"/assets/cross.png"} height={15} width={15} alt='*' />
+                                                    <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
+                                                        <Image src={"/assets/blackBgCross.png"} height={15} width={15} alt='*' />
                                                     </button>
                                                 </div>
                                             ))}
@@ -566,7 +566,7 @@ const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc }) => {
                                             }
                                         </div>
 
-                                        <button className='bg-purple outline-none border-none rounded-lg text-white w-full mt-4' style={{ ...styles.headingStyle, height: "50px" }} onClick={handleAddKycQuestion}>
+                                        <button className='bg-purple outline-none border-none rounded-lg text-white w-full mt-4 mx-2' style={{ ...styles.headingStyle, height: "50px" }} onClick={handleAddKycQuestion}>
                                             Add Question
                                         </button>
 

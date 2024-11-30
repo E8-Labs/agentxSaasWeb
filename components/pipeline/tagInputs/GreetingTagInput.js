@@ -213,7 +213,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue })
     return (
         <div className="overflow-none" style={{ position: "relative" }}>
             <input
-                className="outline-none rounded-xl"
+                className="rounded-xl focus:outline-none focus:ring-0"
                 ref={textFieldRef}
                 // rows=""
                 // cols="50"
@@ -222,7 +222,13 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue })
                 onKeyUp={handleKeyUp}
                 onKeyDown={handleKeyDown}
                 placeholder="Type here..."
-                style={{ fontSize: "16px", padding: "15px", width: "100%", resize: "none", fontWeight: "500", fontSize: 15, border: "1px solid #00000020" }}
+                style={{
+                    fontSize: "16px", padding: "15px",
+                    width: "100%", resize: "none",
+                    fontWeight: "500", fontSize: 15,
+                    border: "1px solid #00000020", outline: "none",
+                    outlineColor: "transparent"
+                }}
             />
             {popupVisible && filteredOptions.length > 0 && (
                 <div

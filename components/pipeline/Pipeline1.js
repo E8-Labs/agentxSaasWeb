@@ -624,7 +624,7 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                         key={row.id}
                                                                         className="flex flex-row items-center mb-2"
                                                                     >
-                                                                        <div style={styles.headingStyle}>
+                                                                        <div style={styles.headingStyle} className='mt-3'>
                                                                             Wait
                                                                         </div>
                                                                         <div className="ms-6 flex flex-row items-center">
@@ -633,7 +633,7 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                     Days
                                                                                 </label>
                                                                                 <input
-                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px]"
+                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px] focus:outline-none focus:ring-0"
                                                                                     style={{
                                                                                         ...styles.inputStyle,
                                                                                         height: "42px",
@@ -662,7 +662,7 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                     Hours
                                                                                 </label>
                                                                                 <input
-                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px]"
+                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px] focus:outline-none focus:ring-0"
                                                                                     style={{
                                                                                         ...styles.inputStyle,
                                                                                         height: "42px",
@@ -690,7 +690,7 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                     Mins
                                                                                 </label>
                                                                                 <input
-                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px]"
+                                                                                    className="flex flex-row items-center justify-center text-center outline-none -mt-[9px] focus:outline-none focus:ring-0"
                                                                                     style={{
                                                                                         ...styles.inputStyle,
                                                                                         height: "42px",
@@ -715,15 +715,17 @@ const Pipeline1 = ({ handleContinue }) => {
                                                                                 />
                                                                             </div>
                                                                             <div
-                                                                                className="ms-4 mt-2"
+                                                                                className="ms-4 mt-3"
                                                                                 style={styles.inputStyle}
                                                                             >
-                                                                                , then <span style={{ fontWeight: "600" }}>Make Call</span>
+                                                                                {item.stageTitle === "Booked" && (
+                                                                                    "before the meeting"
+                                                                                )}, then <span style={{ fontWeight: "600" }}>Make Call</span>
                                                                             </div>
 
                                                                             {rowIndex > 0 && (
                                                                                 <button
-                                                                                    className="ms-2 mt-2"
+                                                                                    className="ms-2 mt-3"
                                                                                     onClick={() =>
                                                                                         removeRow(index, row.id)
                                                                                     }

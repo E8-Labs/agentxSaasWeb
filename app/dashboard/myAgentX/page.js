@@ -287,7 +287,7 @@ function Page() {
                     />
 
                     <Card
-                      name="Live Transfers"
+                      name="Mins Talked"
                       value={22}
                       icon='/otherAssets/transferIcon.png'
                       bgColor="green"
@@ -375,7 +375,7 @@ function Page() {
               </div>
               <input
                 placeholder="Name"
-                className='w-full border rounded p-2 outline-none'
+                className='w-full border rounded p-2 outline-none focus:outline-none focus:ring-0'
                 style={styles.inputStyle}
                 value={name}
                 onChange={(e) => { setName(e.target.value) }}
@@ -386,18 +386,18 @@ function Page() {
               </div>
               <input
                 placeholder="Phone Number"
-                className='w-full border rounded p-2 outline-none'
+                className='w-full border rounded p-2 outline-none focus:outline-none focus:ring-0'
                 style={styles.inputStyle}
                 value={phone}
                 onChange={(e) => { setPhone(e.target.value) }}
               />
 
               <div className='pt-5' style={styles.headingStyle}>
-                Address
+                Variable {`{column  name}`}
               </div>
               <input
-                placeholder="Address"
-                className='w-full border rounded p-2 outline-none'
+                placeholder="Type here"
+                className='w-full border rounded p-2 outline-none focus:outline-none focus:ring-0'
                 style={styles.inputStyle}
                 value={address}
                 onChange={(e) => { setAddress(e.target.value) }}
@@ -405,11 +405,11 @@ function Page() {
 
 
               <div className='pt-5' style={styles.headingStyle}>
-                Budget
+                Variable {`{column  name}`}
               </div>
               <input
-                placeholder="$ 0.00"
-                className='w-full border rounded p-2 outline-none'
+                placeholder="Type here"
+                className='w-full border rounded p-2 outline-none focus:outline-none focus:ring-0'
                 style={styles.inputStyle}
                 value={budget}
                 onChange={(e) => { setBudget(e.target.value) }}
@@ -663,7 +663,8 @@ const styles = {
   inputStyle: {
     fontSize: 15,
     fontWeight: "500",
-    marginTop: 10
+    marginTop: 10,
+    borderColor: "#00000020"
   }
 }
 

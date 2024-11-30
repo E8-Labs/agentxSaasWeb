@@ -289,7 +289,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div  className=' rounded-2xl w-10/12 h-[90vh] flex flex-col items-center' style={{ scrollbarWidth: "none", backgroundColor: '#ffffff' }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+            <div className=' rounded-2xl w-10/12 h-[90vh] flex flex-col items-center' style={{ scrollbarWidth: "none", backgroundColor: '#ffffff' }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
             >
 
                 <div className='w-full h-[78vh]'>
@@ -340,7 +340,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                             </Popover>
                             <input
                                 placeholder="Ex: Ana's AI, Ana.ai, Ana's Assistant"
-                                className='border border-[#00000010] rounded p-3 outline-none'
+                                className='border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0'
                                 style={styles.inputStyle}
                                 value={agentName}
                                 onChange={(e) => { setAgentName(e.target.value) }}
@@ -389,7 +389,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                             </div>
                             <input
                                 placeholder="Ex: Senior Property Acquisition Specialist"
-                                className='border border-[#00000010] rounded p-3 outline-none'
+                                className='border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0'
                                 style={styles.inputStyle}
                                 value={agentRole}
                                 onChange={(e) => { setAgentRole(e.target.value) }}
@@ -439,7 +439,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                         <input
                                             ref={bottomRef}
                                             placeholder="Type Here...."
-                                            className="border border-[#00000010] w-6/12 rounded p-1 outline-none w-full mt-1 mx-2 mb-2"
+                                            className="border border-[#00000010] w-6/12 rounded p-1 outline-none w-full mt-1 mx-2 mb-2 focus:outline-none focus:ring-0"
                                             style={styles.inputStyle}
                                             value={otherObjVal}
                                             onChange={(e) => setOtherObjVal(e.target.value)}
@@ -489,7 +489,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                             }}
                         >
 
-                            <div className='w-full max-h-[50vh] overflow-auto'>
+                            <div className='w-full h-[90%] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                 <div className='flex flex-row items-center justify-end w-full'>
                                     <button className='outline-none border-none' onClick={() => { setShowModal(false) }}>
                                         <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
@@ -528,7 +528,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
 
                                             <div className='mt-1'>
                                                 <input
-                                                    className='h-[50px] border rounded-lg outline-none border border-[#00000010] p-3 w-full'
+                                                    className='h-[50px] border rounded-lg outline-none border border-[#00000010] p-3 w-full focus:outline-none focus:ring-0'
                                                     // rows={3}
                                                     placeholder='Type here...'
                                                     value={otherStatus}

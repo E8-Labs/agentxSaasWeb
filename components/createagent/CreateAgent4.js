@@ -74,6 +74,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     const [officeErrorMessage, setOfficeErrorMessage] = useState(false);
 
 
+
     useEffect(() => {
         const localData = localStorage.getItem("claimNumberData");
         if (localData) {
@@ -106,6 +107,15 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             setShouldContinue(false)
         }
     }, [selectNumber, userSelectedNumber, callBackNumber]);
+
+    //code to format the number
+    const formatPhoneNumber = (rawNumber) => {
+        const phoneNumber = parsePhoneNumberFromString(
+            rawNumber.startsWith('+') ? rawNumber : `+${rawNumber}`
+        );
+        console.log("Raw number is", rawNumber);
+        return phoneNumber ? phoneNumber.formatInternational() : 'Invalid phone number';
+    };
 
     const handleSelectNumber = (event) => {
         setSelectNumber(event.target.value);
@@ -426,7 +436,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             color: "#000000"
         },
         callBackStyles: {
-            height: "71px", //width: "210px",
+            // height: "71px", //width: "210px",
             border: "1px solid #15151550", borderRadius: "20px",
             fontWeight: "500", fontSize: 15
         },
@@ -466,7 +476,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }} onClick={handleContinue}>
                             {`Let's talk digits`}
                         </div>
-                        <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[50vh]'
+                        <div className='mt-8 w-6/12 gap-4 flex flex-col h-[55vh] overflow-auto'
                             // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
                             style={{ scrollbarWidth: "none" }}
                         >
@@ -565,7 +575,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                     Number
                                                 </div>
                                                 <div className='mt-2'>
-                                                    <input className='border border-[#00000010] outline-none p-3 rounded-lg w-full mx-2' type='' placeholder='Ex: 619, 213, 313'
+                                                    <input className='border border-[#00000010] outline-none p-3 rounded-lg w-full mx-2 focus:outline-none focus:ring-0' type='' placeholder='Ex: 619, 213, 313'
                                                         value={findNumber}
                                                         onChange={(e) => {
 
@@ -733,34 +743,33 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                 What callback number should we use if someone requests one during a call?
                             </button>
 
-                            <div className='flex flex-row items-center gap-4'>
+                            <div className='flex flex-row items-center gap-4 overflow-x-auto' style={{ scrollbarWidth: "none", overflowY: 'hidden' }}>
 
-                                <div className='overflow-auto flex flex-row'>
+                                <div className='flex flex-row items-center gap-4'>
                                     {
                                         previousNumber.map((item) => (
-                                            <button className='flex flex-row items-center justify-center w-[271px]' key={item}
+                                            <button className='flex flex-row items-center justify-center w-[271px] h-[71px]' key={item}
                                                 style={{
                                                     ...styles.callBackStyles, border: userSelectedNumber === item ? "2px solid #7902DF" : "1px solid #15151550",
                                                     backgroundColor: userSelectedNumber === item ? "2px solid #402FFF15" : ""
                                                 }}
                                                 onClick={(e) => { handleSelectedNumberClick(item) }}
                                             >
-                                                Use  {item.slice(1)}
-                                                {/* {item.item} */}
+                                                Use {formatPhoneNumber(item.slice(1))}
                                             </button>
                                         ))
                                     }
+                                    <button className='flex flex-row items-center justify-center h-[71px]'
+                                        style={{
+                                            ...styles.callBackStyles, width: "242px", border: useOfficeNumber ? "2px solid #7902DF" : "1px solid #15151550",
+                                            backgroundColor: useOfficeNumber ? "2px solid #402FFF15" : ""
+                                        }}
+                                        onClick={handleOfficeNumberClick}
+                                    >
+                                        Use my cell or office number
+                                    </button>
                                 </div>
 
-                                <button className='flex flex-row items-center justify-center'
-                                    style={{
-                                        ...styles.callBackStyles, width: "242px", border: useOfficeNumber ? "2px solid #7902DF" : "1px solid #15151550",
-                                        backgroundColor: useOfficeNumber ? "2px solid #402FFF15" : ""
-                                    }}
-                                    onClick={handleOfficeNumberClick}
-                                >
-                                    Use my cell or office number
-                                </button>
                             </div>
 
                             {showOfficeNumberInput ? (
@@ -768,14 +777,6 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                     <div className='mt-4' style={styles.dropdownMenu}>
                                         Enter Number
                                     </div>
-
-                                    {/* <input
-                                        placeholder='Phone Number'
-                                        className='border border-[#00000010] rounded p-3 outline-none w-full mt-1 mx-2'
-                                        style={styles.inputStyle}
-                                        value={officeNumber}
-                                        onChange={(e) => { setOfficeNumber(e.target.value) }}
-                                    /> */}
 
                                     <PhoneInput
                                         className="border outline-none bg-white"
@@ -813,6 +814,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
                                 </div>
                             ) : ""}
+
+                            
 
                             <div style={styles.headingStyle}>
                                 What number should we forward live transfers to when a lead wants to talk to you?

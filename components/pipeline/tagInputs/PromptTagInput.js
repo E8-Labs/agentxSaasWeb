@@ -291,7 +291,7 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
     return (
         <div style={{ position: "relative" }}>
             <textarea
-                className="outline-none rounded-xl"
+                className="outline-none rounded-xl focus:outline-none focus:ring-0"
                 ref={textFieldRef}
                 rows="20"
                 cols="50"

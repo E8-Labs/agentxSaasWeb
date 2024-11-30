@@ -467,7 +467,7 @@ const Page = ({ length = 6, onComplete }) => {
               </div> */}
               <div className='mt-8' style={{ display: 'flex', gap: '8px' }}>
                 {Array.from({ length }).map((_, index) => (
-                  <input
+                  <input className=' focus:outline-none focus:ring-0'
                     key={index}
                     ref={(el) => (verifyInputRef.current[index] = el)}
                     type="text"

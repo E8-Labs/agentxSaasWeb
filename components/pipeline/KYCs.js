@@ -268,9 +268,9 @@ const KYCs = ({ kycsDetails }) => {
                         )
                     }
 
-                    <div className='underline text-purple mt-4' style={styles.inputStyle} onClick={() => { setAddSellerKyc(true) }}>
+                    <button className='underline text-purple mt-4' style={styles.inputStyle} onClick={() => { setAddSellerKyc(true) }}>
                         Add Question
-                    </div>
+                    </button>
                 </div>
 
             </div>
@@ -342,9 +342,9 @@ const KYCs = ({ kycsDetails }) => {
                         )
                     }
 
-                    <div className='underline text-purple mt-4' style={styles.inputStyle} onClick={() => { setAddSellerKyc(true) }}>
+                    <button className='underline text-purple mt-4' style={styles.inputStyle} onClick={() => { setAddSellerKyc(true) }}>
                         Add Question
-                    </div>
+                    </button>
                 </div>
 
             </div>
@@ -416,9 +416,9 @@ const KYCs = ({ kycsDetails }) => {
                         )
                     }
 
-                    <div className='underline text-purple mt-4' style={styles.inputStyle} onClick={() => { setAddSellerKyc(true) }}>
+                    <button className='underline text-purple mt-4' style={styles.inputStyle} onClick={() => { setAddSellerKyc(true) }}>
                         Add Question
-                    </div>
+                    </button>
                 </div>
 
             </div>
@@ -540,9 +540,9 @@ const KYCs = ({ kycsDetails }) => {
                         )
                     }
 
-                    <div className='underline text-purple' style={styles.inputStyle} onClick={() => { setAddBuyerKyc(true) }}>
+                    <button className='underline text-purple' style={styles.inputStyle} onClick={() => { setAddBuyerKyc(true) }}>
                         Add Question
-                    </div>
+                    </button>
                 </div>
 
             </div>
@@ -613,9 +613,9 @@ const KYCs = ({ kycsDetails }) => {
                         )
                     }
 
-                    <div className='underline text-purple' style={styles.inputStyle} onClick={() => { setAddBuyerKyc(true) }}>
+                    <button className='underline text-purple' style={styles.inputStyle} onClick={() => { setAddBuyerKyc(true) }}>
                         Add Question
-                    </div>
+                    </button>
                 </div>
 
             </div>
@@ -686,9 +686,9 @@ const KYCs = ({ kycsDetails }) => {
                         )
                     }
 
-                    <div className='underline text-purple' style={styles.inputStyle} onClick={() => { setAddBuyerKyc(true) }}>
+                    <button className='underline text-purple' style={styles.inputStyle} onClick={() => { setAddBuyerKyc(true) }}>
                         Add Question
-                    </div>
+                    </button>
                 </div>
 
             </div>

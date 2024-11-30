@@ -379,7 +379,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                         <div className='mt-4 text-[#4F5B76]' style={styles.giftTextStyle}>
                                             Card number
                                         </div>
-                                        <input className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='1212 1212 1212 1212' maxLength={16}
+                                        <input className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0' style={styles.cardStyles} placeholder='1212 1212 1212 1212' maxLength={16}
                                             onInput={(e) => {
                                                 e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
                                             }} />
@@ -390,7 +390,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                                     Expiry
                                                 </div>
                                                 <input
-                                                    className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='MM / YY' maxLength={6}
+                                                    className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0' style={styles.cardStyles} placeholder='MM / YY' maxLength={6}
                                                     onInput={(e) => {
                                                         e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
                                                     }} />
@@ -399,7 +399,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                                 <div className='text-[#4F5B76]' style={styles.giftTextStyle}>
                                                     Card number
                                                 </div>
-                                                <input className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='CVC' maxLength={3}
+                                                <input className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0' style={styles.cardStyles} placeholder='CVC' maxLength={3}
                                                     onInput={(e) => {
                                                         e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
                                                     }} />
@@ -409,7 +409,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                         <div className='mt-4 text-[#4F5B76]' style={styles.giftTextStyle}>
                                             Postal Code
                                         </div>
-                                        <input className='outline-none border rounded-lg w-full p-2 mt-2' style={styles.cardStyles} placeholder='48530' maxLength={5}
+                                        <input className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0' style={styles.cardStyles} placeholder='48530' maxLength={5}
                                             onInput={(e) => {
                                                 e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
                                             }} />
@@ -417,7 +417,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                         <div className='mt-4 text-[#4F5B76]' style={styles.giftTextStyle}>
                                             AgentX Code (optional)
                                         </div>
-                                        <input className='outline-none border rounded-lg w-full p-2 mt-2'
+                                        <input className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0'
                                             style={styles.cardStyles} placeholder='Enter the code here' maxLength={16}
                                             onInput={(e) => {
                                                 e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
