@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 
 const AddressPicker = () => {
+
+    let addressKey = process.env.NEXT_PUBLIC_AddressPickerApiKey;
+
     const [address, setAddress] = useState(null);
 
     return (
         <div>
             <GooglePlacesAutocomplete
-                apiKey="YOUR_GOOGLE_MAPS_API_KEY"
+                apiKey={addressKey}
                 selectProps={{
                     address,
                     onChange: setAddress,
