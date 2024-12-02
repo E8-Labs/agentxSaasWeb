@@ -25,10 +25,12 @@ const Apis = {
     CheckPhone: `${BasePath}api/user/checkPhoneNumber`,
     getCallLogs: `${BasePath}api/leads/callLogs`,
     getSheduledCallLogs: `${BasePath}api/pipeline/getScheduledCalls`,
+    getAgentCallLogs:`${BasePath}api/agent/getAgentCallActivity`,
     pauseAgent: `${BasePath}api/pipeline/pauseAgentCadence`,
     getUniqueColumns: `${BasePath}api/leads/getUniqueColumns`,
     addSmartList: `${BasePath}api/leads/addSmartList`,
-    addCustomStage: `${BasePath}api/pipeline/createStage`
+    addCustomStage: `${BasePath}api/pipeline/createStage`,
+    addObjectionGuardrial: `${BasePath}api/agent/addObjectionGuardRail`
 
 }
 

@@ -239,7 +239,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                     <div className='max-h-[40vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
                         {
                             agentsList.map((item, index) => (
-                                <button key={index} className='rounded-lg p-2 mt-4 w-full outline-none' style={{ border: SelectedAgents.includes(item) ? "2px solid #402FFF" : "" }}
+                                <button key={index} className='rounded-lg p-2 mt-4 w-full outline-none' style={{ border: SelectedAgents.includes(item) ? "2px solid #7902DF" : "" }}
                                     onClick={() => {
                                         let canAssign = canAssignStage(item);
                                         if (canAssign == 0) {

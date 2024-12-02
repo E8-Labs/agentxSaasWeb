@@ -52,7 +52,7 @@ function AllCalls() {
             const localData = localStorage.getItem("User");
             if (localData) {
                 const Data = JSON.parse(localData);
-                console.log("Localdat recieved is :--", Data);
+                console.log("Localdata recieved is :--", Data);
                 AuthToken = Data.token;
             }
 

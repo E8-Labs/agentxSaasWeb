@@ -329,9 +329,12 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         }
     }
 
+
+    //code for advance setting
     const handleAdvanceSettingToggleClick = (id) => {
         setSettingToggleClick(prevId => (prevId === id ? null : id));
     }
+
 
     // //code for getting the uniques columns
     // const getUniqueColumns = async () => {
@@ -921,7 +924,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                     <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.modalsStyle}>
                         <div className="flex flex-row justify-center w-full">
                             <div
-                                className="sm:w-7/12 w-full"
+                                className="w-full"
                                 style={{
                                     backgroundColor: "#ffffff",
                                     padding: 20,
@@ -941,7 +944,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                     <div className='flex flex-row items-center gap-10 mt-10'>
                                         {
                                             advanceSettingType.map((item, index) => (
-                                                <button key={item.id} style={{ ...styles.inputStyle, color: item.id === settingToggleClick ? "#402FFF" : "" }} onClick={(e) => { handleAdvanceSettingToggleClick(item.id) }}>
+                                                <button key={item.id} style={{ ...styles.inputStyle, color: item.id === settingToggleClick ? "#7902DF" : "" }} onClick={(e) => { handleAdvanceSettingToggleClick(item.id) }}>
                                                     {item.title}
                                                 </button>
                                             ))

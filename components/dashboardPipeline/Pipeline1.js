@@ -443,8 +443,8 @@ const Pipeline1 = () => {
 
                     </div>
 
-                    <div className='flex flex-row items-center gap-2'>
-                        <div className="flex flex-row items-center gap-4">
+                    <div className='flex flex-row items-start gap-2'>
+                        <div className="flex flex-row items-start gap-4">
                             {StagesList.map((stage, index) => (
                                 <div key={index} style={{ width: "300px" }} className="flex flex-col items-start h-full">
                                     {/* Display the stage */}

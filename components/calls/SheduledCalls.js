@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Image from 'next/image';
 import Apis from '../apis/Apis';
 import axios from 'axios';
-import { CircularProgress, Popover } from '@mui/material';
+import { Box, CircularProgress, Modal, Popover } from '@mui/material';
 import moment from 'moment';
 
 function SheduledCalls() {
@@ -15,6 +15,11 @@ function SheduledCalls() {
     const [agentsList, setAgentsList] = useState([]);
     const [filteredAgentsList, setFilteredAgentsList] = useState([]);
     const [anchorEl, setAnchorEl] = React.useState(null);
+    //code for call log details
+    const [SelectedAgent, setSelectedAgent] = useState(null);
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [AgentCallLogLoader, setAgentCallLogLoader] = useState(false);
+    const [sheduledCalllogs, setSheduledCalllogs] = useState([]);
 
     useEffect(() => {
         getAgents();
@@ -25,7 +30,7 @@ function SheduledCalls() {
     const handleShowPopup = (event, item) => {
         setAnchorEl(event.currentTarget);
         console.log("Selected agent is ", item);
-        setSelectedAgent(item)
+        setSelectedAgent(item);
     };
 
     const handleClosePopup = () => {
@@ -39,9 +44,7 @@ function SheduledCalls() {
     const getAgents = async () => {
         try {
             setInitialLoader(true);
-            const ApiPath = `${Apis.getAgents}?agentType=outbound`;
 
-            console.log("Api path is: ", ApiPath);
 
             let AuthToken = null;
             const localData = localStorage.getItem("User");
@@ -53,6 +56,18 @@ function SheduledCalls() {
 
             console.log("Auth token is:", AuthToken);
 
+            let mainAgent = null;
+            const localAgent = localStorage.getItem("agentDetails");
+            if (localAgent) {
+                const agentDetails = JSON.parse(localAgent);
+                console.log("Check 1 cleear")
+                console.log("Agent details are:", agentDetails);
+                mainAgent = agentDetails
+            }
+            // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
+            const ApiPath = Apis.getSheduledCallLogs;
+            console.log("Api path is: ", ApiPath);
+            // return
             const response = await axios.get(ApiPath, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken,
@@ -61,12 +76,12 @@ function SheduledCalls() {
             });
 
             if (response) {
-                console.log("Response of get agents api is:", response.data);
-                // setFilteredAgentsList(response.data.data.filter((item) => {item.leadsAssigned > 0}));
-                setFilteredAgentsList(
-                    response.data.data.filter((item) => item.leadsAssigned > 0)
-                );
-                setAgentsList(response.data.data.filter((item) => item.leadsAssigned > 0));
+                console.log("Response of get sheduled api is:", response.data);
+
+                setFilteredAgentsList(response.data.agents);
+                setCallDetails(response.data.data);
+                setAgentsList(response.data.agents);
+
             }
 
 
@@ -78,46 +93,27 @@ function SheduledCalls() {
         }
     }
 
-    // const getSheduledCallLogs = async () => {
-    //     try {
-    //         setInitialLoader(true);
-    //         const ApiPath = `${Apis.getSheduledCallLogs}`;
+    //code to show call log details popup
 
-    //         console.log("Apipath is", ApiPath);
+    const handleShowDetails = () => {
+        const AgentId = filteredAgentsList.map((item) => item.id);
+        console.log("Agent id is:", AgentId);
+        console.log("selected agent is:", SelectedAgent);
+        console.log("Call log details are :", callDetails);
+        let CallsArray = [];
 
-    //         let AuthToken = null;
-    //         const localData = localStorage.getItem("User");
-    //         if (localData) {
-    //             const Data = JSON.parse(localData);
-    //             console.log("Localdat recieved is :--", Data);
-    //             AuthToken = Data.token;
-    //         }
-
-    //         console.log("Auth token is:", AuthToken);
-
-    //         const response = await axios.get(ApiPath, {
-    //             headers: {
-    //                 "Authorization": "Bearer " + AuthToken,
-    //                 "Content-Type": "application/json"
-    //             }
-    //         });
-
-    //         if (response) {
-    //             if (response) {
-    //                 console.log("response of get Sheduled call logs api is :", response.data);
-    //                 setCallDetails(response.data.data);
-    //             }
-    //         }
-
-    //     } catch (error) {
-    //         console.error("Error occured in gtting Sheduled call logs api is:", error);
-    //     } finally {
-    //         setInitialLoader(false);
-    //     }
-    // }
+        callDetails.forEach((item) => {
+            if (item.agent.id === SelectedAgent.id) {
+                CallsArray.push(item);
+            }
+        });
 
 
-    //code to filter search
+        console.log("Calls of this agent are :", CallsArray);
+        setSheduledCalllogs(CallsArray);
+        setShowDetailsModal(true);
+    }
+
     const handleSearchChange = (value) => {
         if (value.trim() === "") {
             // console.log("Should reset to original");
@@ -191,7 +187,7 @@ function SheduledCalls() {
                     <div style={styles.text}>Sheduled on</div>
                 </div>
                 <div className='w-1/12'>
-                    <div style={styles.text}>Action</div>
+                    <div style={styles.text} onClick={handleShowDetails}>Action</div>
                 </div>
             </div>
 
@@ -264,7 +260,7 @@ function SheduledCalls() {
                                                 }}
                                             >
                                                 <div className='p-2 flex flex-col gap-2' style={{ fontWeight: "500", fontSize: 15 }}>
-                                                    <button className='text-start outline-none'>
+                                                    <button className='text-start outline-none' onClick={() => { handleShowDetails() }}>
                                                         View Details
                                                     </button>
                                                     <div className='text-red'>Delete</div>
@@ -277,6 +273,139 @@ function SheduledCalls() {
                         </div>
                 }
             </div>
+
+            {/* Modals goes here */}
+            <Modal
+                open={showDetailsModal}
+                onClose={() => setShowDetailsModal(false)}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 1000,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        backdropFilter: "blur(20px)",
+                    },
+                }}
+            >
+                <Box className="sm:w-10/12 lg:w-10/12 xl:w-8/12 w-11/12 max-h-[70vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
+                    <div className="flex flex-row justify-center w-full">
+                        <div
+                            className="sm:w-10/12 w-full"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                            }}
+                        >
+                            <div className='flex flex-row justify-end'>
+                                <button onClick={() => { setShowDetailsModal(false) }}>
+                                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                </button>
+                            </div>
+                            <div>
+                                {
+                                    AgentCallLogLoader ?
+                                        <div className='flex flex-row items-center justify-center h-full'>
+                                            <CircularProgress size={35} />
+                                        </div> :
+                                        <div>
+
+                                            <div>
+                                                {SelectedAgent?.name.slice(0, 1).toUpperCase() + SelectedAgent?.name.slice(1)} call activity
+                                            </div>
+
+                                            <div className="flex w-full items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm mt-6">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Search by name, email or phone"
+                                                    className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0"
+                                                // value={searchCallLogValue}
+                                                // onChange={(e) => {
+                                                //     const value = e.target.value;
+                                                //     handlecalllog(value);
+                                                //     setSearchCallLogValue(e.target.value);
+                                                // }}
+                                                />
+                                                <img
+                                                    src={'/otherAssets/searchIcon.png'}
+                                                    alt="Search"
+                                                    width={20}
+                                                    height={20}
+                                                />
+                                            </div>
+
+                                            <div className='flex flex-row items-center mt-6' style={{ fontSize: 15, fontWeight: "500", color: "#00000070" }}>
+                                                <div className='w-3/12'>
+                                                    Name
+                                                </div>
+                                                <div className='w-2/12'>
+                                                    Phone Number
+                                                </div>
+                                                <div className='w-3/12'>
+                                                    Address
+                                                </div>
+                                                <div className='w-2/12'>
+                                                    Tag
+                                                </div>
+                                                <div className='w-2/12'>
+                                                    Status
+                                                </div>
+                                            </div>
+
+                                            {
+                                                sheduledCalllogs.length > 0 ?
+                                                    <div className='w-full'>
+                                                        {
+                                                            sheduledCalllogs.map((item, index) => {
+                                                                return (
+                                                                    <div key={index} className='w-full mt-4' style={{ fontSize: 15, fontWeight: "500", scrollbarWidth: "none" }}>
+                                                                        <div className='flex flex-row items-center mt-4' style={{ fontSize: 15, fontWeight: "500" }}>
+                                                                            <div className='w-3/12 flex flex-row items-center gap-2 truncate'>
+                                                                                <div className='h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white'>
+                                                                                    {item?.leadDetails?.firstName.slice(0, 1).toUpperCase()}
+                                                                                </div>
+                                                                                <div className='truncate'>
+                                                                                    <div>
+                                                                                        {item?.leadDetails?.firstName} {item?.leadDetails?.lastName}
+                                                                                    </div>
+                                                                                    <div style={{ fontSize: 11, fontWeight: "500", color: "#00000060" }}>
+                                                                                        {item?.leadDetails?.email}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className='w-2/12 truncate'>
+                                                                                {item?.leadDetails?.phone}
+                                                                            </div>
+                                                                            <div className='w-3/12 truncate'>
+                                                                                {item?.leadDetails?.address}
+                                                                            </div>
+                                                                            <div className='w-2/12 truncate'>
+                                                                                N/A
+                                                                            </div>
+                                                                            <div className='w-2/12 truncate'>
+                                                                                Scheduled
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                )
+                                                            })
+                                                        }
+                                                    </div> :
+                                                    <div className='text-center mt-6 text-3xl'>
+                                                        No Call Found
+                                                    </div>
+                                            }
+
+
+
+
+                                        </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
 
         </div>
     )
@@ -297,5 +426,16 @@ const styles = {
         whiteSpace: 'nowrap',  // Prevent text from wrapping
         overflow: 'hidden',    // Hide overflow text
         textOverflow: 'ellipsis'  // Add ellipsis for overflow text
-    }
+    },
+    modalsStyle: {
+        height: "auto",
+        bgcolor: "transparent",
+        // p: 2,
+        mx: "auto",
+        my: "50vh",
+        transform: "translateY(-55%)",
+        borderRadius: 2,
+        border: "none",
+        outline: "none",
+    },
 }

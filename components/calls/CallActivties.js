@@ -9,6 +9,7 @@ function CallActivities() {
 
 
     const [searchValue, setSearchValue] = useState("");
+    const [searchCallLogValue, setSearchCallLogValue] = useState("");
 
     const [selectedAgent, setSelectedAgent] = useState(null);
     //call activites data `shwoing the agents then show their details also pause them`
@@ -19,8 +20,12 @@ function CallActivities() {
 
     //code for popup
     const [anchorEl, setAnchorEl] = React.useState(null);
-    //modal state
+    //modal state & agent call logs api code
     const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [AgentCallLogLoader, setAgentCallLogLoader] = useState(false);
+    const [FilteredCallLogs, setFilteredCallLogs] = useState([]);
+    const [AgentCallLogs, setAgentCallLogs] = useState([]);
+
 
     const handleShowPopup = (event, item) => {
         setAnchorEl(event.currentTarget);
@@ -82,6 +87,59 @@ function CallActivities() {
         }
     }
 
+    //code to getagent call logs
+    const getAgentCallLogs = async () => {
+        try {
+            setAgentCallLogLoader(true);
+
+            let AuthToken = null;
+            const localData = localStorage.getItem("User");
+            if (localData) {
+                const Data = JSON.parse(localData);
+                console.log("Localdat recieved is :--", Data);
+                AuthToken = Data.token;
+            }
+
+            console.log("Auth token is:", AuthToken);
+
+            // const ApiData = {
+            //     mainAgentId: selectedAgent.id
+            // }
+
+            // console.log("Data sending in api is:", ApiData);
+
+            const ApiPath = `${Apis.getAgentCallLogs}?mainAgentId=${selectedAgent.id}`;
+            console.log("Apipath is:", ApiPath);
+            const response = await axios.get(ApiPath, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            })
+
+            // const response = await axios.get(ApiPath, ApiData, {
+            //     headers: {
+            //         "Authorization": "Bearer " + AuthToken,
+            //         "Content-Type": "application/json"
+            //     }
+            // });
+
+            if (response) {
+                console.log("Response of get selected agent call logs are", response.data);
+                setFilteredCallLogs(response.data.data);
+                if (response.data.status === true) {
+                    setAgentCallLogs(response.data.data);
+                }
+            }
+
+        } catch (error) {
+            console.error("Error occured in call logs api is :", error);
+        } finally {
+            setAgentCallLogLoader(false);
+        }
+    }
+
+    //code to pause agents
     const pauseAgents = async () => {
         try {
             setPauseLoader(true);
@@ -149,6 +207,29 @@ function CallActivities() {
 
         setFilteredAgentsList(filtered);
 
+    }
+
+    //handlecalllog search change
+    const handlecalllog = (value) => {
+        if (value.trim() === "") {
+            // console.log("Should reset to original");
+            // Reset to original list when input is empty
+            setFilteredCallLogs(AgentCallLogs);
+            return;
+        }
+
+        const filtered = AgentCallLogs.filter(item => {
+            const term = value.toLowerCase();
+            return (
+                // item.LeadModel?.firstName.toLowerCase().includes(term) ||
+                // item.LeadModel?.lastName.toLowerCase().includes(term) ||
+                // item.LeadModel?.address.toLowerCase().includes(term) ||
+                item.LeadModel.firstName.toLowerCase().includes(term)
+                // (item.LeadModel?.phone && agentsList.includes(term))
+            );
+        });
+
+        setFilteredCallLogs(filtered);
     }
 
     const styles = {
@@ -299,7 +380,10 @@ function CallActivities() {
                                                                 </button>
                                                         }
                                                     </div>
-                                                    <button className='text-start outline-none' onClick={() => { setShowDetailsModal(true) }}>
+                                                    <button className='text-start outline-none' onClick={() => {
+                                                        setShowDetailsModal(true);
+                                                        getAgentCallLogs();
+                                                    }}>
                                                         View Details
                                                     </button>
                                                     <div className='text-red'>Delete</div>
@@ -326,7 +410,7 @@ function CallActivities() {
                     },
                 }}
             >
-                <Box className="sm:w-6/12 w-10/12 max-h-[70vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
+                <Box className="sm:w-10/12 lg:w-10/12 xl:w-8/12 w-11/12 max-h-[70vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
                     <div className="flex flex-row justify-center w-full">
                         <div
                             className="sm:w-10/12 w-full"
@@ -336,13 +420,114 @@ function CallActivities() {
                                 borderRadius: "13px",
                             }}
                         >
-                            <div className='flex flex-row justify-end'>
-                                <button onClick={() => { setShowDetailsModal(false) }}>
-                                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
-                                </button>
-                            </div>
 
-                            <div>Hello there</div>
+                            {
+                                AgentCallLogLoader ?
+                                    <div className='flex flex-row items-center justify-center h-full'>
+                                        <CircularProgress size={35} />
+                                    </div> :
+                                    <div>
+                                        <div className='flex flex-row justify-end'>
+                                            <button onClick={() => { setShowDetailsModal(false) }}>
+                                                <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                            </button>
+                                        </div>
+
+                                        <div>
+                                            {selectedAgent?.name.slice(0, 1).toUpperCase() + selectedAgent?.name.slice(1)} call activity
+                                        </div>
+
+                                        <div className="flex w-full items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm mt-6">
+                                            <input
+                                                type="text"
+                                                placeholder="Search by name, email or phone"
+                                                className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0"
+                                                value={searchCallLogValue}
+                                                onChange={(e) => {
+                                                    const value = e.target.value;
+                                                    handlecalllog(value);
+                                                    setSearchCallLogValue(e.target.value);
+                                                }}
+                                            />
+                                            <img
+                                                src={'/otherAssets/searchIcon.png'}
+                                                alt="Search"
+                                                width={20}
+                                                height={20}
+                                            />
+                                        </div>
+
+                                        <div className='flex flex-row items-center mt-6' style={{ fontSize: 15, fontWeight: "500", color: "#00000070" }}>
+                                            <div className='w-3/12'>
+                                                Name
+                                            </div>
+                                            <div className='w-2/12'>
+                                                Phone Number
+                                            </div>
+                                            <div className='w-3/12'>
+                                                Address
+                                            </div>
+                                            <div className='w-2/12'>
+                                                Tag
+                                            </div>
+                                            <div className='w-2/12'>
+                                                Status
+                                            </div>
+                                        </div>
+
+                                        {
+                                            FilteredCallLogs.length > 0 ?
+                                                <div className='w-full h-[40vh] overflow-auto mt-4' style={{ fontSize: 15, fontWeight: "500", scrollbarWidth: "none" }}>
+                                                    {
+                                                        FilteredCallLogs.map((item, index) => {
+                                                            return (
+                                                                <div key={index} className='flex flex-row items-center mt-4' style={{ fontSize: 15, fontWeight: "500" }}>
+                                                                    <div className='w-3/12 flex flex-row items-center gap-2 truncate'>
+                                                                        <div className='h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white'>
+                                                                            {item.LeadModel?.firstName?.slice(0, 1).toUpperCase()}
+                                                                        </div>
+                                                                        <div className='truncate'>
+                                                                            <div>
+                                                                                {item.LeadModel.firstName} {item.LeadModel.lastName}
+                                                                            </div>
+                                                                            <div style={{ fontSize: 11, fontWeight: "500", color: "#00000060" }}>
+                                                                                {item.LeadModel.email}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className='w-2/12 truncate'>
+                                                                        {item.LeadModel.phone}
+                                                                    </div>
+                                                                    <div className='w-3/12 truncate'>
+                                                                        {item.LeadModel.address}
+                                                                    </div>
+                                                                    <div className='w-2/12 truncate'>
+                                                                        {item.LeadModel.tags || "N/A"}
+                                                                    </div>
+                                                                    <div className='w-2/12 truncate'>
+                                                                        {item.LeadModel.status || "N/A"}
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })
+                                                    }
+                                                </div> :
+                                                <div>
+                                                    {
+                                                        AgentCallLogLoader ?
+                                                            <div className='w-full text-2xl justify-center flex flex-row items-center mt-8'>
+                                                                <CircularProgress size={25} />
+                                                            </div> :
+                                                            <div className='w-full text-2xl justify-center flex flex-row items-center mt-8'>
+                                                                No call logs found
+                                                            </div>
+                                                    }
+                                                </div>
+                                        }
+
+
+                                    </div>
+                            }
 
 
                             {/* Can be use full to add shadow */}
