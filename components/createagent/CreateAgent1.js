@@ -544,7 +544,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                 </div>
 
                                 <div className='mt-1'>
-                                    <AddressPicker />
+                                    {/* <AddressPicker /> */}
                                 </div>
                             </div>
 
