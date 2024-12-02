@@ -831,7 +831,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                 </div>
 
                                                 <div style={{ height: "50px" }}>
-                                                    {
+                                                    {/*
                                                         inputs.length < 3 && (
                                                             <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
                                                                 fontSize: 15,
@@ -840,7 +840,13 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                                 Add New
                                                             </button>
                                                         )
-                                                    }
+                                                    */ }
+                                                    <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
+                                                        fontSize: 15,
+                                                        fontWeight: "700"
+                                                    }}>
+                                                        Add New
+                                                    </button>
                                                 </div>
                                             </div>
 
