@@ -26,7 +26,9 @@ const Apis = {
     getCallLogs: `${BasePath}api/leads/callLogs`,
     getSheduledCallLogs: `${BasePath}api/pipeline/getScheduledCalls`,
     pauseAgent: `${BasePath}api/pipeline/pauseAgentCadence`,
-    getUniqueColumns: `${BasePath}api/leads/getUniqueColumns`
+    getUniqueColumns: `${BasePath}api/leads/getUniqueColumns`,
+    addSmartList: `${BasePath}api/leads/addSmartList`,
+    addCustomStage: `${BasePath}api/pipeline/createStage`
 
 }
 

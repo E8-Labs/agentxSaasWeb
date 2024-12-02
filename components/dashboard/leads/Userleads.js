@@ -30,7 +30,9 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
 
     //code for array input fields
     const [inputs, setInputs] = useState([{ id: 1, value: '' }, { id: 2, value: '' }, { id: 3, value: '' }]);
-    const [newQuestion, setNewQuestion] = useState('');
+    //
+    const [showaddCreateListLoader, setShowaddCreateListLoader] = useState(false);
+    const [newSheetName, setNewSheetName] = useState("");
 
     //err msg when no leaad in list
     const [showNoLeadErr, setShowNoLeadErr] = useState(null);
@@ -303,6 +305,50 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
         const newId = inputs.length ? inputs[inputs.length - 1].id + 1 : 1;
         setInputs([...inputs, { id: newId, value: '' }]);
     };
+
+    //code to add new sheet list
+    const handleAddSheetNewList = async () => {
+        try {
+            setShowaddCreateListLoader(true);
+
+            const localData = localStorage.getItem("User");
+            let AuthToken = null;
+            if (localData) {
+                const UserDetails = JSON.parse(localData);
+                AuthToken = UserDetails.token;
+            }
+
+            console.log("Auth token is :--", AuthToken);
+
+            const ApiData = {
+                sheetName: newSheetName,
+                columns: inputs.map((columns) => (columns.value))
+            }
+            console.log("Data to send in api is:", ApiData);
+
+            const ApiPath = Apis.addSmartList;
+            console.log("Api Path is", ApiPath);
+
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of add new smart list api is :", response);
+                if(response.data.status){
+                    setShowAddNewSheetModal(false);
+                }
+            }
+
+        } catch (error) {
+            console.error("Error occured in adding new list api is:", error);
+        } finally {
+            setShowaddCreateListLoader(false);
+        }
+    }
 
 
     const styles = {
@@ -781,57 +827,63 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                         },
                                     }}
                                 >
-                                    <Box className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto rounded-3xl" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
-                                        <div className="w-full flex flex-col items-center h-full">
+                                    <Box className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto rounded-3xl h-[70vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
+                                        <div className="w-full flex flex-col items-center h-full justify-between">
 
-                                            <div className='flex flex-row items-center justify-between w-full mt-4 px-2'>
-                                                <div style={{ fontWeight: "500", fontSize: 15 }}>
-                                                    New SmartList
-                                                </div>
-                                                <button onClick={() => { setShowAddNewSheetModal(false) }}>
-                                                    <Image src={"/assets/Cross.png"} height={15} width={15} alt='*' />
-                                                </button>
-                                            </div>
-
-                                            <div className='px-4 w-full'>
-                                                <div className='flex flex-row items-center justify-start mt-6 gap-2'>
-                                                    <span style={styles.paragraph}>
-                                                        List Name
-                                                    </span>
-                                                    <Image src={"/assets/infoIcon.png"} height={15} width={15} alt='*' />
-                                                </div>
-                                                <div className='mt-4'>
-                                                    <input
-                                                        placeholder='Enter list name' className='outline-none focus:outline-none focus:ring-none border w-full rounded-xl h-[53px]'
-                                                        style={{
-                                                            ...styles.paragraph, border: "1px solid #00000020"
-                                                        }}
-                                                    />
-                                                </div>
-                                                <div className='mt-4' style={styles.paragraph}>
-                                                    Create Columns
-                                                </div>
-                                                <div className='max-h-[30vh] overflow-auto mt-4' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
-                                                    style={{ scrollbarWidth: "none" }}
-                                                >
-                                                    {inputs.map((input, index) => (
-                                                        <div key={input.id} className='w-full flex flex-row items-center gap-4 mt-4'>
-                                                            <input
-                                                                className='border p-2 rounded-lg px-3 outline-none mx-2 focus:outline-none focus:ring-0'
-                                                                style={{ width: "95%", borderColor: "#00000020" }}
-                                                                placeholder={`Sample Answer`}
-                                                                value={input.value}
-                                                                onChange={(e) => handleInputChange(input.id, e.target.value)}
-                                                            />
-                                                            <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
-                                                                <Image src={"/assets/blackBgCross.png"} height={15} width={15} alt='*' />
-                                                            </button>
-                                                        </div>
-                                                    ))}
+                                            <div className='w-full'>
+                                                <div className='flex flex-row items-center justify-between w-full mt-4 px-2'>
+                                                    <div style={{ fontWeight: "500", fontSize: 15 }}>
+                                                        New SmartList
+                                                    </div>
+                                                    <button onClick={() => { setShowAddNewSheetModal(false) }}>
+                                                        <Image src={"/assets/Cross.png"} height={15} width={15} alt='*' />
+                                                    </button>
                                                 </div>
 
-                                                <div style={{ height: "50px" }}>
-                                                    {/*
+                                                <div className='px-4 w-full'>
+                                                    <div className='flex flex-row items-center justify-start mt-6 gap-2'>
+                                                        <span style={styles.paragraph}>
+                                                            List Name
+                                                        </span>
+                                                        <Image src={"/assets/infoIcon.png"} height={15} width={15} alt='*' />
+                                                    </div>
+                                                    <div className='mt-4'>
+                                                        <input
+                                                            value={newSheetName}
+                                                            onChange={(e) => { setNewSheetName(e.target.value) }}
+                                                            placeholder='Enter list name' className='outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px]'
+                                                            style={{
+                                                                ...styles.paragraph, border: "1px solid #00000020"
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div className='mt-8' style={styles.paragraph}>
+                                                        Create Columns
+                                                    </div>
+                                                    <div className='max-h-[30vh] overflow-auto mt-2' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                                                        style={{ scrollbarWidth: "none" }}
+                                                    >
+                                                        {inputs.map((input, index) => (
+                                                            <div key={input.id} className='w-full flex flex-row items-center gap-4 mt-4'>
+                                                                <input
+                                                                    className='border p-2 rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[53px]'
+                                                                    style={{
+                                                                        ...styles.paragraph,
+                                                                        width: "95%", borderColor: "#00000020",
+                                                                    }}
+                                                                    placeholder={`Column Name`}
+                                                                    value={input.value}
+                                                                    onChange={(e) => handleInputChange(input.id, e.target.value)}
+                                                                />
+                                                                <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
+                                                                    <Image src={"/assets/blackBgCross.png"} height={20} width={20} alt='*' />
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+
+                                                    <div style={{ height: "50px" }}>
+                                                        {/*
                                                         inputs.length < 3 && (
                                                             <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
                                                                 fontSize: 15,
@@ -841,13 +893,30 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                             </button>
                                                         )
                                                     */ }
-                                                    <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
-                                                        fontSize: 15,
-                                                        fontWeight: "700"
-                                                    }}>
-                                                        Add New
-                                                    </button>
+                                                        <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={styles.paragraph}>
+                                                            New Column
+                                                        </button>
+                                                    </div>
                                                 </div>
+                                            </div>
+
+                                            <div className='w-full pb-8'>
+                                                {
+                                                    showaddCreateListLoader ?
+                                                        <div className='flex flex-row items-center justify-center w-full h-[50px]'>
+                                                            <CircularProgress size={25} />
+                                                        </div> :
+                                                        <button
+                                                            className='bg-purple h-[50px] rounded-xl text-white w-full'
+                                                            style={{
+                                                                fontWeight: "600",
+                                                                fontSize: 16.8
+                                                            }}
+                                                            onClick={handleAddSheetNewList}
+                                                        >
+                                                            Create List
+                                                        </button>
+                                                }
                                             </div>
 
                                         </div>

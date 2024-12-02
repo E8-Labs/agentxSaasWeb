@@ -1,4 +1,4 @@
-import { Popover, Typography } from '@mui/material';
+import { Box, CircularProgress, Modal, Popover, Typography } from '@mui/material';
 import { CaretDown, DotsThree } from '@phosphor-icons/react'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
@@ -26,6 +26,11 @@ const Pipeline1 = () => {
     const [StagesList, setStagesList] = useState([]);
     const [LeadsList, setLeadsList] = useState([]);
     const [leadCounts, setLeadCounts] = useState(null);
+    //code to add new stage
+    const [addNewStageModal, setAddNewStageModal] = useState(false);
+    const [newStageTitle, setNewStageTitle] = useState("");
+    const [stageColor, setStageColor] = useState("");
+    const [addStageLoader, setAddStageLoader] = useState(false);
 
     useEffect(() => {
         getPipelines()
@@ -103,7 +108,52 @@ const Pipeline1 = () => {
         console.log("Other pipeline selected is :", item);
     }
 
+    //code for adding new custom stage
+    const handleAddNewStageTitle = async () => {
+        try {
+            setAddStageLoader(true);
+            const localData = localStorage.getItem("User");
+            let AuthToken = null;
+            if (localData) {
+                const UserDetails = JSON.parse(localData);
+                AuthToken = UserDetails.token;
+                console.log("Local details are :", UserDetails);
+            }
 
+            console.log("Auth token is :--", AuthToken);
+
+            const ApiPath = Apis.addCustomStage;
+            console.log("Api path is:", ApiPath);
+
+            const ApiData = {
+                stageTitle: newStageTitle,
+                color: stageColor,
+                pipelineId: SelectedPipeline.id
+            }
+
+            console.log("Data sending in api is:", ApiData);
+
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of add stage title :", response);
+                if (response.data.status === true) {
+                    setStagesList(response.data.data.stages);
+                    setAddNewStageModal(false);
+                }
+            }
+
+        } catch (error) {
+            console.error("Error occured inn adding new stage title api is", error);
+        } finally {
+            setAddStageLoader(false);
+        }
+    }
 
 
     const styles = {
@@ -118,7 +168,18 @@ const Pipeline1 = () => {
         agentName: {
             fontWeight: "600",
             fontSize: 12
-        }
+        },
+        modalsStyle: {
+            height: "auto",
+            bgcolor: "transparent",
+            p: 2,
+            mx: "auto",
+            my: "50vh",
+            transform: "translateY(-55%)",
+            borderRadius: 2,
+            border: "none",
+            outline: "none",
+        },
     }
 
     return (
@@ -382,103 +443,117 @@ const Pipeline1 = () => {
 
                     </div>
 
-                    <div className="flex flex-row items-center gap-4">
-                        {StagesList.map((stage, index) => (
-                            <div key={index} style={{ width: "300px" }} className="flex flex-col items-start h-full">
-                                {/* Display the stage */}
-                                <div className='flex flex-row items-center w-full justify-between'>
-                                    <div
-                                        className="h-[36px] flex flex-row items-center justify-center gap-8 rounded-xl px-4 text-white"
-                                        style={{ ...styles.heading, backgroundColor: stage.defaultColor }}
-                                    >
-                                        <span>{stage.stageTitle}</span>
+                    <div className='flex flex-row items-center gap-2'>
+                        <div className="flex flex-row items-center gap-4">
+                            {StagesList.map((stage, index) => (
+                                <div key={index} style={{ width: "300px" }} className="flex flex-col items-start h-full">
+                                    {/* Display the stage */}
+                                    <div className='flex flex-row items-center w-full justify-between'>
                                         <div
-                                            className="h-[23px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center text-black"
-                                            style={{ ...styles.paragraph, fontSize: 14 }}
+                                            className="h-[36px] flex flex-row items-center justify-center gap-8 rounded-xl px-4 text-white"
+                                            style={{ ...styles.heading, backgroundColor: stage.defaultColor }}
                                         >
-                                            {leadCounts[stage.id]}
+                                            <span>{stage.stageTitle}</span>
+                                            <div
+                                                className="h-[23px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center text-black"
+                                                style={{ ...styles.paragraph, fontSize: 14 }}
+                                            >
+                                                {leadCounts[stage.id]}
 
-                                            {/* {leadCounts.map((item) => {
+                                                {/* {leadCounts.map((item) => {
 
                                             })} */}
+                                            </div>
                                         </div>
+
+                                        <button aria-describedby={stageId} variant="contained" onClick={handleShowStagePopover}>
+                                            <DotsThree size={27} weight="bold" />
+                                        </button>
                                     </div>
+                                    <Popover
+                                        id={stageId}
+                                        open={openStage}
+                                        anchorEl={StageAnchorel}
+                                        onClose={handleCloseStagePopover}
+                                        anchorOrigin={{
+                                            vertical: 'bottom',
+                                            horizontal: 'left',
+                                        }}
+                                        PaperProps={{
+                                            elevation: 0, // This will remove the shadow
+                                            style: {
+                                                boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
+                                            },
+                                        }}
+                                    >
+                                        <Typography sx={{ p: 2 }}>The content of the Popover.</Typography>
+                                    </Popover>
 
-                                    <button aria-describedby={stageId} variant="contained" onClick={handleShowStagePopover}>
-                                        <DotsThree size={27} weight="bold" />
-                                    </button>
-                                </div>
-                                <Popover
-                                    id={stageId}
-                                    open={openStage}
-                                    anchorEl={StageAnchorel}
-                                    onClose={handleCloseStagePopover}
-                                    anchorOrigin={{
-                                        vertical: 'bottom',
-                                        horizontal: 'left',
-                                    }}
-                                    PaperProps={{
-                                        elevation: 0, // This will remove the shadow
-                                        style: {
-                                            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
-                                        },
-                                    }}
-                                >
-                                    <Typography sx={{ p: 2 }}>The content of the Popover.</Typography>
-                                </Popover>
-
-                                {/* Display leads matching this stage */}
-                                <div className="flex flex-col gap-4 mt-4 max-h-[78vh] overflow-auto border rounded-xl" style={{ scrollbarWidth: "none" }}>
-                                    {LeadsList.filter((lead) => lead.stage === stage.id).map((lead, leadIndex) => (
-                                        <div className="p-3 h-full" style={{ width: "300px" }} key={leadIndex}>
-                                            <div className="border rounded-xl px-4 py-2 h-full">
-                                                <div className="flex flex-row items-center gap-3">
-                                                    <div
-                                                        className="bg-black text-white rounded-full flex flex-row item-center justify-center"
-                                                        style={{ height: "27px", width: "27px" }}
-                                                    >
-                                                        {lead.lead.firstName.slice(0, 1)}
+                                    {/* Display leads matching this stage */}
+                                    <div className="flex flex-col gap-4 mt-4 max-h-[78vh] overflow-auto border rounded-xl" style={{ scrollbarWidth: "none" }}>
+                                        {LeadsList.filter((lead) => lead.stage === stage.id).map((lead, leadIndex) => (
+                                            <div className="p-3 h-full" style={{ width: "300px" }} key={leadIndex}>
+                                                <div className="border rounded-xl px-4 py-2 h-full">
+                                                    <div className="flex flex-row items-center gap-3">
+                                                        <div
+                                                            className="bg-black text-white rounded-full flex flex-row item-center justify-center"
+                                                            style={{ height: "27px", width: "27px" }}
+                                                        >
+                                                            {lead.lead.firstName.slice(0, 1)}
+                                                        </div>
+                                                        <div style={styles.paragraph}>{lead.lead.firstName}</div>
                                                     </div>
-                                                    <div style={styles.paragraph}>{lead.lead.firstName}</div>
-                                                </div>
-                                                <div className="flex flex-row items-center justify-between w-full mt-2">
-                                                    <div className="text-[#00000060]" style={styles.agentName}>
-                                                        Email
+                                                    <div className="flex flex-row items-center justify-between w-full mt-2">
+                                                        <div className="text-[#00000060]" style={styles.agentName}>
+                                                            Email
+                                                        </div>
+                                                        <div className="flex flex-row items-center gap-4">
+                                                            <Image
+                                                                src={"/assets/colorCircle.png"}
+                                                                height={24}
+                                                                width={24}
+                                                                alt="*"
+                                                            />
+                                                            <div className="text-purple underline" style={styles.agentName}>
+                                                                {lead.agent.name}
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div className="flex flex-row items-center gap-4">
+                                                    <div className="w-full flex flex-row items-center justify-between mt-12">
                                                         <Image
-                                                            src={"/assets/colorCircle.png"}
-                                                            height={24}
-                                                            width={24}
+                                                            src={"/assets/manIcon.png"}
+                                                            height={32}
+                                                            width={32}
                                                             alt="*"
                                                         />
-                                                        <div className="text-purple underline" style={styles.agentName}>
-                                                            {lead.agent.name}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="w-full flex flex-row items-center justify-between mt-12">
-                                                    <Image
-                                                        src={"/assets/manIcon.png"}
-                                                        height={32}
-                                                        width={32}
-                                                        alt="*"
-                                                    />
-                                                    <div className="flex flex-row items-center gap-3">
-                                                        <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
-                                                            Tag
-                                                        </div>
-                                                        <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
-                                                            Tag
+                                                        <div className="flex flex-row items-center gap-3">
+                                                            <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
+                                                                Tag
+                                                            </div>
+                                                            <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
+                                                                Tag
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
+                        <div className='h-[36px] flex flex-row items-start justify-center'>
+                            <button className='h-[23px] text-purple'
+                                style={{
+                                    width: "200px",
+                                    fontSize: "16.8",
+                                    fontWeight: "700"
+                                }}
+                                onClick={() => { setAddNewStageModal(true) }}
+                            >
+                                Add Stage
+                            </button>
+                        </div>
                     </div>
 
                 </div>
@@ -676,6 +751,69 @@ const Pipeline1 = () => {
                     </div>
                 </div>
             </div> */}
+
+
+
+            {/* Code for add stage modal */}
+            <Modal
+                open={addNewStageModal}
+                onClose={() => { setAddNewStageModal(false) }}
+            >
+                <Box sx={{ ...styles.modalsStyle, width: "25%", backgroundColor: 'white' }}>
+                    <div style={{ width: "100%", }}>
+                        <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <div style={{ width: "20%" }} />
+                            <div style={{ fontWeight: "700", fontSize: 22, width: "50%" }}>
+                                Add New Stage
+                            </div>
+                            <div style={{ width: "20%", direction: "row", display: "flex", justifyContent: "end" }}>
+                                <button onClick={() => { setAddNewStageModal(false) }}>
+                                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <div className='mt-4' style={{ fontWeight: "500", fontSize: 16 }}>
+                                Stage Title
+                            </div>
+                            <input
+                                value={newStageTitle}
+                                onChange={(e) => { setNewStageTitle(e.target.value) }}
+                                placeholder='Enter stage title'
+                                className='outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-xl h-[50px] mt-2'
+                                style={{ border: "1px solid #00000020" }}
+                            />
+                            <div style={{ marginTop: 10, fontWeight: "500", fontSize: 16 }}>
+                                Color
+                            </div>
+                            <input
+                                value={stageColor}
+                                onChange={(e) => { setStageColor(e.target.value) }}
+                                placeholder='Add color (Optional)'
+                                className='outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-xl h-[50px] mt-2'
+                                style={{ border: "1px solid #00000020" }}
+                            />
+                        </div>
+                        {
+                            addStageLoader ?
+                                <div className='flex flex-row iems-center justify-center w-full mt-4'>
+                                    <CircularProgress size={25} />
+                                </div> :
+                                <button
+                                    className='mt-4'
+                                    style={{
+                                        backgroundColor: "#402FFF", color: "white",
+                                        height: "50px", borderRadius: "10px", width: "100%",
+                                        fontWeight: 600, fontSize: '20'
+                                    }}
+                                    onClick={handleAddNewStageTitle}
+                                >
+                                    Add & Close
+                                </button>
+                        }
+                    </div>
+                </Box>
+            </Modal>
 
 
 
