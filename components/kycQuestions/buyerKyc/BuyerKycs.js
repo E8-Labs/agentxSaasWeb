@@ -326,7 +326,7 @@ const BuyerKycs = ({ handleContinue }) => {
             ApiData = data;
 
             console.log("APi data is :--", ApiData);
-            return
+            // return
             const response = await axios.post(ApiPath, ApiData, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken,
