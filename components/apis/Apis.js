@@ -30,7 +30,8 @@ const Apis = {
     getUniqueColumns: `${BasePath}api/leads/getUniqueColumns`,
     addSmartList: `${BasePath}api/leads/addSmartList`,
     addCustomStage: `${BasePath}api/pipeline/createStage`,
-    addObjectionGuardrial: `${BasePath}api/agent/addObjectionGuardRail`
+    addObjectionGuardrial: `${BasePath}api/agent/addObjectionGuardRail`,
+    reorderStages: `${BasePath}api/pipeline/reorderStages`
 
 }
 

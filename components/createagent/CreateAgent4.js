@@ -305,14 +305,14 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     const getAvailabePhoneNumbers = async () => {
         try {
             let AuthToken = null;
+            
+            // const agentDetails = localStorage.getItem("agentDetails");
             const LocalData = localStorage.getItem("User");
-
-            const agentDetails = localStorage.getItem("agentDetails");
             if (LocalData) {
                 const UserDetails = JSON.parse(LocalData);
                 AuthToken = UserDetails.token;
             }
-
+            console.log("Auth token is:", AuthToken);
             const ApiPath = Apis.userAvailablePhoneNumber;
             console.log("Apipath", ApiPath);
 
@@ -815,7 +815,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                 </div>
                             ) : ""}
 
-                            
+
 
                             <div style={styles.headingStyle}>
                                 What number should we forward live transfers to when a lead wants to talk to you?

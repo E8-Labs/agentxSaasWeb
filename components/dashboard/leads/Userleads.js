@@ -5,7 +5,7 @@ import axios from 'axios';
 import { first } from 'draft-js/lib/DefaultDraftBlockRenderMap';
 import moment from 'moment';
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import AssignLead from './AssignLead';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css'; // Import default styles
@@ -13,6 +13,7 @@ import CalendarInput from '@/components/test/DatePicker';
 
 const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
 
+    const bottomRef = useRef(null);
     const [initialLoader, setInitialLoader] = useState(false);
     const [SheetsList, setSheetsList] = useState([]);
     const [currentSheet, setCurrentSheet] = useState(null);
@@ -85,7 +86,15 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
     useEffect(() => {
         console.log("Current leads list is :", LeadsList);
         console.log("Current filtered leads list is :", FilterLeads);
-    }, [LeadsList, FilterLeads])
+    }, [LeadsList, FilterLeads]);
+
+    //code to scroll to the bottom
+    useEffect(() => {
+        // Scroll to the bottom when inputs change
+        if (bottomRef.current) {
+            bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [inputs]);
 
     //function to select the stage for filters
     const handleSelectStage = (item) => {
@@ -338,7 +347,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
 
             if (response) {
                 console.log("Response of add new smart list api is :", response);
-                if(response.data.status){
+                if (response.data.status) {
                     setShowAddNewSheetModal(false);
                 }
             }
@@ -827,8 +836,8 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                         },
                                     }}
                                 >
-                                    <Box className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto rounded-3xl h-[70vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
-                                        <div className="w-full flex flex-col items-center h-full justify-between">
+                                    <Box className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto rounded-3xl h-[70vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none", backgroundColor: "white" }}>
+                                        <div className="w-full flex flex-col items-center h-full justify-between" style={{ backgroundColor: "white" }}>
 
                                             <div className='w-full'>
                                                 <div className='flex flex-row items-center justify-between w-full mt-4 px-2'>
@@ -836,7 +845,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                         New SmartList
                                                     </div>
                                                     <button onClick={() => { setShowAddNewSheetModal(false) }}>
-                                                        <Image src={"/assets/Cross.png"} height={15} width={15} alt='*' />
+                                                        <Image src={"/assets/cross.png"} height={15} width={15} alt='*' />
                                                     </button>
                                                 </div>
 
@@ -880,8 +889,9 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                                 </button>
                                                             </div>
                                                         ))}
+                                                        {/* Dummy element for scrolling */}
+                                                        <div ref={bottomRef}></div>
                                                     </div>
-
                                                     <div style={{ height: "50px" }}>
                                                         {/*
                                                         inputs.length < 3 && (

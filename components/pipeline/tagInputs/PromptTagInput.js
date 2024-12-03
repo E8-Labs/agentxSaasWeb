@@ -1,6 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 
-export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) => {
+export const PromptTagInput = ({
+    scrollOffset,
+    promptTag,
+    kycsList,
+    tagValue,
+}) => {
     // console.log("Scroll Offset Parent ", scrollOffset)
     const [popupVisible, setPopupVisible] = useState(false);
     const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
@@ -25,7 +30,10 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
             // if (mirrorDivRef.current) {
             //     document.body.removeChild(mirrorDivRef.current);
             // }
-            if (mirrorDivRef.current && document.body.contains(mirrorDivRef.current)) {
+            if (
+                mirrorDivRef.current &&
+                document.body.contains(mirrorDivRef.current)
+            ) {
                 document.body.removeChild(mirrorDivRef.current);
             }
             mirrorDivRef.current = null;
@@ -33,9 +41,8 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
     }, []);
 
     useEffect(() => {
-        setText(promptTag)
-    }, [promptTag])
-
+        setText(promptTag);
+    }, [promptTag]);
 
     const getTextScrollOffset = () => {
         if (textFieldRef.current) {
@@ -85,15 +92,15 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
 
         mirrorDiv.removeChild(spanMarker);
 
-        const popupLeft = markerRect.left// - inputRect.left + scrollOffset.scrollLeft;
-        let maxLines = (markerRect.top - 1005) / 24 + 1
-        let distance = 35 + (markerRect.top - 1005)
-        console.log("Max Lines ", maxLines)
+        const popupLeft = markerRect.left; // - inputRect.left + scrollOffset.scrollLeft;
+        let maxLines = (markerRect.top - 1005) / 24 + 1;
+        let distance = 35 + (markerRect.top - 1005);
+        console.log("Max Lines ", maxLines);
         // if(maxLines > 18){
         //     distance = 18 * 24 + 35;
         // }
-        let textOffset = getTextScrollOffset()
-        let popupTop = distance - textOffset.scrollTop//inputRect.top / markerRect.top * scrollOffset.scrollTop//markerRect.top - inputRect.top + scrollOffset.scrollTop - (markerRect.top - inputRect.top - scrollOffset.scrollTop) * 0.25;//490
+        let textOffset = getTextScrollOffset();
+        let popupTop = distance - textOffset.scrollTop; //inputRect.top / markerRect.top * scrollOffset.scrollTop//markerRect.top - inputRect.top + scrollOffset.scrollTop - (markerRect.top - inputRect.top - scrollOffset.scrollTop) * 0.25;//490
         // markerRect.top - inputRect.top + scrollOffset.scrollTop + parseFloat(computedStyle.lineHeight);
 
         console.log("Text Offset: ", textOffset);
@@ -116,26 +123,25 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
         const lastOpenBraceIndex = textBeforeCursor.lastIndexOf("{");
 
         if (lastOpenBraceIndex !== -1) {
-            const searchTerm = textBeforeCursor.substring(lastOpenBraceIndex + 1).toLowerCase();
-            let filtered = []
+            const searchTerm = textBeforeCursor
+                .substring(lastOpenBraceIndex + 1)
+                .toLowerCase();
+            let filtered = [];
             if (searchTerm.startsWith("kyc")) {
                 let kycTerm = searchTerm.replace(/kyc/g, "").trim();
                 kycsList.filter((option) => {
                     if (option.question.toLowerCase().startsWith(kycTerm)) {
-                        filtered.push(option.question)
+                        filtered.push(option.question);
                     }
-                }
-                );
-                console.log("Filered kyc ", filtered)
+                });
+                console.log("Filered kyc ", filtered);
                 setFilteredOptions(filtered);
-            }
-            else {
+            } else {
                 filtered = options.filter((option) =>
                     option.toLowerCase().startsWith(searchTerm)
                 );
                 setFilteredOptions(filtered);
             }
-
 
             if (filtered.length > 0) {
                 calculatePopupPosition(input, textBeforeCursor);
@@ -173,57 +179,59 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
             // console.log("Text Bef", text)
             // console.log("Text Aft", textAfterCursor)
             let CharDel = text.substring(cursorPos - 1, cursorPos);
-            console.log("Char Del", CharDel)
-            let t = text
-            //find the starting position of the text 
+            console.log("Char Del", CharDel);
+            let t = text;
+            //find the starting position of the text
             //if found } don't delete
             //if found { then delete forward
-            let ShouldDelete = true
+            let ShouldDelete = true;
             let indexOfStart = cursorPos;
             let currentChar = CharDel;
             while (currentChar != "{") {
-                indexOfStart -= 1
+                indexOfStart -= 1;
                 currentChar = t.substring(indexOfStart - 1, indexOfStart);
-                if(currentChar == "}"){
-                    ShouldDelete = false
+                if (currentChar == "}") {
+                    ShouldDelete = false;
                 }
-                console.log("Chat is ", currentChar)
+                console.log("Chat is ", currentChar);
             }
             console.log("Start Del from ", currentChar);
             console.log("Start Del from Index ", indexOfStart);
-            if(ShouldDelete){
+            if (ShouldDelete) {
                 const firstOccurrenceEndChar = t.indexOf("}", indexOfStart); //}
                 const firstOccurrenceOfStartChar = t.indexOf("{", indexOfStart); //{
 
-                console.log("First pos of start Char ", firstOccurrenceOfStartChar)
-                console.log("First pos of end Char ", firstOccurrenceEndChar)
-                if(firstOccurrenceEndChar < firstOccurrenceOfStartChar){
+                console.log("First pos of start Char ", firstOccurrenceOfStartChar);
+                console.log("First pos of end Char ", firstOccurrenceEndChar);
+                if (firstOccurrenceEndChar < firstOccurrenceOfStartChar) {
                     //delete all until endCharPos
-                    console.log("char delete falls bet {}")
-                    t = removeSubstring(t, indexOfStart - 1, firstOccurrenceEndChar)
-                    console.log("New Text ", t)
-                }
-                else{
-                    console.log("char delete doesn't fall bet {}")
-                    t = removeSubstring(t, indexOfStart - 1, cursorPos)
-                    console.log("New Text ", t)
-                }
-                e.preventDefault(); // Prevent the default Backspace or Delete action
-                
-                setText(t);
+                    console.log("char delete falls bet {}");
+                    t = removeSubstring(t, indexOfStart - 1, firstOccurrenceEndChar);
+                    console.log("New Text ", t);
+                    e.preventDefault(); // Prevent the default Backspace or Delete action
 
-                // Adjust cursor position
-                const newCursorPos = e.key === "Backspace" ? indexOfStart : indexOfStart;
-                setTimeout(() => {
-                    input.focus();
-                    input.setSelectionRange(newCursorPos, newCursorPos);
-                }, 0);
-                
+                    setText(t);
 
+                    // Adjust cursor position
+                    const newCursorPos =
+                        e.key === "Backspace" ? indexOfStart : indexOfStart;
+                    setTimeout(() => {
+                        input.focus();
+                        input.setSelectionRange(newCursorPos - 1, newCursorPos - 1);
+                    }, 0);
+                } else {
+                    e.preventDefault();
+                    console.log("char delete doesn't fall bet {}");
+                    t = removeSubstring(t, cursorPos - 1, cursorPos - 1);
+                    console.log("New Text ", t);
+                    setText(t);
+                    setTimeout(() => {
+                        input.focus();
+                        input.setSelectionRange(cursorPos - 1, cursorPos - 1);
+                    }, 0);
+                }
             }
-            return
-
-
+            return;
 
             // Find all tags using a regular expression
             const tagRegex = /\{[^\}]*\}/g; // Matches {name}, {address}, etc.
@@ -245,11 +253,13 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
             if (tagToDelete) {
                 e.preventDefault(); // Prevent the default Backspace or Delete action
                 const newText =
-                    text.substring(0, tagToDelete.start) + text.substring(tagToDelete.end);
+                    text.substring(0, tagToDelete.start) +
+                    text.substring(tagToDelete.end);
                 setText(newText);
 
                 // Adjust cursor position
-                const newCursorPos = e.key === "Backspace" ? tagToDelete.start : tagToDelete.start;
+                const newCursorPos =
+                    e.key === "Backspace" ? tagToDelete.start : tagToDelete.start;
                 setTimeout(() => {
                     input.focus();
                     input.setSelectionRange(newCursorPos, newCursorPos);
@@ -291,7 +301,7 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
     return (
         <div style={{ position: "relative" }}>
             <textarea
-                className="outline-none rounded-xl focus:outline-none focus:ring-0"
+                className="outline-none rounded-xl"
                 ref={textFieldRef}
                 rows="20"
                 cols="50"
@@ -300,7 +310,16 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
                 onKeyUp={handleKeyUp}
                 onKeyDown={handleKeyDown}
                 placeholder="Type here..."
-                style={{ fontSize: "16px", padding: "15px", width: "100%", fontWeight: "500", fontSize: 15, height: 500, resize: "none", border: "1px solid #00000020" }}
+                style={{
+                    fontSize: "16px",
+                    padding: "15px",
+                    width: "100%",
+                    fontWeight: "500",
+                    fontSize: 15,
+                    height: 500,
+                    resize: "none",
+                    border: "1px solid #00000020",
+                }}
             />
             {popupVisible && filteredOptions.length > 0 && (
                 <div
@@ -329,9 +348,7 @@ export const PromptTagInput = ({ scrollOffset, promptTag, kycsList, tagValue }) 
                             onMouseEnter={(e) =>
                                 (e.target.style.backgroundColor = "lightblue")
                             }
-                            onMouseLeave={(e) =>
-                                (e.target.style.backgroundColor = "white")
-                            }
+                            onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
                         >
                             {option}
                         </div>

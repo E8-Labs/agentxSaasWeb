@@ -36,6 +36,11 @@ const Page = () => {
         <div style={backgroundImage} className="overflow-y-hidden flex flex-row justify-center items-center">
             <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
         </div>
+        // <div className='w-full h-screen' style={{display: "flex", flexDirection: "row", justifyContent: "center", alignItems:" center" }}>
+        //     <div style={{width: "90%", height: "80%"}}>
+                
+        //     </div>
+        // </div>
     )
 }
 
