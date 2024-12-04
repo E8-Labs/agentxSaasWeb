@@ -127,7 +127,7 @@ const PipelineStages = ({
                                                         style={{
                                                             ...styles.inputStyle,
                                                             borderRadius: "55px",
-                                                            height: "44px",
+                                                            height: "40px",
                                                             width: "104px",
                                                         }}
                                                         onClick={() => handleUnAssignNewStage(index)}
@@ -143,7 +143,7 @@ const PipelineStages = ({
                                                         style={{
                                                             ...styles.inputStyle,
                                                             borderRadius: "55px",
-                                                            height: "44px",
+                                                            height: "38px",
                                                             width: "104px",
                                                         }}
                                                         onClick={() => assignNewStage(index)}

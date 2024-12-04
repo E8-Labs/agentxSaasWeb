@@ -22,6 +22,8 @@ export const PromptTagInput = ({
     //code for modal
     const [showScriptModal, setShowScriptModal] = useState(false);
 
+    console.log("Kycs list is:", kycsList);
+
     useEffect(() => {
         const mirrorDiv = document.createElement("div");
         mirrorDiv.style.position = "absolute";
@@ -295,7 +297,7 @@ export const PromptTagInput = ({
 
         setTimeout(() => {
             const newCursorPos = beforeBrace.length + option.length + 2;
-            input.focus();
+            // input.focus();
             input.setSelectionRange(newCursorPos, newCursorPos);
         }, 0);
     };
@@ -413,19 +415,21 @@ export const PromptTagInput = ({
                     timeout: 1000,
                     sx: {
                         backgroundColor: "#00000020",
-                        // backdropFilter: "blur(20px)",
+                        backdropFilter: "blur(20px)",
                     },
                 }}
             >
-                <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.modalsStyle}>
-                    <div className="flex flex-row justify-center w-full">
+                <Box className="lg:w-5/12 sm:w-full w-8/12 h-[75vh] bg-green flex justify-center items-center" sx={styles.modalsStyle}>
+                    <div className="flex flex-row justify-center items-center h-screen w-full">
                         <div
                             className="sm:w-full w-full"
                             style={{
                                 backgroundColor: "#ffffff",
+                                // backgroundColor: "red",
                                 padding: 20,
                                 borderRadius: "13px",
-                                position: "relative"
+                                position: "relative",
+                                marginTop: 50
                             }}
                         >
                             <div className='flex flex-row justify-end'>
@@ -440,10 +444,10 @@ export const PromptTagInput = ({
 
                             <div style={{ position: "relative" }}>
                                 <textarea
-                                    className="outline-none rounded-xl focus:ring-0"
+                                    className="outline-none rounded-xl focus:ring-0 h-[80vh]"
                                     ref={textFieldRef}
-                                    rows="20"
-                                    cols="50"
+                                    // rows="20"
+                                    // cols="50"
                                     value={text}
                                     onClick={() => { setShowScriptModal(true) }}
                                     onChange={handleChange}
@@ -456,7 +460,7 @@ export const PromptTagInput = ({
                                         width: "100%",
                                         fontWeight: "500",
                                         fontSize: 15,
-                                        height: 500,
+                                        height: "75vh",
                                         resize: "none",
                                         border: "1px solid #00000020",
                                     }}

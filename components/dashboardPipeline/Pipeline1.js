@@ -1,13 +1,14 @@
 import { Alert, Box, CircularProgress, Fade, Modal, Popover, Snackbar, Typography } from '@mui/material';
-import { CaretDown, DotsThree } from '@phosphor-icons/react'
+import { CaretDown, CaretUp, DotsThree } from '@phosphor-icons/react'
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Apis from '../apis/Apis';
 import axios from 'axios';
+import ColorPicker from './ColorPicker';
 
 const Pipeline1 = () => {
 
-
+    const bottomRef = useRef();
 
     const [pipelinePopoverAnchorel, setPipelinePopoverAnchorel] = useState(null);
     const open = Boolean(pipelinePopoverAnchorel);
@@ -31,11 +32,14 @@ const Pipeline1 = () => {
     const [newStageTitle, setNewStageTitle] = useState("");
     const [stageColor, setStageColor] = useState("");
     const [addStageLoader, setAddStageLoader] = useState(false);
+    //code for advance setting modal inside new stages
+    const [showAdvanceSettings, setShowAdvanceSettings] = useState(false);
+    //code for input arrays
+    const [inputs, setInputs] = useState([{ id: 1, value: '', placeholder: `Sure, i’d be interested in knowing what my home is worth` }, { id: 2, value: '', placeholder: "Yeah, how much is my home worth today?" }]);
     //dele stage loader
     const [selectedStage, setSelectedStage] = useState(null);
     const [delStageLoader, setDelStageLoader] = useState(false);
     const [SuccessSnack, setSuccessSnack] = useState(null);
-
 
     useEffect(() => {
         getPipelines()
@@ -164,7 +168,7 @@ const Pipeline1 = () => {
         }
     }
 
-    //code ford eleting the stage
+    //code ford deleting the stage
     const handleDeleteStage = async () => {
         try {
             setDelStageLoader(true);
@@ -208,6 +212,66 @@ const Pipeline1 = () => {
             console.error("Error occured in delstage api is:", error);
         } finally {
             setDelStageLoader(false);
+        }
+    }
+
+    //code for arrayinput fields of settings modal
+    const handleInputChange = (id, value) => {
+        setInputs(inputs.map(input => (input.id === id ? { ...input, value } : input)));
+    };
+
+    // Handle deletion of input field
+    const handleDelete = (id) => {
+        setInputs(inputs.filter(input => input.id !== id));
+    };
+
+    // Handle adding a new input field
+    const handleAddInput = () => {
+        const newId = inputs.length ? inputs[inputs.length - 1].id + 1 : 1;
+        setInputs([...inputs, { id: newId, value: '', placeholder: "Add sample answer" }]);
+    };
+
+    //code to add new sheet list
+    const handleAddSheetNewList = async () => {
+        try {
+            setShowaddCreateListLoader(true);
+
+            const localData = localStorage.getItem("User");
+            let AuthToken = null;
+            if (localData) {
+                const UserDetails = JSON.parse(localData);
+                AuthToken = UserDetails.token;
+            }
+
+            console.log("Auth token is :--", AuthToken);
+
+            const ApiData = {
+                sheetName: newSheetName,
+                columns: inputs.map((columns) => (columns.value))
+            }
+            console.log("Data to send in api is:", ApiData);
+
+            const ApiPath = Apis.addSmartList;
+            console.log("Api Path is", ApiPath);
+
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of add new smart list api is :", response);
+                if (response.data.status) {
+                    setShowAddNewSheetModal(false);
+                }
+            }
+
+        } catch (error) {
+            console.error("Error occured in adding new list api is:", error);
+        } finally {
+            setShowaddCreateListLoader(false);
         }
     }
 
@@ -277,7 +341,7 @@ const Pipeline1 = () => {
                                         {
                                             PipeLines.map((item, index) => (
                                                 <div key={index}>
-                                                    <button onClick={() => { handleSelectOtherPipeline(item) }}>
+                                                    <button className='outline-none' onClick={() => { handleSelectOtherPipeline(item) }}>
                                                         {item.title}
                                                     </button>
                                                 </div>
@@ -318,7 +382,7 @@ const Pipeline1 = () => {
                                     className='outline-none bg-transparent w-full mx-2 border-none focus:outline-none focus:ring-0'
                                     placeholder='Search by name, phone email'
                                 />
-                                <button>
+                                <button className='outline-none'>
                                     <Image src={"/assets/searchIcon.png"} height={24} width={24} alt='*' />
                                 </button>
                             </div>
@@ -525,7 +589,7 @@ const Pipeline1 = () => {
                                             </div>
                                         </div>
 
-                                        <button aria-describedby={stageId} variant="contained" onClick={(evetn) => { handleShowStagePopover(evetn, stage) }}>
+                                        <button aria-describedby={stageId} variant="contained" onClick={(evetn) => { handleShowStagePopover(evetn, stage) }} className='outline-none'>
                                             <DotsThree size={27} weight="bold" />
                                         </button>
                                     </div>
@@ -554,7 +618,7 @@ const Pipeline1 = () => {
                                                 {
                                                     delStageLoader ?
                                                         <CircularProgress size={20} /> :
-                                                        <button className='text-red flex flex-row items-center gap-2 me-2' style={styles.paragraph} onClick={handleDeleteStage}>
+                                                        <button className='text-red flex flex-row items-center gap-2 me-2 outline-none' style={styles.paragraph} onClick={handleDeleteStage}>
                                                             <Image src={"/assets/delIcon.png"} height={18} width={18} alt='*' />
                                                             Delete
                                                         </button>
@@ -617,7 +681,7 @@ const Pipeline1 = () => {
                             ))}
                         </div>
                         <div className='h-[36px] flex flex-row items-start justify-center'>
-                            <button className='h-[23px] text-purple'
+                            <button className='h-[23px] text-purple outline-none mt-2'
                                 style={{
                                     width: "200px",
                                     fontSize: "16.8",
@@ -833,48 +897,206 @@ const Pipeline1 = () => {
                 open={addNewStageModal}
                 onClose={() => { setAddNewStageModal(false) }}
             >
-                <Box sx={{ ...styles.modalsStyle, width: "25%", backgroundColor: 'white' }}>
+                <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
                     <div style={{ width: "100%", }}>
-                        <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            {/* <div style={{ width: "20%" }} /> */}
-                            <div style={{ fontWeight: "700", fontSize: 22 }}>
-                                Add New Stage
-                            </div>
-                            <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
-                                <button onClick={() => { setAddNewStageModal(false) }}>
-                                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
-                                </button>
-                            </div>
-                        </div>
+
                         <div>
-                            <div className='mt-4' style={{ fontWeight: "500", fontSize: 16 }}>
-                                Stage Title
+                            <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                {/* <div style={{ width: "20%" }} /> */}
+                                <div style={{ fontWeight: "700", fontSize: 22 }}>
+                                    Add New Stage
+                                </div>
+                                <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
+                                    <button onClick={() => { setAddNewStageModal(false) }} className='outline-none'>
+                                        <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                    </button>
+                                </div>
                             </div>
-                            <input
-                                value={newStageTitle}
-                                onChange={(e) => { setNewStageTitle(e.target.value) }}
-                                placeholder='Enter stage title'
-                                className='outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-xl h-[50px] mt-2'
-                                style={{ border: "1px solid #00000020" }}
-                            />
-                            <div style={{ marginTop: 10, fontWeight: "500", fontSize: 16 }}>
-                                Color
-                            </div>
-                            <input
+
+                            <div>
+                                <div className='mt-4' style={{ fontWeight: "600", fontSize: 12, paddingBottom: 5 }}>
+                                    Stage Title*
+                                </div>
+                                <input
+                                    value={newStageTitle}
+                                    onChange={(e) => { setNewStageTitle(e.target.value) }}
+                                    placeholder='Enter stage title'
+                                    className='outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]'
+                                    style={{ border: "1px solid #00000020" }}
+                                />
+                                <div style={{ marginTop: 20, fontWeight: "600", fontSize: 12, paddingBottom: 5 }}>
+                                    Color*
+                                </div>
+                                {/* <input
                                 value={stageColor}
                                 onChange={(e) => { setStageColor(e.target.value) }}
                                 placeholder='Add color (Optional)'
                                 className='outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-xl h-[50px] mt-2'
                                 style={{ border: "1px solid #00000020" }}
-                            />
+                            /> */}
+                                <ColorPicker />
+                            </div>
+
+                            <div className='text-purple flex flex-row items-center gap-2 mt-4'>
+                                <div style={{ fontWeight: "600", fontSize: 15 }}>
+                                    Advanced Settings
+                                </div>
+                                <button onClick={() => { setShowAdvanceSettings(!showAdvanceSettings) }} className='outline-none'>
+                                    {
+                                        showAdvanceSettings ?
+                                            <CaretUp size={15} weight='bold' /> :
+                                            <CaretDown size={15} weight='bold' />
+                                    }
+                                </button>
+                            </div>
+
+                            {
+                                showAdvanceSettings && (
+                                    <div>
+                                        <div className='flex flex-row items-center gap-2 mt-4'>
+                                            <p style={{ fontWeight: "600", fontSize: 15 }}>Action</p>
+                                            {/* <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' /> */}
+                                            <Image
+                                                src="/assets/infoIcon.png"
+                                                height={20}
+                                                width={20}
+                                                alt="*"
+                                                style={{
+                                                    filter: 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
+                                                    // filter: isRed
+                                                    //     ? 'invert(17%) sepia(96%) saturate(7493%) hue-rotate(-5deg) brightness(102%) contrast(115%)' // Red
+                                                    //     : 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
+                                                }}
+                                            />
+
+
+                                        </div>
+                                        <input
+                                            className='h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg'
+                                            placeholder='Ex: Does the human express interest getting a CMA '
+                                            style={{
+                                                border: "1px solid #00000020", fontWeight: "500", fontSize: 15
+                                            }}
+                                        />
+
+                                        <p className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
+                                            Sample Answers
+                                        </p>
+
+                                        <p className='mt-2' style={{ fontWeight: "500", fontSize: 12 }}>
+                                            What are possible answers leads will give to this question?
+                                        </p>
+
+                                        <div className='max-h-[30vh] overflow-auto mt-2' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                                            style={{ scrollbarWidth: "none" }}
+                                        >
+                                            {inputs.map((input, index) => (
+                                                <div key={input.id} className='w-full flex flex-row items-center gap-4 mt-4'>
+                                                    <input
+                                                        className='border p-2 rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[53px]'
+                                                        style={{
+                                                            ...styles.paragraph,
+                                                            width: "95%", borderColor: "#00000020",
+                                                        }}
+                                                        placeholder={input.placeholder}
+                                                        // placeholder={`
+                                                        //     ${index === 0 ? "Sure, i would be interested in knowing what my home is worth" : 
+                                                        //         index === 1 ? "Yeah, how much is my home worth today?" : 
+                                                        //         `Add sample answer ${index + 1}`
+                                                        //     }`}
+                                                        value={input.value}
+                                                        onChange={(e) => handleInputChange(input.id, e.target.value)}
+                                                    />
+                                                    <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
+                                                        <Image src={"/assets/blackBgCross.png"} height={20} width={20} alt='*' />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div style={{ height: "50px" }}>
+                                            {
+                                                inputs.length < 3 && (
+                                                    <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
+                                                        fontSize: 15,
+                                                        fontWeight: "700"
+                                                    }}>
+                                                        Add New
+                                                    </button>
+                                                )
+                                            }
+                                        </div>
+
+                                        <div className='flex flex-row items-center gap-2 mt-4'>
+                                            <p style={{ fontWeight: "600", fontSize: 15 }}>Assign to </p>
+                                            {/* <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' /> */}
+                                            <Image
+                                                src="/assets/infoIcon.png"
+                                                height={20}
+                                                width={20}
+                                                alt="*"
+                                                style={{
+                                                    filter: 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
+                                                    // filter: isRed
+                                                    //     ? 'invert(17%) sepia(96%) saturate(7493%) hue-rotate(-5deg) brightness(102%) contrast(115%)' // Red
+                                                    //     : 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
+                                                }}
+                                            />
+                                        </div>
+
+                                        <button className='flex flex-row items-center w-full justify-between rounded-lg h-[50px] px-2 mt-1 outline-none'
+                                            style={{ border: "1px solid #00000020" }}>
+                                            <div>
+                                                Select team member
+                                            </div>
+                                            <div>
+                                                <CaretDown size={20} weight='bold' />
+                                            </div>
+                                        </button>
+
+                                        <p style={{ fontWeight: "500", fontSize: 15 }}>
+                                            Tags
+                                        </p>
+
+                                        <div className='h-[45px] p-2 rounded-lg flex flex-row items-center gap-2' style={{ border: "1px solid #00000030" }}>
+                                            <div className='flex flex-row gap-2 bg-[#00000030] h-full px-4 rounded items-center' style={{ width: "fit-content" }}>
+                                                <p style={{ fontWeight: "500", fontSize: 15 }}>
+                                                    Tag value
+                                                </p>
+                                                <button className='outline-none'>
+                                                    <Image src={"/assets/cross.png"} height={10} width={10} alt='*' />
+                                                </button>
+                                            </div>
+                                            <div className='flex flex-row gap-2 bg-[#00000030] h-full px-4 rounded items-center' style={{ width: "fit-content" }}>
+                                                <p style={{ fontWeight: "500", fontSize: 15 }}>
+                                                    Tag value
+                                                </p>
+                                                <button className='outline-none'>
+                                                    <Image src={"/assets/cross.png"} height={10} width={10} alt='*' />
+                                                </button>
+                                            </div>
+                                            <div className='flex flex-row gap-2 bg-[#00000030] h-full px-4 rounded items-center' style={{ width: "fit-content" }}>
+                                                <p style={{ fontWeight: "500", fontSize: 15 }}>
+                                                    Tag value
+                                                </p>
+                                                <button className='outline-none'>
+                                                    <Image src={"/assets/cross.png"} height={10} width={10} alt='*' />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                )
+                            }
+
                         </div>
+
                         {
                             addStageLoader ?
                                 <div className='flex flex-row iems-center justify-center w-full mt-4'>
                                     <CircularProgress size={25} />
                                 </div> :
                                 <button
-                                    className='mt-4'
+                                    className='mt-4 outline-none'
                                     style={{
                                         backgroundColor: "#402FFF", color: "white",
                                         height: "50px", borderRadius: "10px", width: "100%",
@@ -885,6 +1107,8 @@ const Pipeline1 = () => {
                                     Add & Close
                                 </button>
                         }
+
+
                     </div>
                 </Box>
             </Modal>
@@ -923,6 +1147,7 @@ const Pipeline1 = () => {
                     </Alert>
                 </Snackbar>
             </div>
+
 
 
 

@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
-import { Box, FormControl, MenuItem, Modal, Select } from '@mui/material';
+import { Alert, Box, Fade, FormControl, MenuItem, Modal, Select, Snackbar } from '@mui/material';
 import Apis from '../apis/Apis';
 import axios from 'axios';
 import { CaretDown, Minus, YoutubeLogo } from '@phosphor-icons/react';
@@ -20,7 +20,7 @@ const Pipeline1 = ({ handleContinue }) => {
     const [selectPipleLine, setSelectPipleLine] = useState("");
     const [introVideoModal, setIntroVideoModal] = useState(false);
     const [selectedPipelineStages, setSelectedPipelineStages] = useState([]);
-    // const [NexStages, setNexStages] = useState(initialState);
+    const [oldStages, setOldStages] = useState([]);
     const [pipelinesDetails, setPipelinesDetails] = useState([]);
     const [assignedLeads, setAssignedLeads] = useState({});
     const [rowsByIndex, setRowsByIndex] = useState({});
@@ -31,6 +31,7 @@ const Pipeline1 = ({ handleContinue }) => {
     // const [nextStage, setNextStage] = useState([]);
     // const [selectedNextStage, setSelectedNextStage] = useState([]);
 
+    const [reorderSuccessBar, setReorderSuccessBar] = useState(null);
     //code for new Lead calls
     // const [rows, setRows] = useState([]);
     // const [assignedNewLEad, setAssignedNewLead] = useState(false);
@@ -115,7 +116,17 @@ const Pipeline1 = ({ handleContinue }) => {
 
         console.log("selected pipelinestages array is:", selectedPipelineStages);
 
-    }, [selectedPipelineItem, selectedPipelineStages])
+    }, [selectedPipelineItem, selectedPipelineStages]);
+
+    //code to raorder the stages list
+    useEffect(() => {
+        if(oldStages === selectedPipelineStages){
+            console.log("Should not reorder stages")
+        }else{
+            console.log("Should reorder stages")
+        }
+        handleReorder();
+    }, [selectedPipelineStages])
 
     //code to get pipelines
     const getPipelines = async () => {
@@ -142,6 +153,7 @@ const Pipeline1 = ({ handleContinue }) => {
                 setPipelinesDetails(response.data.data);
                 setSelectedPipelineItem(response.data.data[0]);
                 setSelectedPipelineStages(response.data.data[0].stages);
+                setOldStages(response.data.data[0].stages);
             }
 
         } catch (error) {
@@ -400,8 +412,11 @@ const Pipeline1 = ({ handleContinue }) => {
                 }
             });
 
-            if(response){
-                console.log("Response of updated stages is:" ,response.data);
+            if (response) {
+                console.log("Response of updated stages is:", response.data);
+                if (response.data.status === true) {
+                    setReorderSuccessBar(response.data.message);
+                }
             }
 
         } catch (error) {
@@ -596,11 +611,11 @@ const Pipeline1 = ({ handleContinue }) => {
                                 selectedPipelineStages={selectedPipelineStages}
                             />
 
-                            <div>
+                            {/* <div>
                                 <button className='text-red text-lg font-bold' onClick={handleReorder}>
                                     Rearrange
                                 </button>
-                            </div>
+                            </div> */}
 
                         </div>
                     </div>
@@ -612,6 +627,42 @@ const Pipeline1 = ({ handleContinue }) => {
 
                     <Footer handleContinue={printAssignedLeadsData} donotShowBack={true} registerLoader={createPipelineLoader} shouldContinue={shouldContinue} />
                 </div>
+            </div>
+
+
+            {/* code for showing snack bar */}
+            <div>
+                <Snackbar
+                    open={reorderSuccessBar}
+                    autoHideDuration={3000}
+                    onClose={() => {
+                        setReorderSuccessBar(null);
+                    }}
+                    anchorOrigin={{
+                        vertical: "top",
+                        horizontal: "center",
+                    }}
+                    TransitionComponent={Fade}
+                    TransitionProps={{
+                        direction: "center",
+                    }}
+                >
+                    <Alert
+                        onClose={() => {
+                            setReorderSuccessBar(null);
+                        }}
+                        severity="success"
+                        // className='bg-purple rounded-lg text-white'
+                        sx={{
+                            width: "auto",
+                            fontWeight: "700",
+                            fontFamily: "inter",
+                            fontSize: "22",
+                        }}
+                    >
+                        {reorderSuccessBar}
+                    </Alert>
+                </Snackbar>
             </div>
         </div>
     )

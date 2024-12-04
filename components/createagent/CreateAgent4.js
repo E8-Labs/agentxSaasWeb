@@ -26,6 +26,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     const router = useRouter();
     const [toggleClick, setToggleClick] = useState(true);
     const [selectNumber, setSelectNumber] = useState('');
+    const [reassignLoader, setReassignLoader] = useState(false);
     const [useOfficeNumber, setUseOfficeNumber] = useState(false);
     const [userSelectedNumber, setUserSelectedNumber] = useState("");
     const [showOfficeNumberInput, setShowOfficeNumberInput] = useState(false);
@@ -157,8 +158,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     };
 
     //code for reassigning the number api
-    const handleReassignNumber = async () => {
+    const handleReassignNumber = async (phoneNumber) => {
         try {
+            setReassignLoader(true);
             let AuthToken = null;
             const LocalData = localStorage.getItem("User");
             const agentDetails = localStorage.getItem("agentDetails");
@@ -180,24 +182,33 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
             const ApiData = {
                 agentId: MyAgentData.userId,
-                phoneNumber: "31254612"
+                phoneNumber: phoneNumber
             }
             console.log("I a just trigered")
-            return
+
+            console.log("Data sending in api is:", ApiData);
+            console.log("Api path is:", ApiPath);
+            console.log("Authtoken is:", AuthToken);
+
+            // return
             const response = await axios.post(ApiPath, ApiData, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken,
-                    "Content-Type": "appllication/json"
+                    "Content-Type": "application/json"
                 }
             });
 
             if (response) {
                 console.log("Respose of reassign api is:", response);
+                if (response.data.status === true) {
+                    setSelectNumber(phoneNumber);
+                }
             }
 
         } catch (error) {
             console.error("Error occured in reassign the number api:", error);
         } finally {
+            setReassignLoader(false);
             console.log("reassign api completed")
         }
     }
@@ -542,7 +553,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                             className='border-none rounded-2xl outline-none'
                                             displayEmpty
                                             value={selectNumber}
-                                            onChange={handleSelectNumber}
+                                            // onChange={handleSelectNumber}
+                                            onChange={(e) => { setSelectNumber(e.target.value) }}
                                             renderValue={(selected) => {
                                                 if (selected === '') {
                                                     return <div>Select Number</div>;
@@ -557,20 +569,24 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                 },
                                             }}
                                         >
-                                            {/* <MenuItem value="">
-                                                <div style={styles.dropdownMenu}>None</div>
-                                            </MenuItem> */}
                                             {
                                                 previousNumber.map((item, index) => (
                                                     <MenuItem key={index} style={styles.dropdownMenu} value={item.phoneNumber} className='flex flex-row items-center gap-2'>
                                                         {item.phoneNumber}
                                                         {
                                                             item.claimedBy && (
-                                                                <div className='flex flex-row items-center gap-2'> {`{${item}}`}
+                                                                <div className='flex flex-row items-center gap-2'>
                                                                     {`(Claimed by {${item.claimedBy.name}})`}
-                                                                    <button className="text-purple underline" onClick={() => { handleReassignNumber() }} >
-                                                                        Reassign
-                                                                    </button>
+                                                                    {
+                                                                        reassignLoader ?
+                                                                            <CircularProgress size={15} /> :
+                                                                            <button className="text-purple underline" onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                handleReassignNumber(item.phoneNumber)
+                                                                            }} >
+                                                                                Reassign
+                                                                            </button>
+                                                                    }
                                                                 </div>
                                                             )
                                                         }
@@ -579,8 +595,6 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                             }
                                             <MenuItem style={styles.dropdownMenu} value={14062040550}>+14062040550 (Our global phone number avail to first time users)</MenuItem>
                                             <div className='ms-4' style={{ ...styles.inputStyle, color: '#00000070' }}><i>Get your own unique phone number.</i> <button className='text-purple underline' onClick={() => { setShowClaimPopup(true) }}>Claim one</button></div>
-                                            {/* <MenuItem value={20}>03058191079</MenuItem>
-                                        <MenuItem value={30}>03281575712</MenuItem> */}
                                         </Select>
                                     </FormControl>
                                 </Box>
