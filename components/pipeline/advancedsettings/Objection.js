@@ -30,7 +30,7 @@ const Objection = () => {
 
       console.log("Auth token is:", AuthToken);
 
-      const ApiPath = Apis.getAgents;
+      const ApiPath = `${Apis.getAgents}?agentType=outbound`;
       console.log("Apipath is:", ApiPath);
 
       const response = await axios.get(ApiPath, {

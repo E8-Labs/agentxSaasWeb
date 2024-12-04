@@ -497,49 +497,53 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                     </div>
                                 </div>
 
-                                {
-                                    LeadsList.length > 0 && (
-                                        <div className='flex flex-row items-center gap-2'>
-                                            {
-                                                toggleClick.length === FilterLeads.length ? (
-                                                    <div className='flex flex-row items-center gap-2'>
-                                                        <button
-                                                            className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
-                                                            onClick={() => { setToggleClick([]) }}
-                                                        >
-                                                            <Image src={"/assets/whiteTick.png"} height={10} width={10} alt='*' />
-                                                        </button>
-                                                        <div style={{ fontSize: "15", fontWeight: "600" }}>
-                                                            Select All
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <div className='flex flex-row items-center gap-2'>
-                                                        <button
-                                                            className="h-[20px] w-[20px] border-2 rounded outline-none"
-                                                            onClick={() => {
-                                                                setToggleClick(
-                                                                    FilterLeads.map((item) => item.id)
-                                                                );
-                                                            }}
-                                                        >
-                                                        </button>
-                                                        <div style={{ fontSize: "15", fontWeight: "600" }}>
-                                                            Select All
-                                                        </div>
-                                                    </div>
-                                                )
-                                            }
 
-                                            <button className='flex flex-row items-center justify-center gap-2 bg-none outline-none border h-[43px] w-[101px] rounded' onClick={() => { handleShowAddLeadModal(true) }}>
-                                                <span>
-                                                    Import
-                                                </span>
-                                                <Image src={"/assets/downloadIcon.png"} height={15} width={15} alt='*' />
-                                            </button>
-                                        </div>
-                                    )
-                                }
+                                <div className='flex flex-row items-center gap-2'>
+                                    {
+                                        toggleClick.length === FilterLeads.length ? (
+                                            <div>
+                                                {
+                                                    LeadsList.length > 0 && (
+                                                        <div className='flex flex-row items-center gap-2'>
+                                                            <button
+                                                                className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
+                                                                onClick={() => { setToggleClick([]) }}
+                                                            >
+                                                                <Image src={"/assets/whiteTick.png"} height={10} width={10} alt='*' />
+                                                            </button>
+                                                            <div style={{ fontSize: "15", fontWeight: "600" }}>
+                                                                Select All
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                }
+                                            </div>
+                                        ) : (
+                                            <div className='flex flex-row items-center gap-2'>
+                                                <button
+                                                    className="h-[20px] w-[20px] border-2 rounded outline-none"
+                                                    onClick={() => {
+                                                        setToggleClick(
+                                                            FilterLeads.map((item) => item.id)
+                                                        );
+                                                    }}
+                                                >
+                                                </button>
+                                                <div style={{ fontSize: "15", fontWeight: "600" }}>
+                                                    Select All
+                                                </div>
+                                            </div>
+                                        )
+                                    }
+
+                                    <button className='flex flex-row items-center justify-center gap-2 bg-none outline-none border h-[43px] w-[101px] rounded' onClick={() => { handleShowAddLeadModal(true) }}>
+                                        <span>
+                                            Import
+                                        </span>
+                                        <Image src={"/assets/downloadIcon.png"} height={15} width={15} alt='*' />
+                                    </button>
+                                </div>
+
 
 
                             </div>

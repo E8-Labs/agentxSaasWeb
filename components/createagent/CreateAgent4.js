@@ -156,6 +156,52 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         }
     };
 
+    //code for reassigning the number api
+    const handleReassignNumber = async () => {
+        try {
+            let AuthToken = null;
+            const LocalData = localStorage.getItem("User");
+            const agentDetails = localStorage.getItem("agentDetails");
+            let MyAgentData = null;
+            if (LocalData) {
+                const UserDetails = JSON.parse(LocalData);
+                AuthToken = UserDetails.token;
+            }
+
+            if (agentDetails) {
+                console.log("trying")
+                const agentData = JSON.parse(agentDetails);
+                console.log("Agent details are :--", agentData);
+                MyAgentData = agentData;
+
+            }
+
+            const ApiPath = Apis.reassignNumber;
+
+            const ApiData = {
+                agentId: MyAgentData.userId,
+                phoneNumber: "31254612"
+            }
+            console.log("I a just trigered")
+            return
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "appllication/json"
+                }
+            });
+
+            if (response) {
+                console.log("Respose of reassign api is:", response);
+            }
+
+        } catch (error) {
+            console.error("Error occured in reassign the number api:", error);
+        } finally {
+            console.log("reassign api completed")
+        }
+    }
+
     //code for office number change
     const handleOfficeNumberChange = (phone, e) => {
         setOfficeNumber(phone);
@@ -305,17 +351,18 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     const getAvailabePhoneNumbers = async () => {
         try {
             let AuthToken = null;
-            
+
             // const agentDetails = localStorage.getItem("agentDetails");
             const LocalData = localStorage.getItem("User");
             if (LocalData) {
                 const UserDetails = JSON.parse(LocalData);
                 AuthToken = UserDetails.token;
             }
-            console.log("Auth token is:", AuthToken);
+            console.log("initial api authtoken is:", AuthToken);
             const ApiPath = Apis.userAvailablePhoneNumber;
             console.log("Apipath", ApiPath);
 
+            // return
             const response = await axios.get(ApiPath, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken
@@ -405,20 +452,20 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
 
 
-    const PhoneNumbers = [
-        {
-            id: 1,
-            number: "03011958712"
-        },
-        {
-            id: 2,
-            number: "03281575712"
-        },
-        {
-            id: 3,
-            number: "03058191079"
-        },
-    ]
+    // const PhoneNumbers = [
+    //     {
+    //         id: 1,
+    //         number: "03011958712"
+    //     },
+    //     {
+    //         id: 2,
+    //         number: "03281575712"
+    //     },
+    //     {
+    //         id: 3,
+    //         number: "03058191079"
+    //     },
+    // ]
 
     const styles = {
         headingStyle: {
@@ -511,11 +558,23 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                             {/* <MenuItem value="">
                                                 <div style={styles.dropdownMenu}>None</div>
                                             </MenuItem> */}
-                                            {/* {
-                                                PhoneNumbers.map((item, index) => (
-                                                    <MenuItem key={item.id} style={styles.dropdownMenu} value={item.number}>{item.number}</MenuItem>
+                                            {
+                                                previousNumber.map((item, index) => (
+                                                    <MenuItem key={index} style={styles.dropdownMenu} value={item.phoneNumber} className='flex flex-row items-center gap-2'>
+                                                        {item.phoneNumber}
+                                                        {
+                                                            item.claimedBy && (
+                                                                <div className='flex flex-row items-center gap-2'>
+                                                                    {`(Claimed by ${item.claimedBy.name})`}
+                                                                    <butotn className="text-purple underline" onClick={() => { handleReassignNumber() }} >
+                                                                        Reassign
+                                                                    </butotn>
+                                                                </div>
+                                                            )
+                                                        }
+                                                    </MenuItem>
                                                 ))
-                                            } */}
+                                            }
                                             <MenuItem style={styles.dropdownMenu} value={14062040550}>+14062040550 (Our global phone number avail to first time users)</MenuItem>
                                             <div className='ms-4' style={{ ...styles.inputStyle, color: '#00000070' }}><i>Get your own unique phone number.</i> <button className='text-purple underline' onClick={() => { setShowClaimPopup(true) }}>Claim one</button></div>
                                             {/* <MenuItem value={20}>03058191079</MenuItem>
@@ -584,8 +643,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                             }
 
                                                             const value = e.target.value
-                                                            setFindNumber(e.target.value);
-                                                            handleFindeNumbers(value)
+                                                            setFindNumber(e.target.value.replace(/[^0-9]/g, ""));
+                                                            // handleFindeNumbers(value)
                                                             if (value) {
                                                                 timerRef.current = setTimeout(() => {
                                                                     handleFindeNumbers(value);
@@ -747,15 +806,15 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
                                 <div className='flex flex-row items-center gap-4'>
                                     {
-                                        previousNumber.map((item) => (
-                                            <button className='flex flex-row items-center justify-center w-[271px] h-[71px]' key={item}
+                                        previousNumber.map((item, index) => (
+                                            <button className='flex flex-row items-center justify-center w-[271px] h-[71px]' key={index}
                                                 style={{
                                                     ...styles.callBackStyles, border: userSelectedNumber === item ? "2px solid #7902DF" : "1px solid #15151550",
                                                     backgroundColor: userSelectedNumber === item ? "2px solid #402FFF15" : ""
                                                 }}
                                                 onClick={(e) => { handleSelectedNumberClick(item) }}
                                             >
-                                                Use {formatPhoneNumber(item.slice(1))}
+                                                Use {formatPhoneNumber(item.phoneNumber)}
                                             </button>
                                         ))
                                     }

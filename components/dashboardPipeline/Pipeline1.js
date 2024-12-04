@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Modal, Popover, Typography } from '@mui/material';
+import { Alert, Box, CircularProgress, Fade, Modal, Popover, Snackbar, Typography } from '@mui/material';
 import { CaretDown, DotsThree } from '@phosphor-icons/react'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
@@ -31,6 +31,11 @@ const Pipeline1 = () => {
     const [newStageTitle, setNewStageTitle] = useState("");
     const [stageColor, setStageColor] = useState("");
     const [addStageLoader, setAddStageLoader] = useState(false);
+    //dele stage loader
+    const [selectedStage, setSelectedStage] = useState(null);
+    const [delStageLoader, setDelStageLoader] = useState(false);
+    const [SuccessSnack, setSuccessSnack] = useState(null);
+
 
     useEffect(() => {
         getPipelines()
@@ -86,8 +91,10 @@ const Pipeline1 = () => {
         setPipelinePopoverAnchorel(null);
     };
 
-    const handleShowStagePopover = (event) => {
+    const handleShowStagePopover = (event, stage) => {
         setStageAnchorel(event.currentTarget);
+        setSelectedStage(stage);
+
     };
 
     const handleCloseStagePopover = () => {
@@ -145,6 +152,8 @@ const Pipeline1 = () => {
                 if (response.data.status === true) {
                     setStagesList(response.data.data.stages);
                     setAddNewStageModal(false);
+                    setNewStageTitle("");
+                    setStageColor("");
                 }
             }
 
@@ -152,6 +161,53 @@ const Pipeline1 = () => {
             console.error("Error occured inn adding new stage title api is", error);
         } finally {
             setAddStageLoader(false);
+        }
+    }
+
+    //code ford eleting the stage
+    const handleDeleteStage = async () => {
+        try {
+            setDelStageLoader(true);
+            const localData = localStorage.getItem("User");
+            let AuthToken = null;
+            if (localData) {
+                const UserDetails = JSON.parse(localData);
+                AuthToken = UserDetails.token;
+                // console.log("Local details are :", UserDetails);
+            }
+
+            console.log("Auth token is :--", AuthToken);
+
+            const ApiData = {
+                pipelineId: SelectedPipeline.id,
+                stageId: selectedStage.id
+            }
+
+            console.log("Api dta is:", ApiData);
+
+            const ApiPath = Apis.deleteStage;
+            console.log("Apipath is:", ApiPath);
+
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("response of del stage api is:", response.data);
+                if (response.data.status === true) {
+                    setStagesList(response.data.data.stages);
+                    setSuccessSnack(response.data.message);
+                    setStageAnchorel(null);
+                }
+            }
+
+        } catch (error) {
+            console.error("Error occured in delstage api is:", error);
+        } finally {
+            setDelStageLoader(false);
         }
     }
 
@@ -458,7 +514,10 @@ const Pipeline1 = () => {
                                                 className="h-[23px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center text-black"
                                                 style={{ ...styles.paragraph, fontSize: 14 }}
                                             >
-                                                {leadCounts[stage.id]}
+                                                {leadCounts[stage.id] ?
+                                                    <div>
+                                                        {leadCounts[stage.id]}
+                                                    </div> : "0"}
 
                                                 {/* {leadCounts.map((item) => {
 
@@ -466,7 +525,7 @@ const Pipeline1 = () => {
                                             </div>
                                         </div>
 
-                                        <button aria-describedby={stageId} variant="contained" onClick={handleShowStagePopover}>
+                                        <button aria-describedby={stageId} variant="contained" onClick={(evetn) => { handleShowStagePopover(evetn, stage) }}>
                                             <DotsThree size={27} weight="bold" />
                                         </button>
                                     </div>
@@ -477,7 +536,11 @@ const Pipeline1 = () => {
                                         onClose={handleCloseStagePopover}
                                         anchorOrigin={{
                                             vertical: 'bottom',
-                                            horizontal: 'left',
+                                            horizontal: 'right',
+                                        }}
+                                        transformOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
                                         }}
                                         PaperProps={{
                                             elevation: 0, // This will remove the shadow
@@ -486,7 +549,18 @@ const Pipeline1 = () => {
                                             },
                                         }}
                                     >
-                                        <Typography sx={{ p: 2 }}>The content of the Popover.</Typography>
+                                        <div className='p-2 w-[100px]'>
+                                            <div className='w-full flex flex-row justify-center'>
+                                                {
+                                                    delStageLoader ?
+                                                        <CircularProgress size={20} /> :
+                                                        <button className='text-red flex flex-row items-center gap-2 me-2' style={styles.paragraph} onClick={handleDeleteStage}>
+                                                            <Image src={"/assets/delIcon.png"} height={18} width={18} alt='*' />
+                                                            Delete
+                                                        </button>
+                                                }
+                                            </div>
+                                        </div>
                                     </Popover>
 
                                     {/* Display leads matching this stage */}
@@ -762,11 +836,11 @@ const Pipeline1 = () => {
                 <Box sx={{ ...styles.modalsStyle, width: "25%", backgroundColor: 'white' }}>
                     <div style={{ width: "100%", }}>
                         <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <div style={{ width: "20%" }} />
-                            <div style={{ fontWeight: "700", fontSize: 22, width: "50%" }}>
+                            {/* <div style={{ width: "20%" }} /> */}
+                            <div style={{ fontWeight: "700", fontSize: 22 }}>
                                 Add New Stage
                             </div>
-                            <div style={{ width: "20%", direction: "row", display: "flex", justifyContent: "end" }}>
+                            <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
                                 <button onClick={() => { setAddNewStageModal(false) }}>
                                     <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
                                 </button>
@@ -814,6 +888,41 @@ const Pipeline1 = () => {
                     </div>
                 </Box>
             </Modal>
+
+            {/* code for showing snack bar */}
+            <div>
+                <Snackbar
+                    open={SuccessSnack}
+                    autoHideDuration={3000}
+                    onClose={() => {
+                        setSuccessSnack(null);
+                    }}
+                    anchorOrigin={{
+                        vertical: "top",
+                        horizontal: "center",
+                    }}
+                    TransitionComponent={Fade}
+                    TransitionProps={{
+                        direction: "center",
+                    }}
+                >
+                    <Alert
+                        onClose={() => {
+                            setSuccessSnack(null);
+                        }}
+                        // severity="success"
+                        // className='bg-purple rounded-lg text-white'
+                        sx={{
+                            width: "auto",
+                            fontWeight: "700",
+                            fontFamily: "inter",
+                            fontSize: "22",
+                        }}
+                    >
+                        {SuccessSnack}
+                    </Alert>
+                </Snackbar>
+            </div>
 
 
 

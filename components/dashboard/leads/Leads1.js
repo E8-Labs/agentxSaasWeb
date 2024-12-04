@@ -88,6 +88,50 @@ const Leads1 = () => {
       dbName: "address",
     },
   };
+  let defaultColumnsArray = [
+    {
+      UserFacingName: "First Name",
+      mappings: ["first name", "firstname"],
+      ColumnNameInSheet: "",
+      dbName: "firstName",
+    },
+    {
+      UserFacingName: "Last Name",
+      mappings: ["last name", "lastname"],
+      ColumnNameInSheet: "",
+      dbName: "lastName",
+    },
+    {
+      UserFacingName: "Full Name",
+      mappings: ["full name", "name"],
+      ColumnNameInSheet: "",
+      dbName: "fullName",
+    },
+    {
+      UserFacingName: "Email",
+      mappings: ["email", "email address", "mail"],
+      ColumnNameInSheet: "",
+      dbName: "email",
+    },
+    {
+      UserFacingName: "Phone Number",
+      mappings: [
+        "cell no",
+        "phone no",
+        "phone",
+        "phone number",
+        "contact number",
+      ],
+      ColumnNameInSheet: "",
+      dbName: "phone",
+    },
+    {
+      UserFacingName: "Address",
+      mappings: ["address", "location", "address line"],
+      ColumnNameInSheet: "",
+      dbName: "address",
+    },
+  ];
   const matchColumn = (columnName, mappings, columnsMatched = null) => {
     const lowerCaseName = columnName.toLowerCase();
     // console.log("----------------------------------------\n\n");
@@ -95,14 +139,14 @@ const Leads1 = () => {
     // console.log("Col name ", columnName);
 
     for (const key in mappings) {
-      //   console.log("Key ", key);
+      // console.log("Key ", key);
       if (
         mappings[key].mappings.some((alias) => lowerCaseName.includes(alias))
       ) {
         if (columnsMatched) {
           columnsMatched.forEach((item) => {
             if (item.dbName == key) {
-              //   console.log("----------------------------------------\n\n");
+              // console.log("----------------------------------------\n\n");
               return null;
             }
           });
@@ -185,147 +229,170 @@ const Leads1 = () => {
 
   //code to update column
   function ChangeColumnName(UpdatedColumnName) {
-    return () => {
-      let defaultColumnsDbNames = [
-        "firstName",
-        "lastName",
-        "fullName",
-        "phone",
-        "email",
-        "address",
-      ];
-      let isDefaultColumn = false;
+    console.log("Updating ", UpdateHeader);
+    console.log("New Name ", UpdatedColumnName);
 
-      if (defaultColumnsDbNames.includes(UpdateHeader.dbName)) {
-        isDefaultColumn = true;
-        console.log("changing default column");
-      } else {
-        console.log("changing extra column");
+    let defaultColumnsDbNames = [
+      "First Name",
+      "Last Name",
+      "Full Name",
+      "Phone Number",
+      "Email",
+      "Address",
+    ];
+    let isDefaultColumn = false;
+
+    if (
+      defaultColumnsDbNames.includes(UpdateHeader.UserFacingName) ||
+      defaultColumnsDbNames.includes(UpdateHeader.dbName)
+    ) {
+      isDefaultColumn = true;
+      console.log("changing default column");
+    } else {
+      console.log("changing extra column");
+    }
+    // return;
+    //console.log("Change column name here", UpdatedColumnName);
+    //console.log("Old column value ", UpdateHeader.columnNameTransformed);
+    let pd = processedData;
+    let dc = null;
+    let keys = Object.keys(defaultColumns);
+    // console.log("Keys ", keys);
+    // console.log("Updated Col Name ", UpdatedColumnName);
+    keys.forEach((key) => {
+      let col = defaultColumns[key];
+      // console.log(
+      // `Matching ${col.UserFacingName} with ${UpdatedColumnName} OR ${col.dbName}`
+      // );
+      if (
+        col.UserFacingName == UpdatedColumnName ||
+        col.dbName == UpdatedColumnName
+      ) {
+        dc = col;
       }
-      //   return;
-      //console.log("Change column name here", UpdatedColumnName);
-      //console.log("Old column value ", UpdateHeader.columnNameTransformed);
-      let pd = processedData;
-      let dc = null;
-      let keys = Object.keys(defaultColumns);
-      keys.forEach((key) => {
-        let col = defaultColumns[key];
-        if (
-          col.UserFacingName == UpdatedColumnName ||
-          col.dbName == UpdatedColumnName
-        ) {
-          dc = col;
-        }
-      });
-      //   if (UpdateHeader.dbName) {
-      //     let val = defaultColumns[UpdateHeader.dbName];
-      //     dc = val;
-      //   }
-      for (let i = 0; i < pd.length; i++) {
-        let d = pd[i];
-        if (isDefaultColumn) {
-          // changing the default column
-          if (dc) {
-            console.log("Updated name is default column");
-            let value = d[UpdateHeader.dbName];
-            delete d[UpdateHeader.dbName];
-            // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
-            d[UpdatedColumnName] = value;
-            pd[i] = d;
-          } else {
-            console.log("Updated name is not default column");
-            //mmove it to extra column
-
-            let value = d[UpdateHeader.dbName];
-            d.extraColumns[UpdatedColumnName] = value;
-            delete d[UpdateHeader.dbName];
-            // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
-            // d[UpdatedColumnName] = value;
-            pd[i] = d;
-          }
+    });
+    // if (UpdateHeader.dbName) {
+    // let val = defaultColumns[UpdateHeader.dbName];
+    // dc = val;
+    // }
+    for (let i = 0; i < pd.length; i++) {
+      let d = pd[i];
+      if (isDefaultColumn) {
+        // changing the default column
+        if (dc) {
+          console.log("Updated name is default column");
+          let value = d[UpdateHeader.dbName];
+          delete d[UpdateHeader.dbName];
+          // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
+          d[UpdatedColumnName] = value;
+          pd[i] = d;
         } else {
-          //we are changing the extra column
+          console.log("Updated name is not default column");
+          //mmove it to extra column
 
-          //   defaultColumns.forEach((col) => {
-          //     if (col.UserFacingName == UpdatedColumnName) {
-          //       dc = col;
-          //     }
-          //   });
-          //The updated name is in default column list
-          if (dc) {
-            console.log("Updated name is default column", UpdatedColumnName);
-            let value =
-              d.extraColumns[
-                UpdateHeader.dbName
-                  ? UpdateHeader.dbName
-                  : UpdateHeader.ColumnNameInSheet
-              ];
-            delete d.extraColumns[
-              UpdateHeader.dbName
-                ? UpdateHeader.dbName
-                : UpdateHeader.ColumnNameInSheet
-            ];
-            // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
-            d[UpdatedColumnName] = value;
-            pd[i] = d;
-          } else {
-            console.log(
-              "the updated name is not in default column list",
-              UpdatedColumnName
-            );
-            // the updated name is not in default column list
-            let colName = UpdateHeader.dbName
+          let value = d[UpdateHeader.dbName];
+          d.extraColumns[UpdatedColumnName] = value;
+          delete d[UpdateHeader.dbName];
+          // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
+          // d[UpdatedColumnName] = value;
+          pd[i] = d;
+        }
+      } else {
+        //we are changing the extra column
+
+        // defaultColumns.forEach((col) => {
+        // if (col.UserFacingName == UpdatedColumnName) {
+        // dc = col;
+        // }
+        // });
+        //The updated name is in default column list
+        if (dc) {
+          // console.log("Updated name is default column", UpdatedColumnName);
+          let value =
+            d.extraColumns[
+            UpdateHeader.dbName
               ? UpdateHeader.dbName
-              : UpdateHeader.ColumnNameInSheet;
-            let value = d.extraColumns[colName];
-            console.log(`Value for colum ${colName} `, value);
-            delete d.extraColumns[colName];
-            // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
-            d.extraColumns[UpdatedColumnName] = value;
+              : UpdateHeader.ColumnNameInSheet
+            ];
+          delete d.extraColumns[
+            UpdateHeader.dbName
+              ? UpdateHeader.dbName
+              : UpdateHeader.ColumnNameInSheet
+          ];
+          // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
+          d[dc.dbName] = value;
+          pd[i] = d;
+        } else {
+          // console.log(
+          // "the updated name is not in default column list",
+          // UpdatedColumnName
+          // );
+          // the updated name is not in default column list
+          let colName = UpdateHeader.dbName
+            ? UpdateHeader.dbName
+            : UpdateHeader.ColumnNameInSheet;
+          let value = d.extraColumns[colName];
+          // console.log(`Value for colum ${colName} `, value);
+          delete d.extraColumns[colName];
+          // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
+          d.extraColumns[UpdatedColumnName] = value;
 
-            pd[i] = d;
-          }
+          pd[i] = d;
         }
       }
+    }
 
-      let NewCols = NewColumnsObtained;
-      NewCols.forEach((item) => {
-        if (item.dbName == UpdateHeader.dbName && isDefaultColumn) {
-          item.dbName = UpdatedColumnName;
+    let NewCols = NewColumnsObtained;
+    NewCols.forEach((item) => {
+      console.log("Match ", item);
+      console.log("Match ", UpdateHeader);
+
+      if (item.dbName == UpdateHeader.dbName && isDefaultColumn) {
+        item.dbName = UpdatedColumnName;
+        item.UserFacingName = UpdatedColumnName;
+      } else if (item.ColumnNameInSheet == UpdateHeader.ColumnNameInSheet) {
+        //changing extra column
+        if (dc) {
+          console.log("New column name is default Column", dc);
+          item.dbName = dc.dbName;
           item.UserFacingName = UpdatedColumnName;
-        } else if (item.ColumnNameInSheet == UpdateHeader.ColumnNameInSheet) {
+        } else {
           item.dbName = UpdatedColumnName;
           item.UserFacingName = UpdatedColumnName;
         }
-      });
-      console.log("New Cols", NewCols);
-      //   for (let i = 0; i < mappingList.length; i++) {
-      //     let map = mappingList[i];
-      //     if (map.columnNameTransformed == UpdateHeader.columnNameTransformed) {
-      //       // update the column
-      //       map.columnNameTransformed = UpdatedColumnName;
-      //     }
-      //     mappingList[i] = map;
-      //   }
-      console.log(`Processed data changed, pd`);
-      setProcessedData(pd);
-      //   setColumnMappingsList(mappingList);
-      //console.log("Mapping list changed", mappingList);
-      //   if (pd && mappingList) {
-      setShowPopUp(false);
-      setcolumnAnchorEl(null);
-      setSelectedItem(null);
-      //   }
-    };
+      }
+    });
+    console.log("New Cols", NewCols);
+    // for (let i = 0; i < mappingList.length; i++) {
+    // let map = mappingList[i];
+    // if (map.columnNameTransformed == UpdateHeader.columnNameTransformed) {
+    // // update the column
+    // map.columnNameTransformed = UpdatedColumnName;
+    // }
+    // mappingList[i] = map;
+    // }
+    console.log(`Processed data changed`, pd);
+    setProcessedData(pd);
+    // setColumnMappingsList(mappingList);
+    //console.log("Mapping list changed", mappingList);
+    // if (pd && mappingList) {
+    setShowPopUp(false);
+    setcolumnAnchorEl(null);
+    setSelectedItem(null);
+    // }
   }
 
   const validateColumns = () => {
+    console.log("New Col Obtained ", NewColumnsObtained);
+
     const requiredColumns = ["phone"];
     const hasFullName =
       NewColumnsObtained.some((col) => col.dbName === "fullName") ||
       (NewColumnsObtained.some((col) => col.dbName === "firstName") &&
         NewColumnsObtained.some((col) => col.dbName === "lastName"));
+    console.log("Has Full Name ", hasFullName);
     const hasPhone = NewColumnsObtained.some((col) => col.dbName === "phone");
+    console.log("Has Phone Num", hasPhone);
     return hasPhone && hasFullName;
   };
 
@@ -385,8 +452,8 @@ const Leads1 = () => {
             // defaultColumns[matchedColumn].ColumnNameInSheet = header;
             // columnMappings[matchedColumn] = header;
             // mappingsList.push({
-            //   columnNameInSheet: header,
-            //   columnNameTransformed: matchedColumn,
+            // columnNameInSheet: header,
+            // columnNameTransformed: matchedColumn,
             // });
           } else {
             allColumns.push({
@@ -398,12 +465,12 @@ const Leads1 = () => {
 
             // const transformedName = null; //toSnakeCase(header);
             // extraColumns.push({
-            //   columnNameInSheet: header,
-            //   columnNameTransformed: transformedName,
+            // columnNameInSheet: header,
+            // columnNameTransformed: transformedName,
             // });
             // mappingsList.push({
-            //   columnNameInSheet: header,
-            //   columnNameTransformed: transformedName,
+            // columnNameInSheet: header,
+            // columnNameTransformed: transformedName,
             // });
           }
         });
@@ -426,12 +493,12 @@ const Leads1 = () => {
             if (matchedColumn) {
               // If matchedColumn is found and hasn't been added to matched array yet
               if (!matched.includes(matchedColumn)) {
-                // console.log(`First Time pushing data ${index} => ${header}`);
+                console.log(`First Time pushing data ${index} => ${header}`);
                 matched.push(matchedColumn); // Mark this column as matched
 
                 transformedRow[matchedColumn] = row[index] || null;
               } else {
-                // console.log(`Already Found data ${index} => ${header}`);
+                console.log(`Already Found data ${index} => ${header}`);
                 const transformedName = header; // Or use toSnakeCase(header);
                 if (!transformedRow["extraColumns"]) {
                   transformedRow["extraColumns"] = {};
@@ -481,7 +548,7 @@ const Leads1 = () => {
     const newBaseName = e.target.value; // Get the user's input for the base name
 
     // Ensure we keep the extension constant
-    // setSheetName(${newBaseName}.${extension});
+    // setSheetName(`${newBaseName}.${extension}`);
     setSheetName(e);
   };
 
@@ -533,7 +600,7 @@ const Leads1 = () => {
       const ApiPath = Apis.createLead;
       //console.log("Api path is :", ApiPath);
 
-      //console.log("Apidata sending in Addlead api is :", ApiData);
+      console.log("Apidata sending in Addlead api is :", ApiData);
       return;
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -567,23 +634,23 @@ const Leads1 = () => {
   const DefaultHeadigs = [
     {
       id: 1,
-      title: "firstName",
+      title: "First Name",
     },
     {
       id: 2,
-      title: "lastName",
+      title: "Last Name",
     },
     {
       id: 3,
-      title: "email",
+      title: "Email",
     },
     {
       id: 4,
-      title: "address",
+      title: "Address",
     },
     {
       id: 5,
-      title: "phone",
+      title: "Phone Number",
     },
   ];
 
@@ -615,12 +682,17 @@ const Leads1 = () => {
 
   function GetDefaultColumnsNotMatched(data) {
     let columns = Object.keys(data);
-    const ColumnsNotMatched = DefaultHeadigs.filter(
-      (value) => !columns.includes(value.title)
+    // console.log("Columns GetDefaultColumnsNotMatched ", columns);
+    // const ColumnsNotMatched = DefaultHeadigs.filter(
+    // (value) => !columns.includes(value.title)
+    // );
+    const ColumnsNotMatched = defaultColumnsArray.filter(
+      (value) => !columns.includes(value.dbName)
     );
+    //defaultColumns
     //console.log("Columns in Processed Data ", columns);
     //console.log("Columns in Default Headings ", DefaultHeadigs);
-    //console.log("Columns not matched ", ColumnsNotMatched);
+    // console.log("Columns not matched ", ColumnsNotMatched);
     return ColumnsNotMatched;
   }
 
@@ -775,7 +847,7 @@ const Leads1 = () => {
                     alt="Upload Icon"
                     height={30}
                     width={30}
-                    // style={{ marginBottom: "10px" }}
+                  // style={{ marginBottom: "10px" }}
                   />
                 </div>
                 <p style={{ ...styles.subHeadingStyle }}>
@@ -987,8 +1059,8 @@ const Leads1 = () => {
                             {item.dbName
                               ? processedData[0].extraColumns[item.dbName]
                               : processedData[0].extraColumns[
-                                  item.ColumnNameInSheet
-                                ]}
+                              item.ColumnNameInSheet
+                              ]}
                           </div>
                         )}
                       </div>
@@ -1043,12 +1115,12 @@ const Leads1 = () => {
                           >
                             <div>
                               {/* {
-                                                                    DefaultHeadigs.map((item, index) => (
-                                                                        <div key={index}>
-                                                                            {item.title}
-                                                                        </div>
-                                                                    ))
-                                                                } */}
+ DefaultHeadigs.map((item, index) => (
+ <div key={index}>
+ {item.title}
+ </div>
+ ))
+ } */}
                               <div className="flex flex-col text-start">
                                 {GetDefaultColumnsNotMatched(
                                   processedData[0]
@@ -1057,9 +1129,11 @@ const Leads1 = () => {
                                     <button
                                       className="text-start"
                                       key={index}
-                                      onClick={ChangeColumnName(item.title)}
+                                      onClick={() => {
+                                        ChangeColumnName(item.UserFacingName);
+                                      }}
                                     >
-                                      {item.title}
+                                      {item.UserFacingName}
                                     </button>
                                   );
                                 })}
@@ -1072,6 +1146,14 @@ const Leads1 = () => {
                               }}
                             >
                               Add New column
+                            </button>
+                            <button
+                              className="underline text-purple"
+                              onClick={() => {
+                                ChangeColumnName(null);
+                              }}
+                            >
+                              Remove
                             </button>
                           </div>
                         </Popover>
@@ -1114,7 +1196,7 @@ const Leads1 = () => {
           },
         }}
       >
-        <Box className="lg:w-4/12 sm:w-6/12 w-8/12" sx={styles.modalsStyle}>
+        <Box className="lg:w-6/12 sm:w-9/12 w-10/12" sx={styles.modalsStyle}>
           <div className="flex flex-row justify-center w-full">
             <div
               className="w-full"
@@ -1149,7 +1231,7 @@ const Leads1 = () => {
               </div>
 
               <input
-                className="border outline-none rounded p-2 mt-2 w-full mx-2 focus:outline-none focus:ring-0"
+                className="border outline-none rounded p-2 mt-2 w-full focus:ring-0"
                 value={updateColumnValue}
                 // onChange={(e) => { setUpdateColumnValue(e.target.value) }}
                 onChange={(e) => {
@@ -1158,14 +1240,16 @@ const Leads1 = () => {
                     setUpdateColumnValue(e.target.value);
                   }
                 }}
-                style={{borderColor: "#00000020"}}
-                placeholder="Type here ..."
+                placeholder="Update column"
+                style={{ border: "1px solid #00000020" }}
               />
 
               <button
                 className="w-full h-[50px] rounded-xl bg-purple text-white mt-8"
                 style={styles.subHeadingStyle}
-                onClick={ChangeColumnName(updateColumnValue)}
+                onClick={() => {
+                  ChangeColumnName(updateColumnValue);
+                }}
               >
                 Create
               </button>

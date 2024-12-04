@@ -6,6 +6,7 @@ import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import { Plus } from '@phosphor-icons/react';
 import { useRouter } from 'next/navigation';
+import moment from 'moment';
 
 function Page() {
 
@@ -17,7 +18,7 @@ function Page() {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [budget, setBudget] = useState("");
-  const [showDrawer, setShowDrawer] = useState(false);
+  const [showDrawer, setShowDrawer] = useState(null);
   const [activeTab, setActiveTab] = useState("Agent Info");
   const [userDetails, setUserDetails] = useState([]);
   const [agentData, setAgentData] = useState([]);
@@ -128,6 +129,8 @@ function Page() {
   }
 
 
+  console.log("Current agent selected is:", showDrawer)
+
   return (
     <div className='w-full flex flex-col items-center'>
       <div className='w-full flex flex-row justify-between items-center py-4 px-10'
@@ -206,7 +209,7 @@ function Page() {
 
                       <div className='flex flex-row gap-3 items-center'>
                         <button onClick={() => {
-                          setShowDrawer(true)
+                          setShowDrawer(item)
                         }}>
 
                           <div style={{ fontSize: 24, fontWeight: '600', color: '#000' }}>
@@ -435,7 +438,7 @@ function Page() {
       <Drawer
         anchor="right"
         open={showDrawer}
-        onClose={() => setShowDrawer(false)}
+        onClose={() => setShowDrawer(null)}
         sx={{
           "& .MuiDrawer-paper": {
             width: "50%", // Adjust the width as per your design
@@ -465,9 +468,11 @@ function Page() {
               </div>
               <div className='flex flex-col gap-1 items-start '>
                 <div className='flex flex-row gap-2 items-center '>
-                  <div style={{ fontSize: 24, fontWeight: "600" }}>Anna ai</div>
-                  <div style={{ fontSize: 11, fontWeight: "600", color: "#666" }}>
-                    Community update
+                  <div style={{ fontSize: 22, fontWeight: "600" }}>
+                    {showDrawer?.agents[0]?.name}
+                  </div>
+                  <div className='text-purple' style={{ fontSize: 11, fontWeight: "600" }}>
+                    {showDrawer?.agents[0]?.agentObjective}
                   </div>
 
                   <Image src={'/otherAssets/blueUpdateIcon.png'}
@@ -478,7 +483,7 @@ function Page() {
                 </div>
 
                 <div style={{ fontSize: 15, fontWeight: "500", color: "#000" }}>
-                  +341 (806) 765-5836
+                  {showDrawer?.agents[0]?.phoneNumber}
                 </div>
 
                 <div className='flex flex-row gap-2 items-center '>
@@ -486,7 +491,8 @@ function Page() {
                     Created on:
                   </div>
                   <div style={{ fontSize: 11, fontWeight: "500", color: "#000" }}>
-                    May 18, 2024
+                    {/* {showDrawer?.createdAt} */}
+                    {moment(showDrawer?.createdAt).format("MMM DD, YYYY")}
                   </div>
 
                 </div>
@@ -565,55 +571,172 @@ function Page() {
 
 
 
-          <div className='w-full flex items-end justify-end mb-5'>
+          {/* <div className='w-full flex items-end justify-end mb-5'>
             <button style={{ color: '#7902DF', fontSize: 15, fontWeight: '600' }}>
               Save Changes
             </button>
-          </div>
+          </div> */}
 
+          {/* Code for agent info */}
+          {
+            activeTab === "Agent Info" ? (
+              <div className="flex flex-col gap-4">
+                <div className="flex justify-between">
+                  <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Name</div>
+                  <div>
+                    {showDrawer?.agents[0]?.name}
+                  </div>
+                </div>
+                <div className="flex justify-between">
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Task</div>
 
-          <div className="flex flex-col gap-4">
-            <div className="flex justify-between">
-              <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Name</div>
-              <div>Anna ai</div>
-            </div>
-            <div className="flex justify-between">
-              <div>
-                <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Task</div>
+                  </div>
+                  <div>Making {showDrawer?.agents[0]?.agentType} Calls</div>
+                </div>
+                <div className="flex justify-between">
+                  <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Role</div>
+                  <div>
+                    {showDrawer?.agents[0]?.agentRole}
+                  </div>
+                </div>
+                <div className="flex justify-between">
+                  <div className='flex flex-row gap-3'>
+                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Call Objective</div>
+                    <Image src={'/otherAssets/updateIcon.png'}
+                      height={15}
+                      width={20}
 
+                      alt='call'
+                    />
+                  </div>
+                  <div>
+                    {showDrawer?.agents[0]?.agentObjective}
+                  </div>
+                </div>
+
+                <div className="flex justify-between">
+                  <div className='flex flex-row gap-3'>
+                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Assigned Pipeline</div>
+                    <Image src={'/otherAssets/updateIcon.png'}
+                      height={15}
+                      width={20}
+
+                      alt='call'
+                    />
+                  </div>
+                  <div>
+                    {showDrawer?.pipeline ?
+                      <div>
+                        {showDrawer?.pipeline}
+                      </div> : "N/A"
+                    }
+                  </div>
+                </div>
               </div>
-              <div>Making Outbound Calls</div>
-            </div>
-            <div className="flex justify-between">
-              <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Role</div>
-              <div>Senior Property Acquisition Specialist</div>
-            </div>
-            <div className="flex justify-between">
-              <div className='flex flex-row gap-3'>
-                <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Call Objective</div>
-                <Image src={'/otherAssets/updateIcon.png'}
-                  height={15}
-                  width={20}
+            ) : activeTab === "Contact" ? (
+              <div className="flex flex-col gap-4">
+                <div className="flex justify-between">
+                  <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>
+                    Number used for calls
+                  </div>
+                  <div>
+                    {showDrawer?.agents[0]?.phoneNumber}
+                  </div>
+                </div>
+                <div className="flex justify-between">
+                  <div className='flex flex-row gap-3'>
+                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>
+                      Call back number
+                    </div>
+                    <Image src={'/otherAssets/updateIcon.png'}
+                      height={15}
+                      width={20}
 
-                  alt='call'
-                />
+                      alt='call'
+                    />
+                  </div>
+                  <div>
+                    {showDrawer?.agents[0]?.callbackNumber ?
+                      <div>
+                        {showDrawer?.agents[0]?.callbackNumber}
+                      </div> : "N/A"
+                    }
+                  </div>
+                </div>
+                <div className="flex justify-between">
+                  <div className='flex flex-row gap-3'>
+                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>
+                      Call transfer number
+                    </div>
+                    <Image src={'/otherAssets/updateIcon.png'}
+                      height={15}
+                      width={20}
+
+                      alt='call'
+                    />
+                  </div>
+                  <div>
+                    {showDrawer?.agents[0]?.liveTransferNumber ?
+                      <div>
+                        {showDrawer?.agents[0]?.liveTransferNumber}
+                      </div> : "N/A"
+                    }
+                  </div>
+                </div>
               </div>
-              <div>Community Update</div>
-            </div>
+            ) : activeTab === "Stages" ? (
+              <div className="flex flex-col gap-4">
+                <div className="flex justify-between">
+                  <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>
+                    Number used for calls
+                  </div>
+                  <div>
+                    {showDrawer?.agents[0]?.name}
+                  </div>
+                </div>
+                <div className="flex justify-between">
+                  <div className='flex flex-row gap-3'>
+                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Assigned Pipeline</div>
+                    <Image src={'/otherAssets/updateIcon.png'}
+                      height={15}
+                      width={20}
 
-            <div className="flex justify-between">
-              <div className='flex flex-row gap-3'>
-                <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Assigned Pipeline</div>
-                <Image src={'/otherAssets/updateIcon.png'}
-                  height={15}
-                  width={20}
+                      alt='call'
+                    />
+                  </div>
+                  <div>
+                    {showDrawer?.pipeline ?
+                      <div>
+                        {showDrawer?.pipeline}
+                      </div> : "N/A"
+                    }
+                  </div>
+                </div>
+                <div className="flex justify-between">
+                  <div className='flex flex-row gap-3'>
+                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Assigned Pipeline</div>
+                    <Image src={'/otherAssets/updateIcon.png'}
+                      height={15}
+                      width={20}
 
-                  alt='call'
-                />
+                      alt='call'
+                    />
+                  </div>
+                  <div>
+                    {showDrawer?.pipeline ?
+                      <div>
+                        {showDrawer?.pipeline}
+                      </div> : "N/A"
+                    }
+                  </div>
+                </div>
               </div>
-              <div>Default</div>
-            </div>
-          </div>
+            ) : ""
+          }
+
+
+
 
         </div>
       </Drawer>

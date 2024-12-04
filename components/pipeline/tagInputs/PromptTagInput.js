@@ -1,3 +1,6 @@
+import { Box, Modal } from "@mui/material";
+import { PencilSimpleLine } from "@phosphor-icons/react/dist/ssr";
+import Image from "next/image";
 import React, { useState, useRef, useEffect } from "react";
 
 export const PromptTagInput = ({
@@ -15,6 +18,9 @@ export const PromptTagInput = ({
     const [cursorPosition, setCursorPosition] = useState(0);
     const textFieldRef = useRef(null);
     const mirrorDivRef = useRef(null);
+
+    //code for modal
+    const [showScriptModal, setShowScriptModal] = useState(false);
 
     useEffect(() => {
         const mirrorDiv = document.createElement("div");
@@ -298,14 +304,29 @@ export const PromptTagInput = ({
         setText(e.target.value);
     };
 
+    const styles = {
+        modalsStyle: {
+            height: "auto",
+            bgcolor: "transparent",
+            // p: 2,
+            mx: "auto",
+            my: "50vh",
+            transform: "translateY(-55%)",
+            borderRadius: 2,
+            border: "none",
+            outline: "none",
+        },
+    }
+
     return (
         <div style={{ position: "relative" }}>
-            <textarea
-                className="outline-none rounded-xl"
+            {/* <textarea
+                className="outline-none rounded-xl focus:ring-0"
                 ref={textFieldRef}
                 rows="20"
                 cols="50"
                 value={text}
+                onClick={() => { setShowScriptModal(true) }}
                 onChange={handleChange}
                 onKeyUp={handleKeyUp}
                 onKeyDown={handleKeyDown}
@@ -320,7 +341,35 @@ export const PromptTagInput = ({
                     resize: "none",
                     border: "1px solid #00000020",
                 }}
-            />
+            /> */}
+            <div className="flex flex-row items-center gap-2 w-full outline-none rounded-xl focus:ring-0"
+                style={{
+                    border: "1px solid #00000020",
+                    paddingRight: "10px",
+                }}
+            >
+                <input
+                    className="outline-none rounded-xl focus:ring-0 border-none"
+                    onClick={() => { setShowScriptModal(true) }}
+                    placeholder="Type here..."
+                    value={text}
+                    onChange={handleChange}
+                    style={{
+                        fontSize: "16px",
+                        width: "100%",
+                        fontWeight: "500",
+                        fontSize: 15,
+                        height: 50,
+                        resize: "none",
+                        // border: "1px solid #00000020",
+                    }}
+                />
+                <div>
+                    <button onClick={() => { setShowScriptModal(true) }}>
+                        <PencilSimpleLine size={25} />
+                    </button>
+                </div>
+            </div>
             {popupVisible && filteredOptions.length > 0 && (
                 <div
                     style={{
@@ -355,6 +404,115 @@ export const PromptTagInput = ({
                     ))}
                 </div>
             )}
+
+            <Modal
+                open={showScriptModal}
+                onClose={() => setShowScriptModal(false)}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 1000,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        // backdropFilter: "blur(20px)",
+                    },
+                }}
+            >
+                <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.modalsStyle}>
+                    <div className="flex flex-row justify-center w-full">
+                        <div
+                            className="sm:w-full w-full"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                                position: "relative"
+                            }}
+                        >
+                            <div className='flex flex-row justify-end'>
+                                <button onClick={() => { setShowScriptModal(false) }}>
+                                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                </button>
+                            </div>
+
+                            <div className='text-start sm:font-24 font-16' style={{ fontWeight: "700" }}>
+                                Edit Prompt
+                            </div>
+
+                            <div style={{ position: "relative" }}>
+                                <textarea
+                                    className="outline-none rounded-xl focus:ring-0"
+                                    ref={textFieldRef}
+                                    rows="20"
+                                    cols="50"
+                                    value={text}
+                                    onClick={() => { setShowScriptModal(true) }}
+                                    onChange={handleChange}
+                                    onKeyUp={handleKeyUp}
+                                    onKeyDown={handleKeyDown}
+                                    placeholder="Type here..."
+                                    style={{
+                                        fontSize: "16px",
+                                        padding: "15px",
+                                        width: "100%",
+                                        fontWeight: "500",
+                                        fontSize: 15,
+                                        height: 500,
+                                        resize: "none",
+                                        border: "1px solid #00000020",
+                                    }}
+                                />
+
+                                {popupVisible && filteredOptions.length > 0 && (
+                                    <div
+                                        style={{
+                                            position: "absolute",
+                                            top: `${popupPosition.top}px`,
+                                            left: `${popupPosition.left}px`,
+                                            backgroundColor: "white",
+                                            border: "1px solid lightgray",
+                                            borderRadius: "5px",
+                                            boxShadow: "0 0 5px rgba(0, 0, 0, 0.2)",
+                                            zIndex: 1000,
+                                            padding: "10px",
+                                            minWidth: "150px",
+                                        }}
+                                    >
+                                        {filteredOptions.map((option) => (
+                                            <div
+                                                key={option}
+                                                onClick={() => handleOptionSelect(option)}
+                                                style={{
+                                                    padding: "5px 10px",
+                                                    cursor: "pointer",
+                                                    // borderBottom: "1px solid lightgray",
+                                                }}
+                                                onMouseEnter={(e) =>
+                                                    (e.target.style.backgroundColor = "lightblue")
+                                                }
+                                                onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
+                                            >
+                                                {option}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="mt-4 w-full">
+                                <button
+                                    className="bg-purple text-white text-xl font-medium w-full rounded-2xl h-[50px]"
+                                    onClick={() => { setShowScriptModal(false) }}>
+                                    Update & Close
+                                </button>
+                            </div>
+
+                            {/* Can be use full to add shadow */}
+                            {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+
         </div>
     );
 };

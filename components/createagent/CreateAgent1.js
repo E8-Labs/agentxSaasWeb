@@ -340,8 +340,8 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                             </Popover>
                             <input
                                 placeholder="Ex: Ana's AI, Ana.ai, Ana's Assistant"
-                                className='border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0'
-                                style={styles.inputStyle}
+                                className='border rounded p-3 outline-none focus:outline-none focus:ring-0'
+                                style={{ ...styles.inputStyle, border: "1px solid #00000020" }}
                                 value={agentName}
                                 onChange={(e) => { setAgentName(e.target.value) }}
                             />
@@ -389,8 +389,8 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                             </div>
                             <input
                                 placeholder="Ex: Senior Property Acquisition Specialist"
-                                className='border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0'
-                                style={styles.inputStyle}
+                                className='border rounded p-3 outline-none focus:outline-none focus:ring-0'
+                                style={{ ...styles.inputStyle, border: "1px solid #00000020" }}
                                 value={agentRole}
                                 onChange={(e) => { setAgentRole(e.target.value) }}
                             />
@@ -431,7 +431,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                         </div>
                                         {/* <input ref={bottomRef}
                                             placeholder="Type Here.... "
-                                            className='border border-[#00000010] rounded p-3 outline-none w-full mt-1 mx-2'
+                                            className='border   rounded p-3 outline-none w-full mt-1 mx-2'
                                             style={styles.inputStyle}
                                             value={otherObjVal}
                                             onChange={(e) => { setOtherObjVal(e.target.value) }}
@@ -439,8 +439,8 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                         <input
                                             ref={bottomRef}
                                             placeholder="Type Here...."
-                                            className="border border-[#00000010] w-6/12 rounded p-1 outline-none w-full mt-1 mx-2 mb-2 focus:outline-none focus:ring-0"
-                                            style={styles.inputStyle}
+                                            className="border w-6/12 rounded p-1 outline-none w-full mt-1 mx-2 mb-2 focus:outline-none focus:ring-0"
+                                            style={{ ...styles.inputStyle, border: "1px solid #00000020" }}
                                             value={otherObjVal}
                                             onChange={(e) => setOtherObjVal(e.target.value)}
                                         />
@@ -528,11 +528,12 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
 
                                             <div className='mt-1'>
                                                 <input
-                                                    className='h-[50px] border rounded-lg outline-none border border-[#00000010] p-3 w-full focus:outline-none focus:ring-0'
+                                                    className='h-[50px] border rounded-lg outline-none border p-3 w-full focus:outline-none focus:ring-0'
                                                     // rows={3}
                                                     placeholder='Type here...'
                                                     value={otherStatus}
                                                     onChange={(e) => { setOtherStatus(e.target.value) }}
+                                                    style={{ ...styles.inputStyle, border: "1px solid #00000020" }}
                                                 />
                                             </div>
                                         </div>

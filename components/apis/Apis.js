@@ -8,6 +8,7 @@ const Apis = {
     findPhoneNumber: `${BasePath}api/agent/findPhoneNumbers`,
     purchaseNumber: `${BasePath}api/agent/purchasePhone`,
     userAvailablePhoneNumber: `${BasePath}api/agent/listUsersAvailablePhoneNumbers`,
+    reassignNumber: `${BasePath}api/agent/releasePhoneNumber`,
     asignPhoneNumber: `${BasePath}api/agent/assignPhoneNumber`,
     addKyc: `${BasePath}api/agent/addKyc`,
     getVoices: "https://fine-tuner.ai/api/1.1/wf/v2_voice_agent_voices",
@@ -30,6 +31,7 @@ const Apis = {
     getUniqueColumns: `${BasePath}api/leads/getUniqueColumns`,
     addSmartList: `${BasePath}api/leads/addSmartList`,
     addCustomStage: `${BasePath}api/pipeline/createStage`,
+    deleteStage: `${BasePath}api/pipeline/deletePipelineStage`,
     addObjectionGuardrial: `${BasePath}api/agent/addObjectionGuardRail`,
     reorderStages: `${BasePath}api/pipeline/reorderStages`
 
