@@ -31,6 +31,10 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
     const [showSomtthingElse, setShowSomtthingElse] = useState(false);
     const [selectedStatus, setSelectedStatus] = useState(null);
     const [otherStatus, setOtherStatus] = useState("");
+    //get address
+    const [address, setAddress] = useState("");
+    const [scollAddress, setScollAddress] = useState("");
+    // console.log("User address is:", address);
 
     //other objective
     const [showOtherObjective, setShowOtherObjective] = useState(false);
@@ -47,7 +51,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
         setAnchorEl(null);
     };
 
-    // useEffect(() => {})
+
 
     //auto move to the bottom
     useEffect(() => {
@@ -184,7 +188,9 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                     formData.append("status", selectedStatus.title);
                 }
             }
-            formData.append("address", "Chakwal");
+            if (address) {
+                formData.append("address", address);
+            }
             if (agentObjective.id === 100) {
                 formData.append("agentObjective", "others");
                 formData.append("agentObjectiveDescription", otherObjVal);
@@ -200,7 +206,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                 console.log(`${key}: ${value}`);
             }
 
-            // return
+            return
             const response = await axios.post(ApiPath, formData, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken
@@ -479,7 +485,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                 }}
             >
                 <Box className="lg:w-4/12 sm:w-7/12 w-8/12" sx={styles.modalsStyle}>
-                    <div className="flex flex-row justify-center w-full h-[65vh]">
+                    <div className="flex flex-row justify-center w-full h-[70vh]">
                         <div
                             className="w-full overflow-auto"
                             style={{
@@ -489,7 +495,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                             }}
                         >
 
-                            <div className='w-full h-[90%] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                            <div className='w-full px-2 h-[90%] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                 <div className='flex flex-row items-center justify-end w-full'>
                                     <button className='outline-none border-none' onClick={() => { setShowModal(false) }}>
                                         <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
@@ -545,16 +551,20 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                 </div>
 
                                 <div className='mt-1'>
-                                    <AddressPicker />
+                                    <AddressPicker userAddress={setAddress} />
                                 </div>
                             </div>
 
-                            <button
-                                className='text-white w-full h-[50px] rounded-lg bg-purple mb-2'
+                            <div
+                                className='w-full flex flex-row items-center justify-center'
                                 style={{ position: "absolute", bottom: 0, left: 0 }}
-                                onClick={() => { setShowModal(false) }}>
-                                Continue
-                            </button>
+                            >
+                                <button
+                                    className='text-white w-11/12 h-[50px] rounded-lg bg-purple mb-8'
+                                    onClick={() => { setShowModal(false) }}>
+                                    Continue
+                                </button>
+                            </div>
 
                             {/* Can be use full to add shadow
                             <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}

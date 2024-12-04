@@ -24,7 +24,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
     const timerRef = useRef(null);
     const router = useRouter();
-    const [toggleClick, setToggleClick] = useState(false);
+    const [toggleClick, setToggleClick] = useState(true);
     const [selectNumber, setSelectNumber] = useState('');
     const [useOfficeNumber, setUseOfficeNumber] = useState(false);
     const [userSelectedNumber, setUserSelectedNumber] = useState("");
@@ -408,11 +408,13 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             // formData.append("mainAgentId", MyAgentData.id);
             // formData.append("callbackNumber", callBackNumber);
             // formData.append("liveTransforNumber", userSelectedNumber);
+            // formData.append("liveTransfer", "+14062040550");
 
             formData.append("phoneNumber", "+14062040550");
             formData.append("callbackNumber", "+14062040550");
             formData.append("mainAgentId", MyAgentData.id);
             formData.append("liveTransferNumber", "+14062040550");
+            formData.append("liveTransfer", toggleClick);
 
             const ApiPath = Apis.asignPhoneNumber;
 
@@ -564,11 +566,11 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                         {item.phoneNumber}
                                                         {
                                                             item.claimedBy && (
-                                                                <div className='flex flex-row items-center gap-2'>
-                                                                    {`(Claimed by ${item.claimedBy.name})`}
-                                                                    <butotn className="text-purple underline" onClick={() => { handleReassignNumber() }} >
+                                                                <div className='flex flex-row items-center gap-2'> {`{${item}}`}
+                                                                    {`(Claimed by {${item.claimedBy.name}})`}
+                                                                    <button className="text-purple underline" onClick={() => { handleReassignNumber() }} >
                                                                         Reassign
-                                                                    </butotn>
+                                                                    </button>
                                                                 </div>
                                                             )
                                                         }

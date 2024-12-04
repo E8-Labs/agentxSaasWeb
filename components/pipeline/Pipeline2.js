@@ -48,6 +48,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     const [settingToggleClick, setSettingToggleClick] = useState(1);
     const [showObjectiveDetail, setShowObjectiveDetails] = useState(false);
     const [columnloader, setColumnloader] = useState(false);
+    const [uniqueColumns, setUniqueColumns] = useState([]);
 
     // const handleInputChange = (e) => {
     //     const value = e.target.value;
@@ -145,28 +146,6 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         }
     };
 
-    // const handleGreetingsTagChange = (tag) => {
-    //     // Replace the last `{text` with the selected tag
-    //     const value = greetingTagInput;
-    //     const lastBraceIndex = value.lastIndexOf('{');
-    //     const beforeCursor = greetingTagInput.slice(0, cursorPosition);
-    //     const afterCursor = greetingTagInput.slice(cursorPosition);
-
-    //     // Replace `{` with the selected tag
-    //     const updatedInput = beforeCursor.replace(/\{$/, `{${tag}} `) + afterCursor;
-
-    //     // const newValue = value.slice(0, lastBraceIndex + 1) + tag + value.slice(cursorPosition);
-
-    //     setGreetingTagInput(updatedInput);
-    //     setIsDropdownVisible(false);
-
-    //     // Move the cursor after the inserted tag
-    //     setTimeout(() => {
-    //         const input = greetingInputRef.current;
-    //         input.setSelectionRange(lastBraceIndex + tag.length + 1, lastBraceIndex + tag.length + 1);
-    //         input.focus();
-    //     }, 0);
-    // };
 
     const handleGreetingsTagChange = (tag) => {
         // Replace the last `{text` with `{ tag }` (with spaces)
@@ -196,20 +175,6 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
     const tags1 = ['name', 'Agent Name', 'Brokerage Name', 'Client Name'];
 
-    // const handlePromptChange = (e) => {
-    //     const value = e.target.value;
-    //     const cursorPos = e.target.selectionStart;
-
-    //     setScriptTagInput(value);
-    //     setPromptCursorPosition(cursorPos);
-
-    //     // Show dropdown if `{` is typed
-    //     if (value[cursorPos - 1] === '{') {
-    //         setPromptDropDownVisible(true);
-    //     } else {
-    //         setPromptDropDownVisible(false);
-    //     }
-    // };
 
     const handlePromptChange = (e) => {
         const value = e.target.value;
@@ -230,27 +195,6 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         }
     };
 
-
-    // const handlePromptTagSelection = (tag) => {
-    //     const beforeCursor = scriptTagInput.slice(0, promptCursorPosition);
-    //     const afterCursor = scriptTagInput.slice(promptCursorPosition);
-
-    //     // Replace `{` with the selected tag
-    //     const updatedInput = beforeCursor.replace(/\{$/, `{${tag}} `) + afterCursor;
-
-    //     setScriptTagInput(updatedInput);
-    //     setPromptDropDownVisible(false);
-
-    //     // Move focus back to the input and place the cursor after the inserted tag
-    //     const newCursorPosition = beforeCursor.length + tag.length + 2; // Position after the tag
-    //     setPromptCursorPosition(newCursorPosition);
-
-    //     // Set focus and cursor position
-    //     textFieldRef.current.focus();
-    //     setTimeout(() => {
-    //         textFieldRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
-    //     }, 0);
-    // };
 
     const handlePromptTagSelection = (selectedKYC) => {
         const beforeCursor = scriptTagInput.slice(0, promptCursorPosition);
@@ -292,6 +236,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             setGreetingTagInput(localAgentData.greeting);
             setScriptTagInput(localAgentData.callScript);
         }
+        getUniquesColumn();
     }, []);
 
 
@@ -319,7 +264,10 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             });
 
             if (response) {
-                ////console.log("Response of getColumns api is:", response.data);
+                console.log("Response of getColumns api is:", response.data);
+                if (response.data.status === true) {
+                    setUniqueColumns(response.data.data);
+                }
             }
 
         } catch (error) {
@@ -610,8 +558,20 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                 <div style={styles.inputStyle} className='flex flex-row items-center gap-2'>
                                     <Image src={"/assets/lightBulb.png"} alt='*' height={24} width={24} />  Editing Tips
                                 </div>
-                                <div style={styles.inputStyle}>
-                                    You can use these variables: <span className='text-purple'>{`{first name}`}, {`{email}`}, {`{address}`},{`{phone}`},{`{kyc}`} </span>
+                                <div style={styles.inputStyle} className='flex flex-row flex-wrap gap-2'>
+                                    <div>
+                                        You can use these variables:
+                                    </div>
+                                    {/* <div className='flex flex-row items-center gap-2'> */}
+                                        {
+                                            uniqueColumns.map((item, index) => (
+                                                <div key={index} className='flex flex-row items-center gap-2 text-purple'>
+                                                    {`{${item}}`},
+                                                </div>
+                                            ))
+                                        }
+                                    {/* </div> */}
+                                    <div style={{ width: "fit-content" }} className='text-purple flex flex-row gap-2'>{`{first name}`}, {`{email}`}, {`{address}`},{`{phone}`},{`{kyc}`} </div>
                                 </div>
                             </div>
                             <div>
