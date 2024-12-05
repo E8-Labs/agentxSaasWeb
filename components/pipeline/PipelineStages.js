@@ -584,8 +584,8 @@ const PipelineStages = ({
                                                 BackdropProps={{
                                                     timeout: 1000,
                                                     sx: {
-                                                        backgroundColor: "#00000020",
-                                                        backdropFilter: "blur(20px)",
+                                                        backgroundColor: "#00000010",
+                                                        backdropFilter: "blur(5px)",
                                                     },
                                                 }}
                                             >

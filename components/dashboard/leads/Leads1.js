@@ -601,7 +601,7 @@ const Leads1 = () => {
       //console.log("Api path is :", ApiPath);
 
       console.log("Apidata sending in Addlead api is :", ApiData);
-      return;
+      // return;
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
           Authorization: "Bearer " + AuthToken,
