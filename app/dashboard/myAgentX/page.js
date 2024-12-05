@@ -128,6 +128,32 @@ function Page() {
     router.push("/createagent");
   }
 
+  //code for spiling the agnts
+  // let agentsContent = [];
+  const [agentsContent, setAgentsContent] = useState([])
+  useEffect(() => {
+
+    userDetails.map((item, index) => {
+      // Check if agents exist
+      if (item.agents && item.agents.length > 0) {
+        for (let i = 0; i < item.agents.length; i++) {
+          const agent = item.agents[i];
+          // console.log("Agent spilting data is:", agent);
+          // Add a condition here if needed  //.agentType === 'outbound'
+          if (agent) {
+            setAgentsContent(prevState => [...prevState, agent]);
+          }
+        }
+      } else {
+        agentsContent.push(<div key="no-agent">No agents available</div>);
+      }
+    });
+
+    console.log("Agents data in updated array is", agentsContent);
+
+
+  }, [userDetails]);
+
 
   console.log("Current agent selected is:", showDrawer)
 
@@ -154,172 +180,147 @@ function Page() {
 
         <div className='h-[70vh] overflow-auto flex flex-col gap-4' style={{ scrollbarWidth: "none" }}>
           {
-            userDetails.map((item, index) => {
-              // Check if agents exist
-              let agentsContent = [];
-              if (item.agents && item.agents.length > 0) {
-                for (let i = 0; i < item.agents.length; i++) {
-                  const agent = item.agents[i];
-                  console.log("Agent spilting data is:", agent);
-                  // Add a condition here if needed  //.agentType === 'outbound'
-                  if (agent) {
-                    agentsContent.push(agent);
-                  }
-                }
-              } else {
-                agentsContent.push(<div key="no-agent">No agents available</div>);
-              }
+            agentsContent.map((item, index) => (
+              <div key={index}
+                className='w-full px-10 py-2' style={{
+                  borderWidth: 1, borderColor: '#15151510', backgroundColor: '#FBFCFF',
+                  borderRadius: 20
+                }}>
+                <div className='w-12/12 flex flex-row items-center justify-between'>
+                  <div className='flex flex-row gap-5 items-center'>
 
-              return (
-                <div key={index}
-                  className='w-full px-10 py-2' style={{
-                    borderWidth: 1, borderColor: '#15151510', backgroundColor: '#FBFCFF',
-                    borderRadius: 20
-                  }}>
-                  <div className='w-12/12 flex flex-row items-center justify-between'>
-                    <div className='flex flex-row gap-5 items-center'>
-
-                      <div className='flex flex-row items-end'>
-                        {selectedImages[index] ? (
-                          <div>
-                            <Image
-                              src={selectedImages[index]}
-                              height={70}
-                              width={70}
-                              alt="Profile"
-                              style={{ borderRadius: "50%", objectFit: "cover", height: "60px", width: "60px" }}
-                            />
-                          </div>
-                        ) :
-                          <Image className='hidden md:flex' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain" }} height={69} width={69} alt='*' />
-                        }
-
-
-                        <input
-                          type="file"
-                          accept="image/*"
-                          ref={(el) => (fileInputRef.current[index] = el)} // Store a ref for each input
-                          onChange={(e) => handleProfileImgChange(e, index)}
-                          style={{ display: 'none' }}
-                        />
-
-                        <button style={{ marginLeft: -30 }} onClick={() => { handleSelectProfileImg(index) }}>
-                          <Image src={'/otherAssets/cameraBtn.png'}
-
-                            height={36}
-                            width={36}
-                            alt='profile'
+                    <div className='flex flex-row items-end'>
+                      {selectedImages[index] ? (
+                        <div>
+                          <Image
+                            src={selectedImages[index]}
+                            height={70}
+                            width={70}
+                            alt="Profile"
+                            style={{ borderRadius: "50%", objectFit: "cover", height: "60px", width: "60px" }}
                           />
+                        </div>
+                      ) :
+                        <Image className='hidden md:flex' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain" }} height={69} width={69} alt='*' />
+                      }
+
+
+                      <input
+                        type="file"
+                        accept="image/*"
+                        ref={(el) => (fileInputRef.current[index] = el)} // Store a ref for each input
+                        onChange={(e) => handleProfileImgChange(e, index)}
+                        style={{ display: 'none' }}
+                      />
+
+                      <button style={{ marginLeft: -30 }} onClick={() => { handleSelectProfileImg(index) }}>
+                        <Image src={'/otherAssets/cameraBtn.png'}
+
+                          height={36}
+                          width={36}
+                          alt='profile'
+                        />
+                      </button>
+                    </div>
+
+
+                    <div className='flex flex-col gap-1'>
+
+                      <div className='flex flex-row gap-3 items-center'>
+                        <button onClick={() => {
+                          setShowDrawer(item)
+                        }}>
+
+                          <div style={{ fontSize: 24, fontWeight: '600', color: '#000' }}>
+                            {item.name.slice(0, 1).toUpperCase(0)}{item.name.slice(1)}
+                          </div>
+                        </button>
+                        <div style={{ fontSize: 11, fontWeight: '600', color: '#00000080' }}>
+                          Community update
+                        </div>
+                      </div>
+                      <div className='flex flex-row gap-3 items-center text-purple' style={{ fontSize: 15, fontWeight: '500' }}>
+                        <button>
+                          <div>
+                            View Script
+                          </div>
+                        </button>
+
+                        <div>
+                          |
+                        </div>
+
+                        <button>
+                          <div>
+                            More info
+                          </div>
                         </button>
                       </div>
-
-
-                      <div className='flex flex-col gap-1'>
-
-                        <div className='flex flex-row gap-3 items-center'>
-                          <button onClick={() => {
-                            setShowDrawer(item)
-                          }}>
-
-                            <div style={{ fontSize: 24, fontWeight: '600', color: '#000' }}>
-                              {/* {item.name.slice(0, 1).toUpperCase(0)}{item.name.slice(1)} */}
-                              {
-                                agentsContent.map((test, testInd) => (
-                                  <div>
-                                    {test.name}
-                                  </div>
-                                ))
-                              }
-                            </div>
-                          </button>
-                          <div style={{ fontSize: 11, fontWeight: '600', color: '#00000080' }}>
-                            Community update
-                          </div>
-                        </div>
-                        <div className='flex flex-row gap-3 items-center text-purple' style={{ fontSize: 15, fontWeight: '500' }}>
-                          <button>
-                            <div>
-                              View Script
-                            </div>
-                          </button>
-
-                          <div>
-                            |
-                          </div>
-
-                          <button>
-                            <div>
-                              More info
-                            </div>
-                          </button>
-                        </div>
-                      </div>
-
                     </div>
-
-
-                    <button className='bg-purple px-4 py-2 rounded-lg'
-                      onClick={() => {
-                        setOpenTestAiModal(true);
-                        setSelectedAgent(item);
-                      }}
-                    >
-                      <div style={{ fontSize: 16, fontWeight: '600', color: '#fff' }}>
-                        Test AI
-                      </div>
-                    </button>
 
                   </div>
 
 
-                  <div style={{ marginTop: 20 }} className='w-9.12 bg-white p-6 rounded-lg '>
-                    <div className='w-full flex flex-row items-center justify-between'>
-
-                      <Card
-                        name="Calls"
-                        value={98}
-                        icon='/assets/selectedCallIcon.png'
-                        bgColor="bg-blue-100"
-                        iconColor="text-blue-500"
-                      />
-                      <Card
-                        name="Convos >10 Sec"
-                        value={43}
-                        icon='/otherAssets/convosIcon2.png'
-                        bgColor="bg-purple-100"
-                        iconColor="text-purple-500"
-                      />
-                      <Card
-                        name="Hot Leads"
-                        value={22}
-                        icon='/otherAssets/hotLeadsIcon2.png'
-                        bgColor="bg-orange-100"
-                        iconColor="text-orange-500"
-                      />
-
-                      <Card
-                        name="Booked Meetings"
-                        value={22}
-                        icon='/otherAssets/greenCalenderIcon.png'
-                        bgColor="green"
-                        iconColor="text-orange-500"
-                      />
-
-                      <Card
-                        name="Mins Talked"
-                        value={22}
-                        icon='/otherAssets/transferIcon.png'
-                        bgColor="green"
-                        iconColor="text-orange-500"
-                      />
+                  <button className='bg-purple px-4 py-2 rounded-lg'
+                    onClick={() => {
+                      setOpenTestAiModal(true);
+                      setSelectedAgent(item);
+                    }}
+                  >
+                    <div style={{ fontSize: 16, fontWeight: '600', color: '#fff' }}>
+                      Test AI
                     </div>
+                  </button>
+
+                </div>
+
+
+                <div style={{ marginTop: 20 }} className='w-9.12 bg-white p-6 rounded-lg '>
+                  <div className='w-full flex flex-row items-center justify-between'>
+
+                    <Card
+                      name="Calls"
+                      value={98}
+                      icon='/assets/selectedCallIcon.png'
+                      bgColor="bg-blue-100"
+                      iconColor="text-blue-500"
+                    />
+                    <Card
+                      name="Convos >10 Sec"
+                      value={43}
+                      icon='/otherAssets/convosIcon2.png'
+                      bgColor="bg-purple-100"
+                      iconColor="text-purple-500"
+                    />
+                    <Card
+                      name="Hot Leads"
+                      value={22}
+                      icon='/otherAssets/hotLeadsIcon2.png'
+                      bgColor="bg-orange-100"
+                      iconColor="text-orange-500"
+                    />
+
+                    <Card
+                      name="Booked Meetings"
+                      value={22}
+                      icon='/otherAssets/greenCalenderIcon.png'
+                      bgColor="green"
+                      iconColor="text-orange-500"
+                    />
+
+                    <Card
+                      name="Mins Talked"
+                      value={22}
+                      icon='/otherAssets/transferIcon.png'
+                      bgColor="green"
+                      iconColor="text-orange-500"
+                    />
                   </div>
                 </div>
-              );
-            })
+              </div>
+            ))
           }
         </div>
-
 
 
 

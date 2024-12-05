@@ -65,12 +65,13 @@ const PipelineStages = ({
     //code to add new stage
     const [addNewStageModal, setAddNewStageModal] = useState(false);
     const [newStageTitle, setNewStageTitle] = useState("");
-    const [stageColor, setStageColor] = useState("");
+    const [stageColor, setStageColor] = useState("#FF4E4E");
     const [addStageLoader, setAddStageLoader] = useState(false);
     //code for advance setting modal inside new stages
     const [showAdvanceSettings, setShowAdvanceSettings] = useState(false);
     //code for input arrays
     const [inputs, setInputs] = useState([{ id: 1, value: '', placeholder: `Sure, i’d be interested in knowing what my home is worth` }, { id: 2, value: '', placeholder: "Yeah, how much is my home worth today?" }]);
+    const [action, setAction] = useState("");
 
     //code to delete stage
     const handleDeleteStage = async () => {
@@ -157,11 +158,13 @@ const PipelineStages = ({
             const ApiData = {
                 stageTitle: newStageTitle,
                 color: stageColor,
-                pipelineId: selectedPipelineItem.id
+                pipelineId: selectedPipelineItem.id,
+                action: action,
+                examples: inputs
             }
 
             console.log("Data sending in api is:", ApiData);
-
+            // return
             const response = await axios.post(ApiPath, ApiData, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken,
@@ -805,6 +808,8 @@ const PipelineStages = ({
                                                         style={{
                                                             border: "1px solid #00000020", fontWeight: "500", fontSize: 15
                                                         }}
+                                                        value={action}
+                                                        onChange={(e) => { setAction(e.target.value) }}
                                                     />
 
                                                     <p className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>

@@ -30,12 +30,24 @@ const Pipeline1 = () => {
     //code to add new stage
     const [addNewStageModal, setAddNewStageModal] = useState(false);
     const [newStageTitle, setNewStageTitle] = useState("");
-    const [stageColor, setStageColor] = useState("");
+    const [stageColor, setStageColor] = useState("#FF4E4E");
     const [addStageLoader, setAddStageLoader] = useState(false);
     //code for advance setting modal inside new stages
     const [showAdvanceSettings, setShowAdvanceSettings] = useState(false);
     //code for input arrays
     const [inputs, setInputs] = useState([{ id: 1, value: '', placeholder: `Sure, i’d be interested in knowing what my home is worth` }, { id: 2, value: '', placeholder: "Yeah, how much is my home worth today?" }]);
+    const [action, setAction] = useState("");
+    //code for popover
+    const [actionInfoEl, setActionInfoEl] = React.useState(null);
+    const openaction = Boolean(actionInfoEl);
+
+    const handlePopoverOpen = (event) => {
+        setActionInfoEl(event.currentTarget);
+    };
+
+    const handlePopoverClose = () => {
+        setActionInfoEl(null);
+    };
     //dele stage loader
     const [selectedStage, setSelectedStage] = useState(null);
     const [delStageLoader, setDelStageLoader] = useState(false);
@@ -139,7 +151,9 @@ const Pipeline1 = () => {
             const ApiData = {
                 stageTitle: newStageTitle,
                 color: stageColor,
-                pipelineId: SelectedPipeline.id
+                pipelineId: SelectedPipeline.id,
+                action: action,
+                examples: inputs
             }
 
             console.log("Data sending in api is:", ApiData);
@@ -962,7 +976,45 @@ const Pipeline1 = () => {
                                                     //     ? 'invert(17%) sepia(96%) saturate(7493%) hue-rotate(-5deg) brightness(102%) contrast(115%)' // Red
                                                     //     : 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
                                                 }}
+                                                aria-owns={open ? 'mouse-over-popover' : undefined}
+                                                aria-haspopup="true"
+                                                onMouseEnter={handlePopoverOpen}
+                                                onMouseLeave={handlePopoverClose}
                                             />
+
+                                            <Popover
+                                                id="mouse-over-popover"
+                                                sx={{
+                                                    pointerEvents: 'none'
+                                                }}
+                                                open={openaction}
+                                                anchorEl={actionInfoEl}
+                                                anchorOrigin={{
+                                                    vertical: 'top',
+                                                    horizontal: 'center',
+                                                }}
+                                                transformOrigin={{
+                                                    vertical: 'bottom',
+                                                    horizontal: 'left',
+                                                }}
+                                                PaperProps={{
+                                                    elevation: 1, // This will remove the shadow
+                                                    style: {
+                                                        boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
+                                                    },
+                                                }}
+                                                onClose={handlePopoverClose}
+                                                disableRestoreFocus
+                                            >
+                                                <div className="p-2">
+                                                    <div className="flex flex-row items-center gap-1">
+                                                        <Image src={"/assets/infoIcon.png"} height={24} width={24} alt="*" />
+                                                        <p style={{ fontWeight: "500", fontSize: 12 }}>
+                                                            Tip: Tell your AI when to move the leads to this stage.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </Popover>
 
 
                                         </div>
@@ -972,6 +1024,8 @@ const Pipeline1 = () => {
                                             style={{
                                                 border: "1px solid #00000020", fontWeight: "500", fontSize: 15
                                             }}
+                                            value={action}
+                                            onChange={(e) => { setAction(e.target.value) }}
                                         />
 
                                         <p className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
@@ -1035,6 +1089,10 @@ const Pipeline1 = () => {
                                                     //     ? 'invert(17%) sepia(96%) saturate(7493%) hue-rotate(-5deg) brightness(102%) contrast(115%)' // Red
                                                     //     : 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
                                                 }}
+                                                aria-owns={open ? 'mouse-over-popover' : undefined}
+                                                aria-haspopup="true"
+                                                onMouseEnter={handlePopoverOpen}
+                                                onMouseLeave={handlePopoverClose}
                                             />
                                         </div>
 
