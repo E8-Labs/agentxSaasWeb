@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 
-export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue }) => {
+export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, uniqueColumns }) => {
     //console.log("Scroll Offset Parent ", scrollOffset)
     const [popupVisible, setPopupVisible] = useState(false);
     const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
@@ -90,6 +90,21 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue })
         //console.log("Pop Top ", popupTop)
         setPopupPosition({ top: popupTop, left: popupLeft });
     };
+
+    let mergedArray = [];
+
+    useEffect(() => {
+        console.log("Unique columns list is:", uniqueColumns);
+        console.log("Unique columns list2 is:", kycsList);
+
+        let questions = [];
+        if (kycsList) {
+            questions = kycsList?.map((item) => item.question);
+        }
+        mergedArray = [...uniqueColumns, ...questions];
+
+        console.log("Merged array data is:", mergedArray);
+    }, [])
 
     const handleKeyUp = (e) => {
         const input = textFieldRef.current;
@@ -209,6 +224,8 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue })
     const handleChange = (e) => {
         setText(e.target.value);
     };
+
+
 
     return (
         <div className="overflow-none" style={{ position: "relative" }}>

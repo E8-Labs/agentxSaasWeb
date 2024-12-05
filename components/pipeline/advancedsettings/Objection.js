@@ -15,11 +15,12 @@ const Objection = () => {
   const [addObjectionLoader, setAddObjectionLoader] = useState(false);
 
   useEffect(() => {
-    getAgentData()
+    getObjections()
   }, [])
   //code for getting agent data
-  const getAgentData = async () => {
+  const getObjections = async () => {
     try {
+      // ?mainAgentId=14
       setInitialLoader(true);
       const localData = localStorage.getItem("User");
       let AuthToken = null;
@@ -28,11 +29,19 @@ const Objection = () => {
         AuthToken = UserDetails.token;
       }
 
+      let mainAgent = null;
+      const localAgent = localStorage.getItem("agentDetails");
+      if (localAgent) {
+        const agentDetails = JSON.parse(localAgent);
+        console.log("Agent details are:", agentDetails);
+        mainAgent = agentDetails
+      }
+
       console.log("Auth token is:", AuthToken);
 
-      const ApiPath = `${Apis.getAgents}?agentType=outbound`;
+      const ApiPath = `${Apis.getObjectionGuardrial}?mainAgentId=${mainAgent.userId}`;
       console.log("Apipath is:", ApiPath);
-
+      // return
       const response = await axios.get(ApiPath, {
         headers: {
           "Authorization": "Bearer " + AuthToken,
@@ -42,7 +51,7 @@ const Objection = () => {
 
       if (response) {
         console.log("Response is:", response);
-        setAgentDetails(response.data.data[0].objections);
+        setAgentDetails(response.data.data.objections);
       }
 
     } catch (error) {
@@ -78,11 +87,11 @@ const Objection = () => {
         title: addObjTitle,
         description: addObjDescription,
         type: "objection",
-        mainAgentId: mainAgent.id
+        mainAgentId: mainAgent.userId
       }
 
       console.log("Api data is :", ApiData);
-
+      // return
       const ApiPath = Apis.addObjectionGuardrial;
       console.log("Apipath is", ApiPath);
 
@@ -174,7 +183,7 @@ const Objection = () => {
           </div>
       }
 
-      <button className='text-purple mt-4'
+      <button className='text-purple mt-4 outline-none'
         style={{ fontWeight: "700", fontSize: 16 }}
         onClick={() => setShowAddObjForm(true)}>
         New Question

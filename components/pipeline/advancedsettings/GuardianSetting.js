@@ -15,10 +15,10 @@ const Objection = () => {
   const [addObjectionLoader, setAddObjectionLoader] = useState(false);
 
   useEffect(() => {
-    getAgentData()
+    getGuadrails();
   }, [])
   //code for getting agent data
-  const getAgentData = async () => {
+  const getGuadrails = async () => {
     try {
       setInitialLoader(true);
       const localData = localStorage.getItem("User");
@@ -28,9 +28,17 @@ const Objection = () => {
         AuthToken = UserDetails.token;
       }
 
+      let mainAgent = null
+      const agentDetailsLocal = localStorage.getItem("agentDetails");
+      if (agentDetailsLocal) {
+        const localAgentData = JSON.parse(agentDetailsLocal);
+        console.log("Locla agent details are :-", localAgentData);
+        mainAgent = localAgentData;
+      }
+
       console.log("Auth token is:", AuthToken);
 
-      const ApiPath = Apis.getAgents;
+      const ApiPath = `${Apis.getObjectionGuardrial}?mainAgentId=${mainAgent.userId}`;
       console.log("Apipath is:", ApiPath);
 
       const response = await axios.get(ApiPath, {
@@ -42,7 +50,7 @@ const Objection = () => {
 
       if (response) {
         console.log("Response is:", response);
-        setAgentDetails(response.data.data[0].guardrails);
+        setAgentDetails(response.data.data.guardrails);
       }
 
     } catch (error) {
@@ -53,7 +61,7 @@ const Objection = () => {
   }
 
   //code for add objection guardrial api
-  const addObjection = async () => {
+  const addGuadrial = async () => {
     try {
       setAddObjectionLoader(true);
 
@@ -78,7 +86,7 @@ const Objection = () => {
         title: addObjTitle,
         description: addObjDescription,
         type: "guardrail",
-        mainAgentId: mainAgent.id
+        mainAgentId: mainAgent.userId
       }
 
       console.log("Api data is :", ApiData);
@@ -174,7 +182,7 @@ const Objection = () => {
           </div>
       }
 
-      <button className='text-purple mt-4'
+      <button className='text-purple mt-4 outline-none'
         style={{ fontWeight: "700", fontSize: 16 }}
         onClick={() => setShowAddObjForm(true)}>
         New Question
@@ -218,7 +226,7 @@ const Objection = () => {
                   <div className='w-full flex flex-row items-center justify-center mt-8 h-[50px]'>
                     <CircularProgress size={25} />
                   </div> :
-                  <button className='text-white bg-purple h-[50px] rounded-xl w-full mt-8' onClick={addObjection} style={styles.title}>
+                  <button className='text-white bg-purple h-[50px] rounded-xl w-full mt-8' onClick={addGuadrial} style={styles.title}>
                     Save & Close
                   </button>
               }

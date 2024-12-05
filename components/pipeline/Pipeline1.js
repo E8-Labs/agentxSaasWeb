@@ -32,6 +32,7 @@ const Pipeline1 = ({ handleContinue }) => {
     // const [selectedNextStage, setSelectedNextStage] = useState([]);
 
     const [reorderSuccessBar, setReorderSuccessBar] = useState(null);
+    const [showDelStageBtn, setShowDelStageBtn] = useState(false);
     //code for new Lead calls
     // const [rows, setRows] = useState([]);
     // const [assignedNewLEad, setAssignedNewLead] = useState(false);
@@ -119,14 +120,26 @@ const Pipeline1 = ({ handleContinue }) => {
     }, [selectedPipelineItem, selectedPipelineStages]);
 
     //code to raorder the stages list
+
     useEffect(() => {
-        if(oldStages === selectedPipelineStages){
-            console.log("Should not reorder stages")
-        }else{
-            console.log("Should reorder stages")
+        let previousStages = oldStages.map((item) => item.id);
+        let updatedStages = selectedPipelineStages.map((item) => item.id);
+
+        console.log("Old stages list is reorder stages:", previousStages);
+        console.log("Updated stages list is reorder stages:", updatedStages);
+
+        // Compare arrays
+        const areArraysEqual = previousStages.length === updatedStages.length &&
+            previousStages.every((item, index) => item === updatedStages[index]);
+
+        if (areArraysEqual) {
+            console.log("Should not reorder stages");
+        } else {
+            console.log("Should reorder stages");
+            handleReorder();
         }
-        handleReorder();
-    }, [selectedPipelineStages])
+    }, [selectedPipelineStages]);
+
 
     //code to get pipelines
     const getPipelines = async () => {
@@ -421,11 +434,12 @@ const Pipeline1 = ({ handleContinue }) => {
 
         } catch (error) {
             console.error("Error occured in rearrange order api is:", error);
-
         } finally {
-            console.log("api call completed")
+            console.log("api call completed");
         }
     }
+
+    
 
 
 
@@ -609,6 +623,7 @@ const Pipeline1 = ({ handleContinue }) => {
                                 nextStage={nextStage}
                                 handleSelectNextChange={handleSelectNextChange}
                                 selectedPipelineStages={selectedPipelineStages}
+                                selectedPipelineItem={selectedPipelineItem}
                             />
 
                             {/* <div>

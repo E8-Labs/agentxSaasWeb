@@ -131,7 +131,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
 
         setAddKYCQuestion(false);
         setNewQuestion(''); // Reset the new question field
-        setInputs([{ id: 1, value: '' }]); // Reset the inputs
+        setInputs([{ id: 1, value: '' }, { id: 2, value: '' }, { id: 3, value: '' }]); // Reset the inputs
     };
 
     // Handle change in input field
@@ -185,6 +185,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
 
     //close add kyc question modal
     const handleClose = () => {
+        setInputs([{ id: 1, value: '' }, { id: 2, value: '' }, { id: 3, value: '' }]);
         setAddKYCQuestion(false);
     }
 

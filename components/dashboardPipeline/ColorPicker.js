@@ -24,11 +24,12 @@
 
 import React, { useState } from 'react';
 
-const ColorPicker = () => {
+const ColorPicker = ({setStageColor}) => {
     const [color, setColor] = useState('#FF4E4E'); // Default color
 
     const handleColorChange = (e) => {
         setColor(e.target.value);
+        setStageColor(e.target.value);
     };
 
     return (

@@ -900,7 +900,7 @@ const Pipeline1 = () => {
                 <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
                     <div style={{ width: "100%", }}>
 
-                        <div>
+                        <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                             <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                 {/* <div style={{ width: "20%" }} /> */}
                                 <div style={{ fontWeight: "700", fontSize: 22 }}>
@@ -927,14 +927,7 @@ const Pipeline1 = () => {
                                 <div style={{ marginTop: 20, fontWeight: "600", fontSize: 12, paddingBottom: 5 }}>
                                     Color*
                                 </div>
-                                {/* <input
-                                value={stageColor}
-                                onChange={(e) => { setStageColor(e.target.value) }}
-                                placeholder='Add color (Optional)'
-                                className='outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-xl h-[50px] mt-2'
-                                style={{ border: "1px solid #00000020" }}
-                            /> */}
-                                <ColorPicker />
+                                <ColorPicker setStageColor={setStageColor} />
                             </div>
 
                             <div className='text-purple flex flex-row items-center gap-2 mt-4'>

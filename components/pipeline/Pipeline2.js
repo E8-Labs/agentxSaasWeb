@@ -589,89 +589,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                 Greeting
                             </div>
 
-                            {/* <input
-                                className='border p-2 rounded-lg outline-none bg-transparent'
-                                placeholder="Hey {name}, It's {Agent Name} with {Brokerage Name}! How's it going?"
-                                value={greetingTagInput}
-                                onChange={(e) => { setGreetingTagInput(e.target.value) }}
-                            /> */}
-
-                            {/* <div className="relative">
-                                <input
-                                    className="border p-2 rounded-lg outline-none bg-transparent w-full"
-                                    placeholder="Hey {name}, It's {Agent Name} with {Brokerage Name}! How's it going?"
-                                    value={greetingTagInput}
-                                    onChange={handleInputChange}
-                                />
-
-                                {isDropdownVisible && (
-                                    <div className="absolute bg-white border rounded-lg mt-1 shadow-md w-full z-10">
-                                        {tags.map((tag) => (
-                                            <div
-                                                key={tag}
-                                                className="p-2 hover:bg-gray-100 cursor-pointer"
-                                                onClick={() => handleGreetingsTagChange(tag)}
-                                            >
-                                                {tag}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div> */}
-
-                            {/* <div className="relative">
-                                <input
-                                    ref={greetingInputRef} // Attach the ref to the input
-                                    className="border p-2 rounded-lg outline-none bg-transparent w-full"
-                                    placeholder="Hey {name}, It's {Agent Name} with {Brokerage Name}! How's it going?"
-                                    value={greetingTagInput}
-                                    onChange={handleInputChange}
-                                />
-
-                                {isDropdownVisible && (
-                                    <div className="absolute bg-white border rounded-lg mt-1 shadow-md w-full z-10">
-                                        {tags.map((tag) => (
-                                            <div
-                                                key={tag}
-                                                className="p-2 hover:bg-gray-100 cursor-pointer"
-                                                onClick={() => handleGreetingsTagChange(tag)}
-                                            >
-                                                {tag}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div> */}
-
-
-
-                            {/* <div className="relative">
-                                <input
-                                    ref={greetingInputRef} // Attach the ref to the input
-                                    className="border p-2 rounded-lg outline-none bg-transparent w-full"
-                                    placeholder="Hey {name}, It's {Agent Name} with {Brokerage Name}! How's it going?"
-                                    value={greetingTagInput}
-                                    onChange={handleInputChange}
-                                />
-
-                                {isDropdownVisible && filteredTags.length > 0 && (
-                                    <div className="absolute bg-white border rounded-lg mt-1 shadow-md w-full z-10">
-                                        {filteredTags.map((tag) => {
-                                            // filteredTags.includes()
-                                            return (
-                                                <div
-                                                    key={tag}
-                                                    className="p-2 hover:bg-gray-100 cursor-pointer"
-                                                    onClick={() => handleGreetingsTagChange(tag)}
-                                                >
-                                                    {tag}
-                                                </div>)
-                                        })}
-                                    </div>
-                                )}
-                            </div> */}
-
-                            <GreetingTagInput greetTag={greetingTagInput} kycsList={kycsData} tagValue={setGreetingTagInput} scrollOffset={scrollOffset} />
+                            <GreetingTagInput greetTag={greetingTagInput} kycsList={kycsData} uniqueColumns={uniqueColumns} tagValue={setGreetingTagInput} scrollOffset={scrollOffset} />
 
 
                             {/* <MentionsInputTest /> <TagInput /> */}
@@ -684,121 +602,6 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                 Call Script
                             </div>
                             <div className='mt-6'>
-
-                                {/* <TextField
-                                    placeholder="Call script here"
-                                    variant="outlined"
-                                    fullWidth
-                                    multiline
-                                    minRows={4}
-                                    maxRows={5}
-                                    sx={{
-                                        '& .MuiOutlinedInput-root': {
-                                            '& fieldset': {
-                                                border: "1px solid #00000060"
-                                            },
-                                            '&:hover fieldset': {
-                                                border: "1px solid #00000060"
-                                            },
-                                            '&.Mui-focused fieldset': {
-                                                border: "1px solid #00000060"
-                                            },
-                                        },
-                                    }}
-                                    value={scriptTagInput}
-                                    onChange={(e) => { setScriptTagInput(e.target.value) }}
-                                /> */}
-
-                                {/* <Box sx={{ position: 'relative', width: '100%' }}>
-                                    <TextField
-                                        inputRef={textFieldRef} // Attach the ref to the TextField
-                                        placeholder="Call script here"
-                                        variant="outlined"
-                                        fullWidth
-                                        multiline
-                                        rows={20}
-                                        // minRows={4}
-                                        // maxRows={5}
-                                        sx={{
-                                            '& .MuiOutlinedInput-root': {
-                                                '& fieldset': {
-                                                    border: "1px solid #00000060"
-                                                },
-                                                '&:hover fieldset': {
-                                                    border: "1px solid #00000060"
-                                                },
-                                                '&.Mui-focused fieldset': {
-                                                    border: "1px solid #00000060"
-                                                },
-                                            },
-                                        }}
-                                        value={scriptTagInput}
-                                        onChange={handlePromptChange}
-                                    />
-
-                                    {promptDropDownVisible && (
-                                        <Box
-                                            sx={{
-                                                position: 'absolute',
-                                                background: '#fff',
-                                                border: '1px solid #ddd',
-                                                borderRadius: '4px',
-                                                boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                                                mt: 1,
-                                                zIndex: 1000,
-                                                width: '100%',
-                                            }}
-                                        >
-                                            {tags.map((tag) => (
-                                                <Typography
-                                                    key={tag}
-                                                    onClick={() => handlePromptTagSelection(tag)}
-                                                    sx={{
-                                                        padding: '8px 12px',
-                                                        cursor: 'pointer',
-                                                        '&:hover': {
-                                                            backgroundColor: '#f0f0f0',
-                                                        },
-                                                    }}
-                                                >
-                                                    {tag}
-                                                </Typography>
-                                            ))}
-                                        </Box>
-                                    )}
-
-                                    {kYCSDropDown && (
-                                        <Box
-                                            sx={{
-                                                position: 'absolute',
-                                                background: '#fff',
-                                                border: '1px solid #ddd',
-                                                borderRadius: '4px',
-                                                boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                                                mt: 1,
-                                                zIndex: 1000,
-                                                width: '100%',
-                                            }}
-                                        >
-                                            {kycsData.map((tag) => (
-                                                <Typography
-                                                    key={tag.id}
-                                                    onClick={() => handlePromptTagSelection(tag.question)}
-                                                    sx={{
-                                                        padding: '8px 12px',
-                                                        cursor: 'pointer',
-                                                        '&:hover': {
-                                                            backgroundColor: '#f0f0f0',
-                                                        },
-                                                    }}
-                                                >
-                                                    {tag.question}
-                                                </Typography>
-                                            ))}
-                                        </Box>
-                                    )}
-
-                                </Box> */}
 
                                 <PromptTagInput promptTag={scriptTagInput} kycsList={kycsData} tagValue={setScriptTagInput} scrollOffset={scrollOffset} />
 
@@ -881,7 +684,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                         },
                     }}
                 >
-                    <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.modalsStyle}>
+                    <Box className="lg:w-5/12 sm:w-10/12 w-8/12" sx={styles.modalsStyle}>
                         <div className="flex flex-row justify-center w-full">
                             <div
                                 className="w-full"

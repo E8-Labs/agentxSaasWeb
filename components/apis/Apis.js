@@ -33,6 +33,7 @@ const Apis = {
     addCustomStage: `${BasePath}api/pipeline/createStage`,
     deleteStage: `${BasePath}api/pipeline/deletePipelineStage`,
     addObjectionGuardrial: `${BasePath}api/agent/addObjectionGuardRail`,
+    getObjectionGuardrial: `${BasePath}api/agent/getObjectionsAndGuardrails`,
     reorderStages: `${BasePath}api/pipeline/reorderStages`
 
 }

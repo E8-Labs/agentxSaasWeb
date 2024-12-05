@@ -368,7 +368,7 @@ export const PromptTagInput = ({
                 />
                 <div>
                     <button onClick={() => { setShowScriptModal(true) }}>
-                        <PencilSimpleLine size={25} />
+                        <PencilSimpleLine size={17} />
                     </button>
                 </div>
             </div>

@@ -24,8 +24,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
     const timerRef = useRef(null);
     const router = useRouter();
+    const selectRef = useRef(null);
     const [toggleClick, setToggleClick] = useState(true);
     const [selectNumber, setSelectNumber] = useState('');
+    const [openCalimNumDropDown, setOpenCalimNumDropDown] = useState(false);
     const [reassignLoader, setReassignLoader] = useState(false);
     const [useOfficeNumber, setUseOfficeNumber] = useState(false);
     const [userSelectedNumber, setUserSelectedNumber] = useState("");
@@ -160,6 +162,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     //code for reassigning the number api
     const handleReassignNumber = async (phoneNumber) => {
         try {
+            console.log("Phonenumber is:", phoneNumber.slice(1));
+            // return
             setReassignLoader(true);
             let AuthToken = null;
             const LocalData = localStorage.getItem("User");
@@ -200,9 +204,19 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
             if (response) {
                 console.log("Respose of reassign api is:", response);
-                if (response.data.status === true) {
-                    setSelectNumber(phoneNumber);
+                setSelectNumber(phoneNumber.slice(1));
+                setOpenCalimNumDropDown(false);
+                //code to close the dropdown
+                if (selectRef.current) {
+                    selectRef.current.blur(); // Triggers dropdown close
                 }
+
+
+                // if (response.data.status === true) {
+                //     setSelectNumber(phoneNumber);
+                // } else {
+                //     setSelectNumber(phoneNumber);
+                // }
             }
 
         } catch (error) {
@@ -550,11 +564,19 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                 <Box className="w-full">
                                     <FormControl className="w-full">
                                         <Select
+                                            ref={selectRef}
+                                            open={openCalimNumDropDown}
+                                            onClose={() => setOpenCalimNumDropDown(false)}
+                                            onOpen={() => setOpenCalimNumDropDown(true)}
                                             className='border-none rounded-2xl outline-none'
                                             displayEmpty
                                             value={selectNumber}
                                             // onChange={handleSelectNumber}
-                                            onChange={(e) => { setSelectNumber(e.target.value) }}
+                                            onChange={(e) => {
+                                                let value = e.target.value
+                                                setSelectNumber(value.slice(1))
+                                                setOpenCalimNumDropDown(false);
+                                            }}
                                             renderValue={(selected) => {
                                                 if (selected === '') {
                                                     return <div>Select Number</div>;
@@ -583,6 +605,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                                             <button className="text-purple underline" onClick={(e) => {
                                                                                 e.stopPropagation();
                                                                                 handleReassignNumber(item.phoneNumber)
+                                                                                // handleReassignNumber(e.target.value)
                                                                             }} >
                                                                                 Reassign
                                                                             </button>
@@ -934,7 +957,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                             <div className='flex flex-row items-center gap-4 justify-start'>
                                 <button onClick={handleToggleClick}>
                                     {
-                                        toggleClick ?
+                                        !toggleClick ?
                                             <div className='bg-purple flex flex-row items-center justify-center rounded' style={{ height: "24px", width: "24px" }}>
                                                 <Image src={"/assets/whiteTick.png"} height={8} width={10} alt='*' />
                                             </div> :

@@ -660,9 +660,9 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                                     <div className='w-5/12 truncate' onClick={() => handleToggleClick(item.id)}>
                                                                         {moment(item.createdAt).format('MM/DD/YYYY')}
                                                                     </div>
-                                                                    <div className='w-2/12 underline text-purple truncate'>
+                                                                    <button className='w-2/12 underline text-purple truncate'>
                                                                         Details
-                                                                    </div>
+                                                                    </button>
                                                                 </div>
                                                             </div>
                                                         ))
