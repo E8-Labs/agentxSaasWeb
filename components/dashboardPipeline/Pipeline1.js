@@ -1,5 +1,5 @@
 import { Alert, Box, CircularProgress, Fade, Modal, Popover, Snackbar, Typography } from '@mui/material';
-import { CaretDown, CaretUp, DotsThree } from '@phosphor-icons/react'
+import { CaretDown, CaretUp, DotsThree, Plus } from '@phosphor-icons/react'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
 import Apis from '../apis/Apis';
@@ -371,7 +371,9 @@ const Pipeline1 = () => {
                             // }}
                             >
                                 <div className='p-2'>
-                                    Deg=fault pipeline
+                                    <button className='flex flex-row items-center gap-1'>
+                                        <Plus size={17} weight='bold' /> <span style={{ fontWeight: "500", fontSize: 15 }}>New Pipeline</span>
+                                    </button>
                                 </div>
                             </Popover>
                         </div>

@@ -60,6 +60,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         //     item: 1321321321321321
         // },
     ]);
+    //show reassign btn or not
+    const [showReassignBtn, setShowReassignBtn] = useState(false);
     //code for find numbers
     const [findNumber, setFindNumber] = useState("");
     const [findeNumberLoader, setFindeNumberLoader] = useState(false);
@@ -99,6 +101,17 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             setShouldContinue(false);
         }
         getAvailabePhoneNumbers();
+        const localAgentsData = localStorage.getItem("agentDetails");
+        if (localAgentsData) {
+            const agetnDetails = JSON.parse(localAgentsData);
+            console.log("Created agent details are :", agetnDetails);
+            if (agetnDetails.agents.length === 2) {
+                setShowReassignBtn(true);
+            } else if (agetnDetails.agents[0].agentType === "inbound") {
+                setShowReassignBtn(true);
+            }
+        }
+
     }, []);
 
     useEffect(() => {
@@ -596,19 +609,25 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                     <MenuItem key={index} style={styles.dropdownMenu} value={item.phoneNumber.slice(1)} className='flex flex-row items-center gap-2'>
                                                         {item.phoneNumber}
                                                         {
-                                                            item.claimedBy && (
-                                                                <div className='flex flex-row items-center gap-2'>
-                                                                    {`(Claimed by {${item.claimedBy.name}})`}
+                                                            showReassignBtn && (
+                                                                <div>
                                                                     {
-                                                                        reassignLoader ?
-                                                                            <CircularProgress size={15} /> :
-                                                                            <button className="text-purple underline" onClick={(e) => {
-                                                                                e.stopPropagation();
-                                                                                handleReassignNumber(item.phoneNumber)
-                                                                                // handleReassignNumber(e.target.value)
-                                                                            }} >
-                                                                                Reassign
-                                                                            </button>
+                                                                        item.claimedBy && (
+                                                                            <div className='flex flex-row items-center gap-2'>
+                                                                                {`(Claimed by {${item.claimedBy.name}})`}
+                                                                                {
+                                                                                    reassignLoader ?
+                                                                                        <CircularProgress size={15} /> :
+                                                                                        <button className="text-purple underline" onClick={(e) => {
+                                                                                            e.stopPropagation();
+                                                                                            handleReassignNumber(item.phoneNumber)
+                                                                                            // handleReassignNumber(e.target.value)
+                                                                                        }} >
+                                                                                            Reassign
+                                                                                        </button>
+                                                                                }
+                                                                            </div>
+                                                                        )
                                                                     }
                                                                 </div>
                                                             )
@@ -841,7 +860,12 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                 What callback number should we use if someone requests one during a call?
                             </button>
 
-                            <div className='flex flex-row items-center gap-4 overflow-x-auto' style={{ scrollbarWidth: "none", overflowY: 'hidden' }}>
+                            <div className='flex flex-row items-center gap-4 overflow-x-auto h-[80px]'
+                                style={{
+                                    scrollbarWidth: "none", overflowY: 'hidden',
+                                    height: "80px", // Ensures the height is always fixed
+                                    flexShrink: 0,
+                                }}>
 
                                 <div className='flex flex-row items-center gap-4'>
                                     {

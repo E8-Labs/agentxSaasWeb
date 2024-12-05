@@ -44,7 +44,7 @@ const LoaderAnimation = ({ loaderModal }) => {
                 }}
             >
                 <Box className="lg:w-4/12 sm:w-7/12 w-8/12 rounded-3xl bg-white" sx={styles.modalsStyle}>
-                    <div className="flex flex-row justify-center w-full h-[40vh]">
+                    <div className="flex flex-row justify-center w-full">
                         <div
                             className="w-full"
                             style={{
@@ -56,14 +56,14 @@ const LoaderAnimation = ({ loaderModal }) => {
 
                             <div className='flex flex-row items-start mt-12 justify-center'>
                                 {/* <CircularProgress size={200} thickness={1} /> */}
-                                <Image className='' src="/agentXOrb.gif" style={{ height: "142px", width: "142px", resize: "contain" }} height={142} width={142} alt='*' />
+                                <Image className='' src="/agentXOrb.gif" style={{ height: "142px", width: "152px", resize: "contain" }} height={142} width={142} alt='*' />
                             </div>
 
                             <div className='text-center mt-8' style={{ fontWeight: "600", fontSize: 16 }}>
                                 Your agent is building..
                             </div>
 
-                            <div className='text-center mt-6' style={{ fontWeight: "400", fontSize: 15 }}>
+                            <div className='text-center mt-6 pb-8' style={{ fontWeight: "400", fontSize: 15 }}>
                                 Loading ...
                             </div>
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import Image from "next/image";
 import { CaretDown, CaretUp, Minus } from "@phosphor-icons/react";
-import { Alert, Box, CircularProgress, Fade, FormControl, MenuItem, Modal, Select, Snackbar } from "@mui/material";
+import { Alert, Box, CircularProgress, Fade, FormControl, MenuItem, Modal, Popover, Select, Snackbar } from "@mui/material";
 import Apis from "../apis/Apis";
 import axios from "axios";
 import ColorPicker from "../dashboardPipeline/ColorPicker";
@@ -26,6 +26,17 @@ const PipelineStages = ({
     const [delStageLoader, setDelStageLoader] = useState(false);
     const [successSnack, setSuccessSnack] = useState(null);
     const [showDelStagePopup, setShowDelStagePopup] = useState(null);
+    const [actionInfoEl, setActionInfoEl] = React.useState(null);
+
+    const handlePopoverOpen = (event) => {
+        setActionInfoEl(event.currentTarget);
+    };
+
+    const handlePopoverClose = () => {
+        setActionInfoEl(null);
+    };
+
+    const open = Boolean(actionInfoEl);
 
     useEffect(() => {
         setPipelineStages(stages);
@@ -227,7 +238,7 @@ const PipelineStages = ({
                         ref={provided.innerRef}
                         style={{
                             maxHeight: "100vh",
-                            overflowY: "auto",
+                            // overflowY: "auto",
                             // borderRadius: "8px",
                             // padding: "10px",
                             border: "none",
@@ -685,7 +696,8 @@ const PipelineStages = ({
                             <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
                                 <div style={{ width: "100%", }}>
 
-                                    <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                                    <div style={{ scrollbarWidth: "none" }} //className='max-h-[60vh] overflow-auto'
+                                    >
                                         <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                             {/* <div style={{ width: "20%" }} /> */}
                                             <div style={{ fontWeight: "700", fontSize: 22 }}>
@@ -745,7 +757,45 @@ const PipelineStages = ({
                                                                 //     ? 'invert(17%) sepia(96%) saturate(7493%) hue-rotate(-5deg) brightness(102%) contrast(115%)' // Red
                                                                 //     : 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
                                                             }}
+                                                            aria-owns={open ? 'mouse-over-popover' : undefined}
+                                                            aria-haspopup="true"
+                                                            onMouseEnter={handlePopoverOpen}
+                                                            onMouseLeave={handlePopoverClose}
                                                         />
+
+                                                        <Popover
+                                                            id="mouse-over-popover"
+                                                            sx={{
+                                                                pointerEvents: 'none'
+                                                            }}
+                                                            open={open}
+                                                            anchorEl={actionInfoEl}
+                                                            anchorOrigin={{
+                                                                vertical: 'top',
+                                                                horizontal: 'center',
+                                                            }}
+                                                            transformOrigin={{
+                                                                vertical: 'bottom',
+                                                                horizontal: 'left',
+                                                            }}
+                                                            PaperProps={{
+                                                                elevation: 1, // This will remove the shadow
+                                                                style: {
+                                                                    boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
+                                                                },
+                                                            }}
+                                                            onClose={handlePopoverClose}
+                                                            disableRestoreFocus
+                                                        >
+                                                            <div className="p-2">
+                                                                <div className="flex flex-row items-center gap-1">
+                                                                    <Image src={"/assets/infoIcon.png"} height={24} width={24} alt="*" />
+                                                                    <p style={{ fontWeight: "500", fontSize: 12 }}>
+                                                                        Tip: Tell your AI when to move the leads to this stage.
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </Popover>
 
 
                                                     </div>
@@ -765,7 +815,7 @@ const PipelineStages = ({
                                                         What are possible answers leads will give to this question?
                                                     </p>
 
-                                                    <div className='max-h-[30vh] overflow-auto mt-2' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                                                    <div className=' mt-2' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple max-h-[30vh] overflow-auto
                                                         style={{ scrollbarWidth: "none" }}
                                                     >
                                                         {inputs.map((input, index) => (
@@ -818,7 +868,44 @@ const PipelineStages = ({
                                                                 //     ? 'invert(17%) sepia(96%) saturate(7493%) hue-rotate(-5deg) brightness(102%) contrast(115%)' // Red
                                                                 //     : 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
                                                             }}
+                                                            aria-owns={open ? 'mouse-over-popover' : undefined}
+                                                            aria-haspopup="true"
+                                                            onMouseEnter={handlePopoverOpen}
+                                                            onMouseLeave={handlePopoverClose}
                                                         />
+                                                        <Popover
+                                                            id="mouse-over-popover"
+                                                            sx={{
+                                                                pointerEvents: 'none'
+                                                            }}
+                                                            open={open}
+                                                            anchorEl={actionInfoEl}
+                                                            anchorOrigin={{
+                                                                vertical: 'top',
+                                                                horizontal: 'center',
+                                                            }}
+                                                            transformOrigin={{
+                                                                vertical: 'bottom',
+                                                                horizontal: 'left',
+                                                            }}
+                                                            PaperProps={{
+                                                                elevation: 1, // This will remove the shadow
+                                                                style: {
+                                                                    boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
+                                                                },
+                                                            }}
+                                                            onClose={handlePopoverClose}
+                                                            disableRestoreFocus
+                                                        >
+                                                            <div className="p-2">
+                                                                <div className="flex flex-row items-center gap-1">
+                                                                    <Image src={"/assets/infoIcon.png"} height={24} width={24} alt="*" />
+                                                                    <p style={{ fontWeight: "500", fontSize: 12 }}>
+                                                                        Tip: Tell your AI when to move the leads to this stage.
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </Popover>
                                                     </div>
 
                                                     <button className='flex flex-row items-center w-full justify-between rounded-lg h-[50px] px-2 mt-1 outline-none'

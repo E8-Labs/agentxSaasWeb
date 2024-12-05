@@ -10,8 +10,11 @@ import axios from 'axios';
 import { Box, CircularProgress, Modal, Popover } from '@mui/material';
 import AddressPicker from '../test/AddressPicker';
 import LoaderAnimation from '../animations/LoaderAnimation';
+import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 
 const CreateAgent1 = ({ handleContinue, handleBack }) => {
+
+    const addressKey = process.env.NEXT_PUBLIC_AddressPickerApiKey;
 
     const router = useRouter();
     const bottomRef = useRef();
@@ -33,7 +36,14 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
     const [otherStatus, setOtherStatus] = useState("");
     //get address
     const [address, setAddress] = useState("");
-    const [scollAddress, setScollAddress] = useState("");
+
+    const bottomToAddress = useRef(null); // Ref for scrolling
+    const [addressSelected, setAddressSelected] = useState(null);
+
+    useEffect(() => {
+        setAddress(address?.label);
+    }, [addressSelected]);
+    // const [scollAddress, setScollAddress] = useState("");
     // console.log("User address is:", address);
 
     //other objective
@@ -218,13 +228,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                 if (response.data.status === true) {
                     console.log("Status of build agent is :", response.data.status);
                     localStorage.setItem("agentDetails", JSON.stringify(response.data.data));
-                    const fromPath = localStorage.getItem("fromDashboard")
-                    if (fromPath) {
-                        const fromWhichPath = JSON.parse(fromPath);
-                        router.push("/dashboard/myAgentX");
-                    } else {
-                        handleContinue();
-                    }
+                    handleContinue();
                 }
             }
 
@@ -245,6 +249,17 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
         }
         setSelectedStatus((prevId) => prevId === item ? null : item);
     }
+
+    //code for address picker input change
+    const handleAddressInputChange = (inputValue) => {
+        console.log("Value of address (typing):", inputValue);
+
+        // Scroll to bottom of dropdown
+        if (bottomToAddress.current) {
+            bottomToAddress.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
 
     const status = [
         {
@@ -551,7 +566,20 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                 </div>
 
                                 <div className='mt-1'>
-                                    <AddressPicker userAddress={setAddress} />
+                                    {/* <AddressPicker userAddress={setAddress} /> */}
+                                    <div>
+                                        <GooglePlacesAutocomplete
+                                            apiKey={addressKey}
+                                            selectProps={{
+                                                value: addressSelected,
+                                                onChange: setAddressSelected,
+                                                onInputChange: handleAddressInputChange, // Trigger scroll when typing
+                                            }}
+                                            style={{ borderColor: "red" }}
+                                        />
+                                        {/* Hidden div to scroll to */}
+                                        <div ref={bottomToAddress} style={{ height: '1px' }}></div>
+                                    </div>
                                 </div>
                             </div>
 

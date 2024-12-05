@@ -200,7 +200,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                             Start for free, then pay as you go
                         </div>
 
-                        <div className='h-[58vh] overflow-auto w-full flex flex-col items-center' style={{ scrollbarWidth: "none" }}>
+                        <div className='h-[55vh] overflow-auto w-full flex flex-col items-center' style={{ scrollbarWidth: "none" }}>
                             <div className='flex flex-wrap w-4/12'>
                                 {
                                     facilities.map((item, index) => (
@@ -303,7 +303,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                             </div>
                         </div>
 
-                        <div className='w-full flex-col items-center flex gap-4' style={{ position: "absolute", bottom: 50, }}>
+                        <div className='w-full flex-col items-center flex gap-4' style={{ position: "absolute", bottom: 65, }}>
 
                             {
                                 selectedPlan && (

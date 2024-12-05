@@ -11,7 +11,7 @@ const AddressPicker = ({ userAddress }) => {
         userAddress(address?.label);
     }, [address]);
 
-    const handleInputChange = (inputValue) => {
+    const handleAddressInputChange = (inputValue) => {
         console.log("Value of address (typing):", inputValue);
 
         // Scroll to bottom of dropdown
@@ -27,7 +27,7 @@ const AddressPicker = ({ userAddress }) => {
                 selectProps={{
                     value: address,
                     onChange: setAddress,
-                    onInputChange: handleInputChange, // Trigger scroll when typing
+                    onInputChange: handleAddressInputChange, // Trigger scroll when typing
                 }}
                 style={{ borderColor: "red" }}
             />

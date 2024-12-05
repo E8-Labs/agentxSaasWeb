@@ -308,7 +308,7 @@ const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc }) => {
         },
         {
             id: 2,
-            title: "Motivation2"
+            title: "Motivation"
         },
         {
             id: 3,
