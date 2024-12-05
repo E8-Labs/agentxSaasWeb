@@ -155,7 +155,7 @@ function Page() {
   }, [userDetails]);
 
 
-  console.log("Current agent selected is:", showDrawer)
+  // console.log("Current agent selected is:", showDrawer)
 
   return (
     <div className='w-full flex flex-col items-center'>
@@ -236,7 +236,7 @@ function Page() {
                           </div>
                         </button>
                         <div style={{ fontSize: 11, fontWeight: '600', color: '#00000080' }}>
-                          Community update
+                          {item.agentObjective}
                         </div>
                       </div>
                       <div className='flex flex-row gap-3 items-center text-purple' style={{ fontSize: 15, fontWeight: '500' }}>
@@ -280,14 +280,14 @@ function Page() {
 
                     <Card
                       name="Calls"
-                      value={98}
+                      value={item.calls}
                       icon='/assets/selectedCallIcon.png'
                       bgColor="bg-blue-100"
                       iconColor="text-blue-500"
                     />
                     <Card
                       name="Convos >10 Sec"
-                      value={43}
+                      value={item.callsGt10}
                       icon='/otherAssets/convosIcon2.png'
                       bgColor="bg-purple-100"
                       iconColor="text-purple-500"
@@ -310,7 +310,7 @@ function Page() {
 
                     <Card
                       name="Mins Talked"
-                      value={22}
+                      value={item.totalDuration || "0"}
                       icon='/otherAssets/transferIcon.png'
                       bgColor="green"
                       iconColor="text-orange-500"
@@ -488,10 +488,10 @@ function Page() {
               <div className='flex flex-col gap-1 items-start '>
                 <div className='flex flex-row gap-2 items-center '>
                   <div style={{ fontSize: 22, fontWeight: "600" }}>
-                    {showDrawer?.agents[0]?.name}
+                    {showDrawer?.name}
                   </div>
                   <div className='text-purple' style={{ fontSize: 11, fontWeight: "600" }}>
-                    {showDrawer?.agents[0]?.agentObjective}
+                    {showDrawer?.agentObjective}
                   </div>
 
                   <Image src={'/otherAssets/blueUpdateIcon.png'}
@@ -502,7 +502,7 @@ function Page() {
                 </div>
 
                 <div style={{ fontSize: 15, fontWeight: "500", color: "#000" }}>
-                  {showDrawer?.agents[0]?.phoneNumber}
+                  {showDrawer?.phoneNumber}
                 </div>
 
                 <div className='flex flex-row gap-2 items-center '>
@@ -603,7 +603,7 @@ function Page() {
                 <div className="flex justify-between">
                   <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Name</div>
                   <div>
-                    {showDrawer?.agents[0]?.name}
+                    {showDrawer?.name}
                   </div>
                 </div>
                 <div className="flex justify-between">
@@ -611,12 +611,12 @@ function Page() {
                     <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Task</div>
 
                   </div>
-                  <div>Making {showDrawer?.agents[0]?.agentType} Calls</div>
+                  <div>Making {showDrawer?.agentType} Calls</div>
                 </div>
                 <div className="flex justify-between">
                   <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Role</div>
                   <div>
-                    {showDrawer?.agents[0]?.agentRole}
+                    {showDrawer?.agentRole}
                   </div>
                 </div>
                 <div className="flex justify-between">
@@ -630,7 +630,7 @@ function Page() {
                     />
                   </div>
                   <div>
-                    {showDrawer?.agents[0]?.agentObjective}
+                    {showDrawer?.agentObjective}
                   </div>
                 </div>
 
@@ -660,7 +660,7 @@ function Page() {
                     Number used for calls
                   </div>
                   <div>
-                    {showDrawer?.agents[0]?.phoneNumber}
+                    {showDrawer?.phoneNumber}
                   </div>
                 </div>
                 <div className="flex justify-between">
@@ -676,9 +676,9 @@ function Page() {
                     />
                   </div>
                   <div>
-                    {showDrawer?.agents[0]?.callbackNumber ?
+                    {showDrawer?.callbackNumber ?
                       <div>
-                        {showDrawer?.agents[0]?.callbackNumber}
+                        {showDrawer?.callbackNumber}
                       </div> : "N/A"
                     }
                   </div>
@@ -696,9 +696,9 @@ function Page() {
                     />
                   </div>
                   <div>
-                    {showDrawer?.agents[0]?.liveTransferNumber ?
+                    {showDrawer?.liveTransferNumber ?
                       <div>
-                        {showDrawer?.agents[0]?.liveTransferNumber}
+                        {showDrawer?.liveTransferNumber}
                       </div> : "N/A"
                     }
                   </div>
@@ -711,7 +711,7 @@ function Page() {
                     Number used for calls
                   </div>
                   <div>
-                    {showDrawer?.agents[0]?.name}
+                    {showDrawer?.name}
                   </div>
                 </div>
                 <div className="flex justify-between">
