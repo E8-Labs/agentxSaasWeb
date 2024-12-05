@@ -574,7 +574,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                             // onChange={handleSelectNumber}
                                             onChange={(e) => {
                                                 let value = e.target.value
-                                                setSelectNumber(value.slice(1))
+                                                setSelectNumber(value)
                                                 setOpenCalimNumDropDown(false);
                                             }}
                                             renderValue={(selected) => {
@@ -593,7 +593,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                         >
                                             {
                                                 previousNumber.map((item, index) => (
-                                                    <MenuItem key={index} style={styles.dropdownMenu} value={item.phoneNumber} className='flex flex-row items-center gap-2'>
+                                                    <MenuItem key={index} style={styles.dropdownMenu} value={item.phoneNumber.slice(1)} className='flex flex-row items-center gap-2'>
                                                         {item.phoneNumber}
                                                         {
                                                             item.claimedBy && (
