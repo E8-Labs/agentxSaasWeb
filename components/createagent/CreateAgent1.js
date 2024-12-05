@@ -206,7 +206,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                 console.log(`${key}: ${value}`);
             }
 
-            return
+            // return
             const response = await axios.post(ApiPath, formData, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken
