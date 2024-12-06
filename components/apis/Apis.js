@@ -30,6 +30,7 @@ const Apis = {
     pauseAgent: `${BasePath}api/pipeline/pauseAgentCadence`,
     getUniqueColumns: `${BasePath}api/leads/getUniqueColumns`,
     addSmartList: `${BasePath}api/leads/addSmartList`,
+    delSmartList: `${BasePath}api/leads/deleteList`,
     addCustomStage: `${BasePath}api/pipeline/createStage`,
     deleteStage: `${BasePath}api/pipeline/deletePipelineStage`,
     addObjectionGuardrial: `${BasePath}api/agent/addObjectionGuardRail`,

@@ -574,6 +574,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                                 value: addressSelected,
                                                 onChange: setAddressSelected,
                                                 onInputChange: handleAddressInputChange, // Trigger scroll when typing
+                                                placeholder:"Type here..."
                                             }}
                                             style={{ borderColor: "red" }}
                                         />

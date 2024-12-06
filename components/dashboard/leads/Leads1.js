@@ -39,6 +39,8 @@ const Leads1 = () => {
   const [processedData, setProcessedData] = useState([]);
   const [columnMappingsList, setColumnMappingsList] = useState([]);
   const [introVideoModal, setIntroVideoModal] = useState(false);
+  //popup for deleting the column
+  const [ShowDelCol, setShowDelCol] = useState(false);
 
   //my custom logic
   //This variable will contain all columns from the sheet that we will obtain from the sheet or add new
@@ -47,22 +49,28 @@ const Leads1 = () => {
   let defaultColumns = {
     firstName: {
       UserFacingName: "First Name",
-      mappings: ["first name", "firstname"],
+      mappings: [
+        "first name",
+        "firstname",
+        "name",
+        "username",
+        "customer name",
+      ],
       ColumnNameInSheet: "",
       dbName: "firstName",
     },
     lastName: {
       UserFacingName: "Last Name",
-      mappings: ["last name", "lastname"],
+      mappings: ["last name", "lastname", "name"],
       ColumnNameInSheet: "",
       dbName: "lastName",
     },
-    fullName: {
-      UserFacingName: "Full Name",
-      mappings: ["full name", "name"],
-      ColumnNameInSheet: "",
-      dbName: "fullName",
-    },
+    // fullName: {
+    // UserFacingName: "Full Name",
+    // mappings: ["full name", "name"],
+    // ColumnNameInSheet: "",
+    // dbName: "fullName",
+    // },
     email: {
       UserFacingName: "Email",
       mappings: ["email", "email address", "mail"],
@@ -91,7 +99,13 @@ const Leads1 = () => {
   let defaultColumnsArray = [
     {
       UserFacingName: "First Name",
-      mappings: ["first name", "firstname"],
+      mappings: [
+        "first name",
+        "firstname",
+        "name",
+        "username",
+        "customer name",
+      ],
       ColumnNameInSheet: "",
       dbName: "firstName",
     },
@@ -101,12 +115,12 @@ const Leads1 = () => {
       ColumnNameInSheet: "",
       dbName: "lastName",
     },
-    {
-      UserFacingName: "Full Name",
-      mappings: ["full name", "name"],
-      ColumnNameInSheet: "",
-      dbName: "fullName",
-    },
+    // {
+    // UserFacingName: "Full Name",
+    // mappings: ["full name", "name"],
+    // ColumnNameInSheet: "",
+    // dbName: "fullName",
+    // },
     {
       UserFacingName: "Email",
       mappings: ["email", "email address", "mail"],
@@ -132,30 +146,63 @@ const Leads1 = () => {
       dbName: "address",
     },
   ];
-  const matchColumn = (columnName, mappings, columnsMatched = null) => {
-    const lowerCaseName = columnName.toLowerCase();
-    // console.log("----------------------------------------\n\n");
-    // console.log("Col Matched ", columnsMatched);
-    // console.log("Col name ", columnName);
+  // const matchColumn = (columnName, mappings, columnsMatched = null) => {
+  // const lowerCaseName = columnName.toLowerCase();
 
+  // //console.log("Col mappings ", columnsMatched);
+  // // //console.log("Col name ", columnName);
+
+  // for (const key in mappings) {
+  // // //console.log("Key ", key);
+  // if (
+  // mappings[key].mappings.some((alias) => lowerCaseName.includes(alias))
+  // ) {
+  // // //console.log(`Mappings[${key}] includes => ${lowerCaseName}`);
+  // if (columnsMatched) {
+  // let matched = false;
+  // columnsMatched.forEach((item) => {
+  // // //console.log("Matched Col Item ", item);
+  // if (item.dbName == key) {
+  // // //console.log("return Null item.dbName == key");
+  // // matched = true;
+  // return null;
+  // }
+  // });
+  // // if (matched) {
+  // // //console.log("Col matched to some other col");
+  // // return null;
+  // // }
+  // }
+  // // //console.log("return Key ", key);
+  // return key;
+  // }
+  // }
+  // // //console.log("return null last");
+  // return null;
+  // };
+
+  const matchColumn = (columnName, mappings, columnsMatched = []) => {
+    const lowerCaseName = columnName.toLowerCase();
+    // console.log("--------------------------------");
+    // console.log(`Already Matched `, columnsMatched);
+    // console.log("Matching Header ", columnName);
     for (const key in mappings) {
-      // console.log("Key ", key);
+      const isAlreadyMatched = columnsMatched.some(
+        (matchedColumn) => matchedColumn.dbName === key
+      );
+      // console.log(`Matching with `, key);
+      let includes = columnsMatched.includes(key);
+      // console.log(`Columns matched include ${key}`, isAlreadyMatched);
       if (
-        mappings[key].mappings.some((alias) => lowerCaseName.includes(alias))
+        mappings[key].mappings.some((alias) => lowerCaseName.includes(alias)) &&
+        !isAlreadyMatched
       ) {
-        if (columnsMatched) {
-          columnsMatched.forEach((item) => {
-            if (item.dbName == key) {
-              // console.log("----------------------------------------\n\n");
-              return null;
-            }
-          });
-        }
-        // console.log("----------------------------------------\n\n");
+        // matched. Check if the column name
+        // console.log("---------------Matched key-----------------", key);
         return key;
       }
     }
-    // console.log("----------------------------------------\n\n");
+    // console.log("--------------Returning null------------------");
     return null;
   };
 
@@ -200,7 +247,7 @@ const Leads1 = () => {
 
   //code for csv file drag and drop
   const onDrop = useCallback((acceptedFiles) => {
-    //console.log(acceptedFiles);
+    //////console.log(acceptedFiles);
     setSelectedFile(acceptedFiles);
     // Handle the uploaded files
     setSheetName(acceptedFiles[0].name.split(".")[0]);
@@ -229,13 +276,13 @@ const Leads1 = () => {
 
   //code to update column
   function ChangeColumnName(UpdatedColumnName) {
-    console.log("Updating ", UpdateHeader);
-    console.log("New Name ", UpdatedColumnName);
+    ////console.log("Updating ", UpdateHeader);
+    ////console.log("New Name ", UpdatedColumnName);
 
     let defaultColumnsDbNames = [
       "First Name",
       "Last Name",
-      "Full Name",
+      // "Full Name",
       "Phone Number",
       "Email",
       "Address",
@@ -252,18 +299,18 @@ const Leads1 = () => {
       console.log("changing extra column");
     }
     // return;
-    //console.log("Change column name here", UpdatedColumnName);
-    //console.log("Old column value ", UpdateHeader.columnNameTransformed);
+    //////console.log("Change column name here", UpdatedColumnName);
+    //////console.log("Old column value ", UpdateHeader.columnNameTransformed);
     let pd = processedData;
     let dc = null;
     let keys = Object.keys(defaultColumns);
-    // console.log("Keys ", keys);
-    // console.log("Updated Col Name ", UpdatedColumnName);
+    // ////console.log("Keys ", keys);
+    // ////console.log("Updated Col Name ", UpdatedColumnName);
     keys.forEach((key) => {
       let col = defaultColumns[key];
-      // console.log(
-      // `Matching ${col.UserFacingName} with ${UpdatedColumnName} OR ${col.dbName}`
-      // );
+      console.log(
+        `Matching ${col.UserFacingName} with ${UpdatedColumnName} OR ${col.dbName}`
+      );
       if (
         col.UserFacingName == UpdatedColumnName ||
         col.dbName == UpdatedColumnName
@@ -291,7 +338,11 @@ const Leads1 = () => {
           //mmove it to extra column
 
           let value = d[UpdateHeader.dbName];
-          d.extraColumns[UpdatedColumnName] = value;
+          d.extraColumns[
+            UpdatedColumnName
+              ? UpdatedColumnName
+              : UpdateHeader.ColumnNameInSheet
+          ] = value;
           delete d[UpdateHeader.dbName];
           // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
           // d[UpdatedColumnName] = value;
@@ -307,7 +358,7 @@ const Leads1 = () => {
         // });
         //The updated name is in default column list
         if (dc) {
-          // console.log("Updated name is default column", UpdatedColumnName);
+          console.log("Updated name is default column", UpdatedColumnName);
           let value =
             d.extraColumns[
             UpdateHeader.dbName
@@ -323,7 +374,7 @@ const Leads1 = () => {
           d[dc.dbName] = value;
           pd[i] = d;
         } else {
-          // console.log(
+          // ////console.log(
           // "the updated name is not in default column list",
           // UpdatedColumnName
           // );
@@ -332,10 +383,14 @@ const Leads1 = () => {
             ? UpdateHeader.dbName
             : UpdateHeader.ColumnNameInSheet;
           let value = d.extraColumns[colName];
-          // console.log(`Value for colum ${colName} `, value);
+          console.log(`Value for colum ${colName} `, value);
           delete d.extraColumns[colName];
           // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
-          d.extraColumns[UpdatedColumnName] = value;
+          d.extraColumns[
+            UpdatedColumnName
+              ? UpdatedColumnName
+              : UpdateHeader.ColumnNameInSheet
+          ] = value;
 
           pd[i] = d;
         }
@@ -344,8 +399,8 @@ const Leads1 = () => {
 
     let NewCols = NewColumnsObtained;
     NewCols.forEach((item) => {
-      console.log("Match ", item);
-      console.log("Match ", UpdateHeader);
+      ////console.log("Match ", item);
+      ////console.log("Match ", UpdateHeader);
 
       if (item.dbName == UpdateHeader.dbName && isDefaultColumn) {
         item.dbName = UpdatedColumnName;
@@ -353,7 +408,7 @@ const Leads1 = () => {
       } else if (item.ColumnNameInSheet == UpdateHeader.ColumnNameInSheet) {
         //changing extra column
         if (dc) {
-          console.log("New column name is default Column", dc);
+          ////console.log("New column name is default Column", dc);
           item.dbName = dc.dbName;
           item.UserFacingName = UpdatedColumnName;
         } else {
@@ -362,7 +417,7 @@ const Leads1 = () => {
         }
       }
     });
-    console.log("New Cols", NewCols);
+    ////console.log("New Cols", NewCols);
     // for (let i = 0; i < mappingList.length; i++) {
     // let map = mappingList[i];
     // if (map.columnNameTransformed == UpdateHeader.columnNameTransformed) {
@@ -374,7 +429,7 @@ const Leads1 = () => {
     console.log(`Processed data changed`, pd);
     setProcessedData(pd);
     // setColumnMappingsList(mappingList);
-    //console.log("Mapping list changed", mappingList);
+    //////console.log("Mapping list changed", mappingList);
     // if (pd && mappingList) {
     setShowPopUp(false);
     setcolumnAnchorEl(null);
@@ -383,16 +438,16 @@ const Leads1 = () => {
   }
 
   const validateColumns = () => {
-    console.log("New Col Obtained ", NewColumnsObtained);
+    ////console.log("New Col Obtained ", NewColumnsObtained);
 
     const requiredColumns = ["phone"];
     const hasFullName =
       NewColumnsObtained.some((col) => col.dbName === "fullName") ||
-      (NewColumnsObtained.some((col) => col.dbName === "firstName") &&
-        NewColumnsObtained.some((col) => col.dbName === "lastName"));
-    console.log("Has Full Name ", hasFullName);
+      NewColumnsObtained.some((col) => col.dbName === "firstName");
+    // NewColumnsObtained.some((col) => col.dbName === "lastName"));
+    ////console.log("Has Full Name ", hasFullName);
     const hasPhone = NewColumnsObtained.some((col) => col.dbName === "phone");
-    console.log("Has Phone Num", hasPhone);
+    ////console.log("Has Phone Num", hasPhone);
     return hasPhone && hasFullName;
   };
 
@@ -429,10 +484,11 @@ const Leads1 = () => {
 
         // Map headers to default columns or extra columns
         let allColumns = [];
+
         let matched = [];
         headers.forEach((header) => {
           const matchedColumn = matchColumn(header, defaultColumns, allColumns);
-          console.log("Matched Col ", matchedColumn);
+          //console.log(`Matched Col For Header ${header}`, matchedColumn);
           if (matchedColumn) {
             if (!matched.includes(matchedColumn)) {
               let col = defaultColumns[matchedColumn];
@@ -440,7 +496,7 @@ const Leads1 = () => {
               allColumns.push(col);
               matched.push(matchedColumn);
             } else {
-              console.log("Already matched");
+              ////console.log("Already matched");
               allColumns.push({
                 UserFacingName: null,
                 mappings: [header],
@@ -474,18 +530,26 @@ const Leads1 = () => {
             // });
           }
         });
-
+        console.clear();
         // columnMappings["extraColumns"] = extraColumns;
 
         // Transform data rows based on column mappings
+
         const transformedData = rows.map((row) => {
           const transformedRow = {};
-          const matched = []; // Reset for each row
+          allColumns = [];
+          matched = [];
 
           headers.forEach((header, index) => {
-            const matchedColumn = matchColumn(header, defaultColumns);
+            //console.log("----------------------------------------\n\n");
+            const matchedColumn = matchColumn(
+              header,
+              defaultColumns,
+              allColumns
+            );
+            //console.log("----------------------------------------\n\n");
 
-            // console.log("-------------------------------------\n\n");
+            // ////console.log("-------------------------------------\n\n");
             // console.log("Matching column ", header);
             // console.log("Matched column ", matchedColumn);
             // console.log("Already Matched Cols ", matched);
@@ -493,12 +557,17 @@ const Leads1 = () => {
             if (matchedColumn) {
               // If matchedColumn is found and hasn't been added to matched array yet
               if (!matched.includes(matchedColumn)) {
-                console.log(`First Time pushing data ${index} => ${header}`);
-                matched.push(matchedColumn); // Mark this column as matched
+                ////console.log(`First Time pushing data ${index} => ${header}`);
+                // matched.push(matchedColumn); // Mark this column as matched
 
                 transformedRow[matchedColumn] = row[index] || null;
+
+                let col = defaultColumns[matchedColumn];
+                col.ColumnNameInSheet = header;
+                allColumns.push(col);
+                matched.push(matchedColumn);
               } else {
-                console.log(`Already Found data ${index} => ${header}`);
+                //console.log(`Already Found data ${index} => ${header}`);
                 const transformedName = header; // Or use toSnakeCase(header);
                 if (!transformedRow["extraColumns"]) {
                   transformedRow["extraColumns"] = {};
@@ -507,6 +576,12 @@ const Leads1 = () => {
                 transformedRow["extraColumns"][transformedName] =
                   row[index] || null;
                 // If it's already matched, add to the main object
+                allColumns.push({
+                  UserFacingName: null,
+                  mappings: [header],
+                  ColumnNameInSheet: header,
+                  dbName: null,
+                });
               }
             } else {
               // If no match is found, add to extraColumns
@@ -516,21 +591,29 @@ const Leads1 = () => {
               }
               transformedRow["extraColumns"][transformedName] =
                 row[index] || null;
+
+              allColumns.push({
+                UserFacingName: null,
+                mappings: [header],
+                ColumnNameInSheet: header,
+                dbName: null,
+              });
             }
 
-            console.log("-------------------------------------\n\n");
+            ////console.log("-------------------------------------\n\n");
           });
 
           return transformedRow;
         });
 
+        console.log("Transformed data ", transformedData);
         // Update state
         setProcessedData(transformedData);
         // setColumnMappingsList(mappingsList);
 
-        console.log("Default Cols:", allColumns);
+        ////console.log("Default Cols:", allColumns);
         setNewColumnsObtained(allColumns);
-        console.log("Processed Data", transformedData);
+        ////console.log("Processed Data", transformedData);
 
         // Example API Call
         // sendLeadsToAPI(transformedData, mappingsList);
@@ -542,6 +625,7 @@ const Leads1 = () => {
   //csv file code ends
 
   //restrict user to only edit name of csv file
+
   const handleSheetNameChange = (e) => {
     const baseName = sheetName.split(".")[0]; // Get the current base name
     const extension = sheetName.split(".").slice(1).join("."); // Keep the extension
@@ -556,17 +640,17 @@ const Leads1 = () => {
   const handleAddLead = async () => {
     let validated = validateColumns();
 
-    console.log("Columns validated", validated);
+    //console.log("Columns validated", validated);
     if (!validated) {
       return;
     }
     let pd = processedData;
-    console.log(pd);
+    ////console.log(pd);
     NewColumnsObtained.forEach((col) => {
       pd.forEach((item, index) => {
         // if (item.extraColumns[col.ColumnNameInSheet]) {
         if (!col.dbName) {
-          console.log("Column not needed so deleteing.");
+          ////console.log("Column not needed so deleteing.");
           delete item.extraColumns[col.ColumnNameInSheet];
         } else {
           let val = item.extraColumns[col.ColumnNameInSheet];
@@ -576,8 +660,8 @@ const Leads1 = () => {
     });
     console.log(pd);
 
-    console.log("New Columns");
-    console.log(NewColumnsObtained);
+    ////console.log("New Columns");
+    ////console.log(NewColumnsObtained);
 
     // return;
     try {
@@ -589,7 +673,7 @@ const Leads1 = () => {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
       }
-      //console.log("Auth token is :--", AuthToken);
+      //////console.log("Auth token is :--", AuthToken);
 
       const ApiData = {
         sheetName: sheetName,
@@ -598,9 +682,9 @@ const Leads1 = () => {
       };
 
       const ApiPath = Apis.createLead;
-      //console.log("Api path is :", ApiPath);
+      //////console.log("Api path is :", ApiPath);
 
-      console.log("Apidata sending in Addlead api is :", ApiData);
+      //console.log("Apidata sending in Addlead api is :", ApiData);
       // return;
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -610,7 +694,7 @@ const Leads1 = () => {
       });
 
       if (response) {
-        //console.log("Response of ad lead api is :", response.data.data);
+        //////console.log("Response of ad lead api is :", response.data.data);
         if (response.data.status === true) {
           setShowUploadLeadModal(false);
           setSelectedFile(null);
@@ -682,7 +766,7 @@ const Leads1 = () => {
 
   function GetDefaultColumnsNotMatched(data) {
     let columns = Object.keys(data);
-    // console.log("Columns GetDefaultColumnsNotMatched ", columns);
+    // ////console.log("Columns GetDefaultColumnsNotMatched ", columns);
     // const ColumnsNotMatched = DefaultHeadigs.filter(
     // (value) => !columns.includes(value.title)
     // );
@@ -690,9 +774,9 @@ const Leads1 = () => {
       (value) => !columns.includes(value.dbName)
     );
     //defaultColumns
-    //console.log("Columns in Processed Data ", columns);
-    //console.log("Columns in Default Headings ", DefaultHeadigs);
-    // console.log("Columns not matched ", ColumnsNotMatched);
+    //////console.log("Columns in Processed Data ", columns);
+    //////console.log("Columns in Default Headings ", DefaultHeadigs);
+    // ////console.log("Columns not matched ", ColumnsNotMatched);
     return ColumnsNotMatched;
   }
 
@@ -994,7 +1078,7 @@ const Leads1 = () => {
                   // onChange={handleSheetNameChange}
                   onChange={(e) => {
                     const value = e.target.value;
-                    //console.log("Updated sheet name :", value);
+                    //////console.log("Updated sheet name :", value);
                     setSheetName(value);
                   }}
                   placeholder="Enter sheet name"
@@ -1010,9 +1094,10 @@ const Leads1 = () => {
                 style={{ ...styles.paragraph, color: "#00000070" }}
               >
                 <div className="w-2/12">Matched</div>
-                <div className="w-4/12">Column Header from File</div>
+                <div className="w-3/12">Column Header from File</div>
                 <div className="w-3/12">Preview Info</div>
                 <div className="w-3/12">Column Fields</div>
+                <div className="w-1/12">Action</div>
               </div>
 
               <div
@@ -1050,7 +1135,7 @@ const Leads1 = () => {
                         )}
                         {/* <Image className='ms-4' src={"/assets/checkDone.png"} alt='*' height={24} width={24} /> */}
                       </div>
-                      <div className="w-4/12">{item.ColumnNameInSheet}</div>
+                      <div className="w-3/12">{item.ColumnNameInSheet}</div>
                       <div className="w-3/12 truncate">
                         {matchingValue ? (
                           matchingValue[item.dbName]
@@ -1073,8 +1158,8 @@ const Leads1 = () => {
                             } else {
                               // if (index > 4) {
                               setSelectedItem(index);
-                              //console.log("Selected index is", index);
-                              //console.log("Item selected is :", item);
+                              //////console.log("Selected index is", index);
+                              //////console.log("Item selected is :", item);
                               setUpdateColumnValue(item.columnNameTransformed);
                               handleColumnPopoverClick(event);
                               setUpdateHeader(item);
@@ -1114,13 +1199,6 @@ const Leads1 = () => {
                             style={styles.paragraph}
                           >
                             <div>
-                              {/* {
- DefaultHeadigs.map((item, index) => (
- <div key={index}>
- {item.title}
- </div>
- ))
- } */}
                               <div className="flex flex-col text-start">
                                 {GetDefaultColumnsNotMatched(
                                   processedData[0]
@@ -1147,17 +1225,63 @@ const Leads1 = () => {
                             >
                               Add New column
                             </button>
-                            <button
-                              className="underline text-purple"
-                              onClick={() => {
-                                ChangeColumnName(null);
-                              }}
-                            >
-                              Remove
-                            </button>
                           </div>
                         </Popover>
+
                       </div>
+                      <button
+                        className="underline text-purple w-1/12 outline-none ms-4"
+                        onClick={() => {
+                          setUpdateHeader(item)
+                          setShowDelCol(true);
+                          // setUpdateHeader(item)
+                          // ChangeColumnName(null)
+                        }}
+                      >
+                        <Image src={"/assets/cross.png"} height={15} width={15} alt="*" />
+                      </button>
+                      <Modal
+                        open={ShowDelCol}
+                        onClose={() => setShowDelCol(false)}
+                        closeAfterTransition
+                        BackdropProps={{
+                          timeout: 1000,
+                          sx: {
+                            backgroundColor: "#00000008",
+                            backdropFilter: "blur(2px)",
+                          },
+                        }}
+                      >
+                        <Box className="lg:w-4/12 sm:w-4/12 w-6/12" sx={styles.modalsStyle}>
+                          <div className="flex flex-row justify-center w-full">
+                            <div
+                              className="w-full"
+                              style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                              }}
+                            >
+                              <div className="font-bold text-xl mt-6">
+                                Are you sure you want to delete this column
+                              </div>
+                              <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
+                                <button className="w-1/2 font-bold text-xl border border-[#00000020] rounded-xl h-[50px]" onClick={() => { setShowDelCol(false) }}>
+                                  Cancel
+                                </button>
+                                <button className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                                  onClick={() => {
+                                    ChangeColumnName(null);
+                                    setShowDelCol(false);
+                                  }}
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </Box>
+                      </Modal>
                     </div>
                   );
                 })}

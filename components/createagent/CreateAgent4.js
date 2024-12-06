@@ -62,6 +62,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     ]);
     //show reassign btn or not
     const [showReassignBtn, setShowReassignBtn] = useState(false);
+    const [showGlobalBtn, setShowGlobalBtn] = useState(true);
     //code for find numbers
     const [findNumber, setFindNumber] = useState("");
     const [findeNumberLoader, setFindeNumberLoader] = useState(false);
@@ -109,6 +110,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                 setShowReassignBtn(true);
             } else if (agetnDetails.agents[0].agentType === "inbound") {
                 setShowReassignBtn(true);
+                setShowGlobalBtn(false);
             }
         }
 
@@ -635,7 +637,19 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                     </MenuItem>
                                                 ))
                                             }
-                                            <MenuItem style={styles.dropdownMenu} value={14062040550}>+14062040550 (Our global phone number avail to first time users)</MenuItem>
+                                            <MenuItem style={styles.dropdownMenu} value={showGlobalBtn ? 14062040550 : ""}>
+                                                +14062040550
+                                                {
+                                                    showGlobalBtn && (
+                                                        " (Our global phone number avail to first time users)"
+                                                    )
+                                                }
+                                                {
+                                                    showGlobalBtn == false && (
+                                                        " (Only for outbound agents. You must Buy a number)"
+                                                    )
+                                                }
+                                            </MenuItem>
                                             <div className='ms-4' style={{ ...styles.inputStyle, color: '#00000070' }}><i>Get your own unique phone number.</i> <button className='text-purple underline' onClick={() => { setShowClaimPopup(true) }}>Claim one</button></div>
                                         </Select>
                                     </FormControl>

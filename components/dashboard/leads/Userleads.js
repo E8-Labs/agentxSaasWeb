@@ -1,5 +1,5 @@
 import Apis from '@/components/apis/Apis';
-import { Box, CircularProgress, Modal } from '@mui/material';
+import { Box, CircularProgress, Modal, Popover } from '@mui/material';
 import { CalendarDots, DotsThree, Plus } from '@phosphor-icons/react'
 import axios from 'axios';
 import { first } from 'draft-js/lib/DefaultDraftBlockRenderMap';
@@ -21,6 +21,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
     const [LeadsList, setLeadsList] = useState([]);
     const [searchLead, setSearchLead] = useState("");
     const [FilterLeads, setFilterLeads] = useState([]);
+    const [leadColumns, setLeadColumns] = useState([]);
     const [SelectedSheetId, setSelectedSheetId] = useState("");
     const [toggleClick, setToggleClick] = useState([]);
     const [AssignLeadModal, setAssignLeadModal] = useState(false);
@@ -28,6 +29,14 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
     const [selectedFromDate, setSelectedFromDate] = useState(null);
     const [showFromDatePicker, setShowFromDatePicker] = useState(false);
     const [showAddNewSheetModal, setShowAddNewSheetModal] = useState(false);
+    //code for delete smart list popover
+
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [delSmartListLoader, setDelSmartListLoader] = useState(false);
+    const [selectedSmartList, setSelectedSmartList] = useState(null);
+    const open = Boolean(anchorEl);
+    const id = open ? 'simple-popover' : undefined;
+
 
     //code for array input fields
     const [inputs, setInputs] = useState([{ id: 1, value: '' }, { id: 2, value: '' }, { id: 3, value: '' }]);
@@ -37,6 +46,12 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
 
     //err msg when no leaad in list
     const [showNoLeadErr, setShowNoLeadErr] = useState(null);
+
+    //code for showing leads details
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [selectedLeadsDetails, setSelectedLeadsDetails] = useState(null);
+
+    // console.log("LEad selected to show details is:", selectedLeadsDetails);
 
     //to date filter
     // const [showFilterModal, setShowFilterModal] = useState(false);
@@ -108,6 +123,64 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                 return [...prevIds, item.id];
             }
         });
+    }
+
+    //function for del smartlist stage popover
+
+    const handleShowPopup = (event, item) => {
+        setAnchorEl(event.currentTarget);
+        console.log("Selected smart list is ", item);
+        setSelectedSmartList(item)
+    };
+
+    const handleClosePopup = () => {
+        setAnchorEl(null);
+    };
+
+    //function to delete smart list
+    const handleDeleteSmartList = async () => {
+        try {
+            setDelSmartListLoader(true);
+
+            const localData = localStorage.getItem("User");
+            let AuthToken = null;
+            if (localData) {
+                const UserDetails = JSON.parse(localData);
+                AuthToken = UserDetails.token;
+            }
+
+            console.log("Auth token is :--", AuthToken);
+
+            const ApiData = {
+                sheetId: selectedSmartList.id
+            }
+
+            console.log("Apidata is:", ApiData);
+
+            const ApiPath = Apis.delSmartList;
+            console.log("Apipath is:", ApiPath);
+            // return
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken
+                }
+            });
+
+            if (response) {
+                console.log("response of del smart lis api is:", response);
+                if (response.data.status === true) {
+                    setSheetsList((prevSheetsList) =>
+                        prevSheetsList.filter(sheet => sheet.id !== selectedSmartList.id)
+                    );
+                    handleClosePopup();
+                }
+            }
+
+        } catch (error) {
+            console.error("ERror occured in del smart list api is:", error);
+        } finally {
+            setDelSmartListLoader(false);
+        }
     }
 
     // function to handle select data change
@@ -200,8 +273,68 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
 
             if (response) {
                 console.log("Response of get leads api is :", response.data);
+                let leadData = [];
+                let leadColumns = [];
                 setLeadsList(response.data.data);
                 setFilterLeads(response.data.data);
+                leadData = response.data.data;
+                const dynamicColumns = [
+                    ...response.data.columns,
+                    // { title: "Tag" },
+                    {
+                        title: "More",
+                        idDefault: false
+                    },
+                ];
+                // setLeadColumns(response.data.columns);
+                setLeadColumns(dynamicColumns);
+                leadColumns = response.data.columns;
+                console.log("Leads data are:", leadData);
+                console.log("Leads data are", leadColumns);
+
+                // const columnTitles = leadColumns.map(column => column.title);
+
+                // // Filter and match keys
+                // let matchingData = leadData.map(entry => {
+                //     // Create a new object with matching keys only
+                //     const matchedEntry = {};
+                //     for (const key in entry) {
+                //         if (columnTitles.includes(key)) {
+                //             matchedEntry[key] = entry[key];
+                //         }
+                //     }
+                //     return matchedEntry;
+                // });
+
+                // const columnTitles = leadColumns.map(column => column.title);
+
+                // Helper function to handle 'Name' mapping
+                // function mapName(entry) {
+                //     if (columnTitles.includes("Name")) {
+                //         return `${entry.firstName} ${entry.lastName}`;
+                //     }
+                //     return null;
+                // }
+
+                // Filter and match keys
+                // const matchingData = leadData.map(entry => {
+                //     // Create a new object with matching keys only
+                //     const matchedEntry = {};
+                //     for (const key in entry) {
+                //         if (columnTitles.includes(key)) {
+                //             matchedEntry[key] = entry[key];
+                //         }
+                //     }
+
+                //     // Handle 'Name' case separately
+                //     if (columnTitles.includes("Name")) {
+                //         matchedEntry["Name"] = mapName(entry);
+                //     }
+
+                //     return matchedEntry;
+                // });
+
+                // console.log("Matching data found is:", matchingData);
             }
 
         } catch (error) {
@@ -212,7 +345,72 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
         }
     }
 
+    // const getMatchingData = (title) => {
+    //     // Special case for "Name" column
+    //     if (title === "Name") {
+    //         return FilterLeads.map((item) => `${item.firstName} ${item.lastName}`);
+    //     }
+    //     // For other columns
+    //     return FilterLeads.map((item) => item[title] || "N/A");
+    // };
+
     //function for getting the sheets
+
+
+    const getColumnData = (column, item) => {
+
+        const { title } = column;
+
+        switch (title) {
+            case "Name":
+                return (
+                    <div>
+                        <div className='w-full flex flex-row items-center gap-2 truncate'>
+                            {toggleClick.includes(item.id) ? (
+                                <button
+                                    className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
+                                    onClick={() => handleToggleClick(item.id)}
+                                >
+                                    <Image src={"/assets/whiteTick.png"} height={10} width={10} alt='*' />
+                                </button>
+                            ) : (
+                                <button
+                                    className="h-[20px] w-[20px] border-2 rounded outline-none"
+                                    onClick={() => handleToggleClick(item.id)}
+                                >
+                                </button>
+                            )}
+                            <div className='h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white'
+                                onClick={() => handleToggleClick(item.id)}>
+                                {item.firstName.slice(0, 1)}
+                            </div>
+                            <div className='truncate cursor-pointer'
+                                onClick={() => handleToggleClick(item.id)}>
+                                {item.firstName} {item.lastName}
+                            </div>
+                        </div>
+                    </div>
+                );
+            case "Date":
+                return item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "N/A";
+            case "More":
+                return (
+                    <button
+                        className="underline text-purple"
+                        onClick={() => {
+                            setSelectedLeadsDetails(item); // Pass selected lead data
+                            setShowDetailsModal(true); // Show modal
+                        }}
+                    >
+                        Details
+                    </button>
+                );
+            default:
+                return item[title?.toLowerCase()] || "N/A"; // Match dynamically by converting title to lowercase
+        }
+    };
+
+    //code for getting the sheets
     const getSheets = async () => {
         try {
             setInitialLoader(true);
@@ -347,7 +545,8 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
 
             if (response) {
                 console.log("Response of add new smart list api is :", response);
-                if (response.data.status) {
+                if (response.data.status === true) {
+                    setSheetsList([...SheetsList, response.data.data]);
                     setShowAddNewSheetModal(false);
                 }
             }
@@ -553,15 +752,57 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                     {
                                         SheetsList.map((item, index) => {
                                             return (
-                                                <button
+                                                <div
                                                     key={index}
                                                     className='flex flex-row items-center gap-1 px-3'
-                                                    onClick={() => { getLeads(item) }}
                                                     style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
                                                 >
-                                                    <span style={styles.paragraph}>{item.sheetName}</span>
-                                                    <DotsThree weight='bold' size={25} color='black' />
-                                                </button>
+                                                    <button style={styles.paragraph}
+                                                        className='outline-none'
+                                                        onClick={() => { getLeads(item) }}
+                                                    >{item.sheetName}</button>
+                                                    <button
+                                                        className='outline-none' aria-describedby={id} variant="contained"
+                                                        onClick={(event) => { handleShowPopup(event, item) }}
+                                                    >
+                                                        <DotsThree weight='bold' size={25} color='black' />
+                                                    </button>
+                                                    <Popover
+                                                        id={id}
+                                                        open={open}
+                                                        anchorEl={anchorEl}
+                                                        onClose={handleClosePopup}
+                                                        anchorOrigin={{
+                                                            vertical: 'bottom',
+                                                            horizontal: 'right',
+                                                        }}
+                                                        transformOrigin={{
+                                                            vertical: 'top',
+                                                            horizontal: 'left', // Ensures the Popover's top right corner aligns with the anchor point
+                                                        }}
+                                                        PaperProps={{
+                                                            elevation: 0, // This will remove the shadow
+                                                            style: {
+                                                                boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                                                                borderRadius: "10px",
+                                                                width: "120px"
+                                                            },
+                                                        }}
+                                                    >
+                                                        <div className='p-2 flex flex-col gap-2' style={{ fontWeight: "500", fontSize: 15 }}>
+                                                            {
+                                                                delSmartListLoader ?
+                                                                    <CircularProgress size={15} /> :
+                                                                    <button className='text-red flex flex-row items-center gap-1' onClick={handleDeleteSmartList}>
+                                                                        <Image src={"/assets/delIcon.png"} height={18} width={18} alt='*' />
+                                                                        <p className='text-red' style={{ fontWeight: "00", fontSize: 16 }}>
+                                                                            Delete
+                                                                        </p>
+                                                                    </button>
+                                                            }
+                                                        </div>
+                                                    </Popover>
+                                                </div>
                                             )
                                         })
                                     }
@@ -574,7 +815,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                 </button>
                             </div>
 
-                            <div className='w-full flex flex-row items-center mt-4' style={{ ...styles.paragraph, color: "#00000060" }}>
+                            {/* <div className='w-full flex flex-row items-center mt-4' style={{ ...styles.paragraph, color: "#00000060" }}>
                                 <div className='w-2/12'>Name</div>
                                 <div className='w-2/12'>Email</div>
                                 <div className='w-2/12'>Phone Number</div>
@@ -585,7 +826,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                     <div className='w-5/12'>Date</div>
                                     <div className='w-2/12'>More</div>
                                 </div>
-                            </div>
+                            </div> */}
 
                             {
                                 sheetsLoader ?
@@ -595,10 +836,10 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                     <div>
                                         {
                                             LeadsList.length > 0 ?
-                                                <div className='h-[60vh] overflow-auto' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                                                <div className='h-[60vh] overflow-auto mt-6' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
                                                     style={{ scrollbarWidth: "none" }}
                                                 >
-                                                    {
+                                                    {/* {
                                                         FilterLeads.map((item, index) => (
                                                             <div className='w-full flex flex-row items-center mt-4' style={styles.paragraph} key={index}>
                                                                 <div className='w-2/12 flex flex-row items-center gap-2 truncate'>
@@ -660,13 +901,41 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                                     <div className='w-5/12 truncate' onClick={() => handleToggleClick(item.id)}>
                                                                         {moment(item.createdAt).format('MM/DD/YYYY')}
                                                                     </div>
-                                                                    <button className='w-2/12 underline text-purple truncate'>
+                                                                    <button className='w-2/12 underline text-purple outline-none'
+                                                                        onClick={() => {
+                                                                            setSelectedLeadsDetails(item);
+                                                                            setShowDetailsModal(true);
+                                                                        }}>
                                                                         Details
                                                                     </button>
                                                                 </div>
                                                             </div>
                                                         ))
-                                                    }
+                                                    } */}
+
+                                                    <table className="table-auto w-full border-collapse border border-none">
+                                                        <thead>
+                                                            <tr>
+                                                                {leadColumns.map((column, index) => (
+                                                                    <th key={index} className="border-none px-4 py-2 text-left text-[#00000060]">
+                                                                        {column.title}
+                                                                    </th>
+                                                                ))}
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {FilterLeads.map((item, index) => (
+                                                                <tr key={index} className="hover:bg-gray-50">
+                                                                    {leadColumns.map((column, colIndex) => (
+                                                                        <td key={colIndex} className="border-none px-4 py-2">
+                                                                            {getColumnData(column, item)}
+                                                                        </td>
+                                                                    ))}
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+
                                                 </div> :
                                                 <div className='text-xl text-center mt-8' style={{ fontWeight: "700", fontSize: 22 }}>
                                                     {showNoLeadErr ? (showNoLeadErr) : "No lead found"}
@@ -713,6 +982,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                                 <p>{selectedFromDate ? selectedFromDate.toDateString() : "Select Date"}</p>
                                                                 <CalendarDots weight='regular' size={25} />
                                                             </button>
+
                                                             <div>
                                                                 {
                                                                     showFromDatePicker && (
@@ -942,6 +1212,56 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                         </div>
                 }
             </div>
+
+            {/* Modal for leads details */}
+
+            <Modal
+                open={showDetailsModal}
+                onClose={() => setShowDetailsModal(false)}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 1000,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        backdropFilter: "blur(20px)",
+                    },
+                }}
+            >
+                <Box className="sm:w-10/12 lg:w-10/12 xl:w-8/12 w-11/12 max-h-[70vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
+                    <div className="flex flex-row justify-center w-full">
+                        <div
+                            className="sm:w-10/12 w-full"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                            }}
+                        >
+                            <div className='flex flex-row justify-between items-center'>
+                                <div style={{ fontWeight: "500", fontSize: 16.9 }}>
+                                    Details
+                                </div>
+                                <button onClick={() => { setShowDetailsModal(false) }}>
+                                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                </button>
+                            </div>
+
+                            <div className='flex flex-row items-center gap-4'>
+                                <div className='h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white'
+                                    onClick={() => handleToggleClick(item.id)}>
+                                    H
+                                </div>
+                                <div className='truncate'
+                                    onClick={() => handleToggleClick(item.id)}>
+                                    Hamza
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+
         </div>
     )
 }
