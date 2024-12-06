@@ -1225,7 +1225,10 @@ const Pipeline1 = () => {
             {/* Code for creating new pipeline */}
             <Modal
                 open={createPipeline}
-                onClose={() => setCreatePipeline(false)}
+                onClose={() => {
+                    setCreatePipeline(false);
+                    handlePipelineClosePopover();
+                }}
                 closeAfterTransition
                 BackdropProps={{
                     timeout: 1000,
@@ -1249,7 +1252,10 @@ const Pipeline1 = () => {
                                 <div style={{ fontWeight: "600", fontSize: 22 }}>
                                     Add Pipeline
                                 </div>
-                                <button onClick={() => { setCreatePipeline(false) }}>
+                                <button onClick={() => {
+                                    setCreatePipeline(false);
+                                    handlePipelineClosePopover();
+                                }}>
                                     <Image src={"/assets/cross.png"} height={14} width={14} alt='*' />
                                 </button>
                             </div>
