@@ -47,7 +47,10 @@ const PipelineStages = ({
     const handleOnDragEnd = (result) => {
         const { source, destination } = result;
 
-        if (!destination) return;
+        // if (!destination) return;
+        if (!destination || source.index === 0 || destination.index === 0) {
+            return;
+        }
 
         const items = Array.from(pipelineStages);
         const [reorderedItem] = items.splice(source.index, 1);
