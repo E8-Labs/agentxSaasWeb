@@ -301,7 +301,7 @@ const Pipeline1 = ({ handleContinue }) => {
         //     }
         //     console.log("My agent details are :--", currentAgentDetails);
 
-        //     const ApiPath = Apis.createPipeLine;
+        //     const ApiPath = Apis.createPipeLineCadence;
         //     console.log("Api path is :", ApiPath);
 
         //     const ApiData = {
@@ -519,9 +519,9 @@ const Pipeline1 = ({ handleContinue }) => {
                                                         color: "#000000"
                                                     }}
                                                 >
-                                                    <MenuItem value="">
+                                                    {/* <MenuItem value="">
                                                         <div style={styles.dropdownMenu}>None</div>
-                                                    </MenuItem>
+                                                    </MenuItem> */}
                                                     {
                                                         pipelinesDetails.map((item, index) => (
                                                             <MenuItem key={item.id} style={styles.dropdownMenu} value={item.title}>{item.title}</MenuItem>

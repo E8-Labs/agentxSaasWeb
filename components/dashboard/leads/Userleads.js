@@ -1,6 +1,6 @@
 import Apis from '@/components/apis/Apis';
 import { Box, CircularProgress, Modal, Popover } from '@mui/material';
-import { CalendarDots, DotsThree, Plus } from '@phosphor-icons/react'
+import { CalendarDots, DotsThree, EnvelopeSimple, Plus } from '@phosphor-icons/react'
 import axios from 'axios';
 import { first } from 'draft-js/lib/DefaultDraftBlockRenderMap';
 import moment from 'moment';
@@ -398,6 +398,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                     <button
                         className="underline text-purple"
                         onClick={() => {
+                            // console.log("It is ", item)
                             setSelectedLeadsDetails(item); // Pass selected lead data
                             setShowDetailsModal(true); // Show modal
                         }}
@@ -578,6 +579,16 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
             borderRadius: 2,
             border: "none",
             outline: "none",
+        },
+        subHeading: {
+            fontWeight: "500",
+            fontSize: 12,
+            color: "#00000060"
+        },
+        heading2: {
+            fontWeight: "500",
+            fontSize: 15,
+            color: "#00000080"
         },
     }
 
@@ -1233,28 +1244,170 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                             className="sm:w-10/12 w-full"
                             style={{
                                 backgroundColor: "#ffffff",
-                                padding: 20,
+                                // padding: 20,
                                 borderRadius: "13px",
+                                paddingBottom: 10,
+                                paddingTop: 10
                             }}
                         >
-                            <div className='flex flex-row justify-between items-center'>
-                                <div style={{ fontWeight: "500", fontSize: 16.9 }}>
-                                    Details
+
+                            <div style={{ paddingInline: 30 }}>
+                                <div className='flex flex-row justify-between items-center'>
+                                    <div style={{ fontWeight: "500", fontSize: 16.9 }}>
+                                        Details
+                                    </div>
+                                    <button onClick={() => { setShowDetailsModal(false) }}>
+                                        <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                    </button>
                                 </div>
-                                <button onClick={() => { setShowDetailsModal(false) }}>
-                                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
-                                </button>
+
+                                <div className='flex flex-row items-center gap-4'>
+                                    <div className='h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white'
+                                        onClick={() => handleToggleClick(item.id)}>
+                                        {selectedLeadsDetails?.firstName.slice(0, 1)}
+                                    </div>
+                                    <div className='truncate'
+                                        onClick={() => handleToggleClick(item.id)}>
+                                        {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
+                                    </div>
+                                </div>
+
+                                <div className='flex flex-row items-center w-full justify-between mt-4'>
+                                    <div className='flex flex-row items-center gap-2'>
+                                        <EnvelopeSimple size={20} color='#00000060' />
+                                        <div style={styles.subHeading}>
+                                            Email Address
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="text-end" style={styles.heading2}>
+                                            {selectedLeadsDetails?.email}
+                                        </div>
+                                        <div className='flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000090]' style={styles.paragraph}>
+                                            <Image src={"/assets/power.png"} height={9} width={7} alt='*' />
+                                            <div>
+                                                <span className='text-purple'>New</span> hamza@yahoo.com
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className='flex flex-row items--center w-full justify-between mt-4'>
+                                    <div className='flex flex-row items-center gap-2'>
+                                        {/* <EnvelopeSimple size={20} color='#00000060' /> */}
+                                        <Image src={"/assets/call.png"} height={16} width={16} alt='man' />
+                                        <div style={styles.subHeading}>
+                                            Phone Number
+                                        </div>
+                                    </div>
+                                    <div className="text-end" style={styles.paragraph}>
+                                        {selectedLeadsDetails?.phone}
+                                    </div>
+                                </div>
+
+                                <div className='flex flex-row items--center w-full justify-between mt-4'>
+                                    <div className='flex flex-row items-center gap-2'>
+                                        {/* <EnvelopeSimple size={20} color='#00000060' /> */}
+                                        <Image src={"/assets/location.png"} height={16} width={16} alt='man' />
+                                        <div style={styles.subHeading}>
+                                            Address
+                                        </div>
+                                    </div>
+                                    <div className="text-end" style={styles.paragraph}>
+                                        {selectedLeadsDetails?.address}
+                                    </div>
+                                </div>
+
+                                <div className='flex flex-row items--center w-full justify-between mt-4'>
+                                    <div className='flex flex-row items-center gap-2'>
+                                        <Image src={"/assets/tag.png"} height={16} width={16} alt='man' />
+                                        <div style={styles.subHeading}>
+                                            Tag
+                                        </div>
+                                    </div>
+                                    <div className="text-end" style={styles.paragraph}>
+                                        Tags
+                                    </div>
+                                </div>
+
+                                <div className='flex flex-row items--center w-full justify-between mt-4'>
+                                    <div className='flex flex-row items-center gap-2'>
+                                        <Image src={"/assets/arrow.png"} height={16} width={16} alt='man' />
+                                        <div style={styles.subHeading}>
+                                            Stage
+                                        </div>
+                                    </div>
+                                    <div className="text-end" style={styles.paragraph}>
+                                        {selectedLeadsDetails?.stage || "N/A"}
+                                    </div>
+                                </div>
+
+                                <div className='flex flex-row items--center w-full justify-between mt-4'>
+                                    <div className='flex flex-row items-center gap-2'>
+                                        <Image src={"/assets/manIcn.png"} height={16} width={16} alt='man' />
+                                        <div style={styles.subHeading}>
+                                            Assigne
+                                        </div>
+                                    </div>
+                                    <div className="text-end" style={styles.paragraph}>
+                                        <Image src={"/assets/manIcon.png"} height={40} width={40} alt='man' />
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className='flex flex-row items-center gap-4'>
-                                <div className='h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white'
-                                    onClick={() => handleToggleClick(item.id)}>
-                                    H
+                            <div
+                                className='w-full bg-[#00000090]'
+                                style={{ height: "1px" }}
+                            />
+
+                            <div style={{ paddingInline: 30 }}>
+
+                                <div className='flex flex-row items-center gap-4 mt-2' style={styles.paragraph}>
+                                    <button className='outline-none'>
+                                        KYC
+                                    </button>
+                                    <button className='outline-none'>
+                                        Notes
+                                    </button>
+                                    <button className='outline-none'>
+                                        Activity
+                                    </button>
                                 </div>
-                                <div className='truncate'
-                                    onClick={() => handleToggleClick(item.id)}>
-                                    Hamza
+                                <div className='mt-2' style={styles.heading2}>
+                                    12/12/2024, 12:02 Am
                                 </div>
+
+                                <div className='flex flex-row gap-2'>
+                                    <div className='h-full' style={{ width: "2px", backgroundColor: "red" }}>
+                                    </div>
+                                    <div className='h-full'>
+                                        <div className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
+                                            Outcome | <span style={{ fontWeight: "600", fontSize: 12 }} className='text-purple'>Annas Ai</span>
+                                        </div>
+                                        <div className='mt-4'
+                                            style={{
+                                                border: "1px solid #00000020", padding: 10, borderRadius: 15
+                                            }}>
+                                            <div style={{ fontWeight: "500", fontSize: 12, color: "#00000060" }}>
+                                                Transcript
+                                            </div>
+                                            <div>
+                                                Lorem ipsum dolor sit amet consectetur. Dis est leo hendrerit placerat est sed non sed. Orci ornare commodo massa tempus nulla urna purus facilisis nisi. Maecenas hendrerit cum et ipsum. Magna varius odio potenti ridiculus pulvinar pellentesque
+                                            </div>
+                                            <div>
+                                                <button className='mt-2 underline' style={styles.paragraph} //onClick={() => {}}
+                                                >
+                                                    Read More
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
                             </div>
 
                         </div>

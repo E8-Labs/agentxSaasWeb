@@ -22,7 +22,7 @@ const CreateAgentVoice = ({ handleBack }) => {
     let synthKey = process.env.NEXT_PUBLIC_SynthFlowApiKey;
 
     const router = useRouter();
-    const [toggleClick, setToggleClick] = useState(false);
+    const [toggleClick, setToggleClick] = useState(null);
     const [voices, setVoices] = useState([]);
     const [voicesLoader, setVoicesLoader] = useState(false);
     const [selectedVoiceId, setSelectedVoiceId] = useState("");
@@ -85,7 +85,7 @@ const CreateAgentVoice = ({ handleBack }) => {
             console.log("selected voice id is:", selectedVoiceId);
             formData.append("mainAgentId", mainAgentId);
             // return
-            formData.append("voiceId", toggleClick);
+            formData.append("voiceId", selectedVoiceId);
             // for (let [key, value] of formData.entries()) {
             //     console.log(`${key} : ${value}`)
             // }

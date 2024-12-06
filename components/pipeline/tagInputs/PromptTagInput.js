@@ -22,7 +22,7 @@ export const PromptTagInput = ({
     //code for modal
     const [showScriptModal, setShowScriptModal] = useState(false);
 
-    console.log("Kycs list is:", kycsList);
+    // console.log("Kycs list is:", kycsList);
 
     useEffect(() => {
         const mirrorDiv = document.createElement("div");

@@ -41,6 +41,12 @@ const Pipeline1 = () => {
     const [actionInfoEl, setActionInfoEl] = React.useState(null);
     const openaction = Boolean(actionInfoEl);
 
+    //code for adding new pipeline
+    const [createPipeline, setCreatePipeline] = useState(false);
+    const [newPipelineTitle, setNewPipelineTitle] = useState("");
+    const [newPipelineStage, setNewPipelineStage] = useState(null);
+    const [addPipelineLoader, setAddPipelineLoader] = useState(false);
+
     const handlePopoverOpen = (event) => {
         setActionInfoEl(event.currentTarget);
     };
@@ -55,7 +61,57 @@ const Pipeline1 = () => {
 
     useEffect(() => {
         getPipelines()
-    }, [])
+    }, []);
+
+
+    //function to call create pipeline api
+    const handleCreatePipeline = async () => {
+        try {
+            setAddPipelineLoader(true);
+            const localData = localStorage.getItem("User");
+            let AuthToken = null;
+            if (localData) {
+                const UserDetails = JSON.parse(localData);
+                AuthToken = UserDetails.token;
+                console.log("Local details are :", UserDetails);
+            }
+
+            console.log("Auth token is:", AuthToken);
+
+            const formData = new FormData();
+            formData.append("title", newPipelineTitle)
+
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key} ${value} `);
+            }
+
+            const ApiPath = Apis.createPipeLine;
+            // return
+            const response = await axios.post(ApiPath, formData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    // "Content-Type": "application/josn"
+                }
+            });
+
+            if (response) {
+                console.log("Response of add pipeline api is:", response);
+                if (response.data.status === true) {
+                    setPipeLines([...PipeLines, response.data.data]);
+                    setNewPipelineTitle("");
+                    setNewPipelineStage(null);
+                    setSuccessSnack(response.data.message);
+                    setCreatePipeline(false);
+                    handlePipelineClosePopover();
+                }
+            }
+
+        } catch (error) {
+            console.error("Error occured in api  create is:", error);
+        } finally {
+            setAddPipelineLoader(false);
+        }
+    }
 
     //code for get pipeline
 
@@ -385,7 +441,7 @@ const Pipeline1 = () => {
                             // }}
                             >
                                 <div className='p-2'>
-                                    <button className='flex flex-row items-center gap-1'>
+                                    <button className='flex flex-row items-center gap-1' onClick={() => { setCreatePipeline(true) }}>
                                         <Plus size={17} weight='bold' /> <span style={{ fontWeight: "500", fontSize: 15 }}>New Pipeline</span>
                                     </button>
                                 </div>
@@ -1165,6 +1221,112 @@ const Pipeline1 = () => {
                     </div>
                 </Box>
             </Modal>
+
+            {/* Code for creating new pipeline */}
+            <Modal
+                open={createPipeline}
+                onClose={() => setCreatePipeline(false)}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 1000,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        backdropFilter: "blur(5px)",
+                    },
+                }}
+            >
+                <Box className="lg:w-5/12 sm:w-7/12 w-8/12" sx={styles.modalsStyle}>
+                    <div className="flex flex-row justify-center w-full">
+                        <div
+                            className="w-full"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                            }}
+                        >
+                            <div className='flex flex-row justify-between'>
+                                <div style={{ fontWeight: "600", fontSize: 22 }}>
+                                    Add Pipeline
+                                </div>
+                                <button onClick={() => { setCreatePipeline(false) }}>
+                                    <Image src={"/assets/cross.png"} height={14} width={14} alt='*' />
+                                </button>
+                            </div>
+                            <div className='w-full'>
+
+                                <div style={{ fontWeight: "500", fontSize: 15, marginTop: 10 }}>
+                                    Pipeline Name
+                                </div>
+
+                                <input
+                                    value={newPipelineTitle}
+                                    onChange={(e) => { setNewPipelineTitle(e.target.value) }}
+                                    className='outline-none rounded-xl focus:ring-0 w-full mt-4 h-[50px]'
+                                    placeholder='Type Here'
+                                    style={{
+                                        border: "1px solid #00000020",
+                                        fontWeight: "500",
+                                        fontSize: 15
+                                    }}
+                                />
+
+                                {/* <div style={{ fontWeight: "500", fontSize: 12, marginTop: 10, color: "#00000060" }}>
+                                    Stage
+                                </div>
+
+                                <div className='flex flex-wrap gap-4 mt-4 items-center'>
+                                    {StagesList.map((stage, index) => (
+                                        <div key={index} className="flex flex-col items-start h-full">
+                                            <button className='px-6 rounded-[15px] h-[40px] flex flex-row items-center outline-none'
+                                                onClick={() => {
+                                                    setNewPipelineStage(stage.stageTitle);
+                                                }}
+                                                style={{
+                                                    border: "1px solid #15151520",
+                                                    backgroundColor: newPipelineStage === stage.stageTitle ? "#7902DF" : "",
+                                                    color: newPipelineStage === stage.stageTitle ? "white" : "",
+                                                    fontSize: 15, fontWeight: "500"
+                                                }}
+                                            >
+                                                {stage.stageTitle}
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <button className='px-4 rounded-[15px] h-[40px] flex flex-row items-center'
+                                        style={{
+                                            border: "1px solid #15151520"
+                                        }}>
+                                        <Plus size={25} weight='bold' />
+                                    </button>
+                                </div> */}
+
+                                {
+                                    addPipelineLoader ?
+                                        <div className='w-full flex flex-row justify-center mt-12'>
+                                            <CircularProgress size={30} />
+                                        </div> :
+                                        <button
+                                            className='w-full h-[50px] rounded-xl bg-purple text-white mt-12'
+                                            style={{
+                                                fontWeight: "600",
+                                                fontSize: 16.8
+                                            }}
+                                            onClick={() => { handleCreatePipeline() }}
+                                        >
+                                            Create Pipeline
+                                        </button>
+                                }
+
+                            </div>
+
+                            {/* Can be use full to add shadow */}
+                            {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+
 
             {/* code for showing snack bar */}
             <div>

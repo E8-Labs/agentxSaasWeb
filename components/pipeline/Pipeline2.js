@@ -446,7 +446,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 cadence: cadence.cadenceDetails
             }
 
-            const ApiPath = Apis.createPipeLine;
+            const ApiPath = Apis.createPipeLineCadence;
             ////console.log("Api path is :", ApiPath);
 
             const response = await axios.post(ApiPath, ApiData, {

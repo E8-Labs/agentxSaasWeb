@@ -32,11 +32,11 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
             question: "Why have you decided to sell your home?",
             sampleAnswers: []
         },
-        {
-            id: 2,
-            question: "Have you outgrown your current home, or is it too large now?",
-            sampleAnswers: []
-        },
+        // {
+        //     id: 2,
+        //     question: "Have you outgrown your current home, or is it too large now?",
+        //     sampleAnswers: []
+        // },
         {
             id: 3,
             question: "Are there any significant life changes prompting this decision, such as job relocation or changes in the family?",

@@ -72,6 +72,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
 
         if (isAlreadySelected) {
             // Remove the item if it's already selected
+            console.log("Cheak 1")
             return 1
             // return prevSelectedItems.filter((selectedItem) => selectedItem.id !== item.id);
         } else {
@@ -149,7 +150,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
             }
 
             console.log("Data sending in api is:", Apidata);
-
+            // return
             const localData = localStorage.getItem("User");
             let AuthToken = null;
             if (localData) {
@@ -174,6 +175,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                 console.log("Response of api is:", response);
                 if (response.data.status === true) {
                     handleCloseAssignLeadModal(false);
+                    setLastStepModal(false);
                     window.location.reload();
                 }
             }
@@ -232,7 +234,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
             </div>
 
             {
-                loader ?
+                initialLoader ?
                     <div className='w-full flex flex-row justify-center mt-4'>
                         <CircularProgress size={30} />
                     </div> :
@@ -244,11 +246,13 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                                         let canAssign = canAssignStage(item);
                                         if (canAssign == 0) {
                                             //push to the array
+                                            console.log("Cheak 1 at 0")
                                             setSelectedAgents([...SelectedAgents, item]);
-                                            setLastStepModal(true);
+                                            setLastStepModal(true);//loader
                                         }
                                         else if (canAssign == 1) {
                                             //remove from the array
+                                            console.log("Cheak 2")
                                             let agents = SelectedAgents.filter((selectedItem) => selectedItem.id !== item.id);
                                             setSelectedAgents(agents);
                                         }
@@ -296,7 +300,9 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
 
 
             <div>
-                <button className='rounded-lg mt-4 w-full h-[50px] text-white bg-purple' style={styles.heading} onClick={handleAssigLead}>
+                <button className='rounded-lg mt-4 w-full h-[50px] text-white bg-purple' style={styles.heading} //onClick={handleAssigLead}
+                    onClick={() => { setLastStepModal(true) }}
+                >
                     Continue
                 </button>
             </div>
@@ -315,7 +321,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                     },
                 }}
             >
-                <Box className="lg:w-6/12 sm:w-9/12 w-10/12" sx={styles.modalsStyle}>
+                <Box className="lg:w-4/12 sm:w-6/12 w-7/12" sx={styles.modalsStyle}>
                     <div className="flex flex-row justify-center w-full">
                         <div
                             className="w-full"
@@ -326,10 +332,14 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                             }}
                         >
 
-                            <div>
-                                Cannot Select
+                            <div style={{ fontWeight: "600", fontSize: 16 }}>
+                                Unselect the selected agent to select new agent !
                             </div>
-                            <button className='text-white w-full h-[50px] rounded-lg bg-purple mt-4' onClick={() => { setCannotAssignLeadModal(false) }}>
+                            <button
+                                className='text-white w-full h-[50px] rounded-lg bg-purple mt-4'
+                                onClick={() => { setCannotAssignLeadModal(false) }}
+                                style={{ fontWeight: "600", fontSize: 15 }}
+                            >
                                 Close
                             </button>
 
@@ -420,11 +430,21 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                                 </button>
                             </div>
 
-                            <div className='mt-4 w-full'>
+                            {
+                                loader ?
+                                    <div className='mt-4 w-full flex flex-row items-center justify-center'>
+                                        <CircularProgress size={30} />
+                                    </div> :
+                                    <button className='text-white w-full h-[50px] rounded-lg bg-purple mt-4' onClick={() => { handleAssigLead() }}>
+                                        Continue
+                                    </button>
+                            }
+
+                            {/* <div className='mt-4 w-full'>
                                 <button className="text-white bg-purple rounded-xl w-full h-[50px]" style={styles.heading} onClick={() => { setLastStepModal(false) }}>
                                     Continue
                                 </button>
-                            </div>
+                            </div> */}
 
 
                             {/* Can be use full to add shadow */}

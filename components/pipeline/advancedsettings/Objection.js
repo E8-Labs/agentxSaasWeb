@@ -39,7 +39,7 @@ const Objection = () => {
 
       console.log("Auth token is:", AuthToken);
 
-      const ApiPath = `${Apis.getObjectionGuardrial}?mainAgentId=${mainAgent.userId}`;
+      const ApiPath = `${Apis.getObjectionGuardrial}?mainAgentId=${mainAgent.id}`;
       console.log("Apipath is:", ApiPath);
       // return
       const response = await axios.get(ApiPath, {

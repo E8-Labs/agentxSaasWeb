@@ -14,7 +14,7 @@ const Apis = {
     getVoices: "https://fine-tuner.ai/api/1.1/wf/v2_voice_agent_voices",
     getKYCs: `${BasePath}api/agent/getKycs`,
     getPipelines: `${BasePath}api/pipeline/getPipelines`,
-    createPipeLine: `${BasePath}api/pipeline/createPipelineCadence`,
+    createPipeLineCadence: `${BasePath}api/pipeline/createPipelineCadence`,
     updateAgent: `${BasePath}api/agent/updateAgent`,
     createLead: `${BasePath}api/leads/addLeads`,
     getLeads: `${BasePath}api/leads/getLeads`,
@@ -35,7 +35,8 @@ const Apis = {
     deleteStage: `${BasePath}api/pipeline/deletePipelineStage`,
     addObjectionGuardrial: `${BasePath}api/agent/addObjectionGuardRail`,
     getObjectionGuardrial: `${BasePath}api/agent/getObjectionsAndGuardrails`,
-    reorderStages: `${BasePath}api/pipeline/reorderStages`
+    reorderStages: `${BasePath}api/pipeline/reorderStages`,
+    createPipeLine:`${BasePath}api/pipeline/createPipeline`
 
 }
 
