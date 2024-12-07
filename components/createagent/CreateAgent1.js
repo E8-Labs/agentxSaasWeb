@@ -11,6 +11,8 @@ import { Box, CircularProgress, Modal, Popover } from '@mui/material';
 import AddressPicker from '../test/AddressPicker';
 import LoaderAnimation from '../animations/LoaderAnimation';
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
+import GoogleAdddressPicker from '../test/GoogleAdddressPicker';
+import usePlacesService from "react-google-autocomplete/lib/usePlacesAutocompleteService";
 
 const CreateAgent1 = ({ handleContinue, handleBack }) => {
 
@@ -199,7 +201,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                 }
             }
             if (address) {
-                formData.append("address", address);
+                formData.append("address", addressValue);
             }
             if (agentObjective.id === 100) {
                 formData.append("agentObjective", "others");
@@ -250,14 +252,52 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
         setSelectedStatus((prevId) => prevId === item ? null : item);
     }
 
-    //code for address picker input change
-    const handleAddressInputChange = (inputValue) => {
-        console.log("Value of address (typing):", inputValue);
+    //code for address picker
+    const {
+        placesService,
+        placePredictions,
+        getPlacePredictions,
+        isPlacePredictionsLoading,
+    } = usePlacesService({
+        apiKey: process.env.NEXT_PUBLIC_AddressPickerApiKey,
+    });
 
-        // Scroll to bottom of dropdown
-        if (bottomToAddress.current) {
-            bottomToAddress.current.scrollIntoView({ behavior: 'smooth' });
+    const [addressValue, setAddressValue] = useState(""); // Holds the input field value
+    const [selectedPlace, setSelectedPlace] = useState(null); // Holds the selected place details
+    const [showDropdown, setShowDropdown] = useState(false); // Controls dropdown visibility
+
+    const handleSelectAddress = (placeId, description) => {
+        // Set the input field to the selected place's description
+        setAddressValue(description);
+        setShowDropdown(false); // Hide dropdown on selection
+
+        // Fetch place details if required
+        if (placesService) {
+            placesService.getDetails(
+                { placeId },
+                (details) => {
+                    setSelectedPlace(details);
+                    console.log("Selected Place Details:", details);
+                }
+            );
         }
+    };
+
+    const renderItem = (item) => {
+        return (
+            <div
+                key={item.place_id}
+                className="prediction-item"
+                onClick={() => handleSelectAddress(item.place_id, item.description)}
+                style={{
+                    cursor: "pointer",
+                    padding: "8px",
+                    borderBottom: "1px solid #ddd",
+                }}
+            >
+                {item.description}
+            </div>
+        );
     };
 
 
@@ -510,7 +550,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                             }}
                         >
 
-                            <div className='w-full px-2 h-[90%] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                            <div className='w-full px-2 h-[90%] overflow-auto' style={{ scrollbarWidth: "none", zIndex: 12 }}>
                                 <div className='flex flex-row items-center justify-end w-full'>
                                     <button className='outline-none border-none' onClick={() => { setShowModal(false) }}>
                                         <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
@@ -565,21 +605,21 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                     {`What's the address`}
                                 </div>
 
-                                <div className='mt-1'>
-                                    {/* <AddressPicker userAddress={setAddress} /> */}
+                                <div className='mt-1' style={{ zIndex: 15 }}>
                                     <div>
-                                        <GooglePlacesAutocomplete
-                                            apiKey={addressKey}
-                                            selectProps={{
-                                                value: addressSelected,
-                                                onChange: setAddressSelected,
-                                                onInputChange: handleAddressInputChange, // Trigger scroll when typing
-                                                placeholder:"Type here..."
+                                        <input
+                                            className='w-full h-[50px] rounded-lg outline-none focus:ring-0'
+                                            style={{border: "1px solid #00000020"}}
+                                            placeholder="Enter location"
+                                            value={addressValue}
+                                            onChange={(evt) => {
+                                                setAddressValue(evt.target.value); // Update input field value
+                                                getPlacePredictions({ input: evt.target.value });
+                                                setShowDropdown(true); // Show dropdown on input
                                             }}
-                                            style={{ borderColor: "red" }}
                                         />
-                                        {/* Hidden div to scroll to */}
-                                        <div ref={bottomToAddress} style={{ height: '1px' }}></div>
+                                        {isPlacePredictionsLoading && <p>Loading...</p>}
+                                        {showDropdown && placePredictions.map((item) => renderItem(item))}
                                     </div>
                                 </div>
                             </div>

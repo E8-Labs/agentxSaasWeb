@@ -9,6 +9,7 @@ import ColorPicker from './ColorPicker';
 const Pipeline1 = () => {
 
     const bottomRef = useRef();
+    const colorPickerRef = useRef();
 
     const [pipelinePopoverAnchorel, setPipelinePopoverAnchorel] = useState(null);
     const open = Boolean(pipelinePopoverAnchorel);
@@ -30,12 +31,12 @@ const Pipeline1 = () => {
     //code to add new stage
     const [addNewStageModal, setAddNewStageModal] = useState(false);
     const [newStageTitle, setNewStageTitle] = useState("");
-    const [stageColor, setStageColor] = useState("#FF4E4E");
+    const [stageColor, setStageColor] = useState("");
     const [addStageLoader, setAddStageLoader] = useState(false);
     //code for advance setting modal inside new stages
     const [showAdvanceSettings, setShowAdvanceSettings] = useState(false);
     //code for input arrays
-    const [inputs, setInputs] = useState([{ id: 1, value: '', placeholder: `Sure, i’d be interested in knowing what my home is worth` }, { id: 2, value: '', placeholder: "Yeah, how much is my home worth today?" }]);
+    const [inputs, setInputs] = useState([{ id: 1, value: '', placeholder: `Sure, i'd be interested in knowing what my home is worth` }, { id: 2, value: '', placeholder: "Yeah, how much is my home worth today?" }]);
     const [action, setAction] = useState("");
     //code for popover
     const [actionInfoEl, setActionInfoEl] = React.useState(null);
@@ -58,10 +59,32 @@ const Pipeline1 = () => {
     const [selectedStage, setSelectedStage] = useState(null);
     const [delStageLoader, setDelStageLoader] = useState(false);
     const [SuccessSnack, setSuccessSnack] = useState(null);
+    //renaame the stage
+    const [showRenamePopup, setShowRenamePopup] = useState(false);
+    const [renameStage, setRenameStage] = useState("");
+    const [renameStageLoader, setRenameStageLoader] = useState(false);
+    //update the stage color
+    const [updateStageColor, setUpdateStageColor] = useState("");
+    const [stageColorUpdate, setStageColorUpdate] = useState("");
+
+    //code for rename pipeline
+    const [showRenamePipelinePopup, setShowRenamePipelinePopup] = useState(false);
+    const [renamePipeline, setRenamePipeline] = useState("");
+    const [renamePipelineLoader, setRenamePipelineLoader] = useState(false);
+
 
     useEffect(() => {
         getPipelines()
     }, []);
+
+    //code to auto scroll to end
+    useEffect(() => {
+        setTimeout(() => {
+            if (bottomRef.current) {
+                bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 500);
+    }, [StagesList]);
 
 
     //function to call create pipeline api
@@ -166,7 +189,7 @@ const Pipeline1 = () => {
     const handleShowStagePopover = (event, stage) => {
         setStageAnchorel(event.currentTarget);
         setSelectedStage(stage);
-
+        setStageColorUpdate(stage.defaultColor);
     };
 
     const handleCloseStagePopover = () => {
@@ -185,10 +208,15 @@ const Pipeline1 = () => {
     //code to seect other pipeline
     const handleSelectOtherPipeline = (item) => {
         console.log("Other pipeline selected is :", item);
+        setSelectedPipeline(item);
+        setSelectedPipeline(item);
+        setStagesList(item.stages);
+        setLeadsList(item.leads);
+        handleCloseOtherPipeline();
     }
 
     //code for adding new custom stage
-    const handleAddNewStageTitle = async () => {
+    const handleAddCustomStage = async () => {
         try {
             setAddStageLoader(true);
             const localData = localStorage.getItem("User");
@@ -198,6 +226,18 @@ const Pipeline1 = () => {
                 AuthToken = UserDetails.token;
                 console.log("Local details are :", UserDetails);
             }
+
+            let mainAgent = null;
+
+            const mainAgentData = localStorage.getItem("agentDetails");
+
+            if (mainAgentData) {
+                const mainAgentDetails = JSON.parse(mainAgentData);
+                console.log("Main agent detals are :", mainAgentDetails);
+                mainAgent = mainAgentDetails;
+            }
+
+            // return
 
             console.log("Auth token is :--", AuthToken);
 
@@ -209,10 +249,11 @@ const Pipeline1 = () => {
                 color: stageColor,
                 pipelineId: SelectedPipeline.id,
                 action: action,
-                examples: inputs
+                examples: inputs,
+                mainAgentId: mainAgent.id
             }
-
             console.log("Data sending in api is:", ApiData);
+            // return
 
             const response = await axios.post(ApiPath, ApiData, {
                 headers: {
@@ -228,6 +269,7 @@ const Pipeline1 = () => {
                     setAddNewStageModal(false);
                     setNewStageTitle("");
                     setStageColor("");
+                    setStageAnchorel(null);
                 }
             }
 
@@ -282,6 +324,131 @@ const Pipeline1 = () => {
             console.error("Error occured in delstage api is:", error);
         } finally {
             setDelStageLoader(false);
+        }
+    }
+
+    //code to rename the stage
+    const handleRenameStage = async () => {
+        try {
+            setRenameStageLoader(true);
+            const localData = localStorage.getItem("User");
+            let AuthToken = null;
+            if (localData) {
+                const UserDetails = JSON.parse(localData);
+                AuthToken = UserDetails.token;
+            }
+
+            console.log("Auth token is :--", AuthToken);
+
+            const ApiData = {
+                stageTitle: renameStage,
+                stageId: selectedStage.id,
+                color: updateStageColor
+            }
+
+            console.log("data sending in api si:", ApiData);
+            const ApiPath = Apis.UpdateStage;
+
+            console.log("Api path is:", ApiPath);
+
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of updates stage api is response :", response);
+            }
+
+        } catch (error) {
+            console.log("Error occured in rename api is:", error);
+        } finally {
+            setRenameStageLoader(tre);
+        }
+    }
+
+    //code to rename the stage
+    const handleRenamePipeline = async () => {
+        try {
+            setRenamePipelineLoader(true);
+            const localData = localStorage.getItem("User");
+            let AuthToken = null;
+            if (localData) {
+                const UserDetails = JSON.parse(localData);
+                AuthToken = UserDetails.token;
+            }
+
+            console.log("Auth token is :--", AuthToken);
+
+            const ApiData = {
+                title: renamePipeline,
+                pipelineId: SelectedPipeline.id,
+            }
+
+            console.log("data sending in api si:", ApiData);
+            const ApiPath = Apis.updatePipeline;
+
+            console.log("Api path is:", ApiPath);
+            // return
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of updates pipeline api is response :", response);
+            }
+
+        } catch (error) {
+            console.log("Error occured in rename api is:", error);
+        } finally {
+            setRenamePipelineLoader(false);
+        }
+    }
+
+    const handleDeletePipeline = async () => {
+        try {
+            setRenamePipelineLoader(true);
+            const localData = localStorage.getItem("User");
+            let AuthToken = null;
+            if (localData) {
+                const UserDetails = JSON.parse(localData);
+                AuthToken = UserDetails.token;
+            }
+
+            console.log("Auth token is :--", AuthToken);
+
+            const formData = new FormData();
+            formData.append("pipelineId", SelectedPipeline.id);
+
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+
+            // console.log("data sending in api si:", ApiData);
+            const ApiPath = Apis.deletePipeline;
+
+            console.log("Api path is:", ApiPath);
+            // return
+            const response = await axios.post(ApiPath, formData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of updates pipeline api is response :", response);
+            }
+
+        } catch (error) {
+            console.log("Error occured in rename api is:", error);
+        } finally {
+            setRenamePipelineLoader(false);
         }
     }
 
@@ -440,9 +607,27 @@ const Pipeline1 = () => {
                             //     },
                             // }}
                             >
-                                <div className='p-2'>
-                                    <button className='flex flex-row items-center gap-1' onClick={() => { setCreatePipeline(true) }}>
+                                <div className='p-3'>
+                                    <button className='flex flex-row items-center gap-4' onClick={() => { setCreatePipeline(true) }}>
                                         <Plus size={17} weight='bold' /> <span style={{ fontWeight: "500", fontSize: 15 }}>New Pipeline</span>
+                                    </button>
+                                    <div className='w-full flex flex-row mt-4'>
+                                        <button
+                                            className='text-black flex flex-row items-center gap-4 me-2 outline-none'
+                                            style={styles.paragraph}
+                                            onClick={() => {
+                                                setShowRenamePipelinePopup(true);
+                                                setRenamePipeline(SelectedPipeline.title);
+                                                console.log("Selected pipeline is:", SelectedPipeline);
+                                            }}
+                                        >
+                                            <Image src={"/assets/editPen.png"} height={15} width={15} alt='*' />
+                                            Rename
+                                        </button>
+                                    </div>
+                                    <button className='text-red flex flex-row items-center gap-4 mt-4 me-2 outline-none' style={styles.paragraph} onClick={handleDeletePipeline}>
+                                        <Image src={"/assets/delIcon.png"} height={18} width={18} alt='*' />
+                                        Delete
                                     </button>
                                 </div>
                             </Popover>
@@ -466,172 +651,11 @@ const Pipeline1 = () => {
                 </div>
             </div>
 
-            {/* <div className='w-full flex flex-row justify-center overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
-                <div className='w-[95%] flex flex-row items-center gap-2'>
-                    <div style={{width: "400px"}} className='flex flex-row items-center border-2 justify-between'>
-                        <div
-                            className='h-[36px] flex flex-row items-center justify-center gap-8 bg-[#15151510] rounded px-4'
-                            style={styles.heading}>
-                            <span>New leads</span>
-                            <div className='h-[20px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center' style={{ ...styles.paragraph, fontSize: 14 }}>
-                                2
-                            </div>
-                        </div>
-                        <button>
-                            <DotsThree size={25} weight='bold' />
-                        </button>
-                    </div>
-                    <div className='w-[20vw] flex flex-row items-center overflowX-auto mt-8 justify-between'>
-                        <div
-                            className='h-[36px] flex flex-row items-center justify-center gap-8 bg-[#FF6600] rounded px-4'
-                            style={styles.heading}>
-                            <span>Follow Up</span>
-                            <div className='h-[20px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center' style={{ ...styles.paragraph, fontSize: 14 }}>
-                                2
-                            </div>
-                        </div>
-                        <button>
-                            <DotsThree size={25} weight='bold' />
-                        </button>
-                    </div>
-                    <div className='w-[20vw] flex flex-row items-center overflowX-auto mt-8 justify-between'>
-                        <div
-                            className='h-[36px] flex flex-row items-center justify-center gap-8 bg-[#E53935] rounded px-4'
-                            style={styles.heading}>
-                            <span>Hot Leads</span>
-                            <div className='h-[20px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center' style={{ ...styles.paragraph, fontSize: 14 }}>
-                                2
-                            </div>
-                        </div>
-                        <button>
-                            <DotsThree size={25} weight='bold' />
-                        </button>
-                    </div>
-                    <div className='w-[20vw] flex flex-row items-center overflowX-auto mt-8 justify-between'>
-                        <div
-                            className='h-[36px] flex flex-row items-center justify-center gap-8 bg-[#00D335] rounded px-4'
-                            style={styles.heading}>
-                            <span>Booked</span>
-                            <div className='h-[20px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center' style={{ ...styles.paragraph, fontSize: 14 }}>
-                                2
-                            </div>
-                        </div>
-                        <button>
-                            <DotsThree size={25} weight='bold' />
-                        </button>
-                    </div>
-                    <div className='w-[20vw] flex flex-row items-center overflowX-auto mt-8 justify-between'>
-                        <div
-                            className='h-[36px] flex flex-row items-center justify-center gap-8 bg-[#8E24AA] rounded px-4'
-                            style={styles.heading}>
-                            <span>Un Responsive</span>
-                            <div className='h-[20px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center' style={{ ...styles.paragraph, fontSize: 14 }}>
-                                2
-                            </div>
-                        </div>
-                        <button>
-                            <DotsThree size={25} weight='bold' />
-                        </button>
-                    </div>
-                    <div className='w-[20vw] flex flex-row items-center overflowX-auto mt-8 justify-between'>
-                        <div
-                            className='h-[36px] flex flex-row items-center justify-center gap-8 bg-[#F27C7C] rounded px-4'
-                            style={styles.heading}>
-                            <span>Not Interested</span>
-                            <div className='h-[20px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center' style={{ ...styles.paragraph, fontSize: 14 }}>
-                                2
-                            </div>
-                        </div>
-                        <button>
-                            <DotsThree size={25} weight='bold' />
-                        </button>
-                    </div>
-                </div>
-            </div> */}
 
             <div className='flex flex-col items-center w-full'>
                 <div className="w-[95%] flex flex-col items-start overflow-x-auto mt-8" style={{ scrollbarWidth: "none" }}>
                     <div className="flex flex-row items-center gap-4">
 
-                        {/* {StagesList.map((item, index) => (
-                            <div key={index} style={{ width: "300px" }} className="flex flex-row items-center justify-between">
-                                <div
-                                    className="h-[36px] flex flex-row items-center justify-center gap-8 rounded px-4"
-                                    style={{ ...styles.heading, backgroundColor: item.defaultColor }}
-                                >
-                                    <span>{item.stageTitle}</span>
-                                    <div
-                                        className="h-[20px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center"
-                                        style={{ ...styles.paragraph, fontSize: 14 }}
-                                    >
-                                        2
-                                    </div>
-                                </div>
-                                <button aria-describedby={stageId} variant="contained" onClick={handleShowStagePopover}>
-                                    <DotsThree size={27} weight='bold' />
-                                </button>
-                                <Popover
-                                    id={stageId}
-                                    open={openStage}
-                                    anchorEl={StageAnchorel}
-                                    onClose={handleCloseStagePopover}
-                                    anchorOrigin={{
-                                        vertical: 'bottom',
-                                        horizontal: 'left',
-                                    }}
-                                    PaperProps={{
-                                        elevation: 0, // This will remove the shadow
-                                        style: {
-                                            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
-                                        },
-                                    }}
-                                >
-                                    <Typography sx={{ p: 2 }}>The content of the Popover.</Typography>
-                                </Popover>
-                            </div>
-                        ))} */}
-
-                        {/* </div>
-                    <div className="flex flex-row items-center gap-4 mt-4"> */}
-
-                        {/* {
-                            LeadsList.map((item, index) => (
-                                <div className='border rounded-xl p-3 h-full' style={{ width: "300px" }} key={index}>
-                                    <div className='border rounded-xl px-4 py-2 h-full'>
-                                        <div className='flex flex-row items-center gap-3'>
-                                            <div className='bg-black text-white rounded-full flex flex-row item-center justify-center' style={{ height: "27px", width: "27px" }}>
-                                                {item.lead.firstName.slice(0, 1)}
-                                            </div>
-                                            <div style={styles.paragraph}>
-                                                {item.lead.firstName}
-                                            </div>
-                                        </div>
-                                        <div className='flex flex-row items-center justify-between w-full mt-2'>
-                                            <div className='text-[#00000060]' style={styles.agentName}>
-                                                Email
-                                            </div>
-                                            <div className='flex flex-row items-center gap-4'>
-                                                <Image src={"/assets/colorCircle.png"} height={24} width={24} alt='*' />
-                                                <div className='text-purple underline' style={styles.agentName}>
-                                                    {item.agent.name}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className='w-full flex flex-row items-center justify-between mt-12'>
-                                            <Image src={"/assets/manIcon.png"} height={32} width={32} alt='*' />
-                                            <div className='flex flex-row items-center gap-3'>
-                                                <div className='text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg'>
-                                                    Tag
-                                                </div>
-                                                <div className='text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg'>
-                                                    Tag
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
-                        } */}
 
                     </div>
 
@@ -681,16 +705,100 @@ const Pipeline1 = () => {
                                         PaperProps={{
                                             elevation: 0, // This will remove the shadow
                                             style: {
-                                                boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
+                                                boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.02)',
+                                                borderRadius: '12px',
                                             },
                                         }}
                                     >
-                                        <div className='p-2 w-[100px]'>
-                                            <div className='w-full flex flex-row justify-center'>
+                                        <div className='p-3'>
+                                            <div className='w-full flex flex-row'>
+                                                <button
+                                                    className='text-black flex flex-row items-center gap-4 me-2 outline-none'
+                                                    style={styles.paragraph}
+                                                    onClick={() => {
+                                                        setShowRenamePopup(true);
+                                                        console.log("Selected stage is:", selectedStage);
+                                                        setRenameStage(selectedStage.stageTitle);
+                                                        setUpdateStageColor(selectedStage.defaultColor);
+                                                    }} //handleRenameStage
+                                                >
+                                                    <Image src={"/assets/editPen.png"} height={15} width={15} alt='*' />
+                                                    Rename
+                                                </button>
+                                            </div>
+                                            <div className='w-full flex flex-row mt-4'>
+                                                {/* {
+                                                    delStageLoader ?
+                                                        <CircularProgress size={20} /> :
+                                                        
+                                                } */}
+                                                <div
+                                                    className='text-black flex flex-row items-center gap-4 me-2 outline-none'
+                                                    style={styles.paragraph}
+                                                // onClick={handleDeleteStage}
+                                                >
+                                                    <Image src={"/assets/colorDrop.png"} height={18} width={15} alt='*' />
+                                                    Change Color
+                                                    {/* <button style={{ height: "15px", width: "15px", borderRadius: "50%", backgroundColor: stageColorUpdate }}
+                                                                onClick={() => document.getElementById("color-picker-input").click()} // Trigger ColorPicker
+                                                            >
+                                                            </button> */}
+                                                    <div
+                                                        style={{
+                                                            height: "15px",
+                                                            width: "15px",
+                                                            borderRadius: "50%",
+                                                            backgroundColor: stageColorUpdate,
+                                                            cursor: "pointer", // Pointer to indicate clickable
+                                                        }}
+                                                        onClick={() => colorPickerRef.current.click()} // Trigger ColorPicker
+                                                    />
+                                                    <div
+                                                        style={{
+                                                            opacity: 0,
+                                                            position: "absolute",
+                                                            pointerEvents: "auto", // Ensure interactions still work
+                                                        }}
+                                                    >
+                                                        <ColorPicker
+                                                            ref={colorPickerRef}
+                                                            setStageColor={setStageColorUpdate}
+                                                            onlyShowColorBox={true}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className='w-full flex flex-row mt-4'>
+                                                <button
+                                                    className='text-black flex flex-row items-center gap-4 me-2 outline-none'
+                                                    style={styles.paragraph}
+                                                    onClick={() => { setAddNewStageModal(true) }}
+                                                >
+                                                    <Image src={"/assets/colorDrop.png"} height={18} width={15} alt='*' />
+                                                    Add Stage
+                                                </button>
+                                            </div>
+                                            <div ref={bottomRef}></div>
+                                            <div className='w-full flex flex-row mt-4'>
+                                                {/* {
+                                                    delStageLoader ?
+                                                        <CircularProgress size={20} /> :
+                                                        
+                                                } */}
+                                                <button
+                                                    className='text-black flex flex-row items-center gap-4 me-2 outline-none'
+                                                    style={styles.paragraph}
+                                                // onClick={handleDeleteStage}
+                                                >
+                                                    <Image src={"/assets/colorDrop.png"} height={18} width={15} alt='*' />
+                                                    Rearrange Stage
+                                                </button>
+                                            </div>
+                                            <div className='w-full flex flex-row mt-4'>
                                                 {
                                                     delStageLoader ?
                                                         <CircularProgress size={20} /> :
-                                                        <button className='text-red flex flex-row items-center gap-2 me-2 outline-none' style={styles.paragraph} onClick={handleDeleteStage}>
+                                                        <button className='text-red flex flex-row items-center gap-4 me-2 outline-none' style={styles.paragraph} onClick={handleDeleteStage}>
                                                             <Image src={"/assets/delIcon.png"} height={18} width={18} alt='*' />
                                                             Delete
                                                         </button>
@@ -768,199 +876,6 @@ const Pipeline1 = () => {
 
                 </div>
             </div>
-
-            {/* <div className='flex flex-row justify-center w-full'>
-                <div className="w-[95%] flex flex-row justify-start overflow-x-auto mt-8" style={{ scrollbarWidth: "none" }}>
-                    <div className="flex flex-row items-center gap-4">
-
-                        <div className='border rounded-xl p-3 h-full'>
-                            <div className='border rounded-xl px-4 py-2 h-full' style={{ width: "450px" }}>
-                                <div className='flex flex-row items-center gap-3'>
-                                    <div className='bg-black text-white rounded-full flex flex-row item-center justify-center' style={{ height: "27px", width: "27px" }}>A</div>
-                                    <div style={styles.paragraph}>Name</div>
-                                </div>
-                                <div className='flex flex-row items-center justify-between w-full mt-2'>
-                                    <div className='text-[#00000060]' style={styles.agentName}>
-                                        Email
-                                    </div>
-                                    <div className='flex flex-row items-center gap-4'>
-                                        <Image src={"/assets/colorCircle.png"} height={24} width={24} alt='*' />
-                                        <div className='text-purple underline' style={styles.agentName}>
-                                            Ai Name
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className='w-full flex flex-row items-center justify-between mt-12'>
-                                    <Image src={"/assets/manIcon.png"} height={32} width={32} alt='*' />
-                                    <div className='flex flex-row items-center gap-3'>
-                                        <div className='text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg'>
-                                            Tag
-                                        </div>
-                                        <div className='text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg'>
-                                            Tag
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className='border rounded-xl p-3 h-full'>
-                            <div className='border rounded-xl px-4 py-2 h-full' style={{ width: "450px" }}>
-                                <div className='flex flex-row items-center gap-3'>
-                                    <div className='bg-black text-white rounded-full flex flex-row item-center justify-center' style={{ height: "27px", width: "27px" }}>A</div>
-                                    <div style={styles.paragraph}>Name</div>
-                                </div>
-                                <div className='flex flex-row items-center justify-between w-full mt-2'>
-                                    <div className='text-[#00000060]' style={styles.agentName}>
-                                        Email
-                                    </div>
-                                    <div className='flex flex-row items-center gap-4'>
-                                        <Image src={"/assets/colorCircle.png"} height={24} width={24} alt='*' />
-                                        <div className='text-purple underline' style={styles.agentName}>
-                                            Ai Name
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className='w-full flex flex-row items-center justify-between mt-12'>
-                                    <Image src={"/assets/manIcon.png"} height={32} width={32} alt='*' />
-                                    <div className='flex flex-row items-center gap-3'>
-                                        <div className='text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg'>
-                                            Tag
-                                        </div>
-                                        <div className='text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg'>
-                                            Tag
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className='border rounded-xl p-3 h-full'>
-                            <div className='border rounded-xl px-4 py-2 h-full' style={{ width: "450px" }}>
-                                <div className='flex flex-row items-center gap-3'>
-                                    <div className='bg-black text-white rounded-full flex flex-row item-center justify-center' style={{ height: "27px", width: "27px" }}>A</div>
-                                    <div style={styles.paragraph}>Name</div>
-                                </div>
-                                <div className='flex flex-row items-center justify-between w-full mt-2'>
-                                    <div className='text-[#00000060]' style={styles.agentName}>
-                                        Email
-                                    </div>
-                                    <div className='flex flex-row items-center gap-4'>
-                                        <Image src={"/assets/colorCircle.png"} height={24} width={24} alt='*' />
-                                        <div className='text-purple underline' style={styles.agentName}>
-                                            Ai Name
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className='w-full flex flex-row items-center justify-between mt-12'>
-                                    <Image src={"/assets/manIcon.png"} height={32} width={32} alt='*' />
-                                    <div className='flex flex-row items-center gap-3'>
-                                        <div className='text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg'>
-                                            Tag
-                                        </div>
-                                        <div className='text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg'>
-                                            Tag
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className='border rounded-xl p-3 h-full'>
-                            <div className='border rounded-xl px-4 py-2 h-full' style={{ width: "450px" }}>
-                                <div className='flex flex-row items-center gap-3'>
-                                    <div className='bg-black text-white rounded-full flex flex-row item-center justify-center' style={{ height: "27px", width: "27px" }}>A</div>
-                                    <div style={styles.paragraph}>Name</div>
-                                </div>
-                                <div className='flex flex-row items-center justify-between w-full mt-2'>
-                                    <div className='text-[#00000060]' style={styles.agentName}>
-                                        Email
-                                    </div>
-                                    <div className='flex flex-row items-center gap-4'>
-                                        <Image src={"/assets/colorCircle.png"} height={24} width={24} alt='*' />
-                                        <div className='text-purple underline' style={styles.agentName}>
-                                            Ai Name
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className='w-full flex flex-row items-center justify-between mt-12'>
-                                    <Image src={"/assets/manIcon.png"} height={32} width={32} alt='*' />
-                                    <div className='flex flex-row items-center gap-3'>
-                                        <div className='text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg'>
-                                            Tag
-                                        </div>
-                                        <div className='text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg'>
-                                            Tag
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className='border rounded-xl p-3 h-full'>
-                            <div className='border rounded-xl px-4 py-2 h-full' style={{ width: "450px" }}>
-                                <div className='flex flex-row items-center gap-3'>
-                                    <div className='bg-black text-white rounded-full flex flex-row item-center justify-center' style={{ height: "27px", width: "27px" }}>A</div>
-                                    <div style={styles.paragraph}>Name</div>
-                                </div>
-                                <div className='flex flex-row items-center justify-between w-full mt-2'>
-                                    <div className='text-[#00000060]' style={styles.agentName}>
-                                        Email
-                                    </div>
-                                    <div className='flex flex-row items-center gap-4'>
-                                        <Image src={"/assets/colorCircle.png"} height={24} width={24} alt='*' />
-                                        <div className='text-purple underline' style={styles.agentName}>
-                                            Ai Name
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className='w-full flex flex-row items-center justify-between mt-12'>
-                                    <Image src={"/assets/manIcon.png"} height={32} width={32} alt='*' />
-                                    <div className='flex flex-row items-center gap-3'>
-                                        <div className='text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg'>
-                                            Tag
-                                        </div>
-                                        <div className='text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg'>
-                                            Tag
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className='border rounded-xl p-3 h-full'>
-                            <div className='border rounded-xl px-4 py-2 h-full' style={{ width: "450px" }}>
-                                <div className='flex flex-row items-center gap-3'>
-                                    <div className='bg-black text-white rounded-full flex flex-row item-center justify-center' style={{ height: "27px", width: "27px" }}>A</div>
-                                    <div style={styles.paragraph}>Name</div>
-                                </div>
-                                <div className='flex flex-row items-center justify-between w-full mt-2'>
-                                    <div className='text-[#00000060]' style={styles.agentName}>
-                                        Email
-                                    </div>
-                                    <div className='flex flex-row items-center gap-4'>
-                                        <Image src={"/assets/colorCircle.png"} height={24} width={24} alt='*' />
-                                        <div className='text-purple underline' style={styles.agentName}>
-                                            Ai Name
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className='w-full flex flex-row items-center justify-between mt-12'>
-                                    <Image src={"/assets/manIcon.png"} height={32} width={32} alt='*' />
-                                    <div className='flex flex-row items-center gap-3'>
-                                        <div className='text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg'>
-                                            Tag
-                                        </div>
-                                        <div className='text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg'>
-                                            Tag
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> */}
 
 
 
@@ -1211,9 +1126,139 @@ const Pipeline1 = () => {
                                         height: "50px", borderRadius: "10px", width: "100%",
                                         fontWeight: 600, fontSize: '20'
                                     }}
-                                    onClick={handleAddNewStageTitle}
+                                    onClick={handleAddCustomStage}
                                 >
                                     Add & Close
+                                </button>
+                        }
+
+
+                    </div>
+                </Box>
+            </Modal>
+
+            {/* Modal to Rename the Stage */}
+            <Modal
+                open={showRenamePopup}
+                onClose={() => { setShowRenamePopup(false) }}
+            >
+                <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
+                    <div style={{ width: "100%", }}>
+
+                        <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                            <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                {/* <div style={{ width: "20%" }} /> */}
+                                <div style={{ fontWeight: "700", fontSize: 22 }}>
+                                    Rename stage
+                                </div>
+                                <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
+                                    <button onClick={() => { setShowRenamePopup(false) }} className='outline-none'>
+                                        <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div className='mt-4' style={{ fontWeight: "600", fontSize: 12, paddingBottom: 5 }}>
+                                    Stage Title
+                                </div>
+                                <input
+                                    value={renameStage}
+                                    onChange={(e) => { setRenameStage(e.target.value) }}
+                                    placeholder='Enter stage title'
+                                    className='outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]'
+                                    style={{ border: "1px solid #00000020" }}
+                                />
+                                <div style={{ marginTop: 20, fontWeight: "600", fontSize: 12, paddingBottom: 5 }}>
+                                    Color*
+                                </div>
+                                <ColorPicker setStageColor={setUpdateStageColor} stageColor={updateStageColor} />
+                            </div>
+
+                        </div>
+
+                        {
+                            renameStageLoader ?
+                                <div className='flex flex-row iems-center justify-center w-full mt-4'>
+                                    <CircularProgress size={25} />
+                                </div> :
+                                <button
+                                    className='mt-4 outline-none'
+                                    style={{
+                                        backgroundColor: "#402FFF", color: "white",
+                                        height: "50px", borderRadius: "10px", width: "100%",
+                                        fontWeight: 600, fontSize: '20'
+                                    }}
+                                    onClick={handleRenameStage}
+                                >
+                                    Add & Close
+                                </button>
+                        }
+
+
+                    </div>
+                </Box>
+            </Modal>
+
+            {/* Modal to rename the pipeline */}
+            <Modal
+                open={showRenamePipelinePopup}
+                onClose={() => {
+                    setShowRenamePipelinePopup(false);
+                    handlePipelineClosePopover();
+                }}
+            >
+                <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
+                    <div style={{ width: "100%", }}>
+
+                        <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                            <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                {/* <div style={{ width: "20%" }} /> */}
+                                <div style={{ fontWeight: "700", fontSize: 22 }}>
+                                    Rename pipeline
+                                </div>
+                                <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
+                                    <button
+                                        onClick={() => {
+                                            setShowRenamePipelinePopup(false);
+                                            handlePipelineClosePopover();
+                                        }}
+                                        className='outline-none'>
+                                        <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div className='mt-4' style={{ fontWeight: "600", fontSize: 12, paddingBottom: 5 }}>
+                                    Pipeline Title
+                                </div>
+                                <input
+                                    value={renamePipeline}
+                                    onChange={(e) => { setRenamePipeline(e.target.value) }}
+                                    placeholder='Enter stage title'
+                                    className='outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]'
+                                    style={{ border: "1px solid #00000020" }}
+                                />
+                            </div>
+
+                        </div>
+
+                        {
+                            renamePipelineLoader ?
+                                <div className='flex flex-row iems-center justify-center w-full mt-4'>
+                                    <CircularProgress size={25} />
+                                </div> :
+                                <button
+                                    className='mt-4 outline-none'
+                                    style={{
+                                        backgroundColor: "#402FFF", color: "white",
+                                        height: "50px", borderRadius: "10px", width: "100%",
+                                        fontWeight: 600, fontSize: '20'
+                                    }}
+                                    onClick={handleRenamePipeline}
+                                >
+                                    Update & Close
                                 </button>
                         }
 

@@ -14,13 +14,17 @@ import {
 import { CaretDown, CaretUp } from "@phosphor-icons/react";
 import axios from "axios";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import * as XLSX from "xlsx";
 import Userleads from "./Userleads";
 
 const Leads1 = () => {
+
+
+  const addColRef = useRef(null);
+
   const [showAddLeadModal, setShowAddLeadModal] = useState(false);
   const [SelectedFile, setSelectedFile] = useState(null);
   const [selectedfileLoader, setSelectedfileLoader] = useState(false);
@@ -212,6 +216,18 @@ const Leads1 = () => {
   useEffect(() => {
     getUserLeads();
   }, []);
+
+  //auto focus the add column input field
+  useEffect(() => {
+    if (showPopUp) {
+      console.log("Should auto focus the field")
+      setTimeout(() => {
+        if (addColRef.current) {
+          addColRef.current.focus();
+        }
+      }, 500);
+    }
+  }, [showPopUp])
 
   useEffect(() => {
     try {
@@ -1229,17 +1245,24 @@ const Leads1 = () => {
                         </Popover>
 
                       </div>
-                      <button
-                        className="underline text-purple w-1/12 outline-none ms-4"
-                        onClick={() => {
-                          setUpdateHeader(item)
-                          setShowDelCol(true);
-                          // setUpdateHeader(item)
-                          // ChangeColumnName(null)
-                        }}
-                      >
-                        <Image src={"/assets/cross.png"} height={15} width={15} alt="*" />
-                      </button>
+
+                      {item.UserFacingName ? (
+                        <button
+                          className="underline text-purple w-1/12 outline-none ps-4"
+                          onClick={() => {
+                            setUpdateHeader(item)
+                            setShowDelCol(true);
+                            // setUpdateHeader(item)
+                            // ChangeColumnName(null)
+                          }}
+                        >
+                          <Image src={"/assets/blackBgCross.png"} height={15} width={15} alt="*" />
+                        </button>
+                      ) : (
+                        <div>
+                        </div>
+                      )}
+
                       <Modal
                         open={ShowDelCol}
                         onClose={() => setShowDelCol(false)}
@@ -1351,10 +1374,11 @@ const Leads1 = () => {
                 Add Column
               </div>
               <div className="mt-2" style={styles.subHeadingStyle}>
-                Update Column
+                Add Column
               </div>
 
               <input
+                ref={addColRef}
                 className="border outline-none rounded p-2 mt-2 w-full focus:ring-0"
                 value={updateColumnValue}
                 // onChange={(e) => { setUpdateColumnValue(e.target.value) }}
@@ -1364,7 +1388,7 @@ const Leads1 = () => {
                     setUpdateColumnValue(e.target.value);
                   }
                 }}
-                placeholder="Update column"
+                placeholder="Add column"
                 style={{ border: "1px solid #00000020" }}
               />
 

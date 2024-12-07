@@ -39,7 +39,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
 
 
     //code for array input fields
-    const [inputs, setInputs] = useState([{ id: 1, value: '' }, { id: 2, value: '' }, { id: 3, value: '' }]);
+    const [inputs, setInputs] = useState([{ id: 1, value: 'First Name' }, { id: 2, value: 'Last Name' }, { id: 3, value: 'Phone Number' }, { id: 4, value: '' }, { id: 5, value: '' }, { id: 6, value: '' }]);
     //
     const [showaddCreateListLoader, setShowaddCreateListLoader] = useState(false);
     const [newSheetName, setNewSheetName] = useState("");
@@ -850,85 +850,18 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                 <div className='h-[60vh] overflow-auto mt-6' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
                                                     style={{ scrollbarWidth: "none" }}
                                                 >
-                                                    {/* {
-                                                        FilterLeads.map((item, index) => (
-                                                            <div className='w-full flex flex-row items-center mt-4' style={styles.paragraph} key={index}>
-                                                                <div className='w-2/12 flex flex-row items-center gap-2 truncate'>
-                                                                    {toggleClick.includes(item.id) ? (
-                                                                        <button
-                                                                            className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
-                                                                            onClick={() => handleToggleClick(item.id)}
-                                                                        >
-                                                                            <Image src={"/assets/whiteTick.png"} height={10} width={10} alt='*' />
-                                                                        </button>
-                                                                    ) : (
-                                                                        <button
-                                                                            className="h-[20px] w-[20px] border-2 rounded outline-none"
-                                                                            onClick={() => handleToggleClick(item.id)}
-                                                                        >
-                                                                        </button>
-                                                                    )}
-                                                                    <div className='h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white'
-                                                                        onClick={() => handleToggleClick(item.id)}>
-                                                                        {item.firstName.slice(0, 1)}
-                                                                    </div>
-                                                                    <div className='truncate'
-                                                                        onClick={() => handleToggleClick(item.id)}>
-                                                                        {item.firstName} {item.lastName}
-                                                                    </div>
-                                                                </div>
-                                                                <div className='w-2/12 text-[#00000070] truncate'
-                                                                    onClick={() => handleToggleClick(item.id)}>
-                                                                    {item.email}
-                                                                </div>
-                                                                <div className='w-2/12 truncate'
-                                                                    onClick={() => handleToggleClick(item.id)}>
-                                                                    {item.phone}
-                                                                </div>
-                                                                <div className='w-2/12 truncate'
-                                                                    onClick={() => handleToggleClick(item.id)}>
-                                                                    {item.address}
-                                                                </div>
-                                                                <div className='w-2/12 flex flex-row items-center gap-2' onClick={() => handleToggleClick(item.id)}>
-                                                                    <div className='text-[#1C55FF] bg-[#1C55FF10] h-[33px] w-[47px] flex flex-row items-center justify-center rounded'>
-                                                                        Tag
-                                                                    </div>
-                                                                    <div className='text-[#1C55FF] bg-[#1C55FF10] h-[33px] w-[47px] flex flex-row items-center justify-center rounded'>
-                                                                        Tag
-                                                                    </div>
-                                                                    <div className='text-[#1C55FF] bg-[#1C55FF10] h-[33px] w-[39px] flex flex-row items-center justify-center rounded'>
-                                                                        +2
-                                                                    </div>
-                                                                </div>
-                                                                <div className='w-2/12 flex flex-row items-center'>
-                                                                    <div className='w-5/12' onClick={() => handleToggleClick(item.id)}>
-                                                                        <li style={{
-                                                                            fontWeight: "500",
-                                                                            fontSize: 12
-                                                                        }}>
-                                                                            {item.stage?.stageTitle ? (item.stage?.stageTitle) : "No stage"}
-                                                                        </li>
-                                                                    </div>
-                                                                    <div className='w-5/12 truncate' onClick={() => handleToggleClick(item.id)}>
-                                                                        {moment(item.createdAt).format('MM/DD/YYYY')}
-                                                                    </div>
-                                                                    <button className='w-2/12 underline text-purple outline-none'
-                                                                        onClick={() => {
-                                                                            setSelectedLeadsDetails(item);
-                                                                            setShowDetailsModal(true);
-                                                                        }}>
-                                                                        Details
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        ))
-                                                    } */}
 
                                                     <table className="table-auto w-full border-collapse border border-none">
                                                         <thead>
                                                             <tr>
                                                                 {leadColumns.map((column, index) => (
-                                                                    <th key={index} className="border-none px-4 py-2 text-left text-[#00000060]">
+                                                                    // <th key={index} className="border-none px-4 py-2 text-left text-[#00000060]">
+                                                                    <th
+                                                                        key={index}
+                                                                        className={`border-none px-4 py-2 text-left text-[#00000060] ${column.title === "More" ? "sticky right-0 bg-white" : ""
+                                                                            }`}
+                                                                        style={column.title === "More" ? { zIndex: 1 } : {}}
+                                                                    >
                                                                         {column.title}
                                                                     </th>
                                                                 ))}
@@ -938,7 +871,13 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                             {FilterLeads.map((item, index) => (
                                                                 <tr key={index} className="hover:bg-gray-50">
                                                                     {leadColumns.map((column, colIndex) => (
-                                                                        <td key={colIndex} className="border-none px-4 py-2">
+                                                                        // <td key={colIndex} className="border-none px-4 py-2">
+                                                                        <td
+                                                                            key={colIndex}
+                                                                            className={`border-none px-4 py-2 ${column.title === "More" ? "sticky right-0 bg-white" : ""
+                                                                                }`}
+                                                                            style={column.title === "More" ? { zIndex: 1 } : {}}
+                                                                        >
                                                                             {getColumnData(column, item)}
                                                                         </td>
                                                                     ))}
@@ -1167,11 +1106,21 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                                     }}
                                                                     placeholder={`Column Name`}
                                                                     value={input.value}
-                                                                    onChange={(e) => handleInputChange(input.id, e.target.value)}
+                                                                    onChange={(e) => {
+                                                                        if (index > 2) {
+                                                                            handleInputChange(input.id, e.target.value)
+                                                                        }
+                                                                    }}
                                                                 />
-                                                                <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
-                                                                    <Image src={"/assets/blackBgCross.png"} height={20} width={20} alt='*' />
-                                                                </button>
+                                                                <div style={{ width: "5%" }}>
+                                                                    {
+                                                                        index > 2 && (
+                                                                            <button className='outline-none border-none' onClick={() => handleDelete(input.id)}>
+                                                                                <Image src={"/assets/blackBgCross.png"} height={20} width={20} alt='*' />
+                                                                            </button>
+                                                                        )
+                                                                    }
+                                                                </div>
                                                             </div>
                                                         ))}
                                                         {/* Dummy element for scrolling */}
@@ -1415,7 +1364,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                 </Box>
             </Modal>
 
-        </div>
+        </div >
     )
 }
 

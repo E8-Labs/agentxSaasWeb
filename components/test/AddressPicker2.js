@@ -1,13 +1,11 @@
-import React, { useEffect, useRef } from "react";
-import { APIProvider, useMapsLibrary } from "@vis.gl/react-google-maps";
+import React, { useState, useEffect, useRef } from "react";
+import { useMapsLibrary } from "@vis.gl/react-google-maps";
 
-const API_KEY = process.env.NEXT_PUBLIC_AddressPickerApiKey;
-
-const AddressPicker = ({ onPlaceSelect }) => {
+const AddressPicker2 = ({ onAddressSelect }) => {
+    const [place, setPlace] = useState(null);
     const inputRef = useRef(null);
     const places = useMapsLibrary("places");
 
-    // Initialize Places Autocomplete
     useEffect(() => {
         if (!places || !inputRef.current) return;
 
@@ -17,12 +15,12 @@ const AddressPicker = ({ onPlaceSelect }) => {
 
         autocomplete.addListener("place_changed", () => {
             const selectedPlace = autocomplete.getPlace();
-            console.log("Selected Place:", selectedPlace);
+            setPlace(selectedPlace);
             if (selectedPlace.geometry) {
-                onPlaceSelect(selectedPlace);
+                onAddressSelect(selectedPlace);
             }
         });
-    }, [places, onPlaceSelect]);
+    }, [places, onAddressSelect]);
 
     return (
         <div className="address-picker-container">
@@ -35,13 +33,4 @@ const AddressPicker = ({ onPlaceSelect }) => {
     );
 };
 
-// Parent component to provide the API key context
-const AddressPickerWithProvider = ({ onPlaceSelect }) => {
-    return (
-        <APIProvider apiKey={API_KEY} libraries={["places"]}>
-            <AddressPicker onPlaceSelect={onPlaceSelect} />
-        </APIProvider>
-    );
-};
-
-export default AddressPickerWithProvider;
+export default AddressPicker2;
