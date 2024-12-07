@@ -1,23 +1,33 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import { Button, Modal, Box, Drawer } from '@mui/material'
+import { Button, Modal, Box, Drawer, Snackbar, Fade, Alert, CircularProgress } from '@mui/material'
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import { Plus } from '@phosphor-icons/react';
 import { useRouter } from 'next/navigation';
 import moment from 'moment';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 function Page() {
 
+  const timerRef = useRef();
   const fileInputRef = useRef([]);
   // const fileInputRef = useRef(null);
   const router = useRouter()
   const [openTestAiModal, setOpenTestAiModal] = useState(false);
   const [name, setName] = useState("");
+  //code for phonenumber
   const [phone, setPhone] = useState("");
+  const [countryCode, setCountryCode] = useState('');
+  const [locationLoader, setLocationLoader] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+
   const [address, setAddress] = useState("");
-  const [budget, setBudget] = useState("");
+  // const [budget, setBudget] = useState("");
   const [showDrawer, setShowDrawer] = useState(null);
   const [activeTab, setActiveTab] = useState("Agent Info");
   const [userDetails, setUserDetails] = useState([]);
@@ -26,6 +36,147 @@ function Page() {
   //image variable
   const [selectedImages, setSelectedImages] = useState({});
   const [selectedAgent, setSelectedAgent] = useState(null);
+
+  //code for testing the ai
+  let callScript = null;
+  let keys = [];
+
+  //variable string the keys
+  const [scriptKeys, setScriptKeys] = useState([]);
+  //variable for input field value
+  const [inputValues, setInputValues] = useState({});
+  const [showSuccessSnack, setShowSuccessSnack] = useState(null);
+  const [testAIloader, setTestAIloader] = useState(false);
+
+  //function to handle input field change
+  const handleInputChange = (index, value) => {
+    setInputValues((prevValues) => ({
+      ...prevValues,
+      [index]: value, // Update the specific index value
+    }));
+  };
+
+  //function to call testAi Api
+  const handleTestAiClick = async () => {
+    try {
+      setTestAIloader(true);
+      let AuthToken = null;
+      const userData = localStorage.getItem("User");
+      if (userData) {
+        const localData = JSON.parse(userData);
+        console.log("Authtoken is:", localData.token);
+        AuthToken = localData.token;
+      }
+
+      const newArray = scriptKeys.map((key, index) => ({
+        [key]: inputValues[index] || "", // Use the input value or empty string if not set
+      }));
+      console.log("New array created is:", newArray);
+      console.log("New array created is:", JSON.stringify(newArray));
+
+      const ApiData = {
+        agentId: selectedAgent.id,
+        name: name,
+        phone: phone,
+        extraColumns: newArray
+      }
+
+      const ApiPath = Apis.testAI;
+
+      console.log("Data sending in api is:", JSON.stringify(ApiData));
+      console.log("Api path is:", JSON.stringify(ApiPath));
+      // return
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          "Authorization": "Bearer " + AuthToken,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        console.log("Response of test AI api is :", response);
+        if (response.data.status === true) {
+          setShowSuccessSnack(response.data.message);
+        }
+      }
+
+    } catch (error) {
+      console.error("Error occured in test api is", error);
+    } finally {
+      console.log("Test ai call api done");
+      setTestAIloader(false);
+    }
+  }
+
+  //function for phonenumber input
+  const handlePhoneNumberChange = (phone) => {
+    setPhone(phone);
+    validatePhoneNumber(phone);
+
+    if (!phone) {
+      setErrorMessage("");
+    }
+
+  };
+
+  //code to get user location
+
+  const getLocation = () => {
+    console.log("getlocation trigered")
+    const registerationDetails = localStorage.getItem("registerDetails");
+    // let registerationData = null;
+    setLocationLoader(true);
+    if (registerationDetails) {
+      const registerationData = JSON.parse(registerationDetails);
+      console.log("User registeration data is :--", registerationData);
+      setUserData(registerationData);
+    } else {
+      // alert("Add details to continue");
+    }
+    const fetchCountry = async () => {
+      try {
+        // Get user's geolocation
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const { latitude, longitude } = position.coords;
+
+          // Fetch country code based on lat and long
+          const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+          const data = await response.json();
+
+          // Set the country code based on the geolocation API response
+          setCountryCode(data.countryCode.toLowerCase());
+          // setLoading(false);
+        });
+      } catch (error) {
+        console.error("Error fetching location:", error);
+        setLoading(true); // Stop loading if there’s an error
+      } finally {
+        setLocationLoader(false);
+      }
+    };
+
+    fetchCountry();
+  }
+
+  // Function to validate phone number
+  const validatePhoneNumber = (phoneNumber) => {
+    // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
+    // parsePhoneNumberFromString(`+${phone}`, countryCode.toUpperCase())
+    const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`, countryCode.toUpperCase());
+    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
+    if (!parsedNumber || !parsedNumber.isValid()) {
+      setErrorMessage('Enter valid number');
+    } else {
+      setErrorMessage('');
+
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+
+      // setCheckPhoneResponse(null);
+      console.log("Trigered")
+    }
+  };
 
   useEffect(() => {
 
@@ -108,6 +259,20 @@ function Page() {
       if (response) {
         console.log("Response of get agents api is:", response.data);
         setUserDetails(response.data.data);
+        callScript = response.data.data[0].greeting;
+
+        console.log("Keys extracted are", callScript);
+
+        //function for extracting the keys
+        const regex = /\{(.*?)\}/g;
+        let match;
+
+        while ((match = regex.exec(callScript)) !== null) {
+          keys.push(match[1]); // Add the variable name (without braces) to the array
+        }
+        setScriptKeys((prevKeys) => [...prevKeys, ...keys]);
+        console.log("Keys extracted are", keys);
+
       }
 
 
@@ -156,6 +321,7 @@ function Page() {
 
 
   // console.log("Current agent selected is:", showDrawer)
+
 
   return (
     <div className='w-full flex flex-col items-center'>
@@ -263,6 +429,7 @@ function Page() {
 
                   <button className='bg-purple px-4 py-2 rounded-lg'
                     onClick={() => {
+                      console.log("Selected agent for test ai is:", item);
                       setOpenTestAiModal(true);
                       setSelectedAgent(item);
                     }}
@@ -406,42 +573,90 @@ function Page() {
               <div className='pt-5' style={styles.headingStyle}>
                 Phone Number
               </div>
-              <input
+
+              {/*<input
                 placeholder="Phone Number"
                 className='w-full border rounded p-2 outline-none focus:outline-none focus:ring-0'
                 style={styles.inputStyle}
                 value={phone}
                 onChange={(e) => { setPhone(e.target.value) }}
-              />
+            />*/}
 
-              <div className='pt-5' style={styles.headingStyle}>
-                Variable {`{column  name}`}
+              <div style={{ marginTop: "8px" }}>
+                <PhoneInput
+                  className="border outline-none bg-white"
+                  country={countryCode} // Set the default country
+                  value={phone}
+                  onChange={handlePhoneNumberChange}
+                  onFocus={getLocation}
+                  placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                  // disabled={loading} // Disable input if still loading
+                  style={{ borderRadius: "7px" }}
+                  inputStyle={{
+                    width: '100%',
+                    borderWidth: '0px',
+                    backgroundColor: 'transparent',
+                    paddingLeft: '60px',
+                    paddingTop: "20px",
+                    paddingBottom: "20px",
+                  }}
+                  buttonStyle={{
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    // display: 'flex',
+                    // alignItems: 'center',
+                    // justifyContent: 'center',
+                  }}
+                  dropdownStyle={{
+                    maxHeight: '150px',
+                    overflowY: 'auto'
+                  }}
+                  countryCodeEditable={true}
+                  // defaultMask={loading ? 'Loading...' : undefined}
+                />
               </div>
-              <input
-                placeholder="Type here"
-                className='w-full border rounded p-2 outline-none focus:outline-none focus:ring-0'
-                style={styles.inputStyle}
-                value={address}
-                onChange={(e) => { setAddress(e.target.value) }}
-              />
 
+              {
+                errorMessage ?
+                  <p style={{ ...styles.errmsg, color: errorMessage && 'red', height: '20px' }}>
+                    {errorMessage}
+                  </p> : ""
+              }
 
-              <div className='pt-5' style={styles.headingStyle}>
-                Variable {`{column  name}`}
+              <div className='max-h-[45vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                {
+                  scriptKeys?.map((key, index) => (
+                    <div key={index}>
+                      <div className='pt-5' style={styles.headingStyle}>
+                        Variable {`{${key}}`}
+                      </div>
+                      <input
+                        placeholder="Type here"
+                        className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0"
+                        style={styles.inputStyle}
+                        value={inputValues[index] || ""} // Default to empty string if no value
+                        onChange={(e) => handleInputChange(index, e.target.value)}
+                      />
+                    </div>
+                  ))
+                }
               </div>
-              <input
-                placeholder="Type here"
-                className='w-full border rounded p-2 outline-none focus:outline-none focus:ring-0'
-                style={styles.inputStyle}
-                value={budget}
-                onChange={(e) => { setBudget(e.target.value) }}
-              />
 
-              <button style={{ marginTop: 20 }} className='w-full flex bg-purple p-3 rounded-lg items-center justify-center'>
-                <div style={{ fontSize: 16, fontWeight: '500', color: '#fff' }}>
-                  Test AI
-                </div>
-              </button>
+              {
+                testAIloader ?
+                  <div className="flex flex-row items-center justify-center w-full p-3 mt-2">
+                    <CircularProgress size={30} />
+                  </div> :
+                  <button style={{ marginTop: 20 }}
+                    className='w-full flex bg-purple p-3 rounded-lg items-center justify-center'
+                    onClick={handleTestAiClick}
+                  >
+                    <div style={{ fontSize: 16, fontWeight: '500', color: '#fff' }}>
+                      Test AI
+                    </div>
+                  </button>
+              }
+
 
 
 
@@ -451,6 +666,41 @@ function Page() {
           </div>
         </Box>
       </Modal>
+
+      {/* Success snack bar */}
+      <div>
+        <Snackbar
+          open={showSuccessSnack}
+          autoHideDuration={3000}
+          onClose={() => {
+            setShowSuccessSnack(null);
+          }}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "center",
+          }}
+          TransitionComponent={Fade}
+          TransitionProps={{
+            direction: "center",
+          }}
+        >
+          <Alert
+            onClose={() => {
+              setShowSuccessSnack(null);
+            }}
+            severity="success"
+            // className='bg-purple rounded-lg text-white'
+            sx={{
+              width: "auto",
+              fontWeight: "700",
+              fontFamily: "inter",
+              fontSize: "22",
+            }}
+          >
+            {showSuccessSnack}
+          </Alert>
+        </Snackbar>
+      </div>
 
       {/* drawer */}
 

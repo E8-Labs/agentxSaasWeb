@@ -230,9 +230,11 @@ const Pipeline1 = () => {
             let mainAgent = null;
 
             const mainAgentData = localStorage.getItem("agentDetails");
+            console.log("Check at 0 clear");
 
             if (mainAgentData) {
                 const mainAgentDetails = JSON.parse(mainAgentData);
+                console.log("Check clear");
                 console.log("Main agent detals are :", mainAgentDetails);
                 mainAgent = mainAgentDetails;
             }
@@ -253,6 +255,7 @@ const Pipeline1 = () => {
                 mainAgentId: mainAgent.id
             }
             console.log("Data sending in api is:", ApiData);
+            
             // return
 
             const response = await axios.post(ApiPath, ApiData, {
@@ -340,18 +343,28 @@ const Pipeline1 = () => {
 
             console.log("Auth token is :--", AuthToken);
 
-            const ApiData = {
-                stageTitle: renameStage,
-                stageId: selectedStage.id,
-                color: updateStageColor
+            // const ApiData = {
+            //     stageTitle: renameStage,
+            //     stageId: selectedStage.id,
+            //     color: updateStageColor
+            // }
+
+            const formData = new FormData();
+            formData.append("stageTitle", renameStage);
+            formData.append("stageId", selectedStage.id);
+            formData.append("color", updateStageColor);
+
+            // console.log("data sending in api si:", ApiData);
+
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
             }
 
-            console.log("data sending in api si:", ApiData);
             const ApiPath = Apis.UpdateStage;
 
             console.log("Api path is:", ApiPath);
-
-            const response = await axios.post(ApiPath, ApiData, {
+            // return
+            const response = await axios.post(ApiPath, formData, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken,
                     "Content-Type": "application/json"
@@ -360,12 +373,15 @@ const Pipeline1 = () => {
 
             if (response) {
                 console.log("Response of updates stage api is response :", response);
+                setStagesList(response.data.data.stages);
+                setShowRenamePopup(false);
+                handleCloseStagePopover();
             }
 
         } catch (error) {
             console.log("Error occured in rename api is:", error);
         } finally {
-            setRenameStageLoader(tre);
+            setRenameStageLoader(false);
         }
     }
 
@@ -401,6 +417,17 @@ const Pipeline1 = () => {
 
             if (response) {
                 console.log("Response of updates pipeline api is response :", response);
+                // setPipeLines()
+                setPipeLines((prevPipelines) =>
+                    prevPipelines.map((pipeline) =>
+                        pipeline.id === SelectedPipeline.id
+                            ? { ...pipeline, ...response.data.data } // Merge updates into the matching object
+                            : pipeline
+                    )
+                );
+                setSelectedPipeline(response.data.data);
+                setShowRenamePipelinePopup(false);
+                handlePipelineClosePopover();
             }
 
         } catch (error) {
@@ -762,8 +789,11 @@ const Pipeline1 = () => {
                                                     >
                                                         <ColorPicker
                                                             ref={colorPickerRef}
-                                                            setStageColor={setStageColorUpdate}
+                                                            setStageColor2={setStageColorUpdate}
+                                                            setStageColor={setUpdateStageColor}
                                                             onlyShowColorBox={true}
+                                                            updateOnchange={true}
+                                                            handleUpdateColor={handleRenameStage}
                                                         />
                                                     </div>
                                                 </div>
@@ -1140,7 +1170,10 @@ const Pipeline1 = () => {
             {/* Modal to Rename the Stage */}
             <Modal
                 open={showRenamePopup}
-                onClose={() => { setShowRenamePopup(false) }}
+                onClose={() => {
+                    setShowRenamePopup(false);
+                    handleCloseStagePopover();
+                }}
             >
                 <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
                     <div style={{ width: "100%", }}>
@@ -1152,7 +1185,10 @@ const Pipeline1 = () => {
                                     Rename stage
                                 </div>
                                 <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
-                                    <button onClick={() => { setShowRenamePopup(false) }} className='outline-none'>
+                                    <button onClick={() => {
+                                        setShowRenamePopup(false);
+                                        handleCloseStagePopover();
+                                    }} className='outline-none'>
                                         <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
                                     </button>
                                 </div>

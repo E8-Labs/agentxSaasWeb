@@ -1,12 +1,20 @@
 
 import React, { forwardRef, useEffect, useState } from 'react';
 
-const ColorPicker = forwardRef(({ setStageColor, stageColor, onlyShowColorBox }, ref) => {
+const ColorPicker = forwardRef(({ setStageColor, setStageColor2 , stageColor, onlyShowColorBox, updateOnchange, handleUpdateColor }, ref) => {
+
+
     const [color, setColor] = useState(''); // Default color
+    const [showColorBox, setShowColorBox] = useState(true);
 
     const handleColorChange = (e) => {
         setColor(e.target.value);
         setStageColor(e.target.value);
+        setStageColor2(e.target.value);
+        setShowColorBox(false);
+        if (updateOnchange) {
+            handleUpdateColor();
+        }
     };
 
     useEffect(() => {
@@ -21,27 +29,30 @@ const ColorPicker = forwardRef(({ setStageColor, stageColor, onlyShowColorBox },
         <div>
             {
                 onlyShowColorBox ?
-                    <input
-                        ref={ref} //id="color-picker-input"
-                        type="color"
-                        value={color}
-                        onChange={handleColorChange}
-                        className='outline-none focus:ring-0'
-                        // style={{ marginRight: '10px', padding: '0', border: 'none', background: 'none', height: "30px", width: "36px", borderRadius: "5px" }}
-                        style={{
-                            marginRight: '10px',
-                            padding: '0',
-                            border: 'none',
-                            background: 'none',
-                            height: '30px',
-                            width: '36px',
-                            borderRadius: '50px',
-                            appearance: 'none', // General appearance override
-                            WebkitAppearance: 'none', // For Webkit-based browsers (Chrome, Safari, etc.)
-                            MozAppearance: 'none', // For Firefox
-                            overflow: 'hidden', // Ensures rounded corners work correctly
-                        }}
-                    />
+                    <div>
+                        
+                                <input
+                                    ref={ref} //id="color-picker-input"
+                                    type="color"
+                                    value={color}
+                                    onChange={handleColorChange}
+                                    className='outline-none focus:ring-0'
+                                    // style={{ marginRight: '10px', padding: '0', border: 'none', background: 'none', height: "30px", width: "36px", borderRadius: "5px" }}
+                                    style={{
+                                        marginRight: '10px',
+                                        padding: '0',
+                                        border: 'none',
+                                        background: 'none',
+                                        height: '30px',
+                                        width: '36px',
+                                        borderRadius: '50px',
+                                        appearance: 'none', // General appearance override
+                                        WebkitAppearance: 'none', // For Webkit-based browsers (Chrome, Safari, etc.)
+                                        MozAppearance: 'none', // For Firefox
+                                        overflow: 'hidden', // Ensures rounded corners work correctly
+                                    }}
+                                />
+                    </div>
                     :
                     <div className='h-[50px] rounded-lg px-2' style={{ display: 'flex', alignItems: 'center', border: "1px solid #00000020", width: "" }}>
                         <input

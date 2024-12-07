@@ -28,7 +28,7 @@ const Apis = {
     CheckPhone: `${BasePath}api/user/checkPhoneNumber`,
     getCallLogs: `${BasePath}api/leads/callLogs`,
     getSheduledCallLogs: `${BasePath}api/pipeline/getScheduledCalls`,
-    getAgentCallLogs:`${BasePath}api/agent/getAgentCallActivity`,
+    getAgentCallLogs: `${BasePath}api/agent/getAgentCallActivity`,
     pauseAgent: `${BasePath}api/pipeline/pauseAgentCadence`,
     getUniqueColumns: `${BasePath}api/leads/getUniqueColumns`,
     addSmartList: `${BasePath}api/leads/addSmartList`,
@@ -39,7 +39,8 @@ const Apis = {
     addObjectionGuardrial: `${BasePath}api/agent/addObjectionGuardRail`,
     getObjectionGuardrial: `${BasePath}api/agent/getObjectionsAndGuardrails`,
     reorderStages: `${BasePath}api/pipeline/reorderStages`,
-    createPipeLine:`${BasePath}api/pipeline/createPipeline`
+    createPipeLine: `${BasePath}api/pipeline/createPipeline`,
+    testAI: `${BasePath}api/agent/testAi`
 
 }
 

@@ -93,6 +93,11 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
     ];
     const [selectedStage, setSelectedStage] = useState([]);
 
+    //code for buttons of details popup
+    const [showKYCDetails, setShowKycDetails] = useState(true);
+    const [showNotesDetails, setShowNotesDetails] = useState(false);
+    const [showAcitivityDetails, setShowAcitivityDetails] = useState(false);
+
     useEffect(() => {
         // getLeads();
         getSheets();
@@ -407,7 +412,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                     </button>
                 );
             default:
-                return item[title?.toLowerCase()] || "N/A"; // Match dynamically by converting title to lowercase
+                return item[title] || "N/A"; // Match dynamically by converting title to lowercase
         }
     };
 
@@ -853,12 +858,12 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
 
                                                     <table className="table-auto w-full border-collapse border border-none">
                                                         <thead>
-                                                            <tr>
+                                                            <tr style={{ fontWeight: "500" }}>
                                                                 {leadColumns.map((column, index) => (
                                                                     // <th key={index} className="border-none px-4 py-2 text-left text-[#00000060]">
                                                                     <th
                                                                         key={index}
-                                                                        className={`border-none px-4 py-2 text-left text-[#00000060] ${column.title === "More" ? "sticky right-0 bg-white" : ""
+                                                                        className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${column.title === "More" ? "sticky right-0 bg-white" : ""
                                                                             }`}
                                                                         style={column.title === "More" ? { zIndex: 1 } : {}}
                                                                     >
@@ -1312,49 +1317,110 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                             <div style={{ paddingInline: 30 }}>
 
                                 <div className='flex flex-row items-center gap-4 mt-2' style={styles.paragraph}>
-                                    <button className='outline-none'>
+                                    <button className='outline-none'
+                                        onClick={() => {
+                                            setShowKycDetails(true);
+                                            setShowNotesDetails(false);
+                                            setShowAcitivityDetails(false);
+                                        }}
+                                        style={{
+                                            borderBottom: showKYCDetails ? "2px solid #7902DF" : ""
+                                        }}
+                                    >
                                         KYC
                                     </button>
-                                    <button className='outline-none'>
+                                    <button className='outline-none'
+                                        onClick={() => {
+                                            setShowKycDetails(false);
+                                            setShowNotesDetails(true);
+                                            setShowAcitivityDetails(false);
+                                        }}
+                                        style={{
+                                            borderBottom: showNotesDetails ? "2px solid #7902DF" : ""
+                                        }}
+                                    >
                                         Notes
                                     </button>
-                                    <button className='outline-none'>
+                                    <button className='outline-none'
+                                        onClick={() => {
+                                            setShowKycDetails(false);
+                                            setShowNotesDetails(false);
+                                            setShowAcitivityDetails(true);
+                                        }}
+                                        style={{
+                                            borderBottom: showAcitivityDetails ? "2px solid #7902DF" : ""
+                                        }}
+                                    >
                                         Activity
                                     </button>
                                 </div>
-                                <div className='mt-2' style={styles.heading2}>
+                                {/*<div className='mt-2' style={styles.heading2}>
                                     12/12/2024, 12:02 Am
-                                </div>
+                                    </div>*/}
 
-                                <div className='flex flex-row gap-2'>
-                                    <div className='h-full' style={{ width: "2px", backgroundColor: "red" }}>
-                                    </div>
-                                    <div className='h-full'>
-                                        <div className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
-                                            Outcome | <span style={{ fontWeight: "600", fontSize: 12 }} className='text-purple'>Annas Ai</span>
-                                        </div>
-                                        <div className='mt-4'
-                                            style={{
-                                                border: "1px solid #00000020", padding: 10, borderRadius: 15
-                                            }}>
-                                            <div style={{ fontWeight: "500", fontSize: 12, color: "#00000060" }}>
-                                                Transcript
-                                            </div>
+                                {
+                                    showKYCDetails && (
+                                        <div className='flex flex-row items-center justify-center h-[20vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
                                             <div>
-                                                Lorem ipsum dolor sit amet consectetur. Dis est leo hendrerit placerat est sed non sed. Orci ornare commodo massa tempus nulla urna purus facilisis nisi. Maecenas hendrerit cum et ipsum. Magna varius odio potenti ridiculus pulvinar pellentesque
-                                            </div>
-                                            <div>
-                                                <button className='mt-2 underline' style={styles.paragraph} //onClick={() => {}}
-                                                >
-                                                    Read More
-                                                </button>
+                                                KYC Data collected from calls will be shown here
                                             </div>
                                         </div>
-                                        <div>
+                                    )
+                                }
 
+                                {
+                                    showNotesDetails && (
+                                        <div className='flex flex-col items-center justify-center h-[20vh] w-full'>
+                                            <div style={{ fontWeight: "500", fontsize: 15 }}>
+                                                You can add and manage your notes here
+                                            </div>
+                                            <button className='flex flex-row items-center gap-2 justify-center mt-4 outline-none'>
+                                                <Plus size={25} color='#7902DF' />
+                                                <div className='text-purple'>
+                                                    Add Note
+                                                </div>
+                                            </button>
                                         </div>
-                                    </div>
-                                </div>
+                                    )
+                                }
+
+                                {/* <div className='flex flex-row gap-2'>
+                                            <div className='h-full' style={{ width: "2px", backgroundColor: "red" }}>
+                                            </div>
+                                            <div className='h-full'>
+                                                <div className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
+                                                    Outcome | <span style={{ fontWeight: "600", fontSize: 12 }} className='text-purple'>Annas Ai</span>
+                                                </div>
+                                                <div className='mt-4'
+                                                    style={{
+                                                        border: "1px solid #00000020", padding: 10, borderRadius: 15
+                                                    }}>
+                                                    <div style={{ fontWeight: "500", fontSize: 12, color: "#00000060" }}>
+                                                        Transcript
+                                                    </div>
+                                                    <div>
+                                                        Lorem ipsum dolor sit amet consectetur. Dis est leo hendrerit placerat est sed non sed. Orci ornare commodo massa tempus nulla urna purus facilisis nisi. Maecenas hendrerit cum et ipsum. Magna varius odio potenti ridiculus pulvinar pellentesque
+                                                    </div>
+                                                    <div>
+                                                        <button className='mt-2 underline' style={styles.paragraph} //onClick={() => {}}
+                                                        >
+                                                            Read More
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div>
+
+                                                </div>
+                                            </div>
+                                                </div>*/}
+
+                                {
+                                    showAcitivityDetails && (
+                                        <div className='flex flex-row items-center justify-center h-[20vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
+                                            All activities related to this lead will be shown here
+                                        </div>
+                                    )
+                                }
 
 
                             </div>
