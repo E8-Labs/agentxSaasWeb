@@ -5,6 +5,15 @@ import React, { useEffect, useRef, useState } from 'react'
 import Apis from '../apis/Apis';
 import axios from 'axios';
 import ColorPicker from './ColorPicker';
+import RearrangeStages from '../pipeline/RearrangeStages';
+// import Tags from '../dashboard/leads/TagsInput';
+import TagInput from '../test/TagInput';
+import TagsInput from '../dashboard/leads/TagsInput';
+
+import Tags from "@yaireo/tagify/dist/react.tagify";
+import "@yaireo/tagify/dist/tagify.css";
+// import "./TagsInput.css"; // Import the custom CSS
+// import TagsInput from '../dashboard/leads/TagsInput';
 
 const Pipeline1 = () => {
 
@@ -26,6 +35,7 @@ const Pipeline1 = () => {
     const [SelectedPipeline, setSelectedPipeline] = useState(null);
     const [PipeLines, setPipeLines] = useState([]);
     const [StagesList, setStagesList] = useState([]);
+    const [oldStages, setOldStages] = useState([]);
     const [LeadsList, setLeadsList] = useState([]);
     const [leadCounts, setLeadCounts] = useState(null);
     //code to add new stage
@@ -71,11 +81,39 @@ const Pipeline1 = () => {
     const [showRenamePipelinePopup, setShowRenamePipelinePopup] = useState(false);
     const [renamePipeline, setRenamePipeline] = useState("");
     const [renamePipelineLoader, setRenamePipelineLoader] = useState(false);
+    const [deletePipelineLoader, setDeletePipelineLoader] = useState(false);
 
+    //code for rearranging stages
+    const [showStagesPopup, setShowStagesPopup] = useState(false);
+    const [nextStage, setNextStage] = useState({});
+    const [selectedNextStage, setSelectedNextStage] = useState({});
+
+    //code for storing tags value
+    const [tagsValue, setTagsValue] = useState([]);
 
     useEffect(() => {
         getPipelines()
     }, []);
+
+    useEffect(() => {
+        // handleReorder()
+        let previousStages = oldStages.map((item) => item.id);
+        let updatedStages = StagesList.map((item) => item.id);
+
+        console.log("Old stages list is reorder stages:", previousStages);
+        console.log("Updated stages list is reorder stages:", updatedStages);
+
+        // Compare arrays
+        const areArraysEqual = previousStages.length === updatedStages.length &&
+            previousStages.every((item, index) => item === updatedStages[index]);
+
+        if (areArraysEqual) {
+            console.log("Should not reorder stages");
+        } else {
+            console.log("Should reorder stages");
+            handleReorder();
+        }
+    }, [StagesList]);
 
     //code to auto scroll to end
     useEffect(() => {
@@ -164,6 +202,7 @@ const Pipeline1 = () => {
                 setPipeLines(response.data.data);
                 setSelectedPipeline(response.data.data[0]);
                 setStagesList(response.data.data[0].stages);
+                setOldStages(response.data.data[0].stages);
                 setLeadsList(response.data.data[0].leads);
                 console.log("Leads lis is :", response.data.data[0].leads);
                 setLeadCounts(response.data.data[0].leadsCountInStage);
@@ -252,10 +291,11 @@ const Pipeline1 = () => {
                 pipelineId: SelectedPipeline.id,
                 action: action,
                 examples: inputs,
-                mainAgentId: mainAgent.id
+                mainAgentId: mainAgent.id,
+                tags: tagsValue
             }
             console.log("Data sending in api is:", ApiData);
-            
+
             // return
 
             const response = await axios.post(ApiPath, ApiData, {
@@ -272,7 +312,7 @@ const Pipeline1 = () => {
                     setAddNewStageModal(false);
                     setNewStageTitle("");
                     setStageColor("");
-                    setStageAnchorel(null);
+                    setPipelinePopoverAnchorel(null);
                 }
             }
 
@@ -437,9 +477,10 @@ const Pipeline1 = () => {
         }
     }
 
+    //code to delete pipeline
     const handleDeletePipeline = async () => {
         try {
-            setRenamePipelineLoader(true);
+            setDeletePipelineLoader(true);
             const localData = localStorage.getItem("User");
             let AuthToken = null;
             if (localData) {
@@ -470,12 +511,16 @@ const Pipeline1 = () => {
 
             if (response) {
                 console.log("Response of updates pipeline api is response :", response);
+                if (response.data.status === true) {
+                    setPipeLines(PipeLines.filter(pipeline => pipeline.id !== SelectedPipeline.id));
+                    handlePipelineClosePopover();
+                }
             }
 
         } catch (error) {
             console.log("Error occured in rename api is:", error);
         } finally {
-            setRenamePipelineLoader(false);
+            setDeletePipelineLoader(false);
         }
     }
 
@@ -539,6 +584,92 @@ const Pipeline1 = () => {
         }
     }
 
+    //codde for reorder stages
+    const handleSelectNextChange = (index, event) => {
+        const selectedValue = event.target.value;
+
+        // Update the next stage for the specific index
+        setNextStage((prev) => ({
+            ...prev,
+            [index]: selectedValue,
+        }));
+
+        // Find the selected item for the specific index
+        const selectedItem = StagesList.find(
+            (item) => item.stageTitle === selectedValue
+        );
+
+        console.log(`Index ${index} Selected Item:`, selectedItem);
+
+        // Update the selected next stage for the specific index
+        setSelectedNextStage((prev) => ({
+            ...prev,
+            [index]: selectedItem,
+        }));
+    };
+
+
+    //code to rearrange stages list
+    const handleReorder = async () => {
+        try {
+
+            const updateStages = StagesList.map((stage, index) => ({
+                id: stage.id,
+                order: stage.order
+            }));
+
+            console.log("Updated stages order is :", updateStages);
+
+            const ApiPath = Apis.reorderStages;
+            let AuthToken = null;
+            const LocalData = localStorage.getItem("User");
+            if (LocalData) {
+                const UserDetails = JSON.parse(LocalData);
+                AuthToken = UserDetails.token;
+            }
+            // console.log("Selected pipeline id is: ", selectedPipelineItem.id);
+            const ApiData = {
+                pipelineId: SelectedPipeline.id,
+                reorderedStages: updateStages
+            }
+
+            // console.log("Auth token is :", AuthToken);
+            console.log("Api data is :", ApiData)
+            // return
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of updated stages is:", response.data);
+                if (response.data.status === true) {
+                    setShowStagesPopup(false);
+                    handleCloseStagePopover();
+                    setSuccessSnack(response.data.message);
+                }
+            }
+
+        } catch (error) {
+            console.error("Error occured in rearrange order api is:", error);
+        } finally {
+            console.log("api call completed");
+        }
+    }
+
+    //code for tagify library
+    const suggestions = [
+        "apple",
+        "banana",
+        "cucumber",
+        "dewberries",
+        "elderberry",
+        "fig",
+        "grapes",
+        "honeydew",
+    ];
 
     const styles = {
         heading: {
@@ -652,10 +783,26 @@ const Pipeline1 = () => {
                                             Rename
                                         </button>
                                     </div>
-                                    <button className='text-red flex flex-row items-center gap-4 mt-4 me-2 outline-none' style={styles.paragraph} onClick={handleDeletePipeline}>
-                                        <Image src={"/assets/delIcon.png"} height={18} width={18} alt='*' />
-                                        Delete
-                                    </button>
+                                    <div className='w-full flex flex-row mt-4'>
+                                        <button
+                                            className='text-black flex flex-row items-center gap-4 me-2 outline-none'
+                                            style={styles.paragraph}
+                                            onClick={() => { setAddNewStageModal(true) }}
+                                        >
+                                            <Image src={"/assets/colorDrop.png"} height={18} width={15} alt='*' />
+                                            Add Stage
+                                        </button>
+                                    </div>
+                                    {
+                                        deletePipelineLoader ?
+                                            <div className='mt-4 ms-6'>
+                                                <CircularProgress size={20} />
+                                            </div> :
+                                            <button className='text-red flex flex-row items-center gap-4 mt-4 me-2 outline-none' style={styles.paragraph} onClick={handleDeletePipeline}>
+                                                <Image src={"/assets/delIcon.png"} height={18} width={18} alt='*' />
+                                                Delete
+                                            </button>
+                                    }
                                 </div>
                             </Popover>
                         </div>
@@ -798,16 +945,6 @@ const Pipeline1 = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className='w-full flex flex-row mt-4'>
-                                                <button
-                                                    className='text-black flex flex-row items-center gap-4 me-2 outline-none'
-                                                    style={styles.paragraph}
-                                                    onClick={() => { setAddNewStageModal(true) }}
-                                                >
-                                                    <Image src={"/assets/colorDrop.png"} height={18} width={15} alt='*' />
-                                                    Add Stage
-                                                </button>
-                                            </div>
                                             <div ref={bottomRef}></div>
                                             <div className='w-full flex flex-row mt-4'>
                                                 {/* {
@@ -818,7 +955,7 @@ const Pipeline1 = () => {
                                                 <button
                                                     className='text-black flex flex-row items-center gap-4 me-2 outline-none'
                                                     style={styles.paragraph}
-                                                // onClick={handleDeleteStage}
+                                                    onClick={() => { setShowStagesPopup(true) }}
                                                 >
                                                     <Image src={"/assets/colorDrop.png"} height={18} width={15} alt='*' />
                                                     Rearrange Stage
@@ -917,7 +1054,7 @@ const Pipeline1 = () => {
                 <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
                     <div style={{ width: "100%", }}>
 
-                        <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                        <div>
                             <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                 {/* <div style={{ width: "20%" }} /> */}
                                 <div style={{ fontWeight: "700", fontSize: 22 }}>
@@ -962,7 +1099,7 @@ const Pipeline1 = () => {
 
                             {
                                 showAdvanceSettings && (
-                                    <div>
+                                    <div className='max-h-[40vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                         <div className='flex flex-row items-center gap-2 mt-4'>
                                             <p style={{ fontWeight: "600", fontSize: 15 }}>Action</p>
                                             {/* <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' /> */}
@@ -1111,31 +1248,8 @@ const Pipeline1 = () => {
                                             Tags
                                         </p>
 
-                                        <div className='h-[45px] p-2 rounded-lg flex flex-row items-center gap-2' style={{ border: "1px solid #00000030" }}>
-                                            <div className='flex flex-row gap-2 bg-[#00000030] h-full px-4 rounded items-center' style={{ width: "fit-content" }}>
-                                                <p style={{ fontWeight: "500", fontSize: 15 }}>
-                                                    Tag value
-                                                </p>
-                                                <button className='outline-none'>
-                                                    <Image src={"/assets/cross.png"} height={10} width={10} alt='*' />
-                                                </button>
-                                            </div>
-                                            <div className='flex flex-row gap-2 bg-[#00000030] h-full px-4 rounded items-center' style={{ width: "fit-content" }}>
-                                                <p style={{ fontWeight: "500", fontSize: 15 }}>
-                                                    Tag value
-                                                </p>
-                                                <button className='outline-none'>
-                                                    <Image src={"/assets/cross.png"} height={10} width={10} alt='*' />
-                                                </button>
-                                            </div>
-                                            <div className='flex flex-row gap-2 bg-[#00000030] h-full px-4 rounded items-center' style={{ width: "fit-content" }}>
-                                                <p style={{ fontWeight: "500", fontSize: 15 }}>
-                                                    Tag value
-                                                </p>
-                                                <button className='outline-none'>
-                                                    <Image src={"/assets/cross.png"} height={10} width={10} alt='*' />
-                                                </button>
-                                            </div>
+                                        <div className='h-[45px] p-2 rounded-lg  items-center gap-2' style={{ border: "0px solid #00000030" }}>
+                                            <TagsInput setTags={setTagsValue} />
                                         </div>
 
                                     </div>
@@ -1450,6 +1564,74 @@ const Pipeline1 = () => {
                 </Snackbar>
             </div>
 
+            {/* Code for rearranging stages */}
+            <Modal
+                open={showStagesPopup}
+                onClose={() => {
+                    setShowStagesPopup(false);
+                    handleCloseStagePopover();
+                }}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 1000,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        backdropFilter: "blur(5px)",
+                    },
+                }}
+            >
+                <Box className="lg:w-6/12 sm:w-8/12 w-10/12" sx={styles.modalsStyle}>
+                    <div className="flex flex-row justify-center w-full">
+                        <div
+                            className="w-full"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                            }}
+                        >
+                            <div className='flex flex-row justify-between'>
+                                <div style={{ fontWeight: "600", fontSize: 22 }}>
+                                    Rearrange Stages
+                                </div>
+                                <button onClick={() => {
+                                    setShowStagesPopup(false);
+                                    handleCloseStagePopover();
+                                }}>
+                                    <Image src={"/assets/cross.png"} height={14} width={14} alt='*' />
+                                </button>
+                            </div>
+
+                            <div className='w-full h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                                <RearrangeStages
+                                    // stages={StagesList}
+                                    // onUpdateOrder={(stages) => {
+                                    //     setStagesList(stages);
+                                    // }}
+                                    stages={StagesList}
+                                    onUpdateOrder={(stages) => {
+                                        setStagesList(stages);
+                                    }}
+                                    // assignedLeads={assignedLeads}
+                                    // handleUnAssignNewStage={handleUnAssignNewStage}
+                                    // assignNewStage={assignNewStage}
+                                    // handleInputChange={handleInputChange}
+                                    // rowsByIndex={rowsByIndex}
+                                    // removeRow={removeRow}
+                                    // addRow={addRow}
+                                    nextStage={nextStage}
+                                    handleSelectNextChange={handleSelectNextChange}
+                                    selectedPipelineStages={StagesList}
+                                    selectedPipelineItem={SelectedPipeline}
+                                />
+                            </div>
+
+                            {/* Can be use full to add shadow */}
+                            {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
 
 
 

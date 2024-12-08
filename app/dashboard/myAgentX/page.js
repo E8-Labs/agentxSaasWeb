@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import { Button, Modal, Box, Drawer, Snackbar, Fade, Alert, CircularProgress } from '@mui/material'
+import { Button, Modal, Box, Drawer, Snackbar, Fade, Alert, CircularProgress, Popover } from '@mui/material'
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import { Plus } from '@phosphor-icons/react';
@@ -36,6 +36,8 @@ function Page() {
   //image variable
   const [selectedImages, setSelectedImages] = useState({});
   const [selectedAgent, setSelectedAgent] = useState(null);
+  //del loader
+  const [DelLoader, setDelLoader] = useState(false);
 
   //code for testing the ai
   let callScript = null;
@@ -55,6 +57,47 @@ function Page() {
       [index]: value, // Update the specific index value
     }));
   };
+
+  //function to delete the agent
+  const handleDeleteAgent = async () => {
+    try {
+      setDelLoader(true);
+      let AuthToken = null;
+      const userData = localStorage.getItem("User");
+      if (userData) {
+        const localData = JSON.parse(userData);
+        console.log("Authtoken is:", localData.token);
+        AuthToken = localData.token;
+      }
+
+      const ApiData = {
+        mainAgentId: showDrawer?.id
+      }
+      console.log("Data sending in del agent api is:", ApiData);
+      // return
+      const ApiPath = Apis.DelAgent;
+      console.log("Apipath is:", ApiPath);
+
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          "Authorization": "Bearer " + AuthToken,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        console.log("Response of del agent api is:", response);
+        setAgentsContent(agentsContent.filter((item) => item.id !== showDrawer.id));
+        setShowDrawer(null);
+      }
+
+    } catch (error) {
+      console.error("Error occured in del agent api is:", error);
+    }
+    finally {
+      setDelLoader(false);
+    }
+  }
 
   //function to call testAi Api
   const handleTestAiClick = async () => {
@@ -295,7 +338,20 @@ function Page() {
 
   //code for spiling the agnts
   // let agentsContent = [];
-  const [agentsContent, setAgentsContent] = useState([])
+  const [agentsContent, setAgentsContent] = useState([]);
+  //code for popover
+  const [actionInfoEl, setActionInfoEl] = React.useState(null);
+
+  const handlePopoverOpen = (event) => {
+    setActionInfoEl(event.currentTarget);
+  };
+
+  const handlePopoverClose = () => {
+    setActionInfoEl(null);
+  };
+
+  const open = Boolean(actionInfoEl);
+
   useEffect(() => {
 
     userDetails.map((item, index) => {
@@ -401,9 +457,67 @@ function Page() {
                             {item.name.slice(0, 1).toUpperCase(0)}{item.name.slice(1)}
                           </div>
                         </button>
-                        <div style={{ fontSize: 11, fontWeight: '600', color: '#00000080' }}>
-                          {item.agentObjective}
+                        <div style={{ fontSize: 12, fontWeight: '600', color: '#00000080' }} className='flex flex-row items-center gap-1'>
+                          <div
+                            aria-owns={open ? 'mouse-over-popover' : undefined}
+                            aria-haspopup="true"
+                            onMouseEnter={handlePopoverOpen}
+                            onMouseLeave={handlePopoverClose}
+                            style={{ cursor: "pointer" }}
+                          >
+                            {item.agentObjective}
+                          </div>
+                          <div>
+                            | {item.agentType.slice(0, 1).toUpperCase(0)}{item.agentType.slice(1)}
+                          </div>
                         </div>
+
+                        {/* Code for popover */}
+                        <Popover
+                          id="mouse-over-popover"
+                          sx={{
+                            pointerEvents: 'none',
+                            // marginBottom: "20px"
+                          }}
+                          open={open}
+                          anchorEl={actionInfoEl}
+                          anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'center',
+                          }}
+                          transformOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'center',
+                          }}
+                          PaperProps={{
+                            elevation: 1, // This will remove the shadow
+                            style: {
+                              boxShadow: "0px 8px 8px rgba(0, 0, 0, 0.01)",
+                            },
+                          }}
+                          onClose={handlePopoverClose}
+                          disableRestoreFocus
+                        >
+                          <div className="p-3 w-[250px]">
+                            <div className="flex flex-row items-center justify-between gap-1">
+                              <p style={{ ...styles.paragraph, color: "#00000060" }}>
+                                Status
+                              </p>
+                              <p style={styles.paragraph}>
+                                Coming soon
+                              </p>
+                            </div>
+                            <div className="flex flex-row items-center justify-between mt-1 gap-1">
+                              <p style={{ ...styles.paragraph, color: "#00000060" }}>
+                                Status
+                              </p>
+                              <p style={styles.paragraph}>
+                                Coming soon
+                              </p>
+                            </div>
+                          </div>
+                        </Popover>
+
                       </div>
                       <div className='flex flex-row gap-3 items-center text-purple' style={{ fontSize: 15, fontWeight: '500' }}>
                         <button>
@@ -427,17 +541,37 @@ function Page() {
                   </div>
 
 
-                  <button className='bg-purple px-4 py-2 rounded-lg'
-                    onClick={() => {
-                      console.log("Selected agent for test ai is:", item);
-                      setOpenTestAiModal(true);
-                      setSelectedAgent(item);
-                    }}
-                  >
-                    <div style={{ fontSize: 16, fontWeight: '600', color: '#fff' }}>
-                      Test AI
-                    </div>
-                  </button>
+                  <div className='flex flex-row items-start gap-2'>
+
+                    {
+                      !item.phoneNumber && (
+                        <div className='flex flex-row items-center gap-2 -mt-1'>
+                          <Image src={"/assets/warningFill.png"} height={18} width={18} alt='*' />
+                          <p>
+                            <i className='text-red' style={{
+                              fontSize: 12,
+                              fontWeight: "600"
+                            }}>
+                              No Phone number assigned
+                            </i>
+                          </p>
+                        </div>
+                      )
+                    }
+
+                    <button className='bg-purple px-4 py-2 rounded-lg'
+                      onClick={() => {
+                        console.log("Selected agent for test ai is:", item);
+                        setOpenTestAiModal(true);
+                        setSelectedAgent(item);
+                      }}
+                    >
+                      <div style={{ fontSize: 16, fontWeight: '600', color: '#fff' }}>
+                        Test AI
+                      </div>
+                    </button>
+
+                  </div>
 
                 </div>
 
@@ -447,14 +581,14 @@ function Page() {
 
                     <Card
                       name="Calls"
-                      value={item.calls}
+                      value={item.calls && item.calls > 0 ? (<div>{item.calls}</div>) : "-"}
                       icon='/assets/selectedCallIcon.png'
                       bgColor="bg-blue-100"
                       iconColor="text-blue-500"
                     />
                     <Card
                       name="Convos >10 Sec"
-                      value={item.callsGt10}
+                      value={item.callsGt10 && item.callsGt10 > 0 ? (<div>{item.callsGt10}</div>) : "-"}
                       icon='/otherAssets/convosIcon2.png'
                       bgColor="bg-purple-100"
                       iconColor="text-purple-500"
@@ -477,7 +611,7 @@ function Page() {
 
                     <Card
                       name="Mins Talked"
-                      value={item.totalDuration || "0"}
+                      value={item.totalDuration && item.totalDuration > 0 ? (<div>{item.totalDuration}</div>) : "-"}
                       icon='/otherAssets/transferIcon.png'
                       bgColor="green"
                       iconColor="text-orange-500"
@@ -612,7 +746,7 @@ function Page() {
                     overflowY: 'auto'
                   }}
                   countryCodeEditable={true}
-                  // defaultMask={loading ? 'Loading...' : undefined}
+                // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -767,19 +901,23 @@ function Page() {
                 </div>
               </div>
             </div>
-            <button>
-              <div className='flex flex-row gap-2 items-center '>
-                <Image src={'/otherAssets/redDeleteIcon.png'}
-                  height={24}
-                  width={24}
-                  alt='del'
-                />
+            {
+              DelLoader ?
+                <div>
+                  <CircularProgress size={20} />
+                </div> :
+                <button className='flex flex-row gap-2 items-center' onClick={() => { handleDeleteAgent() }}>
+                  <Image src={'/otherAssets/redDeleteIcon.png'}
+                    height={24}
+                    width={24}
+                    alt='del'
+                  />
 
-                <div style={{ fontSize: 15, fontWeight: '600', color: 'red', textDecorationLine: 'underline' }}>
-                  Delete Agent
-                </div>
-              </div>
-            </button>
+                  <div style={{ fontSize: 15, fontWeight: '600', color: 'red', textDecorationLine: 'underline' }}>
+                    Delete Agent
+                  </div>
+                </button>
+            }
           </div>
 
 
@@ -787,14 +925,14 @@ function Page() {
           <div className="grid grid-cols-3 gap-6 border p-8 flex-row justify-between w-full rounded-lg mb-6">
             <Card
               name="Number of Calls"
-              value={98}
+              value={showDrawer?.calls && showDrawer?.calls > 0 ? (<div>{showDrawer?.calls}</div>) : "-"}
               icon="/assets/selectedCallIcon.png"
               bgColor="bg-blue-100"
               iconColor="text-blue-500"
             />
             <Card
               name="Convos >10 Sec"
-              value={43}
+              value={showDrawer?.callsGt10 && showDrawer?.callsGt10 > 0 ? (<div>{showDrawer?.callsGt10}</div>) : "-"}
               icon="/otherAssets/convosIcon2.png"
               bgColor="bg-purple-100"
               iconColor="text-purple-500"
@@ -1057,6 +1195,10 @@ const styles = {
     fontWeight: "500",
     marginTop: 10,
     borderColor: "#00000020"
+  },
+  paragraph: {
+    fontSize: 15,
+    fontWeight: "500"
   }
 }
 

@@ -19,6 +19,7 @@ import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import * as XLSX from "xlsx";
 import Userleads from "./Userleads";
+import TagsInput from "./TagsInput";
 
 const Leads1 = () => {
 
@@ -37,6 +38,8 @@ const Leads1 = () => {
   const [sheetName, setSheetName] = useState("");
   const [Loader, setLoader] = useState(false);
   const [userLeads, setUserLeads] = useState("loading");
+  //state to setdata when it is true;
+  const [setData, setSetData] = useState(false);
   const [SuccessSnack, setSuccessSnack] = useState(null);
   const [initialLoader, setInitialLoader] = useState(false);
   //File handling
@@ -45,6 +48,9 @@ const Leads1 = () => {
   const [introVideoModal, setIntroVideoModal] = useState(false);
   //popup for deleting the column
   const [ShowDelCol, setShowDelCol] = useState(false);
+
+  //code for adding tags
+  const [tagsValue, setTagsValue] = useState([]);
 
   //my custom logic
   //This variable will contain all columns from the sheet that we will obtain from the sheet or add new
@@ -695,11 +701,12 @@ const Leads1 = () => {
         sheetName: sheetName,
         leads: processedData,
         columnMappings: columnMappingsList,
+        tags: tagsValue
       };
 
       const ApiPath = Apis.createLead;
-      //////console.log("Api path is :", ApiPath);
-
+      console.log("Api data is :", ApiData);
+      // return
       //console.log("Apidata sending in Addlead api is :", ApiData);
       // return;
       const response = await axios.post(ApiPath, ApiData, {
@@ -712,10 +719,12 @@ const Leads1 = () => {
       if (response) {
         //////console.log("Response of ad lead api is :", response.data.data);
         if (response.data.status === true) {
+          console.log("Response of add lead list api is:", response.data.data);
           setShowUploadLeadModal(false);
           setSelectedFile(null);
           localStorage.setItem("userLeads", JSON.stringify(response.data.data));
           setUserLeads(response.data.data);
+          setSetData(true);
           setSuccessSnack(response.data.message);
         }
       }
@@ -809,6 +818,8 @@ const Leads1 = () => {
               <Userleads
                 handleShowAddLeadModal={handleShowAddLeadModal}
                 handleShowUserLeads={handleShowUserLeads}
+                newListAdded={userLeads}
+                shouldSet={setData}
               />
             </div>
           ) : (
@@ -1089,7 +1100,10 @@ const Leads1 = () => {
 
               <div className="w-full mt-4" style={styles.subHeadingStyle}>
                 <input
-                  className="outline-none border-none rounded-lg p-2 w-full"
+                  className="outline-none rounded-lg p-2 w-full"
+                  style={{
+                    borderColor: "#00000020"
+                  }}
                   value={sheetName} // Only show the base name in the input.split(".")[0]
                   // onChange={handleSheetNameChange}
                   onChange={(e) => {
@@ -1099,6 +1113,14 @@ const Leads1 = () => {
                   }}
                   placeholder="Enter sheet name"
                 />
+              </div>
+
+              <div style={{ fontWeight: "500", fontSize: 15, marginTop: 20 }}>
+                Add Tag
+              </div>
+
+              <div className="mt-4">
+                <TagsInput setTags={setTagsValue} />
               </div>
 
               <div className="mt-4" style={styles.paragraph}>
@@ -1399,7 +1421,7 @@ const Leads1 = () => {
                   ChangeColumnName(updateColumnValue);
                 }}
               >
-                Create
+                Add
               </button>
 
               {/* Can be use full to add shadow */}

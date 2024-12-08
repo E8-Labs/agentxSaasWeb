@@ -8,6 +8,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { useRouter } from 'next/navigation';
+import { ArrowRight } from '@phosphor-icons/react/dist/ssr';
 
 const Page = ({ length = 6, onComplete }) => {
 
@@ -289,10 +290,9 @@ const Page = ({ length = 6, onComplete }) => {
 
 
   return (
-    <div className='flex flex-row w-full items-center h-screen'>
-      <div className='w-6/12 ms-8 flex flex-row justify-center ' style={backgroundImage}>
+    <div className='flex flex-row w-full justify-center h-screen'>
+      {/* <div className='w-6/12 ms-8 flex flex-row justify-center ' style={backgroundImage}>
         <div className='w-11/12'>
-          {/* <div>he</div> */}
           <div className='h-[433px] w-[494px] md:w-[594px] bg-white mt-16'>
           </div>
           <div className='text-white sm:text-4xl md:text-4xl lg:text-5xl mt-8' style={{ fontWeight: "600" }}>
@@ -302,21 +302,69 @@ const Page = ({ length = 6, onComplete }) => {
             By signing up to the AgentX platform you understand and agree to our Terms and <br /> Conditions and Privacy Policy. This site is protected by Google reCAPTCHA to<br /> ensure you are not a bot. Learn more
           </div>
         </div>
-      </div>
-      <div className='w-4/12 flex flex-row justify-center h-[90vh] '>
-        <div className='w-10/12 '>
-          <div className='pl-6'>
-            <div className='flex flex-row items-center gap-3 mt-44'>
-              <Image className='hidden md:flex' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain" }} height={69} width={69} alt='*' />
-              <Image className='' src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' />
+      </div> */}
+      <div className='w-11/12 flex flex-col items-center h-[90vh] '>
+        <div className='w-full gap-3 h-[10%] flex flex-row items-end'>
+          <Image className='' src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' />
+          {/* <Image className='hidden md:flex' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain" }} height={69} width={69} alt='*' /> */}
+        </div>
+        <div className='w-full h-[80%] flex flex-row items-center justify-center'>
+          <div className='w-full'>
+
+            <div className='flex flex-col w-full items-center gap-4 pb-6'>
+              <Image src={"/assets/signinAvatar.png"} height={100} width={250} alt='avtr' />
+              <Image src={"/agentXOrb.gif"} height={69} width={69} alt='gif' />
             </div>
-            <div className='mt-8' style={{ fontWeight: "600", fontSize: 24 }}>
-              Welcome to AgentX
-            </div>
-            <div className='flex flex-row items-center w-full justify-between mt-4'>
-              <div className='' style={{ fontWeight: "600", fontSize: 16 }}>
-                {`What’s your phone number`}
+
+            {/* Code for phone input field */}
+            <div className='flex flex-row items-center justify-center gap-2 w-full'>
+              <div className='flex flex-row items-center gap-2 border rounded-lg w-8/12 sm:w-4/12 justify-between pe-4'>
+                <div className='w-[90%]'>
+                  <PhoneInput
+                    className="outline-none bg-transparent focus:ring-0"
+                    country={countryCode} // Default country
+                    value={userPhoneNumber}
+                    onChange={handlePhoneNumberChange}
+                    onFocus={getLocation}
+                    placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                    disabled={loading} // Disable input if still loading
+                    style={{ borderRadius: "7px" }}
+                    inputStyle={{
+                      width: "100%",
+                      borderWidth: "0px",
+                      backgroundColor: "transparent",
+                      paddingLeft: "60px",
+                      paddingTop: "12px",
+                      paddingBottom: "12px",
+                      outlineColor: "transparent",
+                      height: "50px"
+                    }}
+                    buttonStyle={{
+                      border: "none",
+                      backgroundColor: "transparent",
+                    }}
+                    dropdownStyle={{
+                      maxHeight: "150px",
+                      overflowY: "auto",
+                    }}
+                    countryCodeEditable={true}
+                    defaultMask={locationLoader ? "Loading..." : undefined}
+                  />
+                </div>
+                {
+                  loginLoader ?
+                    <div className='flex flex-row justify-center'>
+                      <CircularProgress size={15} />
+                    </div> :
+                    <button className='text-black bg-transparent border border-[#000000] rounded-full' style={{ fontSize: 16, fontWeight: "600" }} onClick={() => { setShowVerifyPopup(true) }}>
+                      <ArrowRight size={20} weight='bold' />
+                    </button>
+                }
               </div>
+            </div>
+
+            {/* Code for error messages */}
+            <div className='flex flex-row items-center w-full justify-between mt-4'>
               <div>
                 {errorMessage ?
                   <div style={styles.errmsg}>
@@ -348,60 +396,31 @@ const Page = ({ length = 6, onComplete }) => {
                 }
               </div>
             </div>
-            <div className='' style={{ marginTop: "8px" }}>
-              <PhoneInput
-                className="border outline-none bg-white"
-                country={countryCode} // Default country
-                value={userPhoneNumber}
-                onChange={handlePhoneNumberChange}
-                onFocus={getLocation}
-                placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
-                disabled={loading} // Disable input if still loading
-                style={{ borderRadius: "7px" }}
-                inputStyle={{
-                  width: "100%",
-                  borderWidth: "0px",
-                  backgroundColor: "transparent",
-                  paddingLeft: "60px",
-                  paddingTop: "12px",
-                  paddingBottom: "12px",
-                }}
-                buttonStyle={{
-                  border: "none",
-                  backgroundColor: "transparent",
-                }}
-                dropdownStyle={{
-                  maxHeight: "150px",
-                  overflowY: "auto",
-                }}
-                countryCodeEditable={true}
-                defaultMask={locationLoader ? "Loading..." : undefined}
-              />
-            </div>
-            {
-              loginLoader ?
-                <div className='flex flex-row justify-center mt-4'>
-                  <CircularProgress size={30} />
-                </div> :
-                <button className='text-white h-[50px] w-full bg-purple rounded-xl mt-4' style={{ fontSize: 16, fontWeight: "600" }} onClick={() => { setShowVerifyPopup(true) }}>
-                  Continue
-                </button>
-            }
-            <div className='flex flex-row items-center gap-2 mt-4' style={{ fontWeight: "500", fontSize: 16 }}>
+
+            <div className='flex flex-row items-center justify-center gap-1 mt-[40px]' style={{ fontWeight: "500", fontSize: 15 }}>
               <div>
                 Donot have an account?
               </div>
-              <button className='text-purple' onClick={() => { router.push("/onboarding") }}>
+              <button className='' onClick={() => { router.push("/onboarding") }} style={{ fontWeight: "bold", fontSize: 15 }}>
                 Sign Up
               </button>
             </div>
 
-            <div className='mt-6' style={{ fontWeight: "500", fontSize: 11.6 }}>
-              {`By signing up to the AgentX platform you understand and agree to our Terms and Conditions and Privacy Policy. This site is protected by Google reCAPTCHA to ensure you’re not a bot. Learn more`}
-            </div>
-
           </div>
         </div>
+
+        <div className='mt-6 h-[10%] flex flex-row items-end justify-end w-10/12 gap-2' style={{ fontWeight: "500", fontSize: 11.6 }}>
+          <div>
+            Copyrights @ 2024 MyAgentX. All Rights Reserved.
+          </div>
+          <div>
+            | Terms of Service
+          </div>
+          <div>
+            | Privacy Policy
+          </div>
+        </div>
+
       </div>
 
       {/* Modals code goes here */}

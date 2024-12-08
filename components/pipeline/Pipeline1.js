@@ -164,6 +164,7 @@ const Pipeline1 = ({ handleContinue }) => {
             if (response) {
                 console.log("Response of getPipelines api is :--", response.data.data);
                 setPipelinesDetails(response.data.data);
+                setSelectPipleLine(response.data.data[0].title);
                 setSelectedPipelineItem(response.data.data[0]);
                 setSelectedPipelineStages(response.data.data[0].stages);
                 setOldStages(response.data.data[0].stages);

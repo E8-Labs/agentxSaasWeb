@@ -1,0 +1,17 @@
+/* Ensure the Tagify container can grow with content */
+.tagify {
+    display: block; /* Ensure the container behaves like a block element */
+    width: 100%; /* Set the width */
+    padding: 8px; /* Optional padding for better spacing */
+    box-sizing: border-box; /* Include padding in the element's dimensions */
+}
+
+.tagify__input {
+    width: 100%; /* Make the input take full width */
+    min-height: 36px; /* Ensure the input has a minimum height */
+    resize: none; /* Prevent resizing if using a textarea-like input */
+}
+
+.tagify__input:focus {
+    outline: none; /* Remove focus outline for a cleaner look */
+}

@@ -11,7 +11,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css'; // Import default styles
 import CalendarInput from '@/components/test/DatePicker';
 
-const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
+const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, shouldSet }) => {
 
     const bottomRef = useRef(null);
     const [initialLoader, setInitialLoader] = useState(false);
@@ -102,6 +102,13 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
         // getLeads();
         getSheets();
     }, []);
+
+    useEffect(() => {
+        if (shouldSet === true) {
+            console.log("Adding the new sheet is:", newListAdded)
+            setSheetsList([...SheetsList, newListAdded]);
+        }
+    }, [shouldSet]);
 
     useEffect(() => {
         console.log("Current leads list is :", LeadsList);
@@ -356,7 +363,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
     //         return FilterLeads.map((item) => `${item.firstName} ${item.lastName}`);
     //     }
     //     // For other columns
-    //     return FilterLeads.map((item) => item[title] || "N/A");
+    //     return FilterLeads.map((item) => item[title] || "-");
     // };
 
     //function for getting the sheets
@@ -397,13 +404,17 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                     </div>
                 );
             case "Date":
-                return item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "N/A";
+                return item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "-";
+            case "Phone":
+                return item.phone ? item.phone : "-";
+            case "stage":
+                return item.stage ? item.stage : "-";
             case "More":
                 return (
                     <button
                         className="underline text-purple"
                         onClick={() => {
-                            // console.log("It is ", item)
+                            console.log("It is ", item)
                             setSelectedLeadsDetails(item); // Pass selected lead data
                             setShowDetailsModal(true); // Show modal
                         }}
@@ -412,7 +423,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                     </button>
                 );
             default:
-                return item[title] || "N/A"; // Match dynamically by converting title to lowercase
+                return item[title] || "-"; // Match dynamically by converting title to lowercase
         }
     };
 
@@ -554,6 +565,8 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                 if (response.data.status === true) {
                     setSheetsList([...SheetsList, response.data.data]);
                     setShowAddNewSheetModal(false);
+                    setInputs([{ id: 1, value: 'First Name' }, { id: 2, value: 'Last Name' }, { id: 3, value: 'Phone Number' }, { id: 4, value: '' }, { id: 5, value: '' }, { id: 6, value: '' }]);
+                    setNewSheetName("");
                 }
             }
 
@@ -1073,7 +1086,11 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                                     <div style={{ fontWeight: "500", fontSize: 15 }}>
                                                         New SmartList
                                                     </div>
-                                                    <button onClick={() => { setShowAddNewSheetModal(false) }}>
+                                                    <button onClick={() => {
+                                                        setShowAddNewSheetModal(false);
+                                                        setNewSheetName("");
+                                                        setInputs([{ id: 1, value: 'First Name' }, { id: 2, value: 'Last Name' }, { id: 3, value: 'Phone Number' }, { id: 4, value: '' }, { id: 5, value: '' }, { id: 6, value: '' }])
+                                                    }}>
                                                         <Image src={"/assets/cross.png"} height={15} width={15} alt='*' />
                                                     </button>
                                                 </div>
@@ -1292,7 +1309,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                         </div>
                                     </div>
                                     <div className="text-end" style={styles.paragraph}>
-                                        {selectedLeadsDetails?.stage || "N/A"}
+                                        {selectedLeadsDetails?.stage || "-"}
                                     </div>
                                 </div>
 
@@ -1359,65 +1376,90 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads }) => {
                                     </div>*/}
 
                                 {
-                                    showKYCDetails && (
-                                        <div className='flex flex-row items-center justify-center h-[20vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
-                                            <div>
-                                                KYC Data collected from calls will be shown here
+                                    showKYCDetails && selectedLeadsDetails?.kycs.length < 1 ? (
+                                        <div className='flex flex-col items-center justify-center h-[20vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
+                                            <div className='h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'>
+                                                <Image src={"/assets/FAQ.png"} height={24} width={24} alt='*' />
                                             </div>
+                                            <div className='mt-4'>
+                                                <i style={{ fontWeight: "500", fontsize: 15 }}>
+                                                    KYC Data collected from calls will be shown here
+                                                </i>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className='w-full pb-12'>
+                                            <div style={{ fontWeight: "600", fontSize: 16.8 }}>
+                                                Know Your Customer
+                                            </div>
+                                            {
+                                                selectedLeadsDetails?.kycs.map((item, index) => {
+                                                    return (
+                                                        <div className='w-full flex flex-row gap-2 mt-2' key={index}>
+                                                            <div className='h-full' style={{ width: "2px", backgroundColor: "red" }}>
+                                                            </div>
+                                                            <div className='h-full w-full'>
+                                                                {/* <div className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
+                                                                    Outcome | <span style={{ fontWeight: "600", fontSize: 12 }} className='text-purple'>
+                                                                        {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
+                                                                    </span>
+                                                                </div> */}
+                                                                <div className='mt-4'
+                                                                    style={{
+                                                                        // border: "1px solid #00000020", padding: 10, borderRadius: 15
+                                                                    }}>
+                                                                    <div style={{ fontWeight: "500", fontSize: 13, color: "#00000060" }}>
+                                                                        {item.question}
+                                                                    </div>
+                                                                    <div className='mt-1' style={{ fontWeight: "500", fontSize: 15, }}>
+                                                                        {item.answer}
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                })
+                                            }
                                         </div>
                                     )
                                 }
 
                                 {
                                     showNotesDetails && (
-                                        <div className='flex flex-col items-center justify-center h-[20vh] w-full'>
-                                            <div style={{ fontWeight: "500", fontsize: 15 }}>
-                                                You can add and manage your notes here
+                                        <div className='flex flex-col items-center justify-center h-[20vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
+                                            <div className='h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'>
+                                                <Image src={"/assets/notes.png"} height={24} width={24} alt='*' />
                                             </div>
-                                            <button className='flex flex-row items-center gap-2 justify-center mt-4 outline-none'>
-                                                <Plus size={25} color='#7902DF' />
+                                            <div className='mt-4'>
+                                                <i style={{ fontWeight: "500", fontsize: 15 }}>
+                                                    You can add and manage your notes here
+                                                </i>
+                                            </div>
+                                            <div className='flex flex-row items-center gap-1 mt-2'>
+                                                <Plus size={17} color='#7902DF' weight='bold' />
                                                 <div className='text-purple'>
-                                                    Add Note
+                                                    Add Stage
                                                 </div>
-                                            </button>
+                                            </div>
                                         </div>
                                     )
                                 }
 
-                                {/* <div className='flex flex-row gap-2'>
-                                            <div className='h-full' style={{ width: "2px", backgroundColor: "red" }}>
-                                            </div>
-                                            <div className='h-full'>
-                                                <div className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                    Outcome | <span style={{ fontWeight: "600", fontSize: 12 }} className='text-purple'>Annas Ai</span>
-                                                </div>
-                                                <div className='mt-4'
-                                                    style={{
-                                                        border: "1px solid #00000020", padding: 10, borderRadius: 15
-                                                    }}>
-                                                    <div style={{ fontWeight: "500", fontSize: 12, color: "#00000060" }}>
-                                                        Transcript
-                                                    </div>
-                                                    <div>
-                                                        Lorem ipsum dolor sit amet consectetur. Dis est leo hendrerit placerat est sed non sed. Orci ornare commodo massa tempus nulla urna purus facilisis nisi. Maecenas hendrerit cum et ipsum. Magna varius odio potenti ridiculus pulvinar pellentesque
-                                                    </div>
-                                                    <div>
-                                                        <button className='mt-2 underline' style={styles.paragraph} //onClick={() => {}}
-                                                        >
-                                                            Read More
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                <div>
-
-                                                </div>
-                                            </div>
-                                                </div>*/}
 
                                 {
                                     showAcitivityDetails && (
-                                        <div className='flex flex-row items-center justify-center h-[20vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
-                                            All activities related to this lead will be shown here
+                                        <div className='flex flex-col items-center justify-center h-[20vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
+                                            <div className='h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'>
+                                                <Image src={"/assets/activityClock.png"} height={24} width={24} alt='*' />
+                                            </div>
+                                            <div className='mt-4'>
+                                                <i style={{ fontWeight: "500", fontsize: 15 }}>
+                                                    All activities related to this lead will be shown here
+                                                </i>
+                                            </div>
                                         </div>
                                     )
                                 }
