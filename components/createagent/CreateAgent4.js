@@ -352,9 +352,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
             const ApiPath = Apis.purchaseNumber;
             console.log("Apipath is :--", ApiPath);
-
+            // console.log("Number selected is:", selectedPurchasedNumber);
             const formData = new FormData();
-            formData.append("phoneNumber", "+14062040550");
+            formData.append("phoneNumber", selectedPurchasedNumber.phoneNumber);
+            // formData.append("phoneNumber", "+14062040550");
             formData.append("callbackNumber", "+14062040550");
             formData.append("mainAgentId", MyAgentData.id);
 
@@ -362,7 +363,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                 console.log(`${key} ${value} `);
             }
 
-            // return
+            return
 
             const response = await axios.post(ApiPath, formData, {
                 headers: {

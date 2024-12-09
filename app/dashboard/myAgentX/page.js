@@ -456,7 +456,7 @@ function Page() {
                         }}>
 
                           <div style={{ fontSize: 24, fontWeight: '600', color: '#000' }}>
-                            {item.name.slice(0, 1).toUpperCase(0)}{item.name.slice(1)}
+                            {item.name?.slice(0, 1).toUpperCase(0)}{item.name?.slice(1)}
                           </div>
                         </button>
                         <div style={{ fontSize: 12, fontWeight: '600', color: '#00000080' }} className='flex flex-row items-center gap-1'>
@@ -470,7 +470,7 @@ function Page() {
                             {item.agentObjective}
                           </div>
                           <div>
-                            | {item.agentType.slice(0, 1).toUpperCase(0)}{item.agentType.slice(1)}
+                            | {item.agentType?.slice(0, 1).toUpperCase(0)}{item.agentType?.slice(1)}
                           </div>
                         </div>
 
