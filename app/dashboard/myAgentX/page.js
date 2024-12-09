@@ -361,7 +361,7 @@ function Page() {
       if (item.agents && item.agents.length > 0) {
         for (let i = 0; i < item.agents.length; i++) {
           const agent = item.agents[i];
-          // console.log("Agent spilting data is:", agent);
+          console.log("Agent spilting data is:", agent);
           // Add a condition here if needed  //.agentType === 'outbound'
           if (agent) {
             setAgentsContent(prevState => [...prevState, agent]);
