@@ -338,7 +338,8 @@ const BuyerKycs = ({ handleContinue }) => {
             if (response) {
                 console.log("Response of add KYC api is :--", response.data);
                 if (response.data.status === true) {
-                    router.push("/pipeline")
+                    localStorage.setItem('agentDetails', JSON.stringify(response.data.data));
+                    router.push("/pipeline");
                 }
             }
 
@@ -390,12 +391,14 @@ const BuyerKycs = ({ handleContinue }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple flex flex-col justify-between'>
-                <div>
+            <div className='bg-white rounded-2xl w-10/12 h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple flex flex-col justify-between'>
+                <div className='h-[80vh]'>
                     {/* header */}
-                    <Header buyerKYC={true} />
+                    <div className='h-[10%]'>
+                        <Header buyerKYC={true} />
+                    </div>
                     {/* Body */}
-                    <div className='flex flex-col items-center px-4 w-full'>
+                    <div className='flex flex-col items-center px-4 w-full h-[90%]'>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
                             What would you like to ask buyers?
                         </div>
@@ -432,7 +435,7 @@ const BuyerKycs = ({ handleContinue }) => {
                         {
                             toggleClick === 1 ?
                                 (
-                                    <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                                    <div className='mt-8 w-10/12 md:w-6/12 max-h-[85%] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                         {
                                             needKYCQuestions.map((item, index) => (
                                                 <button
@@ -461,7 +464,7 @@ const BuyerKycs = ({ handleContinue }) => {
                                 ) :
                                 toggleClick === 2 ?
                                     (
-                                        <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                                        <div className='mt-8 w-10/12 md:w-6/12 max-h-[85%] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                             {
                                                 motivationKycQuestions.map((item, index) => (
                                                     <button
@@ -489,7 +492,7 @@ const BuyerKycs = ({ handleContinue }) => {
                                     ) :
                                     toggleClick === 3 ?
                                         (
-                                            <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                                            <div className='mt-8 w-10/12 md:w-6/12 max-h-[85%] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                                 {
                                                     urgencyKycQuestions.map((item, index) => (
                                                         <button
@@ -532,7 +535,7 @@ const BuyerKycs = ({ handleContinue }) => {
                             ))}
                         </div> */}
 
-                        <button className='mt-2 w-10/12 md:w-6/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
+                        <button className='mt-2 w-10/12 md:w-6/12 outline-none border-none justify-start flex text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
                             Add Question
                         </button>
                         {/* Modal */}
@@ -628,7 +631,7 @@ const BuyerKycs = ({ handleContinue }) => {
                         </Modal>
                     </div>
                 </div>
-                <div>
+                <div className='h-[10%]'>
                     <div>
                         <ProgressBar value={33} />
                     </div>

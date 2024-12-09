@@ -4,7 +4,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
     //console.log("Scroll Offset Parent ", scrollOffset)
     const [popupVisible, setPopupVisible] = useState(false);
     const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
-    const [options] = useState(["name", "address", "email", "phone"]);
+    const [options] = useState(["First Name", "Last Name", "address", "email", "phone"]);
     const [filteredOptions, setFilteredOptions] = useState(options);
     const [text, setText] = useState("");
     const [cursorPosition, setCursorPosition] = useState(0);

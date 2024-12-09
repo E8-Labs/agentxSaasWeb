@@ -66,42 +66,42 @@ const UserType = ({ handleContinue, DefaultData }) => {
         {
             id: 1,
             title: "Real Estate Agent",
-            icon: "/usertype/realStateAgent.png"
+            icon: "/usertype/avt1.png"
         },
         {
             id: 2,
             title: "Sales Dev Rep",
-            icon: "/usertype/salesDev.png"
+            icon: "/usertype/avt2.png"
         },
         {
             id: 3,
             title: "Solar Rep",
-            icon: "/usertype/home.png"
+            icon: "/usertype/avt3.png"
         },
         {
             id: 4,
             title: "Insurance Agent",
-            icon: "/usertype/insurance.png"
+            icon: "/usertype/avt4.png"
         },
         {
             id: 5,
             title: "Marketer",
-            icon: "/usertype/marketer.png"
+            icon: "/usertype/avt5.png"
         },
         {
             id: 6,
             title: "Website Owners",
-            icon: "/usertype/websiteagent.png"
+            icon: "/usertype/avt7.png"
         },
         {
             id: 7,
             title: "Recuiter Agent",
-            icon: "/usertype/recruiter.png"
+            icon: "/usertype/avt8.png"
         },
         {
             id: 8,
             title: "Tax Agent",
-            icon: "/usertype/taxAgent.png"
+            icon: "/usertype/avt9.png"
         },
     ];
 
@@ -123,16 +123,16 @@ const UserType = ({ handleContinue, DefaultData }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl w-9/12 h-[90vh] py-4 flex flex-col ' style={{ scrollbarWidth: "none" }}>
+            <div className='bg-white rounded-2xl w-10/12 h-[90%] py-4 flex flex-col ' style={{ scrollbarWidth: "none" }}>
 
-                <div className='flex flex-col items-center h-[80vh]'>
+                <div className='flex flex-col items-center h-[73vh]'>
                     {/* header */}
-                    <div className='w-full'>
+                    <div className='w-full h-[10%]' onClick={handleContinue}>
                         <Header />
                     </div>
 
                     {/* Body */}
-                    <div className='flex flex-col items-center px-4 w-full'>
+                    <div className='flex flex-col items-center px-4 w-full h-[90%]'>
                         <div className='mt-4 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
                             Which AgentX will you build?
                         </div>
@@ -141,13 +141,13 @@ const UserType = ({ handleContinue, DefaultData }) => {
                             Scale your salesforce. Handle any business use case. With AgentX,<br></br>you can quickly build an AI agent in minutes.
                         </div>
 
-                        <div className='flex flex-wrap md:w-11/12 sm:w-3/6 lg:w-7/12 mt-8 h-[50vh] overflow-auto' style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "none" }}>
+                        <div className='flex flex-wrap md:w-11/12 sm:w-3/6 lg:w-7/12 mt-8 h-[80%] overflow-auto' style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "none" }}>
                             {
                                 userType.map((item, index) => (
                                     <div key={item.id} className='flex w-4/12 p-2'>
                                         <button className='w-full border rounded-lg p-2' onClick={(e) => { handleUserType(item) }} style={{ border: item.id === SelectUserType ? "2px solid #7902DF" : "" }}>
-                                            <div className='h-[198px] bg-gray-200 rounded w-full flex flex-col justify-end pb-[10px] items-center' style={{ backgroundColor: "#FAF9FF" }}>
-                                                <img src={item.icon} style={{ width: "70%", resize: "contain" }} alt='*' />
+                                            <div className='h-[198px] bg-gray-200 rounded w-full flex flex-col justify-center pb-[10px] items-center' style={{ backgroundColor: "#FAF9FF" }}>
+                                                <img src={item.icon} style={{ width: index > 1 ? "50%" : "90%", resize: "contain" }} alt='*' />
                                             </div>
                                             <div className='text-center mt-2 pb-4' style={{ fontWeight: "600", fontSize: 17 }}>
                                                 {item.title}
@@ -159,51 +159,10 @@ const UserType = ({ handleContinue, DefaultData }) => {
                         </div>
 
 
-                        {/* Modals code goes here */}
-                        <Modal
-                            open={ShowModal}
-                            onClose={() => setShowModal(false)}
-                            closeAfterTransition
-                            BackdropProps={{
-                                timeout: 1000,
-                                sx: {
-                                    backgroundColor: "#00000040",
-                                    // backdropFilter: "blur(20px)",
-                                },
-                            }}
-                        >
-                            <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.modalsStyle}>
-                                <div className="flex flex-row justify-center w-full">
-                                    <div
-                                        className="w-full"
-                                        style={{
-                                            backgroundColor: "#ffffff",
-                                            padding: 20,
-                                            borderRadius: "13px",
-                                        }}
-                                    >
-                                        <div className='flex flex-row justify-end'>
-                                            <button onClick={() => { setShowModal(false) }}>
-                                                <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
-                                            </button>
-                                        </div>
-                                        <div className='text-center mt-2 mb-4' style={{ fontWeight: "700", fontSize: 24 }}>
-                                            Comming Soon ....
-                                        </div>
-
-
-                                        {/* Can be use full to add shadow */}
-                                        {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-                                    </div>
-                                </div>
-                            </Box>
-                        </Modal>
-
-
                     </div>
                 </div>
 
-                <div className='h-[10vh]'>
+                <div className='h-[10%]'>
                     <div>
                         <ProgressBar value={value} />
                     </div>
@@ -212,6 +171,47 @@ const UserType = ({ handleContinue, DefaultData }) => {
                         <Footer handleContinue={handleNext} donotShowBack={true} shouldContinue={shouldContinue} />
                     </div>
                 </div>
+
+
+                {/* Modals code goes here */}
+                <Modal
+                    open={ShowModal}
+                    onClose={() => setShowModal(false)}
+                    closeAfterTransition
+                    BackdropProps={{
+                        timeout: 1000,
+                        sx: {
+                            backgroundColor: "#00000040",
+                            // backdropFilter: "blur(20px)",
+                        },
+                    }}
+                >
+                    <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.modalsStyle}>
+                        <div className="flex flex-row justify-center w-full">
+                            <div
+                                className="w-full"
+                                style={{
+                                    backgroundColor: "#ffffff",
+                                    padding: 20,
+                                    borderRadius: "13px",
+                                }}
+                            >
+                                <div className='flex flex-row justify-end'>
+                                    <button onClick={() => { setShowModal(false) }}>
+                                        <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                    </button>
+                                </div>
+                                <div className='text-center mt-2 mb-4' style={{ fontWeight: "700", fontSize: 24 }}>
+                                    Comming Soon ....
+                                </div>
+
+
+                                {/* Can be use full to add shadow */}
+                                {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                            </div>
+                        </div>
+                    </Box>
+                </Modal>
 
             </div>
         </div>

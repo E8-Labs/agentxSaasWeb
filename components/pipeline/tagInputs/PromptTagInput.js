@@ -12,7 +12,7 @@ export const PromptTagInput = ({
     // console.log("Scroll Offset Parent ", scrollOffset)
     const [popupVisible, setPopupVisible] = useState(false);
     const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
-    const [options] = useState(["name", "address", "email", "phone"]);
+    const [options] = useState(["First Name", "Last Name", "address", "email", "phone"]);
     const [filteredOptions, setFilteredOptions] = useState(options);
     const [text, setText] = useState("");
     const [cursorPosition, setCursorPosition] = useState(0);
@@ -355,7 +355,8 @@ export const PromptTagInput = ({
                     onClick={() => { setShowScriptModal(true) }}
                     placeholder="Type here..."
                     value={text}
-                    onChange={handleChange}
+                    readOnly
+                    // onChange={handleChange}
                     style={{
                         fontSize: "16px",
                         width: "100%",
@@ -378,6 +379,7 @@ export const PromptTagInput = ({
                         position: "absolute",
                         top: `${popupPosition.top}px`,
                         left: `${popupPosition.left}px`,
+                        height: '200px',
                         backgroundColor: "white",
                         border: "1px solid lightgray",
                         borderRadius: "5px",

@@ -1,4 +1,4 @@
-import { Alert, Box, CircularProgress, Fade, Modal, Popover, Snackbar, Typography } from '@mui/material';
+import { Alert, Box, CircularProgress, Fade, FormControl, InputLabel, MenuItem, Modal, Popover, Select, Snackbar, Typography } from '@mui/material';
 import { CaretDown, CaretUp, DotsThree, Plus } from '@phosphor-icons/react'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
@@ -68,7 +68,26 @@ const Pipeline1 = () => {
     //dele stage loader
     const [selectedStage, setSelectedStage] = useState(null);
     const [delStageLoader, setDelStageLoader] = useState(false);
+    const [delStageLoader2, setDelStageLoader2] = useState(false);
+    const [showDelStageModal, setShowDelStageModal] = useState(false);
     const [SuccessSnack, setSuccessSnack] = useState(null);
+    //code for dropdown stages when delstage
+    const [assignNextStage, setAssignNextStage] = useState('');
+    const [assignNextStageId, setAssignNextStageId] = useState('');
+
+    const handleChangeNextStage = (event) => {
+        let value = event.target.value;
+        // console.log("Value to set is :", value);
+        setAssignNextStage(event.target.value);
+
+        const selectedItem = StagesList.find(
+            (item) => item.stageTitle === value
+        );
+        setAssignNextStageId(selectedItem.id);
+
+        console.log("Selected inext stage is:", selectedItem);
+
+    };
     //renaame the stage
     const [showRenamePopup, setShowRenamePopup] = useState(false);
     const [renameStage, setRenameStage] = useState("");
@@ -324,9 +343,15 @@ const Pipeline1 = () => {
     }
 
     //code ford deleting the stage
-    const handleDeleteStage = async () => {
+    const handleDeleteStage = async (value) => {
         try {
-            setDelStageLoader(true);
+            if (value === "del2") {
+                console.log("Loader 2", value)
+                setDelStageLoader2(true);
+            } else if (value === "del") {
+                console.log("Loader 1", value);
+                setDelStageLoader(true);
+            }
             const localData = localStorage.getItem("User");
             let AuthToken = null;
             if (localData) {
@@ -339,15 +364,27 @@ const Pipeline1 = () => {
 
             const ApiData = {
                 pipelineId: SelectedPipeline.id,
-                stageId: selectedStage.id
+                stageId: selectedStage.id,
+                moveToStageId: assignNextStageId
             }
 
-            console.log("Api dta is:", ApiData);
+            const formData = new FormData();
+            formData.append("pipelineId", SelectedPipeline.id);
+            formData.append("stageId", selectedStage.id);
+            if (assignNextStageId) {
+                formData.append("moveToStage", assignNextStageId);
+            }
 
+            for (let[key, value] of formData) {
+                console.log(`${key}, ${value}`)
+                
+            }
+
+            // return
             const ApiPath = Apis.deleteStage;
             console.log("Apipath is:", ApiPath);
 
-            const response = await axios.post(ApiPath, ApiData, {
+            const response = await axios.post(ApiPath, formData, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken,
                     "Content-Type": "application/json"
@@ -360,6 +397,7 @@ const Pipeline1 = () => {
                     setStagesList(response.data.data.stages);
                     setSuccessSnack(response.data.message);
                     setStageAnchorel(null);
+                    setShowDelStageModal(false);
                 }
             }
 
@@ -367,6 +405,7 @@ const Pipeline1 = () => {
             console.error("Error occured in delstage api is:", error);
         } finally {
             setDelStageLoader(false);
+            setDelStageLoader2(false);
         }
     }
 
@@ -962,14 +1001,16 @@ const Pipeline1 = () => {
                                                 </button>
                                             </div>
                                             <div className='w-full flex flex-row mt-4'>
-                                                {
-                                                    delStageLoader ?
-                                                        <CircularProgress size={20} /> :
-                                                        <button className='text-red flex flex-row items-center gap-4 me-2 outline-none' style={styles.paragraph} onClick={handleDeleteStage}>
-                                                            <Image src={"/assets/delIcon.png"} height={18} width={18} alt='*' />
-                                                            Delete
-                                                        </button>
-                                                }
+                                                <button
+                                                    className='text-red flex flex-row items-center gap-4 me-2 outline-none'
+                                                    style={styles.paragraph}
+                                                    onClick={() => {
+                                                        console.log("Selected stage is:", selectedStage);
+                                                        setShowDelStageModal(true);
+                                                    }}>
+                                                    <Image src={"/assets/delIcon.png"} height={18} width={18} alt='*' />
+                                                    Delete
+                                                </button>
                                             </div>
                                         </div>
                                     </Popover>
@@ -1343,6 +1384,144 @@ const Pipeline1 = () => {
                                 >
                                     Add & Close
                                 </button>
+                        }
+
+
+                    </div>
+                </Box>
+            </Modal>
+
+            {/* Modal to delete stage */}
+            <Modal
+                open={showDelStageModal}
+                onClose={() => {
+                    setShowDelStageModal(false);
+                    handleCloseStagePopover();
+                }}
+            >
+                <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
+                    <div style={{ width: "100%", }}>
+
+                        <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                            <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                {/* <div style={{ width: "20%" }} /> */}
+                                <div style={{ fontWeight: "700", fontSize: 22 }}>
+                                    Delete Stage
+                                </div>
+                                <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
+                                    <button onClick={() => {
+                                        setShowDelStageModal(false);
+                                        handleCloseStagePopover();
+                                    }} className='outline-none'>
+                                        <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className='mt-6' style={{
+                                fontWeight: "500", fontSize: 15
+                            }}>
+                                This stage has leads associated with it. Move this lead to another stage before deleting.
+                            </div>
+
+                            <div className='mt-6' style={{
+                                fontWeight: "700", fontSize: 15
+                            }}>
+                                Move to
+                            </div>
+
+                            <FormControl fullWidth>
+                                <Select
+                                    id="demo-simple-select"
+                                    value={assignNextStage || ""} // Default to empty string when no value is selected
+                                    onChange={handleChangeNextStage}
+                                    displayEmpty // Enables placeholder
+                                    renderValue={(selected) => {
+                                        if (!selected) {
+                                            return <div style={{ color: "#aaa" }}>Select Stage</div>; // Placeholder style
+                                        }
+                                        return selected;
+                                    }}
+                                    sx={{
+                                        border: "1px solid #00000020", // Default border
+                                        "&:hover": {
+                                            border: "1px solid #00000020", // Same border on hover
+                                        },
+                                        "& .MuiOutlinedInput-notchedOutline": {
+                                            border: "none", // Remove the default outline
+                                        },
+                                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                            border: "none", // Remove outline on focus
+                                        },
+                                        "&.MuiSelect-select": {
+                                            py: 0, // Optional padding adjustments
+                                        },
+                                    }}
+                                    MenuProps={{
+                                        PaperProps: {
+                                            style: {
+                                                maxHeight: "30vh", // Limit dropdown height
+                                                overflow: "auto", // Enable scrolling in dropdown
+                                                scrollbarWidth: "none"
+                                            },
+                                        },
+                                    }}
+                                >
+                                    {
+                                        StagesList.map((stage, index) => {
+                                            return (
+                                                <MenuItem
+                                                    key={index}
+                                                    value={stage.stageTitle}
+                                                    disabled={stage.id <= selectedStage?.id}
+                                                >
+                                                    {stage.stageTitle}
+                                                </MenuItem>
+                                            )
+                                        })
+                                    }
+                                </Select>
+                            </FormControl>
+
+
+
+                        </div>
+
+                        {
+                            delStageLoader2 ?
+                                <div className='flex flex-row iems-center justify-center w-full mt-10'>
+                                    <CircularProgress size={25} />
+                                </div> :
+                                <button
+                                    className='mt-10 outline-none bg-purple'
+                                    style={{
+                                        color: "white",
+                                        height: "50px", borderRadius: "10px", width: "100%",
+                                        fontWeight: 600, fontSize: '20'
+                                    }}
+                                    onClick={(e) => { handleDeleteStage("del2") }}
+                                >
+                                    Delete
+                                </button>
+                        }
+
+                        {
+                            delStageLoader ?
+                                <div className='flex flex-row iems-center justify-center w-full mt-4'>
+                                    <CircularProgress size={25} />
+                                </div> :
+                                <div className='flex flex-row iems-center justify-center w-full'>
+                                    <button
+                                        className='mt-2 outline-none'
+                                        style={{
+                                            color: "#00000080",
+                                            fontWeight: "500", fontSize: 15, borderBottom: "1px solid #00000080"
+                                        }}
+                                        onClick={(e) => { handleDeleteStage("del") }}
+                                    >
+                                        Delete without moving
+                                    </button>
+                                </div>
                         }
 
 

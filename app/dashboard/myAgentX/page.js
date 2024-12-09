@@ -38,6 +38,7 @@ function Page() {
   const [selectedAgent, setSelectedAgent] = useState(null);
   //del loader
   const [DelLoader, setDelLoader] = useState(false);
+  const [delAgentModal, setDelAgentModal] = useState(false);
 
   //code for testing the ai
   let callScript = null;
@@ -89,6 +90,7 @@ function Page() {
         console.log("Response of del agent api is:", response);
         setAgentsContent(agentsContent.filter((item) => item.id !== showDrawer.id));
         setShowDrawer(null);
+        setDelAgentModal(false);
       }
 
     } catch (error) {
@@ -901,23 +903,17 @@ function Page() {
                 </div>
               </div>
             </div>
-            {
-              DelLoader ?
-                <div>
-                  <CircularProgress size={20} />
-                </div> :
-                <button className='flex flex-row gap-2 items-center' onClick={() => { handleDeleteAgent() }}>
-                  <Image src={'/otherAssets/redDeleteIcon.png'}
-                    height={24}
-                    width={24}
-                    alt='del'
-                  />
+            <button className='flex flex-row gap-2 items-center' onClick={() => { setDelAgentModal(true) }}>
+              <Image src={'/otherAssets/redDeleteIcon.png'}
+                height={24}
+                width={24}
+                alt='del'
+              />
 
-                  <div style={{ fontSize: 15, fontWeight: '600', color: 'red', textDecorationLine: 'underline' }}>
-                    Delete Agent
-                  </div>
-                </button>
-            }
+              <div style={{ fontSize: 15, fontWeight: '600', color: 'red', textDecorationLine: 'underline' }}>
+                Delete Agent
+              </div>
+            </button>
           </div>
 
 
@@ -1147,6 +1143,67 @@ function Page() {
 
         </div>
       </Drawer>
+
+      <Modal
+        open={delAgentModal}
+        onClose={() => {
+          setDelAgentModal(false);
+        }}
+      >
+        <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
+          <div style={{ width: "100%", }}>
+
+            <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+              <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                {/* <div style={{ width: "20%" }} /> */}
+                <div style={{ fontWeight: "500", fontSize: 17 }}>
+                  Delete Agent
+                </div>
+                <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
+                  <button onClick={() => {
+                    setDelAgentModal(false);
+                  }} className='outline-none'>
+                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                  </button>
+                </div>
+              </div>
+
+              <div className='mt-6' style={{ fontWeight: "700", fontSize: 22 }}>
+                This is irreversible. Are you sure?
+              </div>
+
+
+            </div>
+
+            <div className='flex flex-row items-center gap-4 mt-6'>
+              <button className='w-1/2'>
+                Cancel
+              </button>
+              <div className='w-1/2'>
+                {
+                  DelLoader ?
+                    <div className='flex flex-row iems-center justify-center w-full mt-4'>
+                      <CircularProgress size={25} />
+                    </div> :
+                    <button
+                      className='mt-4 outline-none bg-red'
+                      style={{
+                        color: "white",
+                        height: "50px", borderRadius: "10px", width: "100%",
+                        fontWeight: 600, fontSize: '20'
+                      }}
+                      onClick={handleDeleteAgent}
+                    >
+                      Yes! Delete
+                    </button>
+                }
+              </div>
+            </div>
+
+
+          </div>
+        </Box>
+      </Modal>
 
     </div >
   )

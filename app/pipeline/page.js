@@ -28,13 +28,13 @@ const Page = () => {
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center",
         width: "100%",
-        height: "100svh",
+        height: "100vh",
         overflow: "none",
         // backgroundColor: 'red'
     };
 
     return (
-        <div style={backgroundImage} className="overflow-y-none flex flex-row justify-center items-center">
+        <div style={{...backgroundImage}} className="overflow-y-none flex flex-row justify-center items-center" >
             <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
         </div>
         // <div className='w-full h-screen' style={{display: "flex", flexDirection: "row", justifyContent: "center", alignItems:" center" }}>

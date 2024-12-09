@@ -6,7 +6,7 @@ import ProgressBar from '@/components/onboarding/ProgressBar';
 import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
 import { Box, FormControl, MenuItem, Modal, Popover, Select, TextField, Typography } from '@mui/material';
-import { CaretDown, CaretUp, DotsThree } from '@phosphor-icons/react';
+import { CaretDown, CaretUp, DotsThree, Plus } from '@phosphor-icons/react';
 import Apis from '../apis/Apis';
 import axios from 'axios';
 import TagInput from '../test/TagInput';
@@ -19,6 +19,8 @@ import CallScriptTag from './tagInputs/CallScriptTag';
 import DynamicDropdown from '../test/DynammicTagField';
 import { PromptTagInput } from './tagInputs/PromptTagInput';
 import { GreetingTagInput } from './tagInputs/GreetingTagInput';
+import ReactMentions from '../test/ReactMentions';
+import DraftMentions from '../test/DraftMentions';
 
 const Pipeline2 = ({ handleContinue, handleBack }) => {
     const containerRef = useRef(null); // Ref to the scrolling container
@@ -49,6 +51,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     const [showObjectiveDetail, setShowObjectiveDetails] = useState(false);
     const [columnloader, setColumnloader] = useState(false);
     const [uniqueColumns, setUniqueColumns] = useState([]);
+    const [showMoreUniqueColumns, setShowMoreUniqueColumns] = useState(false);
 
     // const handleInputChange = (e) => {
     //     const value = e.target.value;
@@ -172,7 +175,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     const [promptCursorPosition, setPromptCursorPosition] = useState(0);
     const textFieldRef = useRef(null); // Reference to the TextField element
     //console.log("Tag value is :", scriptTagInput);
-
+    console.log("Window current height is:", window.innerHeight);
     const tags1 = ['name', 'Agent Name', 'Brokerage Name', 'Client Name'];
 
 
@@ -275,6 +278,11 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         } finally {
             setColumnloader(false)
         }
+    }
+
+    //code for showing more unique columns
+    const handleShowUniqueCols = () => {
+        setShowMoreUniqueColumns(!showMoreUniqueColumns);
     }
 
 
@@ -563,15 +571,44 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                         You can use these variables:
                                     </div>
                                     {/* <div className='flex flex-row items-center gap-2'> */}
-                                        {
-                                            uniqueColumns.map((item, index) => (
-                                                <div key={index} className='flex flex-row items-center gap-2 text-purple'>
-                                                    {`{${item}}`},
-                                                </div>
-                                            ))
-                                        }
-                                    {/* </div> */}
                                     <div style={{ width: "fit-content" }} className='text-purple flex flex-row gap-2'>{`{first name}`}, {`{email}`}, {`{address}`},{`{phone}`},{`{kyc}`} </div>
+
+                                    {
+                                        uniqueColumns.length > 0 && showMoreUniqueColumns ?
+                                            <div className='flex flex-row flex-wrap gap-2'>
+                                                {
+                                                    uniqueColumns.map((item, index) => (
+                                                        <div key={index} className='flex flex-row items-center gap-2 text-purple'>
+                                                            {`{${item}}`},
+                                                        </div>
+                                                    ))
+                                                }
+                                                <button className='text-purple outline-none' onClick={handleShowUniqueCols}>
+                                                    show less
+                                                </button>
+                                            </div> :
+                                            <div>
+                                                {
+                                                    uniqueColumns.length > 0 && (
+                                                        <button
+                                                            className='text-purple flex flex-row items-center font-bold outline-none'
+                                                            onClick={() => {
+                                                                handleShowUniqueCols()
+                                                            }}
+                                                        >
+                                                            <Plus weight='bold' size={15}
+                                                                style={{
+                                                                    strokeWidth: 40, // Adjust as needed
+                                                                }}
+                                                            />
+                                                            {uniqueColumns.length}
+                                                        </button>
+                                                    )
+                                                }
+                                            </div>
+                                    }
+
+                                    {/* </div> */}
                                 </div>
                             </div>
                             <div>

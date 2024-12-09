@@ -69,22 +69,24 @@ const FocusArea = ({ handleContinue, handleBack, DefaultData }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl flex flex-col justify-between w-10/12 h-[90vh] py-4 ' style={{ scrollbarWidth: "none" }}//overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+            <div className='bg-white rounded-2xl flex flex-col justify-between w-10/12 h-[90%] py-4 ' style={{ scrollbarWidth: "none" }}//overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
             >
 
                 <div className='h-[80vh]'>
                     {/* header */}
-                    <Header />
+                    <div className='h-[10%]'>
+                        <Header />
+                    </div>
                     {/* Body */}
-                    <div className='flex flex-col items-center px-4 w-full'>
+                    <div className='flex flex-col items-center px-4 w-full h-[90%]'>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
                             What area of real estate do you focus on?
                         </div>
-                        <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[55vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+                        <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
 
                             {focusData.map((item, index) => (
                                 <button key={item.id} onClick={() => { handlefocusArea(item.id) }} className='border-none outline-none'>
-                                    <div className='border bg-white flex flex-row items-start pt-3 w-full h-[126px] rounded-2xl'
+                                    <div className='border bg-white flex flex-row items-start pt-3 w-full rounded-2xl'
                                         style={{
                                             border: focusArea.includes(item.id) ? "2px solid #7902DF" : "",
                                             scrollbarWidth: "none", backgroundColor: focusArea.includes(item.id) ? "#402FFF05" : ""
@@ -113,7 +115,7 @@ const FocusArea = ({ handleContinue, handleBack, DefaultData }) => {
                     </div>
                 </div>
 
-                <div className='mb-4 h-[8vh]'>
+                <div className='mb-4 h-[10%]'>
                     <div>
                         <ProgressBar value={60} />
                     </div>

@@ -93,14 +93,16 @@ const UserService = ({ handleContinue, DefaultData, handleBack }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl flex flex-col justify-between w-10/12 h-[90vh] py-4' style={{ scrollbarWidth: "none" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+            <div className='bg-white rounded-2xl flex flex-col justify-between w-10/12 h-[90%] py-4' style={{ scrollbarWidth: "none" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
             >
 
                 <div className='h-[82vh]'>
                     {/* header */}
-                    <Header />
+                    <div className='h-[10%]'>
+                        <Header />
+                    </div>
                     {/* Body */}
-                    <div className='flex flex-col items-center px-4 w-full'>
+                    <div className='flex flex-col items-center px-4 w-full h-[90%]'>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
                             What would you like AgentX to help you with?
                         </div>
@@ -110,11 +112,11 @@ const UserService = ({ handleContinue, DefaultData, handleBack }) => {
                                 <div className='mt-8'>
                                     <CircularProgress size={35} />
                                 </div> :
-                                <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[57vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+                                <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
 
                                     {servicesData.map((item, index) => (
                                         <button key={item.id} onClick={() => { handleserviceId(item.id) }} className='border-none outline-none'>
-                                            <div className='border bg-white flex flex-row items-start w-full h-[126px] rounded-2xl pt-3'
+                                            <div className='border bg-white flex flex-row items-start w-full rounded-2xl pt-3'
                                                 style={{
                                                     border: serviceId.includes(item.id) ? "2px solid #7902DF" : "", scrollbarWidth: "none",
                                                     backgroundColor: serviceId.includes(item.id) ? "#402FFF05" : ""
@@ -144,7 +146,7 @@ const UserService = ({ handleContinue, DefaultData, handleBack }) => {
                     </div>
                 </div>
 
-                <div className='mb-6 h-[12vh] flex flex-col justify-end'>
+                <div className='mb-6 h-[10%] flex flex-col justify-end'>
                     <div>
                         <ProgressBar value={33} />
                     </div>

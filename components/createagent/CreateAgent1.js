@@ -353,15 +353,17 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
             <div className=' rounded-2xl w-10/12 h-[90vh] flex flex-col items-center' style={{ scrollbarWidth: "none", backgroundColor: '#ffffff' }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
             >
 
-                <div className='w-full h-[78vh]'>
+                <div className='w-full h-[77vh]'>
                     {/* header */}
-                    <Header />
+                    <div className='h-[10%]'>
+                        <Header />
+                    </div>
                     {/* Body */}
-                    <div className='flex flex-col items-center px-4 w-full'>
+                    <div className='flex flex-col items-center px-4 w-full h-[90%]'>
                         <button className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }} onClick={handleContinue}>
                             Get started with your AI agent
                         </button>
-                        <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[59vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2' style={{ scrollbarWidth: "none" }}>
+                        <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[80%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2' style={{ scrollbarWidth: "none" }}>
 
                             <div style={styles.headingStyle} className='flex flex-row items-center gap-2'>
                                 {`What's your AI agent's name?`}
@@ -517,7 +519,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                     </div>
                 </div>
 
-                <div className='w-full h-[12vh]'>
+                <div className='w-full h-[10%]'>
                     <div>
                         <ProgressBar value={33} />
                     </div>
@@ -609,7 +611,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                     <div>
                                         <input
                                             className='w-full h-[50px] rounded-lg outline-none focus:ring-0'
-                                            style={{border: "1px solid #00000020"}}
+                                            style={{ border: "1px solid #00000020" }}
                                             placeholder="Enter location"
                                             value={addressValue}
                                             onChange={(evt) => {
