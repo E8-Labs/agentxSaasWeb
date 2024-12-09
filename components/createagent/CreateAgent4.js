@@ -356,14 +356,14 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             const formData = new FormData();
             formData.append("phoneNumber", selectedPurchasedNumber.phoneNumber);
             // formData.append("phoneNumber", "+14062040550");
-            formData.append("callbackNumber", "+14062040550");
+            // formData.append("callbackNumber", "+14062040550");
             formData.append("mainAgentId", MyAgentData.id);
 
             for (let [key, value] of formData.entries()) {
                 console.log(`${key} ${value} `);
             }
 
-            return
+            // return
 
             const response = await axios.post(ApiPath, formData, {
                 headers: {
@@ -378,6 +378,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
                     setOpenPurchaseSuccessModal(true);
                     // handleContinue();
+                    setSelectNumber(selectedPurchasedNumber.phoneNumber);
+                    setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
+                    setShowClaimPopup(false);
+                    setOpenCalimNumDropDown(false);
                 }
             }
 
@@ -861,7 +865,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                         <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
                                                     </button>
                                                 </div>
-                                                <PurchaseNumberSuccess handleContinue={handleContinue} />
+                                                <PurchaseNumberSuccess selectedNumber={selectedPurchasedNumber} handleContinue={() => { setOpenPurchaseSuccessModal(false) }} />
                                             </div>
                                         </div>
                                     </div>

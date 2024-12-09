@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
-const PurchaseNumberSuccess = ({ handleContinue }) => {
+const PurchaseNumberSuccess = ({ handleContinue, selectedNumber }) => {
 
     const [purchaseNumber, setPurchaseNumber] = useState(null);
 
@@ -55,7 +55,7 @@ const PurchaseNumberSuccess = ({ handleContinue }) => {
 
             <div className='flex flex-row justify-between items-center mt-12 w-full'>
                 <div style={styles.heading}>Number Choosen</div>
-                <div style={styles.details}>+341 (265) 383-7200</div>
+                <div style={styles.details}>{selectedNumber.phoneNumber}</div>
             </div>
 
             <div className='flex flex-row justify-between items-center mt-12 w-full'>
