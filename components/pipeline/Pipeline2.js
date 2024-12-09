@@ -571,7 +571,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                         You can use these variables:
                                     </div>
                                     {/* <div className='flex flex-row items-center gap-2'> */}
-                                    <div style={{ width: "fit-content" }} className='text-purple flex flex-row gap-2'>{`{first name}`}, {`{email}`}, {`{address}`},{`{phone}`},{`{kyc}`} </div>
+                                    <div style={{ width: "fit-content" }} className='text-purple flex flex-row gap-2'>{`{First Name}`}, {`{Email}`}, {`{Address}`},{`{Phone}`},{`{Kyc}`} </div>
 
                                     {
                                         uniqueColumns.length > 0 && showMoreUniqueColumns ?

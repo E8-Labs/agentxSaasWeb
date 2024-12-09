@@ -15,9 +15,9 @@ export const PromptTagInput = ({
   const [options] = useState([
     "First Name",
     "Last Name",
-    "address",
-    "email",
-    "phone",
+    "Address",
+    "Email",
+    "Phone",
   ]);
   const [filteredOptions, setFilteredOptions] = useState(options);
   const [text, setText] = useState("");
