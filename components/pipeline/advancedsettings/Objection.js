@@ -4,7 +4,7 @@ import axios from 'axios';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
 
-const Objection = () => {
+const Objection = ({ showTitle }) => {
 
   const [ObjectionsList, setObjectionsList] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
@@ -166,8 +166,24 @@ const Objection = () => {
     <div>
 
       {
+        showTitle && (
+          <div className='flex flex-row items-center justify-between mt-4 pb-3'>
+            <div style={{ fontWeight: "600", fontSize: 16.8 }}>
+              Objection
+            </div>
+            <button className='text-purple underline outline-none'
+              style={{ fontWeight: "500", fontSize: 15 }}
+              onClick={() => setShowAddObjForm(true)}
+            >
+              New Objection
+            </button>
+          </div>
+        )
+      }
+
+      {
         ObjectionsList.length > 0 ?
-          <div className='overflow-auto h-[40vh]' style={{ scrollbarWidth: "none" }}>
+          <div style={{ scrollbarWidth: "none", overflow: showTitle && "auto", maxHeight: showTitle ? "100%" : "40hv" }}>
             {ObjectionsList.map((item, index) => {
               return (
                 <div className='p-3 rounded-xl mt-4' key={index} style={{ border: "1px solid #00000020" }}>
@@ -194,16 +210,20 @@ const Objection = () => {
           </div>
       }
 
-      <button className='text-purple mt-4 outline-none'
-        style={{ fontWeight: "700", fontSize: 16 }}
-        onClick={() => setShowAddObjForm(true)}>
-        New Question
-      </button>
+      {
+        !showTitle && (
+          <button className='text-purple mt-4 outline-none'
+            style={{ fontWeight: "700", fontSize: 16 }}
+            onClick={() => setShowAddObjForm(true)}>
+            New Question
+          </button>
+        )
+      }
 
       {/* Modal for Adding new item in array */}
       <Modal
         open={showAddObjForm}
-        onClose={() => { setShowForm(false) }}
+        onClose={() => { setShowAddObjForm(false) }}
       >
         <Box sx={{ ...styles.modalsStyle, width: "50%", backgroundColor: 'white' }}>
           <div style={{ width: "100%", }}>

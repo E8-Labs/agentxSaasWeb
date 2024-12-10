@@ -451,7 +451,7 @@ export const PromptTagInput = ({
         }}
       >
         <input
-          className="outline-none rounded-xl focus:ring-0 border-none"
+          className="outline-none rounded-xl focus:ring-0 border-none w-full"
           onClick={() => {
             setShowScriptModal(true);
           }}

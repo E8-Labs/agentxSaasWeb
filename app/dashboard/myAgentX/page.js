@@ -10,6 +10,11 @@ import moment from 'moment';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import { GreetingTagInput } from '@/components/pipeline/tagInputs/GreetingTagInput';
+import { PromptTagInput } from '@/components/pipeline/tagInputs/PromptTagInput';
+import KYCs from '@/components/pipeline/KYCs';
+import Objection from '@/components/pipeline/advancedsettings/Objection';
+import GuarduanSetting from '@/components/pipeline/advancedsettings/GuardianSetting';
 
 function Page() {
 
@@ -39,6 +44,30 @@ function Page() {
   //del loader
   const [DelLoader, setDelLoader] = useState(false);
   const [delAgentModal, setDelAgentModal] = useState(false);
+  //code for view script
+  const [showScriptModal, setShowScriptModal] = useState(null);
+  const [showScript, setShowScript] = useState(false);
+  const [SeledtedScriptKYC, setSeledtedScriptKYC] = useState(false);
+  const [SeledtedScriptAdvanceSetting, setSeledtedScriptAdvanceSetting] = useState(false);
+  const [introVideoModal, setIntroVideoModal] = useState(false);
+  const [kycsData, setKycsData] = useState(null);
+  //greeting tag input
+  const [greetingTagInput, setGreetingTagInput] = useState('');
+  const [oldGreetingTagInput, setOldGreetingTagInput] = useState('');
+  const [scrollOffset, setScrollOffset] = useState({ scrollTop: 0, scrollLeft: 0 });
+  const containerRef = useRef(null); // Ref to the scrolling container
+  const [showSuccessSnack, setShowSuccessSnack] = useState(null);
+  const [testAIloader, setTestAIloader] = useState(false);
+  const [uniqueColumns, setUniqueColumns] = useState([]);
+  const [showMoreUniqueColumns, setShowMoreUniqueColumns] = useState(false);
+  const [showSaveChangesBtn, setShowSaveChangesBtn] = useState(false);
+
+  //agent KYC's
+  const [kYCList, setKYCList] = useState([]);
+
+  //prompt tag input
+  const [scriptTagInput, setScriptTagInput] = useState('');
+
 
   //code for testing the ai
   let callScript = null;
@@ -48,8 +77,123 @@ function Page() {
   const [scriptKeys, setScriptKeys] = useState([]);
   //variable for input field value
   const [inputValues, setInputValues] = useState({});
-  const [showSuccessSnack, setShowSuccessSnack] = useState(null);
-  const [testAIloader, setTestAIloader] = useState(false);
+
+  //code for scroll ofset
+  useEffect(() => {
+    getUniquesColumn();
+    ////console.log("Setting scroll offset")
+    const handleScroll = () => {
+      console.log("Div scrolled", containerRef.current.scrollTop)
+      if (containerRef.current) {
+        setScrollOffset({
+          scrollTop: containerRef.current.scrollTop,
+          scrollLeft: containerRef.current.scrollLeft,
+        });
+      }
+      else {
+        ////console.log("No ref div")
+      }
+    };
+
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      if (container) {
+        container.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, []);
+
+  //check if need to show the save btn or not
+  useEffect(() => {
+    console.log("Olde tag length", oldGreetingTagInput.length)
+    console.log("olde tag 2 length", greetingTagInput.length)
+    console.log("olde tag 3 length", scriptTagInput.length)
+    if (oldGreetingTagInput !== greetingTagInput) {
+      console.log(greetingTagInput);
+      console.log(oldGreetingTagInput)
+      console.log("not same")
+      setShowSaveChangesBtn(true);
+    } else {
+      console.log("hde save")
+      setShowSaveChangesBtn(false);
+    }
+  }, [greetingTagInput, scriptTagInput]);
+
+  //function for scripts modal screen change
+  const handleShowScript = () => {
+    setShowScript(true);
+    setSeledtedScriptKYC(false);
+    setSeledtedScriptAdvanceSetting(false);
+  }
+
+  const handleShowKycs = () => {
+    setShowScript(false);
+    setSeledtedScriptKYC(true);
+    setSeledtedScriptAdvanceSetting(false);
+  }
+
+  const handleShowAdvanceSeting = () => {
+    setShowScript(false);
+    setSeledtedScriptKYC(false);
+    setSeledtedScriptAdvanceSetting(true);
+  }
+
+  //function ot compare the selected agent wiith the main agents list
+  const matchingAgent = (agent) => {
+    const agentData = userDetails.filter((prevAgent) => prevAgent.name === agent.name);
+    console.log("Agent matcing grretings are:", agentData);
+    setKYCList(agentData[0].kyc);
+    setGreetingTagInput(agentData[0].greeting);
+    setOldGreetingTagInput(agentData[0].greeting);
+    setScriptTagInput(agentData[0].callScript);
+  }
+
+
+  //code for getting uniqueCcolumns
+  const getUniquesColumn = async () => {
+    try {
+      // setColumnloader(true);
+      const localData = localStorage.getItem("User");
+      let AuthToken = null;
+      if (localData) {
+        const UserDetails = JSON.parse(localData);
+        AuthToken = UserDetails.token;
+      }
+
+      ////console.log("Auth token is :--", AuthToken);
+
+      const ApiPath = Apis.uniqueColumns;
+      ////console.log("Api path is ", ApiPath);
+
+      const response = await axios.get(ApiPath, {
+        headers: {
+          "Authorization": "Bearer " + AuthToken,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        console.log("Response of getColumns api is:", response.data);
+        if (response.data.status === true) {
+          setUniqueColumns(response.data.data);
+        }
+      }
+
+    } catch (error) {
+      console.error("Error occured in getColumn is :", error);
+    } finally {
+      // setColumnloader(false)
+    }
+  }
+
+  ///code to show more unique columns
+  const handleShowUniqueCols = () => {
+    setShowMoreUniqueColumns(!showMoreUniqueColumns);
+  }
 
   //function to handle input field change
   const handleInputChange = (index, value) => {
@@ -522,7 +666,11 @@ function Page() {
 
                       </div>
                       <div className='flex flex-row gap-3 items-center text-purple' style={{ fontSize: 15, fontWeight: '500' }}>
-                        <button>
+                        <button onClick={() => {
+                          setShowScriptModal(item);
+                          matchingAgent(item);
+                          setShowScript(true);
+                        }}>
                           <div>
                             View Script
                           </div>
@@ -1146,6 +1294,7 @@ function Page() {
         </div>
       </Drawer>
 
+      {/* Code to del agent */}
       <Modal
         open={delAgentModal}
         onClose={() => {
@@ -1203,6 +1352,254 @@ function Page() {
             </div>
 
 
+          </div>
+        </Box>
+      </Modal>
+
+
+      {/* code for script */}
+
+      <Modal
+        open={showScriptModal}
+        onClose={() => {
+          setShowScriptModal(null);
+        }}
+      >
+        <Box className="w-10/12 sm:w-10/12 md:w-8/12 lg:w-6/12 p-8 rounded-[15px]" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
+          <div style={{ width: "100%", }}>
+
+            <div className='h-[75vh]' style={{ scrollbarWidth: "none" }}>
+              <div style={{ height: "10%", width: "100%", direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                {/* <div style={{ width: "20%" }} /> */}
+                <div style={{ fontWeight: "500", fontSize: 17 }}>
+                  {showScriptModal?.name?.slice(0, 1).toUpperCase(0)}{showScriptModal?.name?.slice(1)}
+                </div>
+                <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
+                  <button onClick={() => {
+                    setShowScriptModal(null);
+                  }} className='outline-none'>
+                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                  </button>
+                </div>
+              </div>
+
+              <div className='mt-6 flex flex-row gap-6'
+                style={{ height: "10%", fontWeight: "500", fontSize: 15 }}>
+                <button className='pb-1 px-2'
+                  style={{
+                    borderBottom: showScript && "2px solid #7902DF"
+                  }}
+                  onClick={handleShowScript}
+                >
+                  Script
+                </button>
+                <button className='pb-1 px-2'
+                  style={{
+                    borderBottom: SeledtedScriptKYC && "2px solid #7902DF"
+                  }}
+                  onClick={handleShowKycs}
+                >
+                  KYC
+                </button>
+                <button className='pb-1 px-2'
+                  style={{
+                    borderBottom: SeledtedScriptAdvanceSetting && "2px solid #7902DF"
+                  }}
+                  onClick={handleShowAdvanceSeting}
+                >
+                  Advance Settings
+                </button>
+              </div>
+
+              {
+                showScript && (
+                  <div style={{ height: "80%", overflow: "auto", scrollbarWidth: "none" }}>
+                    <div className='bg-[#00000012] p-2 mt-6'>
+                      <div style={styles.inputStyle} className='flex flex-row items-center gap-2'>
+                        <Image src={"/assets/lightBulb.png"} alt='*' height={24} width={24} />  Editing Tips
+                      </div>
+                      <div style={styles.inputStyle} className='flex flex-row flex-wrap gap-2'>
+                        <div>
+                          You can use these variables:
+                        </div>
+                        {/* <div className='flex flex-row items-center gap-2'> */}
+                        <div style={{ width: "fit-content" }} className='text-purple flex flex-row gap-2'>
+                          {`{Address}`},{`{Phone}`}, {`{Email}`},{`{Kyc}`}
+                          {/* {`{First Name}`}, {`{Email}`}, */}
+                        </div>
+
+                        {
+                          uniqueColumns.length > 0 && showMoreUniqueColumns ?
+                            <div className='flex flex-row flex-wrap gap-2'>
+                              {
+                                uniqueColumns.map((item, index) => (
+                                  <div key={index} className='flex flex-row items-center gap-2 text-purple'>
+                                    {`{${item}}`},
+                                  </div>
+                                ))
+                              }
+                              <button className='text-purple outline-none' onClick={handleShowUniqueCols}>
+                                show less
+                              </button>
+                            </div> :
+                            <div>
+                              {
+                                uniqueColumns.length > 0 && (
+                                  <button
+                                    className='text-purple flex flex-row items-center font-bold outline-none'
+                                    onClick={() => {
+                                      handleShowUniqueCols()
+                                    }}
+                                  >
+                                    <Plus weight='bold' size={15}
+                                      style={{
+                                        strokeWidth: 40, // Adjust as needed
+                                      }}
+                                    />
+                                    {uniqueColumns.length}
+                                  </button>
+                                )
+                              }
+                            </div>
+                        }
+
+
+                        {/* </div> */}
+                      </div>
+                    </div>
+
+                    <div className='flex flex-row items-center mt-4'>
+                      <button className='flex flex-row items-center gap-4' onClick={() => { setIntroVideoModal(true) }}>
+                        <Image src={"/assets/youtubeplay.png"} height={45} width={45} alt='*' style={{ borderRadius: "7px" }} />
+                        <div
+                          style={{
+                            fontSize: 15,
+                            fontWeight: "500",
+                            borderColor: "#00000020"
+                          }} className='underline'>
+                          Learn how to customize your script
+                        </div>
+                      </button>
+                    </div>
+
+                    <div className='flex flex-row items-center justify-between'>
+                      <div className='mt-2' style={{ ...styles.paragraph, color: "#00000060" }}>
+                        Greeting
+                      </div>
+                      <div>
+                        {
+                          showSaveChangesBtn && (
+                            <button className='underline text-purple' style={{ fontWeight: "600", fontSize: 15 }}>
+                              Save Changes
+                            </button>
+                          )
+                        }
+                      </div>
+                    </div>
+
+                    <div className='mt-2'>
+                      <GreetingTagInput greetTag={greetingTagInput} kycsList={kycsData} uniqueColumns={uniqueColumns} tagValue={setGreetingTagInput} scrollOffset={scrollOffset} />
+                    </div>
+                    <div className='mt-4' style={{ fontSize: 24, fontWeight: "700" }}>
+                      Script
+                    </div>
+                    <div className='mt-2 w-full'>
+
+                      <PromptTagInput promptTag={scriptTagInput} kycsList={kycsData} tagValue={setScriptTagInput} scrollOffset={scrollOffset} />
+
+                      {/* <DynamicDropdown /> */}
+
+                    </div>
+
+                  </div>
+                )
+              }
+
+              {
+                SeledtedScriptAdvanceSetting && (
+                  <div style={{ height: "100%" }}>
+                    <div style={{ height: "30%", overflow: "auto", scrollbarWidth: "none" }}>
+                      <Objection showTitle={true} />
+                    </div>
+                    <div style={{ height: "50%" }}>
+                      <div style={{ overflow: "auto", scrollbarWidth: "none", marginTop: "40px", height: "80%" }}>
+                        <GuarduanSetting showTitle={true} />
+                      </div>
+                    </div>
+                  </div>
+                )
+              }
+
+              {
+                SeledtedScriptKYC && (
+                  <div style={{ height: "80%", overflow: "auto", scrollbarWidth: "none" }}>
+                    <KYCs kycsDetails={setKycsData} />
+                  </div>
+                )
+              }
+
+
+            </div>
+
+
+
+
+          </div>
+        </Box>
+      </Modal>
+
+      {/* Modal for video */}
+      <Modal
+        open={introVideoModal}
+        onClose={() => setIntroVideoModal(false)}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: "#00000020",
+            // backdropFilter: "blur(20px)",
+          },
+        }}
+      >
+        <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.modalsStyle}>
+          <div className="flex flex-row justify-center w-full">
+            <div
+              className="sm:w-full w-full"
+              style={{
+                backgroundColor: "#ffffff",
+                padding: 20,
+                borderRadius: "13px",
+              }}
+            >
+              <div className='flex flex-row justify-end'>
+                <button onClick={() => { setIntroVideoModal(false) }}>
+                  <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                </button>
+              </div>
+
+              <div className='text-center sm:font-24 font-16' style={{ fontWeight: "700" }}>
+                Learn more about assigning leads
+              </div>
+
+              <div className='mt-6'>
+                <iframe
+                  src="https://www.youtube.com/embed/Dy9DM5u_GVg?autoplay=1&mute=1" //?autoplay=1&mute=1 to make it autoplay
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  title="YouTube video"
+                  // className='w-20vh h-40vh'
+                  style={{
+                    width: "100%",
+                    height: "50vh",
+                    borderRadius: 15,
+                  }}
+                />
+              </div>
+
+              {/* Can be use full to add shadow */}
+              {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+            </div>
           </div>
         </Box>
       </Modal>
