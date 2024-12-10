@@ -342,6 +342,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                 AuthToken = UserDetails.token;
             }
 
+            console.log("Authtoken is:", AuthToken);
+
             if (agentDetails) {
                 console.log("trying")
                 const agentData = JSON.parse(agentDetails);
@@ -368,7 +370,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             const response = await axios.post(ApiPath, formData, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken,
-                    "Content-Type": "application/json"
+                    "Content-Type": "multipart/form-data",
+                    // "Content-Type": "application/json"
                 }
             });
 
