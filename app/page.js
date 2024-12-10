@@ -62,9 +62,11 @@ const Page = ({ length = 6, onComplete }) => {
   const handlePhoneNumberChange = (phone) => {
     setUserPhoneNumber(phone);
     validatePhoneNumber(phone);
+    setCheckPhoneResponse(null);
 
     if (!phone) {
       setErrorMessage("");
+      setCheckPhoneResponse(null);
     }
   };
 
@@ -188,10 +190,10 @@ const Page = ({ length = 6, onComplete }) => {
         console.log("Response of check phone api is :", response);
         if (response.data.status === true) {
           console.log("Response message is :", response.data.message);
-          setCheckPhoneResponse(response.data);
+          setCheckPhoneResponse(response.data.status);
 
         } else {
-          setCheckPhoneResponse(response.data);
+          setCheckPhoneResponse(response.data.status);
         }
       }
 
@@ -328,7 +330,11 @@ const Page = ({ length = 6, onComplete }) => {
                     onFocus={getLocation}
                     placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
                     disabled={loading} // Disable input if still loading
-                    style={{ borderRadius: "7px" }}
+                    style={{
+                      borderRadius: "7px",
+                      outline: "none", // Ensure no outline on wrapper
+                      boxShadow: "none", // Remove any shadow
+                    }}
                     inputStyle={{
                       width: "100%",
                       borderWidth: "0px",
@@ -336,12 +342,14 @@ const Page = ({ length = 6, onComplete }) => {
                       paddingLeft: "60px",
                       paddingTop: "12px",
                       paddingBottom: "12px",
-                      outlineColor: "transparent",
-                      height: "50px"
+                      height: "50px",
+                      outline: "none", // Remove outline on input
+                      boxShadow: "none", // Remove shadow as well
                     }}
                     buttonStyle={{
                       border: "none",
                       backgroundColor: "transparent",
+                      outline: "none", // Ensure no outline on button
                     }}
                     dropdownStyle={{
                       maxHeight: "150px",
@@ -364,22 +372,22 @@ const Page = ({ length = 6, onComplete }) => {
             </div>
 
             {/* Code for error messages */}
-            <div className='flex flex-row items-center w-full justify-between mt-4'>
+            <div className='flex flex-row items-center w-full justify-center mt-4'>
               <div>
                 {errorMessage ?
-                  <div style={styles.errmsg}>
+                  <div className='text-center' style={styles.errmsg}>
                     {errorMessage}
                   </div> :
                   <div>
                     {
                       phoneNumberLoader ?
-                        <div style={styles.errmsg}>
+                        <div className='text-center' style={styles.errmsg}>
                           Checking Number
                         </div> :
                         <div style={{ ...styles.errmsg, color: checkPhoneResponse?.status === false ? "green" : 'red', height: '20px' }}>
                           {
                             checkPhoneResponse && (
-                              <div>
+                              <div className='text-center'>
                                 {
                                   checkPhoneResponse === true ? (
                                     "No such user"
