@@ -14,6 +14,18 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
     const [CannotAssignLeadModal, setCannotAssignLeadModal] = useState(false);
     const [loader, setLoader] = useState(false);
     const [lastStepModal, setLastStepModal] = useState(false);
+    const [ShouldContinue, setShouldContinue] = useState(false);
+
+    useEffect(() => {
+        if (ShouldContinue === true) {
+            console.log(
+                "hit"
+            )
+            setShouldContinue(false);
+        } else {
+            setShouldContinue(true);
+        }
+    }, [SelectedAgents])
 
     useEffect(() => {
         console.log("Leads asigned are :", leadIs);
@@ -226,7 +238,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                     Select your Agent
                 </div>
                 <div className='text-purple' style={styles.paragraph}>
-                    Contacts Selected
+                    {leadIs.length} Contacts Selected
                 </div>
             </div>
             <div className='mt-2' style={styles.paragraph2}>
@@ -248,7 +260,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                                             //push to the array
                                             console.log("Cheak 1 at 0")
                                             setSelectedAgents([...SelectedAgents, item]);
-                                            setLastStepModal(true);//loader
+                                            // setLastStepModal(true);//loader
                                         }
                                         else if (canAssign == 1) {
                                             //remove from the array
@@ -300,7 +312,13 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
 
 
             <div>
-                <button className='rounded-lg mt-4 w-full h-[50px] text-white bg-purple' style={styles.heading} //onClick={handleAssigLead}
+                <button className='rounded-lg mt-4 w-full h-[50px]'
+                    style={{
+                        ...styles.heading,
+                        backgroundColor: ShouldContinue ? "#00000020" : "#7902DF",
+                        color: ShouldContinue ? "#00000080" : "white"
+                    }} //onClick={handleAssigLead}
+                    disabled={ShouldContinue}
                     onClick={() => { setLastStepModal(true) }}
                 >
                     Continue
