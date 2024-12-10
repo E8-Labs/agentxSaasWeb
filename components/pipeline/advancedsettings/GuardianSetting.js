@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react'
 
 const Objection = () => {
 
-  const [AgentDetails, setAgentDetails] = useState([]);
+  const [guardrailsList, setGuardrailsList] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
   const [showAddObjForm, setShowAddObjForm] = useState(false);
   const [addObjTitle, setAddObjTitle] = useState("");
@@ -15,7 +15,16 @@ const Objection = () => {
   const [addObjectionLoader, setAddObjectionLoader] = useState(false);
 
   useEffect(() => {
-    getGuadrails();
+    const guadrailsList = localStorage.getItem("GuadrailsList");
+    if (guadrailsList) {
+      console.log("Should not call api");
+      const guardrailsData = JSON.parse(guadrailsList);
+      console.log("guardrails details recieved from locastorage are :", guardrailsData);
+      setGuardrailsList(guardrailsData);
+    } else {
+      console.log("calling api");
+      getGuadrails();
+    }
   }, [])
   //code for getting agent data
   const getGuadrails = async () => {
@@ -50,7 +59,8 @@ const Objection = () => {
 
       if (response) {
         console.log("Response is:", response);
-        setAgentDetails(response.data.data.guardrails);
+        setGuardrailsList(response.data.data.guardrails);
+        localStorage.setItem("GuadrailsList", JSON.stringify(response.data.data.guardrails));
       }
 
     } catch (error) {
@@ -86,7 +96,7 @@ const Objection = () => {
         title: addObjTitle,
         description: addObjDescription,
         type: "guardrail",
-        mainAgentId: mainAgent.userId
+        mainAgentId: mainAgent.id
       }
 
       console.log("Api data is :", ApiData);
@@ -105,7 +115,8 @@ const Objection = () => {
       if (response) {
         console.log("Response of add objection api is:", response);
         if (response.data.status === true) {
-          setAgentDetails(response.data.data.guardrails);
+          setGuardrailsList(response.data.data.guardrails);
+          localStorage.setItem("GuadrailsList", JSON.stringify(response.data.data.guardrails));
           setShowAddObjForm(false);
           setAddObjTitle("");
           setAddObjDescription("");
@@ -154,9 +165,9 @@ const Objection = () => {
     <div>
 
       {
-        AgentDetails.length > 0 ?
+        guardrailsList.length > 0 ?
           <div className='overflow-auto h-[40vh]' style={{ scrollbarWidth: "none" }}>
-            {AgentDetails.map((item, index) => {
+            {guardrailsList.map((item, index) => {
               return (
                 <div className='p-3 rounded-xl mt-4' key={index} style={{ border: "1px solid #00000020" }}>
                   <div style={{ fontWeight: "600", fontSize: 15 }}>

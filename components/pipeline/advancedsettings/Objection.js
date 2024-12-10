@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react'
 
 const Objection = () => {
 
-  const [AgentDetails, setAgentDetails] = useState([]);
+  const [ObjectionsList, setObjectionsList] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
   const [showAddObjForm, setShowAddObjForm] = useState(false);
   const [addObjTitle, setAddObjTitle] = useState("");
@@ -15,7 +15,16 @@ const Objection = () => {
   const [addObjectionLoader, setAddObjectionLoader] = useState(false);
 
   useEffect(() => {
-    getObjections()
+    const objectionsList = localStorage.getItem("ObjectionsList");
+    if (objectionsList) {
+      console.log("Should not call api");
+      const objectionsData = JSON.parse(objectionsList);
+      console.log("Objection details recieved from locastorage are :", objectionsData);
+      setObjectionsList(objectionsData);
+    } else {
+      console.log("calling api");
+      getObjections();
+    }
   }, [])
   //code for getting agent data
   const getObjections = async () => {
@@ -51,7 +60,8 @@ const Objection = () => {
 
       if (response) {
         console.log("Response is:", response);
-        setAgentDetails(response.data.data.objections);
+        setObjectionsList(response.data.data.objections);
+        localStorage.setItem("ObjectionsList", JSON.stringify(response.data.data.objections));
       }
 
     } catch (error) {
@@ -87,7 +97,7 @@ const Objection = () => {
         title: addObjTitle,
         description: addObjDescription,
         type: "objection",
-        mainAgentId: mainAgent.userId
+        mainAgentId: mainAgent.id
       }
 
       console.log("Api data is :", ApiData);
@@ -106,7 +116,8 @@ const Objection = () => {
       if (response) {
         console.log("Response of add objection api is:", response);
         if (response.data.status === true) {
-          setAgentDetails(response.data.data.objections);
+          setObjectionsList(response.data.data.objections);
+          localStorage.setItem("ObjectionsList", JSON.stringify(response.data.data.objections));
           setShowAddObjForm(false);
           setAddObjTitle("");
           setAddObjDescription("");
@@ -155,9 +166,9 @@ const Objection = () => {
     <div>
 
       {
-        AgentDetails.length > 0 ?
+        ObjectionsList.length > 0 ?
           <div className='overflow-auto h-[40vh]' style={{ scrollbarWidth: "none" }}>
-            {AgentDetails.map((item, index) => {
+            {ObjectionsList.map((item, index) => {
               return (
                 <div className='p-3 rounded-xl mt-4' key={index} style={{ border: "1px solid #00000020" }}>
                   <div style={{ fontWeight: "600", fontSize: 15 }}>

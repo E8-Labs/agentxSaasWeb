@@ -25,6 +25,7 @@ const SellerKycs = ({ handleContinue }) => {
     //code for need kyc
     const [selectedUrgencyKyc, setSelectedUrgencyKyc] = useState([]);
     const [sellerKycLoader, setSellerKycLoader] = useState(false);
+    const [shouldContinue, setShouldContinue] = useState(true);
 
     //needKYCQuestions
     const [needKYCQuestions, setNeedKYCQuestions] = useState([
@@ -39,7 +40,7 @@ const SellerKycs = ({ handleContinue }) => {
         //     sampleAnswers: []
         // },
         {
-            id: 3,
+            id: 2,
             question: "Are there any significant life changes prompting this decision, such as job relocation or changes in the family?",
             sampleAnswers: []
         },
@@ -81,7 +82,6 @@ const SellerKycs = ({ handleContinue }) => {
         },
     ]);
 
-    const [shouldContinue, setShouldContinue] = useState(true);
 
     useEffect(() => {
         if (selectedNeedKYC.length > 0 || selectedMotivationKyc.length > 0 || selectedUrgencyKyc.length > 0) {
@@ -123,25 +123,44 @@ const SellerKycs = ({ handleContinue }) => {
 
         if (toggleClick === 1) {
             // Add to the "Needs" questions and auto-select the new question
-            setNeedKYCQuestions(prevQuestions => {
-                const updatedQuestions = [...prevQuestions, newKYCQuestion];
-                setSelectedNeedKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
-                return updatedQuestions;
-            });
+            console.log("Nee kycs questions list is:", needKYCQuestions);
+            if (needKYCQuestions.some((item) => item.question === newKYCQuestion.question)) {
+                alert("Question already exists!!!");
+                console.log("Question Already exists");
+                return
+            } else {
+                // console.log("New question");
+                setNeedKYCQuestions(prevQuestions => {
+                    const updatedQuestions = [...prevQuestions, newKYCQuestion];
+                    setSelectedNeedKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+                    return updatedQuestions;
+                });
+            }
         } else if (toggleClick === 2) {
-            setMotivationKycQuestions(prevQuestions => {
-                const updatedQuestions = [...prevQuestions, newKYCQuestion];
-                setSelectedMotivationKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
-                return updatedQuestions;
-            });
+            if (motivationKycQuestions.some((item) => item.question === newKYCQuestion.question)) {
+                alert("Question already exists!!!");
+                console.log("Question Already exists");
+                return
+            } else {
+                setMotivationKycQuestions(prevQuestions => {
+                    const updatedQuestions = [...prevQuestions, newKYCQuestion];
+                    setSelectedMotivationKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+                    return updatedQuestions;
+                });
+            }
         } else if (toggleClick === 3) {
-            setUrgencyKycQuestions(prevQuestions => {
-                const updatedQuestions = [...prevQuestions, newKYCQuestion];
-                setSelectedUrgencyKyc(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
-                return updatedQuestions;
-            });
+            if (urgencyKycQuestions.some((item) => item.question === newKYCQuestion.question)) {
+                alert("Question already exists!!!");
+                console.log("Question Already exists");
+                return
+            } else {
+                setUrgencyKycQuestions(prevQuestions => {
+                    const updatedQuestions = [...prevQuestions, newKYCQuestion];
+                    setSelectedUrgencyKyc(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+                    return updatedQuestions;
+                });
+            }
         }
-
         setAddKYCQuestion(false);
         setNewQuestion(''); // Reset the new question field
         setInputs([{ id: 1, value: '' }, { id: 2, value: '' }, { id: 3, value: '' }]); // Reset the inputs
@@ -399,7 +418,9 @@ const SellerKycs = ({ handleContinue }) => {
                         <Header skipSellerKYC={true}
                             selectedSellerNeedKYC={selectedNeedKYC}
                             selectedSellerMotivationKyc={selectedMotivationKyc}
-                            selectedSellerUrgencyKyc={selectedUrgencyKyc} />
+                            selectedSellerUrgencyKyc={selectedUrgencyKyc}
+                            shouldContinue={shouldContinue}
+                        />
                     </div>
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full h-[90%]'>

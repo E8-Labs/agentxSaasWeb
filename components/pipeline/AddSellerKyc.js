@@ -38,7 +38,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
         //     sampleAnswers: []
         // },
         {
-            id: 3,
+            id: 2,
             question: "Are there any significant life changes prompting this decision, such as job relocation or changes in the family?",
             sampleAnswers: []
         },

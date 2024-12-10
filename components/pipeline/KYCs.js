@@ -141,30 +141,65 @@ const KYCs = ({ kycsDetails }) => {
 
     //getadd seller kyc data
     const handleAddSellerKycData = (data) => {
-        console.log("Data added in new kyc is :--", data);
-        const categories = data[0].category;
+
+        console.log("Data added in new kyc is :--", data.kyc);
+        const categories = data.kyc;
+        kycsDetails(data.kyc);
         console.log("Categgory is :", categories);
-        if (categories === "need") {
-            setSellerNeedData([...SellerNeedData, ...data]);
-        } else if (categories === "motivation") {
-            setSellerMotivationData([...SellerMotivationData, ...data]);
-        } else if (categories === "urgency") {
-            setSellerUrgencyData([...SellerUrgencyData, ...data]);
-        }
+        console.log("Type is:", categories[0].type);
+
+        // return
+        // if (categories === "need") {
+        //     setSellerNeedData([...SellerNeedData, ...data]);
+        // } else if (categories === "motivation") {
+        //     setSellerMotivationData([...SellerMotivationData, ...data]);
+        // } else if (categories === "urgency") {
+        //     setSellerUrgencyData([...SellerUrgencyData, ...data]);
+        // }
+
+        //code for seller kyc questions
+        const filteredSellerQuestions = data.kyc.filter(item => item.type === 'seller');
+        console.log("Seler kycs are :=--", filteredSellerQuestions);
+        const filteredSellerNeedQuestions = filteredSellerQuestions.filter(item => item.category === 'need');
+        const filteredSellerMotivationQuestions = filteredSellerQuestions.filter(item => item.category === 'motivation');
+        const filteredSellerUrgencyQuestions = filteredSellerQuestions.filter(item => item.category === 'urgency');
+        console.log("Need kycs are :--", filteredSellerNeedQuestions);
+        setSellerNeedData(filteredSellerNeedQuestions);
+        console.log("Motivation KYCs are :--", filteredSellerMotivationQuestions);
+        setSellerMotivationData(filteredSellerMotivationQuestions);
+        console.log("Urgency kycs are :---", filteredSellerUrgencyQuestions);
+        setSellerUrgencyData(filteredSellerUrgencyQuestions);
+        //code for buyer kyc questions
     }
 
     //getadd buyer kyc data
     const handleAddBuyerKycData = (data) => {
         console.log("Data added in new kyc is :--", data);
-        const categories = data[0].category;
+        const categories = data.kyc;
+        kycsDetails(data.kyc);
         console.log("Categgory is :", categories);
-        if (categories === "need") {
-            setBuyerNeedData([...BuyerNeedData, ...data]);
-        } else if (categories === "motivation") {
-            setBuyerMotivationData([...BuyerMotivationData, ...data]);
-        } else if (categories === "urgency") {
-            setBuyerUrgencyData([...BuyerUrgencyData, ...data]);
-        }
+        // if (categories === "need") {
+        //     setBuyerNeedData([...BuyerNeedData, ...data]);
+        // } else if (categories === "motivation") {
+        //     setBuyerMotivationData([...BuyerMotivationData, ...data]);
+        // } else if (categories === "urgency") {
+        //     setBuyerUrgencyData([...BuyerUrgencyData, ...data]);
+        // }
+
+
+        const filteredBuyerQuestions = data.kyc.filter(item => item.type === 'buyer');
+        console.log("Buyer Kycs are :--", filteredBuyerQuestions);
+
+        const filteredBuyerNeedQuestions = filteredBuyerQuestions.filter(item => item.category === 'need');
+        const filteredBuyerMotivationQuestions = filteredBuyerQuestions.filter(item => item.category === 'motivation');
+        const filteredBuyerUrgencyQuestions = filteredBuyerQuestions.filter(item => item.category === 'urgency');
+        console.log("BuyerNeed kycs are :--", filteredBuyerNeedQuestions);
+        setBuyerNeedData(filteredBuyerNeedQuestions);
+        console.log("BuyerMotivation KYCs are :--", filteredBuyerMotivationQuestions);
+        setBuyerMotivationData(filteredBuyerMotivationQuestions);
+        console.log("BuyerUrgency kycs are :---", filteredBuyerUrgencyQuestions);
+        setBuyerUrgencyData(filteredBuyerUrgencyQuestions);
+
     }
 
 

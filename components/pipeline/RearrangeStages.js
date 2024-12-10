@@ -20,13 +20,16 @@ const RearrangeStages = ({
     nextStage,
     handleSelectNextChange,
     selectedPipelineStages,
-    selectedPipelineItem
+    selectedPipelineItem,
+    handleReorderStages,
+    reorderStageLoader
 }) => {
     const [pipelineStages, setPipelineStages] = useState(stages);
     const [delStageLoader, setDelStageLoader] = useState(false);
     const [successSnack, setSuccessSnack] = useState(null);
     const [showDelStagePopup, setShowDelStagePopup] = useState(null);
     const [actionInfoEl, setActionInfoEl] = React.useState(null);
+    const [showReorderBtn, setShowReorderBtn] = useState(false);
 
     const handlePopoverOpen = (event) => {
         setActionInfoEl(event.currentTarget);
@@ -60,6 +63,10 @@ const RearrangeStages = ({
             ...stage,
             order: index + 1,
         }));
+
+        if (updatedStages) {
+            setShowReorderBtn(true);
+        }
 
         setPipelineStages(updatedStages);
         onUpdateOrder(updatedStages);
@@ -257,6 +264,7 @@ const RearrangeStages = ({
                                 key={item.id}
                                 draggableId={item.id.toString()}
                                 index={index}
+                                isDragDisabled={index === 0}
                             >
                                 {(provided) => (
                                     <div
@@ -276,14 +284,24 @@ const RearrangeStages = ({
                                     >
                                         <div className="w-[5%]">
                                             <div className="outline-none mt-2">
-                                                <Image src={"/assets/list.png"} height={6} width={16} alt="*" />
+                                                {
+                                                    index > 0 && (
+                                                        <Image src={"/assets/list.png"} height={6} width={16} alt="*" />
+                                                    )
+                                                }
                                             </div>
                                         </div>
                                         <div className="border w-[95%] rounded-xl p-3 px-4">
                                             <div className="flex flex-row items-center justify-between">
                                                 <div>
                                                     <div style={styles.inputStyle}>{item.stageTitle}</div>
-                                                    <div className="mt-3" style={styles.inputStyle}>{item.description}</div>
+                                                    <div className="mt-3" style={{
+                                                        fontSize: 13,
+                                                        fontWeight: "500",
+                                                        color: "#00000060"
+                                                    }}>
+                                                        {item.description}
+                                                    </div>
                                                 </div>
                                             </div>
                                             {/* <div className="w-full flex flex-row items-center justify-end mt-2">
@@ -299,7 +317,7 @@ const RearrangeStages = ({
                                                     </p>
                                                 </button>
                                             </div> */}
-                                            <Modal
+                                            {/* <Modal
                                                 open={showDelStagePopup}
                                                 onClose={() => setShowDelStagePopup(null)}
                                                 closeAfterTransition
@@ -371,13 +389,38 @@ const RearrangeStages = ({
                                                         </div>
                                                     </div>
                                                 </Box>
-                                            </Modal>
+                                            </Modal> */}
                                         </div>
                                     </div>
                                 )}
                             </Draggable>
                         ))}
                         {provided.placeholder}
+
+                        {
+                            showReorderBtn && (
+                                <div className="w-full">
+                                    {
+                                        reorderStageLoader ?
+                                            (
+                                                <div className="w-full flex flex-row items-center h-[50px] justify-center mt-6">
+                                                    <CircularProgress size={25} />
+                                                </div>
+                                            ) :
+                                            (
+                                                <button
+                                                    className="w-full bg-purple text-white mt-6 h-[50px] rounded-xl text-xl font-[500]"
+                                                    onClick={() => { handleReorderStages() }}
+                                                >
+                                                    Reorder stages & close
+                                                </button>
+                                            )
+                                    }
+                                </div>
+                            )
+                        }
+
+
 
                         {/* <button
                             className="outline-none w-full flex flex-row items-center justify-center h-[50px] mt-4 rounded-lg"
@@ -438,11 +481,11 @@ const RearrangeStages = ({
                                             <ColorPicker setStageColor={setStageColor} />
                                         </div>
 
-                                        <div className='text-purple flex flex-row items-center gap-2 mt-4'>
-                                            <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                                Advanced Settings
-                                            </div>
-                                            <button onClick={() => { setShowAdvanceSettings(!showAdvanceSettings) }} className='outline-none'>
+                                        <div className='text-purple mt-4'>
+                                            <button onClick={() => { setShowAdvanceSettings(!showAdvanceSettings) }} className='flex flex-row items-center gap-2 outline-none'>
+                                                <div style={{ fontWeight: "600", fontSize: 15 }}>
+                                                    Advanced Settings
+                                                </div>
                                                 {
                                                     showAdvanceSettings ?
                                                         <CaretUp size={15} weight='bold' /> :

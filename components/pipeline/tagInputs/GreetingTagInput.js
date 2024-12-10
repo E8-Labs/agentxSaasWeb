@@ -285,6 +285,9 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
                         zIndex: 1000,
                         padding: "10px",
                         minWidth: "150px",
+                        maxHeight: "250px",
+                        overflow: "auto",
+                        scrollbarWidth: "none"
                     }}
                 >
                     {filteredOptions.map((option) => (

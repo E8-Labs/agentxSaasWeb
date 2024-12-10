@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-const Header = ({ skipSellerKYC, buyerKYC }) => {
+const Header = ({ skipSellerKYC, buyerKYC, shouldContinue }) => {
 
     const router = useRouter();
 
@@ -17,7 +17,7 @@ const Header = ({ skipSellerKYC, buyerKYC }) => {
                 </div>
                 <div className='w-4/12 flex felx-row items-start h-full justify-end'>
                     {
-                        skipSellerKYC && (
+                        skipSellerKYC && shouldContinue && (
                             <button
                                 className='underline h-full me-8'
                                 style={{
@@ -31,7 +31,7 @@ const Header = ({ skipSellerKYC, buyerKYC }) => {
                         )
                     }
                     {
-                        buyerKYC && (
+                        buyerKYC && shouldContinue && (
                             <button
                                 className='underline h-full me-8'
                                 style={{

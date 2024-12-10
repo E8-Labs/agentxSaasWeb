@@ -532,7 +532,9 @@ function Page() {
                           |
                         </div>
 
-                        <button>
+                        <button onClick={() => {
+                          setShowDrawer(item)
+                        }}>
                           <div>
                             More info
                           </div>
@@ -597,7 +599,7 @@ function Page() {
                     />
                     <Card
                       name="Hot Leads"
-                      value={22}
+                      value="-"
                       icon='/otherAssets/hotLeadsIcon2.png'
                       bgColor="bg-orange-100"
                       iconColor="text-orange-500"
@@ -605,7 +607,7 @@ function Page() {
 
                     <Card
                       name="Booked Meetings"
-                      value={22}
+                      value="-"
                       icon='/otherAssets/greenCalenderIcon.png'
                       bgColor="green"
                       iconColor="text-orange-500"
@@ -935,21 +937,21 @@ function Page() {
             />
             <Card
               name="Hot Leads"
-              value={22}
+              value="-"
               icon="/otherAssets/hotLeadsIcon2.png"
               bgColor="bg-orange-100"
               iconColor="text-orange-500"
             />
             <Card
               name="Booked Meetings"
-              value={9}
+              value="-"
               icon="/otherAssets/greenCalenderIcon.png"
               bgColor="bg-green-100"
               iconColor="text-green-500"
             />
             <Card
               name="Live Transfers"
-              value={12}
+              value="-"
               icon="/otherAssets/transferIcon.png"
               bgColor="bg-green-100"
               iconColor="text-green-500"

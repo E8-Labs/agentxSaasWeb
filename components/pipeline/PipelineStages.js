@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import Image from "next/image";
-import { CaretDown, CaretUp, Minus } from "@phosphor-icons/react";
+import { CaretDown, CaretUp, Minus, PencilSimple } from "@phosphor-icons/react";
 import { Alert, Box, CircularProgress, Fade, FormControl, MenuItem, Modal, Popover, Select, Snackbar } from "@mui/material";
 import Apis from "../apis/Apis";
 import axios from "axios";
 import ColorPicker from "../dashboardPipeline/ColorPicker";
+import TagsInput from "../dashboard/leads/TagsInput";
 
 const PipelineStages = ({
     stages,
@@ -27,6 +28,27 @@ const PipelineStages = ({
     const [successSnack, setSuccessSnack] = useState(null);
     const [showDelStagePopup, setShowDelStagePopup] = useState(null);
     const [actionInfoEl, setActionInfoEl] = React.useState(null);
+    //variable for tags input
+    const [tagsValue, setTagsValue] = useState([]);
+
+    //code for rename stage popup
+    const [showRenamePopup, setShowRenamePopup] = useState(false);
+    const [renameStage, setRenameStage] = useState("");
+    const [renameStageLoader, setRenameStageLoader] = useState(false);
+    const [updateStageColor, setUpdateStageColor] = useState("");
+    const [selectedStage, setSelectedStage] = useState("");
+
+
+    //code to add new stage
+    const [addNewStageModal, setAddNewStageModal] = useState(false);
+    const [newStageTitle, setNewStageTitle] = useState("");
+    const [stageColor, setStageColor] = useState("#FF4E4E");
+    const [addStageLoader, setAddStageLoader] = useState(false);
+    //code for advance setting modal inside new stages
+    const [showAdvanceSettings, setShowAdvanceSettings] = useState(false);
+    //code for input arrays
+    const [inputs, setInputs] = useState([{ id: 1, value: '', placeholder: `Sure, i’d be interested in knowing what my home is worth` }, { id: 2, value: '', placeholder: "Yeah, how much is my home worth today?" }]);
+    const [action, setAction] = useState("");
 
     const handlePopoverOpen = (event) => {
         setActionInfoEl(event.currentTarget);
@@ -43,6 +65,66 @@ const PipelineStages = ({
         setPipelineStages(stages);
     }, [stages]);
 
+    //function for rename modal
+    // const handleCloseStagePopover = () => {
+    //     setStageAnchorel(null);
+    // };
+
+    //code to rename the stage
+    const handleRenameStage = async () => {
+        try {
+            setRenameStageLoader(true);
+            const localData = localStorage.getItem("User");
+            let AuthToken = null;
+            if (localData) {
+                const UserDetails = JSON.parse(localData);
+                AuthToken = UserDetails.token;
+            }
+
+            console.log("Auth token is :--", AuthToken);
+
+            // const ApiData = {
+            //     stageTitle: renameStage,
+            //     stageId: selectedStage.id,
+            //     color: updateStageColor
+            // }
+
+            const formData = new FormData();
+            formData.append("stageTitle", renameStage);
+            formData.append("stageId", selectedStage.id);
+            formData.append("color", updateStageColor);
+
+            // console.log("data sending in api si:", ApiData);
+
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+
+            const ApiPath = Apis.UpdateStage;
+
+            console.log("Api path is:", ApiPath);
+            // return
+            const response = await axios.post(ApiPath, formData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of updates stage api is response :", response);
+                setPipelineStages(response.data.data.stages);
+                setShowRenamePopup(false);
+                setSuccessSnack(response.data.message);
+                // handleCloseStagePopover();
+            }
+
+        } catch (error) {
+            console.log("Error occured in rename api is:", error);
+        } finally {
+            setRenameStageLoader(false);
+        }
+    }
 
     //code for drag and drop stages
     const handleOnDragEnd = (result) => {
@@ -65,17 +147,6 @@ const PipelineStages = ({
         setPipelineStages(updatedStages);
         onUpdateOrder(updatedStages);
     };
-
-    //code to add new stage
-    const [addNewStageModal, setAddNewStageModal] = useState(false);
-    const [newStageTitle, setNewStageTitle] = useState("");
-    const [stageColor, setStageColor] = useState("#FF4E4E");
-    const [addStageLoader, setAddStageLoader] = useState(false);
-    //code for advance setting modal inside new stages
-    const [showAdvanceSettings, setShowAdvanceSettings] = useState(false);
-    //code for input arrays
-    const [inputs, setInputs] = useState([{ id: 1, value: '', placeholder: `Sure, i’d be interested in knowing what my home is worth` }, { id: 2, value: '', placeholder: "Yeah, how much is my home worth today?" }]);
-    const [action, setAction] = useState("");
 
     //code to delete stage
     const handleDeleteStage = async () => {
@@ -164,7 +235,8 @@ const PipelineStages = ({
                 color: stageColor,
                 pipelineId: selectedPipelineItem.id,
                 action: action,
-                examples: inputs
+                examples: inputs,
+                tagsValue: tagsValue
             }
 
             console.log("Data sending in api is:", ApiData);
@@ -258,6 +330,7 @@ const PipelineStages = ({
                                 key={item.id}
                                 draggableId={item.id.toString()}
                                 index={index}
+                                isDragDisabled={index === 0}
                             >
                                 {(provided) => (
                                     <div
@@ -276,15 +349,25 @@ const PipelineStages = ({
                                         className="flex flex-row items-start"
                                     >
                                         <div className="w-[5%]">
-                                            <div className="outline-none mt-2">
-                                                <Image src={"/assets/list.png"} height={6} width={16} alt="*" />
-                                            </div>
+                                            {
+                                                index > 0 && (
+                                                    <div className="outline-none mt-2">
+                                                        <Image src={"/assets/list.png"} height={6} width={16} alt="*" />
+                                                    </div>
+                                                )
+                                            }
                                         </div>
                                         <div className="border w-[95%] rounded-xl p-3 px-4">
                                             <div className="flex flex-row items-center justify-between">
-                                                <div>
+                                                <div className="flex flex-row items-start gap-2">
                                                     <div style={styles.inputStyle}>{item.stageTitle}</div>
-                                                    <div style={styles.inputStyle}>{item.description}</div>
+                                                    <button className="outline-none" onClick={() => {
+                                                        setShowRenamePopup(true);
+                                                        setRenameStage(item.stageTitle);
+                                                        setSelectedStage(item);
+                                                    }}>
+                                                        <PencilSimple size={20} weight="bold" />
+                                                    </button>
                                                 </div>
                                                 <div>
                                                     {assignedLeads[index] ? (
@@ -336,8 +419,13 @@ const PipelineStages = ({
                                                             className="mt-4"
                                                             style={{ fontWeight: "500", fontSize: 12 }}
                                                         >
-                                                            Calling leads a second time within 3 mins boosts
-                                                            answer rates by 80%.
+                                                            <div
+                                                                style={{
+                                                                    fontSize: 13,
+                                                                    fontWeight: "500",
+                                                                    color: "#00000060"
+                                                                }}
+                                                            >{item.description}</div>
                                                         </div>
                                                         <div className="border rounded-xl py-4 px-4 mt-4">
                                                             <div>
@@ -585,7 +673,7 @@ const PipelineStages = ({
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="w-full flex flex-row items-center justify-end mt-2">
+                                            {/* <div className="w-full flex flex-row items-center justify-end mt-2">
                                                 <button className="flex flex-row items-center gap-1" onClick={() => { setShowDelStagePopup(item) }}>
                                                     <Image src={"/assets/delIcon.png"} height={20} width={18} alt="*"
                                                         style={{
@@ -597,7 +685,85 @@ const PipelineStages = ({
                                                         Delete
                                                     </p>
                                                 </button>
-                                            </div>
+                                            </div> */}
+
+                                            {/* Modal to rename stage */}
+                                            <Modal
+                                                open={showRenamePopup}
+                                                onClose={() => {
+                                                    setShowRenamePopup(false);
+                                                    // handleCloseStagePopover();
+                                                }}
+                                                BackdropProps={{
+                                                    timeout: 1000,
+                                                    sx: {
+                                                        backgroundColor: "#00000010",
+                                                        backdropFilter: "blur(5px)",
+                                                    },
+                                                }}
+                                            >
+                                                <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
+                                                    <div style={{ width: "100%", }}>
+
+                                                        <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                                                            <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                                                {/* <div style={{ width: "20%" }} /> */}
+                                                                <div style={{ fontWeight: "700", fontSize: 22 }}>
+                                                                    Rename stage
+                                                                </div>
+                                                                <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
+                                                                    <button onClick={() => {
+                                                                        setShowRenamePopup(false);
+                                                                        // handleCloseStagePopover();
+                                                                    }} className='outline-none'>
+                                                                        <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+
+                                                            <div>
+                                                                <div className='mt-4' style={{ fontWeight: "600", fontSize: 12, paddingBottom: 5 }}>
+                                                                    Stage Title
+                                                                </div>
+                                                                <input
+                                                                    value={renameStage}
+                                                                    onChange={(e) => { setRenameStage(e.target.value) }}
+                                                                    placeholder='Enter stage title'
+                                                                    className='outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]'
+                                                                    style={{ border: "1px solid #00000020" }}
+                                                                />
+                                                                <div style={{ marginTop: 20, fontWeight: "600", fontSize: 12, paddingBottom: 5 }}>
+                                                                    Color*
+                                                                </div>
+                                                                <ColorPicker setStageColor={setUpdateStageColor} stageColor={updateStageColor} />
+                                                            </div>
+
+                                                        </div>
+
+                                                        {
+                                                            renameStageLoader ?
+                                                                <div className='flex flex-row iems-center justify-center w-full mt-4'>
+                                                                    <CircularProgress size={25} />
+                                                                </div> :
+                                                                <button
+                                                                    className='mt-4 outline-none'
+                                                                    style={{
+                                                                        backgroundColor: "#402FFF", color: "white",
+                                                                        height: "50px", borderRadius: "10px", width: "100%",
+                                                                        fontWeight: 600, fontSize: '20'
+                                                                    }}
+                                                                    onClick={handleRenameStage}
+                                                                >
+                                                                    Add & Close
+                                                                </button>
+                                                        }
+
+
+                                                    </div>
+                                                </Box>
+                                            </Modal>
+
+                                            {/* Modal to delete stage */}
                                             <Modal
                                                 open={showDelStagePopup}
                                                 onClose={() => setShowDelStagePopup(null)}
@@ -737,11 +903,11 @@ const PipelineStages = ({
                                             <ColorPicker setStageColor={setStageColor} />
                                         </div>
 
-                                        <div className='text-purple flex flex-row items-center gap-2 mt-4'>
-                                            <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                                Advanced Settings
-                                            </div>
-                                            <button onClick={() => { setShowAdvanceSettings(!showAdvanceSettings) }} className='outline-none'>
+                                        <div className='text-purple mt-4'>
+                                            <button onClick={() => { setShowAdvanceSettings(!showAdvanceSettings) }} className='flex flex-row items-center gap-2 outline-none'>
+                                                <div style={{ fontWeight: "600", fontSize: 15 }}>
+                                                    Advanced Settings
+                                                </div>
                                                 {
                                                     showAdvanceSettings ?
                                                         <CaretUp size={15} weight='bold' /> :
@@ -752,7 +918,7 @@ const PipelineStages = ({
 
                                         {
                                             showAdvanceSettings && (
-                                                <div>
+                                                <div className='max-h-[40vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                                     <div className='flex flex-row items-center gap-2 mt-4'>
                                                         <p style={{ fontWeight: "600", fontSize: 15 }}>Action</p>
                                                         {/* <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' /> */}
@@ -847,9 +1013,9 @@ const PipelineStages = ({
                                                                     value={input.value}
                                                                     onChange={(e) => handleAddStageInputsChanges(input.id, e.target.value)}
                                                                 />
-                                                                <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
+                                                                {/* <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
                                                                     <Image src={"/assets/blackBgCross.png"} height={20} width={20} alt='*' />
-                                                                </button>
+                                                                </button> */}
                                                             </div>
                                                         ))}
                                                     </div>
@@ -934,31 +1100,8 @@ const PipelineStages = ({
                                                         Tags
                                                     </p>
 
-                                                    <div className='h-[45px] p-2 rounded-lg flex flex-row items-center gap-2' style={{ border: "1px solid #00000030" }}>
-                                                        <div className='flex flex-row gap-2 bg-[#00000030] h-full px-4 rounded items-center' style={{ width: "fit-content" }}>
-                                                            <p style={{ fontWeight: "500", fontSize: 15 }}>
-                                                                Tag value
-                                                            </p>
-                                                            <button className='outline-none'>
-                                                                <Image src={"/assets/cross.png"} height={10} width={10} alt='*' />
-                                                            </button>
-                                                        </div>
-                                                        <div className='flex flex-row gap-2 bg-[#00000030] h-full px-4 rounded items-center' style={{ width: "fit-content" }}>
-                                                            <p style={{ fontWeight: "500", fontSize: 15 }}>
-                                                                Tag value
-                                                            </p>
-                                                            <button className='outline-none'>
-                                                                <Image src={"/assets/cross.png"} height={10} width={10} alt='*' />
-                                                            </button>
-                                                        </div>
-                                                        <div className='flex flex-row gap-2 bg-[#00000030] h-full px-4 rounded items-center' style={{ width: "fit-content" }}>
-                                                            <p style={{ fontWeight: "500", fontSize: 15 }}>
-                                                                Tag value
-                                                            </p>
-                                                            <button className='outline-none'>
-                                                                <Image src={"/assets/cross.png"} height={10} width={10} alt='*' />
-                                                            </button>
-                                                        </div>
+                                                    <div className="mt-4">
+                                                        <TagsInput setTags={setTagsValue} />
                                                     </div>
 
                                                 </div>

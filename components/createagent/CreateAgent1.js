@@ -612,7 +612,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                         <input
                                             className='w-full h-[50px] rounded-lg outline-none focus:ring-0'
                                             style={{ border: "1px solid #00000020" }}
-                                            placeholder="Enter location"
+                                            placeholder="Type here ..."
                                             value={addressValue}
                                             onChange={(evt) => {
                                                 setAddressValue(evt.target.value); // Update input field value

@@ -122,23 +122,41 @@ const BuyerKycs = ({ handleContinue }) => {
 
         if (toggleClick === 1) {
             // Add to the "Needs" questions and auto-select the new question
-            setNeedKYCQuestions(prevQuestions => {
-                const updatedQuestions = [...prevQuestions, newKYCQuestion];
-                setSelectedNeedKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
-                return updatedQuestions;
-            });
+            if (needKYCQuestions.some((item) => item.question === newKYCQuestion.question)) {
+                alert("Question already exists!!!");
+                console.log("Question Already exists");
+                return
+            } else {
+                setNeedKYCQuestions(prevQuestions => {
+                    const updatedQuestions = [...prevQuestions, newKYCQuestion];
+                    setSelectedNeedKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+                    return updatedQuestions;
+                });
+            }
         } else if (toggleClick === 2) {
-            setMotivationKycQuestions(prevQuestions => {
-                const updatedQuestions = [...prevQuestions, newKYCQuestion];
-                setSelectedMotivationKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
-                return updatedQuestions;
-            });
+            if (motivationKycQuestions.some((item) => item.question === newKYCQuestion.question)) {
+                alert("Question already exists!!!");
+                console.log("Question Already exists");
+                return
+            } else {
+                setMotivationKycQuestions(prevQuestions => {
+                    const updatedQuestions = [...prevQuestions, newKYCQuestion];
+                    setSelectedMotivationKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+                    return updatedQuestions;
+                });
+            }
         } else if (toggleClick === 3) {
-            setUrgencyKycQuestions(prevQuestions => {
-                const updatedQuestions = [...prevQuestions, newKYCQuestion];
-                setSelectedUrgencyKyc(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
-                return updatedQuestions;
-            });
+            if (urgencyKycQuestions.some((item) => item.question === newKYCQuestion.question)) {
+                alert("Question already exists!!!");
+                console.log("Question Already exists");
+                return
+            } else {
+                setUrgencyKycQuestions(prevQuestions => {
+                    const updatedQuestions = [...prevQuestions, newKYCQuestion];
+                    setSelectedUrgencyKyc(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+                    return updatedQuestions;
+                });
+            }
         }
 
         setAddKYCQuestion(false);
@@ -395,7 +413,7 @@ const BuyerKycs = ({ handleContinue }) => {
                 <div className='h-[80vh]'>
                     {/* header */}
                     <div className='h-[10%]'>
-                        <Header buyerKYC={true} />
+                        <Header buyerKYC={true} shouldContinue={shouldContinue} />
                     </div>
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full h-[90%]'>

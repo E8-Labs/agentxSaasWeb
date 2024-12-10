@@ -110,29 +110,32 @@ const Pipeline1 = () => {
     //code for storing tags value
     const [tagsValue, setTagsValue] = useState([]);
 
+    //reorder stages loader
+    const [reorderStageLoader, setReorderStageLoader] = useState(false);
+
     useEffect(() => {
         getPipelines()
     }, []);
 
-    useEffect(() => {
-        // handleReorder()
-        let previousStages = oldStages.map((item) => item.id);
-        let updatedStages = StagesList.map((item) => item.id);
+    // useEffect(() => {
+    //     // handleReorder()
+    //     let previousStages = oldStages.map((item) => item.id);
+    //     let updatedStages = StagesList.map((item) => item.id);
 
-        console.log("Old stages list is reorder stages:", previousStages);
-        console.log("Updated stages list is reorder stages:", updatedStages);
+    //     console.log("Old stages list is reorder stages:", previousStages);
+    //     console.log("Updated stages list is reorder stages:", updatedStages);
 
-        // Compare arrays
-        const areArraysEqual = previousStages.length === updatedStages.length &&
-            previousStages.every((item, index) => item === updatedStages[index]);
+    //     // Compare arrays
+    //     const areArraysEqual = previousStages.length === updatedStages.length &&
+    //         previousStages.every((item, index) => item === updatedStages[index]);
 
-        if (areArraysEqual) {
-            console.log("Should not reorder stages");
-        } else {
-            console.log("Should reorder stages");
-            handleReorder();
-        }
-    }, [StagesList]);
+    //     if (areArraysEqual) {
+    //         console.log("Should not reorder stages");
+    //     } else {
+    //         console.log("Should reorder stages");
+    //         handleReorder();
+    //     }
+    // }, [StagesList]);
 
     //code to auto scroll to end
     useEffect(() => {
@@ -177,7 +180,13 @@ const Pipeline1 = () => {
             if (response) {
                 console.log("Response of add pipeline api is:", response);
                 if (response.data.status === true) {
+                    let updatedPipelinesList = [];
                     setPipeLines([...PipeLines, response.data.data]);
+                    updatedPipelinesList = [...PipeLines, response.data.data];
+                    let reversePipelinesList = updatedPipelinesList.reverse();
+                    console.log("Updated list of pipelines is:", reversePipelinesList);
+                    setSelectedPipeline(reversePipelinesList[0]);
+                    setStagesList(reversePipelinesList[0].stages);
                     setNewPipelineTitle("");
                     setNewPipelineStage(null);
                     setSuccessSnack(response.data.message);
@@ -375,9 +384,9 @@ const Pipeline1 = () => {
                 formData.append("moveToStage", assignNextStageId);
             }
 
-            for (let[key, value] of formData) {
+            for (let [key, value] of formData) {
                 console.log(`${key}, ${value}`)
-                
+
             }
 
             // return
@@ -551,7 +560,13 @@ const Pipeline1 = () => {
             if (response) {
                 console.log("Response of updates pipeline api is response :", response);
                 if (response.data.status === true) {
+                    let updatedPipelines = [];
                     setPipeLines(PipeLines.filter(pipeline => pipeline.id !== SelectedPipeline.id));
+                    updatedPipelines = PipeLines.filter(pipeline => pipeline.id !== SelectedPipeline.id);
+                    console.log("Updated list of pipelines is:", updatedPipelines);
+                    setSelectedPipeline(updatedPipelines[0]);
+                    setStagesList(updatedPipelines[0].stages);
+                    // setSelectedPipeline(PipeLines)
                     handlePipelineClosePopover();
                 }
             }
@@ -651,7 +666,7 @@ const Pipeline1 = () => {
     //code to rearrange stages list
     const handleReorder = async () => {
         try {
-
+            setReorderStageLoader(true);
             const updateStages = StagesList.map((stage, index) => ({
                 id: stage.id,
                 order: stage.order
@@ -688,6 +703,8 @@ const Pipeline1 = () => {
                     setShowStagesPopup(false);
                     handleCloseStagePopover();
                     setSuccessSnack(response.data.message);
+                    setShowRenamePipelinePopup(null);
+                    handlePipelineClosePopover();
                 }
             }
 
@@ -695,6 +712,7 @@ const Pipeline1 = () => {
             console.error("Error occured in rearrange order api is:", error);
         } finally {
             console.log("api call completed");
+            setReorderStageLoader(false);
         }
     }
 
@@ -832,6 +850,21 @@ const Pipeline1 = () => {
                                             Add Stage
                                         </button>
                                     </div>
+                                    <div className='w-full flex flex-row mt-4'>
+                                        {/* {
+                                                    delStageLoader ?
+                                                        <CircularProgress size={20} /> :
+                                                        
+                                                } */}
+                                        <button
+                                            className='text-black flex flex-row items-center gap-4 me-2 outline-none'
+                                            style={styles.paragraph}
+                                            onClick={() => { setShowStagesPopup(true) }}
+                                        >
+                                            <Image src={"/assets/colorDrop.png"} height={18} width={15} alt='*' />
+                                            Rearrange Stage
+                                        </button>
+                                    </div>
                                     {
                                         deletePipelineLoader ?
                                             <div className='mt-4 ms-6'>
@@ -875,7 +908,7 @@ const Pipeline1 = () => {
                     <div className='flex flex-row items-start gap-2'>
                         <div className="flex flex-row items-start gap-4">
                             {StagesList.map((stage, index) => (
-                                <div key={index} style={{ width: "300px" }} className="flex flex-col items-start h-full">
+                                <div key={index} style={{ width: "300px" }} className="flex flex-col items-start h-full gap-8">
                                     {/* Display the stage */}
                                     <div className='flex flex-row items-center w-full justify-between'>
                                         <div
@@ -986,21 +1019,6 @@ const Pipeline1 = () => {
                                             </div>
                                             <div ref={bottomRef}></div>
                                             <div className='w-full flex flex-row mt-4'>
-                                                {/* {
-                                                    delStageLoader ?
-                                                        <CircularProgress size={20} /> :
-                                                        
-                                                } */}
-                                                <button
-                                                    className='text-black flex flex-row items-center gap-4 me-2 outline-none'
-                                                    style={styles.paragraph}
-                                                    onClick={() => { setShowStagesPopup(true) }}
-                                                >
-                                                    <Image src={"/assets/colorDrop.png"} height={18} width={15} alt='*' />
-                                                    Rearrange Stage
-                                                </button>
-                                            </div>
-                                            <div className='w-full flex flex-row mt-4'>
                                                 <button
                                                     className='text-red flex flex-row items-center gap-4 me-2 outline-none'
                                                     style={styles.paragraph}
@@ -1016,55 +1034,63 @@ const Pipeline1 = () => {
                                     </Popover>
 
                                     {/* Display leads matching this stage */}
-                                    <div className="flex flex-col gap-4 mt-4 max-h-[78vh] overflow-auto border rounded-xl" style={{ scrollbarWidth: "none" }}>
-                                        {LeadsList.filter((lead) => lead.stage === stage.id).map((lead, leadIndex) => (
-                                            <div className="p-3 h-full" style={{ width: "300px" }} key={leadIndex}>
-                                                <div className="border rounded-xl px-4 py-2 h-full">
-                                                    <div className="flex flex-row items-center gap-3">
-                                                        <div
-                                                            className="bg-black text-white rounded-full flex flex-row item-center justify-center"
-                                                            style={{ height: "27px", width: "27px" }}
-                                                        >
-                                                            {lead.lead.firstName.slice(0, 1)}
-                                                        </div>
-                                                        <div style={styles.paragraph}>{lead.lead.firstName}</div>
-                                                    </div>
-                                                    <div className="flex flex-row items-center justify-between w-full mt-2">
-                                                        <div className="text-[#00000060]" style={styles.agentName}>
-                                                            Email
-                                                        </div>
-                                                        <div className="flex flex-row items-center gap-4">
-                                                            <Image
-                                                                src={"/assets/colorCircle.png"}
-                                                                height={24}
-                                                                width={24}
-                                                                alt="*"
-                                                            />
-                                                            <div className="text-purple underline" style={styles.agentName}>
-                                                                {lead.agent.name}
+                                    {
+                                        LeadsList.filter((lead) => lead.stage === stage.id).length > 0 && (
+                                            <div className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl" style={{
+                                                scrollbarWidth: "none", borderWidth: 1, borderRadius: '12',
+                                                borderStyle: "solid", borderColor: "#00000010",
+                                            }}>
+                                                {LeadsList.filter((lead) => lead.stage === stage.id).map((lead, leadIndex) => (
+                                                    <div className="p-3 h-full" style={{ width: "300px", height: 200 }} key={leadIndex}>
+                                                        <div className="border rounded-xl px-4 py-2 h-full">
+                                                            <div className="flex flex-row items-center gap-3">
+                                                                <div
+                                                                    className="bg-black text-white rounded-full flex flex-row item-center justify-center"
+                                                                    style={{ height: "27px", width: "27px" }}
+                                                                >
+                                                                    {lead.lead.firstName.slice(0, 1)}
+                                                                </div>
+                                                                <div style={styles.paragraph}>{lead.lead.firstName}</div>
+                                                            </div>
+                                                            <div className="flex flex-row items-center justify-between w-full mt-2">
+                                                                <div className="text-[#00000060]" style={styles.agentName}>
+                                                                    Email
+                                                                </div>
+                                                                <div className="flex flex-row items-center gap-4">
+                                                                    <Image
+                                                                        src={"/assets/colorCircle.png"}
+                                                                        height={24}
+                                                                        width={24}
+                                                                        alt="*"
+                                                                    />
+                                                                    <div className="text-purple underline" style={styles.agentName}>
+                                                                        {lead.agent.name}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div className="w-full flex flex-row items-center justify-between mt-12">
+                                                                <Image
+                                                                    src={"/assets/manIcon.png"}
+                                                                    height={32}
+                                                                    width={32}
+                                                                    alt="*"
+                                                                />
+                                                                <div className="flex flex-row items-center gap-3">
+                                                                    <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
+                                                                        Tag
+                                                                    </div>
+                                                                    <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
+                                                                        Tag
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div className="w-full flex flex-row items-center justify-between mt-12">
-                                                        <Image
-                                                            src={"/assets/manIcon.png"}
-                                                            height={32}
-                                                            width={32}
-                                                            alt="*"
-                                                        />
-                                                        <div className="flex flex-row items-center gap-3">
-                                                            <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
-                                                                Tag
-                                                            </div>
-                                                            <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
-                                                                Tag
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                ))}
                                             </div>
-                                        ))}
-                                    </div>
+                                        )
+                                    }
+
                                 </div>
                             ))}
                         </div>
@@ -1125,11 +1151,11 @@ const Pipeline1 = () => {
                                 <ColorPicker setStageColor={setStageColor} />
                             </div>
 
-                            <div className='text-purple flex flex-row items-center gap-2 mt-4'>
-                                <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                    Advanced Settings
-                                </div>
-                                <button onClick={() => { setShowAdvanceSettings(!showAdvanceSettings) }} className='outline-none'>
+                            <div className='text-purple mt-4'>
+                                <button onClick={() => { setShowAdvanceSettings(!showAdvanceSettings) }} className='outline-none flex flex-row items-center gap-2'>
+                                    <div style={{ fontWeight: "600", fontSize: 15 }}>
+                                        Advanced Settings
+                                    </div>
                                     {
                                         showAdvanceSettings ?
                                             <CaretUp size={15} weight='bold' /> :
@@ -1802,6 +1828,8 @@ const Pipeline1 = () => {
                                     handleSelectNextChange={handleSelectNextChange}
                                     selectedPipelineStages={StagesList}
                                     selectedPipelineItem={SelectedPipeline}
+                                    handleReorderStages={handleReorder}
+                                    reorderStageLoader={reorderStageLoader}
                                 />
                             </div>
 

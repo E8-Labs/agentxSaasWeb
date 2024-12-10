@@ -28,7 +28,7 @@ export const PromptTagInput = ({
   //code for modal
   const [showScriptModal, setShowScriptModal] = useState(false);
 
-  // console.log("Kycs list is:", kycsList);
+  console.log("Kycs list is:", kycsList);
 
   //Mirror Div Old
   //   useEffect(() => {
@@ -528,46 +528,48 @@ export const PromptTagInput = ({
         }}
       >
         <Box
-          className="lg:w-5/12 sm:w-full w-8/12 h-[75vh] bg-green flex justify-center items-center"
+          className="lg:w-5/12 sm:w-full w-8/12 h-[70vh] flex justify-center items-center"
           sx={styles.modalsStyle}
         >
-          <div className="flex flex-row justify-center items-center h-screen w-full">
+          <div className="flex flex-row justify-center items-center w-full h-[100%]">
             <div
-              className="sm:w-full w-full"
+              className="sm:w-full w-full h-[100%]"
               style={{
                 backgroundColor: "#ffffff",
                 // backgroundColor: "red",
                 padding: 20,
                 borderRadius: "13px",
                 position: "relative",
-                marginTop: 50,
+                // marginTop: 50,
               }}
             >
-              <div className="flex flex-row justify-end">
-                <button
-                  onClick={() => {
-                    setShowScriptModal(false);
-                  }}
+              <div className="h-[20%]">
+                <div className="flex flex-row justify-end">
+                  <button
+                    onClick={() => {
+                      setShowScriptModal(false);
+                    }}
+                  >
+                    <Image
+                      src={"/assets/crossIcon.png"}
+                      height={40}
+                      width={40}
+                      alt="*"
+                    />
+                  </button>
+                </div>
+
+                <div
+                  className="text-start sm:font-24 font-16"
+                  style={{ fontWeight: "700" }}
                 >
-                  <Image
-                    src={"/assets/crossIcon.png"}
-                    height={40}
-                    width={40}
-                    alt="*"
-                  />
-                </button>
+                  Edit Prompt
+                </div>
               </div>
 
-              <div
-                className="text-start sm:font-24 font-16"
-                style={{ fontWeight: "700" }}
-              >
-                Edit Prompt
-              </div>
-
-              <div style={{ position: "relative" }}>
+              <div style={{ position: "relative", height: "65%" }}>
                 <textarea
-                  className="outline-none rounded-xl focus:ring-0 h-[80vh]"
+                  className="outline-none rounded-xl focus:ring-0"
                   ref={textFieldRef}
                   // rows="20"
                   // cols="50"
@@ -585,7 +587,7 @@ export const PromptTagInput = ({
                     width: "100%",
                     fontWeight: "500",
                     fontSize: 15,
-                    height: "75vh",
+                    height: "100%",
                     resize: "none",
                     border: "1px solid #00000020",
                   }}
@@ -604,6 +606,9 @@ export const PromptTagInput = ({
                       zIndex: 1000,
                       padding: "10px",
                       minWidth: "150px",
+                      maxHeight: "250px",
+                      overflow: "auto",
+                      scrollbarWidth: "none"
                     }}
                   >
                     {filteredOptions.map((option) => (
@@ -629,7 +634,7 @@ export const PromptTagInput = ({
                 )}
               </div>
 
-              <div className="mt-4 w-full">
+              <div className="mt-4 w-full h-[15%]">
                 <button
                   className="bg-purple text-white text-xl font-medium w-full rounded-2xl h-[50px]"
                   onClick={() => {
