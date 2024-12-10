@@ -525,6 +525,61 @@ const Pipeline1 = () => {
         }
     }
 
+    //code to handle updaet color
+    const handleUpdateColor = async () => {
+        try {
+            setRenameStageLoader(true);
+            const localData = localStorage.getItem("User");
+            let AuthToken = null;
+            if (localData) {
+                const UserDetails = JSON.parse(localData);
+                AuthToken = UserDetails.token;
+            }
+
+            console.log("Auth token is :--", AuthToken);
+
+            // const ApiData = {
+            //     stageTitle: renameStage,
+            //     stageId: selectedStage.id,
+            //     color: updateStageColor
+            // }
+
+            const formData = new FormData();
+            // formData.append("stageTitle", renameStage);
+            formData.append("stageId", selectedStage.id);
+            formData.append("color", stageColorUpdate);
+
+            // console.log("data sending in api si:", ApiData);
+
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+
+            const ApiPath = Apis.UpdateStage;
+
+            console.log("Api path is:", ApiPath);
+            // return
+            const response = await axios.post(ApiPath, formData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of updates stage api is response :", response);
+                setStagesList(response.data.data.stages);
+                // setShowRenamePopup(false);
+                // handleCloseStagePopover();
+            }
+
+        } catch (error) {
+            console.log("Error occured in rename api is:", error);
+        } finally {
+            setRenameStageLoader(false);
+        }
+    }
+
     //code to delete pipeline
     const handleDeletePipeline = async () => {
         try {
@@ -1012,7 +1067,7 @@ const Pipeline1 = () => {
                                                             setStageColor={setUpdateStageColor}
                                                             onlyShowColorBox={true}
                                                             updateOnchange={true}
-                                                            handleUpdateColor={handleRenameStage}
+                                                            handleUpdateColor={handleUpdateColor}
                                                         />
                                                     </div>
                                                 </div>
