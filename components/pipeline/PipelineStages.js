@@ -47,7 +47,11 @@ const PipelineStages = ({
     //code for advance setting modal inside new stages
     const [showAdvanceSettings, setShowAdvanceSettings] = useState(false);
     //code for input arrays
-    const [inputs, setInputs] = useState([{ id: 1, value: '', placeholder: `Sure, i’d be interested in knowing what my home is worth` }, { id: 2, value: '', placeholder: "Yeah, how much is my home worth today?" }]);
+    const [inputs, setInputs] = useState([
+        { id: 1, value: '', placeholder: `Sure, i’d be interested in knowing what my home is worth` }, 
+        { id: 2, value: '', placeholder: "Yeah, how much is my home worth today?" },
+        { id: 3, value: '', placeholder: "Yeah, how much is my home worth today?" },
+    ]);
     const [action, setAction] = useState("");
 
     const handlePopoverOpen = (event) => {
@@ -1023,7 +1027,7 @@ const PipelineStages = ({
                                                             </div>
                                                         ))}
                                                     </div>
-                                                    <div style={{ height: "50px" }}>
+                                                    {/* <div style={{ height: "50px" }}>
                                                         {
                                                             inputs.length < 3 && (
                                                                 <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
@@ -1034,7 +1038,7 @@ const PipelineStages = ({
                                                                 </button>
                                                             )
                                                         }
-                                                    </div>
+                                                    </div> */}
 
                                                     <div className='flex flex-row items-center gap-2 mt-4'>
                                                         <p style={{ fontWeight: "600", fontSize: 15 }}>Assign to </p>
