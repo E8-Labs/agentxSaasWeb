@@ -617,9 +617,9 @@ const BuyerKycs = ({ handleContinue }) => {
                                                         value={input.value}
                                                         onChange={(e) => handleInputChange(input.id, e.target.value)}
                                                     />
-                                                    <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
+                                                    {/* <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
                                                         <Image src={"/assets/blackBgCross.png"} height={15} width={15} alt='*' />
-                                                    </button>
+                                                    </button> */}
                                                 </div>
                                             ))}
                                         </div>

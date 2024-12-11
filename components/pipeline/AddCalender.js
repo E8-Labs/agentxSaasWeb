@@ -119,13 +119,13 @@ const AddCalender = ({ handleContinue }) => {
             </div>
 
             <div className='w-full flex flex-col w-full items-center'>
-              <div className='w-7/12'>
+              <div className='w-6/12'>
                 <div className='mt-4' style={{ fontWeight: "600", fontSize: 16.8, textAlign: "start" }}>
                   Add calender title
                 </div>
                 <div>
                   <input
-                    className='w-10/12 rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1'
+                    className='w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1'
                     placeholder='Calnder name'
                     style={styles.inputStyles}
                     value={calenderTitle}
@@ -140,7 +140,7 @@ const AddCalender = ({ handleContinue }) => {
                 </div>
                 <div>
                   <input
-                    className='w-10/12 rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1'
+                    className='w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1'
                     placeholder='Calnder name'
                     style={styles.inputStyles}
                     value={calenderApiKey}
@@ -155,7 +155,7 @@ const AddCalender = ({ handleContinue }) => {
                 </div>
                 <div>
                   <input
-                    className='w-10/12 rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1'
+                    className='w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1'
                     placeholder='Calnder name'
                     style={styles.inputStyles}
                     value={eventId}

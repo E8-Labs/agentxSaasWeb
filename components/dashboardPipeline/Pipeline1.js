@@ -1151,15 +1151,22 @@ const Pipeline1 = () => {
                                                                     </div>
                                                                 </div> */}
 
-                                                                <div>
+                                                                <div className='flex flex-row items-center gap-1'>
                                                                     {
-                                                                        lead.lead.tags.map((tagVal, index) => {
+                                                                        lead.lead.tags.slice(0, 2).map((tagVal, index) => {
                                                                             return (
-                                                                                <div key={index}>
-                                                                                    tag
+                                                                                <div key={index} className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
+                                                                                    {tagVal.tag}
                                                                                 </div>
                                                                             )
                                                                         })
+                                                                    }
+                                                                    {
+                                                                        lead.lead.tags.length > 2 && (
+                                                                            <div>
+                                                                                +{lead.lead.tags.length - 2}
+                                                                            </div>
+                                                                        )
                                                                     }
                                                                 </div>
 

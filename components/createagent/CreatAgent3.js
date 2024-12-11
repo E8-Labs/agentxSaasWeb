@@ -65,14 +65,6 @@ const CreatAgent3 = ({ handleContinue }) => {
             title: "No monthly commitment"
         },
         {
-            id: 4,
-            title: "AI Outbound/Inbound "
-        },
-        {
-            id: 5,
-            title: "Batch Campaign"
-        },
-        {
             id: 6,
             title: "Real Time Booking"
         },
@@ -203,11 +195,11 @@ const CreatAgent3 = ({ handleContinue }) => {
                         </div>
 
                         <div className='h-[70%] overflow-auto w-full flex flex-col items-center' style={{ scrollbarWidth: "none" }}>
-                            <div className='flex flex-wrap w-4/12'>
+                            <div className='flex flex-wrap w-4/12 ' style ={{backgroundColor: ''}}>
                                 {
                                     facilities.map((item, index) => (
-                                        <div key={item.id} className='flex flex-row items-center justify-center gap-2 w-1/2 mt-4'>
-                                            <div className='flex flex-row items-center gap-2 justify-start' style={{ width: "auto" }}>
+                                        <div key={item.id} className='flex flex-row items-center justify-start pl-4 gap-2 w-1/2 mt-4'>
+                                            <div className='flex flex-row items-center gap-2 justify-start ml-2 ' style={{ width: "auto" }}>
                                                 <div>
                                                     <Image src={"/assets/tickMark.png"} height={14} width={17} alt='*' />
                                                 </div>
@@ -219,7 +211,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                     ))
                                 }
                             </div>
-                            <div className='w-5/12 flex flex-row items-center justify-center py-3 gap-4 mt-6 mb-8 px-4' style={{ backgroundColor: "#402FFF20", borderRadius: "50px" }}>
+                            <div className='flex flex-row items-center justify-center py-3 gap-4 mt-6 mb-8 px-4' style={{ backgroundColor: "#402FFF20", borderRadius: "50px", width: "fit-content" }}>
                                 <Image src={"/assets/attachIcon.png"} height={24} width={24} alt='*' />
                                 <div className='text-purple' style={styles.giftTextStyle}>
                                     Invest in Your Business Growth - Quick Start, Minimal Cost, Maximum Value.
@@ -271,17 +263,20 @@ const CreatAgent3 = ({ handleContinue }) => {
 
                             <div
                                 className='w-6/12 mt-4 flex flex-row items-start gap-2'
-                                style={{ borderRadius: "7px", border: "1px solid #15151540", padding: "15px" }}>
+                                style={{
+                                    borderRadius: "7px",
+                                    border: "1px solid #15151540", padding: "15px", backgroundColor: "#330864",
+                                }}>
                                 <Image src={"/assets/diamond.png"} className='mt-2' height={18} width={20} alt='*' />
                                 <div>
-                                    <div style={{ color: "#151515", fontSize: 20, fontWeight: "600" }}>
+                                    <div style={{ color: "#ffffff", fontSize: 20, fontWeight: "600" }}>
                                         Enterprise plan
                                     </div>
                                     <div className='flex flex-row items-start justify-between w-full'>
-                                        <div style={{ color: "#15151565", fontSize: 12, fontWeight: "600", width: "60%" }}>
+                                        <div style={{ color: "#ffffff", fontSize: 12, fontWeight: "600", width: "60%" }}>
                                             Custom solution specific to your business. Integrate AgentX into your sales operation.
                                         </div>
-                                        <button className='text-purple pe-8' style={{ fontSize: 14, fontWeight: "700" }}>
+                                        <button className='text-[#ffffff] pe-8' style={{ fontSize: 14, fontWeight: "700" }}>
                                             Contact Team
                                         </button>
                                     </div>

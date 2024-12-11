@@ -361,13 +361,17 @@ const PipelineStages = ({
                                             <div className="flex flex-row items-center justify-between">
                                                 <div className="flex flex-row items-start gap-2">
                                                     <div style={styles.inputStyle}>{item.stageTitle}</div>
-                                                    <button className="outline-none" onClick={() => {
-                                                        setShowRenamePopup(true);
-                                                        setRenameStage(item.stageTitle);
-                                                        setSelectedStage(item);
-                                                    }}>
-                                                        <PencilSimple size={20} weight="bold" />
-                                                    </button>
+                                                    {
+                                                        index > 0 && (
+                                                            <button className="outline-none" onClick={() => {
+                                                                setShowRenamePopup(true);
+                                                                setRenameStage(item.stageTitle);
+                                                                setSelectedStage(item);
+                                                            }}>
+                                                                <PencilSimple size={18} weight="bold" />
+                                                            </button>
+                                                        )
+                                                    }
                                                 </div>
                                                 <div>
                                                     {assignedLeads[index] ? (
@@ -723,7 +727,7 @@ const PipelineStages = ({
 
                                                             <div>
                                                                 <div className='mt-4' style={{ fontWeight: "600", fontSize: 12, paddingBottom: 5 }}>
-                                                                    Stage Title
+                                                                    Stage Title*
                                                                 </div>
                                                                 <input
                                                                     value={renameStage}
