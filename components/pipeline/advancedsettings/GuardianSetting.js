@@ -235,7 +235,7 @@ const GuardianSetting = ({ showTitle }) => {
               </button>
             </div>
             <div style={styles.title}>
-              What's the guardrail
+              {`What's the guardrail`}
             </div>
             <input
               className='outline-none focus:outline-none focus:ring-0'

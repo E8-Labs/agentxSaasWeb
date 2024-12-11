@@ -236,7 +236,7 @@ const Objection = ({ showTitle }) => {
               </button>
             </div>
             <div style={styles.title}>
-              What's the objection
+              {`What's the objection`}
             </div>
             <input
               className='outline-none focus:outline-none focus:ring-0'
