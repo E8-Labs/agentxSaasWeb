@@ -115,7 +115,7 @@ const PipelineStages = ({
                 console.log("Response of updates stage api is response :", response);
                 setPipelineStages(response.data.data.stages);
                 setShowRenamePopup(false);
-                setSuccessSnack(response.data.message);
+                // setSuccessSnack(response.data.message);
                 // handleCloseStagePopover();
             }
 
@@ -552,7 +552,7 @@ const PipelineStages = ({
                                                                                             removeRow(index, row.id)
                                                                                         }
                                                                                     >
-                                                                                        Remove
+                                                                                        <Image src="/assets/blackBgCross.png" height={20} width={20} alt="*" />
                                                                                     </button>
                                                                                 )}
                                                                             </div>
@@ -733,7 +733,7 @@ const PipelineStages = ({
                                                                     style={{ border: "1px solid #00000020" }}
                                                                 />
                                                                 <div style={{ marginTop: 20, fontWeight: "600", fontSize: 12, paddingBottom: 5 }}>
-                                                                    Color*
+                                                                    color
                                                                 </div>
                                                                 <ColorPicker setStageColor={setUpdateStageColor} stageColor={updateStageColor} />
                                                             </div>
@@ -898,7 +898,7 @@ const PipelineStages = ({
                                                 style={{ border: "1px solid #00000020" }}
                                             />
                                             <div style={{ marginTop: 20, fontWeight: "600", fontSize: 12, paddingBottom: 5 }}>
-                                                Color*
+                                                color
                                             </div>
                                             <ColorPicker setStageColor={setStageColor} />
                                         </div>

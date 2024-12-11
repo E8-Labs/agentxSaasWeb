@@ -476,7 +476,7 @@ const RearrangeStages = ({
                                                 style={{ border: "1px solid #00000020" }}
                                             />
                                             <div style={{ marginTop: 20, fontWeight: "600", fontSize: 12, paddingBottom: 5 }}>
-                                                Color*
+                                                color
                                             </div>
                                             <ColorPicker setStageColor={setStageColor} />
                                         </div>

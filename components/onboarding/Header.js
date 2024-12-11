@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-const Header = ({ skipSellerKYC, buyerKYC, shouldContinue }) => {
+const Header = ({ skipSellerKYC, buyerKYC, shouldContinue, showSkip, handleContinue }) => {
 
     const router = useRouter();
 
@@ -39,6 +39,19 @@ const Header = ({ skipSellerKYC, buyerKYC, shouldContinue }) => {
                                     fontWeight: "600",
                                     color: "#00000060"
                                 }} onClick={() => { router.push("/pipeline"); }}>
+                                Skip
+                            </button>
+                        )
+                    }
+                    {
+                        showSkip && shouldContinue && (
+                            <button
+                                className='underline h-full me-8'
+                                style={{
+                                    fontSize: 15,
+                                    fontWeight: "600",
+                                    color: "#00000060"
+                                }} onClick={handleContinue}>
                                 Skip
                             </button>
                         )

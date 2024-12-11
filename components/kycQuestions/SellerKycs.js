@@ -189,27 +189,56 @@ const SellerKycs = ({ handleContinue }) => {
 
     //code to select question
     const handleSelectNeedKYC = (item) => {
-        setSelectedNeedKYC((prevSelected) =>
-            prevSelected.some((selectedItem) => selectedItem.id === item.id)
-                ? prevSelected.filter((selectedItem) => selectedItem.id !== item.id) // Deselect
-                : [...prevSelected, { id: item.id, question: item.question }] // Select
-        );
+        // setSelectedNeedKYC((prevSelected) =>
+        //     prevSelected.some((selectedItem) => selectedItem.question === item.question)
+        //         ? prevSelected.filter((selectedItem) => selectedItem.id !== item.id) // Deselect
+        //         : [...prevSelected, { id: item.id, question: item.question }] // Select
+        // );
+
+        let isSelected = isMotivationKycSelected(item, selectedNeedKYC)
+        if (isSelected) {
+            setSelectedNeedKYC((prevSelected) =>
+                prevSelected.filter((selectedItem) => selectedItem.question !== item.question) // Deselect 
+            );
+        }
+        else {
+            setSelectedNeedKYC((prevSelected) =>
+                [...prevSelected, { id: item.id, question: item.question }] // Select
+            );
+        }
+
     };
 
     const handleSelectMotivationKYC = (item) => {
-        setSelectedMotivationKYC((prevSelected) =>
-            prevSelected.some((selectedItem) => selectedItem.id === item.id)
-                ? prevSelected.filter((selectedItem) => selectedItem.id !== item.id) // Deselect
-                : [...prevSelected, { id: item.id, question: item.question }] // Select
-        );
+        let isSelected = isMotivationKycSelected(item, selectedMotivationKyc)
+        if (isSelected) {
+            setSelectedMotivationKYC((prevSelected) =>
+                prevSelected.filter((selectedItem) => selectedItem.question !== item.question) // Deselect 
+            );
+        }
+        else {
+            setSelectedMotivationKYC((prevSelected) =>
+                [...prevSelected, { id: item.id, question: item.question }] // Select
+            );
+        }
+
     };
 
     const handleUrgencyKYC = (item) => {
-        setSelectedUrgencyKyc((prevSelected) =>
-            prevSelected.some((selectedItem) => selectedItem.id === item.id)
-                ? prevSelected.filter((selectedItem) => selectedItem.id !== item.id) // Deselect
-                : [...prevSelected, { id: item.id, question: item.question }] // Select
-        );
+        // setSelectedUrgencyKyc((prevSelected) =>
+        //     prevSelected.filter((selectedItem) => selectedItem.question !== item.question)
+        // )
+        let isSelected = isMotivationKycSelected(item, selectedUrgencyKyc)
+        if (isSelected) {
+            setSelectedUrgencyKyc((prevSelected) =>
+                prevSelected.filter((selectedItem) => selectedItem.question !== item.question) // Deselect 
+            );
+        }
+        else {
+            setSelectedUrgencyKyc((prevSelected) =>
+                [...prevSelected, { id: item.id, question: item.question }] // Select
+            );
+        }
     }
 
     const handleAddKyc = () => {
@@ -409,6 +438,20 @@ const SellerKycs = ({ handleContinue }) => {
         },
     }
 
+
+    function isMotivationKycSelected(kyc, selectedKycs) {
+        let isSelected = false;
+        for (const k of selectedKycs) {
+            console.log(`Comparing ${kyc.question} with ${k.question}\n\n\n`)
+            if (kyc.question == k.question) {
+                isSelected = true;
+            }
+        }
+        return isSelected
+    }
+
+
+
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
             <div className='bg-white rounded-2xl w-10/12 h-[90%] py-4 flex flex-col justify-between'>
@@ -465,28 +508,32 @@ const SellerKycs = ({ handleContinue }) => {
                                 (
                                     <div className='mt-8 w-10/12 md:w-6/12 max-h-[85%] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                         {
-                                            needKYCQuestions.map((item, index) => (
-                                                <button
-                                                    className='mb-4 border rounded-3xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full'
-                                                    style={{
-                                                        border: selectedNeedKYC.some(selectedItem => selectedItem.id === item.id) ? "2px solid #7902DF" : "",
-                                                        backgroundColor: selectedNeedKYC.some(selectedItem => selectedItem.id === item.id) ? "#402FFF15" : "",
-                                                    }}
-                                                    key={index}
-                                                    onClick={() => handleSelectNeedKYC(item)}
-                                                >
-                                                    <div style={{ width: "90%" }} className='text-start'>
-                                                        {item.question}
-                                                    </div>
-                                                    <div className='outline-none border-none' style={{ width: "10%" }}>
-                                                        {
-                                                            selectedNeedKYC.some(selectedItem => selectedItem.id === item.id)
-                                                                ? <Image src={"/assets/charmTick.png"} height={35} width={35} alt='*' />
-                                                                : <Image src={"/assets/charmUnMark.png"} height={35} width={35} alt='*' />
-                                                        }
-                                                    </div>
-                                                </button>
-                                            ))
+                                            needKYCQuestions.map((item, index) => {
+                                                let selected = isMotivationKycSelected(item, selectedNeedKYC)
+                                                return (
+                                                    <button
+                                                        className='mb-4 border rounded-3xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full'
+                                                        style={{
+                                                            border: selected ? "2px solid #7902DF" : "",
+                                                            backgroundColor: selected ? "#402FFF15" : "",
+                                                        }}
+                                                        key={index}
+                                                        onClick={() => handleSelectNeedKYC(item)}
+                                                    >
+                                                        <div style={{ width: "90%" }} className='text-start'>
+                                                            {item.question}
+                                                        </div>
+                                                        <div className='outline-none border-none' style={{ width: "10%" }}>
+                                                            {
+                                                                selected
+                                                                    ? <Image src={"/assets/charmTick.png"} height={35} width={35} alt='*' />
+                                                                    : <Image src={"/assets/charmUnMark.png"} height={35} width={35} alt='*' />
+                                                            }
+                                                        </div>
+                                                    </button>
+                                                )
+                                            }
+                                            )
                                         }
                                     </div>
                                 ) :
@@ -494,27 +541,34 @@ const SellerKycs = ({ handleContinue }) => {
                                     (
                                         <div className='mt-8 w-10/12 md:w-6/12 max-h-[85%] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                             {
-                                                motivationKycQuestions.map((item, index) => (
-                                                    <button
-                                                        className='mb-4 border rounded-3xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full'
-                                                        key={index}
-                                                        onClick={() => handleSelectMotivationKYC(item)}
-                                                        style={{
-                                                            border: selectedMotivationKyc.some(selectedItem => selectedItem.id === item.id) ? "2px solid #7902DF" : "",
-                                                            backgroundColor: selectedMotivationKyc.some(selectedItem => selectedItem.id === item.id) ? "#402FFF15" : ""
-                                                        }}>
-                                                        <div style={{ width: "90%" }} className='text-start'>
-                                                            {item.question}
-                                                        </div>
-                                                        <div className='outline-none border-none' style={{ width: "10%" }}>
-                                                            {
-                                                                selectedMotivationKyc.some(selectedItem => selectedItem.id === item.id)
-                                                                    ? <Image src={"/assets/charmTick.png"} height={35} width={35} alt='*' />
-                                                                    : <Image src={"/assets/charmUnMark.png"} height={35} width={35} alt='*' />
-                                                            }
-                                                        </div>
-                                                    </button>
-                                                ))
+                                                motivationKycQuestions.map((item, index) => {
+                                                    console.log("########################### START ########################################")
+                                                    let selected = isMotivationKycSelected(item, selectedMotivationKyc)
+                                                    console.log(selected)
+                                                    console.log("########################## END #########################################")
+                                                    return (
+                                                        <button
+                                                            className='mb-4 border rounded-3xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full'
+                                                            key={index}
+                                                            onClick={() => handleSelectMotivationKYC(item)}
+                                                            style={{
+                                                                border: selected ? "2px solid #7902DF" : "",//selectedMotivationKyc.some(selectedItem => selectedItem.id === item.id) ? "2px solid #7902DF" : "",
+                                                                backgroundColor: selected ? "#402FFF15" : ""
+                                                            }}>
+                                                            <div style={{ width: "90%" }} className='text-start'>
+                                                                {item.question}
+                                                            </div>
+                                                            <div className='outline-none border-none' style={{ width: "10%" }}>
+                                                                {
+                                                                    selected
+                                                                        ? <Image src={"/assets/charmTick.png"} height={35} width={35} alt='*' />
+                                                                        : <Image src={"/assets/charmUnMark.png"} height={35} width={35} alt='*' />
+                                                                }
+                                                            </div>
+                                                        </button>
+                                                    )
+                                                }
+                                                )
                                             }
                                         </div>
                                     ) :
@@ -522,26 +576,30 @@ const SellerKycs = ({ handleContinue }) => {
                                         (
                                             <div className='mt-8 w-10/12 md:w-6/12 max-h-[85%] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                                 {
-                                                    urgencyKycQuestions.map((item, index) => (
-                                                        <button
-                                                            className='mb-4 border rounded-3xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full' key={index}
-                                                            onClick={() => handleUrgencyKYC(item)}
-                                                            style={{
-                                                                border: selectedUrgencyKyc.some(selectedItem => selectedItem.id === item.id) ? "2px solid #7902DF" : "",
-                                                                backgroundColor: selectedUrgencyKyc.some(selectedItem => selectedItem.id === item.id) ? "#402FFF15" : ""
-                                                            }}>
-                                                            <div style={{ width: "90%" }} className='text-start'>
-                                                                {item.question}
-                                                            </div>
-                                                            <div className='outline-none border-none' style={{ width: "10%" }}>
-                                                                {
-                                                                    selectedUrgencyKyc.some(selectedItem => selectedItem.id === item.id)
-                                                                        ? <Image src={"/assets/charmTick.png"} height={35} width={35} alt='*' />
-                                                                        : <Image src={"/assets/charmUnMark.png"} height={35} width={35} alt='*' />
-                                                                }
-                                                            </div>
-                                                        </button>
-                                                    ))
+                                                    urgencyKycQuestions.map((item, index) => {
+                                                        let selected = isMotivationKycSelected(item, selectedUrgencyKyc)
+                                                        return (
+                                                            <button
+                                                                className='mb-4 border rounded-3xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full' key={index}
+                                                                onClick={() => handleUrgencyKYC(item)}
+                                                                style={{
+                                                                    border: selected ? "2px solid #7902DF" : "",
+                                                                    backgroundColor: selected ? "#402FFF15" : ""
+                                                                }}>
+                                                                <div style={{ width: "90%" }} className='text-start'>
+                                                                    {item.question}
+                                                                </div>
+                                                                <div className='outline-none border-none' style={{ width: "10%" }}>
+                                                                    {
+                                                                        selected
+                                                                            ? <Image src={"/assets/charmTick.png"} height={35} width={35} alt='*' />
+                                                                            : <Image src={"/assets/charmUnMark.png"} height={35} width={35} alt='*' />
+                                                                    }
+                                                                </div>
+                                                            </button>
+                                                        )
+                                                    }
+                                                    )
                                                 }
                                             </div>
                                         ) : ""

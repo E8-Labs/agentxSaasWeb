@@ -94,7 +94,7 @@ const Pipeline1 = ({ handleContinue }) => {
         }
     }, [pipelinesDetails]);
 
-    console.log("selected pipelinestages array is:", selectedPipelineStages);
+    // console.log("selected pipelinestages array is:", selectedPipelineStages);
 
     useEffect(() => {
         // const localCadences = localStorage.getItem("AddCadenceDetails");
@@ -115,7 +115,7 @@ const Pipeline1 = ({ handleContinue }) => {
             setShouldContinue(true);
         }
 
-        console.log("selected pipelinestages array is:", selectedPipelineStages);
+        // console.log("selected pipelinestages array is:", selectedPipelineStages);
 
     }, [selectedPipelineItem, selectedPipelineStages]);
 
@@ -221,6 +221,10 @@ const Pipeline1 = ({ handleContinue }) => {
     };
 
     const handleInputChange = (leadIndex, rowId, field, value) => {
+        console.log("Lead index is:", leadIndex);
+        console.log("Row id is:", rowId);
+        console.log("Field is:", field);
+        console.log("Value is", value);
         setRowsByIndex((prev) => ({
             ...prev,
             [leadIndex]: prev[leadIndex].map((row) =>
@@ -230,13 +234,27 @@ const Pipeline1 = ({ handleContinue }) => {
     };
 
     const addRow = (index) => {
-        setRowsByIndex((prev) => ({
+        
+        setRowsByIndex((prev) => {
+            let id  =(prev[index]?.length || 0) + 1
+        console.log(`Assigned Row Id `, id)
+        console.log(`Rows at ${index}`)
+        console.log(prev)
+        if((prev[index]?.length || 0) > 0){
+            let array = prev[index]
+            console.log("Array is now ", array)
+            let lastRow = array[array.length  -1];
+            id = lastRow.id + 1
+        }
+        console.log(`Now Assigned Row Id `, id)
+        
+            return {
             ...prev,
             [index]: [
                 ...(prev[index] || []),
-                { id: (prev[index]?.length || 0) + 1, waitTimeDays: 0, waitTimeHours: 0, waitTimeMinutes: 0 },
+                { id: id, waitTimeDays: 0, waitTimeHours: 0, waitTimeMinutes: 0 },
             ],
-        }));
+        }});
     };
 
     const removeRow = (leadIndex, rowId) => {

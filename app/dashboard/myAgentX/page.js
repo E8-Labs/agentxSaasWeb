@@ -545,235 +545,240 @@ function Page() {
       <div className='w-9/12 pt-10 items-center ' style={{}}>
 
         {/* code for agents list */}
+        {
+          initialLoader ?
+            <div className='h-[70vh] flex flex-row justify-center pt-32 gap-4'>
+              <CircularProgress size={45} />
+            </div> :
+            <div className='h-[70vh] overflow-auto flex flex-col gap-4' style={{ scrollbarWidth: "none" }}>
+              {
+                agentsContent.map((item, index) => (
+                  <div key={index}
+                    className='w-full px-10 py-2' style={{
+                      borderWidth: 1, borderColor: '#15151510', backgroundColor: '#FBFCFF',
+                      borderRadius: 20
+                    }}>
+                    <div className='w-12/12 flex flex-row items-center justify-between'>
+                      <div className='flex flex-row gap-5 items-center'>
 
-        <div className='h-[70vh] overflow-auto flex flex-col gap-4' style={{ scrollbarWidth: "none" }}>
-          {
-            agentsContent.map((item, index) => (
-              <div key={index}
-                className='w-full px-10 py-2' style={{
-                  borderWidth: 1, borderColor: '#15151510', backgroundColor: '#FBFCFF',
-                  borderRadius: 20
-                }}>
-                <div className='w-12/12 flex flex-row items-center justify-between'>
-                  <div className='flex flex-row gap-5 items-center'>
+                        <div className='flex flex-row items-end'>
+                          {selectedImages[index] ? (
+                            <div>
+                              <Image
+                                src={selectedImages[index]}
+                                height={70}
+                                width={70}
+                                alt="Profile"
+                                style={{ borderRadius: "50%", objectFit: "cover", height: "60px", width: "60px" }}
+                              />
+                            </div>
+                          ) :
+                            <Image className='hidden md:flex' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain" }} height={69} width={69} alt='*' />
+                          }
 
-                    <div className='flex flex-row items-end'>
-                      {selectedImages[index] ? (
-                        <div>
-                          <Image
-                            src={selectedImages[index]}
-                            height={70}
-                            width={70}
-                            alt="Profile"
-                            style={{ borderRadius: "50%", objectFit: "cover", height: "60px", width: "60px" }}
+
+                          <input
+                            type="file"
+                            accept="image/*"
+                            ref={(el) => (fileInputRef.current[index] = el)} // Store a ref for each input
+                            onChange={(e) => handleProfileImgChange(e, index)}
+                            style={{ display: 'none' }}
                           />
-                        </div>
-                      ) :
-                        <Image className='hidden md:flex' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain" }} height={69} width={69} alt='*' />
-                      }
 
+                          <button style={{ marginLeft: -30 }} onClick={() => { handleSelectProfileImg(index) }}>
+                            <Image src={'/otherAssets/cameraBtn.png'}
 
-                      <input
-                        type="file"
-                        accept="image/*"
-                        ref={(el) => (fileInputRef.current[index] = el)} // Store a ref for each input
-                        onChange={(e) => handleProfileImgChange(e, index)}
-                        style={{ display: 'none' }}
-                      />
-
-                      <button style={{ marginLeft: -30 }} onClick={() => { handleSelectProfileImg(index) }}>
-                        <Image src={'/otherAssets/cameraBtn.png'}
-
-                          height={36}
-                          width={36}
-                          alt='profile'
-                        />
-                      </button>
-                    </div>
-
-
-                    <div className='flex flex-col gap-1'>
-
-                      <div className='flex flex-row gap-3 items-center'>
-                        <button onClick={() => {
-                          setShowDrawer(item)
-                        }}>
-
-                          <div style={{ fontSize: 24, fontWeight: '600', color: '#000' }}>
-                            {item.name?.slice(0, 1).toUpperCase(0)}{item.name?.slice(1)}
-                          </div>
-                        </button>
-                        <div style={{ fontSize: 12, fontWeight: '600', color: '#00000080' }} className='flex flex-row items-center gap-1'>
-                          <div
-                            aria-owns={open ? 'mouse-over-popover' : undefined}
-                            aria-haspopup="true"
-                            onMouseEnter={handlePopoverOpen}
-                            onMouseLeave={handlePopoverClose}
-                            style={{ cursor: "pointer" }}
-                          >
-                            {item.agentObjective}
-                          </div>
-                          <div>
-                            | {item.agentType?.slice(0, 1).toUpperCase(0)}{item.agentType?.slice(1)}
-                          </div>
+                              height={36}
+                              width={36}
+                              alt='profile'
+                            />
+                          </button>
                         </div>
 
-                        {/* Code for popover */}
-                        <Popover
-                          id="mouse-over-popover"
-                          sx={{
-                            pointerEvents: 'none',
-                            // marginBottom: "20px"
-                          }}
-                          open={open}
-                          anchorEl={actionInfoEl}
-                          anchorOrigin={{
-                            vertical: 'top',
-                            horizontal: 'center',
-                          }}
-                          transformOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'center',
-                          }}
-                          PaperProps={{
-                            elevation: 1, // This will remove the shadow
-                            style: {
-                              boxShadow: "0px 8px 8px rgba(0, 0, 0, 0.01)",
-                            },
-                          }}
-                          onClose={handlePopoverClose}
-                          disableRestoreFocus
-                        >
-                          <div className="p-3 w-[250px]">
-                            <div className="flex flex-row items-center justify-between gap-1">
-                              <p style={{ ...styles.paragraph, color: "#00000060" }}>
-                                Status
-                              </p>
-                              <p style={styles.paragraph}>
-                                Coming soon
-                              </p>
-                            </div>
-                            <div className="flex flex-row items-center justify-between mt-1 gap-1">
-                              <p style={{ ...styles.paragraph, color: "#00000060" }}>
-                                Status
-                              </p>
-                              <p style={styles.paragraph}>
-                                Coming soon
-                              </p>
-                            </div>
-                          </div>
-                        </Popover>
 
-                      </div>
-                      <div className='flex flex-row gap-3 items-center text-purple' style={{ fontSize: 15, fontWeight: '500' }}>
-                        <button onClick={() => {
-                          setShowScriptModal(item);
-                          matchingAgent(item);
-                          setShowScript(true);
-                        }}>
-                          <div>
-                            View Script
-                          </div>
-                        </button>
+                        <div className='flex flex-col gap-1'>
 
-                        <div>
-                          |
-                        </div>
-
-                        <button onClick={() => {
-                          setShowDrawer(item)
-                        }}>
-                          <div>
-                            More info
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-
-                  </div>
-
-
-                  <div className='flex flex-row items-start gap-2'>
-
-                    {
-                      !item.phoneNumber && (
-                        <div className='flex flex-row items-center gap-2 -mt-1'>
-                          <Image src={"/assets/warningFill.png"} height={18} width={18} alt='*' />
-                          <p>
-                            <i className='text-red' style={{
-                              fontSize: 12,
-                              fontWeight: "600"
+                          <div className='flex flex-row gap-3 items-center'>
+                            <button onClick={() => {
+                              setShowDrawer(item)
                             }}>
-                              No Phone number assigned
-                            </i>
-                          </p>
+
+                              <div style={{ fontSize: 24, fontWeight: '600', color: '#000' }}>
+                                {item.name?.slice(0, 1).toUpperCase(0)}{item.name?.slice(1)}
+                              </div>
+                            </button>
+                            <div style={{ fontSize: 12, fontWeight: '600', color: '#00000080' }} className='flex flex-row items-center gap-1'>
+                              <div
+                                aria-owns={open ? 'mouse-over-popover' : undefined}
+                                aria-haspopup="true"
+                                onMouseEnter={handlePopoverOpen}
+                                onMouseLeave={handlePopoverClose}
+                                style={{ cursor: "pointer" }}
+                              >
+                                {item.agentObjective}
+                              </div>
+                              <div>
+                                | {item.agentType?.slice(0, 1).toUpperCase(0)}{item.agentType?.slice(1)}
+                              </div>
+                            </div>
+
+                            {/* Code for popover */}
+                            <Popover
+                              id="mouse-over-popover"
+                              sx={{
+                                pointerEvents: 'none',
+                                // marginBottom: "20px"
+                              }}
+                              open={open}
+                              anchorEl={actionInfoEl}
+                              anchorOrigin={{
+                                vertical: 'top',
+                                horizontal: 'center',
+                              }}
+                              transformOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'center',
+                              }}
+                              PaperProps={{
+                                elevation: 1, // This will remove the shadow
+                                style: {
+                                  boxShadow: "0px 8px 8px rgba(0, 0, 0, 0.01)",
+                                },
+                              }}
+                              onClose={handlePopoverClose}
+                              disableRestoreFocus
+                            >
+                              <div className="p-3 w-[250px]">
+                                <div className="flex flex-row items-center justify-between gap-1">
+                                  <p style={{ ...styles.paragraph, color: "#00000060" }}>
+                                    Status
+                                  </p>
+                                  <p style={styles.paragraph}>
+                                    Coming soon
+                                  </p>
+                                </div>
+                                <div className="flex flex-row items-center justify-between mt-1 gap-1">
+                                  <p style={{ ...styles.paragraph, color: "#00000060" }}>
+                                    Status
+                                  </p>
+                                  <p style={styles.paragraph}>
+                                    Coming soon
+                                  </p>
+                                </div>
+                              </div>
+                            </Popover>
+
+                          </div>
+                          <div className='flex flex-row gap-3 items-center text-purple' style={{ fontSize: 15, fontWeight: '500' }}>
+                            <button onClick={() => {
+                              setShowScriptModal(item);
+                              matchingAgent(item);
+                              setShowScript(true);
+                            }}>
+                              <div>
+                                View Script
+                              </div>
+                            </button>
+
+                            <div>
+                              |
+                            </div>
+
+                            <button onClick={() => {
+                              setShowDrawer(item)
+                            }}>
+                              <div>
+                                More info
+                              </div>
+                            </button>
+                          </div>
                         </div>
-                      )
-                    }
 
-                    <button className='bg-purple px-4 py-2 rounded-lg'
-                      onClick={() => {
-                        console.log("Selected agent for test ai is:", item);
-                        setOpenTestAiModal(true);
-                        setSelectedAgent(item);
-                      }}
-                    >
-                      <div style={{ fontSize: 16, fontWeight: '600', color: '#fff' }}>
-                        Test AI
                       </div>
-                    </button>
 
+
+                      <div className='flex flex-row items-start gap-2'>
+
+                        {
+                          !item.phoneNumber && (
+                            <div className='flex flex-row items-center gap-2 -mt-1'>
+                              <Image src={"/assets/warningFill.png"} height={18} width={18} alt='*' />
+                              <p>
+                                <i className='text-red' style={{
+                                  fontSize: 12,
+                                  fontWeight: "600"
+                                }}>
+                                  No Phone number assigned
+                                </i>
+                              </p>
+                            </div>
+                          )
+                        }
+
+                        <button className='bg-purple px-4 py-2 rounded-lg'
+                          onClick={() => {
+                            console.log("Selected agent for test ai is:", item);
+                            setOpenTestAiModal(true);
+                            setSelectedAgent(item);
+                          }}
+                        >
+                          <div style={{ fontSize: 16, fontWeight: '600', color: '#fff' }}>
+                            Test AI
+                          </div>
+                        </button>
+
+                      </div>
+
+                    </div>
+
+
+                    <div style={{ marginTop: 20 }} className='w-9.12 bg-white p-6 rounded-lg '>
+                      <div className='w-full flex flex-row items-center justify-between'>
+
+                        <Card
+                          name="Calls"
+                          value={item.calls && item.calls > 0 ? (<div>{item.calls}</div>) : "-"}
+                          icon='/assets/selectedCallIcon.png'
+                          bgColor="bg-blue-100"
+                          iconColor="text-blue-500"
+                        />
+                        <Card
+                          name="Convos"
+                          value={item.callsGt10 && item.callsGt10 > 0 ? (<div>{item.callsGt10}</div>) : "-"}
+                          icon='/otherAssets/convosIcon2.png'
+                          bgColor="bg-purple-100"
+                          iconColor="text-purple-500"
+                        />
+                        <Card
+                          name="Hot Leads"
+                          value="-"
+                          icon='/otherAssets/hotLeadsIcon2.png'
+                          bgColor="bg-orange-100"
+                          iconColor="text-orange-500"
+                        />
+
+                        <Card
+                          name="Booked Meetings"
+                          value="-"
+                          icon='/otherAssets/greenCalenderIcon.png'
+                          bgColor="green"
+                          iconColor="text-orange-500"
+                        />
+
+                        <Card
+                          name="Mins Talked"
+                          value={item.totalDuration && item.totalDuration > 0 ? (<div>{item.totalDuration}</div>) : "-"}
+                          icon='/otherAssets/transferIcon.png'
+                          bgColor="green"
+                          iconColor="text-orange-500"
+                        />
+                      </div>
+                    </div>
                   </div>
-
-                </div>
-
-
-                <div style={{ marginTop: 20 }} className='w-9.12 bg-white p-6 rounded-lg '>
-                  <div className='w-full flex flex-row items-center justify-between'>
-
-                    <Card
-                      name="Calls"
-                      value={item.calls && item.calls > 0 ? (<div>{item.calls}</div>) : "-"}
-                      icon='/assets/selectedCallIcon.png'
-                      bgColor="bg-blue-100"
-                      iconColor="text-blue-500"
-                    />
-                    <Card
-                      name="Convos >10 Sec"
-                      value={item.callsGt10 && item.callsGt10 > 0 ? (<div>{item.callsGt10}</div>) : "-"}
-                      icon='/otherAssets/convosIcon2.png'
-                      bgColor="bg-purple-100"
-                      iconColor="text-purple-500"
-                    />
-                    <Card
-                      name="Hot Leads"
-                      value="-"
-                      icon='/otherAssets/hotLeadsIcon2.png'
-                      bgColor="bg-orange-100"
-                      iconColor="text-orange-500"
-                    />
-
-                    <Card
-                      name="Booked Meetings"
-                      value="-"
-                      icon='/otherAssets/greenCalenderIcon.png'
-                      bgColor="green"
-                      iconColor="text-orange-500"
-                    />
-
-                    <Card
-                      name="Mins Talked"
-                      value={item.totalDuration && item.totalDuration > 0 ? (<div>{item.totalDuration}</div>) : "-"}
-                      icon='/otherAssets/transferIcon.png'
-                      bgColor="green"
-                      iconColor="text-orange-500"
-                    />
-                  </div>
-                </div>
-              </div>
-            ))
-          }
-        </div>
+                ))
+              }
+            </div>
+        }
 
 
 
@@ -1027,14 +1032,8 @@ function Page() {
                     {showDrawer?.name}
                   </div>
                   <div className='text-purple' style={{ fontSize: 11, fontWeight: "600" }}>
-                    {showDrawer?.agentObjective}
+                    {showDrawer?.agentObjective} <span className='text-[#00000060]'> | {showDrawer?.agentType}</span>
                   </div>
-
-                  <Image src={'/otherAssets/blueUpdateIcon.png'}
-                    height={24}
-                    width={24}
-                    alt='icon'
-                  />
                 </div>
 
                 <div style={{ fontSize: 15, fontWeight: "500", color: "#000" }}>
@@ -1068,7 +1067,7 @@ function Page() {
 
 
 
-          <div className="grid grid-cols-3 gap-6 border p-8 flex-row justify-between w-full rounded-lg mb-6">
+          <div className="grid grid-cols-5 gap-6 border p-8 flex-row justify-between w-full rounded-lg mb-6">
             <Card
               name="Number of Calls"
               value={showDrawer?.calls && showDrawer?.calls > 0 ? (<div>{showDrawer?.calls}</div>) : "-"}
@@ -1077,7 +1076,7 @@ function Page() {
               iconColor="text-blue-500"
             />
             <Card
-              name="Convos >10 Sec"
+              name="Convos"
               value={showDrawer?.callsGt10 && showDrawer?.callsGt10 > 0 ? (<div>{showDrawer?.callsGt10}</div>) : "-"}
               icon="/otherAssets/convosIcon2.png"
               bgColor="bg-purple-100"
@@ -1099,7 +1098,7 @@ function Page() {
             />
             <Card
               name="Live Transfers"
-              value="-"
+              value={showDrawer?.totalDuration && showDrawer?.totalDuration > 0 ? (<div>{showDrawer?.totalDuration}</div>) : "-"}
               icon="/otherAssets/transferIcon.png"
               bgColor="bg-green-100"
               iconColor="text-green-500"

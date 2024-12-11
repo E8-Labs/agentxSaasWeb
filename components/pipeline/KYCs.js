@@ -1,4 +1,4 @@
-import { Box, Modal, Popover } from '@mui/material'
+import { Box, CircularProgress, Modal, Popover } from '@mui/material'
 import { CaretDown, CaretUp, DotsThree } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
@@ -37,6 +37,9 @@ const KYCs = ({ kycsDetails }) => {
     const [BuyerUrgencyData, setBuyerUrgencyData] = useState([]);
     const [showBuyerUrgencyData, setShowBuyerUrgencyData] = useState(false);
     const [addBuyerKyc, setAddBuyerKyc] = useState(false);
+
+    //code for deleting the kycs
+    const [DelKycLoader, setDelKycLoader] = useState(false);
 
     //popover code here
     const handleOpenPopover = (event, item) => {
@@ -202,6 +205,51 @@ const KYCs = ({ kycsDetails }) => {
 
     }
 
+    //delete kyc data
+    const handleDeleteKyc = async () => {
+        try {
+            setDelKycLoader(true);
+
+            let AuthToken = null;
+            const localData = localStorage.getItem("User");
+            if (localData) {
+                const Data = JSON.parse(localData);
+                console.log("Localdat recieved is :--", Data);
+                AuthToken = Data.token;
+            }
+
+            console.log("Auth token is:", AuthToken);
+
+            const ApiData = {
+                kycId: selectedKyc.id
+            }
+
+            const ApiPath = Apis.deleteKyc;
+            console.log("Api path is:", ApiPath);
+
+            console.log("Api data is", ApiData);
+
+            // return
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken
+                }
+            });
+
+            if (response) {
+                console.log("resopnse of delete kyc api is ", response.data);
+                if (response.data.status === true) {
+                    // kycsDetails()
+                }
+            }
+
+        } catch (error) {
+            console.error("Eror occured in", error);
+        } finally {
+            setDelKycLoader(false);
+        }
+    }
+
 
 
     const styles = {
@@ -290,10 +338,22 @@ const KYCs = ({ kycsDetails }) => {
                                                         },
                                                     }}
                                                 >
-                                                    <button className='p-2 px-3 flex flex-row items-center gap-2 rounded-xl'>
-                                                        <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
-                                                        <div className='text-red' style={styles.inputStyle}>Delete</div>
-                                                    </button>
+                                                    {
+                                                        DelKycLoader ? (
+                                                            <div>
+                                                                <CircularProgress size={20} />
+                                                            </div>
+                                                        ) : (
+                                                            <button className='p-2 px-3 flex flex-row items-center gap-2 rounded-xl' onClick={handleDeleteKyc}>
+                                                                <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
+                                                                <div className='text-red' style={styles.inputStyle}>
+                                                                    <div>
+                                                                        Delete
+                                                                    </div>
+                                                                </div>
+                                                            </button>
+                                                        )
+                                                    }
                                                 </Popover>
                                             </div>
                                         </div>
@@ -364,10 +424,18 @@ const KYCs = ({ kycsDetails }) => {
                                                         },
                                                     }}
                                                 >
-                                                    <button className='p-2 px-3 flex flex-row items-center gap-2 rounded-xl'>
-                                                        <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
-                                                        <div className='text-red' style={styles.inputStyle}>Delete</div>
-                                                    </button>
+                                                    {
+                                                        DelKycLoader ? (
+                                                            <div>
+                                                                <CircularProgress size={20} />
+                                                            </div>
+                                                        ) : (
+                                                            <button className='p-2 px-3 flex flex-row items-center gap-2 rounded-xl' onClick={handleDeleteKyc}>
+                                                                <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
+                                                                <div className='text-red' style={styles.inputStyle}>Delete</div>
+                                                            </button>
+                                                        )
+                                                    }
                                                 </Popover>
                                             </div>
                                         </div>
@@ -438,10 +506,20 @@ const KYCs = ({ kycsDetails }) => {
                                                         },
                                                     }}
                                                 >
-                                                    <button className='p-2 px-3 flex flex-row items-center gap-2 rounded-xl'>
-                                                        <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
-                                                        <div className='text-red' style={styles.inputStyle}>Delete</div>
-                                                    </button>
+                                                    <div>
+                                                        {
+                                                            DelKycLoader ? (
+                                                                <div>
+                                                                    <CircularProgress size={20} />
+                                                                </div>
+                                                            ) : (
+                                                                <button className='p-2 px-3 flex flex-row items-center gap-2 rounded-xl' onClick={handleDeleteKyc}>
+                                                                    <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
+                                                                    <div className='text-red' style={styles.inputStyle}>Delete</div>
+                                                                </button>
+                                                            )
+                                                        }
+                                                    </div>
                                                 </Popover>
                                             </div>
                                         </div>

@@ -843,7 +843,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
                 <div>
                     <div>
-                        <ProgressBar value={33} />
+                        {/* <ProgressBar value={33} /> */}
                     </div>
 
                     <Footer handleContinue={handleNextClick} handleBack={handleBack} registerLoader={loader} />

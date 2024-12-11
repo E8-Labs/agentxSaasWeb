@@ -1,5 +1,5 @@
 import Apis from '@/components/apis/Apis';
-import { Box, CircularProgress, Modal } from '@mui/material';
+import { Box, CircularProgress, Modal, TextareaAutosize } from '@mui/material';
 import axios from 'axios';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
@@ -182,7 +182,7 @@ const GuardianSetting = ({ showTitle }) => {
 
       {
         guardrailsList.length > 0 ?
-          <div style={{ scrollbarWidth: "none", overflow: showTitle && "auto", maxHeight: showTitle ? "100%" : "40hv" }}>
+          <div style={{ scrollbarWidth: "none", overflow: !showTitle && "auto", maxHeight: showTitle ? "100%" : "40vh" }}>
             {guardrailsList.map((item, index) => {
               return (
                 <div className='p-3 rounded-xl mt-4' key={index} style={{ border: "1px solid #00000020" }}>
@@ -214,7 +214,7 @@ const GuardianSetting = ({ showTitle }) => {
           <button className='text-purple mt-4 outline-none'
             style={{ fontWeight: "700", fontSize: 16 }}
             onClick={() => setShowAddObjForm(true)}>
-            New Question
+            Add New
           </button>
         )
       }
@@ -235,7 +235,7 @@ const GuardianSetting = ({ showTitle }) => {
               </button>
             </div>
             <div style={styles.title}>
-              Title
+              What's the guardrail
             </div>
             <input
               className='outline-none focus:outline-none focus:ring-0'
@@ -246,7 +246,8 @@ const GuardianSetting = ({ showTitle }) => {
             <div style={{ ...styles.title, marginTop: 10 }}>
               Description
             </div>
-            <input
+            <TextareaAutosize
+              maxRows={5}
               className='outline-none focus:outline-none focus:ring-0'
               style={styles.inputStyle} placeholder='Add description'
               value={addObjDescription}

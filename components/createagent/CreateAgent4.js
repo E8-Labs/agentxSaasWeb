@@ -119,19 +119,24 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     useEffect(() => {
         console.log("Main number is :", selectNumber);
         console.log("User selected number is :", userSelectedNumber);
-        if (userSelectedNumber || useOfficeNumber &&
+        console.log("User callback number is :", callBackNumber);
+        console.log("do not staus is :", toggleClick);
+        if (
             selectNumber &&
-            callBackNumber) {
+            callBackNumber ||
+            !toggleClick &&
+            userSelectedNumber || useOfficeNumber
+        ) {
             setShouldContinue(false)
         }
-    }, [selectNumber, userSelectedNumber, callBackNumber]);
+    }, [selectNumber, userSelectedNumber, callBackNumber, toggleClick]);
 
     //code to format the number
     const formatPhoneNumber = (rawNumber) => {
         const phoneNumber = parsePhoneNumberFromString(
             rawNumber.startsWith('+') ? rawNumber : `+${rawNumber}`
         );
-        console.log("Raw number is", rawNumber);
+        // console.log("Raw number is", rawNumber);
         return phoneNumber ? phoneNumber.formatInternational() : 'Invalid phone number';
     };
 

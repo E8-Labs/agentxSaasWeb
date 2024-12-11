@@ -188,11 +188,13 @@ const CreatAgent3 = ({ handleContinue }) => {
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
             <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4'>
 
-                <div className='h-[77vh]'>
+                <div className='h-[100%]'>
                     {/* header */}
-                    <Header />
+                    <div className='h-[10%]'>
+                        <Header />
+                    </div>
                     {/* Body */}
-                    <div className='flex flex-col items-center px-4 w-full'>
+                    <div className='flex flex-col items-center px-4 w-full h-[80%]'>
                         <div className='mt-6 w-11/12 sm:text-3xl text-lg font-[600]' style={{ textAlign: "center" }} onClick={handleContinue}>
                             Your first 30 minutes are on us!
                         </div>
@@ -200,7 +202,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                             Start for free, then pay as you go
                         </div>
 
-                        <div className='h-[55vh] overflow-auto w-full flex flex-col items-center' style={{ scrollbarWidth: "none" }}>
+                        <div className='h-[70%] overflow-auto w-full flex flex-col items-center' style={{ scrollbarWidth: "none" }}>
                             <div className='flex flex-wrap w-4/12'>
                                 {
                                     facilities.map((item, index) => (
@@ -303,198 +305,198 @@ const CreatAgent3 = ({ handleContinue }) => {
                             </div>
                         </div>
 
-                        <div className='w-full flex-col items-center flex gap-4' style={{ position: "absolute", bottom: 65, }}>
+                    </div>
+                    {/* style={{ position: "absolute", bottom: 65, }} */}
+                    <div className='w-full flex-col items-center flex gap-4 h-[10%]' >
 
-                            {
-                                selectedPlan && (
-                                    <div className='w-full flex-col items-center flex'>
-                                        {
-                                            selectedPlan?.id > 1 ? (
-                                                <button
-                                                    className='bg-purple w-5/12 rounded-lg text-white h-[50px]'
-                                                    style={{ fontSize: 16, fontWeight: "600" }}
-                                                    onClick={() => { setAddPaymentPopUp(true) }}
-                                                >
-                                                    Continue
-                                                </button>
-                                            ) : (
-                                                <button
-                                                    className='bg-purple w-5/12 rounded-lg text-white h-[50px]'
-                                                    style={{ fontSize: 16, fontWeight: "600" }}
-                                                    onClick={() => { setAddPaymentPopUp(true) }}
-                                                >
-                                                    Claim 30 mins
-                                                </button>
-                                            )
-                                        }
-                                    </div>
-                                )
-                            }
-                        </div>
-
-
-
-                        {/* Add Payment Modal */}
-                        <Modal
-                            open={addPaymentPopUp}
-                            closeAfterTransition
-                            BackdropProps={{
-                                timeout: 1000,
-                                sx: {
-                                    backgroundColor: "#00000020",
-                                    // backdropFilter: "blur(20px)",
-                                },
-                            }}
-                        >
-                            <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.paymentModal}>
-                                <div className="flex flex-row justify-center w-full">
-                                    <div
-                                        className="sm:w-7/12 w-full"
-                                        style={{
-                                            backgroundColor: "#ffffff",
-                                            padding: 20,
-                                            borderRadius: "13px",
-                                        }}
-                                    >
-                                        <div className='flex flex-row justify-end'>
-                                            <button onClick={handleClose}>
-                                                <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                        {
+                            selectedPlan && (
+                                <div className='w-full flex-col items-center flex'>
+                                    {
+                                        selectedPlan?.id > 1 ? (
+                                            <button
+                                                className='bg-purple w-5/12 rounded-lg text-white h-[50px]'
+                                                style={{ fontSize: 16, fontWeight: "600" }}
+                                                onClick={() => { setAddPaymentPopUp(true) }}
+                                            >
+                                                Continue
                                             </button>
-                                        </div>
-                                        <div className='text-center mt-2' style={{ fontWeight: "700", fontSize: 24 }}>
-                                            Start for Free. Then Pay as you go!
-                                        </div>
-
-                                        {
-                                            selectedPlan?.id > 1 ?
-                                                <div className='text-center mt-4' style={styles.headingStyle}>
-                                                    Your minutes will renew after using {selectedPlan?.mints} mins
-                                                </div> :
-                                                <div className='text-center mt-4' style={styles.headingStyle}>
-                                                    Payment starts after your free {selectedPlan?.mints} mins
-                                                </div>
-                                        }
-
-
-                                        <div className='mt-4 text-[#4F5B76]' style={styles.giftTextStyle}>
-                                            Card number
-                                        </div>
-                                        <input className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0' style={styles.cardStyles} placeholder='1212 1212 1212 1212' maxLength={16}
-                                            onInput={(e) => {
-                                                e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
-                                            }} />
-
-                                        <div className='flex flex-row gap-2 mt-4'>
-                                            <div className='w-6/12'>
-                                                <div className='text-[#4F5B76]' style={styles.giftTextStyle}>
-                                                    Expiry
-                                                </div>
-                                                <input
-                                                    className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0' style={styles.cardStyles} placeholder='MM / YY' maxLength={6}
-                                                    onInput={(e) => {
-                                                        e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
-                                                    }} />
-                                            </div>
-                                            <div className='w-6/12'>
-                                                <div className='text-[#4F5B76]' style={styles.giftTextStyle}>
-                                                    Card number
-                                                </div>
-                                                <input className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0' style={styles.cardStyles} placeholder='CVC' maxLength={3}
-                                                    onInput={(e) => {
-                                                        e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
-                                                    }} />
-                                            </div>
-                                        </div>
-
-                                        <div className='mt-4 text-[#4F5B76]' style={styles.giftTextStyle}>
-                                            Postal Code
-                                        </div>
-                                        <input className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0' style={styles.cardStyles} placeholder='48530' maxLength={5}
-                                            onInput={(e) => {
-                                                e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
-                                            }} />
-
-                                        <div className='mt-4 text-[#4F5B76]' style={styles.giftTextStyle}>
-                                            AgentX Code (optional)
-                                        </div>
-                                        <input className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0'
-                                            style={styles.cardStyles} placeholder='Enter the code here' maxLength={16}
-                                            onInput={(e) => {
-                                                e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
-                                            }}
-                                        />
-
-                                        <button className='bg-purple text-white w-full rounded-xl mt-12' style={{ ...styles.headingStyle, height: "50px" }}
-                                            onClick={() => {
-                                                handleClose();
-                                                setAddPaymentSuccessPopUp(true);
-                                            }}>
-                                            Continue
-                                        </button>
-
-                                        {/* Can be use full to add shadow */}
-                                        {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-                                    </div>
-                                </div>
-                            </Box>
-                        </Modal>
-
-                        {/* Add Payment Success Modal */}
-                        <Modal
-                            open={addPaymentSuccessPopUp}
-                            closeAfterTransition
-                            BackdropProps={{
-                                timeout: 1000,
-                                sx: {
-                                    backgroundColor: "#00000020",
-                                    // backdropFilter: "blur(20px)",
-                                },
-                            }}
-                        >
-                            <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.paymentModal}>
-                                <div className="flex flex-row justify-center w-full">
-                                    <div
-                                        className="sm:w-7/12 w-full"
-                                        style={{
-                                            backgroundColor: "#ffffff",
-                                            padding: 20,
-                                            borderRadius: "13px",
-                                        }}
-                                    >
-                                        <div className='flex flex-row justify-end'>
-                                            <button onClick={handleClose}>
-                                                <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                        ) : (
+                                            <button
+                                                className='bg-purple w-5/12 rounded-lg text-white h-[50px]'
+                                                style={{ fontSize: 16, fontWeight: "600" }}
+                                                onClick={() => { setAddPaymentPopUp(true) }}
+                                            >
+                                                Claim 30 mins
                                             </button>
-                                        </div>
-                                        <div className='mt-4 flex flex-row justify-center w-full'>
-                                            <Image src={"/assets/successTick.png"} height={85} width={85} alt='*' />
-                                        </div>
-                                        {
-                                            selectedPlan?.id > 1 ? (
-                                                <div className='text-center mt-4' style={{ fontWeight: "700", fontSize: 24 }}>
-                                                    Payment Successfully Added
-                                                </div>
-                                            ) : (
-                                                <div className='text-center mt-4' style={{ fontWeight: "700", fontSize: 24 }}>
-                                                    Payment Successful
-                                                </div>
-                                            )
-                                        }
-
-                                        <button
-                                            className='bg-purple text-white w-full rounded-xl mt-6 mb-6' style={{ ...styles.headingStyle, height: "50px", }} onClick={handleContinue}>
-                                            Continue
-                                        </button>
-
-                                        {/* Can be use full to add shadow */}
-                                        {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-                                    </div>
+                                        )
+                                    }
                                 </div>
-                            </Box>
-                        </Modal>
-
+                            )
+                        }
                     </div>
                 </div>
+
+
+
+                {/* Add Payment Modal */}
+                <Modal
+                    open={addPaymentPopUp}
+                    closeAfterTransition
+                    BackdropProps={{
+                        timeout: 1000,
+                        sx: {
+                            backgroundColor: "#00000020",
+                            // backdropFilter: "blur(20px)",
+                        },
+                    }}
+                >
+                    <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.paymentModal}>
+                        <div className="flex flex-row justify-center w-full">
+                            <div
+                                className="sm:w-7/12 w-full"
+                                style={{
+                                    backgroundColor: "#ffffff",
+                                    padding: 20,
+                                    borderRadius: "13px",
+                                }}
+                            >
+                                <div className='flex flex-row justify-end'>
+                                    <button onClick={handleClose}>
+                                        <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                    </button>
+                                </div>
+                                <div className='text-center mt-2' style={{ fontWeight: "700", fontSize: 24 }}>
+                                    Start for Free. Then Pay as you go!
+                                </div>
+
+                                {
+                                    selectedPlan?.id > 1 ?
+                                        <div className='text-center mt-4' style={styles.headingStyle}>
+                                            Your minutes will renew after using {selectedPlan?.mints} mins
+                                        </div> :
+                                        <div className='text-center mt-4' style={styles.headingStyle}>
+                                            Payment starts after your free {selectedPlan?.mints} mins
+                                        </div>
+                                }
+
+
+                                <div className='mt-4 text-[#4F5B76]' style={styles.giftTextStyle}>
+                                    Card number
+                                </div>
+                                <input className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0' style={styles.cardStyles} placeholder='1212 1212 1212 1212' maxLength={16}
+                                    onInput={(e) => {
+                                        e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+                                    }} />
+
+                                <div className='flex flex-row gap-2 mt-4'>
+                                    <div className='w-6/12'>
+                                        <div className='text-[#4F5B76]' style={styles.giftTextStyle}>
+                                            Expiry
+                                        </div>
+                                        <input
+                                            className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0' style={styles.cardStyles} placeholder='MM / YY' maxLength={6}
+                                            onInput={(e) => {
+                                                e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+                                            }} />
+                                    </div>
+                                    <div className='w-6/12'>
+                                        <div className='text-[#4F5B76]' style={styles.giftTextStyle}>
+                                            Card number
+                                        </div>
+                                        <input className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0' style={styles.cardStyles} placeholder='CVC' maxLength={3}
+                                            onInput={(e) => {
+                                                e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+                                            }} />
+                                    </div>
+                                </div>
+
+                                <div className='mt-4 text-[#4F5B76]' style={styles.giftTextStyle}>
+                                    Postal Code
+                                </div>
+                                <input className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0' style={styles.cardStyles} placeholder='48530' maxLength={5}
+                                    onInput={(e) => {
+                                        e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+                                    }} />
+
+                                <div className='mt-4 text-[#4F5B76]' style={styles.giftTextStyle}>
+                                    AgentX Code (optional)
+                                </div>
+                                <input className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0'
+                                    style={styles.cardStyles} placeholder='Enter the code here' maxLength={16}
+                                    onInput={(e) => {
+                                        e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+                                    }}
+                                />
+
+                                <button className='bg-purple text-white w-full rounded-xl mt-12' style={{ ...styles.headingStyle, height: "50px" }}
+                                    onClick={() => {
+                                        handleClose();
+                                        setAddPaymentSuccessPopUp(true);
+                                    }}>
+                                    Continue
+                                </button>
+
+                                {/* Can be use full to add shadow */}
+                                {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                            </div>
+                        </div>
+                    </Box>
+                </Modal>
+
+                {/* Add Payment Success Modal */}
+                <Modal
+                    open={addPaymentSuccessPopUp}
+                    closeAfterTransition
+                    BackdropProps={{
+                        timeout: 1000,
+                        sx: {
+                            backgroundColor: "#00000020",
+                            // backdropFilter: "blur(20px)",
+                        },
+                    }}
+                >
+                    <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.paymentModal}>
+                        <div className="flex flex-row justify-center w-full">
+                            <div
+                                className="sm:w-7/12 w-full"
+                                style={{
+                                    backgroundColor: "#ffffff",
+                                    padding: 20,
+                                    borderRadius: "13px",
+                                }}
+                            >
+                                <div className='flex flex-row justify-end'>
+                                    <button onClick={handleClose}>
+                                        <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                    </button>
+                                </div>
+                                <div className='mt-4 flex flex-row justify-center w-full'>
+                                    <Image src={"/assets/successTick.png"} height={85} width={85} alt='*' />
+                                </div>
+                                {
+                                    selectedPlan?.id > 1 ? (
+                                        <div className='text-center mt-4' style={{ fontWeight: "700", fontSize: 24 }}>
+                                            Payment Successfully Added
+                                        </div>
+                                    ) : (
+                                        <div className='text-center mt-4' style={{ fontWeight: "700", fontSize: 24 }}>
+                                            Payment Successful
+                                        </div>
+                                    )
+                                }
+
+                                <button
+                                    className='bg-purple text-white w-full rounded-xl mt-6 mb-6' style={{ ...styles.headingStyle, height: "50px", }} onClick={handleContinue}>
+                                    Continue
+                                </button>
+
+                                {/* Can be use full to add shadow */}
+                                {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                            </div>
+                        </div>
+                    </Box>
+                </Modal>
 
 
             </div>

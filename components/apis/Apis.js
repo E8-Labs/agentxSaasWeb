@@ -11,8 +11,9 @@ const Apis = {
     userAvailablePhoneNumber: `${BasePath}api/agent/listUsersAvailablePhoneNumbers`,
     reassignNumber: `${BasePath}api/agent/releasePhoneNumber`,
     asignPhoneNumber: `${BasePath}api/agent/assignPhoneNumber`,
-    addKyc: `${BasePath}api/agent/addKyc`,
     getVoices: "https://fine-tuner.ai/api/1.1/wf/v2_voice_agent_voices",
+    addKyc: `${BasePath}api/agent/addKyc`,
+    deleteKyc: `${BasePath}api/agent/deleteKyc`,
     getKYCs: `${BasePath}api/agent/getKycs`,
     getPipelines: `${BasePath}api/pipeline/getPipelines`,
     updatePipeline: `${BasePath}api/pipeline/updatePipeline`,
@@ -41,7 +42,8 @@ const Apis = {
     getObjectionGuardrial: `${BasePath}api/agent/getObjectionsAndGuardrails`,
     reorderStages: `${BasePath}api/pipeline/reorderStages`,
     createPipeLine: `${BasePath}api/pipeline/createPipeline`,
-    testAI: `${BasePath}api/agent/testAi`
+    testAI: `${BasePath}api/agent/testAi`,
+    addCalender: `${BasePath}api/calendar/createCalendar`
 
 }
 

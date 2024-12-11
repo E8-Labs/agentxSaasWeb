@@ -2,7 +2,7 @@ import { CircularProgress } from '@mui/material'
 import React from 'react'
 
 const Footer = ({ handleContinue, handleBack, donotShowBack, registerLoader, shouldContinue }) => {
-    console.log("Status of continue is :", shouldContinue);
+    // console.log("Status of continue is :", shouldContinue);
     return (
         <div>
             <div className='px-4 flex flex-row justify-between items-center pt-4'>

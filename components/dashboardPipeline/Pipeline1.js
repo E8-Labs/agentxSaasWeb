@@ -117,6 +117,14 @@ const Pipeline1 = () => {
         getPipelines()
     }, []);
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            // console.log("I am trigerred after 1second");
+            handleUpdateColor();
+        }, 500);
+        return (() => clearTimeout(timer));
+    }, [stageColorUpdate])
+
     // useEffect(() => {
     //     // handleReorder()
     //     let previousStages = oldStages.map((item) => item.id);
@@ -138,12 +146,15 @@ const Pipeline1 = () => {
     // }, [StagesList]);
 
     //code to auto scroll to end
+
+
     useEffect(() => {
-        setTimeout(() => {
+        const timer = setTimeout(() => {
             if (bottomRef.current) {
                 bottomRef.current.scrollIntoView({ behavior: 'smooth' });
             }
         }, 500);
+        return (() => clearTimeout(timer))
     }, [StagesList]);
 
 
@@ -1068,6 +1079,7 @@ const Pipeline1 = () => {
                                                             onlyShowColorBox={true}
                                                             updateOnchange={true}
                                                             handleUpdateColor={handleUpdateColor}
+                                                            stageColor={stageColorUpdate}
                                                         />
                                                     </div>
                                                 </div>
@@ -1130,14 +1142,27 @@ const Pipeline1 = () => {
                                                                     width={32}
                                                                     alt="*"
                                                                 />
-                                                                <div className="flex flex-row items-center gap-3">
+                                                                {/* <div className="flex flex-row items-center gap-3">
                                                                     <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
                                                                         Tag
                                                                     </div>
                                                                     <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
                                                                         Tag
                                                                     </div>
+                                                                </div> */}
+
+                                                                <div>
+                                                                    {
+                                                                        lead.lead.tags.map((tagVal, index) => {
+                                                                            return (
+                                                                                <div key={index}>
+                                                                                    tag
+                                                                                </div>
+                                                                            )
+                                                                        })
+                                                                    }
                                                                 </div>
+
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1201,7 +1226,7 @@ const Pipeline1 = () => {
                                     style={{ border: "1px solid #00000020" }}
                                 />
                                 <div style={{ marginTop: 20, fontWeight: "600", fontSize: 12, paddingBottom: 5 }}>
-                                    Color*
+                                    color
                                 </div>
                                 <ColorPicker setStageColor={setStageColor} />
                             </div>
@@ -1442,7 +1467,7 @@ const Pipeline1 = () => {
                                     style={{ border: "1px solid #00000020" }}
                                 />
                                 <div style={{ marginTop: 20, fontWeight: "600", fontSize: 12, paddingBottom: 5 }}>
-                                    Color*
+                                    color
                                 </div>
                                 <ColorPicker setStageColor={setUpdateStageColor} stageColor={updateStageColor} />
                             </div>

@@ -407,8 +407,8 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                 return item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "-";
             case "Phone":
                 return item.phone ? item.phone : "-";
-            case "stage":
-                return item.stage ? item.stage : "-";
+            case "Stage":
+                return item.stage ? item.stage : "No Stage";
             case "More":
                 return (
                     <button
@@ -880,7 +880,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                                             }`}
                                                                         style={column.title === "More" ? { zIndex: 1 } : {}}
                                                                     >
-                                                                        {column.title}
+                                                                        {column.title.slice(0, 1).toUpperCase()}{column.title.slice(1)}
                                                                     </th>
                                                                 ))}
                                                             </tr>
@@ -894,7 +894,13 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                                             key={colIndex}
                                                                             className={`border-none px-4 py-2 ${column.title === "More" ? "sticky right-0 bg-white" : ""
                                                                                 }`}
-                                                                            style={column.title === "More" ? { zIndex: 1 } : {}}
+                                                                            style={{
+                                                                                whiteSpace: "nowrap",
+                                                                                overflow: "hidden",
+                                                                                textOverflow: "ellipsis",
+                                                                                maxWidth: "150px",
+                                                                                zIndex: column.title === "More" ? 1 : "auto",
+                                                                            }}
                                                                         >
                                                                             {getColumnData(column, item)}
                                                                         </td>
