@@ -57,6 +57,7 @@ function Page() {
   const [openPurchaseSuccessModal, setOpenPurchaseSuccessModal] = useState(false);
   const [selectedPurchasedNumber, setSelectedPurchasedNumber] = useState(null);
   const [selectedPurchasedIndex, setSelectedPurchasedIndex] = useState(null);
+  const [assignLoader, setAssignLoader] = useState(false);
 
 
   //image variable
@@ -324,35 +325,35 @@ function Page() {
       }
 
       // localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
-      setOpenPurchaseSuccessModal(true);
-      setAssignNumber(selectedPurchasedNumber.phoneNumber);
-      setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
-      setShowClaimPopup(false);
-      setOpenCalimNumDropDown(false);
+      // setOpenPurchaseSuccessModal(true);
+      // setAssignNumber(selectedPurchasedNumber.phoneNumber);
+      // setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
+      // setShowClaimPopup(false);
+      // setOpenCalimNumDropDown(false);
 
 
       // return
 
-      // const response = await axios.post(ApiPath, formData, {
-      //   headers: {
-      //     "Authorization": "Bearer " + AuthToken,
-      //     "Content-Type": "multipart/form-data",
-      //     // "Content-Type": "application/json"
-      //   }
-      // });
+      const response = await axios.post(ApiPath, formData, {
+        headers: {
+          "Authorization": "Bearer " + AuthToken,
+          "Content-Type": "multipart/form-data",
+          // "Content-Type": "application/json"
+        }
+      });
 
-      // if (response) {
-      //   console.log("Response of purchase number api is :--", response.data);
-      //   if (response.data.status === true) {
-      //     localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
-      //     setOpenPurchaseSuccessModal(true);
-      //     // handleContinue();
-      //     setSelectNumber(selectedPurchasedNumber.phoneNumber);
-      //     setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
-      //     setShowClaimPopup(false);
-      //     setOpenCalimNumDropDown(false);
-      //   }
-      // }
+      if (response) {
+        console.log("Response of purchase number api is :--", response.data);
+        if (response.data.status === true) {
+          localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
+          setOpenPurchaseSuccessModal(true);
+          // handleContinue();
+          setSelectNumber(selectedPurchasedNumber.phoneNumber);
+          setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
+          setShowClaimPopup(false);
+          setOpenCalimNumDropDown(false);
+        }
+      }
 
     } catch (error) {
       console.error("Error occured in purchase number api is: --", error);
@@ -408,6 +409,73 @@ function Page() {
     setShowScript(true);
     setSeledtedScriptKYC(false);
     setSeledtedScriptAdvanceSetting(false);
+  }
+
+  const AssignNumber = async () => {
+    try {
+      setAssignLoader(true);
+      let AuthToken = null;
+      const LocalData = localStorage.getItem("User");
+      let MyAgentData = null;
+      const agentDetails = localStorage.getItem("agentDetails");
+      if (LocalData) {
+        const UserDetails = JSON.parse(LocalData);
+        AuthToken = UserDetails.token;
+      }
+
+      if (agentDetails) {
+        console.log("trying");
+        const agentData = JSON.parse(agentDetails);
+        console.log("Agent details are :--", agentData);
+        MyAgentData = agentData;
+      }
+
+      const formData = new FormData();
+      formData.append("phoneNumber", assignNumber);
+      //   formData.append("callbackNumber", assignNumber);
+      // if (userSelectedNumber) {
+      //   formData.append("callbackNumber", assignNumber);
+      // } else {
+      //   formData.append("callbackNumber", officeNumber);
+      // }
+      // formData.append("liveTransforNumber", callBackNumber);
+      formData.append("mainAgentId", MyAgentData.id);
+      // formData.append("liveTransfer", toggleClick);
+
+      const ApiPath = Apis.asignPhoneNumber;
+
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key} ${value}`)
+      }
+
+      // return
+
+      const response = await axios.post(ApiPath, formData, {
+        headers: {
+          "Authorization": "Bearer " + AuthToken
+        }
+      });
+
+      if (response) {
+        console.log("Response of assign number api is :", response.data)
+        if (response.data.status === true) {
+          // handleContinue();
+          const calimNoData = {
+            officeNo: officeNumber,
+            userNumber: selectNumber,
+            usernumber2: userSelectedNumber,
+            callBackNumber: callBackNumber
+          }
+          localStorage.setItem("claimNumberData", JSON.stringify(calimNoData))
+        }
+      }
+
+    } catch (error) {
+      console.error("Error occured in api is:", error);
+    } finally {
+      console.log("Assign Number Api call completed");
+      setAssignLoader(false);
+    }
   }
 
   const handleShowKycs = () => {
@@ -834,6 +902,17 @@ function Page() {
       fontSize: 15,
       fontWeight: "500",
       color: "#000000"
+    },
+    modalsStyle: {
+      height: "auto",
+      bgcolor: "transparent",
+      p: 2,
+      mx: "auto",
+      my: "50vh",
+      transform: "translateY(-55%)",
+      borderRadius: 2,
+      border: "none",
+      outline: "none",
     },
   }
 
@@ -1519,8 +1598,23 @@ function Page() {
             activeTab === "Agent Info" ? (
               <div className='w-full'>
                 <div className="flex flex-col gap-4">
-                  <div style={{ fontSize: 16, fontWeight: '600', color: '#000' }}>
-                    Agent
+                  <div className='flex flex-row items-center justify-between'>
+                    <div style={{ fontSize: 16, fontWeight: '600', color: '#000' }}>
+                      Agent
+                    </div>
+                    {
+                      assignLoader ?
+                        <div>
+                          <CircularProgress size={25} />
+                        </div> :
+                        <button
+                          className='text-purple underline'
+                          style={{ fontSize: 16, fontWeight: '600', color: '' }}
+                          onClick={AssignNumber}
+                        >
+                          Save Changes
+                        </button>
+                    }
                   </div>
                   <div className="flex justify-between">
                     <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Name</div>
@@ -1633,7 +1727,7 @@ function Page() {
                             }}
                             sx={{
                               ...styles.dropdownMenu,
-                              backgroundColor: 'red',
+                              backgroundColor: 'none',
                               '& .MuiOutlinedInput-notchedOutline': {
                                 border: 'none',
                               },
@@ -1714,7 +1808,7 @@ function Page() {
                       }
                     </div>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between mt-4">
                     <div className='flex flex-row gap-3'>
                       <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>
                         Call transfer number
@@ -1730,7 +1824,7 @@ function Page() {
                       {showDrawer?.liveTransferNumber ?
                         <div>
                           {showDrawer?.liveTransferNumber}
-                        </div> : "N/A"
+                        </div> : "-"
                       }
                     </div>
                   </div>

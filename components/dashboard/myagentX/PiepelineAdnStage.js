@@ -49,7 +49,6 @@ const PipelineAndStage = ({ selectedAgent }) => {
             let userDetails = null
             let AuthToken = null;
             const localData = localStorage.getItem("User");
-            let agentDetails = null;
 
             const agentDataLocal = localStorage.getItem("agentDetails");
 
@@ -60,20 +59,14 @@ const PipelineAndStage = ({ selectedAgent }) => {
                 AuthToken = Data.token;
             }
 
-            if (agentDataLocal) {
-                const Data = JSON.parse(agentDataLocal);
-                agentDetails = Data.id;
-                console.log("Agent Local details recieved are :--", Data);
-            }
-
             console.log("Auth token is:", AuthToken);
 
             const ApiData = {
-                mainAgentId: agentDetails
+                mainAgentId: selectedAgent.mainAgentId
             }
 
             const formData = new FormData();
-            formData.append("mainAgentId", agentDetails);
+            formData.append("mainAgentId", selectedAgent.mainAgentId);
 
             const ApiPath = Apis.getAgentCadence;
 
@@ -88,7 +81,7 @@ const PipelineAndStage = ({ selectedAgent }) => {
             });
 
             if (response) {
-                console.log("Response of get agent cadence api is:", response.data);
+                console.log("Response of get agent cadence api is:", JSON.stringify(response.data));
                 setAgentCadence(response.data.data)
             }
 
