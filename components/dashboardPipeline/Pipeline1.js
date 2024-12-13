@@ -1116,12 +1116,12 @@ const Pipeline1 = () => {
 
                                     {/* Display leads matching this stage */}
                                     {
-                                        LeadsList.filter((lead) => lead.stage === stage.id).length > 0 && (
+                                        LeadsList.filter((lead) => lead.lead.stage === stage.id).length > 0 && (
                                             <div className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl" style={{
                                                 scrollbarWidth: "none", borderWidth: 1, borderRadius: '12',
                                                 borderStyle: "solid", borderColor: "#00000010",
                                             }}>
-                                                {LeadsList.filter((lead) => lead.stage === stage.id).map((lead, leadIndex) => (
+                                                {LeadsList.filter((lead) => lead.lead.stage === stage.id).map((lead, leadIndex) => (
                                                     <div className="p-3 h-full" style={{ width: "300px", height: 200 }} key={leadIndex}>
                                                         <div className="border rounded-xl px-4 py-2 h-full">
                                                             <div className="flex flex-row items-center gap-3">
