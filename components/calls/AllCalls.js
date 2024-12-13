@@ -243,3 +243,4 @@ const styles = {
         textOverflow: 'ellipsis'  // Add ellipsis for overflow text
     }
 }
+

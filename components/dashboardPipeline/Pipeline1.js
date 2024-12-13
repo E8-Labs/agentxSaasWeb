@@ -352,9 +352,7 @@ const Pipeline1 = () => {
                 console.log("Response of add stage title :", response);
                 if (response.data.status === true) {
                     setStagesList(response.data.data.stages);
-                    setAddNewStageModal(false);
-                    setNewStageTitle("");
-                    setStageColor("");
+                    handleCloseAddStage();
                     setPipelinePopoverAnchorel(null);
                 }
             }
@@ -798,6 +796,18 @@ const Pipeline1 = () => {
         "honeydew",
     ];
 
+    //code to  close tha add new stage
+    const handleCloseAddStage = () => {
+        setAddNewStageModal(false);
+        setNewStageTitle("");
+        setStageColor("");
+        setInputs([
+            { id: 1, value: '', placeholder: `Sure, i'd be interested in knowing what my home is worth` },
+            { id: 2, value: '', placeholder: "Yeah, how much is my home worth today?" },
+            { id: 3, value: '', placeholder: "Yeah, how much is my home worth today?" }
+        ]);
+    }
+
     const styles = {
         heading: {
             fontWeight: "700",
@@ -1207,7 +1217,7 @@ const Pipeline1 = () => {
             {/* Code for add stage modal */}
             <Modal
                 open={addNewStageModal}
-                onClose={() => { setAddNewStageModal(false) }}
+                onClose={() => { handleCloseAddStage() }}
             >
                 <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
                     <div style={{ width: "100%", }}>
@@ -1219,7 +1229,7 @@ const Pipeline1 = () => {
                                     Add New Stage
                                 </div>
                                 <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
-                                    <button onClick={() => { setAddNewStageModal(false) }} className='outline-none'>
+                                    <button onClick={() => { handleCloseAddStage() }} className='outline-none'>
                                         <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
                                     </button>
                                 </div>
@@ -1352,9 +1362,9 @@ const Pipeline1 = () => {
                                                         value={input.value}
                                                         onChange={(e) => handleInputChange(input.id, e.target.value)}
                                                     />
-                                                    <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
+                                                    {/* <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
                                                         <Image src={"/assets/blackBgCross.png"} height={20} width={20} alt='*' />
-                                                    </button>
+                                                    </button> */}
                                                 </div>
                                             ))}
                                         </div>
@@ -1416,23 +1426,31 @@ const Pipeline1 = () => {
 
                         </div>
 
-                        {
-                            addStageLoader ?
-                                <div className='flex flex-row iems-center justify-center w-full mt-4'>
-                                    <CircularProgress size={25} />
-                                </div> :
-                                <button
-                                    className='mt-4 outline-none'
-                                    style={{
-                                        backgroundColor: "#402FFF", color: "white",
-                                        height: "50px", borderRadius: "10px", width: "100%",
-                                        fontWeight: 600, fontSize: '20'
-                                    }}
-                                    onClick={handleAddCustomStage}
-                                >
-                                    Add & Close
-                                </button>
-                        }
+                        <div className='w-full h-[80px]'>
+                            {
+                                inputs.filter(input => input.value.trim()).length === 3 && newStageTitle && (
+                                    <div>
+                                        {
+                                            addStageLoader ?
+                                                <div className='flex flex-row iems-center justify-center w-full mt-4'>
+                                                    <CircularProgress size={25} />
+                                                </div> :
+                                                <button
+                                                    className='mt-4 outline-none'
+                                                    style={{
+                                                        backgroundColor: "#402FFF", color: "white",
+                                                        height: "50px", borderRadius: "10px", width: "100%",
+                                                        fontWeight: 600, fontSize: '20'
+                                                    }}
+                                                    onClick={handleAddCustomStage}
+                                                >
+                                                    Add & Close
+                                                </button>
+                                        }
+                                    </div>
+                                )
+                            }
+                        </div>
 
 
                     </div>

@@ -15,6 +15,7 @@ import { PromptTagInput } from '@/components/pipeline/tagInputs/PromptTagInput';
 import KYCs from '@/components/pipeline/KYCs';
 import Objection from '@/components/pipeline/advancedsettings/Objection';
 import GuarduanSetting from '@/components/pipeline/advancedsettings/GuardianSetting';
+import PiepelineAdnStage from '@/components/dashboard/myagentX/PiepelineAdnStage';
 
 function Page() {
 
@@ -48,6 +49,9 @@ function Page() {
   const [showScriptModal, setShowScriptModal] = useState(null);
   const [showScript, setShowScript] = useState(false);
   const [SeledtedScriptKYC, setSeledtedScriptKYC] = useState(false);
+  //show objection and guadrails
+  const [showObjection, setShowObjection] = useState(true);
+  const [showGuardrails, setShowGuardrails] = useState(false);
   const [SeledtedScriptAdvanceSetting, setSeledtedScriptAdvanceSetting] = useState(false);
   const [introVideoModal, setIntroVideoModal] = useState(false);
   const [kycsData, setKycsData] = useState(null);
@@ -140,6 +144,17 @@ function Page() {
     setShowScript(false);
     setSeledtedScriptKYC(false);
     setSeledtedScriptAdvanceSetting(true);
+  }
+
+  //function to show the objection and guadrails
+  const handleShowObjection = () => {
+    setShowObjection(true);
+    setShowGuardrails(false);
+  }
+
+  const handleShowGuardrails = () => {
+    setShowObjection(false);
+    setShowGuardrails(true);
   }
 
   //function ot compare the selected agent wiith the main agents list
@@ -285,7 +300,10 @@ function Page() {
       if (response) {
         console.log("Response of test AI api is :", response);
         if (response.data.status === true) {
+          setOpenTestAiModal(false);
           setShowSuccessSnack(response.data.message);
+          setName("");
+          setPhone("");
         }
       }
 
@@ -369,11 +387,16 @@ function Page() {
 
   useEffect(() => {
 
+    const agentLocalDetails = localStorage.getItem("localAgentDetails");
+    if (agentLocalDetails) {
+      const agentData = JSON.parse(agentLocalDetails);
+      setUserDetails(agentData);
+    }
 
     const userData = localStorage.getItem("User");
 
     try {
-      setInitialLoader(true);
+      // setInitialLoader(true);
       if (userData) {
         const userLocalData = JSON.parse(userData);
         getAgents(userLocalData);
@@ -381,7 +404,7 @@ function Page() {
     } catch (error) {
       console.error("Error occured is :", error);
     } finally {
-      setInitialLoader(false)
+      // setInitialLoader(false)
     }
 
   }, []);
@@ -447,21 +470,8 @@ function Page() {
 
       if (response) {
         console.log("Response of get agents api is:", response.data);
+        localStorage.setItem("localAgentDetails", JSON.stringify(response.data.data));
         setUserDetails(response.data.data);
-        callScript = response.data.data[0].greeting;
-
-        console.log("Keys extracted are", callScript);
-
-        //function for extracting the keys
-        const regex = /\{(.*?)\}/g;
-        let match;
-
-        while ((match = regex.exec(callScript)) !== null) {
-          keys.push(match[1]); // Add the variable name (without braces) to the array
-        }
-        setScriptKeys((prevKeys) => [...prevKeys, ...keys]);
-        console.log("Keys extracted are", keys);
-
       }
 
 
@@ -719,6 +729,40 @@ function Page() {
                           onClick={() => {
                             console.log("Selected agent for test ai is:", item);
                             setOpenTestAiModal(true);
+                            let callScript = item.prompt.callScript;
+
+                            // console.log("Keys extracted are", callScript);
+
+                            //function for extracting the keys
+                            const regex = /\{(.*?)\}/g;
+                            let match;
+                            let mainAgent = null;
+                            userDetails.map((ma) => {
+                              if (ma.agents.length > 0) {
+                                if (ma.agents[0].id == item.id) {
+                                  mainAgent = ma
+                                }
+                                else if (ma.agents.length >= 2) {
+                                  if (ma.agents[1].id == item.id) {
+                                    mainAgent = ma
+                                  }
+                                }
+                              }
+                            })
+                            let kyc = (mainAgent?.kyc || []).map((kyc) => kyc.question)
+                            console.log("Main agent selected ", mainAgent)
+                            while ((match = regex.exec(callScript)) !== null) {
+                              let defaultVariables = ["Full Name", "First Name", "Last Name", "firstName", "Email", "Address", "seller_kyc", "buyer_kyc", "CU_address", "CU_status"]
+                              if (!defaultVariables.includes(match[1])) {
+                                // match[1].length < 15
+                                if (!keys.includes(match[1]) && !kyc.includes(match[1])) {
+                                  keys.push(match[1]);
+                                }
+                              }
+                              // Add the variable name (without braces) to the array
+                            }
+                            setScriptKeys(keys);
+                            console.log("Keys extracted are", keys);
                             setSelectedAgent(item);
                           }}
                         >
@@ -810,7 +854,12 @@ function Page() {
 
       <Modal
         open={openTestAiModal}
-        onClose={() => setOpenTestAiModal(false)}
+        onClose={() => {
+          setOpenTestAiModal(false);
+          setName("");
+          setPhone("");
+          setErrorMessage("");
+        }}
         closeAfterTransition
         BackdropProps={{
           timeout: 500,
@@ -821,9 +870,9 @@ function Page() {
         }}
       >
         <Box className="lg:w-5/12 sm:w-full w-6/12" sx={styles.modalsStyle}>
-          <div className="flex flex-row justify-center w-full">
+          <div className="flex flex-row justify-center w-full h-[80vh]">
             <div
-              className="sm:w-full w-full p-8"
+              className="sm:w-full w-full px-10 py-8"
               style={{
                 backgroundColor: "#ffffff",
 
@@ -839,8 +888,30 @@ function Page() {
                   <div style={{ fontSize: 16, fontWeight: '500', color: '#000' }}>
                     Test
                   </div>
+
+                  {
+                    !selectedAgent?.phoneNumber && (
+                      <div className='flex flex-row items-center gap-2 -mt-1'>
+                        <Image src={"/assets/warningFill.png"} height={20} width={20} alt='*' />
+                        <p>
+                          <i className='text-red' style={{
+                            fontSize: 12,
+                            fontWeight: "600"
+                          }}>
+                            No Phone number assigned
+                          </i>
+                        </p>
+                      </div>
+                    )
+                  }
+
                 </div>
-                <button onClick={() => { setOpenTestAiModal(false) }}>
+                <button onClick={() => {
+                  setOpenTestAiModal(false);
+                  setName("");
+                  setPhone("");
+                  setErrorMessage("");
+                }}>
                   <Image src={"/otherAssets/crossIcon.png"} height={24} width={24} alt='*' />
                 </button>
               </div>
@@ -855,7 +926,7 @@ function Page() {
               </div>
               <input
                 placeholder="Name"
-                className='w-full border rounded p-2 outline-none focus:outline-none focus:ring-0'
+                className='w-full rounded p-2 outline-none focus:outline-none focus:ring-0'
                 style={styles.inputStyle}
                 value={name}
                 onChange={(e) => { setName(e.target.value) }}
@@ -864,14 +935,6 @@ function Page() {
               <div className='pt-5' style={styles.headingStyle}>
                 Phone Number
               </div>
-
-              {/*<input
-                placeholder="Phone Number"
-                className='w-full border rounded p-2 outline-none focus:outline-none focus:ring-0'
-                style={styles.inputStyle}
-                value={phone}
-                onChange={(e) => { setPhone(e.target.value) }}
-            />*/}
 
               <div style={{ marginTop: "8px" }}>
                 <PhoneInput
@@ -914,7 +977,7 @@ function Page() {
                   </p> : ""
               }
 
-              <div className='max-h-[45vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+              <div className='h-[37vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                 {
                   scriptKeys?.map((key, index) => (
                     <div key={index}>
@@ -923,7 +986,9 @@ function Page() {
                       </div>
                       <input
                         placeholder="Type here"
-                        className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0"
+                        // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
+                        className={`w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys.length - 1 ? "mb-16" : ""
+                          }`}
                         style={styles.inputStyle}
                         value={inputValues[index] || ""} // Default to empty string if no value
                         onChange={(e) => handleInputChange(index, e.target.value)}
@@ -933,20 +998,28 @@ function Page() {
                 }
               </div>
 
-              {
-                testAIloader ?
-                  <div className="flex flex-row items-center justify-center w-full p-3 mt-2">
-                    <CircularProgress size={30} />
-                  </div> :
-                  <button style={{ marginTop: 20 }}
-                    className='w-full flex bg-purple p-3 rounded-lg items-center justify-center'
-                    onClick={handleTestAiClick}
-                  >
-                    <div style={{ fontSize: 16, fontWeight: '500', color: '#fff' }}>
-                      Test AI
+              <div className='w-11/12' style={{ position: "absolute", bottom: 0, }}>
+                {
+                  testAIloader ?
+                    <div className="flex flex-row items-center justify-center w-full p-3 mt-2">
+                      <CircularProgress size={30} />
+                    </div> :
+                    <div>
+                      {
+                        name && phone && (
+                          <button style={{ marginTop: 20 }}
+                            className='w-full flex bg-purple p-3 rounded-lg items-center justify-center mb-8'
+                            onClick={handleTestAiClick}
+                          >
+                            <div style={{ fontSize: 16, fontWeight: '500', color: '#fff' }}>
+                              Test AI
+                            </div>
+                          </button>
+                        )
+                      }
                     </div>
-                  </button>
-              }
+                }
+              </div>
 
 
 
@@ -1029,7 +1102,7 @@ function Page() {
               <div className='flex flex-col gap-1 items-start '>
                 <div className='flex flex-row gap-2 items-center '>
                   <div style={{ fontSize: 22, fontWeight: "600" }}>
-                    {showDrawer?.name}
+                    {showDrawer?.name.slice(0, 1).toUpperCase()}{showDrawer?.name.slice(1)}
                   </div>
                   <div className='text-purple' style={{ fontSize: 11, fontWeight: "600" }}>
                     {showDrawer?.agentObjective} <span className='text-[#00000060]'> | {showDrawer?.agentType}</span>
@@ -1106,7 +1179,7 @@ function Page() {
           </div>
 
           <div className="flex gap-8 pb-2 mb-4">
-            {["Agent Info", "Contact", "Stages"].map((tab) => (
+            {["Agent Info", "Calender", "Pipeline | Stages"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -1132,157 +1205,132 @@ function Page() {
           {/* Code for agent info */}
           {
             activeTab === "Agent Info" ? (
-              <div className="flex flex-col gap-4">
-                <div className="flex justify-between">
-                  <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Name</div>
-                  <div>
-                    {showDrawer?.name}
+              <div className='w-full'>
+                <div className="flex flex-col gap-4">
+                  <div style={{ fontSize: 16, fontWeight: '600', color: '#000' }}>
+                    Agent
+                  </div>
+                  <div className="flex justify-between">
+                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Name</div>
+                    <div
+                      style={{
+                        fontSize: 15, fontWeight: '500', color: '#000'
+                      }}>
+                      {showDrawer?.name}
+                    </div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Role</div>
+                    <div
+                      style={{
+                        fontSize: 15, fontWeight: '500', color: '#000'
+                      }}>
+                      {showDrawer?.agentRole}
+                    </div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Voice</div>
+                    <div className='flex flex-row items-center gap-1'
+                      style={{
+                        fontSize: 15, fontWeight: '500', color: '#000'
+                      }}>
+                      <Image src={"/otherAssets/voiceAvt.png"} height={22} width={22} alt='*' />
+                      {showDrawer?.voiceId}
+                    </div>
                   </div>
                 </div>
-                <div className="flex justify-between">
-                  <div>
-                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Task</div>
+                <div className="flex flex-col gap-4 mt-4">
 
+                  <div style={{ fontSize: 16, fontWeight: '600', color: '#000' }}>
+                    Contact Info
                   </div>
-                  <div>Making {showDrawer?.agentType} Calls</div>
-                </div>
-                <div className="flex justify-between">
-                  <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Role</div>
-                  <div>
-                    {showDrawer?.agentRole}
-                  </div>
-                </div>
-                <div className="flex justify-between">
-                  <div className='flex flex-row gap-3'>
-                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Call Objective</div>
-                    <Image src={'/otherAssets/updateIcon.png'}
-                      height={15}
-                      width={20}
 
-                      alt='call'
-                    />
+                  <div className="flex justify-between">
+                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>
+                      Number used for calls
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 15, fontWeight: '500', color: '#000'
+                      }}>
+                      {showDrawer?.phoneNumber}
+                    </div>
                   </div>
-                  <div>
-                    {showDrawer?.agentObjective}
-                  </div>
-                </div>
+                  <div className="flex justify-between">
+                    <div className='flex flex-row gap-3'>
+                      <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>
+                        Call back number
+                      </div>
+                      <Image src={'/otherAssets/updateIcon.png'}
+                        height={15}
+                        width={20}
 
-                <div className="flex justify-between">
-                  <div className='flex flex-row gap-3'>
-                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Assigned Pipeline</div>
-                    <Image src={'/otherAssets/updateIcon.png'}
-                      height={15}
-                      width={20}
-
-                      alt='call'
-                    />
+                        alt='call'
+                      />
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 15, fontWeight: '500', color: '#000'
+                      }}>
+                      {showDrawer?.callbackNumber ?
+                        <div>
+                          {showDrawer?.callbackNumber}
+                        </div> : "-"
+                      }
+                    </div>
                   </div>
-                  <div>
-                    {showDrawer?.pipeline ?
-                      <div>
-                        {showDrawer?.pipeline}
-                      </div> : "N/A"
-                    }
+                  <div className="flex justify-between">
+                    <div className='flex flex-row gap-3'>
+                      <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>
+                        Call transfer number
+                      </div>
+                      <Image src={'/otherAssets/updateIcon.png'}
+                        height={15}
+                        width={20}
+
+                        alt='call'
+                      />
+                    </div>
+                    <div>
+                      {showDrawer?.liveTransferNumber ?
+                        <div>
+                          {showDrawer?.liveTransferNumber}
+                        </div> : "N/A"
+                      }
+                    </div>
                   </div>
                 </div>
               </div>
-            ) : activeTab === "Contact" ? (
-              <div className="flex flex-col gap-4">
-                <div className="flex justify-between">
-                  <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>
-                    Number used for calls
-                  </div>
-                  <div>
-                    {showDrawer?.phoneNumber}
-                  </div>
+            ) : activeTab === "Calender" ? (
+              <div>
+                <div className='flex flex-row items-center justify-between gap-4'>
+                  <p style={{ fontSize: 15, fontWeight: '600', color: '#666' }}>
+                    Title
+                  </p>
+                  <p style={{ fontSize: 16, fontWeight: '500', color: '#000' }}>
+                    Calender
+                  </p>
                 </div>
-                <div className="flex justify-between">
-                  <div className='flex flex-row gap-3'>
-                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>
-                      Call back number
-                    </div>
-                    <Image src={'/otherAssets/updateIcon.png'}
-                      height={15}
-                      width={20}
-
-                      alt='call'
-                    />
-                  </div>
-                  <div>
-                    {showDrawer?.callbackNumber ?
-                      <div>
-                        {showDrawer?.callbackNumber}
-                      </div> : "N/A"
-                    }
-                  </div>
+                <div className='flex flex-row items-center justify-between'>
+                  <p style={{ fontSize: 15, fontWeight: '600', color: '#666' }}>
+                    Event
+                  </p>
+                  <p style={{ fontSize: 16, fontWeight: '500', color: '#000' }}>
+                    Event name
+                  </p>
                 </div>
-                <div className="flex justify-between">
-                  <div className='flex flex-row gap-3'>
-                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>
-                      Call transfer number
-                    </div>
-                    <Image src={'/otherAssets/updateIcon.png'}
-                      height={15}
-                      width={20}
-
-                      alt='call'
-                    />
-                  </div>
-                  <div>
-                    {showDrawer?.liveTransferNumber ?
-                      <div>
-                        {showDrawer?.liveTransferNumber}
-                      </div> : "N/A"
-                    }
-                  </div>
+                <div className='flex flex-row items-center justify-between'>
+                  <p style={{ fontSize: 15, fontWeight: '600', color: '#666' }}>
+                    Api key
+                  </p>
+                  <p style={{ fontSize: 16, fontWeight: '500', color: '#000' }}>
+                    Api Key
+                  </p>
                 </div>
               </div>
-            ) : activeTab === "Stages" ? (
+            ) : activeTab === "Pipeline | Stages" ? (
               <div className="flex flex-col gap-4">
-                <div className="flex justify-between">
-                  <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>
-                    Number used for calls
-                  </div>
-                  <div>
-                    {showDrawer?.name}
-                  </div>
-                </div>
-                <div className="flex justify-between">
-                  <div className='flex flex-row gap-3'>
-                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Assigned Pipeline</div>
-                    <Image src={'/otherAssets/updateIcon.png'}
-                      height={15}
-                      width={20}
-
-                      alt='call'
-                    />
-                  </div>
-                  <div>
-                    {showDrawer?.pipeline ?
-                      <div>
-                        {showDrawer?.pipeline}
-                      </div> : "N/A"
-                    }
-                  </div>
-                </div>
-                <div className="flex justify-between">
-                  <div className='flex flex-row gap-3'>
-                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Assigned Pipeline</div>
-                    <Image src={'/otherAssets/updateIcon.png'}
-                      height={15}
-                      width={20}
-
-                      alt='call'
-                    />
-                  </div>
-                  <div>
-                    {showDrawer?.pipeline ?
-                      <div>
-                        {showDrawer?.pipeline}
-                      </div> : "N/A"
-                    }
-                  </div>
-                </div>
+                <PiepelineAdnStage selectedAgent={showDrawer} />
               </div>
             ) : ""
           }
@@ -1362,6 +1410,8 @@ function Page() {
         open={showScriptModal}
         onClose={() => {
           setShowScriptModal(null);
+          setSeledtedScriptKYC(false)
+          setSeledtedScriptAdvanceSetting(false);
         }}
       >
         <Box className="w-10/12 sm:w-10/12 md:w-8/12 lg:w-6/12 p-8 rounded-[15px]" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
@@ -1376,6 +1426,8 @@ function Page() {
                 <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
                   <button onClick={() => {
                     setShowScriptModal(null);
+                    setSeledtedScriptKYC(false)
+                    setSeledtedScriptAdvanceSetting(false);
                   }} className='outline-none'>
                     <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
                   </button>
@@ -1383,8 +1435,8 @@ function Page() {
               </div>
 
               <div className='mt-6 flex flex-row gap-6'
-                style={{ height: "10%", fontWeight: "500", fontSize: 15 }}>
-                <button className='pb-1 px-2'
+                style={{ height: "", fontWeight: "500", fontSize: 15 }}>
+                <button className='px-2'
                   style={{
                     borderBottom: showScript && "2px solid #7902DF"
                   }}
@@ -1392,7 +1444,7 @@ function Page() {
                 >
                   Script
                 </button>
-                <button className='pb-1 px-2'
+                <button className='px-2'
                   style={{
                     borderBottom: SeledtedScriptKYC && "2px solid #7902DF"
                   }}
@@ -1400,7 +1452,7 @@ function Page() {
                 >
                   KYC
                 </button>
-                <button className='pb-1 px-2'
+                <button className='px-2'
                   style={{
                     borderBottom: SeledtedScriptAdvanceSetting && "2px solid #7902DF"
                   }}
@@ -1497,14 +1549,14 @@ function Page() {
                     </div>
 
                     <div className='mt-2'>
-                      <GreetingTagInput greetTag={greetingTagInput} kycsList={kycsData} uniqueColumns={uniqueColumns} tagValue={setGreetingTagInput} scrollOffset={scrollOffset} />
+                      <GreetingTagInput greetTag={scriptTagInput} kycsList={kycsData} uniqueColumns={uniqueColumns} tagValue={setGreetingTagInput} scrollOffset={scrollOffset} />
                     </div>
                     <div className='mt-4' style={{ fontSize: 24, fontWeight: "700" }}>
                       Script
                     </div>
                     <div className='mt-2 w-full'>
 
-                      <PromptTagInput promptTag={scriptTagInput} kycsList={kycsData} tagValue={setScriptTagInput} scrollOffset={scrollOffset} />
+                      <PromptTagInput promptTag={greetingTagInput} kycsList={kycsData} tagValue={setScriptTagInput} scrollOffset={scrollOffset} />
 
                       {/* <DynamicDropdown /> */}
 
@@ -1517,14 +1569,38 @@ function Page() {
               {
                 SeledtedScriptAdvanceSetting && (
                   <div style={{ height: "100%" }}>
-                    <div style={{ height: "30%", overflow: "auto", scrollbarWidth: "none" }}>
-                      <Objection showTitle={true} />
+                    <div className='flex flex-row items-center gap-2 mt-4'>
+                      <button className='px-2 outline-none' style={{ borderBottom: showObjection && "2px solid #7902DF" }} onClick={handleShowObjection}>
+                        Objection
+                      </button>
+                      <button
+                        className='px-2 outline-none' style={{
+                          borderBottom: showGuardrails && "2px solid #7902DF"
+                        }}
+                        onClick={handleShowGuardrails}>
+                        Guardrails
+                      </button>
                     </div>
-                    <div style={{ height: "50%" }}>
-                      <div style={{ overflow: "auto", scrollbarWidth: "none", marginTop: "40px", height: "80%" }}>
-                        <GuarduanSetting showTitle={true} />
-                      </div>
-                    </div>
+
+                    {
+                      showObjection && (
+                        <div style={{ height: "80%" }}>
+                          <div style={{ overflow: "auto", scrollbarWidth: "none", marginTop: "40px", height: "80%" }}>
+                            <Objection showTitle={true} />
+                          </div>
+                        </div>
+                      )
+                    }
+
+                    {
+                      showGuardrails && (
+                        <div style={{ height: "80%" }}>
+                          <div style={{ overflow: "auto", scrollbarWidth: "none", marginTop: "40px", height: "80%" }}>
+                            <GuarduanSetting showTitle={true} />
+                          </div>
+                        </div>
+                      )
+                    }
                   </div>
                 )
               }

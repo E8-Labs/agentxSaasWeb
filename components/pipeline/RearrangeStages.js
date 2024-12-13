@@ -6,6 +6,7 @@ import { Alert, Box, CircularProgress, Fade, FormControl, MenuItem, Modal, Popov
 import Apis from "../apis/Apis";
 import axios from "axios";
 import ColorPicker from "../dashboardPipeline/ColorPicker";
+import TagsInput from "../dashboard/leads/TagsInput";
 
 const RearrangeStages = ({
     stages,
@@ -75,6 +76,7 @@ const RearrangeStages = ({
     //code to add new stage
     const [addNewStageModal, setAddNewStageModal] = useState(false);
     const [newStageTitle, setNewStageTitle] = useState("");
+    const [tagsValue, setTagsValue] = useState([]);
     const [stageColor, setStageColor] = useState("#FF4E4E");
     const [addStageLoader, setAddStageLoader] = useState(false);
     //code for advance setting modal inside new stages
@@ -136,6 +138,14 @@ const RearrangeStages = ({
         }
     }
 
+    //function to clsoe add stage modal
+    const handleCloseAddStage = () => {
+        setAddNewStageModal(false);
+        setNewStageTitle("");
+        setInputs([{ id: 1, value: '' }, { id: 2, value: '' }, { id: 3, value: '' }]);
+        setAction("");
+    }
+
     //code for add stage input fields
     const handleAddStageInputsChanges = (id, value) => {
         setInputs(inputs.map(input => (input.id === id ? { ...input, value } : input)));
@@ -174,7 +184,8 @@ const RearrangeStages = ({
                 color: stageColor,
                 pipelineId: selectedPipelineItem.id,
                 action: action,
-                examples: inputs
+                examples: inputs,
+                tagsValue: tagsValue
             }
 
             console.log("Data sending in api is:", ApiData);
@@ -449,7 +460,7 @@ const RearrangeStages = ({
                         {/* Code for add stage modal */}
                         <Modal
                             open={addNewStageModal}
-                            onClose={() => { setAddNewStageModal(false) }}
+                            onClose={() => { handleCloseAddStage() }}
                         >
                             <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
                                 <div style={{ width: "100%", }}>
@@ -462,7 +473,7 @@ const RearrangeStages = ({
                                                 Add New Stage
                                             </div>
                                             <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
-                                                <button onClick={() => { setAddNewStageModal(false) }} className='outline-none'>
+                                                <button onClick={() => { handleCloseAddStage() }} className='outline-none'>
                                                     <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
                                                 </button>
                                             </div>
@@ -682,31 +693,8 @@ const RearrangeStages = ({
                                                         Tags
                                                     </p>
 
-                                                    <div className='h-[45px] p-2 rounded-lg flex flex-row items-center gap-2' style={{ border: "1px solid #00000030" }}>
-                                                        <div className='flex flex-row gap-2 bg-[#00000030] h-full px-4 rounded items-center' style={{ width: "fit-content" }}>
-                                                            <p style={{ fontWeight: "500", fontSize: 15 }}>
-                                                                Tag value
-                                                            </p>
-                                                            <button className='outline-none'>
-                                                                <Image src={"/assets/cross.png"} height={10} width={10} alt='*' />
-                                                            </button>
-                                                        </div>
-                                                        <div className='flex flex-row gap-2 bg-[#00000030] h-full px-4 rounded items-center' style={{ width: "fit-content" }}>
-                                                            <p style={{ fontWeight: "500", fontSize: 15 }}>
-                                                                Tag value
-                                                            </p>
-                                                            <button className='outline-none'>
-                                                                <Image src={"/assets/cross.png"} height={10} width={10} alt='*' />
-                                                            </button>
-                                                        </div>
-                                                        <div className='flex flex-row gap-2 bg-[#00000030] h-full px-4 rounded items-center' style={{ width: "fit-content" }}>
-                                                            <p style={{ fontWeight: "500", fontSize: 15 }}>
-                                                                Tag value
-                                                            </p>
-                                                            <button className='outline-none'>
-                                                                <Image src={"/assets/cross.png"} height={10} width={10} alt='*' />
-                                                            </button>
-                                                        </div>
+                                                    <div className="mt-4">
+                                                        <TagsInput setTags={setTagsValue} />
                                                     </div>
 
                                                 </div>

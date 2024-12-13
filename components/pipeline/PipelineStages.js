@@ -48,7 +48,7 @@ const PipelineStages = ({
     const [showAdvanceSettings, setShowAdvanceSettings] = useState(false);
     //code for input arrays
     const [inputs, setInputs] = useState([
-        { id: 1, value: '', placeholder: `Sure, i’d be interested in knowing what my home is worth` }, 
+        { id: 1, value: '', placeholder: `Sure, i’d be interested in knowing what my home is worth` },
         { id: 2, value: '', placeholder: "Yeah, how much is my home worth today?" },
         { id: 3, value: '', placeholder: "Yeah, how much is my home worth today?" },
     ]);
@@ -128,6 +128,13 @@ const PipelineStages = ({
         } finally {
             setRenameStageLoader(false);
         }
+    }
+
+    //code to close the add stage model
+    const handleCloseAddStage = () => {
+        setAddNewStageModal(false);
+        setNewStageTitle("");
+        setInputs([{ id: 1, value: '' }, { id: 2, value: '' }, { id: 3, value: '' }]);
     }
 
     //code for drag and drop stages
@@ -256,7 +263,7 @@ const PipelineStages = ({
                 console.log("Response of add stage title :", response);
                 if (response.data.status === true) {
                     setPipelineStages(response.data.data.stages);
-                    setAddNewStageModal(false);
+                    handleCloseAddStage();
                     setNewStageTitle("");
                     setStageColor("");
                 }
@@ -875,7 +882,7 @@ const PipelineStages = ({
                         {/* Code for add stage modal */}
                         <Modal
                             open={addNewStageModal}
-                            onClose={() => { setAddNewStageModal(false) }}
+                            onClose={() => { handleCloseAddStage() }}
                         >
                             <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
                                 <div style={{ width: "100%", }}>
@@ -888,7 +895,7 @@ const PipelineStages = ({
                                                 Add New Stage
                                             </div>
                                             <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
-                                                <button onClick={() => { setAddNewStageModal(false) }} className='outline-none'>
+                                                <button onClick={() => { handleCloseAddStage() }} className='outline-none'>
                                                     <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
                                                 </button>
                                             </div>
@@ -1123,17 +1130,23 @@ const PipelineStages = ({
                                             <div className='flex flex-row iems-center justify-center w-full mt-4'>
                                                 <CircularProgress size={25} />
                                             </div> :
-                                            <button
-                                                className='mt-4 outline-none'
-                                                style={{
-                                                    backgroundColor: "#402FFF", color: "white",
-                                                    height: "50px", borderRadius: "10px", width: "100%",
-                                                    fontWeight: 600, fontSize: '20'
-                                                }}
-                                                onClick={handleAddNewStageTitle}
-                                            >
-                                                Add & Close
-                                            </button>
+                                            <div className="w-full">
+                                                {
+                                                    inputs.filter(input => input.value.trim() !== "").length === 3 && newStageTitle && (
+                                                        <button
+                                                            className='mt-4 outline-none'
+                                                            style={{
+                                                                backgroundColor: "#402FFF", color: "white",
+                                                                height: "50px", borderRadius: "10px", width: "100%",
+                                                                fontWeight: 600, fontSize: '20'
+                                                            }}
+                                                            onClick={handleAddNewStageTitle}
+                                                        >
+                                                            Add & Close
+                                                        </button>
+                                                    )
+                                                }
+                                            </div>
                                     }
 
 

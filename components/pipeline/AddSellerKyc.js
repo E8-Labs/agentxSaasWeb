@@ -100,6 +100,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
     //     setInputs([{ id: 1, value: '' }]); // Reset the inputs
     // };
 
+    //function to add kyc
     const handleAddKycQuestion = () => {
         const sampleAnswers = inputs.map(input => input.value);
         const newKYCQuestion = {
@@ -186,6 +187,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
     //close add kyc question modal
     const handleClose = () => {
         setInputs([{ id: 1, value: '' }, { id: 2, value: '' }, { id: 3, value: '' }]);
+        setNewQuestion("");
         setAddKYCQuestion(false);
     }
 
@@ -302,6 +304,18 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
 
 
     }
+
+
+    //function to check if all the input fields have the value
+    // useEffect(() => {
+    //     const areThreeFieldsFilled = inputs.filter(input => input.value.trim() !== "").length === 3;
+
+    //     if (areThreeFieldsFilled) {
+    //         console.log("Three fields have been filled!");
+    //     } else {
+    //         console.log("Less than three fields are filled.");
+    //     }
+    // }, [inputs])
 
 
     const KYCQuestionType = [
@@ -482,8 +496,8 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
                             BackdropProps={{
                                 timeout: 1000,
                                 sx: {
-                                    backgroundColor: "#00000020",
-                                    // backdropFilter: "blur(20px)",
+                                    backgroundColor: "#00000000",
+                                    backdropFilter: "blur(20px)",
                                 },
                             }}
                         >
@@ -538,7 +552,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
                                             ))}
                                         </div>
 
-                                        <div className=' mx-2' style={{ height: "50px" }}>
+                                        {/* <div className=' mx-2' style={{ height: "50px" }}>
                                             {
                                                 inputs.length < 3 && (
                                                     <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
@@ -549,11 +563,17 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
                                                     </button>
                                                 )
                                             }
-                                        </div>
+                                        </div> */}
 
-                                        <button className='bg-purple outline-none border-none rounded-lg text-white w-full mt-4 mx-2' style={{ ...styles.headingStyle, height: "50px" }} onClick={handleAddKycQuestion}>
-                                            Add Question
-                                        </button>
+                                        <div className='w-full h-[80px]'>
+                                            {
+                                                inputs.filter(input => input.value.trim() !== "").length === 3 && newQuestion && (
+                                                    <button className='bg-purple outline-none border-none rounded-lg text-white w-full mt-4 mx-2' style={{ ...styles.headingStyle, height: "50px" }} onClick={handleAddKycQuestion}>
+                                                        Add Question
+                                                    </button>
+                                                )
+                                            }
+                                        </div>
 
                                         {/* Can be use full to add shadow */}
                                         {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}

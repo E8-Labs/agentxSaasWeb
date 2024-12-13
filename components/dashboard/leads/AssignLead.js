@@ -2,8 +2,15 @@ import Apis from '@/components/apis/Apis';
 import { Box, CircularProgress, Modal } from '@mui/material';
 import { CalendarDots, CaretLeft } from '@phosphor-icons/react';
 import axios from 'axios';
+import moment from 'moment';
 import Image from 'next/image';
-import React, { use, useEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+
 
 const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
 
@@ -15,6 +22,13 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
     const [loader, setLoader] = useState(false);
     const [lastStepModal, setLastStepModal] = useState(false);
     const [ShouldContinue, setShouldContinue] = useState(false);
+    const [NoOfLeadsToSend, setNoOfLeadsToSend] = useState("");
+    const [customLeadsToSend, setCustomLeadsToSend] = useState("");
+    const [selectedFromDate, setSelectedFromDate] = useState(null);
+    const [showFromDatePicker, setShowFromDatePicker] = useState(false);
+    const [selectedDateTime, setSelectedDateTime] = useState(new Date());
+    const [CallNow, setCallNow] = useState("");
+    const [CallLater, setCallLater] = useState(false);
 
     useEffect(() => {
         if (ShouldContinue === true) {
@@ -155,10 +169,34 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
 
         try {
             setLoader(true);
+
+            let timer = null;
+            let batchSize = null;
+
+            if (customLeadsToSend) {
+                batchSize = customLeadsToSend
+            } else if (NoOfLeadsToSend) {
+                batchSize = customLeadsToSend
+            }
+
+            if (CallNow) {
+                timer = 0
+            } else if (CallLater) {
+                const currentDateTime = new Date();
+                const currentDate = currentDateTime.toLocaleString();
+                const futureDate = selectedDateTime.toLocaleString();
+
+                const differenceInMilliseconds = selectedDateTime.getTime() - currentDateTime.getTime();
+                const minutes = differenceInMilliseconds / (1000 * 60);
+                timer = minutes.toFixed(0)
+            }
+
             const Apidata = {
                 pipelineId: SelectedAgents[0].pipeline.id,
                 mainAgentIds: SelectedAgents.map((item) => (item.id)),
-                leadIds: leadIs
+                leadIds: leadIs,
+                startTimeDifFromNow: timer,
+                batchSize: batchSize
             }
 
             console.log("Data sending in api is:", Apidata);
@@ -201,6 +239,16 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
         }
     }
 
+    //code for date picker
+
+    const handleDateChange = (date) => {
+        setSelectedDateTime(date);
+    };
+
+    const handleFromDateChange = (date) => {
+        setSelectedFromDate(date); // Set the selected date
+        setShowFromDatePicker(false);
+    };
 
     const styles = {
         heading: {
@@ -231,6 +279,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
             outline: "none",
         },
     }
+
     return (
         <div className='w-full'>
             <div className='flex flex-row items-center justify-between mt-4'>
@@ -241,7 +290,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                     {leadIs.length} Contacts Selected
                 </div>
             </div>
-            <div className='mt-2' style={styles.paragraph2}>
+            <div className='mt-2' style={styles.paragraph2} onClick={() => { setLastStepModal(true) }}>
                 Only outbound models can be selected to make calls
             </div>
 
@@ -250,10 +299,14 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                     <div className='w-full flex flex-row justify-center mt-4'>
                         <CircularProgress size={30} />
                     </div> :
-                    <div className='max-h-[40vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+                    <div className='max-h-[50vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                         {
                             agentsList.map((item, index) => (
-                                <button key={index} className='rounded-lg p-2 mt-4 w-full outline-none' style={{ border: SelectedAgents.includes(item) ? "2px solid #7902DF" : "" }}
+                                <button key={index} className='rounded-xl p-2 mt-4 w-full outline-none'
+                                    style={{
+                                        border: SelectedAgents.includes(item) ? "2px solid #7902DF" : "1px solid #00000020",
+                                        backgroundColor: SelectedAgents.includes(item) ? "#402FFF05" : ""
+                                    }}
                                     onClick={() => {
                                         let canAssign = canAssignStage(item);
                                         if (canAssign == 0) {
@@ -275,9 +328,11 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                                     }}>
                                     <div className='flex flex-row items-center justify-between pt-2'>
                                         <div className='flex flex-row items-center gap-2'>
-                                            <Image src={"/assets/avatar1.png"} height={42} width={42} alt='*' />
+                                            <div className='h-[60px] w-[60px] bg-gray-100 rounded-full flex flex-row items-center justify-center'>
+                                                <Image src={"/assets/avatar1.png"} height={42} width={42} alt='*' />
+                                            </div>
                                             <span style={styles.heading}>
-                                                {item.name}
+                                                {item.name.slice(0, 1).toUpperCase()}{item.name.slice(1)}
                                             </span>
                                         </div>
                                         <div>
@@ -287,7 +342,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
 
                                     <div className='flex flex-row items-center gap-2 mt-6 pb-2'>
                                         <div className='flex flex-row items-center gap-1' style={styles.paragraph}>
-                                            <span className='text-purple'>{item.pipeline?.title} |   </span> Active in
+                                            <span className='text-purple'>Active in |   </span> {item.pipeline?.title}
                                         </div>
 
                                         <div className='flex flex-row gap-2 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
@@ -339,7 +394,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                     },
                 }}
             >
-                <Box className="lg:w-4/12 sm:w-6/12 w-7/12" sx={styles.modalsStyle}>
+                <Box className="lg:w-3/12 sm:w-5/12 w-8/12" sx={styles.modalsStyle}>
                     <div className="flex flex-row justify-center w-full">
                         <div
                             className="w-full"
@@ -377,11 +432,11 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                     timeout: 1000,
                     sx: {
                         backgroundColor: "#00000020",
-                        backdropFilter: "blur(5px)",
+                        backdropFilter: "blur(20px)",
                     },
                 }}
             >
-                <Box className="lg:w-6/12 sm:w-9/12 w-10/12" sx={styles.modalsStyle}>
+                <Box className="lg:w-4/12 sm:w-7/12 w-8/12" sx={styles.modalsStyle}>
                     <div className="flex flex-row justify-center w-full">
                         <div
                             className="w-full"
@@ -411,7 +466,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                                     One last thing
                                 </div>
                                 <div className='text-purple' style={{ fontSize: 12, fontWeight: "600" }}>
-                                    2000 Contacts Selected
+                                    {leadIs.length} Contacts Selected
                                 </div>
                             </div>
 
@@ -420,11 +475,32 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                             </div>
 
                             <div className='flex flex-row items-center gap-8 mt-4'>
-                                <button className='w-1/2 flex flex-row items-center p-4 rounded-2xl' style={{ border: "1px solid #00000040", height: "50px" }}>
-                                    Ex: 100
-                                </button>
-                                <button className='w-1/2 flex flex-row items-center p-4 rounded-2xl' style={{ border: "1px solid #00000040", height: "50px" }}>
-                                    All 2000
+                                {/* <button className='w-1/2 flex flex-row items-center p-4 rounded-2xl' style={{ border: "1px solid #00000040", height: "50px" }}>
+                                    
+                                </button> */}
+                                <input
+                                    className='w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0'
+                                    style={{
+                                        border: "1px solid #00000040", height: "50px"
+                                    }}
+                                    value={customLeadsToSend}
+                                    onFocus={() => { setNoOfLeadsToSend("") }}
+                                    onChange={(e) => {
+                                        let value = e.target.value;
+                                        if (!/[0-9]/.test(value) && value !== '') return;
+                                        setCustomLeadsToSend(e.target.value);
+                                    }}
+                                    placeholder='Ex: 100'
+                                />
+                                <button
+                                    className='w-1/2 flex flex-row items-center p-4 rounded-2xl'
+                                    style={{ border: NoOfLeadsToSend ? "2px solid #7902DF" : "1px solid #00000040", height: "50px" }}
+                                    onClick={() => {
+                                        setNoOfLeadsToSend(leadIs.length);
+                                        setCustomLeadsToSend("");
+                                    }}
+                                >
+                                    All {leadIs.length}
                                 </button>
                             </div>
 
@@ -434,18 +510,110 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                             </div>
 
                             <div className='flex flex-row items-center gap-8 mt-4'>
-                                <button className='w-1/2 flex flex-col justify-between p-4 rounded-2xl' style={{ border: "1px solid #00000040", height: "119px" }}>
+                                <button className='w-1/2 flex flex-col justify-between p-4 rounded-2xl'
+                                    style={{
+                                        border: CallNow ? "2px solid #7902DF" : "1px solid #00000040", height: "119px"
+                                    }}
+                                    onClick={() => {
+                                        const currentDateTime = new Date();
+                                        console.log("Current data is:", currentDateTime.toLocaleString());
+                                        setCallNow(currentDateTime);
+                                        setCallLater(false);
+                                        // handleDateTimerDifference();
+                                    }}
+                                >
                                     <Image src={"/assets/callBtn.png"} height={24} width={24} alt='*' />
                                     <div style={styles.title}>
                                         Call Now
                                     </div>
                                 </button>
-                                <button className='w-1/2 flex flex-col justify-between p-4 rounded-2xl' style={{ border: "1px solid #00000040", height: "119px" }}>
-                                    <CalendarDots size={32} weight='bold' />
-                                    <div style={styles.title}>
-                                        Shedule Call
-                                    </div>
-                                </button>
+                                <div className='w-1/2'>
+                                    <button className='w-full flex flex-col justify-between p-4 rounded-2xl'
+                                        style={{ border: CallLater ? "2px solid #7902DF" : "1px solid #00000040", height: "119px" }}
+                                        onClick={() => {
+                                            setShowFromDatePicker(true);
+                                            setCallNow("");
+                                            setCallLater(true);
+                                        }}
+                                    >
+                                        <CalendarDots size={32} weight='bold' />
+                                        <div style={styles.title}>
+                                            Shedule Call
+                                        </div>
+                                    </button>
+                                    {/* <div>
+                                        {
+                                            showFromDatePicker && (
+                                                <div>
+                                                    <Calendar
+                                                        onChange={handleFromDateChange}
+                                                        value={selectedFromDate}
+                                                        locale="en-US"
+                                                        onClose={() => { setShowFromDatePicker(false) }}
+                                                    />
+                                                </div>
+                                            )
+                                        }
+                                    </div> */}
+
+                                    <Modal
+                                        open={showFromDatePicker}
+                                        onClose={() => setShowFromDatePicker(false)}
+                                        closeAfterTransition
+                                        BackdropProps={{
+                                            timeout: 1000,
+                                            sx: {
+                                                backgroundColor: "#00000020",
+                                                backdropFilter: "blur(5px)",
+                                            },
+                                        }}
+                                    >
+                                        <Box className="lg:w-4/12 sm:w-7/12 w-8/12" sx={styles.modalsStyle}>
+                                            <div className="flex flex-row justify-center w-full">
+                                                <div
+                                                    className="w-full flex flex-row justify-center"
+                                                    style={{
+                                                        backgroundColor: "#ffffff",
+                                                        padding: 20,
+                                                        borderRadius: "13px",
+                                                    }}
+                                                >
+                                                    <div>
+                                                        {/* <Calendar
+                                                            onChange={handleFromDateChange}
+                                                            value={selectedFromDate}
+                                                            locale="en-US"
+                                                            onClose={() => { setShowFromDatePicker(false) }}
+                                                        /> */}
+                                                        <div className='text-center text-xl font-bold'>
+                                                            Select date and time to shedule call
+                                                        </div>
+                                                        <div className='w-full mt-4 flex flex-row justify-center'>
+                                                            <DatePicker
+                                                                selected={selectedDateTime}
+                                                                onChange={handleDateChange}
+                                                                showTimeSelect
+                                                                dateFormat="Pp" // Date and time format
+                                                                className="border p-2 rounded"
+                                                                placeholderText="Select date and time"
+                                                            />
+                                                        </div>
+                                                        <div className='w-full flex flex-row justify-center mt-6'>
+                                                            <button
+                                                                className='w-7/12 h-[50px] bg-purple rounded-xl text-white font-bold'
+                                                                onClick={() => { setShowFromDatePicker(false) }}
+                                                            >
+                                                                Select & close
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Box>
+                                    </Modal>
+
+                                    {/*  */}
+                                </div>
                             </div>
 
                             {
@@ -453,9 +621,18 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                                     <div className='mt-4 w-full flex flex-row items-center justify-center'>
                                         <CircularProgress size={30} />
                                     </div> :
-                                    <button className='text-white w-full h-[50px] rounded-lg bg-purple mt-4' onClick={() => { handleAssigLead() }}>
-                                        Continue
-                                    </button>
+                                    <div className='w-full'>
+                                        {
+                                            (NoOfLeadsToSend || customLeadsToSend) && (CallNow || CallLater) && (
+                                                <button className='text-white w-full h-[50px] rounded-lg bg-purple mt-4' onClick={() => {
+                                                    handleAssigLead()
+                                                    // handleAssigLead()
+                                                }}>
+                                                    Continue
+                                                </button>
+                                            )
+                                        }
+                                    </div>
                             }
 
                             {/* <div className='mt-4 w-full'>

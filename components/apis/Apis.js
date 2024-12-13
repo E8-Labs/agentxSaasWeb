@@ -18,6 +18,7 @@ const Apis = {
     getPipelines: `${BasePath}api/pipeline/getPipelines`,
     updatePipeline: `${BasePath}api/pipeline/updatePipeline`,
     createPipeLineCadence: `${BasePath}api/pipeline/createPipelineCadence`,
+    getAgentCadence: `${BasePath}api/pipeline/getAgentCadence`,
     deletePipeline: `${BasePath}api/pipeline/deletePipeline`,
     updateAgent: `${BasePath}api/agent/updateAgent`,
     createLead: `${BasePath}api/leads/addLeads`,
@@ -43,7 +44,9 @@ const Apis = {
     reorderStages: `${BasePath}api/pipeline/reorderStages`,
     createPipeLine: `${BasePath}api/pipeline/createPipeline`,
     testAI: `${BasePath}api/agent/testAi`,
-    addCalender: `${BasePath}api/calendar/createCalendar`
+    addCalender: `${BasePath}api/calendar/createCalendar`,
+    addLeadNote: `${BasePath}api/leads/addLeadNote`,
+    getDashboardData: `${BasePath}api/agent/dashboard`
 
 }
 

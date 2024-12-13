@@ -107,7 +107,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             const agetnDetails = JSON.parse(localAgentsData);
             console.log("Created agent details are :", agetnDetails);
             if (agetnDetails.agents.length === 2) {
-                setShowReassignBtn(true);
+                setShowReassignBtn(false);
             } else if (agetnDetails.agents[0].agentType === "inbound") {
                 setShowReassignBtn(true);
                 setShowGlobalBtn(false);
@@ -127,7 +127,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             !toggleClick &&
             userSelectedNumber || useOfficeNumber
         ) {
-            setShouldContinue(false)
+            setShouldContinue(false);
+        } else {
+            setShouldContinue(true);
         }
     }, [selectNumber, userSelectedNumber, callBackNumber, toggleClick]);
 
@@ -370,28 +372,36 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                 console.log(`${key} ${value} `);
             }
 
+            // localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
+            setOpenPurchaseSuccessModal(true);
+            setSelectNumber(selectedPurchasedNumber.phoneNumber);
+            setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
+            setShowClaimPopup(false);
+            setOpenCalimNumDropDown(false);
+
+
             // return
 
-            const response = await axios.post(ApiPath, formData, {
-                headers: {
-                    "Authorization": "Bearer " + AuthToken,
-                    "Content-Type": "multipart/form-data",
-                    // "Content-Type": "application/json"
-                }
-            });
+            // const response = await axios.post(ApiPath, formData, {
+            //     headers: {
+            //         "Authorization": "Bearer " + AuthToken,
+            //         "Content-Type": "multipart/form-data",
+            //         // "Content-Type": "application/json"
+            //     }
+            // });
 
-            if (response) {
-                console.log("Response of purchase number api is :--", response.data);
-                if (response.data.status === true) {
-                    localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
-                    setOpenPurchaseSuccessModal(true);
-                    // handleContinue();
-                    setSelectNumber(selectedPurchasedNumber.phoneNumber);
-                    setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
-                    setShowClaimPopup(false);
-                    setOpenCalimNumDropDown(false);
-                }
-            }
+            // if (response) {
+            //     console.log("Response of purchase number api is :--", response.data);
+            //     if (response.data.status === true) {
+            //         localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
+            //         setOpenPurchaseSuccessModal(true);
+            //         // handleContinue();
+            //         setSelectNumber(selectedPurchasedNumber.phoneNumber);
+            //         setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
+            //         setShowClaimPopup(false);
+            //         setOpenCalimNumDropDown(false);
+            //     }
+            // }
 
         } catch (error) {
             console.error("Error occured in purchase number api is: --", error);
@@ -722,7 +732,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                     <input className='border border-[#00000010] outline-none p-3 rounded-lg w-full mx-2 focus:outline-none focus:ring-0' type='' placeholder='Ex: 619, 213, 313'
                                                         value={findNumber}
                                                         onChange={(e) => {
-
+                                                            setFindeNumberLoader(true);
                                                             if (timerRef.current) {
                                                                 clearTimeout(timerRef.current);
                                                             }
@@ -965,45 +975,49 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                             ) : ""}
 
 
-
-                            <div style={styles.headingStyle}>
-                                What number should we forward live transfers to when a lead wants to talk to you?
-                            </div>
-
                             {/* Phone number input here */}
 
-                            <PhoneInput
-                                className="border outline-none bg-white"
-                                country={countryCode} // Default country
-                                value={callBackNumber}
-                                onChange={handleCallBackNumberChange}
-                                // onFocus={getLocation}
-                                // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
-                                placeholder={"Enter Number"}
-                                // disabled={loading} // Disable input if still loading
-                                style={{ borderRadius: "7px" }}
-                                inputStyle={{
-                                    width: "100%",
-                                    borderWidth: "0px",
-                                    backgroundColor: "transparent",
-                                    paddingLeft: "60px",
-                                    paddingTop: "12px",
-                                    paddingBottom: "12px",
-                                }}
-                                buttonStyle={{
-                                    border: "none",
-                                    backgroundColor: "transparent",
-                                }}
-                                dropdownStyle={{
-                                    maxHeight: "150px",
-                                    overflowY: "auto",
-                                }}
-                                countryCodeEditable={true}
-                            // defaultMask={locationLoader ? "Loading..." : undefined}
-                            />
-                            <div style={{ fontWeight: "500", fontSize: 11, color: "red" }}>
-                                {errorMessage}
-                            </div>
+                            {
+                                toggleClick && (
+                                    <div className='w-full'>
+                                        <div style={styles.headingStyle}>
+                                            What number should we forward live transfers to when a lead wants to talk to you?
+                                        </div>
+                                        <PhoneInput
+                                            className="border outline-none bg-white"
+                                            country={countryCode} // Default country
+                                            value={callBackNumber}
+                                            onChange={handleCallBackNumberChange}
+                                            // onFocus={getLocation}
+                                            // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                                            placeholder={"Enter Number"}
+                                            // disabled={loading} // Disable input if still loading
+                                            style={{ borderRadius: "7px" }}
+                                            inputStyle={{
+                                                width: "100%",
+                                                borderWidth: "0px",
+                                                backgroundColor: "transparent",
+                                                paddingLeft: "60px",
+                                                paddingTop: "12px",
+                                                paddingBottom: "12px",
+                                            }}
+                                            buttonStyle={{
+                                                border: "none",
+                                                backgroundColor: "transparent",
+                                            }}
+                                            dropdownStyle={{
+                                                maxHeight: "150px",
+                                                overflowY: "auto",
+                                            }}
+                                            countryCodeEditable={true}
+                                        // defaultMask={locationLoader ? "Loading..." : undefined}
+                                        />
+                                        <div style={{ fontWeight: "500", fontSize: 11, color: "red" }}>
+                                            {errorMessage}
+                                        </div>
+                                    </div>
+                                )
+                            }
 
                             <div className='flex flex-row items-center gap-4 justify-start'>
                                 <button onClick={handleToggleClick}>

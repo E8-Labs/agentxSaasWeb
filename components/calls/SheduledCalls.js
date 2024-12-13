@@ -76,7 +76,7 @@ function SheduledCalls() {
             });
 
             if (response) {
-                console.log("Response of get sheduled api is:", response.data);
+                console.log("Response of get sheduled api is:", response);
 
                 setFilteredAgentsList(response.data.agents);
                 setCallDetails(response.data.data);
@@ -199,76 +199,87 @@ function SheduledCalls() {
                         </div> :
                         <div>
                             {
-                                filteredAgentsList.map((item, index) => (
-                                    <div className='w-full flex flex-row items-center justify-between mt-10 px-10' key={index}>
-                                        <div className='w-3/12 flex flex-row gap-2 items-center'>
-                                            <div className='h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white'>
-                                                {item.name.slice(0, 1).toUpperCase()}
-                                            </div>
-                                            <div style={styles.text2}>{item.name}</div>
-                                        </div>
-                                        <div className='w-2/12 '>
+                                filteredAgentsList.map((item, index) => {
+                                    return (
+                                        <div>
                                             {
-                                                item.agents[0]?.agentObjective ?
-                                                    <div style={styles.text2}>{item.agents[0]?.agentObjective}</div> : "N/A"
+                                                item.agents.map((agent, index) => {
+                                                    return (
+                                                        <div className='w-full flex flex-row items-center justify-between mt-10 px-10' key={index}>
+                                                            <div className='w-3/12 flex flex-row gap-2 items-center'>
+                                                                <div className='h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white'>
+                                                                    {agent.name.slice(0, 1).toUpperCase()}
+                                                                </div>
+                                                                <div style={styles.text2}>{agent.name}</div>
+                                                            </div>
+                                                            <div className='w-2/12 '>
+                                                                {
+                                                                    item.agents[0]?.agentObjective ?
+                                                                        <div style={styles.text2}>{item.agents[0]?.agentObjective}</div> : "-"
+                                                                }
+                                                            </div>
+                                                            <div className='w-1/12'>
+                                                                <div style={styles.text2}>{item.leadsAssigned}</div>
+                                                            </div>
+                                                            <div className='w-1/12'>
+                                                                {item.agents[0]?.createdAt ?
+                                                                    <div style={styles.text2}>{moment(item.agents[0]?.createdAt).format("DD-MM-YYYY")}</div> :
+                                                                    "-"
+                                                                }
+                                                            </div>
+                                                            <div className='w-2/12'>
+                                                                {
+                                                                    item.agents[0]?.status ?
+                                                                        <div style={styles.text2}>{item.agents[0]?.status}</div> : "No Stage"
+                                                                }
+                                                                stat
+                                                            </div>
+                                                            <div className='w-1/12'>
+                                                                <button aria-describedby={id} variant="contained"
+                                                                    onClick={(event) => { handleShowPopup(event, item) }}>
+                                                                    <Image src={'/otherAssets/threeDotsIcon.png'}
+                                                                        height={24}
+                                                                        width={24}
+                                                                        alt='icon'
+                                                                    />
+                                                                </button>
+                                                                <Popover
+                                                                    id={id}
+                                                                    open={open}
+                                                                    anchorEl={anchorEl}
+                                                                    onClose={handleClosePopup}
+                                                                    anchorOrigin={{
+                                                                        vertical: 'bottom',
+                                                                        horizontal: 'right',
+                                                                    }}
+                                                                    transformOrigin={{
+                                                                        vertical: 'top',
+                                                                        horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
+                                                                    }}
+                                                                    PaperProps={{
+                                                                        elevation: 0, // This will remove the shadow
+                                                                        style: {
+                                                                            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                                                                            borderRadius: "10px",
+                                                                            width: "120px"
+                                                                        },
+                                                                    }}
+                                                                >
+                                                                    <div className='p-2 flex flex-col gap-2' style={{ fontWeight: "500", fontSize: 15 }}>
+                                                                        <button className='text-start outline-none' onClick={() => { handleShowDetails() }}>
+                                                                            View Details
+                                                                        </button>
+                                                                        <div className='text-red'>Delete</div>
+                                                                    </div>
+                                                                </Popover>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                })
                                             }
                                         </div>
-                                        <div className='w-1/12'>
-                                            <div style={styles.text2}>{item.leadsAssigned}</div>
-                                        </div>
-                                        <div className='w-1/12'>
-                                            {item.agents[0]?.createdAt ?
-                                                <div style={styles.text2}>{moment(item.agents[0]?.createdAt).format("DD-MM-YYYY")}</div> :
-                                                "N/A"
-                                            }
-                                        </div>
-                                        <div className='w-2/12'>
-                                            {
-                                                item.agents[0]?.status ?
-                                                    <div style={styles.text2}>{item.agents[0]?.status}</div> : "N/A"
-                                            }
-                                        </div>
-                                        <div className='w-1/12'>
-                                            <button aria-describedby={id} variant="contained"
-                                                onClick={(event) => { handleShowPopup(event, item) }}>
-                                                <Image src={'/otherAssets/threeDotsIcon.png'}
-                                                    height={24}
-                                                    width={24}
-                                                    alt='icon'
-                                                />
-                                            </button>
-                                            <Popover
-                                                id={id}
-                                                open={open}
-                                                anchorEl={anchorEl}
-                                                onClose={handleClosePopup}
-                                                anchorOrigin={{
-                                                    vertical: 'bottom',
-                                                    horizontal: 'right',
-                                                }}
-                                                transformOrigin={{
-                                                    vertical: 'top',
-                                                    horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
-                                                }}
-                                                PaperProps={{
-                                                    elevation: 0, // This will remove the shadow
-                                                    style: {
-                                                        boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
-                                                        borderRadius: "10px",
-                                                        width: "120px"
-                                                    },
-                                                }}
-                                            >
-                                                <div className='p-2 flex flex-col gap-2' style={{ fontWeight: "500", fontSize: 15 }}>
-                                                    <button className='text-start outline-none' onClick={() => { handleShowDetails() }}>
-                                                        View Details
-                                                    </button>
-                                                    <div className='text-red'>Delete</div>
-                                                </div>
-                                            </Popover>
-                                        </div>
-                                    </div>
-                                ))
+                                    )
+                                })
                             }
                         </div>
                 }

@@ -171,7 +171,7 @@ const CreateAgentVoice = ({ handleBack }) => {
                                     voices.map((item, index) => (
                                         <button
                                             key={index}
-                                            style={{ border: index === toggleClick ? "2px solid #402FFF" : "" }}
+                                            style={{ border: index === toggleClick ? "2px solid #7902DF" : "" }}
                                             className='flex flex-row items-center border mt-4 p-2 justify-between h-[100px] px-8 rounded-xl outline-none'
                                             onClick={(e) => {
                                                 handleToggleClick(index, item);

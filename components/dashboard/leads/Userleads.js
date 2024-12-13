@@ -1,8 +1,8 @@
 import Apis from '@/components/apis/Apis';
-import { Box, CircularProgress, Modal, Popover } from '@mui/material';
+import { Box, CircularProgress, Modal, Popover, TextareaAutosize } from '@mui/material';
 import { CalendarDots, DotsThree, EnvelopeSimple, Plus } from '@phosphor-icons/react'
 import axios from 'axios';
-import { first } from 'draft-js/lib/DefaultDraftBlockRenderMap';
+import { filter, first } from 'draft-js/lib/DefaultDraftBlockRenderMap';
 import moment from 'moment';
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
@@ -36,6 +36,9 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     const [selectedSmartList, setSelectedSmartList] = useState(null);
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
+
+    //code for passing columns
+    const [Columns, setColumns] = useState(null);
 
 
     //code for array input fields
@@ -97,6 +100,12 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     const [showKYCDetails, setShowKycDetails] = useState(true);
     const [showNotesDetails, setShowNotesDetails] = useState(false);
     const [showAcitivityDetails, setShowAcitivityDetails] = useState(false);
+
+    //code for add stage notes
+    const [showAddNotes, setShowAddNotes] = useState(false);
+    const [addNotesValue, setddNotesValue] = useState("");
+    const [noteDetails, setNoteDetails] = useState([]);
+    const [addLeadNoteLoader, setAddLeadNoteLoader] = useState(false);
 
     useEffect(() => {
         // getLeads();
@@ -357,6 +366,54 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
         }
     }
 
+    //function to add lead notes
+    const handleAddLeadNotes = async () => {
+        try {
+            setAddLeadNoteLoader(true);
+            const localData = localStorage.getItem("User");
+            let AuthToken = null;
+            if (localData) {
+                const UserDetails = JSON.parse(localData);
+                AuthToken = UserDetails.token;
+            }
+
+            console.log("Auth token is :--", AuthToken);
+
+            const ApiData = {
+                note: addNotesValue,
+                leadId: selectedLeadsDetails.id
+            }
+
+            console.log("api data is:", ApiData);
+
+            const ApiPath = Apis.addLeadNote;
+            // return
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of add api is:", response);
+                // setNoteDetails()
+                if (response.data.status === true) {
+                    setShowAddNotes(false);
+                    setNoteDetails([...noteDetails, response.data.data]);
+                    setddNotesValue("");
+                }
+            }
+
+
+
+        } catch (error) {
+            console.error("Error occured in add lead note api is:", error);
+        } finally {
+            setAddLeadNoteLoader(false);
+        }
+    }
+
     // const getMatchingData = (title) => {
     //     // Special case for "Name" column
     //     if (title === "Name") {
@@ -369,9 +426,69 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     //function for getting the sheets
 
 
-    const getColumnData = (column, item) => {
+    // const getColumnData = (column, item) => {
 
+    //     const { title } = column;
+
+    //     switch (title) {
+    //         case "Name":
+    //             return (
+    //                 <div>
+    //                     <div className='w-full flex flex-row items-center gap-2 truncate'>
+    //                         {toggleClick.includes(item.id) ? (
+    //                             <button
+    //                                 className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
+    //                                 onClick={() => handleToggleClick(item.id)}
+    //                             >
+    //                                 <Image src={"/assets/whiteTick.png"} height={10} width={10} alt='*' />
+    //                             </button>
+    //                         ) : (
+    //                             <button
+    //                                 className="h-[20px] w-[20px] border-2 rounded outline-none"
+    //                                 onClick={() => handleToggleClick(item.id)}
+    //                             >
+    //                             </button>
+    //                         )}
+    //                         <div className='h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white'
+    //                             onClick={() => handleToggleClick(item.id)}>
+    //                             {item.firstName.slice(0, 1)}
+    //                         </div>
+    //                         <div className='truncate cursor-pointer'
+    //                             onClick={() => handleToggleClick(item.id)}>
+    //                             {item.firstName} {item.lastName}
+    //                         </div>
+    //                     </div>
+    //                 </div>
+    //             );
+    //         case "Date":
+    //             return item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "-";
+    //         case "Phone":
+    //             return item.phone ? item.phone : "-";
+    //         case "Stage":
+    //             return item.stage ? item.stage : "No Stage";
+    //         case "More":
+    //             return (
+    //                 <button
+    //                     className="underline text-purple"
+    //                     onClick={() => {
+    //                         console.log("It is ", item)
+    //                         setSelectedLeadsDetails(item); // Pass selected lead data
+    //                         setShowDetailsModal(true); // Show modal
+    //                     }}
+    //                 >
+    //                     Details
+    //                 </button>
+    //             );
+    //         default:
+    //             return item[title] || "-"; // Match dynamically by converting title to lowercase
+    //     }
+    // };
+
+    const getColumnData = (column, item) => {
         const { title } = column;
+
+        // console.log("Colums of the list are:", column);
+        // console.log("Comparing items---", item.stage);
 
         switch (title) {
             case "Name":
@@ -404,28 +521,72 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                     </div>
                 );
             case "Date":
-                return item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "-";
+                return item.createdAt ? moment(item.createdAt).format('MMM DD, YYYY') : "-";
             case "Phone":
                 return item.phone ? item.phone : "-";
             case "Stage":
-                return item.stage ? item.stage : "No Stage";
+                return item.stage ? item.stage.stageTitle : "No Stage";
             case "More":
                 return (
                     <button
                         className="underline text-purple"
                         onClick={() => {
-                            console.log("It is ", item)
+                            console.log("It is ", item);
                             setSelectedLeadsDetails(item); // Pass selected lead data
+                            setNoteDetails(item.notes);
                             setShowDetailsModal(true); // Show modal
+                            setColumns(column);
                         }}
                     >
                         Details
                     </button>
                 );
             default:
-                return item[title] || "-"; // Match dynamically by converting title to lowercase
+                const value = item[title];
+                if (typeof value === "object" && value !== null) {
+                    // Handle objects gracefully
+                    return JSON.stringify(value); // Convert to string or handle as needed
+                }
+                return value || "-";
         }
     };
+
+
+    const getDetailsColumnData = (column, item) => {
+        let filteredColumns = column
+
+
+        const { title } = filteredColumns;
+
+        // console.log("Colums of the list are:", column);
+        // console.log("Comparing items---", item);
+
+        if (item) {
+            switch (title) {
+                case "Name":
+                    return (
+                        <div>
+
+                        </div>
+                    );
+                case "Date":
+                    return item.createdAt ? moment(item.createdAt).format('MMM DD, YYYY') : "-";
+                case "Phone":
+                    return ("-");
+                case "Stage":
+                    return item.stage ? item.stage.stageTitle : "No Stage";
+                default:
+                    const value = item[title];
+                    if (typeof value === "object" && value !== null) {
+                        // Handle objects gracefully
+                        return JSON.stringify(value); // Convert to string or handle as needed
+                    }
+                    return value || "-";
+            }
+        }
+
+    };
+
 
     //code for getting the sheets
     const getSheets = async () => {
@@ -665,7 +826,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                             },
                                         }}
                                     >
-                                        <Box className="lg:w-6/12 sm:w-9/12 w-10/12" sx={styles.modalsStyle}>
+                                        <Box className="lg:w-4/12 sm:w-8/12 w-10/12" sx={styles.modalsStyle}>
                                             <div className="flex flex-row justify-center w-full">
                                                 <div
                                                     className="w-full"
@@ -673,6 +834,8 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                         backgroundColor: "#ffffff",
                                                         padding: 20,
                                                         borderRadius: "13px",
+                                                        paddingTop: 30,
+                                                        paddingBottom: 30
                                                     }}
                                                 >
                                                     <div className='flex flex-row justify-end'>
@@ -896,9 +1059,9 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                                                 }`}
                                                                             style={{
                                                                                 whiteSpace: "nowrap",
-                                                                                overflow: "hidden",
-                                                                                textOverflow: "ellipsis",
-                                                                                maxWidth: "150px",
+                                                                                // overflow: "hidden",
+                                                                                // textOverflow: "ellipsis",
+                                                                                // maxWidth: "150px",
                                                                                 zIndex: column.title === "More" ? 1 : "auto",
                                                                             }}
                                                                         >
@@ -1215,20 +1378,26 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                     },
                 }}
             >
-                <Box className="sm:w-10/12 lg:w-10/12 xl:w-8/12 w-11/12 max-h-[70vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
-                    <div className="flex flex-row justify-center w-full">
+                <Box className="sm:w-6/12 lg:w-5/12 xl:w-4/12 w-10/12 max-h-[70vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
+                    <div className="flex flex-row justify-center w-full h-[70vh] overflow-auto"
+                        style={{
+                            scrollbarWidth: "none", backgroundColor: "#ffffff",
+                            borderRadius: "13px",
+                        }}>
                         <div
-                            className="sm:w-10/12 w-full"
+                            className="w-full"
                             style={{
-                                backgroundColor: "#ffffff",
-                                // padding: 20,
-                                borderRadius: "13px",
+                                // backgroundColor: "#ffffff",
+                                // padding: 20
                                 paddingBottom: 10,
-                                paddingTop: 10
+                                paddingTop: 10,
+                                height: "100%"
                             }}
                         >
 
-                            <div style={{ paddingInline: 30 }}>
+                            <div
+                                // className='h-[60%] overflow-auto'
+                                style={{ paddingInline: 30 }}>
                                 <div className='flex flex-row justify-between items-center'>
                                     <div style={{ fontWeight: "500", fontSize: 16.9 }}>
                                         Details
@@ -1295,6 +1464,35 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                     </div>
                                 </div>
 
+                                <div className='flex flex-col gap-4 mt-4'>
+                                    {
+
+                                        leadColumns.map((column, index) => {
+                                            if (column.title == "Name" || column.title == "Phone" || column.title == "More" || column.title == "Stage") {
+                                                return (
+                                                    // <div key={index}></div>
+                                                    ""
+                                                )
+                                            }
+                                            return (
+                                                <div key={index} className='flex flex-row w-full justify-between'>
+                                                    <div className='flex flex-row items-center gap-4'>
+                                                        {/* <Image src={"/"} */}
+                                                        <div>
+                                                            -
+                                                        </div>
+                                                        <div style={styles.subHeading}>
+                                                            {column.title}
+                                                        </div>
+                                                    </div>
+                                                    <div style={styles.paragraph}>
+                                                        {getDetailsColumnData(column, selectedLeadsDetails)}
+                                                    </div>
+                                                </div>
+                                            )
+                                        })}
+                                </div>
+
                                 <div className='flex flex-row items--center w-full justify-between mt-4'>
                                     <div className='flex flex-row items-center gap-2'>
                                         <Image src={"/assets/tag.png"} height={16} width={16} alt='man' />
@@ -1302,8 +1500,29 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                             Tag
                                         </div>
                                     </div>
-                                    <div className="text-end" style={styles.paragraph}>
-                                        Tags
+                                    <div className="text-end flex flex-row items-center gap-2" style={styles.paragraph}>
+                                        {
+                                            // selectedLeadsDetails?.tags?.map.slice(0, 1)
+                                            selectedLeadsDetails?.tags.slice(0, 2).map((tags, index) => {
+                                                return (
+                                                    <div key={index} className='flex flex-row items-center gap-2'>
+                                                        <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
+                                                            {tags}
+
+                                                        </div>
+                                                        <div>
+                                                            {
+                                                                selectedLeadsDetails?.tags.length > 2 && (
+                                                                    <div>
+                                                                        +{selectedLeadsDetails?.tags.length - 2}
+                                                                    </div>
+                                                                )
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })
+                                        }
                                     </div>
                                 </div>
 
@@ -1314,8 +1533,10 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                             Stage
                                         </div>
                                     </div>
-                                    <div className="text-end" style={styles.paragraph}>
-                                        {selectedLeadsDetails?.stage || "-"}
+                                    <div className="text-end flex flex-row items-center gap-1" style={styles.paragraph}>
+                                        <div className='h-[15px] w-[15px] rounded-full' style={{ backgroundColor: selectedLeadsDetails?.stage?.defaultColor }}>
+                                        </div>
+                                        {selectedLeadsDetails?.stage?.stageTitle || "-"}
                                     </div>
                                 </div>
 
@@ -1330,6 +1551,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                         <Image src={"/assets/manIcon.png"} height={40} width={40} alt='man' />
                                     </div>
                                 </div>
+
                             </div>
 
                             <div
@@ -1377,79 +1599,125 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                         Activity
                                     </button>
                                 </div>
-                                {/*<div className='mt-2' style={styles.heading2}>
-                                    12/12/2024, 12:02 Am
-                                    </div>*/}
 
                                 {
-                                    showKYCDetails && selectedLeadsDetails?.kycs.length < 1 ? (
-                                        <div className='flex flex-col items-center justify-center h-[20vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
-                                            <div className='h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'>
-                                                <Image src={"/assets/FAQ.png"} height={24} width={24} alt='*' />
-                                            </div>
-                                            <div className='mt-4'>
-                                                <i style={{ fontWeight: "500", fontsize: 15 }}>
-                                                    KYC Data collected from calls will be shown here
-                                                </i>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className='w-full pb-12'>
-                                            <div style={{ fontWeight: "600", fontSize: 16.8 }}>
-                                                Know Your Customer
-                                            </div>
+                                    showKYCDetails && (
+                                        <div>
                                             {
-                                                selectedLeadsDetails?.kycs.map((item, index) => {
-                                                    return (
-                                                        <div className='w-full flex flex-row gap-2 mt-2' key={index}>
-                                                            <div className='h-full' style={{ width: "2px", backgroundColor: "red" }}>
-                                                            </div>
-                                                            <div className='h-full w-full'>
-                                                                {/* <div className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                                    Outcome | <span style={{ fontWeight: "600", fontSize: 12 }} className='text-purple'>
-                                                                        {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
-                                                                    </span>
-                                                                </div> */}
-                                                                <div className='mt-4'
-                                                                    style={{
-                                                                        // border: "1px solid #00000020", padding: 10, borderRadius: 15
-                                                                    }}>
-                                                                    <div style={{ fontWeight: "500", fontSize: 13, color: "#00000060" }}>
-                                                                        {item.question}
-                                                                    </div>
-                                                                    <div className='mt-1' style={{ fontWeight: "500", fontSize: 15, }}>
-                                                                        {item.answer}
-                                                                    </div>
-                                                                </div>
-                                                                <div>
-
-                                                                </div>
-                                                            </div>
+                                                selectedLeadsDetails?.kycs.length < 1 ? (
+                                                    <div className='flex flex-col items-center justify-center h-[20vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
+                                                        <div className='h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'>
+                                                            <Image src={"/assets/FAQ.png"} height={24} width={24} alt='*' />
                                                         </div>
-                                                    )
-                                                })
+                                                        <div className='mt-4'>
+                                                            <i style={{ fontWeight: "500", fontsize: 15 }}>
+                                                                KYC Data collected from calls will be shown here
+                                                            </i>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className='w-full pb-12'>
+                                                        <div style={{ fontWeight: "600", fontSize: 16.8 }}>
+                                                            Know Your Customer
+                                                        </div>
+                                                        {
+                                                            selectedLeadsDetails?.kycs.map((item, index) => {
+                                                                return (
+                                                                    <div className='w-full flex flex-row gap-2 mt-2' key={index}>
+                                                                        <div className='h-full' style={{ width: "2px", backgroundColor: "red" }}>
+                                                                        </div>
+                                                                        <div className='h-full w-full'>
+                                                                            {/* <div className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
+                                                                            Outcome | <span style={{ fontWeight: "600", fontSize: 12 }} className='text-purple'>
+                                                                                {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
+                                                                            </span>
+                                                                        </div> */}
+                                                                            <div className='mt-4'
+                                                                                style={{
+                                                                                    // border: "1px solid #00000020", padding: 10, borderRadius: 15
+                                                                                }}>
+                                                                                <div style={{ fontWeight: "500", fontSize: 13, color: "#00000060" }}>
+                                                                                    {item.question}
+                                                                                </div>
+                                                                                <div className='mt-1' style={{ fontWeight: "500", fontSize: 15, }}>
+                                                                                    {item.answer}
+                                                                                </div>
+                                                                            </div>
+                                                                            <div>
+
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                )
+                                                            })
+                                                        }
+                                                    </div>
+                                                )
                                             }
                                         </div>
                                     )
                                 }
 
+
                                 {
                                     showNotesDetails && (
-                                        <div className='flex flex-col items-center justify-center h-[20vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
-                                            <div className='h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'>
-                                                <Image src={"/assets/notes.png"} height={24} width={24} alt='*' />
-                                            </div>
-                                            <div className='mt-4'>
-                                                <i style={{ fontWeight: "500", fontsize: 15 }}>
-                                                    You can add and manage your notes here
-                                                </i>
-                                            </div>
-                                            <div className='flex flex-row items-center gap-1 mt-2'>
-                                                <Plus size={17} color='#7902DF' weight='bold' />
-                                                <div className='text-purple'>
-                                                    Add Stage
-                                                </div>
-                                            </div>
+                                        <div>
+                                            {
+                                                selectedLeadsDetails?.notes.length < 1 ? (
+                                                    <div className='flex flex-col items-center justify-center h-[100%] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
+                                                        <div className='h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'>
+                                                            <Image src={"/assets/notes.png"} height={24} width={24} alt='*' />
+                                                        </div>
+                                                        <div className='mt-4'>
+                                                            <i style={{ fontWeight: "500", fontsize: 15 }}>
+                                                                You can add and manage your notes here
+                                                            </i>
+                                                        </div>
+                                                        <button
+                                                            className='flex flex-row items-center gap-1 mt-2'
+                                                            onClick={() => { setShowAddNotes(true) }}
+                                                        >
+                                                            <Plus size={17} color='#7902DF' weight='bold' />
+                                                            <div className='text-purple'>
+                                                                Add Notes
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className=''>
+                                                        <div className='' style={{ scrollbarWidth: "none" }}>
+                                                            {
+                                                                noteDetails.map((item, index) => {
+                                                                    return (
+                                                                        <div key={index} className='border rounded-xl p-4 mb-4' style={{ border: "1px solid #00000020" }}>
+                                                                            <div style={{ fontWeight: "500", color: "#15151560", fontsize: 12 }}>
+                                                                                {moment(item.createdAt).format("MMM DD, YYYY")}
+                                                                            </div>
+                                                                            <div
+                                                                                className='mt-4'
+                                                                                style={{ fontWeight: "500", color: "#151515", fontsize: 15 }}
+                                                                            >
+                                                                                {item.note}
+                                                                            </div>
+                                                                        </div>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </div>
+                                                        <div className='flex flex-col items-start justify-start w-full pb-6' style={{ fontWeight: "500", fontsize: 15 }}>
+                                                            <button
+                                                                className='flex flex-row items-center gap-1 mt-2'
+                                                                onClick={() => { setShowAddNotes(true) }}
+                                                            >
+                                                                <Plus size={17} color='#7902DF' weight='bold' />
+                                                                <div className='text-purple'>
+                                                                    Add Notes
+                                                                </div>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            }
                                         </div>
                                     )
                                 }
@@ -1457,15 +1725,46 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
 
                                 {
                                     showAcitivityDetails && (
-                                        <div className='flex flex-col items-center justify-center h-[20vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
-                                            <div className='h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'>
-                                                <Image src={"/assets/activityClock.png"} height={24} width={24} alt='*' />
-                                            </div>
-                                            <div className='mt-4'>
-                                                <i style={{ fontWeight: "500", fontsize: 15 }}>
-                                                    All activities related to this lead will be shown here
-                                                </i>
-                                            </div>
+                                        <div>
+                                            {
+                                                selectedLeadsDetails?.callActivity.length < 1 ? (
+                                                    <div className='flex flex-col items-center justify-center h-[20vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
+                                                        <div className='h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'>
+                                                            <Image src={"/assets/activityClock.png"} height={24} width={24} alt='*' />
+                                                        </div>
+                                                        <div className='mt-4'>
+                                                            <i style={{ fontWeight: "500", fontsize: 15 }}>
+                                                                All activities related to this lead will be shown here
+                                                            </i>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div>
+                                                        {
+                                                            selectedLeadsDetails?.callActivity.map((item, index) => {
+                                                                return (
+                                                                    <div key={index} className='mt-4'>
+                                                                        <div style={{ border: "1px solid #00000020", borderRadius: "10px", padding: 7, paddingInline: 10 }}>
+                                                                            <div className='mt-2' style={{ fontWeight: "500", fontSize: 12, color: "#00000070" }}>
+                                                                                Transcript
+                                                                            </div>
+                                                                            <div className='flex flex-row items-center justify-between mt-2'>
+                                                                                <div style={{ fontWeight: "500", fontSize: 15 }}>
+                                                                                    {item.duration} mins
+                                                                                </div>
+                                                                                {/* <Image size={"/assets/play.png"} height={20} width={20} alt='*' /> */}
+                                                                            </div>
+                                                                            <div className='mt-2' style={{ fontWeight: "500", fontSize: 15 }}>
+                                                                                {item.transcript}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                )
+                                                            })
+                                                        }
+                                                    </div>
+                                                )
+                                            }
                                         </div>
                                     )
                                 }
@@ -1473,6 +1772,79 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
 
                             </div>
 
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+
+            {/* Modal to add notes */}
+
+            <Modal
+                open={showAddNotes}
+                onClose={() => setShowAddNotes(false)}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 1000,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        backdropFilter: "blur(20px)",
+                    },
+                }}
+            >
+                <Box className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
+                    <div className="flex flex-row justify-center w-full h-[50vh]">
+                        <div
+                            className="w-full"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                paddingInline: 30,
+                                borderRadius: "13px",
+                                // paddingBottom: 10,
+                                // paddingTop: 10,
+                                height: "100%"
+                            }}
+                        >
+                            <div style={{ fontWeight: "700", fontsize: 22 }}>
+                                Add your notes
+                            </div>
+                            <div className='mt-4'
+                                style={{
+                                    height: "70%",
+                                    overflow: "auto"
+                                }}
+                            >
+                                <TextareaAutosize
+                                    maxRows={12}
+                                    className='outline-none focus:outline-none focus:ring-0 w-full'
+                                    style={{
+                                        fontsize: 15,
+                                        fontWeight: "500",
+                                        height: "250px",
+                                        border: "1px solid #00000020",
+                                        resize: "none",
+                                        borderRadius: "13px"
+                                    }}
+                                    placeholder='Add notes'
+                                    value={addNotesValue}
+                                    onChange={(event) => { setddNotesValue(event.target.value) }}
+                                />
+                            </div>
+                            <div className='w-full mt-4 h-[20%] flex flex-row justify-center'>
+                                {
+                                    addLeadNoteLoader ?
+                                        <CircularProgress size={25} /> :
+                                        <button className="bg-purple h-[50px] rounded-xl text-white rounded-xl w-6/12"
+                                            style={{
+                                                fontWeight: "600",
+                                                fontsize: 16
+                                            }}
+                                            onClick={() => { handleAddLeadNotes() }}
+                                        >
+                                            Add & Close
+                                        </button>
+                                }
+                            </div>
                         </div>
                     </div>
                 </Box>
