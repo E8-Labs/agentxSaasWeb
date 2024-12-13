@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import { Button, Modal, Box, Drawer, Snackbar, Fade, Alert, CircularProgress, Popover } from '@mui/material'
+import { Button, Modal, Box, Drawer, Snackbar, Fade, Alert, CircularProgress, Popover, Select, FormControl, MenuItem } from '@mui/material'
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import { Plus } from '@phosphor-icons/react';
@@ -39,6 +39,12 @@ function Page() {
   const [userDetails, setUserDetails] = useState([]);
   const [agentData, setAgentData] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
+
+  //code for assigning the umber
+  // const []
+  const [assignNumber, setAssignNumber] = React.useState('');
+
+
   //image variable
   const [selectedImages, setSelectedImages] = useState({});
   const [selectedAgent, setSelectedAgent] = useState(null);
@@ -128,6 +134,11 @@ function Page() {
       setShowSaveChangesBtn(false);
     }
   }, [greetingTagInput, scriptTagInput]);
+
+  //function to select the number to assign to the user
+  const handleAssignNumberChange = (event) => {
+    setAssignNumber(event.target.value);
+  };
 
   //function for scripts modal screen change
   const handleShowScript = () => {
@@ -455,7 +466,10 @@ function Page() {
   //code to get agents
   const getAgents = async (userData) => {
     try {
-      setInitialLoader(true);
+      const agentLocalDetails = localStorage.getItem("localAgentDetails");
+      if (!agentLocalDetails) {
+        setInitialLoader(true);
+      }
       const ApiPath = `${Apis.getAgents}?agentType=outbound`;
 
       console.log("Api path is: ", ApiPath);
@@ -612,6 +626,7 @@ function Page() {
 
                           <div className='flex flex-row gap-3 items-center'>
                             <button onClick={() => {
+                              console.log("Drawer details are:", item);
                               setShowDrawer(item)
                             }}>
 
@@ -1259,7 +1274,50 @@ function Page() {
                       style={{
                         fontSize: 15, fontWeight: '500', color: '#000'
                       }}>
-                      {showDrawer?.phoneNumber}
+                      {/*showDrawer?.phoneNumber*/}
+                      <FormControl size="200px">
+
+                        <Select
+                          value={assignNumber}
+                          onChange={handleAssignNumberChange}
+                          displayEmpty // Enables placeholder
+                          renderValue={(selected) => {
+                            if (!selected) {
+                              return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
+                            }
+                            return selected;
+                          }}
+                          sx={{
+                            border: "1px solid #00000020", // Default border
+                            "&:hover": {
+                              border: "1px solid #00000020", // Same border on hover
+                            },
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              border: "none", // Remove the default outline
+                            },
+                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                              border: "none", // Remove outline on focus
+                            },
+                            "&.MuiSelect-select": {
+                              py: 0, // Optional padding adjustments
+                            },
+                          }}
+                          MenuProps={{
+                            PaperProps: {
+                              style: {
+                                maxHeight: "30vh", // Limit dropdown height
+                                overflow: "auto", // Enable scrolling in dropdown
+                                scrollbarWidth: "none",
+                                // borderRadius: "10px"
+                              },
+                            },
+                          }}
+                        >
+                          <MenuItem value={10}>Ten</MenuItem>
+                          <MenuItem value={20}>Twenty</MenuItem>
+                          <MenuItem value={30}>Thirty</MenuItem>
+                        </Select>
+                      </FormControl>
                     </div>
                   </div>
                   <div className="flex justify-between">

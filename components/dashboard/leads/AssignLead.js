@@ -176,7 +176,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
             if (customLeadsToSend) {
                 batchSize = customLeadsToSend
             } else if (NoOfLeadsToSend) {
-                batchSize = customLeadsToSend
+                batchSize = NoOfLeadsToSend
             }
 
             if (CallNow) {
@@ -200,7 +200,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
             }
 
             console.log("Data sending in api is:", Apidata);
-            // return
+            return
             const localData = localStorage.getItem("User");
             let AuthToken = null;
             if (localData) {
