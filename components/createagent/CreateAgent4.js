@@ -34,32 +34,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     const [showOfficeNumberInput, setShowOfficeNumberInput] = useState(false);
     const [officeNumber, setOfficeNumber] = useState("");
     const [showClaimPopup, setShowClaimPopup] = useState(false);
-    const [previousNumber, setPreviousNumber] = useState([
-        // {
-        //     id: 1,
-        //     item: 1321321321321321
-        // },
-        // {
-        //     id: 2,
-        //     item: 1321321321321321
-        // },
-        // {
-        //     id: 3,
-        //     item: 1321321321321321
-        // },
-        // {
-        //     id: 4,
-        //     item: 1321321321321321
-        // },
-        // {
-        //     id: 5,
-        //     item: 1321321321321321
-        // },
-        // {
-        //     id: 6,
-        //     item: 1321321321321321
-        // },
-    ]);
+    const [previousNumber, setPreviousNumber] = useState([]);
     //show reassign btn or not
     const [showReassignBtn, setShowReassignBtn] = useState(false);
     const [showGlobalBtn, setShowGlobalBtn] = useState(true);

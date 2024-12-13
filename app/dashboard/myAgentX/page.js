@@ -43,6 +43,20 @@ function Page() {
   //code for assigning the umber
   // const []
   const [assignNumber, setAssignNumber] = React.useState('');
+  const [previousNumber, setPreviousNumber] = useState([]);
+  const selectRef = useRef();
+  const [openCalimNumDropDown, setOpenCalimNumDropDown] = useState(false);
+  const [showGlobalBtn, setShowGlobalBtn] = useState(true);
+  const [showReassignBtn, setShowReassignBtn] = useState(false);
+  const [reassignLoader, setReassignLoader] = useState(false);
+  const [showClaimPopup, setShowClaimPopup] = useState(false);
+  const [findeNumberLoader, setFindeNumberLoader] = useState(false);
+  const [foundeNumbers, setFoundeNumbers] = useState([]);
+  const [findNumber, setFindNumber] = useState("");
+  const [purchaseLoader, setPurchaseLoader] = useState(false);
+  const [openPurchaseSuccessModal, setOpenPurchaseSuccessModal] = useState(false);
+  const [selectedPurchasedNumber, setSelectedPurchasedNumber] = useState(null);
+  const [selectedPurchasedIndex, setSelectedPurchasedIndex] = useState(null);
 
 
   //image variable
@@ -93,6 +107,7 @@ function Page() {
   //code for scroll ofset
   useEffect(() => {
     getUniquesColumn();
+    getAvailabePhoneNumbers();
     ////console.log("Setting scroll offset")
     const handleScroll = () => {
       console.log("Div scrolled", containerRef.current.scrollTop)
@@ -135,10 +150,258 @@ function Page() {
     }
   }, [greetingTagInput, scriptTagInput]);
 
+  //function to open drawer
+  const handleShowDrawer = (item) => {
+    setAssignNumber(item?.phoneNumber);
+    setShowDrawer(item)
+    console.log("Selected agent is:", item);
+    if (item.agentType === "inbound") {
+      setShowReassignBtn(false);
+    } else if (item.agentType === "outbound") {
+      setShowReassignBtn(true);
+      setShowGlobalBtn(false);
+    }
+  }
+
   //function to select the number to assign to the user
   const handleAssignNumberChange = (event) => {
     setAssignNumber(event.target.value);
   };
+
+  //code for formating the number
+  const formatPhoneNumber = (rawNumber) => {
+    const phoneNumber = parsePhoneNumberFromString(
+      rawNumber?.startsWith('+') ? rawNumber : `+${rawNumber}`
+    );
+    // console.log("Raw number is", rawNumber);
+    return phoneNumber ? phoneNumber.formatInternational() : 'Invalid phone number';
+  };
+
+  //fucntion for assigning the number
+  const handleCloseClaimPopup = () => {
+    setShowClaimPopup(false)
+  }
+
+  //function to finad number
+  //function to fine numbers api
+  const handleFindeNumbers = async (number) => {
+    try {
+      setFindeNumberLoader(true);
+      const ApiPath = `${Apis.findPhoneNumber}?areaCode=${number}`;
+      let AuthToken = null;
+      const LocalData = localStorage.getItem("User");
+      if (LocalData) {
+        const UserDetails = JSON.parse(LocalData);
+        AuthToken = UserDetails.token;
+      }
+
+      console.log("Apipath is :--", ApiPath);
+      // return
+      const response = await axios.get(ApiPath, {
+        headers: {
+          "Authorization": "Bearer " + AuthToken,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        console.log("Response of find number api is :--", response.data);
+        if (response.data.status === true) {
+          setFoundeNumbers(response.data.data);
+        }
+
+      }
+
+    } catch (error) {
+      console.error("Error occured in finde number api is :---", error);
+    } finally {
+      setFindeNumberLoader(false);
+    }
+  }
+
+  //code for reassigning the number api
+  const handleReassignNumber = async (phoneNumber) => {
+    try {
+      console.log("Phonenumber is:", phoneNumber.slice(1));
+      // return
+      setReassignLoader(true);
+      let AuthToken = null;
+      const LocalData = localStorage.getItem("User");
+      const agentDetails = localStorage.getItem("agentDetails");
+      let MyAgentData = null;
+      if (LocalData) {
+        const UserDetails = JSON.parse(LocalData);
+        AuthToken = UserDetails.token;
+      }
+
+      if (agentDetails) {
+        console.log("trying")
+        const agentData = JSON.parse(agentDetails);
+        console.log("Agent details are :--", agentData);
+        MyAgentData = agentData;
+
+      }
+
+      const ApiPath = Apis.reassignNumber;
+
+      const ApiData = {
+        agentId: MyAgentData.userId,
+        phoneNumber: phoneNumber
+      }
+      console.log("I a just trigered")
+
+      console.log("Data sending in api is:", ApiData);
+      console.log("Api path is:", ApiPath);
+      console.log("Authtoken is:", AuthToken);
+
+      // return
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          "Authorization": "Bearer " + AuthToken,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        console.log("Respose of reassign api is:", response);
+        setSelectNumber(phoneNumber.slice(1));
+        setOpenCalimNumDropDown(false);
+        //code to close the dropdown
+        if (selectRef.current) {
+          selectRef.current.blur(); // Triggers dropdown close
+        }
+
+
+        // if (response.data.status === true) {
+        //     setSelectNumber(phoneNumber);
+        // } else {
+        //     setSelectNumber(phoneNumber);
+        // }
+      }
+
+    } catch (error) {
+      console.error("Error occured in reassign the number api:", error);
+    } finally {
+      setReassignLoader(false);
+      console.log("reassign api completed")
+    }
+  }
+
+  //function to purchse number
+  const handlePurchaseNumber = async () => {
+    try {
+      setPurchaseLoader(true);
+      let AuthToken = null;
+      const LocalData = localStorage.getItem("User");
+      const agentDetails = localStorage.getItem("agentDetails");
+      let MyAgentData = null;
+      if (LocalData) {
+        const UserDetails = JSON.parse(LocalData);
+        AuthToken = UserDetails.token;
+      }
+
+      console.log("Authtoken is:", AuthToken);
+
+      if (agentDetails) {
+        console.log("trying")
+        const agentData = JSON.parse(agentDetails);
+        console.log("Agent details are :--", agentData);
+        MyAgentData = agentData;
+
+      }
+
+      const ApiPath = Apis.purchaseNumber;
+      console.log("Apipath is :--", ApiPath);
+      // console.log("Number selected is:", selectedPurchasedNumber);
+      const formData = new FormData();
+      formData.append("phoneNumber", selectedPurchasedNumber.phoneNumber);
+      // formData.append("phoneNumber", "+14062040550");
+      // formData.append("callbackNumber", "+14062040550");
+      formData.append("mainAgentId", MyAgentData.id);
+
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key} ${value} `);
+      }
+
+      // localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
+      setOpenPurchaseSuccessModal(true);
+      setAssignNumber(selectedPurchasedNumber.phoneNumber);
+      setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
+      setShowClaimPopup(false);
+      setOpenCalimNumDropDown(false);
+
+
+      // return
+
+      // const response = await axios.post(ApiPath, formData, {
+      //   headers: {
+      //     "Authorization": "Bearer " + AuthToken,
+      //     "Content-Type": "multipart/form-data",
+      //     // "Content-Type": "application/json"
+      //   }
+      // });
+
+      // if (response) {
+      //   console.log("Response of purchase number api is :--", response.data);
+      //   if (response.data.status === true) {
+      //     localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
+      //     setOpenPurchaseSuccessModal(true);
+      //     // handleContinue();
+      //     setSelectNumber(selectedPurchasedNumber.phoneNumber);
+      //     setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
+      //     setShowClaimPopup(false);
+      //     setOpenCalimNumDropDown(false);
+      //   }
+      // }
+
+    } catch (error) {
+      console.error("Error occured in purchase number api is: --", error);
+    } finally {
+      setPurchaseLoader(false);
+    }
+  }
+
+  //function to select the number to purchase
+  const handlePurchaseNumberClick = (item, index) => {
+    console.log("Item Selected is :---", item);
+    setSelectedPurchasedNumber(prevId => (prevId === item ? null : item));
+    setSelectedPurchasedIndex(prevId => (prevId === index ? null : index));
+  }
+
+  //code to get the user previous numbers
+  const getAvailabePhoneNumbers = async () => {
+    try {
+      let AuthToken = null;
+
+      // const agentDetails = localStorage.getItem("agentDetails");
+      const LocalData = localStorage.getItem("User");
+      if (LocalData) {
+        const UserDetails = JSON.parse(LocalData);
+        AuthToken = UserDetails.token;
+      }
+      console.log("initial api authtoken is:", AuthToken);
+      const ApiPath = Apis.userAvailablePhoneNumber;
+      console.log("Apipath", ApiPath);
+
+      // return
+      const response = await axios.get(ApiPath, {
+        headers: {
+          "Authorization": "Bearer " + AuthToken
+        }
+      });
+
+      if (response) {
+        console.log("Response of api is :", response.data);
+        console.log("PArsed data is ", response.data.data);
+        setPreviousNumber(response.data.data);
+      }
+
+    } catch (error) {
+      console.error("Error occured in: ", error);
+    } finally {
+      console.log("Api cal completed")
+    }
+  }
 
   //function for scripts modal screen change
   const handleShowScript = () => {
@@ -511,8 +774,8 @@ function Page() {
   //code for spiling the agnts
   // let agentsContent = [];
   const [agentsContent, setAgentsContent] = useState([]);
-  //code for popover
   const [actionInfoEl, setActionInfoEl] = React.useState(null);
+  //code for popover
 
   const handlePopoverOpen = (event) => {
     setActionInfoEl(event.currentTarget);
@@ -546,6 +809,33 @@ function Page() {
 
 
   }, [userDetails]);
+
+  const styles = {
+    claimPopup: {
+      height: "auto",
+      bgcolor: "transparent",
+      // p: 2,
+      mx: "auto",
+      my: "50vh",
+      transform: "translateY(-55%)",
+      borderRadius: 2,
+      border: "none",
+      outline: "none",
+    },
+    findNumberTitle: {
+      fontSize: 17,
+      fontWeight: "500"
+    },
+    findNumberDescription: {
+      fontSize: 15,
+      fontWeight: "500"
+    },
+    dropdownMenu: {
+      fontSize: 15,
+      fontWeight: "500",
+      color: "#000000"
+    },
+  }
 
 
   // console.log("Current agent selected is:", showDrawer)
@@ -627,7 +917,7 @@ function Page() {
                           <div className='flex flex-row gap-3 items-center'>
                             <button onClick={() => {
                               console.log("Drawer details are:", item);
-                              setShowDrawer(item)
+                              handleShowDrawer(item)
                             }}>
 
                               <div style={{ fontSize: 24, fontWeight: '600', color: '#000' }}>
@@ -712,7 +1002,7 @@ function Page() {
                             </div>
 
                             <button onClick={() => {
-                              setShowDrawer(item)
+                              handleShowDrawer(item)
                             }}>
                               <div>
                                 More info
@@ -1131,7 +1421,8 @@ function Page() {
                 </div>
 
                 <div style={{ fontSize: 15, fontWeight: "500", color: "#000" }}>
-                  {showDrawer?.phoneNumber}
+                  {/* {showDrawer?.phoneNumber} */}
+                  {formatPhoneNumber(showDrawer?.phoneNumber)}
                 </div>
 
                 <div className='flex flex-row gap-2 items-center '>
@@ -1266,7 +1557,7 @@ function Page() {
                     Contact Info
                   </div>
 
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>
                       Number used for calls
                     </div>
@@ -1275,7 +1566,7 @@ function Page() {
                         fontSize: 15, fontWeight: '500', color: '#000'
                       }}>
                       {/*showDrawer?.phoneNumber*/}
-                      <FormControl size="200px">
+                      {/* <FormControl size="200px">
 
                         <Select
                           value={assignNumber}
@@ -1317,7 +1608,87 @@ function Page() {
                           <MenuItem value={20}>Twenty</MenuItem>
                           <MenuItem value={30}>Thirty</MenuItem>
                         </Select>
-                      </FormControl>
+                      </FormControl> */}
+                      <Box className="w-full">
+                        <FormControl className="w-full">
+                          <Select
+                            ref={selectRef}
+                            open={openCalimNumDropDown}
+                            onClose={() => setOpenCalimNumDropDown(false)}
+                            onOpen={() => setOpenCalimNumDropDown(true)}
+                            className='border-none rounded-2xl outline-none p-0 m-0'
+                            displayEmpty
+                            value={assignNumber}
+                            // onChange={handleSelectNumber}
+                            onChange={(e) => {
+                              let value = e.target.value
+                              setAssignNumber(value)
+                              setOpenCalimNumDropDown(false);
+                            }}
+                            renderValue={(selected) => {
+                              if (selected === '') {
+                                return <div>Select Number</div>;
+                              }
+                              return selected;
+                            }}
+                            sx={{
+                              ...styles.dropdownMenu,
+                              backgroundColor: 'red',
+                              '& .MuiOutlinedInput-notchedOutline': {
+                                border: 'none',
+                              },
+                              padding: 0,
+                              margin: 0
+                            }}
+                          >
+                            {
+                              previousNumber.map((item, index) => (
+                                <MenuItem key={index} style={styles.dropdownMenu} value={item.phoneNumber.slice(1)} className='flex flex-row items-center gap-2'>
+                                  {item.phoneNumber}
+                                  {
+                                    showReassignBtn && (
+                                      <div>
+                                        {
+                                          item.claimedBy && (
+                                            <div className='flex flex-row items-center gap-2'>
+                                              {`(Claimed by {${item.claimedBy.name}})`}
+                                              {
+                                                reassignLoader ?
+                                                  <CircularProgress size={15} /> :
+                                                  <button className="text-purple underline" onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleReassignNumber(item.phoneNumber)
+                                                    // handleReassignNumber(e.target.value)
+                                                  }} >
+                                                    Reassign
+                                                  </button>
+                                              }
+                                            </div>
+                                          )
+                                        }
+                                      </div>
+                                    )
+                                  }
+                                </MenuItem>
+                              ))
+                            }
+                            <MenuItem style={styles.dropdownMenu} value={showGlobalBtn ? 14062040550 : ""}>
+                              +14062040550
+                              {
+                                showGlobalBtn && (
+                                  " (Our global phone number avail to first time users)"
+                                )
+                              }
+                              {
+                                showGlobalBtn == false && (
+                                  " (Only for outbound agents. You must Buy a number)"
+                                )
+                              }
+                            </MenuItem>
+                            <div className='ms-4' style={{ ...styles.inputStyle, color: '#00000070' }}><i>Get your own unique phone number.</i> <button className='text-purple underline' onClick={() => { setShowClaimPopup(true) }}>Claim one</button></div>
+                          </Select>
+                        </FormControl>
+                      </Box>
                     </div>
                   </div>
                   <div className="flex justify-between">
@@ -1809,6 +2180,164 @@ function Page() {
 
               {/* Can be use full to add shadow */}
               {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+            </div>
+          </div>
+        </Box>
+      </Modal>
+
+      {/* Code for Purchase and find number popup */}
+      <Modal
+        open={showClaimPopup}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: "#00000020",
+            // backdropFilter: "blur(20px)",
+          },
+        }}
+      >
+        <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.claimPopup}>
+          <div className="flex flex-row justify-center w-full">
+            <div
+              className="sm:w-8/12 w-full min-h-[50vh] max-h-[80vh] flex flex-col justify-between"
+              style={{
+                backgroundColor: "#ffffff",
+                padding: 20,
+                borderRadius: "13px",
+              }}
+            >
+              <div>
+                <div className='flex flex-row justify-end'>
+                  <button onClick={handleCloseClaimPopup}>
+                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                  </button>
+                </div>
+                <div style={{
+                  fontSize: 24,
+                  fontWeight: "700",
+                  textAlign: "center"
+                }}>
+                  {`Let's claim your phone number`}
+                </div>
+                <div className='mt-2' style={{
+                  fontSize: 15,
+                  fontWeight: "700", textAlign: "center"
+                }}>
+                  Enter the 3 digit area code you would like to use
+                </div>
+                <div className='mt-4'
+                  style={{
+                    fontSize: 13,
+                    fontWeight: "500",
+                    color: "#15151550"
+                  }}>
+                  Number
+                </div>
+                <div className='mt-2'>
+                  <input className='border border-[#00000010] outline-none p-3 rounded-lg w-full mx-2 focus:outline-none focus:ring-0' type='' placeholder='Ex: 619, 213, 313'
+                    value={findNumber}
+                    onChange={(e) => {
+                      setFindeNumberLoader(true);
+                      if (timerRef.current) {
+                        clearTimeout(timerRef.current);
+                      }
+
+                      const value = e.target.value
+                      setFindNumber(e.target.value.replace(/[^0-9]/g, ""));
+                      // handleFindeNumbers(value)
+                      if (value) {
+                        timerRef.current = setTimeout(() => {
+                          handleFindeNumbers(value);
+                        }, 300);
+                      } else {
+                        console.log("Should not search")
+                        return
+                      }
+                    }}
+                  />
+                </div>
+
+                {
+                  findNumber ?
+                    <div>
+                      {
+                        findeNumberLoader ?
+                          <div className='flex flex-row justify-center mt-6'>
+                            <CircularProgress size={35} />
+                          </div> :
+                          <div className='mt-6 max-h-[40vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                            {
+                              foundeNumbers.length > 0 ?
+                                <div className='w-full'>
+                                  {
+                                    foundeNumbers.map((item, index) => (
+                                      <div key={index} className='h-[10vh] rounded-2xl flex flex-col justify-center p-4 mb-4'
+                                        style={{
+                                          border: index === selectedPurchasedIndex ? "2px solid #7902DF" : "1px solid #00000020",
+                                          backgroundColor: index === selectedPurchasedIndex ? "#402FFF05" : ""
+                                        }}
+                                      >
+                                        <button className='flex flex-row items-start justify-between outline-none' onClick={(e) => { handlePurchaseNumberClick(item, index) }}>
+                                          <div>
+                                            <div style={styles.findNumberTitle}>
+                                              {item.phoneNumber}
+                                            </div>
+                                            <div className='text-start mt-2' style={styles.findNumberDescription}>
+                                              {item.locality} {item.region}
+                                            </div>
+                                          </div>
+                                          <div className="flex flex-row items-start gap-4">
+                                            <div style={styles.findNumberTitle}>
+                                              ${item.price}/mo
+                                            </div>
+                                            <div>
+                                              {
+                                                index == selectedPurchasedIndex ?
+                                                  <Image src={"/assets/charmTick.png"} height={35} width={35} alt='*' /> :
+                                                  <Image src={"/assets/charmUnMark.png"} height={35} width={35} alt='*' />
+                                              }
+                                            </div>
+                                          </div>
+                                        </button>
+                                      </div>
+                                    ))
+                                  }
+                                </div> :
+                                <div className='text-xl font-[600] text-center mt-4'>
+                                  No result found. Try a new search
+                                </div>
+                            }
+                          </div>
+                      }
+                    </div> :
+                    <div className='text-xl font-[600] text-center mt-4'>
+                      Enter number to search
+                    </div>
+                }
+
+
+
+              </div>
+              <div className='h-[50px]'>
+                <div>
+                  {
+                    purchaseLoader ?
+                      <div className='w-full flex flex-row justify-center mt-4'>
+                        <CircularProgress size={32} />
+                      </div> :
+                      <div>
+                        {
+                          selectedPurchasedNumber && (
+                            <button className='text-white bg-purple w-full h-[50px] rounded-lg' onClick={handlePurchaseNumber}>
+                              Proceed to Buy
+                            </button>
+                          )
+                        }
+                      </div>
+                  }
+                </div>
+              </div>
             </div>
           </div>
         </Box>
