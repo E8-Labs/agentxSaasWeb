@@ -416,30 +416,22 @@ function Page() {
       setAssignLoader(true);
       let AuthToken = null;
       const LocalData = localStorage.getItem("User");
-      let MyAgentData = null;
-      const agentDetails = localStorage.getItem("agentDetails");
+
       if (LocalData) {
         const UserDetails = JSON.parse(LocalData);
         AuthToken = UserDetails.token;
       }
 
-      if (agentDetails) {
-        console.log("trying");
-        const agentData = JSON.parse(agentDetails);
-        console.log("Agent details are :--", agentData);
-        MyAgentData = agentData;
-      }
-
       const formData = new FormData();
       formData.append("phoneNumber", assignNumber);
-      //   formData.append("callbackNumber", assignNumber);
+        formData.append("callbackNumber", showDrawer?.callbackNumber);
       // if (userSelectedNumber) {
       //   formData.append("callbackNumber", assignNumber);
       // } else {
       //   formData.append("callbackNumber", officeNumber);
       // }
-      // formData.append("liveTransforNumber", callBackNumber);
-      formData.append("mainAgentId", MyAgentData.id);
+      formData.append("liveTransforNumber", showDrawer?.liveTransferNumber);
+      formData.append("mainAgentId", showDrawer.id);
       // formData.append("liveTransfer", toggleClick);
 
       const ApiPath = Apis.asignPhoneNumber;
@@ -460,13 +452,14 @@ function Page() {
         console.log("Response of assign number api is :", response.data)
         if (response.data.status === true) {
           // handleContinue();
-          const calimNoData = {
-            officeNo: officeNumber,
-            userNumber: selectNumber,
-            usernumber2: userSelectedNumber,
-            callBackNumber: callBackNumber
-          }
-          localStorage.setItem("claimNumberData", JSON.stringify(calimNoData))
+          alert("Phone number assigned")
+          // const calimNoData = {
+          //   officeNo: officeNumber,
+          //   userNumber: selectNumber,
+          //   usernumber2: userSelectedNumber,
+          //   callBackNumber: callBackNumber
+          // }
+          // localStorage.setItem("claimNumberData", JSON.stringify(calimNoData))
         }
       }
 
