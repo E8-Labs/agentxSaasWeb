@@ -146,6 +146,14 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
             unFocusIcon: "/objectiveIcons/obj5UF.png"
         },
         {
+            id: 6,
+            icon: "",
+            title: "Expired Listing",
+            details: "Connect with homeowners whose listings have expired to understand their needs and offer solutions. Help relist their property and guide them toward a successful sale.",
+            focusIcn: "/objectiveIcons/obj5FC.png",
+            unFocusIcon: "/objectiveIcons/obj5UF.png"
+        },
+        {
             id: 100,
             icon: "",
             title: "others",

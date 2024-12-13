@@ -54,6 +54,9 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [selectedLeadsDetails, setSelectedLeadsDetails] = useState(null);
 
+    //code for call activity transcript text
+    const [isExpanded, setIsExpanded] = useState([]);
+
     // console.log("LEad selected to show details is:", selectedLeadsDetails);
 
     //to date filter
@@ -131,6 +134,22 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
             bottomRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [inputs]);
+
+    //fucntion to read more transcript text
+    const handleReadMoreToggle = (item) => {
+        // setIsExpanded(!isExpanded);
+
+        setIsExpanded((prevIds) => {
+            if (prevIds.includes(item.id)) {
+                // Unselect the item if it's already selected
+                return prevIds.filter((prevId) => prevId !== item.id);
+            } else {
+                // Select the item if it's not already selected
+                return [...prevIds, item.id];
+            }
+        });
+
+    };
 
     //function to select the stage for filters
     const handleSelectStage = (item) => {
@@ -1742,21 +1761,60 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                     <div>
                                                         {
                                                             selectedLeadsDetails?.callActivity.map((item, index) => {
+                                                                const initialTextLength = Math.ceil(item.transcript.length * 0.1); // 40% of the text
+                                                                const initialText = item.transcript.slice(0, initialTextLength);
                                                                 return (
                                                                     <div key={index} className='mt-4'>
-                                                                        <div style={{ border: "1px solid #00000020", borderRadius: "10px", padding: 7, paddingInline: 10 }}>
-                                                                            <div className='mt-2' style={{ fontWeight: "500", fontSize: 12, color: "#00000070" }}>
+                                                                        <div className='-ms-4' style={{ fontsize: 15, fontWeight: "500", color: "#15151560" }}>
+                                                                            {moment(item.createdAt).format("MM/DD/YYYY hh:mm")}
+                                                                        </div>
+                                                                        <div className='flex flex-row items-center justify-between mt-4'>
+                                                                            <div className='flex flex-row items-center gap-1'>
+                                                                                <div
+                                                                                    style={{
+                                                                                        fontWeight: "600",
+                                                                                        fontsize: 15
+                                                                                    }}>
+                                                                                    Outcome |
+                                                                                </div>
+                                                                                <div className='text-purple' style={{ fontWeight: "600", fontsize: 12 }}>
+                                                                                    {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className="text-end flex flex-row items-center gap-1" style={styles.paragraph}>
+                                                                                <div className='h-[15px] w-[15px] rounded-full' style={{ backgroundColor: selectedLeadsDetails?.stage?.defaultColor }}>
+                                                                                </div>
+                                                                                {selectedLeadsDetails?.stage?.stageTitle || "-"}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className='mt-6' style={{ border: "1px solid #00000020", borderRadius: "10px", padding: 10, paddingInline: 15 }}>
+                                                                            <div className='mt-4' style={{ fontWeight: "500", fontSize: 12, color: "#00000070" }}>
                                                                                 Transcript
                                                                             </div>
-                                                                            <div className='flex flex-row items-center justify-between mt-2'>
+                                                                            <div className='flex flex-row items-center justify-between mt-4'>
                                                                                 <div style={{ fontWeight: "500", fontSize: 15 }}>
                                                                                     {item.duration} mins
                                                                                 </div>
                                                                                 {/* <Image size={"/assets/play.png"} height={20} width={20} alt='*' /> */}
                                                                             </div>
-                                                                            <div className='mt-2' style={{ fontWeight: "500", fontSize: 15 }}>
-                                                                                {item.transcript}
+                                                                            <div className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
+                                                                                {/* {item.transcript} */}
+                                                                                {isExpanded.includes(item.id) ? `${item.transcript}` : `${initialText}...`}
                                                                             </div>
+                                                                            <button
+                                                                                style={{ fontWeight: "600", fontSize: 15 }}
+                                                                                onClick={() => { handleReadMoreToggle(item) }}
+                                                                                className="mt-2 text-black underline"
+                                                                            >
+                                                                                {
+                                                                                    isExpanded.includes(item.id) ? (
+                                                                                        "Read Less"
+                                                                                    ) : (
+                                                                                        "Read more"
+                                                                                    )
+                                                                                }
+                                                                                {/* {isExpanded ? "Read Less" : "Read More"} */}
+                                                                            </button>
                                                                         </div>
                                                                     </div>
                                                                 )

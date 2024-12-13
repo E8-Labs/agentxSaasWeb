@@ -45,6 +45,8 @@ function Page() {
   //del loader
   const [DelLoader, setDelLoader] = useState(false);
   const [delAgentModal, setDelAgentModal] = useState(false);
+  //if agent have no number assigned
+  const [ShowWarningModal, setShowWarningModal] = useState(null);
   //code for view script
   const [showScriptModal, setShowScriptModal] = useState(null);
   const [showScript, setShowScript] = useState(false);
@@ -728,7 +730,11 @@ function Page() {
                         <button className='bg-purple px-4 py-2 rounded-lg'
                           onClick={() => {
                             console.log("Selected agent for test ai is:", item);
-                            setOpenTestAiModal(true);
+                            if (!item.phoneNumber) {
+                              setShowWarningModal(item);
+                            } else {
+                              setOpenTestAiModal(true);
+                            }
                             let callScript = item.prompt.callScript;
 
                             // console.log("Keys extracted are", callScript);
@@ -1396,6 +1402,77 @@ function Page() {
                     </button>
                 }
               </div>
+            </div>
+
+
+          </div>
+        </Box>
+      </Modal>
+
+      {/* Warning modal */}
+      <Modal
+        open={ShowWarningModal}
+        onClose={() => {
+          setShowWarningModal(null);
+        }}
+      >
+        <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
+          <div style={{ width: "100%", }}>
+
+            <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+
+              {/* <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "end", alignItems: "center" }}>
+                <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
+                  <button onClick={() => {
+                    setShowWarningModal(false);
+                  }} className='outline-none'>
+                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                  </button>
+                </div>
+              </div> */}
+
+              <div className='flex flex-row items-center justify-center gap-2 -mt-1'>
+                <Image src={"/assets/warningFill.png"} height={18} width={18} alt='*' />
+                <p>
+                  <i className='text-red' style={{
+                    fontSize: 16,
+                    fontWeight: "600"
+                  }}>
+                    No Phone number assigned
+                  </i>
+                </p>
+              </div>
+
+            </div>
+
+            <div className='flex flex-row items-center gap-4 mt-6'>
+              <button
+                className='mt-4 outline-none w-1/2'
+                style={{
+                  color: "black",
+                  height: "50px", borderRadius: "10px", width: "100%",
+                  fontWeight: 600, fontSize: '20'
+                }}
+                onClick={() => {
+                  setShowWarningModal(null);
+                }}
+              >
+                Close
+              </button>
+              <button
+                className='mt-4 outline-none bg-purple w-1/2'
+                style={{
+                  color: "white",
+                  height: "50px", borderRadius: "10px", width: "100%",
+                  fontWeight: 600, fontSize: '20'
+                }}
+                onClick={() => {
+                  setShowDrawer(ShowWarningModal);
+                  setShowWarningModal(null);
+                }}
+              >
+                Assign Number
+              </button>
             </div>
 
 

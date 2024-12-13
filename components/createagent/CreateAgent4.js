@@ -25,7 +25,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     const timerRef = useRef(null);
     const router = useRouter();
     const selectRef = useRef(null);
-    const [toggleClick, setToggleClick] = useState(true);
+    const [toggleClick, setToggleClick] = useState(false);
     const [selectNumber, setSelectNumber] = useState('');
     const [openCalimNumDropDown, setOpenCalimNumDropDown] = useState(false);
     const [reassignLoader, setReassignLoader] = useState(false);
@@ -123,8 +123,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         console.log("do not staus is :", toggleClick);
         if (
             selectNumber &&
-            callBackNumber ||
-            !toggleClick &&
+            // callBackNumber ||
+            // !toggleClick &&
             userSelectedNumber || useOfficeNumber
         ) {
             setShouldContinue(false);
@@ -253,6 +253,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     const handleOfficeNumberChange = (phone, e) => {
         setOfficeNumber(phone);
         validatePhoneNumber(phone, e);
+        setUserSelectedNumber("");
 
         if (!phone) {
             setErrorMessage("");
@@ -382,26 +383,26 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
             // return
 
-            // const response = await axios.post(ApiPath, formData, {
-            //     headers: {
-            //         "Authorization": "Bearer " + AuthToken,
-            //         "Content-Type": "multipart/form-data",
-            //         // "Content-Type": "application/json"
-            //     }
-            // });
+            const response = await axios.post(ApiPath, formData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "multipart/form-data",
+                    // "Content-Type": "application/json"
+                }
+            });
 
-            // if (response) {
-            //     console.log("Response of purchase number api is :--", response.data);
-            //     if (response.data.status === true) {
-            //         localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
-            //         setOpenPurchaseSuccessModal(true);
-            //         // handleContinue();
-            //         setSelectNumber(selectedPurchasedNumber.phoneNumber);
-            //         setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
-            //         setShowClaimPopup(false);
-            //         setOpenCalimNumDropDown(false);
-            //     }
-            // }
+            if (response) {
+                console.log("Response of purchase number api is :--", response.data);
+                if (response.data.status === true) {
+                    localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
+                    setOpenPurchaseSuccessModal(true);
+                    // handleContinue();
+                    setSelectNumber(selectedPurchasedNumber.phoneNumber);
+                    setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
+                    setShowClaimPopup(false);
+                    setOpenCalimNumDropDown(false);
+                }
+            }
 
         } catch (error) {
             console.error("Error occured in purchase number api is: --", error);
@@ -467,16 +468,14 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             }
 
             const formData = new FormData();
-            // formData.append("phoneNumber", selectNumber);
-            // formData.append("mainAgentId", MyAgentData.id);
-            // formData.append("callbackNumber", callBackNumber);
-            // formData.append("liveTransforNumber", userSelectedNumber);
-            // formData.append("liveTransfer", "+14062040550");
-
-            formData.append("phoneNumber", "+14062040550");
-            formData.append("callbackNumber", "+14062040550");
+            formData.append("phoneNumber", selectNumber);
+            if (userSelectedNumber) {
+                formData.append("callbackNumber", userSelectedNumber.phoneNumber);
+            } else {
+                formData.append("callbackNumber", officeNumber);
+            }
+            formData.append("liveTransforNumber", callBackNumber);
             formData.append("mainAgentId", MyAgentData.id);
-            formData.append("liveTransferNumber", "+14062040550");
             formData.append("liveTransfer", toggleClick);
 
             const ApiPath = Apis.asignPhoneNumber;
@@ -977,52 +976,48 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
                             {/* Phone number input here */}
 
-                            {
-                                toggleClick && (
-                                    <div className='w-full'>
-                                        <div style={styles.headingStyle}>
-                                            What number should we forward live transfers to when a lead wants to talk to you?
-                                        </div>
-                                        <PhoneInput
-                                            className="border outline-none bg-white"
-                                            country={countryCode} // Default country
-                                            value={callBackNumber}
-                                            onChange={handleCallBackNumberChange}
-                                            // onFocus={getLocation}
-                                            // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
-                                            placeholder={"Enter Number"}
-                                            // disabled={loading} // Disable input if still loading
-                                            style={{ borderRadius: "7px" }}
-                                            inputStyle={{
-                                                width: "100%",
-                                                borderWidth: "0px",
-                                                backgroundColor: "transparent",
-                                                paddingLeft: "60px",
-                                                paddingTop: "12px",
-                                                paddingBottom: "12px",
-                                            }}
-                                            buttonStyle={{
-                                                border: "none",
-                                                backgroundColor: "transparent",
-                                            }}
-                                            dropdownStyle={{
-                                                maxHeight: "150px",
-                                                overflowY: "auto",
-                                            }}
-                                            countryCodeEditable={true}
-                                        // defaultMask={locationLoader ? "Loading..." : undefined}
-                                        />
-                                        <div style={{ fontWeight: "500", fontSize: 11, color: "red" }}>
-                                            {errorMessage}
-                                        </div>
-                                    </div>
-                                )
-                            }
+                            <div className='w-full'>
+                                <div style={styles.headingStyle}>
+                                    What number should we forward live transfers to when a lead wants to talk to you?
+                                </div>
+                                <PhoneInput
+                                    className="border outline-none bg-white"
+                                    country={countryCode} // Default country
+                                    value={callBackNumber}
+                                    onChange={handleCallBackNumberChange}
+                                    // onFocus={getLocation}
+                                    // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                                    placeholder={"Enter Number"}
+                                    // disabled={loading} // Disable input if still loading
+                                    style={{ borderRadius: "7px" }}
+                                    inputStyle={{
+                                        width: "100%",
+                                        borderWidth: "0px",
+                                        backgroundColor: "transparent",
+                                        paddingLeft: "60px",
+                                        paddingTop: "12px",
+                                        paddingBottom: "12px",
+                                    }}
+                                    buttonStyle={{
+                                        border: "none",
+                                        backgroundColor: "transparent",
+                                    }}
+                                    dropdownStyle={{
+                                        maxHeight: "150px",
+                                        overflowY: "auto",
+                                    }}
+                                    countryCodeEditable={true}
+                                // defaultMask={locationLoader ? "Loading..." : undefined}
+                                />
+                                <div style={{ fontWeight: "500", fontSize: 11, color: "red" }}>
+                                    {errorMessage}
+                                </div>
+                            </div>
 
                             <div className='flex flex-row items-center gap-4 justify-start'>
                                 <button onClick={handleToggleClick}>
                                     {
-                                        !toggleClick ?
+                                        toggleClick ?
                                             <div className='bg-purple flex flex-row items-center justify-center rounded' style={{ height: "24px", width: "24px" }}>
                                                 <Image src={"/assets/whiteTick.png"} height={8} width={10} alt='*' />
                                             </div> :
