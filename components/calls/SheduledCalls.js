@@ -495,7 +495,7 @@ function SheduledCalls() {
                                                                                 {item?.address}
                                                                             </div>
                                                                             <div className='w-2/12 truncate'>
-                                                                                N/A
+                                                                                -
                                                                             </div>
                                                                             <div className='w-2/12 truncate'>
                                                                                 Scheduled

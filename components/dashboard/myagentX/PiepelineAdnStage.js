@@ -160,7 +160,7 @@ const PipelineAndStage = ({ selectedAgent }) => {
                                             {
                                                 stage.calls.map((item, index) => {
                                                     return (
-                                                        <div className='flex flex-row items-center gap-4' style={styles.paragraph}>
+                                                        <div key={index} className='flex flex-row items-center gap-4' style={styles.paragraph}>
                                                             <div>
                                                                 Wait
                                                             </div>

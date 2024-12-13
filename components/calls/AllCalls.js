@@ -190,10 +190,10 @@ function AllCalls() {
                                                     <div style={styles.text2}>{item.LeadModel?.phone}</div>
                                                 </div>
                                                 <div className='w-1/12'>
-                                                    <div style={styles.text2}>{item.LeadModel?.stage ? (item.LeadModel?.stage) : "N/A"}</div>
+                                                    <div style={styles.text2}>{item?.PipelineStages?.stageTitle ? (item.PipelineStages?.stageTitle) : "-"}</div>
                                                 </div>
                                                 <div className='w-1/12'>
-                                                    <div style={styles.text2}>{item.LeadModel?.status ? (item.LeadModel?.status) : "N/A"}</div>
+                                                    <div style={styles.text2}>{item.LeadModel?.status ? (item.LeadModel?.status) : "-"}</div>
                                                 </div>
                                                 <div className='w-1/12'>
                                                     <div style={styles.text2}>{moment(item.LeadModel?.createdAt).format('MM/DD/YYYY')}</div>

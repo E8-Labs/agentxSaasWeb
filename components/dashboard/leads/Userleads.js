@@ -1768,53 +1768,63 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                                         <div className='-ms-4' style={{ fontsize: 15, fontWeight: "500", color: "#15151560" }}>
                                                                             {moment(item.createdAt).format("MM/DD/YYYY hh:mm")}
                                                                         </div>
-                                                                        <div className='flex flex-row items-center justify-between mt-4'>
-                                                                            <div className='flex flex-row items-center gap-1'>
-                                                                                <div
-                                                                                    style={{
-                                                                                        fontWeight: "600",
-                                                                                        fontsize: 15
-                                                                                    }}>
-                                                                                    Outcome |
+                                                                        <div className='w-full flex flex-row items-center gap-2 h-full'>
+                                                                            <div className='pb-4 pt-6 ps-4' style={{borderLeft: "1px solid #00000020"}}>
+                                                                                <div className='h-full'>
+                                                                                    <div className='flex flex-row items-center justify-between'>
+                                                                                        <div className='flex flex-row items-center gap-1'>
+                                                                                            <div
+                                                                                                style={{
+                                                                                                    fontWeight: "600",
+                                                                                                    fontsize: 15
+                                                                                                }}>
+                                                                                                Outcome |
+                                                                                            </div>
+                                                                                            <div className='text-purple' style={{ fontWeight: "600", fontsize: 12 }}>
+                                                                                                {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div className="text-end flex flex-row items-center gap-1" style={styles.paragraph}>
+                                                                                            <div className='h-[15px] w-[15px] rounded-full' style={{ backgroundColor: selectedLeadsDetails?.stage?.defaultColor }}>
+                                                                                            </div>
+                                                                                            {selectedLeadsDetails?.stage?.stageTitle || "-"}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div className='mt-6' style={{ border: "1px solid #00000020", borderRadius: "10px", padding: 10, paddingInline: 15 }}>
+                                                                                        <div className='mt-4' style={{ fontWeight: "500", fontSize: 12, color: "#00000070" }}>
+                                                                                            Transcript
+                                                                                        </div>
+                                                                                        <div className='flex flex-row items-center justify-between mt-4'>
+                                                                                            <div style={{ fontWeight: "500", fontSize: 15 }}>
+                                                                                                {item.duration} mins
+                                                                                            </div>
+                                                                                            <button onClick={() => {
+                                                                                                window.open(item.recordingUrl, "_blank")
+                                                                                            }}>
+                                                                                                <Image src={"/assets/play.png"} height={35} width={35} alt='*' />
+                                                                                            </button>
+                                                                                        </div>
+                                                                                        <div className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
+                                                                                            {/* {item.transcript} */}
+                                                                                            {isExpanded.includes(item.id) ? `${item.transcript}` : `${initialText}...`}
+                                                                                        </div>
+                                                                                        <button
+                                                                                            style={{ fontWeight: "600", fontSize: 15 }}
+                                                                                            onClick={() => { handleReadMoreToggle(item) }}
+                                                                                            className="mt-2 text-black underline"
+                                                                                        >
+                                                                                            {
+                                                                                                isExpanded.includes(item.id) ? (
+                                                                                                    "Read Less"
+                                                                                                ) : (
+                                                                                                    "Read more"
+                                                                                                )
+                                                                                            }
+                                                                                            {/* {isExpanded ? "Read Less" : "Read More"} */}
+                                                                                        </button>
+                                                                                    </div>
                                                                                 </div>
-                                                                                <div className='text-purple' style={{ fontWeight: "600", fontsize: 12 }}>
-                                                                                    {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
-                                                                                </div>
                                                                             </div>
-                                                                            <div className="text-end flex flex-row items-center gap-1" style={styles.paragraph}>
-                                                                                <div className='h-[15px] w-[15px] rounded-full' style={{ backgroundColor: selectedLeadsDetails?.stage?.defaultColor }}>
-                                                                                </div>
-                                                                                {selectedLeadsDetails?.stage?.stageTitle || "-"}
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className='mt-6' style={{ border: "1px solid #00000020", borderRadius: "10px", padding: 10, paddingInline: 15 }}>
-                                                                            <div className='mt-4' style={{ fontWeight: "500", fontSize: 12, color: "#00000070" }}>
-                                                                                Transcript
-                                                                            </div>
-                                                                            <div className='flex flex-row items-center justify-between mt-4'>
-                                                                                <div style={{ fontWeight: "500", fontSize: 15 }}>
-                                                                                    {item.duration} mins
-                                                                                </div>
-                                                                                {/* <Image size={"/assets/play.png"} height={20} width={20} alt='*' /> */}
-                                                                            </div>
-                                                                            <div className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                                                {/* {item.transcript} */}
-                                                                                {isExpanded.includes(item.id) ? `${item.transcript}` : `${initialText}...`}
-                                                                            </div>
-                                                                            <button
-                                                                                style={{ fontWeight: "600", fontSize: 15 }}
-                                                                                onClick={() => { handleReadMoreToggle(item) }}
-                                                                                className="mt-2 text-black underline"
-                                                                            >
-                                                                                {
-                                                                                    isExpanded.includes(item.id) ? (
-                                                                                        "Read Less"
-                                                                                    ) : (
-                                                                                        "Read more"
-                                                                                    )
-                                                                                }
-                                                                                {/* {isExpanded ? "Read Less" : "Read More"} */}
-                                                                            </button>
                                                                         </div>
                                                                     </div>
                                                                 )

@@ -565,9 +565,9 @@ function SheduledCalls() {
                                                                             </div>
                                                                             <div className='w-2/12 truncate flex flex-row items-center gap-2'>
                                                                                 <div className='flex flex-row gap-2'>
-                                                                                    {item.tags.slice(0, 2).map((tag) => {
+                                                                                    {item.tags.slice(0, 2).map((tag, index) => {
                                                                                         return (
-                                                                                            <div className='bg-[#1C55FF10] text-[#1C55FF] p-2 rounded'>
+                                                                                            <div key={index} className='bg-[#1C55FF10] text-[#1C55FF] p-2 rounded'>
                                                                                                 {tag}
                                                                                             </div>
                                                                                         )
