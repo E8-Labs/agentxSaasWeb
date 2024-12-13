@@ -2,20 +2,28 @@ import React, { useEffect, useState } from 'react'
 import Header from '../onboarding/Header'
 import Footer from '../onboarding/Footer'
 import ProgressBar from '../onboarding/ProgressBar'
-import { borderColor } from '@mui/system'
+import { borderColor, Box } from '@mui/system'
 import Apis from '../apis/Apis'
 import axios from 'axios'
+import { CircularProgress, FormControl, InputLabel, MenuItem, Modal, Select } from '@mui/material'
+import Image from 'next/image'
 
 const AddCalender = ({ handleContinue }) => {
 
-  const [createPipelineLoader, setcreatePipelineLoader] = useState(false);
+  const [calenderLoader, setAddCalenderLoader] = useState(false);
   const [shouldContinue, setshouldContinue] = useState(true);
 
   const [calenderTitle, setCalenderTitle] = useState("");
   const [calenderApiKey, setCalenderApiKey] = useState("");
-  const [eventId, setEventId] = useState("")
+  const [eventId, setEventId] = useState("");
+
+  const [selectCalender, setSelectCalender] = useState('');
+  const [initialLoader, setInitialLoader] = useState(false);
+  const [previousCalenders, setPreviousCalenders] = useState([]);
+  const [showAddNewCalender, setShowAddNewCalender] = useState(false);
 
   useEffect(() => {
+    getCalenders();
     if (calenderTitle && calenderApiKey || eventId) {
       setshouldContinue(false);
     } else {
@@ -23,10 +31,52 @@ const AddCalender = ({ handleContinue }) => {
     }
   }, [calenderTitle, calenderApiKey, eventId]);
 
+  //code for the dropdown selection
+
+  const handleChange = (event) => {
+    setSelectCalender(event.target.value);
+  };
+
+  const getCalenders = async () => {
+    try {
+      setInitialLoader(true);
+
+      const localData = localStorage.getItem("User");
+      let AuthToken = null;
+      if (localData) {
+        const UserDetails = JSON.parse(localData);
+        AuthToken = UserDetails.token;
+      }
+
+      console.log("Authtoken is:", AuthToken);
+
+      const ApiPath = Apis.getCalenders;
+
+      console.log("Apipath is:", ApiPath);
+
+      const response = await axios.get(ApiPath, {
+        headers: {
+          "Authorization": "Bearer " + AuthToken,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        console.log("Response of get calender api is:", response.data);
+        setPreviousCalenders(response.data.data);
+      }
+
+    } catch (error) {
+      console.error("Error occured in the api is ", error);
+    } finally {
+      setInitialLoader(false);
+    }
+  }
+
   //code for calender api
   const handleAddCalender = async () => {
     try {
-      setcreatePipelineLoader(true);
+      setAddCalenderLoader(true);
 
       const localData = localStorage.getItem("User");
       let AuthToken = null;
@@ -66,7 +116,7 @@ const AddCalender = ({ handleContinue }) => {
         formData.append("eventId", eventId)
       }
 
-      console.log("Api data is:", ApiData);
+      console.log("Api data is:", JSON.stringify(ApiData));
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -86,7 +136,7 @@ const AddCalender = ({ handleContinue }) => {
     } catch (error) {
       console.error("Error occured in api is:", error);
     } finally {
-      setcreatePipelineLoader(false);
+      setAddCalenderLoader(false);
     }
   }
 
@@ -96,7 +146,18 @@ const AddCalender = ({ handleContinue }) => {
       fontWeight: "500",
       fontSize: 15,
       borderColor: "#00000020"
-    }
+    },
+    modalsStyle: {
+      height: "auto",
+      bgcolor: "transparent",
+      p: 2,
+      mx: "auto",
+      my: "50vh",
+      transform: "translateY(-55%)",
+      borderRadius: 2,
+      border: "none",
+      outline: "none",
+    },
   }
 
   return (
@@ -120,51 +181,89 @@ const AddCalender = ({ handleContinue }) => {
 
             <div className='w-full flex flex-col w-full items-center'>
               <div className='w-6/12'>
-                <div className='mt-4' style={{ fontWeight: "600", fontSize: 16.8, textAlign: "start" }}>
-                  Add calender title
-                </div>
-                <div>
-                  <input
-                    className='w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1'
-                    placeholder='Calnder name'
-                    style={styles.inputStyles}
-                    value={calenderTitle}
-                    onChange={(e) => {
-                      let value = e.target.value;
-                      setCalenderTitle(value);
+                <FormControl sx={{ m: 1 }} className='w-full'>
+                  <Select
+                    labelId="demo-select-small-label"
+                    id="demo-select-small"
+                    value={selectCalender}
+                    // label="Age"
+                    onChange={handleChange}
+                    displayEmpty // Enables placeholder
+                    renderValue={(selected) => {
+                      if (!selected) {
+                        return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
+                      }
+                      return selected;
                     }}
-                  />
-                </div>
-                <div className='mt-4' style={{ fontWeight: "600", fontSize: 16.8, textAlign: "start" }}>
-                  Add api key
-                </div>
-                <div>
-                  <input
-                    className='w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1'
-                    placeholder='Calnder name'
-                    style={styles.inputStyles}
-                    value={calenderApiKey}
-                    onChange={(e) => {
-                      let value = e.target.value;
-                      setCalenderApiKey(value);
+                    sx={{
+                      border: "1px solid #00000020", // Default border
+                      "&:hover": {
+                        border: "1px solid #00000020", // Same border on hover
+                      },
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        border: "none", // Remove the default outline
+                      },
+                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                        border: "none", // Remove outline on focus
+                      },
+                      "&.MuiSelect-select": {
+                        py: 0, // Optional padding adjustments
+                      },
                     }}
-                  />
-                </div>
-                <div className='mt-4' style={{ fontWeight: "600", fontSize: 16.8, textAlign: "start" }}>
-                  Add event id
-                </div>
-                <div>
-                  <input
-                    className='w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1'
-                    placeholder='Calnder name'
-                    style={styles.inputStyles}
-                    value={eventId}
-                    onChange={(e) => {
-                      let value = e.target.value;
-                      setEventId(value);
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: "30vh", // Limit dropdown height
+                          overflow: "auto", // Enable scrolling in dropdown
+                          scrollbarWidth: "none",
+                          // borderRadius: "10px"
+                        },
+                      },
                     }}
-                  />
-                </div>
+                  >
+                    {/* <MenuItem value="">
+                      <em>None</em>
+                    </MenuItem> */}
+                    {
+                      previousCalenders.map((item, index) => {
+                        return (
+                          <MenuItem
+                            className='w-full'
+                            value={item.title}
+                            key={index}
+                          >
+                            <button onClick={() => {
+                              console.log("Selected calender is:", item);
+                              setCalenderTitle(item.title);
+                              setCalenderApiKey(item.apiKey);
+                              setEventId(item.eventId);
+                            }}
+                            >
+                              {item.title}
+                            </button>
+                          </MenuItem>
+                        )
+                      })
+                    }
+                    <MenuItem
+                      className='w-full'
+                      value="Custom Calender"
+                    >
+                      <button
+                        className='text-purple underline'
+                        onClick={() => {
+                          console.log("Show show the modal");
+                          setCalenderTitle("");
+                          setCalenderApiKey("");
+                          setEventId("");
+                          setShowAddNewCalender(true);
+                        }}
+                      >
+                        Add New Calender
+                      </button>
+                    </MenuItem>
+                  </Select>
+                </FormControl>
               </div>
             </div>
 
@@ -172,9 +271,107 @@ const AddCalender = ({ handleContinue }) => {
 
           <div className='h-[13%]'>
             <ProgressBar value={33} />
-            <Footer handleContinue={handleAddCalender} donotShowBack={true} registerLoader={createPipelineLoader} shouldContinue={shouldContinue} />
+            <Footer handleContinue={handleAddCalender} donotShowBack={true} registerLoader={calenderLoader} shouldContinue={shouldContinue} />
           </div>
         </div>
+
+        {/* Modal to add custom calender */}
+
+        <Modal
+          open={showAddNewCalender}
+        // onClose={() => {
+        //   setShowAddNewCalender(false);
+        // }}
+        >
+          <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
+            <div style={{ width: "100%", }}>
+
+              <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+
+                <div className='w-full'>
+
+                  <div className='w-full flex flex-row justify-end'>
+                    <button
+                      className='outline-none'
+                      onClick={() => {
+                        setShowAddNewCalender(false);
+                        setCalenderTitle("");
+                        setCalenderApiKey("");
+                        setEventId("");
+                      }}>
+                      <Image src={"/assets/blackBgCross.png"} height={20} width={20} alt='*' />
+                    </button>
+                  </div>
+
+                  <div className='mt-4' style={{ fontWeight: "600", fontSize: 16.8, textAlign: "start" }}>
+                    Add calender title
+                  </div>
+                  <div>
+                    <input
+                      className='w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1'
+                      placeholder='Calnder name'
+                      style={styles.inputStyles}
+                      value={calenderTitle}
+                      onChange={(e) => {
+                        let value = e.target.value;
+                        setCalenderTitle(value);
+                      }}
+                    />
+                  </div>
+                  <div className='mt-4' style={{ fontWeight: "600", fontSize: 16.8, textAlign: "start" }}>
+                    Add api key
+                  </div>
+                  <div>
+                    <input
+                      className='w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1'
+                      placeholder='Calnder name'
+                      style={styles.inputStyles}
+                      value={calenderApiKey}
+                      onChange={(e) => {
+                        let value = e.target.value;
+                        setCalenderApiKey(value);
+                      }}
+                    />
+                  </div>
+                  <div className='mt-4' style={{ fontWeight: "600", fontSize: 16.8, textAlign: "start" }}>
+                    Add event id
+                  </div>
+                  <div>
+                    <input
+                      className='w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1'
+                      placeholder='Calnder name'
+                      style={styles.inputStyles}
+                      value={eventId}
+                      onChange={(e) => {
+                        let value = e.target.value;
+                        setEventId(value);
+                      }}
+                    />
+                  </div>
+                  <div className='w-full mt-4'>
+                    {
+                      calenderLoader ?
+                        <div>
+                          <CircularProgress size={25} />
+                        </div> :
+                        <button
+                          className='h-[50px] w-full bg-purple text-white rounded-xl'
+                          style={{ fontWeight: "600", fontSize: 16 }}
+                          onClick={handleAddCalender}
+                        >
+                          Add
+                        </button>
+                    }
+                  </div>
+                </div>
+
+              </div>
+
+
+            </div>
+          </Box>
+        </Modal>
+
 
       </div>
     </div>

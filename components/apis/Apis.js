@@ -1,6 +1,7 @@
 const BasePath = "https://www.blindcircle.com/agentx/"
 
 const Apis = {
+    getCalenders: `${BasePath}api/calendar/calendars`,
     register: `${BasePath}api/user/register`,
     LogIn: `${BasePath}api/user/login`,
     defaultData: `${BasePath}api/data/loadDefaualtData`,
