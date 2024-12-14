@@ -623,11 +623,16 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                                     </div> :
                                     <div className='w-full'>
                                         {
-                                            (NoOfLeadsToSend || customLeadsToSend) && (CallNow || CallLater) && (
+                                            (NoOfLeadsToSend || customLeadsToSend) && (CallNow || CallLater) ? (
                                                 <button className='text-white w-full h-[50px] rounded-lg bg-purple mt-4' onClick={() => {
                                                     handleAssigLead()
                                                     // handleAssigLead()
                                                 }}>
+                                                    Continue
+                                                </button>
+                                            ) : (
+                                                <button className='text-white w-full h-[50px] rounded-lg bg-[#00000060] mt-4'
+                                                    disabled={true}>
                                                     Continue
                                                 </button>
                                             )

@@ -195,7 +195,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                         </div>
 
                         <div className='h-[70%] overflow-auto w-full flex flex-col items-center' style={{ scrollbarWidth: "none" }}>
-                            <div className='flex flex-wrap w-4/12 ' style ={{backgroundColor: ''}}>
+                            <div className='flex flex-wrap w-4/12 ' style={{ backgroundColor: '' }}>
                                 {
                                     facilities.map((item, index) => (
                                         <div key={item.id} className='flex flex-row items-center justify-start pl-4 gap-2 w-1/2 mt-4'>
@@ -270,7 +270,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                 <Image src={"/assets/diamond.png"} className='mt-2' height={18} width={20} alt='*' />
                                 <div>
                                     <div style={{ color: "#ffffff", fontSize: 20, fontWeight: "600" }}>
-                                        Enterprise plan
+                                        Brokerage Plan
                                     </div>
                                     <div className='flex flex-row items-start justify-between w-full'>
                                         <div style={{ color: "#ffffff", fontSize: 12, fontWeight: "600", width: "60%" }}>

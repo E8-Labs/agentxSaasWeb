@@ -626,7 +626,9 @@ const RearrangeStages = ({
                                                     </div> */}
 
                                                     <div className='flex flex-row items-center gap-2 mt-4'>
-                                                        <p style={{ fontWeight: "600", fontSize: 15 }}>Assign to </p>
+                                                        <p style={{ fontWeight: "600", fontSize: 15 }}>
+                                                            Notify a team member when leads move here
+                                                        </p>
                                                         {/* <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' /> */}
                                                         <Image
                                                             src="/assets/infoIcon.png"

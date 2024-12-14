@@ -47,7 +47,8 @@ const Apis = {
     testAI: `${BasePath}api/agent/testAi`,
     addCalender: `${BasePath}api/calendar/createCalendar`,
     addLeadNote: `${BasePath}api/leads/addLeadNote`,
-    getDashboardData: `${BasePath}api/agent/dashboard`
+    getDashboardData: `${BasePath}api/agent/dashboard`,
+    delLeadTag: `${BasePath}api/leads/deleteLeadTag`
 
 }
 

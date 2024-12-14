@@ -26,8 +26,12 @@ const PipelineStages = ({
     const [pipelineStages, setPipelineStages] = useState(stages);
     const [delStageLoader, setDelStageLoader] = useState(false);
     const [successSnack, setSuccessSnack] = useState(null);
+    //code for deleting stage
     const [showDelStagePopup, setShowDelStagePopup] = useState(null);
     const [actionInfoEl, setActionInfoEl] = React.useState(null);
+    //code for dropdown stages when delstage
+    const [assignNextStage, setAssignNextStage] = useState('');
+    const [assignNextStageId, setAssignNextStageId] = useState('');
     //variable for tags input
     const [tagsValue, setTagsValue] = useState([]);
 
@@ -159,6 +163,21 @@ const PipelineStages = ({
         onUpdateOrder(updatedStages);
     };
 
+    //functions to move to stage after deleting one
+    const handleChangeNextStage = (event) => {
+        let value = event.target.value;
+        // console.log("Value to set is :", value);
+        setAssignNextStage(event.target.value);
+
+        const selectedItem = pipelineStages.find(
+            (item) => item.stageTitle === value
+        );
+        setAssignNextStageId(selectedItem.id);
+
+        console.log("Selected inext stage is:", selectedItem);
+
+    };
+
     //code to delete stage
     const handleDeleteStage = async () => {
         try {
@@ -175,8 +194,11 @@ const PipelineStages = ({
             console.log("Auth token is :--", AuthToken);
 
             const ApiData = {
+                // pipelineId: selectedPipelineItem.id,
+                // stageId: showDelStagePopup.id
                 pipelineId: selectedPipelineItem.id,
-                stageId: showDelStagePopup.id
+                stageId: showDelStagePopup.id,
+                moveToStageId: assignNextStageId
             }
 
             console.log("Api dta is:", ApiData);
@@ -462,7 +484,7 @@ const PipelineStages = ({
                                                                                         Days
                                                                                     </label>
                                                                                     <input
-                                                                                        className="flex flex-row items-center justify-center text-center outline-none"
+                                                                                        className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
                                                                                         style={{
                                                                                             ...styles.inputStyle,
                                                                                             height: "42px",
@@ -494,7 +516,7 @@ const PipelineStages = ({
                                                                                         Hours
                                                                                     </label>
                                                                                     <input
-                                                                                        className="flex flex-row items-center justify-center text-center outline-none"
+                                                                                        className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
                                                                                         style={{
                                                                                             ...styles.inputStyle,
                                                                                             height: "42px",
@@ -526,7 +548,7 @@ const PipelineStages = ({
                                                                                         Mins
                                                                                     </label>
                                                                                     <input
-                                                                                        className="flex flex-row items-center justify-center text-center outline-none"
+                                                                                        className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
                                                                                         style={{
                                                                                             ...styles.inputStyle,
                                                                                             height: "42px",
@@ -688,19 +710,24 @@ const PipelineStages = ({
                                                     </div>
                                                 )}
                                             </div>
-                                            {/* <div className="w-full flex flex-row items-center justify-end mt-2">
-                                                <button className="flex flex-row items-center gap-1" onClick={() => { setShowDelStagePopup(item) }}>
-                                                    <Image src={"/assets/delIcon.png"} height={20} width={18} alt="*"
-                                                        style={{
-                                                            filter: 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
-                                                            opacity: 0.5,
-                                                        }}
-                                                    />
-                                                    <p className="text-[#15151580]" style={{ fontWeight: "500", fontSize: 14 }}>
-                                                        Delete
-                                                    </p>
-                                                </button>
-                                            </div> */}
+
+                                            {
+                                                index > 0 && (
+                                                    <div className="w-full flex flex-row items-center justify-end mt-2">
+                                                        <button className="flex flex-row items-center gap-1" onClick={() => { setShowDelStagePopup(item) }}>
+                                                            <Image src={"/assets/delIcon.png"} height={20} width={18} alt="*"
+                                                                style={{
+                                                                    filter: 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
+                                                                    opacity: 0.5,
+                                                                }}
+                                                            />
+                                                            <p className="text-[#15151580]" style={{ fontWeight: "500", fontSize: 14 }}>
+                                                                Delete
+                                                            </p>
+                                                        </button>
+                                                    </div>
+                                                )
+                                            }
 
                                             {/* Modal to rename stage */}
                                             <Modal
@@ -804,7 +831,7 @@ const PipelineStages = ({
                                                             <div className='flex flex-row justify-between items-center'>
 
                                                                 <div className='text-center font-16' style={{ fontWeight: "700" }}>
-                                                                    Delets stage
+                                                                    Delete stage
                                                                 </div>
 
                                                                 <button onClick={() => { setShowDelStagePopup(null) }}>
@@ -816,6 +843,65 @@ const PipelineStages = ({
                                                             <div className='text-start mt-4 font-15' style={{ fontWeight: "500" }}>
                                                                 Confirm you want to delete this stage. This action is irreversible
                                                             </div>
+
+                                                            <div className='mt-6' style={{
+                                                                fontWeight: "700", fontSize: 15
+                                                            }}>
+                                                                Move to
+                                                            </div>
+
+                                                            <FormControl fullWidth>
+                                                                <Select
+                                                                    id="demo-simple-select"
+                                                                    value={assignNextStage || ""} // Default to empty string when no value is selected
+                                                                    onChange={handleChangeNextStage}
+                                                                    displayEmpty // Enables placeholder
+                                                                    renderValue={(selected) => {
+                                                                        if (!selected) {
+                                                                            return <div style={{ color: "#aaa" }}>Select Stage</div>; // Placeholder style
+                                                                        }
+                                                                        return selected;
+                                                                    }}
+                                                                    sx={{
+                                                                        border: "1px solid #00000020", // Default border
+                                                                        "&:hover": {
+                                                                            border: "1px solid #00000020", // Same border on hover
+                                                                        },
+                                                                        "& .MuiOutlinedInput-notchedOutline": {
+                                                                            border: "none", // Remove the default outline
+                                                                        },
+                                                                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                                                            border: "none", // Remove outline on focus
+                                                                        },
+                                                                        "&.MuiSelect-select": {
+                                                                            py: 0, // Optional padding adjustments
+                                                                        },
+                                                                    }}
+                                                                    MenuProps={{
+                                                                        PaperProps: {
+                                                                            style: {
+                                                                                maxHeight: "30vh", // Limit dropdown height
+                                                                                overflow: "auto", // Enable scrolling in dropdown
+                                                                                scrollbarWidth: "none"
+                                                                            },
+                                                                        },
+                                                                    }}
+                                                                >
+                                                                    {
+                                                                        pipelineStages.map((stage, index) => {
+                                                                            return (
+                                                                                <MenuItem
+                                                                                    key={index}
+                                                                                    value={stage.stageTitle}
+                                                                                    disabled={stage.id <= selectedStage?.id}
+                                                                                >
+                                                                                    {stage.stageTitle}
+                                                                                </MenuItem>
+                                                                            )
+                                                                        })
+                                                                    }
+                                                                </Select>
+                                                            </FormControl>
 
                                                             <div className="w-full flex flex-row items-center gap-4 mt-8">
                                                                 <button
@@ -1048,7 +1134,9 @@ const PipelineStages = ({
                                                     </div> */}
 
                                                     <div className='flex flex-row items-center gap-2 mt-4'>
-                                                        <p style={{ fontWeight: "600", fontSize: 15 }}>Assign to </p>
+                                                        <p style={{ fontWeight: "600", fontSize: 15 }}>
+                                                            Notify a team member when leads move here
+                                                        </p>
                                                         {/* <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' /> */}
                                                         <Image
                                                             src="/assets/infoIcon.png"
@@ -1132,7 +1220,7 @@ const PipelineStages = ({
                                             </div> :
                                             <div className="w-full">
                                                 {
-                                                    inputs.filter(input => input.value.trim() !== "").length === 3 && newStageTitle && (
+                                                    inputs.filter(input => input.value.trim() !== "").length === 3 && newStageTitle ? (
                                                         <button
                                                             className='mt-4 outline-none'
                                                             style={{
@@ -1141,6 +1229,19 @@ const PipelineStages = ({
                                                                 fontWeight: 600, fontSize: '20'
                                                             }}
                                                             onClick={handleAddNewStageTitle}
+                                                        >
+                                                            Add & Close
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            className='mt-4 outline-none'
+                                                            disabled={true}
+                                                            style={{
+                                                                backgroundColor: "#00000060", color: "white",
+                                                                height: "50px", borderRadius: "10px", width: "100%",
+                                                                fontWeight: 600, fontSize: '20'
+                                                            }}
+                                                        // onClick={handleAddNewStageTitle}
                                                         >
                                                             Add & Close
                                                         </button>

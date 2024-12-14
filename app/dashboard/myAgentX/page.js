@@ -348,7 +348,7 @@ function Page() {
           localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
           setOpenPurchaseSuccessModal(true);
           // handleContinue();
-          setSelectNumber(selectedPurchasedNumber.phoneNumber);
+          setAssignNumber(selectedPurchasedNumber.phoneNumber);
           setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
           setShowClaimPopup(false);
           setOpenCalimNumDropDown(false);
@@ -424,7 +424,7 @@ function Page() {
 
       const formData = new FormData();
       formData.append("phoneNumber", assignNumber);
-        formData.append("callbackNumber", showDrawer?.callbackNumber);
+      formData.append("callbackNumber", showDrawer?.callbackNumber);
       // if (userSelectedNumber) {
       //   formData.append("callbackNumber", assignNumber);
       // } else {
@@ -451,8 +451,9 @@ function Page() {
       if (response) {
         console.log("Response of assign number api is :", response.data)
         if (response.data.status === true) {
+          setShowSuccessSnack(response.data.message);
           // handleContinue();
-          alert("Phone number assigned")
+          // alert("Phone number assigned")
           // const calimNoData = {
           //   officeNo: officeNumber,
           //   userNumber: selectNumber,
@@ -1310,7 +1311,7 @@ function Page() {
               <input
                 placeholder="Name"
                 className='w-full rounded p-2 outline-none focus:outline-none focus:ring-0'
-                style={styles.inputStyle}
+                style={{ ...styles.inputStyle, border: "1px solid #00000020" }}
                 value={name}
                 onChange={(e) => { setName(e.target.value) }}
               />
@@ -1381,7 +1382,7 @@ function Page() {
                 }
               </div>
 
-              <div className='w-11/12' style={{ position: "absolute", bottom: 0, }}>
+              <div className='w-11/12' style={{}}>
                 {
                   testAIloader ?
                     <div className="flex flex-row items-center justify-center w-full p-3 mt-2">

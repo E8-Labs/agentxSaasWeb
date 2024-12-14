@@ -1169,8 +1169,8 @@ const Pipeline1 = () => {
                                                                     {
                                                                         lead.lead.tags.slice(0, 2).map((tagVal, index) => {
                                                                             return (
-                                                                                <div key={index} className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
-                                                                                    {tagVal.tag}
+                                                                                <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
+                                                                                    {tagVal}
                                                                                 </div>
                                                                             )
                                                                         })
@@ -1382,7 +1382,9 @@ const Pipeline1 = () => {
                                         </div> */}
 
                                         <div className='flex flex-row items-center gap-2 mt-4'>
-                                            <p style={{ fontWeight: "600", fontSize: 15 }}>Assign to </p>
+                                            <p style={{ fontWeight: "600", fontSize: 15 }}>
+                                                Notify a team member when leads move here
+                                            </p>
                                             {/* <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' /> */}
                                             <Image
                                                 src="/assets/infoIcon.png"
@@ -1428,7 +1430,7 @@ const Pipeline1 = () => {
 
                         <div className='w-full h-[80px]'>
                             {
-                                inputs.filter(input => input.value.trim()).length === 3 && newStageTitle && (
+                                inputs.filter(input => input.value.trim()).length === 3 && newStageTitle ? (
                                     <div>
                                         {
                                             addStageLoader ?
@@ -1448,6 +1450,18 @@ const Pipeline1 = () => {
                                                 </button>
                                         }
                                     </div>
+                                ) : (
+                                    <button
+                                        disabled={true}
+                                        className='mt-4 outline-none'
+                                        style={{
+                                            backgroundColor: "#00000060", color: "white",
+                                            height: "50px", borderRadius: "10px", width: "100%",
+                                            fontWeight: 600, fontSize: '20'
+                                        }}
+                                    >
+                                        Add & Close
+                                    </button>
                                 )
                             }
                         </div>

@@ -7,7 +7,10 @@ import { CircularProgress } from '@mui/material';
 
 const Page = () => {
 
-    const [dashboardDetails, setDashboardDetails] = useState(null);
+    const [userDetails, setUserDetails] = useState(null)
+
+    const [statsDetails, setStatsDetails] = useState(null);
+    const [statsComparisonDetails, setStatsComparisonDetails] = useState(null);
     const [initialLoader, setInitialLoader] = useState(false);
 
     useEffect(() => {
@@ -22,6 +25,8 @@ const Page = () => {
             let AuthToken = null;
             if (localData) {
                 const UserDetails = JSON.parse(localData);
+                console.log("User details are", UserDetails)
+                setUserDetails(UserDetails.user);
                 AuthToken = UserDetails.token;
             }
 
@@ -39,7 +44,8 @@ const Page = () => {
 
             if (response) {
                 console.log("Response of get Dashboard data api is:", response.data);
-                setDashboardDetails(response.data.data);
+                setStatsDetails(response.data.data.stats);
+                setStatsComparisonDetails(response.data.data.statsComparison);
             }
 
         } catch (error) {
@@ -105,7 +111,7 @@ const Page = () => {
                     <div className='flex flex-col -mt-[10%] items-center w-full h-[100%]'>
                         <div className='w-9/12 flex flex-col items-center h-[100%]'>
                             <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
-                                Good to have you back, <span className='text-[#00000090]'>Hamza</span>
+                                Good to have you back, <span className='text-[#00000090]'>{userDetails?.name}</span>
                             </div>
                             <div className='h-[95%] w-11/12 flex flex-row justify-center bg-white'>
                                 <div className='w-11/12 h-[100%]'>
@@ -118,7 +124,7 @@ const Page = () => {
                                                 Total calls made
                                             </div>
                                             <div style={{ fontSize: 75, fontWeight: '700', color: '#000' }}>
-                                                43
+                                                {statsDetails?.totalCalls}
                                             </div>
                                         </div>
                                         <div className='w-8/12 flex flex-col items-end gap-2'>
@@ -157,7 +163,7 @@ const Page = () => {
                                                             Mins Balance
                                                         </div>
                                                         <div style={{ fontSize: 40, fontWeight: '400', color: '#fff' }}>
-                                                            103 mins
+                                                            {statsDetails?.totalDuration}
                                                         </div>
 
 
@@ -191,9 +197,9 @@ const Page = () => {
                                             <Card
                                                 icon="/otherAssets/convosIcon.png"
                                                 title="Convos >10 Sec"
-                                                value="43"
+                                                value={statsDetails?.totalCallsGt10}
                                                 subtitle="Answer rate"
-                                                rate="2.98%"
+                                                rate={`${statsComparisonDetails?.callsGt10Change}%`}
                                                 borderSide="border-b-2"
                                             />
 
@@ -201,9 +207,9 @@ const Page = () => {
                                             <Card
                                                 icon="/otherAssets/hotLeadsIcon.png"
                                                 title="Hot Leads"
-                                                value="43"
+                                                value={statsDetails?.hotLeads}
                                                 subtitle="Conversion rate"
-                                                rate="2.98%"
+                                                rate={`${statsComparisonDetails?.hotLeadsChange}%`}
                                                 borderSide="border-l-2 border-b-2"
                                             />
 
@@ -211,9 +217,9 @@ const Page = () => {
                                             <Card
                                                 icon="/otherAssets/bookedMeetingsIcon.png"
                                                 title="Booked Meetings"
-                                                value="43"
+                                                value={statsDetails?.meetingScheduled}
                                                 subtitle="Conversion rate"
-                                                rate="2.98%"
+                                                rate={`${statsComparisonDetails?.durationChange}%`}
                                                 borderSide="border-l-2 border-b-2"
                                             />
 
@@ -221,7 +227,7 @@ const Page = () => {
                                             <Card
                                                 icon="/otherAssets/voicemailIcon.png"
                                                 title="Voicemails"
-                                                value="43"
+                                                value={statsDetails?.voicemail}
                                                 borderSide=""
 
                                             />
@@ -230,7 +236,7 @@ const Page = () => {
                                             <Card
                                                 icon="/otherAssets/notInterestedIcon.png"
                                                 title="Not Interested"
-                                                value="43"
+                                                value={statsDetails?.notInterested}
                                                 borderSide="border-l-2"
                                             />
 
@@ -238,7 +244,7 @@ const Page = () => {
                                             <Card
                                                 icon="/otherAssets/avgDurationIcon.png"
                                                 title="Avg Convo Duration"
-                                                value="3.4mins"
+                                                value={statsDetails?.totalDuration}
                                                 borderSide="border-l-2"
                                             />
                                         </div>

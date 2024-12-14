@@ -1,6 +1,6 @@
 import Apis from '@/components/apis/Apis';
 import { Box, CircularProgress, Modal, Popover, TextareaAutosize } from '@mui/material';
-import { CalendarDots, DotsThree, EnvelopeSimple, Plus } from '@phosphor-icons/react'
+import { CalendarDots, CaretDown, CaretUp, Cross, DotsThree, EnvelopeSimple, Plus, X } from '@phosphor-icons/react'
 import axios from 'axios';
 import { filter, first } from 'draft-js/lib/DefaultDraftBlockRenderMap';
 import moment from 'moment';
@@ -10,6 +10,7 @@ import AssignLead from './AssignLead';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css'; // Import default styles
 import CalendarInput from '@/components/test/DatePicker';
+import parsePhoneNumberFromString from 'libphonenumber-js';
 
 const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, shouldSet }) => {
 
@@ -56,6 +57,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
 
     //code for call activity transcript text
     const [isExpanded, setIsExpanded] = useState([]);
+    const [isExpandedActivity, setIsExpandedActivity] = useState([]);
 
     // console.log("LEad selected to show details is:", selectedLeadsDetails);
 
@@ -110,6 +112,13 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     const [noteDetails, setNoteDetails] = useState([]);
     const [addLeadNoteLoader, setAddLeadNoteLoader] = useState(false);
 
+    //code for audio play popup
+    const [showAudioPlay, setShowAudioPlay] = useState(null);
+    const [showNoAudioPlay, setShowNoAudioPlay] = useState(false);
+
+    //code for deltag loader
+    const [DelTagLoader, setDelTagLoader] = useState(null);
+
     useEffect(() => {
         // getLeads();
         getSheets();
@@ -148,8 +157,146 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                 return [...prevIds, item.id];
             }
         });
+    };
+
+    //function to format the number
+    const formatPhoneNumber = (rawNumber) => {
+        const phoneNumber = parsePhoneNumberFromString(
+            rawNumber?.startsWith('+') ? rawNumber : `+${rawNumber}`
+        );
+        // console.log("Raw number is", rawNumber);
+        return phoneNumber ? phoneNumber.formatInternational() : 'Invalid phone number';
+    };
+
+    //fucntion to ShowMore ActivityData transcript text
+    const handleShowMoreActivityData = (item) => {
+        // setIsExpanded(!isExpanded);
+
+        setIsExpandedActivity((prevIds) => {
+            if (prevIds.includes(item.id)) {
+                // Unselect the item if it's already selected
+                return prevIds.filter((prevId) => prevId !== item.id);
+            } else {
+                // Select the item if it's not already selected
+                return [...prevIds, item.id];
+            }
+        });
 
     };
+
+    //function to show the callStatus
+    const checkCallStatus = (callActivity) => {
+        let callStatus = null;
+        let item = callActivity;
+        // callActivity.forEach((item) => {
+        if (item.status === "completed") {
+            // Check for hotlead, humancalldrop, and dnd
+            if (item.hotlead || item.humancalldrop || item.dnd) {
+                console.log("Status is completed with the following additional information:");
+                if (item.hotlead === true) {
+                    console.log("Hot Lead");
+                    callStatus = "Hot Lead";
+                }
+                if (item.humancalldrop === true) {
+                    console.log("Human Call Drop");
+                    callStatus = "Human Call Drop";
+                }
+                if (item.dnd === true) {
+                    console.log("DND");
+                    callStatus = "DND";
+                }
+                if (item.notinterested) {
+                    console.log("Not interested");
+                    callStatus = "Not Interested";
+                }
+            } else {
+                callStatus = item.status;
+                console.log("Status is completed, but no special flags for lead ID:", item.leadId);
+            }
+        } else {
+            console.log("Other status for lead ID:", item.leadId, "Status:", item.status);
+            callStatus = item.status;
+        }
+        // });
+        return callStatus;
+    };
+
+    //code for del tag api
+    const handleDelTag = async (tag) => {
+        try {
+            setDelTagLoader(tag);
+
+            let AuthToken = null
+
+            const userData = localStorage.getItem("User");
+            if (userData) {
+                const localData = JSON.parse(userData);
+                AuthToken = localData.token
+            }
+
+            console.log("Auth token is:", AuthToken);
+
+            const ApiData = {
+                tag: tag
+            }
+
+            const ApiPath = Apis.delLeadTag;
+            console.log("Data sending in api is:", ApiData);
+            console.log("Api path is:", ApiPath);
+
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of del tag api is:", response.data);
+                if (response.data.status === true) {
+                    console.log("Staus is true");
+
+                    const updatedTags = selectedLeadsDetails.tags.filter((item) => item !== tag);
+                    setSelectedLeadsDetails((prevDetails) => ({
+                        ...prevDetails,
+                        tags: updatedTags,
+                    }));
+
+                }
+            }
+
+
+        } catch (error) {
+            console.error("Error occured in api is:", error);
+        } finally {
+            setDelTagLoader(null);
+        }
+    }
+
+    // const checkCallStatus = () => {
+    //     let displayValue = "";
+
+    //     selectedLeadsDetails.callActivity.forEach((item) => {
+    //         if (item.status === "completed") {
+    //             if (item.hotlead) {
+    //                 displayValue = item.hotlead;
+    //             } else if (item.humancalldrop) {
+    //                 displayValue = item.humancalldrop;
+    //             } else if (item.dnd) {
+    //                 displayValue = item.dnd;
+    //             } else {
+    //                 displayValue = "Completed with no special flags";
+    //             }
+    //         } else if (item.status === "busy") {
+    //             displayValue = item.status;
+    //         } else {
+    //             displayValue = `Other Status: ${item.status}`;
+    //         }
+    //     });
+
+    //     return displayValue;
+    // };
+
 
     //function to select the stage for filters
     const handleSelectStage = (item) => {
@@ -539,8 +686,8 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                         </div>
                     </div>
                 );
-            case "Date":
-                return item.createdAt ? moment(item.createdAt).format('MMM DD, YYYY') : "-";
+            // case "Date":
+            //     return item.createdAt ? moment(item.createdAt).format('MMM DD, YYYY') : "-";
             case "Phone":
                 return item.phone ? item.phone : "-";
             case "Stage":
@@ -1397,8 +1544,8 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                     },
                 }}
             >
-                <Box className="sm:w-6/12 lg:w-5/12 xl:w-4/12 w-10/12 max-h-[70vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
-                    <div className="flex flex-row justify-center w-full h-[70vh] overflow-auto"
+                <Box className="sm:w-6/12 lg:w-5/12 xl:w-4/12 w-10/12 max-h-[80vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
+                    <div className="flex flex-row justify-center w-full h-[90vh] overflow-auto"
                         style={{
                             scrollbarWidth: "none", backgroundColor: "#ffffff",
                             borderRadius: "13px",
@@ -1408,8 +1555,9 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                             style={{
                                 // backgroundColor: "#ffffff",
                                 // padding: 20
-                                paddingBottom: 10,
-                                paddingTop: 10,
+                                paddingBottom: 25,
+                                paddingTop: 25,
+                                paddingInline: 20,
                                 height: "100%"
                             }}
                         >
@@ -1448,7 +1596,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                         <div className="text-end" style={styles.heading2}>
                                             {selectedLeadsDetails?.email}
                                         </div>
-                                        <div className='flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000090]' style={styles.paragraph}>
+                                        <div className='flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]' style={styles.paragraph}>
                                             <Image src={"/assets/power.png"} height={9} width={7} alt='*' />
                                             <div>
                                                 <span className='text-purple'>New</span> hamza@yahoo.com
@@ -1466,7 +1614,8 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                         </div>
                                     </div>
                                     <div className="text-end" style={styles.paragraph}>
-                                        {selectedLeadsDetails?.phone}
+                                        {/* {selectedLeadsDetails?.phone} */}
+                                        {formatPhoneNumber(selectedLeadsDetails?.phone)}
                                     </div>
                                 </div>
 
@@ -1519,30 +1668,49 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                             Tag
                                         </div>
                                     </div>
-                                    <div className="text-end flex flex-row items-center gap-2" style={styles.paragraph}>
-                                        {
-                                            // selectedLeadsDetails?.tags?.map.slice(0, 1)
-                                            selectedLeadsDetails?.tags.slice(0, 2).map((tags, index) => {
-                                                return (
-                                                    <div key={index} className='flex flex-row items-center gap-2'>
-                                                        <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
-                                                            {tags}
-
-                                                        </div>
-                                                        <div>
-                                                            {
-                                                                selectedLeadsDetails?.tags.length > 2 && (
-                                                                    <div>
-                                                                        +{selectedLeadsDetails?.tags.length - 2}
+                                    {
+                                        selectedLeadsDetails?.tags.length > 0 ? (
+                                            <div className="text-end flex flex-row items-center gap-2" style={styles.paragraph}>
+                                                {
+                                                    // selectedLeadsDetails?.tags?.map.slice(0, 1)
+                                                    selectedLeadsDetails?.tags.slice(0, 2).map((tag, index) => {
+                                                        return (
+                                                            <div key={index} className='flex flex-row items-center gap-2'>
+                                                                <div
+                                                                    className='flex flex-row items-center gap-2 bg-[#402FFF30] px-2 py-1 rounded-lg'
+                                                                >
+                                                                    <div
+                                                                        className="text-[#402FFF]" //1C55FF10
+                                                                    >
+                                                                        {tag}
                                                                     </div>
-                                                                )
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                )
-                                            })
-                                        }
-                                    </div>
+                                                                    {
+                                                                        DelTagLoader && tag.includes(DelTagLoader) ?
+                                                                            <div>
+                                                                                <CircularProgress size={15} />
+                                                                            </div> :
+                                                                            <button onClick={() => { handleDelTag(tag) }}>
+                                                                                <X size={15} weight='bold' color='#402fff' />
+                                                                            </button>
+                                                                    }
+
+                                                                </div>
+                                                                <div>
+                                                                    {
+                                                                        selectedLeadsDetails?.tags.length > 2 && (
+                                                                            <div>
+                                                                                +{selectedLeadsDetails?.tags.length - 2}
+                                                                            </div>
+                                                                        )
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    })
+                                                }
+                                            </div>
+                                        ) : "-"
+                                    }
                                 </div>
 
                                 <div className='flex flex-row items--center w-full justify-between mt-4'>
@@ -1553,7 +1721,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                         </div>
                                     </div>
                                     <div className="text-end flex flex-row items-center gap-1" style={styles.paragraph}>
-                                        <div className='h-[15px] w-[15px] rounded-full' style={{ backgroundColor: selectedLeadsDetails?.stage?.defaultColor }}>
+                                        <div className='h-[10px] w-[10px] rounded-full' style={{ backgroundColor: selectedLeadsDetails?.stage?.defaultColor }}>
                                         </div>
                                         {selectedLeadsDetails?.stage?.stageTitle || "-"}
                                     </div>
@@ -1574,7 +1742,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                             </div>
 
                             <div
-                                className='w-full bg-[#00000090]'
+                                className='w-full bg-[#00000020] mt-2 mb-4'
                                 style={{ height: "1px" }}
                             />
 
@@ -1635,7 +1803,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                         </div>
                                                     </div>
                                                 ) : (
-                                                    <div className='w-full pb-12'>
+                                                    <div className='w-full mt-4 pb-12'>
                                                         <div style={{ fontWeight: "600", fontSize: 16.8 }}>
                                                             Know Your Customer
                                                         </div>
@@ -1708,7 +1876,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                             {
                                                                 noteDetails.map((item, index) => {
                                                                     return (
-                                                                        <div key={index} className='border rounded-xl p-4 mb-4' style={{ border: "1px solid #00000020" }}>
+                                                                        <div key={index} className='border rounded-xl p-4 mb-4 mt-4' style={{ border: "1px solid #00000020" }}>
                                                                             <div style={{ fontWeight: "500", color: "#15151560", fontsize: 12 }}>
                                                                                 {moment(item.createdAt).format("MMM DD, YYYY")}
                                                                             </div>
@@ -1761,16 +1929,16 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                     <div>
                                                         {
                                                             selectedLeadsDetails?.callActivity.map((item, index) => {
-                                                                const initialTextLength = Math.ceil(item.transcript.length * 0.1); // 40% of the text
-                                                                const initialText = item.transcript.slice(0, initialTextLength);
+                                                                const initialTextLength = Math.ceil(item.transcript?.length * 0.1); // 40% of the text
+                                                                const initialText = item.transcript?.slice(0, initialTextLength);
                                                                 return (
                                                                     <div key={index} className='mt-4'>
                                                                         <div className='-ms-4' style={{ fontsize: 15, fontWeight: "500", color: "#15151560" }}>
                                                                             {moment(item.createdAt).format("MM/DD/YYYY hh:mm")}
                                                                         </div>
                                                                         <div className='w-full flex flex-row items-center gap-2 h-full'>
-                                                                            <div className='pb-4 pt-6 ps-4' style={{borderLeft: "1px solid #00000020"}}>
-                                                                                <div className='h-full'>
+                                                                            <div className='pb-4 pt-6 ps-4 w-full' style={{ borderLeft: "1px solid #00000020" }}>
+                                                                                <div className='h-full w-full'>
                                                                                     <div className='flex flex-row items-center justify-between'>
                                                                                         <div className='flex flex-row items-center gap-1'>
                                                                                             <div
@@ -1784,45 +1952,83 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                                                                 {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
                                                                                             </div>
                                                                                         </div>
-                                                                                        <div className="text-end flex flex-row items-center gap-1" style={styles.paragraph}>
-                                                                                            <div className='h-[15px] w-[15px] rounded-full' style={{ backgroundColor: selectedLeadsDetails?.stage?.defaultColor }}>
-                                                                                            </div>
-                                                                                            {selectedLeadsDetails?.stage?.stageTitle || "-"}
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div className='mt-6' style={{ border: "1px solid #00000020", borderRadius: "10px", padding: 10, paddingInline: 15 }}>
-                                                                                        <div className='mt-4' style={{ fontWeight: "500", fontSize: 12, color: "#00000070" }}>
-                                                                                            Transcript
-                                                                                        </div>
-                                                                                        <div className='flex flex-row items-center justify-between mt-4'>
-                                                                                            <div style={{ fontWeight: "500", fontSize: 15 }}>
-                                                                                                {item.duration} mins
-                                                                                            </div>
-                                                                                            <button onClick={() => {
-                                                                                                window.open(item.recordingUrl, "_blank")
-                                                                                            }}>
-                                                                                                <Image src={"/assets/play.png"} height={35} width={35} alt='*' />
-                                                                                            </button>
-                                                                                        </div>
-                                                                                        <div className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                                                            {/* {item.transcript} */}
-                                                                                            {isExpanded.includes(item.id) ? `${item.transcript}` : `${initialText}...`}
-                                                                                        </div>
                                                                                         <button
-                                                                                            style={{ fontWeight: "600", fontSize: 15 }}
-                                                                                            onClick={() => { handleReadMoreToggle(item) }}
-                                                                                            className="mt-2 text-black underline"
+                                                                                            className="text-end flex flex-row items-center gap-1"
+                                                                                            style={styles.paragraph}
+                                                                                            onClick={() => {
+                                                                                                handleShowMoreActivityData(item);
+                                                                                            }}
                                                                                         >
-                                                                                            {
-                                                                                                isExpanded.includes(item.id) ? (
-                                                                                                    "Read Less"
-                                                                                                ) : (
-                                                                                                    "Read more"
-                                                                                                )
-                                                                                            }
-                                                                                            {/* {isExpanded ? "Read Less" : "Read More"} */}
+                                                                                            <div className='h-[10px] w-[10px] rounded-full' style={{ backgroundColor: selectedLeadsDetails?.stage?.defaultColor }}>
+                                                                                            </div>
+                                                                                            {/* {selectedLeadsDetails?.stage?.stageTitle || "-"} */}
+                                                                                            {checkCallStatus(item)}
+                                                                                            <div>
+                                                                                                {
+                                                                                                    isExpandedActivity.includes(item.id) ? (
+                                                                                                        <div>
+                                                                                                            <CaretUp size={17} weight='bold' />
+                                                                                                        </div>
+                                                                                                    ) : (
+                                                                                                        <div>
+                                                                                                            <CaretDown size={17} weight='bold' />
+                                                                                                        </div>
+                                                                                                    )
+                                                                                                }
+                                                                                            </div>
                                                                                         </button>
                                                                                     </div>
+                                                                                    {
+                                                                                        isExpandedActivity.includes(item.id) && (
+                                                                                            <div className='mt-6' style={{ border: "1px solid #00000020", borderRadius: "10px", padding: 10, paddingInline: 15 }}>
+                                                                                                <div className='mt-4' style={{ fontWeight: "500", fontSize: 12, color: "#00000070" }}>
+                                                                                                    Transcript
+                                                                                                </div>
+                                                                                                <div className='flex flex-row items-center justify-between mt-4'>
+                                                                                                    <div style={{ fontWeight: "500", fontSize: 15 }}>
+                                                                                                        {item.duration} mins
+                                                                                                    </div>
+                                                                                                    <button onClick={() => {
+                                                                                                        if (item?.recordingUrl) {
+                                                                                                            setShowAudioPlay(item?.recordingUrl)
+                                                                                                        } else {
+                                                                                                            setShowNoAudioPlay(true)
+                                                                                                        }
+                                                                                                        // window.open(item.recordingUrl, "_blank")
+                                                                                                    }}>
+                                                                                                        <Image src={"/assets/play.png"} height={35} width={35} alt='*' />
+                                                                                                    </button>
+                                                                                                </div>
+                                                                                                {
+                                                                                                    item.transcript ? (
+                                                                                                        <div className='w-full'>
+                                                                                                            <div className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
+                                                                                                                {/* {item.transcript} */}
+                                                                                                                {isExpanded.includes(item.id) ? `${item.transcript}` : `${initialText}...`}
+                                                                                                            </div>
+                                                                                                            <button
+                                                                                                                style={{ fontWeight: "600", fontSize: 15 }}
+                                                                                                                onClick={() => { handleReadMoreToggle(item) }}
+                                                                                                                className="mt-2 text-black underline"
+                                                                                                            >
+                                                                                                                {
+                                                                                                                    isExpanded.includes(item.id) ? (
+                                                                                                                        "Read Less"
+                                                                                                                    ) : (
+                                                                                                                        "Read more"
+                                                                                                                    )
+                                                                                                                }
+                                                                                                            </button>
+                                                                                                        </div>
+                                                                                                    ) : (
+                                                                                                        <div style={{ fontWeight: "600", fontSize: 15 }}>
+                                                                                                            No transcript
+                                                                                                        </div>
+                                                                                                    )
+                                                                                                }
+                                                                                            </div>
+                                                                                        )
+                                                                                    }
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -1840,6 +2046,90 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
 
                             </div>
 
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+
+            {/* Modal for audio play */}
+            <Modal
+                open={showAudioPlay}
+                onClose={() => setShowAudioPlay(null)}
+                closeAfterTransition
+                BackdropProps={{
+                    sx: {
+                        backgroundColor: "#00000020",
+                        backdropFilter: "blur(5px)",
+                    },
+                }}
+            >
+                <Box className="lg:w-3/12 sm:w-5/12 w-8/12" sx={styles.modalsStyle}>
+                    <div className="flex flex-row justify-center w-full">
+                        <div
+                            className="w-full flex flex-col items-center"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                            }}
+                        >
+
+                            <audio controls>
+                                <source src={showAudioPlay} type="audio/mpeg" />
+                                Your browser does not support the audio element.
+                            </audio>
+                            <button
+                                className='text-white w-full h-[50px] rounded-lg bg-purple mt-4'
+                                onClick={() => { setShowAudioPlay(null) }}
+                                style={{ fontWeight: "600", fontSize: 15 }}
+                            >
+                                Close
+                            </button>
+
+                            {/* Can be use full to add shadow
+                            <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+
+            {/* Warning Modal for no voice */}
+            <Modal
+                open={showNoAudioPlay}
+                onClose={() => setShowNoAudioPlay(false)}
+                closeAfterTransition
+                BackdropProps={{
+                    sx: {
+                        backgroundColor: "#00000020",
+                        backdropFilter: "blur(5px)",
+                    },
+                }}
+            >
+                <Box className="lg:w-3/12 sm:w-5/12 w-8/12" sx={styles.modalsStyle}>
+                    <div className="flex flex-row justify-center w-full">
+                        <div
+                            className="w-full flex flex-col items-center"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                            }}
+                        >
+
+                            <audio controls>
+                                <source src={showAudioPlay} type="audio/mpeg" />
+                                Your browser does not support the audio element.
+                            </audio>
+                            <button
+                                className='text-white w-full h-[50px] rounded-lg bg-purple mt-4'
+                                onClick={() => { setShowNoAudioPlay(false) }}
+                                style={{ fontWeight: "600", fontSize: 15 }}
+                            >
+                                Close
+                            </button>
+
+                            {/* Can be use full to add shadow
+                            <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
                         </div>
                     </div>
                 </Box>

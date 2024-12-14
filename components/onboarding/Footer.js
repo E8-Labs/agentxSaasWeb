@@ -1,5 +1,6 @@
 import { CircularProgress } from '@mui/material'
 import React from 'react'
+import LoaderAnimation from '../animations/LoaderAnimation'
 
 const Footer = ({ handleContinue, handleBack, donotShowBack, registerLoader, shouldContinue }) => {
     // console.log("Status of continue is :", shouldContinue);
@@ -19,7 +20,7 @@ const Footer = ({ handleContinue, handleBack, donotShowBack, registerLoader, sho
 
                 {
                     registerLoader ?
-                        <CircularProgress size={25} /> :
+                        <LoaderAnimation loaderModal={registerLoader} /> :
                         <button
                             disabled={shouldContinue}
                             className='rounded-lg text-white bg-purple'
