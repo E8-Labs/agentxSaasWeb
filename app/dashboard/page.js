@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import axios from 'axios';
 import Apis from '@/components/apis/Apis';
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { duration } from 'moment';
 
 const Page = () => {
 
@@ -13,11 +14,17 @@ const Page = () => {
     const [statsComparisonDetails, setStatsComparisonDetails] = useState(null);
     const [initialLoader, setInitialLoader] = useState(false);
 
+    //code for dropdown
+    const [Duration, setDuration] = useState("24 hrs");
+
+
     useEffect(() => {
         getDashboardData();
     }, []);
 
-    const getDashboardData = async () => {
+    //function to get the dashboard data
+
+    const getDashboardData = async (duration) => {
         try {
             setInitialLoader(true);
 
@@ -32,7 +39,23 @@ const Page = () => {
 
             console.log("Auth token is :--", AuthToken);
 
-            const ApiPath = Apis.getDashboardData;
+            // let durationDetails = null;
+
+            let durationValue = 1
+
+
+
+            if (duration === "24 hrs") {
+                durationValue = 1
+            } else if (duration === "Last 7Days") {
+                durationValue = 7
+            } else if (duration === "Last 30Days") {
+                durationValue = 30
+            }
+
+            console.log("details to show are:", durationValue);
+
+            const ApiPath = `${Apis.getDashboardData}?duration=${durationValue}`;
             console.log("Api path is:", ApiPath);
 
             const response = await axios.get(ApiPath, {
@@ -55,6 +78,12 @@ const Page = () => {
             setInitialLoader(false);
         }
     }
+
+    //function to handle the dropdown
+    const handleChange = (event) => {
+        setDuration(event.target.value);
+        getDashboardData(event.target.value);
+    };
 
     const backgroundImage = {
         backgroundImage: 'url("/otherAssets/bg23.png")',
@@ -128,16 +157,60 @@ const Page = () => {
                                             </div>
                                         </div>
                                         <div className='w-8/12 flex flex-col items-end gap-2'>
-                                            <div className='w-3/12 flex flex-row justify-between p-2' style={{ backgroundColor: '#00000006 ', borderRadius: 5 }}>
-                                                <div style={{ fontSize: 15 }}>
+                                            <div className='w-3/12 flex flex-row justify-between' style={{ backgroundColor: '#00000006 ', borderRadius: 5 }}>
+                                                {/* <div style={{ fontSize: 15 }}>
                                                     Last 24hrs
-                                                </div>
-                                                <Image
-                                                    src={'/assets/downArrow.png'}
-                                                    width={20}
-                                                    height={20}
-                                                    alt='arrow'
-                                                />
+                                                </div> */}
+
+                                                <FormControl fullWidth>
+                                                    {/* <InputLabel id="demo-simple-select-label">Age</InputLabel> */}
+                                                    <Select
+                                                        // labelId="demo-simple-select-label"
+                                                        // id="demo-simple-select"
+                                                        value={Duration}
+                                                        // label="Age"
+                                                        onChange={handleChange}
+
+                                                        displayEmpty // Enables placeholder
+                                                        renderValue={(selected) => {
+                                                            if (!selected) {
+                                                                return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
+                                                            }
+                                                            return selected;
+                                                        }}
+                                                        sx={{
+                                                            border: "none", // Default border
+                                                            "&:hover": {
+                                                                border: "none", // Same border on hover
+                                                            },
+                                                            "& .MuiOutlinedInput-notchedOutline": {
+                                                                border: "none", // Remove the default outline
+                                                            },
+                                                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                                                border: "none", // Remove outline on focus
+                                                            },
+                                                            "&.MuiSelect-select": {
+                                                                py: 0, // Optional padding adjustments
+                                                            },
+                                                        }}
+                                                        MenuProps={{
+                                                            PaperProps: {
+                                                                style: {
+                                                                    maxHeight: "30vh", // Limit dropdown height
+                                                                    overflow: "auto", // Enable scrolling in dropdown
+                                                                    scrollbarWidth: "none",
+                                                                    // borderRadius: "10px"
+                                                                },
+                                                            },
+                                                        }}
+
+                                                    >
+                                                        <MenuItem value={"24 hrs"}>Last 24 Hours</MenuItem>
+                                                        <MenuItem value={"Last 7Days"}>Last 7 Days</MenuItem>
+                                                        <MenuItem value={"Last 30Days"}>Last 30 Days</MenuItem>
+                                                    </Select>
+                                                </FormControl>
+
                                             </div>
 
                                             <div className="w-full h-40vh flex flex-row justify-between items-center px-8 py-4"
@@ -199,7 +272,7 @@ const Page = () => {
                                                 title="Convos >10 Sec"
                                                 value={statsDetails?.totalCallsGt10}
                                                 subtitle="Answer rate"
-                                                rate={`${statsComparisonDetails?.callsGt10Change}%`}
+                                                rate={`${statsComparisonDetails?.callsGt10Change.toFixed(2)}%`}
                                                 borderSide="border-b-2"
                                             />
 
@@ -209,7 +282,7 @@ const Page = () => {
                                                 title="Hot Leads"
                                                 value={statsDetails?.hotLeads}
                                                 subtitle="Conversion rate"
-                                                rate={`${statsComparisonDetails?.hotLeadsChange}%`}
+                                                rate={`${statsComparisonDetails?.hotLeadsChange.toFixed(2)}%`}
                                                 borderSide="border-l-2 border-b-2"
                                             />
 
@@ -219,7 +292,7 @@ const Page = () => {
                                                 title="Booked Meetings"
                                                 value={statsDetails?.meetingScheduled}
                                                 subtitle="Conversion rate"
-                                                rate={`${statsComparisonDetails?.durationChange}%`}
+                                                rate={`${statsComparisonDetails?.durationChange.toFixed(2)}%`}
                                                 borderSide="border-l-2 border-b-2"
                                             />
 
