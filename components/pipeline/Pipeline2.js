@@ -228,6 +228,13 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         }, 0);
     };
 
+    //function to close advance settings
+    const handleCloseAdvanceSettings = () => {
+        setAdvancedSettingModal(false);
+        localStorage.removeItem("GuadrailsList");
+        localStorage.removeItem("ObjectionsList");
+    }
+
 
 
     useEffect(() => {
@@ -405,8 +412,8 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 formData.append("inboundGreeting", greetingTagInput);
                 formData.append("inboundPrompt", scriptTagInput);
             } else {
-                formData.append("prompt", greetingTagInput);
-                formData.append("greeting", scriptTagInput);
+                formData.append("prompt", scriptTagInput);
+                formData.append("greeting", greetingTagInput);
             }
 
             ////console.log("Update agent details are is :-----");
@@ -734,7 +741,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 {/* Modals code goes here */}
                 <Modal
                     open={advancedSettingModal}
-                    onClose={() => setAdvancedSettingModal(false)}
+                    onClose={() => {
+                        handleCloseAdvanceSettings();
+                    }}
                     closeAfterTransition
                     BackdropProps={{
                         timeout: 1000,
@@ -755,7 +764,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                 }}
                             >
                                 <div className='flex flex-row justify-end'>
-                                    <button onClick={() => { setAdvancedSettingModal(false) }}>
+                                    <button onClick={() => {
+                                        handleCloseAdvanceSettings();
+                                    }}>
                                         <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
                                     </button>
                                 </div>

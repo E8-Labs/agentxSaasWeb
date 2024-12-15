@@ -523,13 +523,13 @@ export const PromptTagInput = ({
         BackdropProps={{
           timeout: 1000,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: "#00000010",
             backdropFilter: "blur(20px)",
           },
         }}
       >
         <Box
-          className="lg:w-5/12 sm:w-full w-8/12 h-[70vh] flex justify-center items-center"
+          className="lg:w-5/12 sm:w-full w-8/12 h-[85vh] flex justify-center items-center"
           sx={styles.modalsStyle}
         >
           <div className="flex flex-row justify-center items-center w-full h-[100%]">
@@ -544,7 +544,7 @@ export const PromptTagInput = ({
                 // marginTop: 50,
               }}
             >
-              <div className="h-[20%]">
+              <div className="h-[12%]">
                 <div className="flex flex-row justify-end">
                   <button
                     onClick={() => {
@@ -568,7 +568,7 @@ export const PromptTagInput = ({
                 </div>
               </div>
 
-              <div style={{ position: "relative", height: "65%" }}>
+              <div style={{ position: "relative", height: "70%" }}>
                 <textarea
                   className="outline-none rounded-xl focus:ring-0"
                   ref={textFieldRef}

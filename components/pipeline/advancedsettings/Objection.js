@@ -42,13 +42,15 @@ const Objection = ({ showTitle, selectedAgentId }) => {
       let mainAgentId = null;
 
       if (selectedAgentId) {
+        console.log("id sending in api is:", selectedAgentId);
         mainAgentId = selectedAgentId.id
       } else {
+        console.log("id sending in new local agent is:", mainAgentId);
         const localAgent = localStorage.getItem("agentDetails");
         if (localAgent) {
           const agentDetails = JSON.parse(localAgent);
           console.log("Agent details are:", agentDetails);
-          mainAgentId = agentDetails
+          mainAgentId = agentDetails.id
         }
       }
 
@@ -102,7 +104,7 @@ const Objection = ({ showTitle, selectedAgentId }) => {
         if (localAgent) {
           const agentDetails = JSON.parse(localAgent);
           console.log("Agent details are:", agentDetails);
-          mainAgentId = agentDetails
+          mainAgentId = agentDetails.id
         }
       }
 

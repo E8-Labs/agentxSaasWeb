@@ -54,7 +54,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
         if (localAgent) {
           const agentDetails = JSON.parse(localAgent);
           console.log("Agent details are:", agentDetails);
-          mainAgentId = agentDetails
+          mainAgentId = agentDetails.id
         }
       }
 
@@ -105,7 +105,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
         if (localAgent) {
           const agentDetails = JSON.parse(localAgent);
           console.log("Agent details are:", agentDetails);
-          mainAgentId = agentDetails
+          mainAgentId = agentDetails.id
         }
       }
 

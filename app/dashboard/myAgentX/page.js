@@ -49,7 +49,7 @@ function Page() {
   const [openCalimNumDropDown, setOpenCalimNumDropDown] = useState(false);
   const [showGlobalBtn, setShowGlobalBtn] = useState(true);
   const [showReassignBtn, setShowReassignBtn] = useState(false);
-  const [reassignLoader, setReassignLoader] = useState(false);
+  const [reassignLoader, setReassignLoader] = useState(null);
   const [showClaimPopup, setShowClaimPopup] = useState(false);
   const [findeNumberLoader, setFindeNumberLoader] = useState(false);
   const [foundeNumbers, setFoundeNumbers] = useState([]);
@@ -256,7 +256,7 @@ function Page() {
     try {
       console.log("Phonenumber is:", item.phoneNumber.slice(1));
       // return
-      setReassignLoader(true);
+      setReassignLoader(item);
       let AuthToken = null;
       const LocalData = localStorage.getItem("User");
       const agentDetails = localStorage.getItem("agentDetails");
@@ -277,7 +277,7 @@ function Page() {
       const ApiPath = Apis.reassignNumber;
 
       const ApiData = {
-        agentId: MyAgentData.claimedBy.id,
+        agentId: item.claimedBy.id,
         phoneNumber: item.phoneNumber
       }
       console.log("I a just trigered")
@@ -296,7 +296,7 @@ function Page() {
 
       if (response) {
         console.log("Respose of reassign api is:", response);
-        setSelectNumber(phoneNumber.slice(1));
+        setAssignNumber(item.phoneNumber.slice(1));
         setOpenCalimNumDropDown(false);
         //code to close the dropdown
         if (selectRef.current) {
@@ -314,7 +314,7 @@ function Page() {
     } catch (error) {
       console.error("Error occured in reassign the number api:", error);
     } finally {
-      setReassignLoader(false);
+      setReassignLoader(null);
       console.log("reassign api completed")
     }
   }
@@ -453,18 +453,22 @@ function Page() {
 
       const formData = new FormData();
 
-      if (isInbound) {
+      // console.log("Agent to update is:", showScriptModal);
+
+      if (showScriptModal.agentType === "inbound") {
+        console.log("Is inbound true");
         formData.append("inboundGreeting", greetingTagInput);
         formData.append("inboundPrompt", scriptTagInput);
       } else {
-        formData.append("prompt", greetingTagInput);
-        formData.append("greeting", scriptTagInput);
+        formData.append("prompt", scriptTagInput);
+        formData.append("greeting", greetingTagInput);
       }
+      formData.append("mainAgentId", showScriptModal.id);
 
       for (let [key, value] of formData.entries()) {
-        ////console.log(`${key}: ${value}`);
+        console.log(`${key}: ${value}`);
       }
-
+      // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
           "Authorization": "Bearer " + AuthToken
@@ -472,9 +476,17 @@ function Page() {
       });
 
       if (response) {
-        ////console.log("Response of update api is :--", response);
+        console.log("Response of update api is :--", response.data);
         if (response.data.status === true) {
           setShowSuccessSnack(response.data.message);
+          setUserDetails((prevAgents) =>
+            prevAgents.map((agent) =>
+              agent.id === showScriptModal.id
+                ? { ...agent, ...response.data.data }
+                : agent
+            )
+          );
+          setShowScriptModal(null);
         }
       }
 
@@ -513,7 +525,8 @@ function Page() {
       //   formData.append("callbackNumber", officeNumber);
       // }
       formData.append("liveTransforNumber", showDrawer?.liveTransferNumber);
-      formData.append("mainAgentId", showDrawer.id);
+      formData.append("agentId", showDrawer.id);
+      // formData.append("mainAgentId", showDrawer.id);
       // formData.append("liveTransfer", toggleClick);
 
       const ApiPath = Apis.asignPhoneNumber;
@@ -534,6 +547,15 @@ function Page() {
         console.log("Response of assign number api is :", response.data)
         if (response.data.status === true) {
           setShowSuccessSnack(response.data.message);
+          setAgentsContent((prevAgents) =>
+            prevAgents.map((agent) =>
+              agent.id === showDrawer.id
+                ? { ...agent, phoneNumber: assignNumber }
+                : agent
+            )
+          );
+          setShowDrawer(null);
+          //phoneNumber
           // handleContinue();
           // alert("Phone number assigned")
           // const calimNoData = {
@@ -584,7 +606,7 @@ function Page() {
     setKYCList(agentData[0].kyc);
 
     if (agentData[0].agents.length === 2 || agentData[0].agents[0].agentType === "outbound") {
-      setGreetingTagInput(agentData[0].greeting); //things here are conflicting
+      setGreetingTagInput(agentData[0].greeting);
       setScriptTagInput(agentData[0].callScript);
     } else if (agentData[0].agents[0].agentType === "inbound") {
       isInbound = "inbound"
@@ -1834,7 +1856,7 @@ function Page() {
                                             <div className='flex flex-row items-center gap-2'>
                                               {`(Claimed by {${item.claimedBy.name}})`}
                                               {
-                                                reassignLoader ?
+                                                reassignLoader === item ?
                                                   <CircularProgress size={15} /> :
                                                   <button className="text-purple underline" onClick={(e) => {
                                                     e.stopPropagation();
