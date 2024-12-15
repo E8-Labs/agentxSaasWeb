@@ -4,7 +4,7 @@ import axios from 'axios';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
 
-const GuardianSetting = ({ showTitle }) => {
+const GuardianSetting = ({ showTitle, selectedAgentId }) => {
 
   const [guardrailsList, setGuardrailsList] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
@@ -37,17 +37,30 @@ const GuardianSetting = ({ showTitle }) => {
         AuthToken = UserDetails.token;
       }
 
-      let mainAgent = null
-      const agentDetailsLocal = localStorage.getItem("agentDetails");
-      if (agentDetailsLocal) {
-        const localAgentData = JSON.parse(agentDetailsLocal);
-        console.log("Locla agent details are :-", localAgentData);
-        mainAgent = localAgentData;
+      // let mainAgent = null
+      // const agentDetailsLocal = localStorage.getItem("agentDetails");
+      // if (agentDetailsLocal) {
+      //   const localAgentData = JSON.parse(agentDetailsLocal);
+      //   console.log("Locla agent details are :-", localAgentData);
+      //   mainAgent = localAgentData;
+      // }
+
+      let mainAgentId = null;
+
+      if (selectedAgentId) {
+        mainAgentId = selectedAgentId.id
+      } else {
+        const localAgent = localStorage.getItem("agentDetails");
+        if (localAgent) {
+          const agentDetails = JSON.parse(localAgent);
+          console.log("Agent details are:", agentDetails);
+          mainAgentId = agentDetails
+        }
       }
 
       console.log("Auth token is:", AuthToken);
 
-      const ApiPath = `${Apis.getObjectionGuardrial}?mainAgentId=${mainAgent.id}`;
+      const ApiPath = `${Apis.getObjectionGuardrial}?mainAgentId=${mainAgentId}`;
       console.log("Apipath is:", ApiPath);
 
       const response = await axios.get(ApiPath, {
@@ -75,12 +88,25 @@ const GuardianSetting = ({ showTitle }) => {
     try {
       setAddObjectionLoader(true);
 
-      let mainAgent = null
-      const agentDetailsLocal = localStorage.getItem("agentDetails");
-      if (agentDetailsLocal) {
-        const localAgentData = JSON.parse(agentDetailsLocal);
-        console.log("Locla agent details are :-", localAgentData);
-        mainAgent = localAgentData;
+      // let mainAgent = null
+      // const agentDetailsLocal = localStorage.getItem("agentDetails");
+      // if (agentDetailsLocal) {
+      //   const localAgentData = JSON.parse(agentDetailsLocal);
+      //   console.log("Locla agent details are :-", localAgentData);
+      //   mainAgent = localAgentData;
+      // }
+
+      let mainAgentId = null;
+
+      if (selectedAgentId) {
+        mainAgentId = selectedAgentId.id
+      } else {
+        const localAgent = localStorage.getItem("agentDetails");
+        if (localAgent) {
+          const agentDetails = JSON.parse(localAgent);
+          console.log("Agent details are:", agentDetails);
+          mainAgentId = agentDetails
+        }
       }
 
       const localData = localStorage.getItem("User");
@@ -96,7 +122,7 @@ const GuardianSetting = ({ showTitle }) => {
         title: addObjTitle,
         description: addObjDescription,
         type: "guardrail",
-        mainAgentId: mainAgent.id
+        mainAgentId: mainAgentId
       }
 
       console.log("Api data is :", ApiData);

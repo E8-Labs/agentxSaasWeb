@@ -168,6 +168,7 @@ const Pipeline1 = ({ handleContinue }) => {
                 setSelectedPipelineItem(response.data.data[0]);
                 setSelectedPipelineStages(response.data.data[0].stages);
                 setOldStages(response.data.data[0].stages);
+                localStorage.setItem("pipelinesData", JSON.stringify(response.data.data));
             }
 
         } catch (error) {
@@ -234,27 +235,28 @@ const Pipeline1 = ({ handleContinue }) => {
     };
 
     const addRow = (index) => {
-        
+
         setRowsByIndex((prev) => {
-            let id  =(prev[index]?.length || 0) + 1
-        console.log(`Assigned Row Id `, id)
-        console.log(`Rows at ${index}`)
-        console.log(prev)
-        if((prev[index]?.length || 0) > 0){
-            let array = prev[index]
-            console.log("Array is now ", array)
-            let lastRow = array[array.length  -1];
-            id = lastRow.id + 1
-        }
-        console.log(`Now Assigned Row Id `, id)
-        
+            let id = (prev[index]?.length || 0) + 1
+            console.log(`Assigned Row Id `, id)
+            console.log(`Rows at ${index}`)
+            console.log(prev)
+            if ((prev[index]?.length || 0) > 0) {
+                let array = prev[index]
+                console.log("Array is now ", array)
+                let lastRow = array[array.length - 1];
+                id = lastRow.id + 1
+            }
+            console.log(`Now Assigned Row Id `, id)
+
             return {
-            ...prev,
-            [index]: [
-                ...(prev[index] || []),
-                { id: id, waitTimeDays: 0, waitTimeHours: 0, waitTimeMinutes: 0 },
-            ],
-        }});
+                ...prev,
+                [index]: [
+                    ...(prev[index] || []),
+                    { id: id, waitTimeDays: 0, waitTimeHours: 0, waitTimeMinutes: 0 },
+                ],
+            }
+        });
     };
 
     const removeRow = (leadIndex, rowId) => {
@@ -458,7 +460,7 @@ const Pipeline1 = ({ handleContinue }) => {
         }
     }
 
-    
+
 
 
 

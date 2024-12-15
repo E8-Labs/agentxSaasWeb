@@ -9,6 +9,7 @@ import "react-phone-input-2/lib/style.css";
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { useRouter } from 'next/navigation';
 import { ArrowRight } from '@phosphor-icons/react/dist/ssr';
+import LoaderAnimation from '@/components/animations/LoaderAnimation';
 
 const Page = ({ length = 6, onComplete }) => {
 
@@ -80,6 +81,7 @@ const Page = ({ length = 6, onComplete }) => {
           const { latitude, longitude } = position.coords;
 
           try {
+            setLoading();
             // Fetch country code based on latitude and longitude
             const response = await fetch(
               `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
@@ -95,6 +97,7 @@ const Page = ({ length = 6, onComplete }) => {
           } catch (error) {
             console.error("Error fetching geolocation data:", error);
           } finally {
+            setLoading(false);
             setLocationLoader(false);
           }
         },
@@ -330,6 +333,11 @@ const Page = ({ length = 6, onComplete }) => {
                     onFocus={getLocation}
                     placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
                     disabled={loading} // Disable input if still loading
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && userPhoneNumber && !errorMessage) {
+                        setShowVerifyPopup(true)
+                      }
+                    }}
                     style={{
                       borderRadius: "7px",
                       outline: "none", // Ensure no outline on wrapper
@@ -502,6 +510,12 @@ const Page = ({ length = 6, onComplete }) => {
                     value={VerifyCode[index]}
                     onChange={(e) => handleVerifyInputChange(e, index)}
                     onKeyDown={(e) => handleBackspace(e, index)}
+                    onKeyUp={(e) => {
+                      // Check if the Enter key is pressed and all inputs are filled
+                      if (e.key === 'Enter' && VerifyCode.every((value) => value.trim() !== '')) {
+                        handleVerifyCode();
+                      }
+                    }}
                     onPaste={handlePaste}
                     placeholder='-'
                     style={{
@@ -521,7 +535,7 @@ const Page = ({ length = 6, onComplete }) => {
               {
                 loginLoader ?
                   <div className='flex fex-row items-center justify-center mt-8'>
-                    <CircularProgress size={35} />
+                    <LoaderAnimation loaderModal={loginLoader} />
                   </div>
                   :
                   <button

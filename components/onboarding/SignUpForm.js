@@ -637,6 +637,12 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                             value={VerifyCode[index]}
                             onChange={(e) => handleVerifyInputChange(e, index)}
                             onKeyDown={(e) => handleBackspace(e, index)}
+                            onKeyUp={(e) => {
+                              // Check if the Enter key is pressed and all inputs are filled
+                              if (e.key === 'Enter' && VerifyCode.every((value) => value.trim() !== '')) {
+                                handleVerifyCode();
+                              }
+                            }}
                             onPaste={handlePaste}
                             placeholder='-'
                             style={{

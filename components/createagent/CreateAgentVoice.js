@@ -35,10 +35,10 @@ const CreateAgentVoice = ({ handleBack }) => {
     }, []);
 
     useEffect(() => {
-        if (toggleClick) {
+        if (selectedVoiceId) {
             setShouldContinue(false);
         }
-    }, [toggleClick]);
+    }, [selectedVoiceId]);
 
     useEffect(() => {
         console.log("I m wrodf")
@@ -171,7 +171,10 @@ const CreateAgentVoice = ({ handleBack }) => {
                                     voices.map((item, index) => (
                                         <button
                                             key={index}
-                                            style={{ border: index === toggleClick ? "2px solid #7902DF" : "" }}
+                                            style={{
+                                                border: item.voice_id === (selectedVoiceId) ? "2px solid #7902DF" : "",
+                                                backgroundColor: item.voice_id === (selectedVoiceId) ? "#402FFF10" : ""
+                                            }}
                                             className='flex flex-row items-center border mt-4 p-2 justify-between h-[100px] px-8 rounded-xl outline-none'
                                             onClick={(e) => {
                                                 handleToggleClick(index, item);
@@ -179,7 +182,7 @@ const CreateAgentVoice = ({ handleBack }) => {
                                             }}
                                         >
                                             <div className='flex flex-row items-center gap-4'>
-                                                <div className='flex flex-row items-center justify-center' style={{ height: "62px", width: "62px", borderRadius: "50%", backgroundColor: index === toggleClick ? "white" : "#d3d3d380" }}>
+                                                <div className='flex flex-row items-center justify-center' style={{ height: "62px", width: "62px", borderRadius: "50%", backgroundColor: item.voice_id === (selectedVoiceId) ? "white" : "#d3d3d380" }}>
                                                     {/* <Image src={"/assets/warning.png"} height={40} width={35} alt='*' /> */}
                                                     <Image
                                                         src={avatarImages[index % avatarImages.length]} // Deterministic selection

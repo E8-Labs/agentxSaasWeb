@@ -686,12 +686,12 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                         </div>
                     </div>
                 );
-            // case "Date":
-            //     return item.createdAt ? moment(item.createdAt).format('MMM DD, YYYY') : "-";
             case "Phone":
                 return item.phone ? item.phone : "-";
             case "Stage":
                 return item.stage ? item.stage.stageTitle : "No Stage";
+            case "Date":
+                return item.createdAt ? moment(item.createdAt).format('MMM DD, YYYY') : "-";
             case "More":
                 return (
                     <button
@@ -1201,7 +1201,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                     <table className="table-auto w-full border-collapse border border-none">
                                                         <thead>
                                                             <tr style={{ fontWeight: "500" }}>
-                                                                {leadColumns.map((column, index) => (
+                                                                {/* {leadColumns.map((column, index) => (
                                                                     // <th key={index} className="border-none px-4 py-2 text-left text-[#00000060]">
                                                                     <th
                                                                         key={index}
@@ -1211,7 +1211,23 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                                     >
                                                                         {column.title.slice(0, 1).toUpperCase()}{column.title.slice(1)}
                                                                     </th>
-                                                                ))}
+                                                                ))} */}
+                                                                {leadColumns.map((column, index) => {
+                                                                    const isMoreColumn = column.title === "More";
+                                                                    const isDateColumn = column.title === "Date";
+
+                                                                    return (
+                                                                        <th
+                                                                            key={index}
+                                                                            className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn ? "sticky right-0 bg-white" : ""
+                                                                                }`}
+                                                                            style={isMoreColumn ? { zIndex: 1 } : {}}
+                                                                        >
+                                                                            {column.title.slice(0, 1).toUpperCase()}{column.title.slice(1)}
+                                                                        </th>
+                                                                    );
+                                                                })}
+
                                                             </tr>
                                                         </thead>
                                                         <tbody>

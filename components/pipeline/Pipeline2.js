@@ -236,11 +236,20 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             const localAgentData = JSON.parse(agentDetailsLocal);
             console.log("Locla agent details are :-", localAgentData);
             setAgentDetails(localAgentData);
-            setGreetingTagInput(localAgentData.greeting);
-            setScriptTagInput(localAgentData.callScript);
+            if (localAgentData.agents.length === 2 || localAgentData.agents[0].agentType === "outbound") {
+                setGreetingTagInput(localAgentData.greeting);
+                setScriptTagInput(localAgentData.callScript);
+            } else if (localAgentData.agents[0].agentType === "inbound") {
+                setGreetingTagInput(localAgentData.inboundGreeting);
+                setScriptTagInput(localAgentData.inboundScript);
+            }
         }
         getUniquesColumn();
     }, []);
+
+    useEffect(() => {
+        console.log("Value of script tag is:", scriptTagInput);
+    }, [scriptTagInput]);
 
 
     //code for getting uniqueCcolumns
@@ -352,11 +361,12 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             let AgentRole = null;
             let Stat = null;
             let Address = null;
+            let isInbound = null;
             // let VoiceId = "Mtewh2emAIf6sPTaximW";
             const mainAgentData = localStorage.getItem("agentDetails");
             if (mainAgentData) {
                 const Data = JSON.parse(mainAgentData);
-                ////console.log("Local agent dat recieved is :--", Data);
+                console.log("Local agent dat recieved is :--", Data);
                 mainAgentId = Data.id;
                 AgentName = Data.name;
                 AgentObjective = Data.agents[0].agentObjective;
@@ -364,6 +374,14 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 AgentType = Data.agents[0].agentType;
                 Address = Data.agents[0].address;
                 AgentRole = Data.agents[0].agentRole;
+                if (Data.agents.length === 2 || Data.agents[0].agentType === "outbound") {
+                    // setGreetingTagInput(localAgentData.greeting);
+                    // setScriptTagInput(localAgentData.callScript);
+                } else if (Data.agents[0].agentType === "inbound") {
+                    isInbound = true
+                    // setGreetingTagInput(localAgentData.inboundGreeting);
+                    // setScriptTagInput(localAgentData.inboundPrompt);
+                }
             }
 
             ////console.log("Auth token is :--", AuthToken);
@@ -383,8 +401,13 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             formData.append("address", Address);
             formData.append("mainAgentId", mainAgentId);
             // formData.append("voiceId", VoiceId);
-            formData.append("prompt", greetingTagInput);
-            formData.append("greeting", scriptTagInput);
+            if (isInbound) {
+                formData.append("inboundGreeting", greetingTagInput);
+                formData.append("inboundPrompt", scriptTagInput);
+            } else {
+                formData.append("prompt", greetingTagInput);
+                formData.append("greeting", scriptTagInput);
+            }
 
             ////console.log("Update agent details are is :-----");
             for (let [key, value] of formData.entries()) {

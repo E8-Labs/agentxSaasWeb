@@ -4,7 +4,7 @@ import axios from 'axios';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
 
-const Objection = ({ showTitle }) => {
+const Objection = ({ showTitle, selectedAgentId }) => {
 
   const [ObjectionsList, setObjectionsList] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
@@ -15,6 +15,7 @@ const Objection = ({ showTitle }) => {
   const [addObjectionLoader, setAddObjectionLoader] = useState(false);
 
   useEffect(() => {
+    console.log("Check 1 clear")
     const objectionsList = localStorage.getItem("ObjectionsList");
     if (objectionsList) {
       console.log("Should not call api");
@@ -38,17 +39,25 @@ const Objection = ({ showTitle }) => {
         AuthToken = UserDetails.token;
       }
 
-      let mainAgent = null;
-      const localAgent = localStorage.getItem("agentDetails");
-      if (localAgent) {
-        const agentDetails = JSON.parse(localAgent);
-        console.log("Agent details are:", agentDetails);
-        mainAgent = agentDetails
+      let mainAgentId = null;
+
+      if (selectedAgentId) {
+        mainAgentId = selectedAgentId.id
+      } else {
+        const localAgent = localStorage.getItem("agentDetails");
+        if (localAgent) {
+          const agentDetails = JSON.parse(localAgent);
+          console.log("Agent details are:", agentDetails);
+          mainAgentId = agentDetails
+        }
       }
+
+      console.log("Main agent id is:", mainAgentId)
+
 
       console.log("Auth token is:", AuthToken);
 
-      const ApiPath = `${Apis.getObjectionGuardrial}?mainAgentId=${mainAgent.id}`;
+      const ApiPath = `${Apis.getObjectionGuardrial}?mainAgentId=${mainAgentId}`;
       console.log("Apipath is:", ApiPath);
       // return
       const response = await axios.get(ApiPath, {
@@ -60,8 +69,8 @@ const Objection = ({ showTitle }) => {
 
       if (response) {
         console.log("Response is:", response);
-        setObjectionsList(response.data.data.objections);
         localStorage.setItem("ObjectionsList", JSON.stringify(response.data.data.objections));
+        setObjectionsList(response.data.data.objections);
       }
 
     } catch (error) {
@@ -76,12 +85,25 @@ const Objection = ({ showTitle }) => {
     try {
       setAddObjectionLoader(true);
 
-      let mainAgent = null
-      const agentDetailsLocal = localStorage.getItem("agentDetails");
-      if (agentDetailsLocal) {
-        const localAgentData = JSON.parse(agentDetailsLocal);
-        console.log("Locla agent details are :-", localAgentData);
-        mainAgent = localAgentData;
+      // let mainAgent = null
+      // const agentDetailsLocal = localStorage.getItem("agentDetails");
+      // if (agentDetailsLocal) {
+      //   const localAgentData = JSON.parse(agentDetailsLocal);
+      //   console.log("Locla agent details are :-", localAgentData);
+      //   mainAgent = localAgentData;
+      // }
+
+      let mainAgentId = null;
+
+      if (selectedAgentId) {
+        mainAgentId = selectedAgentId.id
+      } else {
+        const localAgent = localStorage.getItem("agentDetails");
+        if (localAgent) {
+          const agentDetails = JSON.parse(localAgent);
+          console.log("Agent details are:", agentDetails);
+          mainAgentId = agentDetails
+        }
       }
 
       const localData = localStorage.getItem("User");
@@ -97,7 +119,7 @@ const Objection = ({ showTitle }) => {
         title: addObjTitle,
         description: addObjDescription,
         type: "objection",
-        mainAgentId: mainAgent.id
+        mainAgentId: mainAgentId
       }
 
       console.log("Api data is :", ApiData);

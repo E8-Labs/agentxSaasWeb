@@ -19,6 +19,7 @@ import PiepelineAdnStage from '@/components/dashboard/myagentX/PiepelineAdnStage
 
 function Page() {
 
+  let isInbound = null
   const timerRef = useRef();
   const fileInputRef = useRef([]);
   // const fileInputRef = useRef(null);
@@ -88,6 +89,7 @@ function Page() {
   const [uniqueColumns, setUniqueColumns] = useState([]);
   const [showMoreUniqueColumns, setShowMoreUniqueColumns] = useState(false);
   const [showSaveChangesBtn, setShowSaveChangesBtn] = useState(false);
+  const [UpdateAgentLoader, setUpdateAgentLoader] = useState(false);
 
   //agent KYC's
   const [kYCList, setKYCList] = useState([]);
@@ -162,6 +164,32 @@ function Page() {
       setShowReassignBtn(true);
       setShowGlobalBtn(false);
     }
+  }
+
+  //function to format the name of agent
+  const formatName = (item) => {
+
+    let agentName = null;
+
+    if (item?.name.length > 15) {
+      agentName = item.name.slice(0, 15) + "..."
+    } else {
+      agentName = item.name
+    }
+    return (
+      <div>
+        {agentName?.slice(0, 1).toUpperCase(0)}{agentName?.slice(1)}
+      </div>
+    )
+  }
+
+  //function to close script modal
+  const handleCloseScriptModal = () => {
+    setShowScriptModal(null);
+    setSeledtedScriptKYC(false)
+    setSeledtedScriptAdvanceSetting(false);
+    localStorage.removeItem("ObjectionsList");
+    localStorage.removeItem("GuadrailsList");
   }
 
   //function to select the number to assign to the user
@@ -404,6 +432,57 @@ function Page() {
     }
   }
 
+
+  //code for update agent api
+  const updateAgent = async () => {
+    try {
+      setUpdateAgentLoader(true);
+
+      let AuthToken = null;
+      const localData = localStorage.getItem("User");
+      if (localData) {
+        const Data = JSON.parse(localData);
+        ////console.log("Localdat recieved is :--", Data);
+        AuthToken = Data.token;
+      }
+
+      const ApiPath = Apis.updateAgent;
+
+      const formData = new FormData();
+
+      if (isInbound) {
+        formData.append("inboundGreeting", greetingTagInput);
+        formData.append("inboundPrompt", scriptTagInput);
+      } else {
+        formData.append("prompt", greetingTagInput);
+        formData.append("greeting", scriptTagInput);
+      }
+
+      for (let [key, value] of formData.entries()) {
+        ////console.log(`${key}: ${value}`);
+      }
+
+      const response = await axios.post(ApiPath, formData, {
+        headers: {
+          "Authorization": "Bearer " + AuthToken
+        }
+      });
+
+      if (response) {
+        ////console.log("Response of update api is :--", response);
+        if (response.data.status === true) {
+          setShowSuccessSnack(response.data.message);
+        }
+      }
+
+    } catch (error) {
+      console.error("Error occured in api is", error);
+    } finally {
+      console.log("Api call completed");
+      setUpdateAgentLoader(false);
+    }
+  }
+
   //function for scripts modal screen change
   const handleShowScript = () => {
     setShowScript(true);
@@ -500,9 +579,19 @@ function Page() {
     const agentData = userDetails.filter((prevAgent) => prevAgent.name === agent.name);
     console.log("Agent matcing grretings are:", agentData);
     setKYCList(agentData[0].kyc);
-    setGreetingTagInput(agentData[0].greeting);
-    setOldGreetingTagInput(agentData[0].greeting);
-    setScriptTagInput(agentData[0].callScript);
+
+    if (agentData[0].agents.length === 2 || agentData[0].agents[0].agentType === "outbound") {
+      setGreetingTagInput(agentData[0].greeting);
+      setScriptTagInput(agentData[0].callScript);
+    } else if (agentData[0].agents[0].agentType === "inbound") {
+      isInbound = "inbound"
+      setGreetingTagInput(agentData[0].inboundGreeting);
+      setScriptTagInput(agentData[0].inboundScript);
+    }
+
+    // setGreetingTagInput(agentData[0].greeting);
+    // // setOldGreetingTagInput(agentData[0].greeting);
+    // setScriptTagInput(agentData[0].callScript);
   }
 
 
@@ -994,7 +1083,8 @@ function Page() {
                             }}>
 
                               <div style={{ fontSize: 24, fontWeight: '600', color: '#000' }}>
-                                {item.name?.slice(0, 1).toUpperCase(0)}{item.name?.slice(1)}
+                                {/* {item.name?.slice(0, 1).toUpperCase(0)}{item.name?.slice(1)} */}
+                                {formatName(item)}
                               </div>
                             </button>
                             <div style={{ fontSize: 12, fontWeight: '600', color: '#00000080' }} className='flex flex-row items-center gap-1'>
@@ -1382,7 +1472,7 @@ function Page() {
                 }
               </div>
 
-              <div className='w-11/12' style={{}}>
+              <div className='w-full' style={{}}>
                 {
                   testAIloader ?
                     <div className="flex flex-row items-center justify-center w-full p-3 mt-2">
@@ -2003,9 +2093,7 @@ function Page() {
       <Modal
         open={showScriptModal}
         onClose={() => {
-          setShowScriptModal(null);
-          setSeledtedScriptKYC(false)
-          setSeledtedScriptAdvanceSetting(false);
+          handleCloseScriptModal()
         }}
       >
         <Box className="w-10/12 sm:w-10/12 md:w-8/12 lg:w-6/12 p-8 rounded-[15px]" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
@@ -2019,9 +2107,7 @@ function Page() {
                 </div>
                 <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
                   <button onClick={() => {
-                    setShowScriptModal(null);
-                    setSeledtedScriptKYC(false)
-                    setSeledtedScriptAdvanceSetting(false);
+                    handleCloseScriptModal();
                   }} className='outline-none'>
                     <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
                   </button>
@@ -2133,24 +2219,28 @@ function Page() {
                       </div>
                       <div>
                         {
-                          showSaveChangesBtn && (
-                            <button className='underline text-purple' style={{ fontWeight: "600", fontSize: 15 }}>
+                          UpdateAgentLoader ?
+                            <CircularProgress size={15} /> :
+                            <button
+                              className='underline text-purple'
+                              style={{ fontWeight: "600", fontSize: 15 }}
+                              onClick={() => { updateAgent() }}
+                            >
                               Save Changes
                             </button>
-                          )
                         }
                       </div>
                     </div>
 
                     <div className='mt-2'>
-                      <GreetingTagInput greetTag={scriptTagInput} kycsList={kycsData} uniqueColumns={uniqueColumns} tagValue={setGreetingTagInput} scrollOffset={scrollOffset} />
+                      <GreetingTagInput greetTag={greetingTagInput} kycsList={kycsData} uniqueColumns={uniqueColumns} tagValue={setGreetingTagInput} scrollOffset={scrollOffset} />
                     </div>
                     <div className='mt-4' style={{ fontSize: 24, fontWeight: "700" }}>
                       Script
                     </div>
                     <div className='mt-2 w-full'>
 
-                      <PromptTagInput promptTag={greetingTagInput} kycsList={kycsData} tagValue={setScriptTagInput} scrollOffset={scrollOffset} />
+                      <PromptTagInput promptTag={scriptTagInput} kycsList={kycsData} tagValue={setScriptTagInput} scrollOffset={scrollOffset} />
 
                       {/* <DynamicDropdown /> */}
 
@@ -2180,7 +2270,7 @@ function Page() {
                       showObjection && (
                         <div style={{ height: "80%" }}>
                           <div style={{ overflow: "auto", scrollbarWidth: "none", marginTop: "40px", height: "80%" }}>
-                            <Objection showTitle={true} />
+                            <Objection showTitle={true} selectedAgentId={showScriptModal} />
                           </div>
                         </div>
                       )
@@ -2190,7 +2280,7 @@ function Page() {
                       showGuardrails && (
                         <div style={{ height: "80%" }}>
                           <div style={{ overflow: "auto", scrollbarWidth: "none", marginTop: "40px", height: "80%" }}>
-                            <GuarduanSetting showTitle={true} />
+                            <GuarduanSetting showTitle={true} selectedAgentId={showScriptModal} />
                           </div>
                         </div>
                       )

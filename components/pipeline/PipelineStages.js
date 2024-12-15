@@ -392,7 +392,7 @@ const PipelineStages = ({
                                         </div>
                                         <div className="border w-[95%] rounded-xl p-3 px-4">
                                             <div className="flex flex-row items-center justify-between">
-                                                <div className="flex flex-row items-start gap-2">
+                                                <div className="flex flex-row items-center gap-2">
                                                     <div style={styles.inputStyle}>{item.stageTitle}</div>
                                                     {
                                                         index > 0 && (
@@ -401,7 +401,7 @@ const PipelineStages = ({
                                                                 setRenameStage(item.stageTitle);
                                                                 setSelectedStage(item);
                                                             }}>
-                                                                <PencilSimple size={18} weight="bold" />
+                                                                <PencilSimple size={16} weight="regular" />
                                                             </button>
                                                         )
                                                     }

@@ -248,6 +248,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
 
     const handleChange = (e) => {
         setText(e.target.value);
+        tagValue(e.target.value);
     };
 
 

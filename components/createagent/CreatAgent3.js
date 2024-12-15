@@ -305,7 +305,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                     <div className='w-full flex-col items-center flex gap-4 h-[10%]' >
 
                         {
-                            selectedPlan && (
+                            selectedPlan && agreeTerms && (
                                 <div className='w-full flex-col items-center flex'>
                                     {
                                         selectedPlan?.id > 1 ? (

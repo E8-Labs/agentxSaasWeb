@@ -28,7 +28,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     const [toggleClick, setToggleClick] = useState(false);
     const [selectNumber, setSelectNumber] = useState('');
     const [openCalimNumDropDown, setOpenCalimNumDropDown] = useState(false);
-    const [reassignLoader, setReassignLoader] = useState(false);
+    const [reassignLoader, setReassignLoader] = useState(null);
     const [useOfficeNumber, setUseOfficeNumber] = useState(false);
     const [userSelectedNumber, setUserSelectedNumber] = useState("");
     const [showOfficeNumberInput, setShowOfficeNumberInput] = useState(false);
@@ -96,17 +96,18 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         console.log("User selected number is :", userSelectedNumber);
         console.log("User callback number is :", callBackNumber);
         console.log("do not staus is :", toggleClick);
+        console.log("User office number value is:", officeNumber);
         if (
             selectNumber &&
             // callBackNumber ||
             // !toggleClick &&
-            userSelectedNumber || useOfficeNumber
+            userSelectedNumber || officeNumber
         ) {
             setShouldContinue(false);
         } else {
             setShouldContinue(true);
         }
-    }, [selectNumber, userSelectedNumber, callBackNumber, toggleClick]);
+    }, [selectNumber, userSelectedNumber, callBackNumber, toggleClick, useOfficeNumber, officeNumber]);
 
     //code to format the number
     const formatPhoneNumber = (rawNumber) => {
@@ -157,11 +158,11 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     };
 
     //code for reassigning the number api
-    const handleReassignNumber = async (phoneNumber) => {
+    const handleReassignNumber = async (item) => {
         try {
-            console.log("Phonenumber is:", phoneNumber.slice(1));
-            // return
-            setReassignLoader(true);
+            console.log("item is:", item);
+
+            setReassignLoader(item);
             let AuthToken = null;
             const LocalData = localStorage.getItem("User");
             const agentDetails = localStorage.getItem("agentDetails");
@@ -182,8 +183,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             const ApiPath = Apis.reassignNumber;
 
             const ApiData = {
-                agentId: MyAgentData.userId,
-                phoneNumber: phoneNumber
+                agentId: item.claimedBy.id, //MyAgentData.agents[0].id,
+                phoneNumber: item.phoneNumber
             }
             console.log("I a just trigered")
 
@@ -201,7 +202,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
             if (response) {
                 console.log("Respose of reassign api is:", response);
-                setSelectNumber(phoneNumber.slice(1));
+                setSelectNumber(item.phoneNumber.slice(1));
                 setOpenCalimNumDropDown(false);
                 //code to close the dropdown
                 if (selectRef.current) {
@@ -219,7 +220,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         } catch (error) {
             console.error("Error occured in reassign the number api:", error);
         } finally {
-            setReassignLoader(false);
+            setReassignLoader(null);
             console.log("reassign api completed")
         }
     }
@@ -615,11 +616,11 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                                             <div className='flex flex-row items-center gap-2'>
                                                                                 {`(Claimed by {${item.claimedBy.name}})`}
                                                                                 {
-                                                                                    reassignLoader ?
+                                                                                    reassignLoader?.claimedBy?.id === item.claimedBy.id ?
                                                                                         <CircularProgress size={15} /> :
                                                                                         <button className="text-purple underline" onClick={(e) => {
                                                                                             e.stopPropagation();
-                                                                                            handleReassignNumber(item.phoneNumber)
+                                                                                            handleReassignNumber(item)
                                                                                             // handleReassignNumber(e.target.value)
                                                                                         }} >
                                                                                             Reassign

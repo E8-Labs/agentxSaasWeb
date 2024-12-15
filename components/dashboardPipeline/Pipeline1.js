@@ -1,5 +1,5 @@
 import { Alert, Box, CircularProgress, Fade, FormControl, InputLabel, MenuItem, Modal, Popover, Select, Snackbar, Typography } from '@mui/material';
-import { CaretDown, CaretUp, DotsThree, Plus } from '@phosphor-icons/react'
+import { CaretDown, CaretUp, DotsThree, Plus, X } from '@phosphor-icons/react'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
 import Apis from '../apis/Apis';
@@ -62,6 +62,11 @@ const Pipeline1 = () => {
     const [newPipelineStage, setNewPipelineStage] = useState(null);
     const [addPipelineLoader, setAddPipelineLoader] = useState(false);
 
+
+    //code for filter modal popup
+    const [showFilterModal, setShowFilterModal] = useState(false);
+
+
     const handlePopoverOpen = (event) => {
         setActionInfoEl(event.currentTarget);
     };
@@ -116,6 +121,10 @@ const Pipeline1 = () => {
 
     //reorder stages loader
     const [reorderStageLoader, setReorderStageLoader] = useState(false);
+
+    //variabl for deltag
+    const [DelTagLoader, setDelTagLoader] = useState(null);
+
 
     useEffect(() => {
         getPipelines()
@@ -218,7 +227,6 @@ const Pipeline1 = () => {
     }
 
     //code for get pipeline
-
     const getPipelines = async () => {
         try {
             const localData = localStorage.getItem("User");
@@ -255,6 +263,59 @@ const Pipeline1 = () => {
             console.error("Error occured in api is:", error);
         } finally {
             console.log("Api call completed")
+        }
+    }
+
+    //code to delete the tag value
+    //code for del tag api
+    const handleDelTag = async (tag) => {
+        try {
+            setDelTagLoader(tag);
+
+            let AuthToken = null
+
+            const userData = localStorage.getItem("User");
+            if (userData) {
+                const localData = JSON.parse(userData);
+                AuthToken = localData.token
+            }
+
+            console.log("Auth token is:", AuthToken);
+
+            const ApiData = {
+                tag: tag
+            }
+
+            const ApiPath = Apis.delLeadTag;
+            console.log("Data sending in api is:", ApiData);
+            console.log("Api path is:", ApiPath);
+
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of del tag api is:", response.data);
+                if (response.data.status === true) {
+                    console.log("Staus is true");
+
+                    const updatedTags = LeadsList.lead.tags.filter((item) => item !== tag);
+                    setLeadsList((prevDetails) => ({
+                        ...prevDetails,
+                        tags: updatedTags,
+                    }));
+
+                }
+            }
+
+
+        } catch (error) {
+            console.error("Error occured in api is:", error);
+        } finally {
+            setDelTagLoader(null);
         }
     }
 
@@ -979,7 +1040,7 @@ const Pipeline1 = () => {
 
 
             <div className='flex flex-col items-center w-full'>
-                <div className="w-[95%] flex flex-col items-start overflow-x-auto mt-8" style={{ scrollbarWidth: "none" }}>
+                <div className="w-[95%] flex flex-col items-start overflow-x-auto h-screen mt-8" style={{ scrollbarWidth: "none" }}>
                     <div className="flex flex-row items-center gap-4">
 
 
@@ -992,8 +1053,12 @@ const Pipeline1 = () => {
                                     {/* Display the stage */}
                                     <div className='flex flex-row items-center w-full justify-between'>
                                         <div
-                                            className="h-[36px] flex flex-row items-center justify-center gap-8 rounded-xl px-4 text-white"
-                                            style={{ ...styles.heading, backgroundColor: stage.defaultColor }}
+                                            className="h-[36px] flex flex-row items-center justify-center gap-8 rounded-xl px-4"
+                                            style={{
+                                                ...styles.heading, backgroundColor: stage.defaultColor,
+                                                color: 'white',
+                                                // textShadow: '1px 1px 2px rgba(0, 0, 0, 0.6)',
+                                            }}
                                         >
                                             <span>{stage.stageTitle}</span>
                                             <div
@@ -1165,24 +1230,47 @@ const Pipeline1 = () => {
                                                                     </div>
                                                                 </div> */}
 
-                                                                <div className='flex flex-row items-center gap-1'>
-                                                                    {
-                                                                        lead.lead.tags.slice(0, 2).map((tagVal, index) => {
-                                                                            return (
-                                                                                <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
-                                                                                    {tagVal}
-                                                                                </div>
-                                                                            )
-                                                                        })
-                                                                    }
-                                                                    {
-                                                                        lead.lead.tags.length > 2 && (
-                                                                            <div>
-                                                                                +{lead.lead.tags.length - 2}
-                                                                            </div>
-                                                                        )
-                                                                    }
-                                                                </div>
+                                                                {
+                                                                    lead.lead.tags.length > 0 ? (
+                                                                        <div className='flex flex-row items-center gap-1'>
+                                                                            {
+                                                                                lead.lead.tags.slice(0, 2).map((tagVal, index) => {
+                                                                                    return (
+                                                                                        // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
+                                                                                        //     {tagVal}
+                                                                                        // </div>
+                                                                                        <div
+                                                                                            className='flex flex-row items-center gap-2 bg-[#402FFF30] px-2 py-1 rounded-lg'
+                                                                                        >
+                                                                                            <div
+                                                                                                className="text-[#402FFF]" //1C55FF10
+                                                                                            >
+                                                                                                {tagVal}
+                                                                                            </div>
+                                                                                            {
+                                                                                                DelTagLoader && tagVal.includes(DelTagLoader) ?
+                                                                                                    <div>
+                                                                                                        <CircularProgress size={15} />
+                                                                                                    </div> :
+                                                                                                    <button onClick={() => { handleDelTag(tagVal) }}>
+                                                                                                        <X size={15} weight='bold' color='#402fff' />
+                                                                                                    </button>
+                                                                                            }
+
+                                                                                        </div>
+                                                                                    )
+                                                                                })
+                                                                            }
+                                                                            {
+                                                                                lead.lead.tags.length > 2 && (
+                                                                                    <div>
+                                                                                        +{lead.lead.tags.length - 2}
+                                                                                    </div>
+                                                                                )
+                                                                            }
+                                                                        </div>
+                                                                    ) : "-"
+                                                                }
 
                                                             </div>
                                                         </div>

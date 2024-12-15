@@ -3,8 +3,10 @@ import Image from 'next/image';
 import moment from 'moment';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
-import { CircularProgress, duration } from '@mui/material';
-
+import { Box, CircularProgress, duration, FormControl, InputLabel, MenuItem, Modal, Select } from '@mui/material';
+import { CalendarDots } from '@phosphor-icons/react';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 
 function AllCalls() {
 
@@ -37,7 +39,55 @@ function AllCalls() {
     const [filteredCallDetails, setFilteredCallDetails] = useState([]);
     const [initialLoader, setInitialLoader] = useState(false);
 
+    //code for filter call log details
+    //variabl for deltag
+    const [DelTagLoader, setDelTagLoader] = useState(null);
+
+    const [AssignLeadModal, setAssignLeadModal] = useState(false);
+    const [showFilterModal, setShowFilterModal] = useState(false);
+
+    const [selectedFromDate, setSelectedFromDate] = useState(null);
+    const [showFromDatePicker, setShowFromDatePicker] = useState(false);
+    const [selectedToDate, setSelectedToDate] = useState(null);
+    const [showToDatePicker, setShowToDatePicker] = useState(false);
+
+    const [sheetsLoader, setSheetsLoader] = useState(false);
+
+
+    //code for pipelines
+    const [pipelinesList, setPipelinesList] = useState([]);
+    const [stagesList, setStagesList] = useState([]);
+
+    const [selectedPipelineItem, setSelectedPipelineItem] = useState(null);
+    const [selectedPipelineStages, setSelectedPipelineStages] = useState([]);
+
+
+    const [selectedPipeline, setSelectedPipeline] = useState('');
+    const [selectedStage, setSelectedStage] = useState([]);
+
+    //select pipeline
+    const handleChangePipeline = (event) => {
+        const selectedValue = event.target.value;
+        setSelectedPipeline(event.target.value);
+
+        const selectedItem = pipelinesList.find(item => item.title === selectedValue);
+        console.log('Selected Item:', selectedItem.stages);
+        // setSelectedPipelineItem(selectedItem);
+        setStagesList(selectedItem.stages);
+        // setSelectedPipelineStages(selectedItem.stages);
+    };
+
     useEffect(() => {
+
+        const localPipelines = localStorage.getItem("pipelinesData");
+        if (localPipelines) {
+            const PipelineDetails = JSON.parse(localPipelines);
+            console.log("Pipelines recieved from localstorage are:", PipelineDetails);
+            setPipelinesList(PipelineDetails);
+            setSelectedPipeline(PipelineDetails[0].title);
+            setStagesList(PipelineDetails[0].stages);
+        }
+
         getCallLogs();
     }, []);
 
@@ -45,19 +95,36 @@ function AllCalls() {
     //code for getting call log details
     const getCallLogs = async () => {
         try {
+            setShowFilterModal(false);
             setInitialLoader(true);
-            const ApiPath = Apis.getCallLogs;
 
             let AuthToken = null;
             const localData = localStorage.getItem("User");
             if (localData) {
                 const Data = JSON.parse(localData);
-                console.log("Localdata recieved is :--", Data);
+                console.log("Localdata recieved is :--", Data.token);
                 AuthToken = Data.token;
             }
 
-            console.log("Auth token is:", AuthToken);
+            const startDate = moment(selectedFromDate).format("MM-DD-YYYY");
+            const endDate = moment(selectedToDate).format("MM-DD-YYYY");
 
+            const stages = selectedStage.join(',');
+            console.log("Sages selected are ", stages);
+
+            let ApiPath = null;
+
+            if (selectedFromDate && selectedToDate && stages.length > 0) {
+                ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}&stageIds=${stages}`;
+            } else {
+                ApiPath = Apis.getCallLogs;
+            }
+
+
+            console.log("Api path is", ApiPath);
+
+            // console.log("Auth token is:", AuthToken);
+            // return
             const response = await axios.get(ApiPath, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken,
@@ -104,6 +171,32 @@ function AllCalls() {
 
     }
 
+
+    //function to select date
+    const handleFromDateChange = (date) => {
+        setSelectedFromDate(date); // Set the selected date
+        setShowFromDatePicker(false);
+    };
+
+    const handleToDateChange = (date) => {
+        setSelectedToDate(date); // Set the selected date
+        setShowToDatePicker(false);
+    };
+
+    //code to select stage
+    const handleSelectStage = (item) => {
+        // setSelectedStage(item);
+        setSelectedStage((prevIds) => {
+            if (prevIds.includes(item.id)) {
+                // Unselect the item if it's already selected
+                return prevIds.filter((prevId) => prevId !== item.id);
+            } else {
+                // Select the item if it's not already selected
+                return [...prevIds, item.id];
+            }
+        });
+    }
+
     return (
         <div className='w-full items-start'>
 
@@ -128,7 +221,7 @@ function AllCalls() {
                     />
                 </div>
 
-                <button>
+                <button onClick={() => { setShowFilterModal(true) }}>
                     <Image src={'/otherAssets/filterBtn.png'}
                         height={36}
                         width={36}
@@ -219,6 +312,208 @@ function AllCalls() {
                     </div>
             }
 
+            {/* Code for filter modal */}
+            <div>
+                <Modal
+                    open={showFilterModal}
+                    closeAfterTransition
+                    BackdropProps={{
+                        sx: {
+                            backgroundColor: "#00000020",
+                            backdropFilter: "blur(5px)",
+                        },
+                    }}
+                >
+                    <Box className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto" sx={{ ...styles.modalsStyle, scrollbarWidth: "none", backgroundColor: "white" }}>
+                        <div className="w-full flex flex-col items-center justify-between h-full">
+
+                            <div className='mt-2 w-full'>
+                                <div className='flex flex-row items-center justify-between w-full'>
+                                    <div>
+                                        Filter
+                                    </div>
+                                    <button onClick={() => { setShowFilterModal(false) }}>
+                                        <Image src={"/assets/cross.png"} height={17} width={17} alt='*' />
+                                    </button>
+                                </div>
+
+                                <div className='flex flex-row items-start gap-4'>
+                                    <div className='w-1/2 h-full'>
+                                        <div className='h-full' style={{ fontWeight: "500", fontSize: 12, color: "#00000060", marginTop: 10 }}>
+                                            From
+                                        </div>
+                                        <div>
+                                            <button
+                                                style={{ border: "1px solid #00000020" }}
+                                                className='flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between'
+                                                onClick={() => { setShowFromDatePicker(true) }}>
+                                                <p>{selectedFromDate ? selectedFromDate.toDateString() : "Select Date"}</p>
+                                                <CalendarDots weight='regular' size={25} />
+                                            </button>
+
+                                            <div>
+                                                {
+                                                    showFromDatePicker && (
+                                                        <div>
+                                                            {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
+                                                                    <button>
+                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
+                                                                    </button>
+                                                                </div> */}
+                                                            <Calendar
+                                                                onChange={handleFromDateChange}
+                                                                value={selectedFromDate}
+                                                                locale="en-US"
+                                                                onClose={() => { setShowFromDatePicker(false) }}
+                                                            />
+                                                        </div>
+                                                    )
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className='w-1/2 h-full'>
+                                        <div style={{ fontWeight: "500", fontSize: 12, color: "#00000060", marginTop: 10 }}>
+                                            To
+                                        </div>
+                                        <div>
+                                            <button
+                                                style={{ border: "1px solid #00000020" }}
+                                                className='flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between'
+                                                onClick={() => { setShowToDatePicker(true) }}>
+                                                <p>{selectedToDate ? selectedToDate.toDateString() : "Select Date"}</p>
+                                                <CalendarDots weight='regular' size={25} />
+                                            </button>
+                                            <div>
+                                                {
+                                                    showToDatePicker && (
+                                                        <div>
+                                                            {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
+                                                                    <button>
+                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
+                                                                    </button>
+                                                                </div> */}
+                                                            <Calendar
+                                                                onChange={handleToDateChange}
+                                                                value={selectedToDate}
+                                                                locale="en-US"
+                                                                onClose={() => { setShowToDatePicker(false) }}
+                                                            />
+                                                        </div>
+                                                    )
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className='mt-4 w-full'>
+                                    <FormControl fullWidth>
+                                        {/* <InputLabel id="demo-simple-select-label">Age</InputLabel> */}
+                                        <Select
+                                            value={selectedPipeline}
+                                            onChange={handleChangePipeline}
+                                            displayEmpty // Enables placeholder
+                                            renderValue={(selected) => {
+                                                if (!selected) {
+                                                    return <div style={{ color: "#aaa" }}>Select pipeline</div>; // Placeholder style
+                                                }
+                                                return selected;
+                                            }}
+                                            sx={{
+                                                border: "1px solid #00000020", // Default border
+                                                "&:hover": {
+                                                    border: "1px solid #00000020", // Same border on hover
+                                                },
+                                                "& .MuiOutlinedInput-notchedOutline": {
+                                                    border: "none", // Remove the default outline
+                                                },
+                                                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                                    border: "none", // Remove outline on focus
+                                                },
+                                                "&.MuiSelect-select": {
+                                                    py: 0, // Optional padding adjustments
+                                                },
+                                            }}
+                                            MenuProps={{
+                                                PaperProps: {
+                                                    style: {
+                                                        maxHeight: "30vh", // Limit dropdown height
+                                                        overflow: "auto", // Enable scrolling in dropdown
+                                                        scrollbarWidth: "none",
+                                                        // borderRadius: "10px"
+                                                    },
+                                                },
+                                            }}
+                                        >
+                                            {
+                                                pipelinesList.map((item, index) => (
+                                                    <MenuItem key={item.id} style={styles.dropdownMenu} value={item.title}>{item.title}</MenuItem>
+                                                ))
+                                            }
+                                        </Select>
+                                    </FormControl>
+                                </div>
+
+                                <div className='mt-6' style={{ fontWeight: "500", fontSize: 12, color: "#00000060", marginTop: 10 }}>
+                                    Stage
+                                </div>
+
+                                <div className='w-full flex flex-wrap gap-4'>
+                                    {
+                                        stagesList.map((item, index) => (
+                                            <div key={index} className='flex flex-row items-center mt-2 justify-start' style={{ fontSize: 15, fontWeight: "500" }}>
+                                                <button
+                                                    onClick={() => { handleSelectStage(item) }}
+                                                    className={`p-2 border border-[#00000020] ${selectedStage.includes(item.id) ? `bg-purple` : "bg-transparent"} px-6
+                                                                ${selectedStage.includes(item.id) ? `text-white` : "text-black"} rounded-2xl`}>
+                                                    {item.stageTitle}
+                                                </button>
+                                            </div>
+                                        ))
+                                    }
+                                </div>
+                            </div>
+
+                            <div className='flex flex-row items-center w-full justify-between mt-4 pb-8'>
+                                <button className='outline-none w-full' style={{ fontSize: 16.8, fontWeight: "600", }}
+                                    onClick={() => {
+                                        // setSelectedFromDate(null);
+                                        // setSelectedToDate(null);
+                                        // setSelectedStage(null);
+                                        // getLeads()
+                                        window.location.reload();
+                                    }}>
+                                    Reset
+                                </button>
+                                {
+                                    sheetsLoader ?
+                                        <CircularProgress size={25} /> :
+                                        <button
+                                            className='bg-purple h-[45px] w-full bg-purple text-white rounded-xl outline-none'
+                                            style={{
+                                                fontSize: 16.8, fontWeight: "600",
+                                                backgroundColor: selectedFromDate && selectedToDate && selectedStage.length > 0 ? "" : "#00000050"
+                                            }}
+                                            onClick={() => {
+                                                if (selectedFromDate && selectedToDate && selectedStage.length > 0) {
+                                                    getCallLogs();
+                                                } else {
+                                                    console.log("Cannot continue");
+                                                }
+                                            }}
+                                        >
+                                            Apply Filter
+                                        </button>
+                                }
+                            </div>
+
+                        </div>
+                    </Box>
+                </Modal>
+            </div>
+
         </div>
     )
 }
@@ -241,6 +536,17 @@ const styles = {
         whiteSpace: 'nowrap',  // Prevent text from wrapping
         overflow: 'hidden',    // Hide overflow text
         textOverflow: 'ellipsis'  // Add ellipsis for overflow text
-    }
+    },
+    modalsStyle: {
+        height: "auto",
+        bgcolor: "transparent",
+        p: 2,
+        mx: "auto",
+        my: "50vh",
+        transform: "translateY(-55%)",
+        borderRadius: 2,
+        border: "none",
+        outline: "none",
+    },
 }
 

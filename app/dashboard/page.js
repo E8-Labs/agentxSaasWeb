@@ -235,7 +235,10 @@ const Page = () => {
                                                         <div style={{ fontSize: 15, fontWeight: '400', color: '#fff' }}>
                                                             Mins Balance
                                                         </div>
-                                                        <div style={{ fontSize: 40, fontWeight: '400', color: '#fff' }}>
+                                                        <div
+                                                            // className='lg:text-3xl font-bold text-white'
+                                                            style={{ fontSize: 40, fontWeight: '400', color: '#fff' }}
+                                                        >
                                                             {statsDetails?.totalDuration}
                                                         </div>
 
@@ -317,7 +320,7 @@ const Page = () => {
                                             <Card
                                                 icon="/otherAssets/avgDurationIcon.png"
                                                 title="Avg Convo Duration"
-                                                value={statsDetails?.totalDuration}
+                                                value={statsDetails?.avDuration}
                                                 borderSide="border-l-2"
                                             />
                                         </div>
