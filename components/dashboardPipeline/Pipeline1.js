@@ -1239,7 +1239,7 @@ const Pipeline1 = () => {
                                                                                         // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
                                                                                         //     {tagVal}
                                                                                         // </div>
-                                                                                        <div
+                                                                                        <div key={index}
                                                                                             className='flex flex-row items-center gap-2 bg-[#402FFF30] px-2 py-1 rounded-lg'
                                                                                         >
                                                                                             <div
