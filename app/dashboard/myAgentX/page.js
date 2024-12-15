@@ -106,6 +106,9 @@ function Page() {
   const [scriptKeys, setScriptKeys] = useState([]);
   //variable for input field value
   const [inputValues, setInputValues] = useState({});
+  //code for storing the agents data
+  const [agentsContent, setAgentsContent] = useState([]);
+  const [actionInfoEl, setActionInfoEl] = React.useState(null);
 
   //code for scroll ofset
   useEffect(() => {
@@ -924,8 +927,6 @@ function Page() {
 
   //code for spiling the agnts
   // let agentsContent = [];
-  const [agentsContent, setAgentsContent] = useState([]);
-  const [actionInfoEl, setActionInfoEl] = React.useState(null);
   //code for popover
 
   const handlePopoverOpen = (event) => {

@@ -1560,8 +1560,8 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                     },
                 }}
             >
-                <Box className="sm:w-6/12 lg:w-5/12 xl:w-4/12 w-10/12 max-h-[80vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
-                    <div className="flex flex-row justify-center w-full h-[90vh] overflow-auto"
+                <Box className="sm:w-7/12 lg:w-6/12 xl:w-5/12 w-10/12 max-h-[80vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
+                    <div className="flex flex-row justify-center w-full h-[85vh] overflow-auto"
                         style={{
                             scrollbarWidth: "none", backgroundColor: "#ffffff",
                             borderRadius: "13px",
