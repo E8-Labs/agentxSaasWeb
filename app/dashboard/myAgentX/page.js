@@ -171,10 +171,10 @@ function Page() {
 
     let agentName = null;
 
-    if (item?.name.length > 15) {
-      agentName = item.name.slice(0, 15) + "..."
+    if (item?.name?.length > 15) {
+      agentName = item?.name?.slice(0, 15) + "..."
     } else {
-      agentName = item.name
+      agentName = item?.name
     }
     return (
       <div>
