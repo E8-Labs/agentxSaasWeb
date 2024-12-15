@@ -940,6 +940,7 @@ function Page() {
 
   useEffect(() => {
 
+    let agents = []
     userDetails.map((item, index) => {
       // Check if agents exist
       if (item.agents && item.agents.length > 0) {
@@ -948,13 +949,14 @@ function Page() {
           console.log("Agent spilting data is:", agent);
           // Add a condition here if needed  //.agentType === 'outbound'
           if (agent) {
-            setAgentsContent(prevState => [...prevState, agent]);
+            agents.push(agent)
           }
         }
       } else {
-        agentsContent.push(<div key="no-agent">No agents available</div>);
+        // agentsContent.push(<div key="no-agent">No agents available</div>);
       }
     });
+    setAgentsContent(agents);
 
     console.log("Agents data in updated array is", agentsContent);
 
