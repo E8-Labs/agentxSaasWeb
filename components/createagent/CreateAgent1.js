@@ -238,7 +238,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                 if (response.data.status === true) {
                     console.log("Status of build agent is :", response.data.status);
                     localStorage.setItem("agentDetails", JSON.stringify(response.data.data));
-                    // handleContinue();
+                    handleContinue();
                 }
             }
 
