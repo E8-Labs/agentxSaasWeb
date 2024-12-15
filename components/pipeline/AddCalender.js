@@ -24,6 +24,9 @@ const AddCalender = ({ handleContinue }) => {
 
   useEffect(() => {
     getCalenders();
+  }, [])
+
+  useEffect(() => {
     if (calenderTitle && calenderApiKey || eventId) {
       setshouldContinue(false);
     } else {

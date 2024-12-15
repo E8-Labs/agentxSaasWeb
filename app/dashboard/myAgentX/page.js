@@ -162,10 +162,10 @@ function Page() {
     setShowDrawer(item)
     console.log("Selected agent is:", item);
     if (item.agentType === "inbound") {
-      setShowReassignBtn(false);
-    } else if (item.agentType === "outbound") {
       setShowReassignBtn(true);
       setShowGlobalBtn(false);
+    } else if (item.agentType === "outbound") {
+      setShowReassignBtn(false);
     }
   }
 
@@ -252,9 +252,9 @@ function Page() {
   }
 
   //code for reassigning the number api
-  const handleReassignNumber = async (phoneNumber) => {
+  const handleReassignNumber = async (item) => {
     try {
-      console.log("Phonenumber is:", phoneNumber.slice(1));
+      console.log("Phonenumber is:", item.phoneNumber.slice(1));
       // return
       setReassignLoader(true);
       let AuthToken = null;
@@ -277,8 +277,8 @@ function Page() {
       const ApiPath = Apis.reassignNumber;
 
       const ApiData = {
-        agentId: MyAgentData.userId,
-        phoneNumber: phoneNumber
+        agentId: MyAgentData.claimedBy.id,
+        phoneNumber: item.phoneNumber
       }
       console.log("I a just trigered")
 
@@ -584,7 +584,7 @@ function Page() {
     setKYCList(agentData[0].kyc);
 
     if (agentData[0].agents.length === 2 || agentData[0].agents[0].agentType === "outbound") {
-      setGreetingTagInput(agentData[0].greeting);
+      setGreetingTagInput(agentData[0].greeting); //things here are conflicting
       setScriptTagInput(agentData[0].callScript);
     } else if (agentData[0].agents[0].agentType === "inbound") {
       isInbound = "inbound"
@@ -1838,7 +1838,7 @@ function Page() {
                                                   <CircularProgress size={15} /> :
                                                   <button className="text-purple underline" onClick={(e) => {
                                                     e.stopPropagation();
-                                                    handleReassignNumber(item.phoneNumber)
+                                                    handleReassignNumber(item)
                                                     // handleReassignNumber(e.target.value)
                                                   }} >
                                                     Reassign

@@ -51,12 +51,15 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
 
   // Function to get the user's location and set the country code
   useEffect(() => {
-    if (userName, userEmail, userPhoneNumber, userFarm, userBrokage, userTransaction) {
+    if (userName && userEmail && userPhoneNumber && userFarm && userBrokage &&
+      userTransaction && emailCheckResponse?.status === true && checkPhoneResponse?.status === true) {
       setShouldContinue(false);
-    } else if (!userName || !userEmail || !userPhoneNumber || !userFarm || !userBrokage || !userTransaction) {
+    } else if (!userName || !userEmail || !userPhoneNumber ||
+      !userFarm || !userBrokage || !userTransaction ||
+      userTransaction || checkPhoneResponse?.status === false || emailCheckResponse?.status === false) {
       setShouldContinue(true);
     }
-  }, [userName, userEmail, userPhoneNumber, userFarm, userBrokage, userTransaction]);
+  }, [userName, userEmail, userPhoneNumber, userFarm, userBrokage, userTransaction, checkPhoneResponse, emailCheckResponse]);
 
   //code to focus the verify code input field
   useEffect(() => {
