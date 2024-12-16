@@ -569,11 +569,35 @@ export const PromptTagInput = ({
               </div>
 
               <div style={{ position: "relative", height: "70%" }}>
+
                 <textarea
                   className="outline-none rounded-xl focus:ring-0"
                   ref={textFieldRef}
-                  // rows="20"
-                  // cols="50"
+                  value={text}
+                  onClick={() => {
+                    setShowScriptModal(true);
+                  }}
+                  onChange={handleChange}
+                  onKeyUp={handleKeyUp}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Type here..."
+                  style={{
+                    fontSize: "15px",
+                    padding: "15px",
+                    width: "100%",
+                    fontWeight: "500",
+                    height: "100%", // Initial height
+                    maxHeight: "100%", // Maximum height before scrolling
+                    overflowY: "auto", // Enable vertical scrolling when max-height is exceeded
+                    resize: "none", // Disable manual resizing
+                    border: "1px solid #00000020",
+                  }}
+                />
+
+
+                {/* <textarea
+                  className="outline-none rounded-xl focus:ring-0"
+                  ref={textFieldRef}
                   value={text}
                   onClick={() => {
                     setShowScriptModal(true);
@@ -592,7 +616,7 @@ export const PromptTagInput = ({
                     resize: "none",
                     border: "1px solid #00000020",
                   }}
-                />
+                /> */}
 
                 {popupVisible && filteredOptions.length > 0 && (
                   <div

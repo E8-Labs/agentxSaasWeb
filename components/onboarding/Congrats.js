@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Lottie from "lottie-react";
 
 const Congrats = () => {
 
+    const lottieRef = useRef();
     const router = useRouter();
 
     const handleNext = () => {
@@ -18,11 +20,26 @@ const Congrats = () => {
                 </div>
                 {/* Body */}
                 <div className='flex flex-col items-center px-4 w-full'>
+                    <Lottie
+                        animationData={require("/public/congratsanimation.json")}
+                        lottieRef={lottieRef}
+                        loop={true}
+                        style={{
+                            height: "550px", width: "550px",
+                            position: "absolute",
+                            top: "15%",
+                            bottom: ""
+                        }}
+                        onComplete={() => {
+                            lottieRef.current.goToAndStop(3, true);
+                        }}
+                    />
                     <div className='mt-6 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }}>
                         Congrats!
                     </div>
                     <div className='mt-8 gap-4 flex flex-col max-h-[50vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
-                        <Image src={"/assets/congrats.png"} style={{ height: "318px", width: "466px", resize: "contain" }} height={318} width={466} alt='*' />
+                        {/* <Image src={"/assets/congrats.png"} style={{ height: "318px", width: "466px", resize: "contain" }} height={318} width={466} alt='*' /> */}
+                        <Image src={"/agentXOrb.gif"} style={{ height: "280px", width: "300px", resize: "" }} height={280} width={300} alt='*' />
                     </div>
                     <div className='mt-8 text-[#15151580]' style={{ fontWeight: "600", fontSize: 15 }}>
                         Your account is created!
