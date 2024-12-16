@@ -7,14 +7,14 @@ import UserType from '@/components/onboarding/UserType';
 import UserService from '@/components/onboarding/UserService';
 import FocusArea from '@/components/onboarding/FocusArea';
 import SignUpForm from '@/components/onboarding/SignUpForm';
-import LottieAnimation from '@/components/onboarding/LottieAnimation';
+
 
 const Page = ({ params }) => {
 
     const [index, setIndex] = useState(4);
     const [DefaultData, setDefaultData] = useState(null);
 
-    let components = [UserType, UserService, FocusArea, SignUpForm, Congrats, LottieAnimation]
+    let components = [UserType, UserService, FocusArea, SignUpForm, Congrats]
 
     let CurrentComp = components[index]
 

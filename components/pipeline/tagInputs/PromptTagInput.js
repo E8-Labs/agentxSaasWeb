@@ -30,34 +30,11 @@ export const PromptTagInput = ({
 
   console.log("Kycs list is:", kycsList);
 
-  //Mirror Div Old
-  //   useEffect(() => {
-  //     const mirrorDiv = document.createElement("div");
-  //     mirrorDiv.style.position = "absolute";
-  //     mirrorDiv.style.visibility = "hidden";
-  //     mirrorDiv.style.whiteSpace = "pre-wrap";
-  //     mirrorDiv.style.wordWrap = "break-word";
-  //     mirrorDiv.style.overflowWrap = "break-word";
-  //     document.body.appendChild(mirrorDiv);
-  //     mirrorDivRef.current = mirrorDiv;
-  //     console.log("MirrorDiv", mirrorDiv.getBoundingClientRect());
-
-  //     return () => {
-  //       // if (mirrorDivRef.current) {
-  //       //     document.body.removeChild(mirrorDivRef.current);
-  //       // }
-  //       if (
-  //         mirrorDivRef.current &&
-  //         document.body.contains(mirrorDivRef.current)
-  //       ) {
-  //         document.body.removeChild(mirrorDivRef.current);
-  //       }
-  //       mirrorDivRef.current = null;
-  //     };
-  //   }, []);
-
   useEffect(() => {
-    const mirrorDiv = document.createElement("div");
+    let mirrorDiv = null;
+    if (typeof document !== "undefined") {
+      mirrorDiv = document.createElement("div");
+    }
     mirrorDiv.style.position = "absolute";
     mirrorDiv.style.visibility = "hidden";
     mirrorDiv.style.whiteSpace = "pre-wrap";
@@ -71,16 +48,20 @@ export const PromptTagInput = ({
     mirrorDiv.style.height = "auto"; // Prevent unnecessary height growth
     mirrorDiv.style.maxWidth = "100%"; // Ensure it doesn't exceed screen width
 
-    document.body.appendChild(mirrorDiv);
+    if (typeof document !== "undefined") {
+      document.body.appendChild(mirrorDiv);
+    }
     mirrorDivRef.current = mirrorDiv;
     console.log("MirrorDiv", mirrorDiv.getBoundingClientRect());
 
     return () => {
       if (
+        typeof document !== "undefined" &&
         mirrorDivRef.current &&
         document.body.contains(mirrorDivRef.current)
       ) {
-        document.body.removeChild(mirrorDivRef.current);
+        typeof document !== "undefined" &&
+          document.body.removeChild(mirrorDivRef.current);
       }
       mirrorDivRef.current = null;
     };
@@ -129,7 +110,10 @@ export const PromptTagInput = ({
     mirrorDiv.textContent = textBeforeCursor;
     mirrorDiv.style.width = `${input.clientWidth}px`;
 
-    const spanMarker = document.createElement("span");
+    let spanMarker = null;
+    if (typeof document !== "undefined") {
+      spanMarker = document.createElement("span");
+    }
     spanMarker.textContent = "|";
     mirrorDiv.appendChild(spanMarker);
 
@@ -188,7 +172,11 @@ export const PromptTagInput = ({
     mirrorDiv.textContent = textBeforeCursor;
     mirrorDiv.style.width = `${input.clientWidth}px`;
 
-    const spanMarker = document.createElement("span");
+    let spanMarker = null;
+    if (typeof document !== "undefined") {
+      spanMarker = document.createElement("span");
+    }
+
     spanMarker.textContent = "|";
     mirrorDiv.appendChild(spanMarker);
 

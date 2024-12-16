@@ -64,7 +64,11 @@ const DynamicDropdown = () => {
     };
 
     const getCaretCoordinates = (input, selectionStart) => {
-        const div = document.createElement('div');
+
+        let div = null;
+        if (typeof document !== "undefined") {
+            div = document.createElement('div');
+        }
         const style = window.getComputedStyle(input);
 
         // Copy styles for accurate measurement
@@ -80,9 +84,14 @@ const DynamicDropdown = () => {
         div.textContent = input.value.substring(0, selectionStart);
         if (input.tagName === 'TEXTAREA') div.style.height = style.height;
 
-        document.body.appendChild(div);
+        if (typeof document !== "undefined") {
+
+            document.body.appendChild(div);
+            document.body.removeChild(div);
+
+        }
+
         const caretCoords = div.getBoundingClientRect();
-        document.body.removeChild(div);
 
         return caretCoords;
     };

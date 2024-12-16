@@ -157,10 +157,12 @@ const Page = ({ length = 6, onComplete }) => {
         if (response.data.status === true) {
           localStorage.setItem("User", JSON.stringify(response.data.data));
           //set cokie on locastorage to run middle ware
-          document.cookie = `User=${encodeURIComponent(
-            JSON.stringify(response.data.data)
-          )}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
-          router.push("/dashboard");
+          if (typeof document !== "undefined") {
+            document.cookie = `User=${encodeURIComponent(
+              JSON.stringify(response.data.data)
+            )}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+            router.push("/dashboard");
+          }
         }
       }
 

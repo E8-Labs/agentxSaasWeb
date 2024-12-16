@@ -12,34 +12,41 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
     const mirrorDivRef = useRef(null);
 
     useEffect(() => {
-        const mirrorDiv = document.createElement("div");
+        let mirrorDiv = null
+        if (typeof document !== "undefined") {
+            mirrorDiv = document.createElement("div");
+        }
         mirrorDiv.style.position = "absolute";
         mirrorDiv.style.visibility = "hidden";
         mirrorDiv.style.whiteSpace = "pre-wrap";
         mirrorDiv.style.wordWrap = "break-word";
         mirrorDiv.style.overflowWrap = "break-word";
-    
+
         // Constrain the size and position
         mirrorDiv.style.top = "0";
         mirrorDiv.style.left = "0";
         mirrorDiv.style.width = "auto"; // Allow resizing only as needed
         mirrorDiv.style.height = "auto"; // Prevent unnecessary height growth
         mirrorDiv.style.maxWidth = "100%"; // Ensure it doesn't exceed screen width
-    
-        document.body.appendChild(mirrorDiv);
+
+        if (typeof document !== "undefined") {
+            document.body.appendChild(mirrorDiv);
+        }
         mirrorDivRef.current = mirrorDiv;
         console.log("MirrorDiv", mirrorDiv.getBoundingClientRect());
-    
+
         return () => {
-          if (
-            mirrorDivRef.current &&
-            document.body.contains(mirrorDivRef.current)
-          ) {
-            document.body.removeChild(mirrorDivRef.current);
-          }
-          mirrorDivRef.current = null;
+            if (
+                typeof document !== "undefined" &&
+                mirrorDivRef.current &&
+                document.body.contains(mirrorDivRef.current)
+            ) {
+                typeof document !== "undefined" &&
+                    document.body.removeChild(mirrorDivRef.current);
+            }
+            mirrorDivRef.current = null;
         };
-      }, []);
+    }, []);
 
     useEffect(() => {
         setText(greetTag)
@@ -47,74 +54,74 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
 
     const getTextScrollOffset = () => {
         if (textFieldRef.current) {
-          const scrollTop = textFieldRef.current.scrollTop;
-          const scrollLeft = textFieldRef.current.scrollLeft;
-          console.log("Scroll Offset - Top:", scrollTop, "Left:", scrollLeft);
-          return { scrollTop, scrollLeft };
+            const scrollTop = textFieldRef.current.scrollTop;
+            const scrollLeft = textFieldRef.current.scrollLeft;
+            console.log("Scroll Offset - Top:", scrollTop, "Left:", scrollLeft);
+            return { scrollTop, scrollLeft };
         }
         return { scrollTop: 0, scrollLeft: 0 };
-      };
+    };
 
     const calculatePopupPosition = (input, textBeforeCursor) => {
         const mirrorDiv = mirrorDivRef.current;
-    
+
         if (!mirrorDiv) return;
-    
+
         const computedStyle = getComputedStyle(input);
         const properties = [
-          "fontFamily",
-          "fontSize",
-          "fontWeight",
-          "lineHeight",
-          "paddingTop",
-          "paddingLeft",
-          "paddingRight",
-          "paddingBottom",
-          "borderWidth",
-          "boxSizing",
-          "whiteSpace",
-          "overflow",
-          "wordWrap",
-          "textAlign",
+            "fontFamily",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "paddingTop",
+            "paddingLeft",
+            "paddingRight",
+            "paddingBottom",
+            "borderWidth",
+            "boxSizing",
+            "whiteSpace",
+            "overflow",
+            "wordWrap",
+            "textAlign",
         ];
         properties.forEach((prop) => {
-          mirrorDiv.style[prop] = computedStyle[prop];
+            mirrorDiv.style[prop] = computedStyle[prop];
         });
-    
+
         mirrorDiv.textContent = textBeforeCursor;
         mirrorDiv.style.width = `${input.clientWidth}px`;
-    
+
         const spanMarker = document.createElement("span");
         spanMarker.textContent = "|";
         mirrorDiv.appendChild(spanMarker);
-    
+
         const markerRect = spanMarker.getBoundingClientRect();
         const inputRect = input.getBoundingClientRect();
-    
+
         mirrorDiv.removeChild(spanMarker);
-    
+
         const popupLeft = markerRect.left;
         let maxLines = (markerRect.top - 1005) / 24 + 1;
         let distance = 35 + markerRect.top;
         let textOffset = getTextScrollOffset();
-    
+
         let popupTop = distance - textOffset.scrollTop;
-    
+
         // Ensure the popupTop doesn't exceed the viewport height
         const viewportHeight = window.innerHeight;
         const popupHeight = 150; // Assume popup height; adjust based on your UI
         if (popupTop + popupHeight > viewportHeight) {
-          popupTop = viewportHeight - popupHeight;
+            popupTop = viewportHeight - popupHeight;
         }
-    
+
         console.log("Text Offset: ", textOffset);
         console.log("Marker Rect: ", markerRect);
         console.log("Input Rect: ", inputRect);
         console.log("Popup Left: ", popupLeft);
         console.log("Popup Top: ", popupTop);
-    
+
         setPopupPosition({ top: popupTop, left: popupLeft });
-      };
+    };
 
     let mergedArray = [];
 

@@ -259,9 +259,17 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
           localStorage.removeItem("registerDetails");
           localStorage.setItem("User", JSON.stringify(response.data.data));
           //set cokie on locastorage to run middle ware
-          document.cookie = `User=${encodeURIComponent(
-            JSON.stringify(response.data.data)
-          )}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+          // document.cookie = `User=${encodeURIComponent(
+          //   JSON.stringify(response.data.data)
+          // )}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+
+          //check for document undefined issue
+
+          if (typeof document !== "undefined") {
+            document.cookie = `User=${encodeURIComponent(
+              JSON.stringify(response.data.data)
+            )}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+          }
 
           handleContinue();
         }

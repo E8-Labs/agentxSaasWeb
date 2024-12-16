@@ -1308,10 +1308,6 @@ const Pipeline1 = () => {
                                                         <Image src={"/assets/colorDrop.png"} height={18} width={15} alt='*' />
                                                         Change Color
                                                     </button>
-                                                    {/* <button style={{ height: "15px", width: "15px", borderRadius: "50%", backgroundColor: stageColorUpdate }}
-                                                                onClick={() => document.getElementById("color-picker-input").click()} // Trigger ColorPicker
-                                                            >
-                                                            </button> */}
                                                     <div
                                                         style={{
                                                             height: "15px",

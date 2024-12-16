@@ -105,7 +105,9 @@ const ProfileNav = () => {
             // localStorage.clear();
             localStorage.removeItem("User");
             localStorage.removeItem("localAgentDetails");
-            document.cookie = "User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            if (typeof document !== "undefined") {
+              document.cookie = "User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            }
             router.push("/");
           }}>
             Log Out
