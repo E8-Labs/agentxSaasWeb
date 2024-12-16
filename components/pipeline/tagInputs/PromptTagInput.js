@@ -654,7 +654,7 @@ export const PromptTagInput = ({
                     setShowScriptModal(false);
                   }}
                 >
-                  Update & Close
+                  Close
                 </button>
               </div>
 
