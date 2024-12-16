@@ -1301,8 +1301,13 @@ const Pipeline1 = () => {
                                                     style={styles.paragraph}
                                                 // onClick={handleDeleteStage}
                                                 >
-                                                    <Image src={"/assets/colorDrop.png"} height={18} width={15} alt='*' />
-                                                    Change Color
+                                                    <button
+                                                        className='flex flex-row gap-2 outline-none'
+                                                        onClick={() => colorPickerRef.current.click()}
+                                                    >
+                                                        <Image src={"/assets/colorDrop.png"} height={18} width={15} alt='*' />
+                                                        Change Color
+                                                    </button>
                                                     {/* <button style={{ height: "15px", width: "15px", borderRadius: "50%", backgroundColor: stageColorUpdate }}
                                                                 onClick={() => document.getElementById("color-picker-input").click()} // Trigger ColorPicker
                                                             >
@@ -1335,6 +1340,7 @@ const Pipeline1 = () => {
                                                         />
                                                     </div>
                                                 </div>
+
                                             </div>
                                             <div ref={bottomRef}></div>
                                             <div className='w-full flex flex-row mt-4'>
@@ -1891,7 +1897,7 @@ const Pipeline1 = () => {
                                                 <MenuItem
                                                     key={index}
                                                     value={stage.stageTitle}
-                                                    disabled={stage.id <= selectedStage?.id}
+                                                    disabled={stage.id === selectedStage?.id}
                                                 >
                                                     {stage.stageTitle}
                                                 </MenuItem>

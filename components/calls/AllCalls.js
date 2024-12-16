@@ -236,7 +236,7 @@ function AllCalls() {
                     <div style={styles.text}>Name</div>
                 </div>
                 <div className='w-2/12 '>
-                    <div style={styles.text}>Email Address</div>
+                    <div style={styles.text}>Pipeline</div>
                 </div>
                 <div className='w-2/12'>
                     <div style={styles.text}>Contact Number</div>
@@ -277,7 +277,14 @@ function AllCalls() {
                                                     <div style={styles.text2}>{item.LeadModel?.firstName}</div>
                                                 </div>
                                                 <div className='w-2/12 '>
-                                                    <div style={styles.text2}>{item.LeadModel?.email}</div>
+                                                    <div style={styles.text2}>
+                                                        {item.PipelineStages?.pipelineId ?
+                                                            <div>
+                                                                {item.pipeline?.title}
+                                                            </div> :
+                                                            "-"
+                                                        }
+                                                    </div>
                                                 </div>
                                                 <div className='w-2/12'>
                                                     <div style={styles.text2}>{item.LeadModel?.phone}</div>

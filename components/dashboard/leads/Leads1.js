@@ -52,6 +52,9 @@ const Leads1 = () => {
   //code for adding tags
   const [tagsValue, setTagsValue] = useState([]);
 
+  //code for warning modal
+  const [warningModal, setWarningModal] = useState(false);
+
   //my custom logic
   //This variable will contain all columns from the sheet that we will obtain from the sheet or add new
   let [NewColumnsObtained, setNewColumnsObtained] = useState([]);
@@ -1154,7 +1157,7 @@ const Leads1 = () => {
                       style={{ ...styles.paragraph }}
                     >
                       <div className="w-2/12">
-                        {matchingValue ? (
+                        {item.UserFacingName ? (
                           <Image
                             className="ms-4"
                             src={"/assets/checkDone.png"}
@@ -1197,7 +1200,8 @@ const Leads1 = () => {
                               // if (index > 4) {
                               setSelectedItem(index);
                               //////console.log("Selected index is", index);
-                              //////console.log("Item selected is :", item);
+                              console.log("Item selected is :", item);
+                              console.log("Array selected is :", NewColumnsObtained);
                               setUpdateColumnValue(item.columnNameTransformed);
                               handleColumnPopoverClick(event);
                               setUpdateHeader(item);
@@ -1418,7 +1422,14 @@ const Leads1 = () => {
                 className="w-full h-[50px] rounded-xl bg-purple text-white mt-8"
                 style={styles.subHeadingStyle}
                 onClick={() => {
-                  ChangeColumnName(updateColumnValue);
+                  if (NewColumnsObtained?.some((item) => item?.UserFacingName?.toLowerCase() === updateColumnValue?.toLowerCase())) {
+                    console.log("Value matched from the array");
+                    // return
+                    setWarningModal(true);
+                  } else {
+                    console.log("Value donot matches from the array")
+                    ChangeColumnName(updateColumnValue);
+                  }
                 }}
               >
                 Add
@@ -1426,6 +1437,42 @@ const Leads1 = () => {
 
               {/* Can be use full to add shadow */}
               {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+            </div>
+          </div>
+        </Box>
+      </Modal>
+
+      {/* Code foor warning modal */}
+      <Modal
+        open={warningModal}
+        onClose={() => setWarningModal(false)}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: "#00000008",
+            backdropFilter: "blur(2px)",
+          },
+        }}
+      >
+        <Box className="lg:w-4/12 sm:w-4/12 w-6/12" sx={styles.modalsStyle}>
+          <div className="flex flex-row justify-center w-full">
+            <div
+              className="w-full"
+              style={{
+                backgroundColor: "#ffffff",
+                padding: 20,
+                borderRadius: "13px",
+              }}
+            >
+              <div className="font-bold text-xl text-center mt-6 text-red">
+                Column already exists
+              </div>
+              <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
+                <button className="w-full bg-purple font-bold text-white text-xl border border-[#00000020] rounded-xl h-[50px]" onClick={() => { setWarningModal(false) }}>
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </Box>

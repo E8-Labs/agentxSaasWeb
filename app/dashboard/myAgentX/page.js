@@ -36,6 +36,8 @@ function Page() {
   const [address, setAddress] = useState("");
   // const [budget, setBudget] = useState("");
   const [showDrawer, setShowDrawer] = useState(null);
+  //calender details of selected agent
+  const [calendarDetails, setCalendarDetails] = useState(null);
   const [activeTab, setActiveTab] = useState("Agent Info");
   const [userDetails, setUserDetails] = useState([]);
   const [agentData, setAgentData] = useState([]);
@@ -59,6 +61,9 @@ function Page() {
   const [selectedPurchasedNumber, setSelectedPurchasedNumber] = useState(null);
   const [selectedPurchasedIndex, setSelectedPurchasedIndex] = useState(null);
   const [assignLoader, setAssignLoader] = useState(false);
+
+  //code for assign number confirmation model
+  const [showConfirmationModal, setShowConfirmationModal] = useState(null);
 
 
   //image variable
@@ -159,6 +164,17 @@ function Page() {
   //function to open drawer
   const handleShowDrawer = (item) => {
     setAssignNumber(item?.phoneNumber);
+    // let comparedAgent = null;
+    console.log("Main agents list is:", userDetails);
+
+    const comparedAgent = userDetails.find((prevAgent) =>
+      prevAgent.agents.some((subAgent) => subAgent.id === item.id)
+    );
+    console.log("Agent selected details are", comparedAgent);
+
+    setCalendarDetails(comparedAgent);
+
+    console.log("")
     setShowDrawer(item)
     console.log("Selected agent is:", item);
     if (item.agentType === "inbound") {
@@ -185,6 +201,7 @@ function Page() {
       </div>
     )
   }
+
 
   //function to close script modal
   const handleCloseScriptModal = () => {
@@ -296,6 +313,9 @@ function Page() {
 
       if (response) {
         console.log("Respose of reassign api is:", response);
+        setShowSuccessSnack(response.data.message);
+        setShowConfirmationModal(null);
+        // setShowClaimPopup(null);
         setAssignNumber(item.phoneNumber.slice(1));
         setOpenCalimNumDropDown(false);
         //code to close the dropdown
@@ -1860,7 +1880,8 @@ function Page() {
                                                   <CircularProgress size={15} /> :
                                                   <button className="text-purple underline" onClick={(e) => {
                                                     e.stopPropagation();
-                                                    handleReassignNumber(item)
+                                                    setShowConfirmationModal(item);
+                                                    // handleReassignNumber(item)
                                                     // handleReassignNumber(e.target.value)
                                                   }} >
                                                     Reassign
@@ -1941,28 +1962,41 @@ function Page() {
               </div>
             ) : activeTab === "Calender" ? (
               <div>
-                <div className='flex flex-row items-center justify-between gap-4'>
+                <div className='flex flex-row items-center justify-between'>
                   <p style={{ fontSize: 15, fontWeight: '600', color: '#666' }}>
                     Title
                   </p>
                   <p style={{ fontSize: 16, fontWeight: '500', color: '#000' }}>
-                    Calender
+                    {calendarDetails?.calendar?.title ?
+                      <div>
+                        {calendarDetails?.calendar?.title}
+                      </div> : "-"
+                    }
                   </p>
                 </div>
-                <div className='flex flex-row items-center justify-between'>
+                <div className='flex flex-row items-center justify-between mt-6'>
                   <p style={{ fontSize: 15, fontWeight: '600', color: '#666' }}>
                     Event
                   </p>
                   <p style={{ fontSize: 16, fontWeight: '500', color: '#000' }}>
-                    Event name
+                    {calendarDetails?.calendar?.eventId ?
+                      <div>
+                        {calendarDetails?.calendar?.eventId}
+                      </div>
+                      : "-"
+                    }
                   </p>
                 </div>
-                <div className='flex flex-row items-center justify-between'>
+                <div className='flex flex-row items-center justify-between mt-6'>
                   <p style={{ fontSize: 15, fontWeight: '600', color: '#666' }}>
                     Api key
                   </p>
                   <p style={{ fontSize: 16, fontWeight: '500', color: '#000' }}>
-                    Api Key
+                    {calendarDetails?.calendar?.apiKey ?
+                      <div>
+                        {calendarDetails?.calendar?.apiKey}
+                      </div> : "-"
+                    }
                   </p>
                 </div>
               </div>
@@ -2112,6 +2146,107 @@ function Page() {
         </Box>
       </Modal>
 
+      {/* Code for the confirmation of reassign button */}
+      <Modal
+        open={showConfirmationModal}
+        onClose={() => {
+          setShowConfirmationModal(null);
+        }}
+      >
+        <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-5/12 p-8 rounded-[15px]" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
+          <div style={{ width: "100%", }}>
+
+            <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+
+              {/* <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "end", alignItems: "center" }}>
+                <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
+                  <button onClick={() => {
+                    setShowWarningModal(false);
+                  }} className='outline-none'>
+                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                  </button>
+                </div>
+              </div> */}
+
+              <div className='flex flex-row items-center justify-between w-full'>
+                <div
+                  style={{
+                    fontSize: 17,
+                    fontWeight: "600"
+                  }}>
+                  Reassign Number
+                </div>
+                <button
+                  onClick={() => {
+                    setShowConfirmationModal(null);
+                  }}>
+                  <Image src={"/assets/blackBgCross.png"} height={20} width={20} alt='*' />
+                </button>
+              </div>
+
+              <div
+                className='mt-8'
+                style={{
+                  fontSize: 22,
+                  fontWeight: "600"
+                }}>
+                Confirm Action
+              </div>
+
+              <p
+                className='mt-8'
+                style={{
+                  fontSize: 15,
+                  fontWeight: "500"
+                }}>
+                Please confirm you would like to reassign <span className='text-purple'>({formatPhoneNumber(showConfirmationModal?.phoneNumber)})</span> to {`{${showDrawer?.name}}`}.
+              </p>
+
+            </div>
+
+            <div className='flex flex-row items-center gap-4 mt-6'>
+              <button
+                className='mt-4 outline-none w-1/2'
+                style={{
+                  color: "black",
+                  height: "50px", borderRadius: "10px", width: "100%",
+                  fontWeight: 600, fontSize: '20'
+                }}
+                onClick={() => {
+                  setShowClaimPopup(null);
+                }}
+              >
+                Discard
+              </button>
+              <div className='w-full'>
+                {
+                  reassignLoader ?
+                    <div
+                      className='mt-4 w-full flex flex-row items-center justify-center'>
+                      <CircularProgress size={25} />
+                    </div> :
+                    <button
+                      className='mt-4 outline-none bg-purple w-full'
+                      style={{
+                        color: "white",
+                        height: "50px", borderRadius: "10px", width: "100%",
+                        fontWeight: 600, fontSize: '20'
+                      }}
+                      onClick={() => {
+                        handleReassignNumber(showConfirmationModal);
+                        console.log("test")
+                      }}
+                    >
+                      I am sure
+                    </button>
+                }
+              </div>
+            </div>
+
+
+          </div>
+        </Box>
+      </Modal>
 
       {/* code for script */}
 
@@ -2316,7 +2451,7 @@ function Page() {
 
               {
                 SeledtedScriptKYC && (
-                  <div style={{ height: "80%", overflow: "auto", scrollbarWidth: "none" }}>
+                  <div style={{ height: "80%", overflow: "auto", scrollbarWidth: "none", backgroundColor: "" }}>
                     <KYCs kycsDetails={setKycsData} />
                   </div>
                 )

@@ -280,7 +280,7 @@ const KYCs = ({ kycsDetails }) => {
     }
 
     return (
-        <div>
+        <div style={{ height: "100%", backgroundColor: "" }}>
             <div style={styles.headingStyle} className='mt-4'>
                 KYC - Seller
             </div>
@@ -554,10 +554,10 @@ const KYCs = ({ kycsDetails }) => {
                     },
                 }}
             >
-                <Box className="sm:w-10/12 w-10/12 max-h-[70vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
-                    <div className="flex flex-row justify-center w-full">
+                <Box className="sm:w-10/12 w-10/12 h-[85vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
+                    <div className="flex flex-row justify-center w-full h-[100%]">
                         <div
-                            className="sm:w-10/12 w-full"
+                            className="w-full h-[100%]"
                             style={{
                                 backgroundColor: "#ffffff",
                                 padding: 20,
@@ -819,10 +819,10 @@ const KYCs = ({ kycsDetails }) => {
                     },
                 }}
             >
-                <Box className="sm:w-10/12 w-10/12 max-h-[70vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
-                    <div className="flex flex-row justify-center w-full">
+                <Box className="sm:w-10/12 w-10/12 h-[85vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
+                    <div className="flex flex-row justify-center w-full h-[100%]">
                         <div
-                            className="sm:w-10/12 w-full"
+                            className="w-full h-[100%]"
                             style={{
                                 backgroundColor: "#ffffff",
                                 padding: 20,

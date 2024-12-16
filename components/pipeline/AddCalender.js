@@ -22,12 +22,34 @@ const AddCalender = ({ handleContinue }) => {
   const [previousCalenders, setPreviousCalenders] = useState([]);
   const [showAddNewCalender, setShowAddNewCalender] = useState(false);
 
+  //code for the IANA time zone lists
+
+  const [selectTimeZone, setSelectTimeZone] = useState("");
+
+  // const [timeZones, setTimeZones] = useState([]);
+  const timeZones = [
+    "Etc/UTC",
+    "Europe/London",
+    "America/New_York",
+    "America/Chicago",
+    "America/Denver",
+    "America/Los_Angeles",
+    "Asia/Dubai",
+    "Asia/Kolkata",
+    "Asia/Shanghai",
+    "Asia/Tokyo",
+    "Asia/Singapore",
+    "Australia/Sydney",
+    "Africa/Johannesburg",
+  ];
+
+
   useEffect(() => {
     getCalenders();
   }, [])
 
   useEffect(() => {
-    if (calenderTitle && calenderApiKey || eventId) {
+    if (calenderTitle && calenderApiKey && eventId) {
       setshouldContinue(false);
     } else {
       setshouldContinue(true);
@@ -102,24 +124,23 @@ const AddCalender = ({ handleContinue }) => {
       const ApiPath = Apis.addCalender;
       console.log("Api path is:", ApiPath);
 
-      const ApiData = {
-        apiKey: calenderApiKey,
-        title: calenderTitle,
-        eventId: eventId,
-        mainAgentId: currentAgentDetails.id
-      }
-
       const formData = new FormData();
 
       formData.append("apiKey", calenderApiKey)
       formData.append("title", calenderTitle)
       formData.append("mainAgentId", currentAgentDetails.id)
+      if (selectTimeZone) {
+        formData.append("timeZone", selectTimeZone)
+      }
 
       if (eventId) {
         formData.append("eventId", eventId)
       }
 
-      console.log("Api data is:", JSON.stringify(ApiData));
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -143,6 +164,10 @@ const AddCalender = ({ handleContinue }) => {
     }
   }
 
+  //code to select the time zone
+  const handleChangeTimeZone = (event) => {
+    setSelectTimeZone(event.target.value);
+  };
 
   const styles = {
     inputStyles: {
@@ -286,7 +311,7 @@ const AddCalender = ({ handleContinue }) => {
         //   setShowAddNewCalender(false);
         // }}
         >
-          <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
+          <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white', paddingInline: "25px", paddingTop: "25px", paddingBottom: "30px" }}>
             <div style={{ width: "100%", }}>
 
               <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
@@ -351,6 +376,74 @@ const AddCalender = ({ handleContinue }) => {
                       }}
                     />
                   </div>
+
+                  <div className='mt-4' style={{ fontWeight: "600", fontSize: 16.8, textAlign: "start" }}>
+                    Add time zone
+                  </div>
+
+                  <div className='w-full mt-2'>
+                    <FormControl sx={{}} className='w-full h-[50px]'>
+                      <Select
+                        value={selectTimeZone}
+                        // label="Age"
+                        onChange={handleChangeTimeZone}
+                        displayEmpty // Enables placeholder
+                        renderValue={(selected) => {
+                          if (!selected) {
+                            return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
+                          }
+                          return selected;
+                        }}
+                        sx={{
+                          height: "48px",
+                          borderRadius: "13px",
+                          border: "1px solid #00000020", // Default border
+                          "&:hover": {
+                            border: "1px solid #00000020", // Same border on hover
+                          },
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            border: "none", // Remove the default outline
+                          },
+                          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                            border: "none", // Remove outline on focus
+                          },
+                          "&.MuiSelect-select": {
+                            py: 0, // Optional padding adjustments
+                          },
+                        }}
+                        MenuProps={{
+                          PaperProps: {
+                            style: {
+                              maxHeight: "30vh", // Limit dropdown height
+                              overflow: "auto", // Enable scrolling in dropdown
+                              scrollbarWidth: "none",
+                              // borderRadius: "10px"
+                            },
+                          },
+                        }}
+                      >
+                        {
+                          timeZones.map((item, index) => {
+                            return (
+                              <MenuItem
+                                className='w-full'
+                                value={item}
+                                key={index}
+                              >
+                                <button onClick={() => {
+                                  console.log("Selected time zone is:", item);
+                                }}
+                                >
+                                  {item}
+                                </button>
+                              </MenuItem>
+                            )
+                          })
+                        }
+                      </Select>
+                    </FormControl>
+                  </div>
+
                   <div className='w-full mt-4'>
                     {
                       calenderLoader ?
@@ -358,8 +451,12 @@ const AddCalender = ({ handleContinue }) => {
                           <CircularProgress size={25} />
                         </div> :
                         <button
-                          className='h-[50px] w-full bg-purple text-white rounded-xl'
-                          style={{ fontWeight: "600", fontSize: 16 }}
+                          disabled={shouldContinue}
+                          className='h-[50px] w-full text-white rounded-xl'
+                          style={{
+                            fontWeight: "600", fontSize: 16,
+                            backgroundColor: shouldContinue ? "#00000060" : "#7902DF"
+                          }}
                           onClick={handleAddCalender}
                         >
                           Add

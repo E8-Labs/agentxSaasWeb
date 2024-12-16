@@ -341,7 +341,7 @@ const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='rounded-lg w-10/12 flex flex-col justify-between'>
+            <div className='rounded-lg w-10/12 h-[60vh] flex flex-col justify-between'>
                 <div className='h-[60vh] py-4 overflow-auto' style={{ scrollbarWidth: "none" }}>
                     {/* header */}
                     {/* <Header /> */}

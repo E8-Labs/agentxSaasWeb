@@ -295,9 +295,15 @@ const CreatAgent3 = ({ handleContinue }) => {
                                         </div>
                                 }
                             </button>
-                            <div style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}>
+                            <button
+                                className='outline-none'
+                                onClick={() => {
+                                    handleToggleTermsClick()
+                                }}
+                                style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
+                            >
                                 I agree to the <span className='underline'>Terms & Conditions.</span>
-                            </div>
+                            </button>
                         </div>
 
                     </div>

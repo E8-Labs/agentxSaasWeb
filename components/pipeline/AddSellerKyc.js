@@ -357,8 +357,8 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='w-full py-4 overflow-auto h-60vh flex flex-col justify-between'>
-                <div className='overflow-auto h-[50vh]' style={{ scrollbarWidth: "none" }}>
+            <div className='w-full py-4 overflow-auto h-[60vh] flex flex-col justify-between'>
+                <div className='overflow-auto h-[60vh]' style={{ scrollbarWidth: "none" }}>
                     {/* header */}
                     {/* <Header /> */}
                     <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' />
