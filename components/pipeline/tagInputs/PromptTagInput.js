@@ -396,7 +396,7 @@ export const PromptTagInput = ({
 
   const styles = {
     modalsStyle: {
-      height: "auto",
+      // height: "auto",
       bgcolor: "transparent",
       // p: 2,
       mx: "auto",
@@ -654,7 +654,7 @@ export const PromptTagInput = ({
                     setShowScriptModal(false);
                   }}
                 >
-                  Close
+                  Update & Close
                 </button>
               </div>
 
