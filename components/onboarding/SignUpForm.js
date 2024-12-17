@@ -233,6 +233,11 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
   const handleRegister = async () => {
     try {
       setRegisterLoader(true);
+
+      let agentTitle = userData.userTypeTitle;
+      // formatAgentTypeTitle(agentTitle);
+      // console.log("AgentTitle", formatAgentTypeTitle(agentTitle));
+
       const ApiPath = Apis.register;
       const formData = new FormData();
       formData.append("name", userName);
@@ -243,7 +248,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
       formData.append("averageTransactionPerYear", userTransaction);
       formData.append("agentService", JSON.stringify(userData.serviceID));
       formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
-      formData.append("userType", "RealEstateAgent");
+      formData.append("userType", formatAgentTypeTitle(agentTitle));
 
       console.log("Data for user registeration is :-----");
       for (let [key, value] of formData.entries()) {
@@ -281,6 +286,30 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
       setRegisterLoader(false);
     }
   }
+
+  //format the title
+  const formatAgentTypeTitle = (title) => {
+    switch (title) {
+      case "Real Estate Agent":
+        return "RealEstateAgent";
+      case "Sales Dev Rep":
+        return "SalesDevRep";
+      case "Solar Rep":
+        return "SolarRep";
+      case "Insurance Agent":
+        return "InsuranceAgent";
+      case "Marketer":
+        return "MarketerAgent";
+      case "Website Owners":
+        return "WebsiteAgent";
+      case "Recuiter Agent":
+        return "RecruiterAgent";
+      case "Tax Agent":
+        return "TaxAgent";
+      default:
+        return title; // Fallback if no match is found
+    }
+  };
 
   //code to check email and phone
 

@@ -5,8 +5,11 @@ import Header from './Header';
 import ProgressBar from './ProgressBar';
 import Footer from './Footer';
 import { CircularProgress } from '@mui/material';
+import DefaultData from './extras/DefaultData';
+import Apis from '../apis/Apis';
+import axios from 'axios';
 
-const UserService = ({ handleContinue, DefaultData, handleBack }) => {
+const UserService = ({ handleContinue, handleBack }) => {
 
     const router = useRouter();
     const [serviceId, setServiceId] = useState([]);
@@ -15,25 +18,28 @@ const UserService = ({ handleContinue, DefaultData, handleBack }) => {
     const [value, setValue] = useState(0);
     const [shouldContinue, setShouldContinue] = useState(true);
 
+    //stores default data
+    // const [DefaultData, setDefaultData] = useState([]);
+
     useEffect(() => {
         const selectedServiceID = localStorage.getItem("registerDetails");
         if (selectedServiceID) {
             const serviceIds = JSON.parse(selectedServiceID);
+            // console.log("Userdetails are", serviceIds);
             setServiceId(serviceIds.serviceID);
         }
-    }, [])
+    }, []);
 
     useEffect(() => {
-        setLoader(true);
-        if (DefaultData) {
-            setLoader(false);
-            console.log("Response for service is ::", DefaultData.agentServices);
-            setServicesData(DefaultData.agentServices);
-        } else {
-            setLoader(true);
-        }
-        console.log("");
-    }, [DefaultData]);
+        getDefaultData()
+        // if (servicesData) {
+        //     setLoader(false);
+        //     // <DefaultData setServicesData={setServicesData} />
+        //     // setServicesData(servicesData);
+        // } else {
+        //     console.log("Default data already exists")
+        // }
+    }, []);
 
     useEffect(() => {
         if (serviceId.length > 0) {
@@ -43,6 +49,70 @@ const UserService = ({ handleContinue, DefaultData, handleBack }) => {
             setShouldContinue(true);
         }
     }, [serviceId]);
+
+    //function to get the default data
+    const getDefaultData = async () => {
+        try {
+            setLoader(true);
+            const selectedServiceID = localStorage.getItem("registerDetails");
+            let AgentTypeTitle = null;
+            if (selectedServiceID) {
+                const serviceIds = JSON.parse(selectedServiceID);
+                console.log("Userdetails are", serviceIds);
+                AgentTypeTitle = serviceIds.userTypeTitle
+            }
+
+            // formatAgentTypeTitle(AgentTypeTitle)
+
+            // console.log("Formated titel is", formatAgentTypeTitle(AgentTypeTitle));
+
+            console.log("Check 1 clear !!!");
+            const ApiPath = `${Apis.defaultData}?type=${formatAgentTypeTitle(AgentTypeTitle)}`;
+            console.log("Api link is:--", ApiPath);
+            const response = await axios.get(ApiPath, {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of api is : -----", response.data);
+                setServicesData(response.data.data.agentServices);
+            } else {
+                alert(response.data)
+            }
+
+        } catch (error) {
+            console.error("ERror occured in default data api is :----", error);
+        } finally {
+            setLoader(false);
+        }
+    }
+
+    //function to format the agenttypetitle
+    const formatAgentTypeTitle = (title) => {
+        switch (title) {
+            case "Real Estate Agent":
+                return "RealEstateAgent";
+            case "Sales Dev Rep":
+                return "SalesDevRep";
+            case "Solar Rep":
+                return "SolarRep";
+            case "Insurance Agent":
+                return "InsuranceAgent";
+            case "Marketer":
+                return "MarketerAgent";
+            case "Website Owners":
+                return "WebsiteAgent";
+            case "Recuiter Agent":
+                return "RecruiterAgent";
+            case "Tax Agent":
+                return "TaxAgent";
+            default:
+                return title; // Fallback if no match is found
+        }
+    };
+
 
     const handleserviceId = (id) => {
         // setServiceId(prevId => (prevId === id ? null : id));
@@ -109,7 +179,7 @@ const UserService = ({ handleContinue, DefaultData, handleBack }) => {
 
                         {
                             loader ?
-                                <div className='mt-8'>
+                                <div className='w-full flex flex-row justify-center items-center h-screen'>
                                     <CircularProgress size={35} />
                                 </div> :
                                 <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>

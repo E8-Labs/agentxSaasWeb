@@ -48,7 +48,10 @@ const Apis = {
     addCalender: `${BasePath}api/calendar/createCalendar`,
     addLeadNote: `${BasePath}api/leads/addLeadNote`,
     getDashboardData: `${BasePath}api/agent/dashboard`,
-    delLeadTag: `${BasePath}api/leads/deleteLeadTag`
+    delLeadTag: `${BasePath}api/leads/deleteLeadTag`,
+    //apis to add card & subscribe plan
+    addCard: `${BasePath}api/user/addPaymentMethod`,
+    subscribePlan: `${BasePath}api/user/subscribePlan`
 
 }
 

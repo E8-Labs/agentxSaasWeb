@@ -4,8 +4,20 @@ import { useRouter } from 'next/navigation';
 import Header from './Header';
 import Footer from './Footer';
 import Image from 'next/image';
+import axios from 'axios';
+import Apis from '../apis/Apis';
+import { CircularProgress } from '@mui/material';
 
-const FocusArea = ({ handleContinue, handleBack, DefaultData }) => {
+const FocusArea = ({
+    handleContinue, handleBack, DefaultData,
+    handleSalesAgentContinue,
+    handleSolarAgentContinue,
+    handleInsuranceContinue,
+    handleMarketerAgentContinue,
+    handleWebsiteAgentContinue,
+    handleRecruiterAgentContinue,
+    handleTaxAgentContinue,
+}) => {
 
     const router = useRouter();
     const [focusArea, setFocusArea] = useState([]);
@@ -23,15 +35,80 @@ const FocusArea = ({ handleContinue, handleBack, DefaultData }) => {
     }, [])
 
     useEffect(() => {
-        if (DefaultData) {
-            setLoader(false);
-            console.log("Area of focus is ::", DefaultData.areaOfFocus);
-            setFocusData(DefaultData.areaOfFocus);
-        } else {
+        getDefaultData();
+    }, []);
+
+    //function to get the default data
+    const getDefaultData = async () => {
+        try {
             setLoader(true);
+            const selectedServiceID = localStorage.getItem("registerDetails");
+            let AgentTypeTitle = null;
+            if (selectedServiceID) {
+                const serviceIds = JSON.parse(selectedServiceID);
+                console.log("Userdetails are", serviceIds);
+                AgentTypeTitle = serviceIds.userTypeTitle
+            }
+
+            // formatAgentTypeTitle(AgentTypeTitle)
+
+            // console.log("Formated titel is", formatAgentTypeTitle(AgentTypeTitle));
+
+            console.log("Check 1 clear !!!");
+            const ApiPath = `${Apis.defaultData}?type=${formatAgentTypeTitle(AgentTypeTitle)}`;
+            console.log("Api link is:--", ApiPath);
+            const response = await axios.get(ApiPath, {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of api is : -----", response.data);
+                const focusData = localStorage.getItem("registerDetails");
+                if (focusData) {
+                    const FocusAreaDetails = JSON.parse(focusData);
+                    if (FocusAreaDetails.userTypeTitle === "Recuiter Agent") {
+                        console.log("Recruiter", response.data.data.userIndustry);
+                        setFocusData(response.data.data.userIndustry);
+                    } else {
+                        setFocusData(response.data.data.areaOfFocus);
+                    }
+                }
+            } else {
+                alert(response.data)
+            }
+
+        } catch (error) {
+            console.error("ERror occured in default data api is :----", error);
+        } finally {
+            setLoader(false);
         }
-        console.log("");
-    }, [DefaultData]);
+    }
+
+    //function to format the agenttypetitle
+    const formatAgentTypeTitle = (title) => {
+        switch (title) {
+            case "Real Estate Agent":
+                return "RealEstateAgent";
+            case "Sales Dev Rep":
+                return "SalesDevRep";
+            case "Solar Rep":
+                return "SolarRep";
+            case "Insurance Agent":
+                return "InsuranceAgent";
+            case "Marketer":
+                return "MarketerAgent";
+            case "Website Owners":
+                return "WebsiteAgent";
+            case "Recuiter Agent":
+                return "RecruiterAgent";
+            case "Tax Agent":
+                return "TaxAgent";
+            default:
+                return title; // Fallback if no match is found
+        }
+    };
 
     useEffect(() => {
         console.log("Focus area is :", focusArea);
@@ -44,14 +121,60 @@ const FocusArea = ({ handleContinue, handleBack, DefaultData }) => {
 
     const handleNext = () => {
         const data = localStorage.getItem("registerDetails");
+
         if (data) {
-            const details = JSON.parse(data);
+            const LocalDetails = JSON.parse(data);
+            console.log("Local details are", LocalDetails);
+            let agentType = LocalDetails.userTypeTitle;
+
+            let details = LocalDetails;
             details.focusAreaId = focusArea;
             localStorage.setItem("registerDetails", JSON.stringify(details));
-            if (focusArea.length > 0) {
+
+            // handleSalesAgentContinue,
+            //     handleSolarAgentContinue,
+            //     handleInsuranceContinue,
+            //     handleMarketerAgentContinue,
+            //     handleWebsiteAgentContinue,
+            //     handleRecruiterAgentContinue,
+            //     handleTaxAgentContinue,
+
+            if (agentType === "Real Estate Agent") {
                 handleContinue();
+                console.log("Selected agent type is")
+            } else if (agentType === "Sales Dev Rep") {
+                handleSalesAgentContinue();
+                console.log("Selected agent type is")
+            } else if (agentType === "Solar Rep") {
+                handleSolarAgentContinue();
+                console.log("Selected agent type is")
+            } else if (agentType === "Insurance Agent") {
+                handleInsuranceContinue();
+                console.log("Selected agent type is")
+            } else if (agentType === "Marketer") {
+                handleMarketerAgentContinue();
+                console.log("Selected agent type is")
+            } else if (agentType === "Website Owners") {
+                handleWebsiteAgentContinue();
+                console.log("Selected agent type is")
+            } else if (agentType === "Recuiter Agent") {
+                handleRecruiterAgentContinue();
+                console.log("Selected agent type is")
+            } else if (agentType === "Tax Agent") {
+                handleTaxAgentContinue();
+                console.log("Selected agent type is")
             }
         }
+
+        // if (data) {
+        //     const details = JSON.parse(data);
+        //     details.focusAreaId = focusArea;
+        //     localStorage.setItem("registerDetails", JSON.stringify(details));
+        //     if (focusArea.length > 0) {
+        //         handleContinue();
+        //     }
+        // }
+
     }
 
     const handlefocusArea = (id) => {
@@ -82,36 +205,47 @@ const FocusArea = ({ handleContinue, handleBack, DefaultData }) => {
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
                             What area of real estate do you focus on?
                         </div>
-                        <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
 
-                            {focusData.map((item, index) => (
-                                <button key={item.id} onClick={() => { handlefocusArea(item.id) }} className='border-none outline-none'>
-                                    <div className='border bg-white flex flex-row items-start pt-3 w-full rounded-2xl'
-                                        style={{
-                                            border: focusArea.includes(item.id) ? "2px solid #7902DF" : "",
-                                            scrollbarWidth: "none", backgroundColor: focusArea.includes(item.id) ? "#402FFF05" : ""
-                                        }}>
-                                        <div className='w-full flex flex-row items-start justify-between px-4 py-2'>
-                                            <div className='text-start w-[60%]'>
-                                                <div style={{ fontFamily: "", fontWeight: "700", fontSize: 20 }}>
-                                                    {item.title}
-                                                </div>
-                                                <div className='mt-2'>
-                                                    {item.description}
+                        {
+                            loader ? (
+                                <div className='w-full flex flex-row items-center justify-center h-screen'>
+                                    <CircularProgress size={35} />
+                                </div>
+                            ) : (
+                                <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+
+                                    {focusData.map((item, index) => (
+                                        <button key={item.id} onClick={() => { handlefocusArea(item.id) }} className='border-none outline-none'>
+                                            <div className='border bg-white flex flex-row items-start pt-3 w-full rounded-2xl'
+                                                style={{
+                                                    border: focusArea.includes(item.id) ? "2px solid #7902DF" : "",
+                                                    scrollbarWidth: "none", backgroundColor: focusArea.includes(item.id) ? "#402FFF05" : ""
+                                                }}>
+                                                <div className='w-full flex flex-row items-start justify-between px-4 py-2'>
+                                                    <div className='text-start w-[60%]'>
+                                                        <div style={{ fontFamily: "", fontWeight: "700", fontSize: 20 }}>
+                                                            {item.title}
+                                                        </div>
+                                                        <div className='mt-2'>
+                                                            {item.description}
+                                                        </div>
+                                                    </div>
+                                                    {
+                                                        focusArea.includes(item.id) ?
+                                                            <Image src={"/assets/charmTick.png"} alt='*' height={36} width={36} /> :
+                                                            <Image src={"/assets/charmUnMark.png"} alt='*' height={36} width={36} />
+                                                    }
                                                 </div>
                                             </div>
-                                            {
-                                                focusArea.includes(item.id) ?
-                                                    <Image src={"/assets/charmTick.png"} alt='*' height={36} width={36} /> :
-                                                    <Image src={"/assets/charmUnMark.png"} alt='*' height={36} width={36} />
-                                            }
-                                        </div>
-                                    </div>
-                                </button>
-                            ))}
+                                        </button>
+                                    ))}
 
-                            {/* <Body /> */}
-                        </div>
+                                    {/* <Body /> */}
+                                </div>
+                            )
+                        }
+
+
                     </div>
                 </div>
 

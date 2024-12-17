@@ -12,6 +12,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
     const router = useRouter();
     const [value, setValue] = useState(8);
     const [SelectUserType, setSelectUserType] = useState(null);
+    const [SelectUserTypeTitle, setSelectUserTypeTitle] = useState(null);
     const [ShowModal, setShowModal] = useState(false);
     const [shouldContinue, setShouldContinue] = useState(true);
 
@@ -28,31 +29,38 @@ const UserType = ({ handleContinue, DefaultData }) => {
         if (localData) {
             const localDetails = JSON.parse(localData);
             setSelectUserType(localDetails.userType);
+            setSelectUserTypeTitle(localDetails.userTypeTitle);
         }
     }, [])
 
     const handleUserType = async (item) => {
-        if (item.id === 1) {
-            setSelectUserType(item.id);
-        } else {
-            setSelectUserType(null);
-            setShowModal(true);
-        }
+        setSelectUserType(item.id);
+        setSelectUserTypeTitle(item.title);
+        // if (item.id === 1) {
+        //     setSelectUserType(item.id);
+        //     setSelectUserTypeTitle(item.title);
+        // } else {
+        //     setSelectUserType(null);
+        //     setSelectUserTypeTitle(null);
+        //     setShowModal(true);
+        // }
     }
 
     const handleNext = () => {
-
+        localStorage.removeItem("registerDetails");
         const data = localStorage.getItem("registerDetails");
         if (data) {
             const details = JSON.parse(data);
             details.userType = SelectUserType;
+            details.userTypeTitle = SelectUserTypeTitle;
             localStorage.setItem("registerDetails", JSON.stringify(details));
             // handleContinue();
         } else {
             const userData = {
                 serviceID: "",
                 focusAreaId: "",
-                userType: SelectUserType
+                userType: SelectUserType,
+                userTypeTitle: SelectUserTypeTitle
             }
             localStorage.setItem("registerDetails", JSON.stringify(userData));
         }
@@ -145,7 +153,8 @@ const UserType = ({ handleContinue, DefaultData }) => {
                             {
                                 userType.map((item, index) => (
                                     <div key={item.id} className='flex w-4/12 p-2'>
-                                        <button className='w-full border rounded-lg p-2' onClick={(e) => { handleUserType(item) }} style={{ border: item.id === SelectUserType ? "2px solid #7902DF" : "" }}>
+                                        <button className='w-full rounded-lg p-2 hover:border-2 hover:border-[#7902DF]'
+                                            onClick={(e) => { handleUserType(item) }} style={{ border: item.id === SelectUserType ? "2px solid #7902DF" : "" }}>
                                             <div className='h-[198px] bg-gray-200 rounded w-full flex flex-col justify-center pb-[10px] items-center' style={{ backgroundColor: "#FAF9FF" }}>
                                                 <img src={item.icon} style={{ width: index > 1 ? "50%" : "90%", resize: "contain" }} alt='*' />
                                             </div>

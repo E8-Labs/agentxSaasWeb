@@ -7,6 +7,14 @@ import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
 import PricingBox from '../test/PricingBox';
 import { Box, Modal } from '@mui/material';
+import AddCardDetails from './addpayment/AddCardDetails';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
+
+
+let stripePublickKey = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production" ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
+console.log("Public key is ", stripePublickKey)
+const stripePromise = loadStripe(stripePublickKey);
 
 const CreatAgent3 = ({ handleContinue }) => {
 
@@ -18,6 +26,9 @@ const CreatAgent3 = ({ handleContinue }) => {
     const [addPaymentSuccessPopUp, setAddPaymentSuccessPopUp] = useState(false);
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [shouldContinue, setShouldContinue] = useState(true);
+
+    //code for adding stripe
+    const [cardData, getcardData] = useState("");
 
     useEffect(() => {
         if (togglePlan === true && agreeTerms === true) {
@@ -343,6 +354,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                 {/* Add Payment Modal */}
                 <Modal
                     open={addPaymentPopUp}
+                    // open={true}
                     closeAfterTransition
                     BackdropProps={{
                         timeout: 1000,
@@ -382,7 +394,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                 }
 
 
-                                <div className='mt-4 text-[#4F5B76]' style={styles.giftTextStyle}>
+                                {/* <div className='mt-4 text-[#4F5B76]' style={styles.giftTextStyle}>
                                     Card number
                                 </div>
                                 <input className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0' style={styles.cardStyles} placeholder='1212 1212 1212 1212' maxLength={16}
@@ -428,15 +440,24 @@ const CreatAgent3 = ({ handleContinue }) => {
                                     onInput={(e) => {
                                         e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
                                     }}
-                                />
+                                /> */}
 
-                                <button className='bg-purple text-white w-full rounded-xl mt-12' style={{ ...styles.headingStyle, height: "50px" }}
+                                <Elements stripe={stripePromise}>
+                                    <AddCardDetails
+                                        //selectedPlan={selectedPlan}
+                                        stop={stop} getcardData={getcardData} setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
+                                        togglePlan={togglePlan}
+                                        // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                                    />
+                                </Elements>
+
+                                {/* <button className='bg-purple text-white w-full rounded-xl mt-12' style={{ ...styles.headingStyle, height: "50px" }}
                                     onClick={() => {
-                                        handleClose();
+                                        
                                         setAddPaymentSuccessPopUp(true);
                                     }}>
                                     Continue
-                                </button>
+                                </button> */}
 
                                 {/* Can be use full to add shadow */}
                                 {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}

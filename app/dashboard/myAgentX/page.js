@@ -797,9 +797,9 @@ function Page() {
 
       if (response) {
         console.log("Response of test AI api is :", response);
+        setShowSuccessSnack(response.data.message);
         if (response.data.status === true) {
           setOpenTestAiModal(false);
-          setShowSuccessSnack(response.data.message);
           setName("");
           setPhone("");
         }
@@ -834,7 +834,7 @@ function Page() {
     if (registerationDetails) {
       const registerationData = JSON.parse(registerationDetails);
       console.log("User registeration data is :--", registerationData);
-      setUserData(registerationData);
+      // setUserData(registerationData);
     } else {
       // alert("Add details to continue");
     }

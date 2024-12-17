@@ -7,16 +7,33 @@ import UserType from '@/components/onboarding/UserType';
 import UserService from '@/components/onboarding/UserService';
 import FocusArea from '@/components/onboarding/FocusArea';
 import SignUpForm from '@/components/onboarding/SignUpForm';
+import InsuranceAgentSignUp from '@/components/onboarding/otherAgentsSignUp/InsuranceAgentSignUp';
+import SalesDevAgent from '@/components/onboarding/otherAgentsSignUp/SalesDevAgent';
+import SolarRepAgentSignUp from '@/components/onboarding/otherAgentsSignUp/SolarRepAgentSignUp';
+import MarketerAgentSignUp from '@/components/onboarding/otherAgentsSignUp/MarketerAgentSignUp';
+import WebOwnersAgentSignUp from '@/components/onboarding/otherAgentsSignUp/WebOwnersAgentSignUp';
+import RecruiterAgentSignUp from '@/components/onboarding/otherAgentsSignUp/RecruiterAgentSignUp';
+import TaxAgentSignUp from '@/components/onboarding/otherAgentsSignUp/TaxAgentSignUp';
+import { useRouter } from 'next/navigation';
 
 
 const Page = ({ params }) => {
 
+    const router = useRouter();
     const [index, setIndex] = useState(0);
-    const [DefaultData, setDefaultData] = useState(null);
 
-    let components = [UserType, UserService, FocusArea, SignUpForm, Congrats]
+    let components = [
+        UserType, UserService,
+        FocusArea, SignUpForm, Congrats,
+        SalesDevAgent, SolarRepAgentSignUp,
+        InsuranceAgentSignUp, MarketerAgentSignUp,
+        WebOwnersAgentSignUp, RecruiterAgentSignUp,
+        TaxAgentSignUp
+    ]
 
     let CurrentComp = components[index]
+
+    //function for moving to the other agents sign up pages
 
     // Function to proceed to the next step
     const handleContinue = () => {
@@ -24,10 +41,91 @@ const Page = ({ params }) => {
         setIndex(index + 1);
     };
 
+    //sals dev
+    const handleSalesAgentContinue = () => {
+        console.log("Component indexchanged ", index);
+        setIndex(index + 3);
+    };
+
+    const handleSalesAgentBack = () => {
+        console.log("Component indexchanged ", index);
+        setIndex(index - 3);
+    };
+
+    //solar rep
+    const handleSolarAgentContinue = () => {
+        console.log("Component indexchanged ", index);
+        setIndex(index + 4);
+    };
+
+    const handleSolarAgentBack = () => {
+        console.log("Component indexchanged ", index);
+        setIndex(index - 4);
+    };
+
+    // insurance
+    const handleInsuranceContinue = () => {
+        console.log("Component indexchanged ", index);
+        setIndex(index + 5);
+    };
+
+    const handleInsuranceBack = () => {
+        console.log("Component indexchanged ", index);
+        setIndex(index - 5);
+    };
+
+    // marketer
+    const handleMarketerAgentContinue = () => {
+        console.log("Component indexchanged ", index);
+        setIndex(index + 6);
+    };
+
+    const handleMarketerAgentBack = () => {
+        console.log("Component indexchanged ", index);
+        setIndex(index - 6);
+    };
+
+    // website owners
+    const handleWebsiteAgentContinue = () => {
+        console.log("Component indexchanged ", index);
+        setIndex(index + 7);
+    };
+
+    const handleWebsiteAgentBack = () => {
+        console.log("Component indexchanged ", index);
+        setIndex(index - 7);
+    };
+    // recruiter agent
+    const handleRecruiterAgentContinue = () => {
+        console.log("Component indexchanged ", index);
+        setIndex(index + 8);
+    };
+
+    const handleRecruiterAgentBack = () => {
+        console.log("Component indexchanged ", index);
+        setIndex(index - 8);
+    };
+    // tax agent
+    const handleTaxAgentContinue = () => {
+        console.log("Component indexchanged ", index);
+        setIndex(index + 9);
+    };
+
+    const handleTaxAgentBack = () => {
+        console.log("Component indexchanged ", index);
+        setIndex(index - 9);
+    };
+
+
     const handleBack = () => {
         console.log("Component indexchanged ", index);
         setIndex(index - 1);
     };
+
+    //move other agent to wait list
+    const handleWaitList = () => {
+        router.push("/onboarding/WaitList")
+    }
 
     const backgroundImage = {
         backgroundImage: 'url("/assets/background.png")',
@@ -40,38 +138,30 @@ const Page = ({ params }) => {
     };
 
 
-    const getDefaultData = async () => {
-        try {
-            // console.log("Check 1 clear !!!");
-            const ApiPath = Apis.defaultData;
-            console.log("Api link is:--", ApiPath);
-            const response = await axios.get(ApiPath, {
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            });
-
-            if (response) {
-                console.log("Response of api is : -----", response.data);
-                setDefaultData(response.data.data);
-            }else{
-                alert(response.data)
-            }
-
-        } catch (error) {
-            console.error("ERror occured in default data api is :----", error);
-        }
-    }
-
-    useEffect(() => {
-        getDefaultData();
-    }, [])
-
 
 
     return (
         <div style={backgroundImage} className="overflow-y-none flex flex-row justify-center items-center">
-            <CurrentComp handleContinue={handleContinue} handleBack={handleBack} DefaultData={DefaultData} />
+            <CurrentComp
+                handleContinue={handleContinue}
+                handleBack={handleBack}
+                handleSalesAgentContinue={handleSalesAgentContinue}
+                handleSolarAgentContinue={handleSolarAgentContinue}
+                handleInsuranceContinue={handleInsuranceContinue}
+                handleMarketerAgentContinue={handleMarketerAgentContinue}
+                handleWebsiteAgentContinue={handleWebsiteAgentContinue}
+                handleRecruiterAgentContinue={handleRecruiterAgentContinue}
+                handleTaxAgentContinue={handleTaxAgentContinue}
+                handleSalesAgentBack={handleSalesAgentBack}
+                handleSolarAgentBack={handleSolarAgentBack}
+                handleInsuranceBack={handleInsuranceBack}
+                handleMarketerAgentBack={handleMarketerAgentBack}
+                handleWebsiteAgentBack={handleWebsiteAgentBack}
+                handleRecruiterAgentBack={handleRecruiterAgentBack}
+                handleTaxAgentBack={handleTaxAgentBack}
+                //move other agents to wait list
+                handleWaitList={handleWaitList}
+            />
         </div>
     )
 }
