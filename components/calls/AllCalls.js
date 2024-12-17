@@ -7,6 +7,7 @@ import { Box, CircularProgress, duration, FormControl, InputLabel, MenuItem, Mod
 import { CalendarDots } from '@phosphor-icons/react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import parsePhoneNumberFromString from 'libphonenumber-js';
 
 function AllCalls() {
 
@@ -197,6 +198,16 @@ function AllCalls() {
         });
     }
 
+    //function to format phone number
+    //code for formating the number
+    const formatPhoneNumber = (rawNumber) => {
+        const phoneNumber = parsePhoneNumberFromString(
+            rawNumber?.startsWith('+') ? rawNumber : `+${rawNumber}`
+        );
+        // console.log("Raw number is", rawNumber);
+        return phoneNumber ? phoneNumber.formatInternational() : 'Invalid phone number';
+    };
+
     return (
         <div className='w-full items-start'>
 
@@ -278,7 +289,7 @@ function AllCalls() {
                                                 </div>
                                                 <div className='w-2/12 '>
                                                     <div style={styles.text2}>
-                                                        {item.PipelineStages?.pipelineId ?
+                                                        {item.pipeline ?
                                                             <div>
                                                                 {item.pipeline?.title}
                                                             </div> :
@@ -287,13 +298,17 @@ function AllCalls() {
                                                     </div>
                                                 </div>
                                                 <div className='w-2/12'>
-                                                    <div style={styles.text2}>{item.LeadModel?.phone}</div>
+                                                    {/* (item.LeadModel?.phone) */}
+                                                    <div style={styles.text2}>{item.LeadModel?.phone ?
+                                                        <div>
+                                                            {formatPhoneNumber(item?.LeadModel?.phone)}
+                                                        </div> : "-"}</div>
                                                 </div>
                                                 <div className='w-1/12'>
-                                                    <div style={styles.text2}>{item?.PipelineStages?.stageTitle ? (item.PipelineStages?.stageTitle) : "-"}</div>
+                                                    <div style={styles.text2}>{item?.PipelineStages?.stageTitle ? (item.PipelineStages?.stageTitle) : "No Stage"}</div>
                                                 </div>
                                                 <div className='w-1/12'>
-                                                    <div style={styles.text2}>{item.LeadModel?.status ? (item.LeadModel?.status) : "-"}</div>
+                                                    <div style={styles.text2}>{item?.status ? (item?.status) : "-"}</div>
                                                 </div>
                                                 <div className='w-1/12'>
                                                     <div style={styles.text2}>{moment(item.LeadModel?.createdAt).format('MM/DD/YYYY')}</div>

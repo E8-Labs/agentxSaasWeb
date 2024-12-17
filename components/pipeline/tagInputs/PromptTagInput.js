@@ -224,7 +224,7 @@ export const PromptTagInput = ({
       let filtered = [];
       if (searchTerm.startsWith("kyc")) {
         let kycTerm = searchTerm.replace(/kyc/g, "").trim();
-        kycsList.filter((option) => {
+        kycsList?.filter((option) => {
           if (option.question.toLowerCase().startsWith(kycTerm)) {
             filtered.push(option.question);
           }
@@ -282,7 +282,7 @@ export const PromptTagInput = ({
       let ShouldDelete = true;
       let indexOfStart = cursorPos;
       let currentChar = CharDel;
-      while (currentChar != "{") {
+      while (currentChar != "{" && indexOfStart >= 0) {
         indexOfStart -= 1;
         currentChar = t.substring(indexOfStart - 1, indexOfStart);
         if (currentChar == "}") {
@@ -433,13 +433,13 @@ export const PromptTagInput = ({
                 }}
             /> */}
       <div
-        className="flex flex-row items-center gap-2 w-full outline-none rounded-xl focus:ring-0"
+        className="flex flex-row items-start gap-2 w-full outline-none rounded-xl focus:ring-0"
         style={{
           border: "1px solid #00000020",
           paddingRight: "10px",
         }}
       >
-        <input
+        <textarea
           className="outline-none rounded-xl focus:ring-0 border-none w-full"
           onClick={() => {
             setShowScriptModal(true);
@@ -453,12 +453,13 @@ export const PromptTagInput = ({
             width: "100%",
             fontWeight: "500",
             fontSize: 15,
-            height: 50,
+            height: "100px",
             resize: "none",
             // border: "1px solid #00000020",
           }}
+          // disabled={true}
         />
-        <div>
+        <div className="h-[50px] flex flex-col justify-center">
           <button
             onClick={() => {
               setShowScriptModal(true);

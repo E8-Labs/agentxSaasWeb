@@ -499,6 +499,32 @@ function Page() {
         console.log("Response of update api is :--", response.data);
         if (response.data.status === true) {
           setShowSuccessSnack(response.data.message);
+
+          const localAgentsList = localStorage.getItem("localAgentDetails");
+
+          let agentsListDetails = [];
+          if (localAgentsList) {
+            const agentsList = JSON.parse(localAgentsList);
+            agentsListDetails = agentsList;
+          }
+
+          // agentsListDetails = (prevAgents) =>
+          //   prevAgents.map((agent) =>
+          //     agent.id === showScriptModal.id
+          //       ? { ...agent, ...response.data.data }
+          //       : agent
+          //   )
+
+          agentsListDetails = agentsListDetails.map((agent) =>
+            agent.id === showScriptModal.id
+              ? { ...agent, ...response.data.data }
+              : agent
+          )
+
+          localStorage.setItem("localAgentDetails", JSON.stringify(agentsListDetails));
+
+          // console.log("Updated agents list data on localstorage s:", agentsListDetails);
+
           setUserDetails((prevAgents) =>
             prevAgents.map((agent) =>
               agent.id === showScriptModal.id
