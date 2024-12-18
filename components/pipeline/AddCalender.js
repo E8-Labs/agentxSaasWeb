@@ -265,6 +265,7 @@ const AddCalender = ({ handleContinue }) => {
                               setCalenderTitle(item.title);
                               setCalenderApiKey(item.apiKey);
                               setEventId(item.eventId);
+                              setSelectTimeZone(item.timeZone);
                             }}
                             >
                               {item.title}
@@ -284,6 +285,7 @@ const AddCalender = ({ handleContinue }) => {
                           setCalenderTitle("");
                           setCalenderApiKey("");
                           setEventId("");
+                          setSelectTimeZone("");
                           setShowAddNewCalender(true);
                         }}
                       >
