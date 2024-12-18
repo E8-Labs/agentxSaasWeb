@@ -412,7 +412,7 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
 
   return (
     <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-      <div className='bg-white rounded-2xl w-10/12 max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+      <div className='bg-white rounded-2xl mx-2 w-full md:w-10/12 max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
         <div className='h-[80vh]'>
           {/* header */}
           <div className='h-[10%]'>
@@ -423,7 +423,7 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
             <div className='mt-6 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }} onClick={handleContinue}>
               Your Contact Information for InsuranceAgent
             </div>
-            <div className='mt-8 w-6/12 flex flex-col max-h-[85%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2' style={{ scrollbarWidth: "none" }}>
+            <div className='mt-8 w-full md:w-10/12 lg:w-6/12 flex flex-col max-h-[85%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2' style={{ scrollbarWidth: "none" }}>
 
               <div style={styles.headingStyle}>
                 {`What's your full name`}

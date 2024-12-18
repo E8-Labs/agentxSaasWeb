@@ -8,12 +8,12 @@ const Header = ({ skipSellerKYC, buyerKYC, shouldContinue, showSkip, handleConti
 
     return (
         <div>
-            <div className='px-4 flex flex-row items-center pt-2'>
+            <div className='px-4 flex flex-row items-center md:pt-2'>
                 <div className='w-4/12'>
-                    <Image className='ms-6' src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' />
+                    <Image className='ms-6 hidden md:flex' src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' />
                 </div>
                 <div className='w-4/12 flex flex-row justify-center'>
-                    <Image className='hidden md:flex' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain" }} height={69} width={69} alt='*' />
+                    <Image className='' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain" }} height={69} width={69} alt='*' />
                 </div>
                 <div className='w-4/12 flex felx-row items-start h-full justify-end'>
                     {

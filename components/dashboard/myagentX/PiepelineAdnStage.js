@@ -110,7 +110,7 @@ const PipelineAndStage = ({ selectedAgent }) => {
                     }}>
                         Assigned Pipeline
                     </p>
-                    <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' />
+                    {/* <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' /> */}
                 </div>
                 <div style={styles.paragraph}>
                     Pipeline

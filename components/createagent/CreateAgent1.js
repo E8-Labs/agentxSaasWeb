@@ -358,7 +358,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className=' rounded-2xl w-10/12 h-[90vh] flex flex-col items-center' style={{ scrollbarWidth: "none", backgroundColor: '#ffffff' }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+            <div className=' rounded-2xl w-full lg:w-10/12 h-[90vh] flex flex-col items-center' style={{ scrollbarWidth: "none", backgroundColor: '#ffffff' }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
             >
 
                 <div className='w-full h-[77vh]'>
@@ -371,7 +371,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                         <button className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }} onClick={handleContinue}>
                             Get started with your AI agent
                         </button>
-                        <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[80%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2' style={{ scrollbarWidth: "none" }}>
+                        <div className='mt-8 w-full md:w-10/12 lg:w-6/12 gap-4 flex flex-col max-h-[80%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2' style={{ scrollbarWidth: "none" }}>
 
                             <div style={styles.headingStyle} className='flex flex-row items-center gap-2'>
                                 {`What's your AI agent's name?`}
@@ -421,8 +421,8 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                 {`What's this agent's task?`}
                             </div>
 
-                            <div className='flex flex-row items-center gap-4'>
-                                <button className='flex flex-row items-center justify-center gap-2 border h-[60px] w-[240px] outline-none px-6'
+                            <div className='sm:flex sm:flex-row items-center gap-4'>
+                                <button className='flex flex-row items-center justify-center gap-2 border h-[60px] w-full sm:w-[240px] outline-none px-6'
                                     style={{
                                         borderRadius: "23px", border: OutBoundCalls ? "2px solid #7902DF" : ""
                                     }}
@@ -432,13 +432,13 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                         <Image src={"/assets/callOut.png"} height={24} width={24} alt='*' />
                                     }
                                     <div
-                                        // className='font-[500] text-xs md:text-[15px]'
+                                        className='text-start ms-2 sm:text-center sm:ms-0'
                                         style={styles.inputStyle}
                                     >
                                         Making outbound calls
                                     </div>
                                 </button>
-                                <button className='flex flex-row items-center justify-center gap-2 border h-[60px] w-[240px] outline-none px-6'
+                                <button className='flex flex-row items-center justify-center gap-2 border h-[60px] sm:mt-0 mt-4 w-full sm:w-[240px] outline-none px-6'
                                     style={{
                                         borderRadius: "23px", border: InBoundCalls ? "2px solid #7902DF" : ""
                                     }} onClick={handleInboundCallClick}>
@@ -447,7 +447,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                         <Image src={"/assets/callIn.png"} height={24} width={24} alt='*' />
                                     }
                                     <div
-                                        // className='font-[500] text-xs md:text-[15px]'
+                                        className='text-start ms-2 sm:text-center sm:ms-0'
                                         style={styles.inputStyle}
                                     >
                                         Taking Inbound Calls
@@ -549,7 +549,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                     },
                 }}
             >
-                <Box className="lg:w-4/12 sm:w-7/12 w-8/12" sx={styles.modalsStyle}>
+                <Box className="lg:w-4/12 sm:w-10/12 w-full" sx={styles.modalsStyle}>
                     <div className="flex flex-row justify-center w-full h-[70vh]">
                         <div
                             className="w-full overflow-auto"

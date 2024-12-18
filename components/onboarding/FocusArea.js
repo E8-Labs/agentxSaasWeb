@@ -192,7 +192,7 @@ const FocusArea = ({
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl flex flex-col justify-between w-10/12 h-[90%] py-4 ' style={{ scrollbarWidth: "none" }}//overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+            <div className='bg-white rounded-2xl flex flex-col justify-between w-full mx-2 md:w-10/12 h-[90%] py-4 ' style={{ scrollbarWidth: "none" }}//overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
             >
 
                 <div className='h-[80vh]'>
@@ -212,7 +212,7 @@ const FocusArea = ({
                                     <CircularProgress size={35} />
                                 </div>
                             ) : (
-                                <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+                                <div className='mt-8 md:10/12 w-full lg:w-6/12 gap-4 flex flex-col max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
 
                                     {focusData.map((item, index) => (
                                         <button key={item.id} onClick={() => { handlefocusArea(item.id) }} className='border-none outline-none'>
@@ -222,7 +222,7 @@ const FocusArea = ({
                                                     scrollbarWidth: "none", backgroundColor: focusArea.includes(item.id) ? "#402FFF05" : ""
                                                 }}>
                                                 <div className='w-full flex flex-row items-start justify-between px-4 py-2'>
-                                                    <div className='text-start w-[60%]'>
+                                                    <div className='text-start w-[100%] md:w-[60%]'>
                                                         <div style={{ fontFamily: "", fontWeight: "700", fontSize: 20 }}>
                                                             {item.title}
                                                         </div>

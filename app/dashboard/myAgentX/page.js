@@ -81,6 +81,7 @@ function Page() {
   //show objection and guadrails
   const [showObjection, setShowObjection] = useState(true);
   const [showGuardrails, setShowGuardrails] = useState(false);
+  const [showObjectives, setShowObjectives] = useState(false);
   const [SeledtedScriptAdvanceSetting, setSeledtedScriptAdvanceSetting] = useState(false);
   const [introVideoModal, setIntroVideoModal] = useState(false);
   const [kycsData, setKycsData] = useState(null);
@@ -101,6 +102,7 @@ function Page() {
 
   //prompt tag input
   const [scriptTagInput, setScriptTagInput] = useState('');
+  const [OldScriptTagInput, setOldScriptTagInput] = useState("")
 
 
   //code for testing the ai
@@ -114,6 +116,8 @@ function Page() {
   //code for storing the agents data
   const [agentsContent, setAgentsContent] = useState([]);
   const [actionInfoEl, setActionInfoEl] = React.useState(null);
+  const [hoveredIndexStatus, setHoveredIndexStatus] = useState(null);
+  const [hoveredIndexAddress, setHoveredIndexAddress] = useState(null);
 
   //code for scroll ofset
   useEffect(() => {
@@ -150,7 +154,7 @@ function Page() {
     console.log("Olde tag length", oldGreetingTagInput.length)
     console.log("olde tag 2 length", greetingTagInput.length)
     console.log("olde tag 3 length", scriptTagInput.length)
-    if (oldGreetingTagInput !== greetingTagInput) {
+    if (oldGreetingTagInput !== greetingTagInput || OldScriptTagInput !== scriptTagInput) {
       console.log(greetingTagInput);
       console.log(oldGreetingTagInput)
       console.log("not same")
@@ -638,11 +642,19 @@ function Page() {
   const handleShowObjection = () => {
     setShowObjection(true);
     setShowGuardrails(false);
+    setShowObjectives(false);
   }
 
   const handleShowGuardrails = () => {
     setShowObjection(false);
     setShowGuardrails(true);
+    setShowObjectives(false);
+  }
+
+  const handleShowObjectives = () => {
+    setShowObjectives(true);
+    setShowObjection(false);
+    setShowGuardrails(false);
   }
 
   //function ot compare the selected agent wiith the main agents list
@@ -652,12 +664,16 @@ function Page() {
     setKYCList(agentData[0].kyc);
 
     if (agentData[0].agents.length === 2 || agentData[0].agents[0].agentType === "outbound") {
+      setOldGreetingTagInput(agentData[0].greeting);
       setGreetingTagInput(agentData[0].greeting);
       setScriptTagInput(agentData[0].callScript);
+      setOldScriptTagInput(agentData[0].callScript);
     } else if (agentData[0].agents[0].agentType === "inbound") {
       isInbound = "inbound"
       setGreetingTagInput(agentData[0].inboundGreeting);
+      setOldGreetingTagInput(agentData[0].inboundGreeting);
       setScriptTagInput(agentData[0].inboundScript);
+      setOldScriptTagInput(agentData[0].inboundScript);
     }
 
     // setGreetingTagInput(agentData[0].greeting);
@@ -997,12 +1013,17 @@ function Page() {
   // let agentsContent = [];
   //code for popover
 
-  const handlePopoverOpen = (event) => {
+  const handlePopoverOpen = (event, item) => {
+    console.log("Hovered index is", item)
     setActionInfoEl(event.currentTarget);
+    setHoveredIndexStatus(item.status);
+    setHoveredIndexAddress(item.address);
   };
 
   const handlePopoverClose = () => {
     setActionInfoEl(null);
+    setHoveredIndexStatus(null);
+    setHoveredIndexAddress(null);
   };
 
   const open = Boolean(actionInfoEl);
@@ -1063,7 +1084,7 @@ function Page() {
       p: 2,
       mx: "auto",
       my: "50vh",
-      transform: "translateY(-55%)",
+      transform: "translateY(-50%)",
       borderRadius: 2,
       border: "none",
       outline: "none",
@@ -1162,7 +1183,7 @@ function Page() {
                               <div
                                 aria-owns={open ? 'mouse-over-popover' : undefined}
                                 aria-haspopup="true"
-                                onMouseEnter={handlePopoverOpen}
+                                onMouseEnter={(event) => { handlePopoverOpen(event, item) }}
                                 onMouseLeave={handlePopoverClose}
                                 style={{ cursor: "pointer" }}
                               >
@@ -1193,7 +1214,7 @@ function Page() {
                               PaperProps={{
                                 elevation: 1, // This will remove the shadow
                                 style: {
-                                  boxShadow: "0px 8px 8px rgba(0, 0, 0, 0.01)",
+                                  boxShadow: "0px 0px 4px rgba(0, 0, 0, 0.01)",
                                 },
                               }}
                               onClose={handlePopoverClose}
@@ -1205,15 +1226,15 @@ function Page() {
                                     Status
                                   </p>
                                   <p style={styles.paragraph}>
-                                    Coming soon
+                                    {hoveredIndexStatus ? (hoveredIndexStatus) : "-"}
                                   </p>
                                 </div>
                                 <div className="flex flex-row items-center justify-between mt-1 gap-1">
                                   <p style={{ ...styles.paragraph, color: "#00000060" }}>
-                                    Status
+                                    Address
                                   </p>
                                   <p style={styles.paragraph}>
-                                    Coming soon
+                                    {hoveredIndexAddress ? (hoveredIndexAddress) : "-"}
                                   </p>
                                 </div>
                               </div>
@@ -1297,7 +1318,8 @@ function Page() {
                             let kyc = (mainAgent?.kyc || []).map((kyc) => kyc.question)
                             console.log("Main agent selected ", mainAgent)
                             while ((match = regex.exec(callScript)) !== null) {
-                              let defaultVariables = ["Full Name", "First Name", "Last Name", "firstName", "Email", "Address", "seller_kyc", "buyer_kyc", "CU_address", "CU_status"]
+                              // "Email", "Address",
+                              let defaultVariables = ["Full Name", "First Name", "Last Name", "firstName", "seller_kyc", "buyer_kyc", "CU_address", "CU_status"]
                               if (!defaultVariables.includes(match[1])) {
                                 // match[1].length < 15
                                 if (!keys.includes(match[1]) && !kyc.includes(match[1])) {
@@ -1373,12 +1395,14 @@ function Page() {
 
         {/* code to add new agent */}
         <button
-          className="w-full py-6 rounded-lg flex justify-center items-center"
+          className="w-full py-6 flex justify-center items-center"
           style={{
             marginTop: 40,
-            borderWidth: 1,
-            borderColor: '#7902DF',
+            border: "1px dashed #7902DF",
+            borderRadius: "10px",
+            // borderColor: '#7902DF',
             boxShadow: '0px 0px 15px 15px rgba(64, 47, 255, 0.05)',
+            backgroundColor: "#FBFCFF"
           }}
           onClick={handleAddNewAgent}
         >
@@ -1671,24 +1695,14 @@ function Page() {
                 </div>
               </div>
             </div>
-            <button className='flex flex-row gap-2 items-center' onClick={() => { setDelAgentModal(true) }}>
-              <Image src={'/otherAssets/redDeleteIcon.png'}
-                height={24}
-                width={24}
-                alt='del'
-              />
 
-              <div style={{ fontSize: 15, fontWeight: '600', color: 'red', textDecorationLine: 'underline' }}>
-                Delete Agent
-              </div>
-            </button>
           </div>
 
 
 
           <div className="grid grid-cols-5 gap-6 border p-8 flex-row justify-between w-full rounded-lg mb-6">
             <Card
-              name="Number of Calls"
+              name="Calls"
               value={showDrawer?.calls && showDrawer?.calls > 0 ? (<div>{showDrawer?.calls}</div>) : "-"}
               icon="/assets/selectedCallIcon.png"
               bgColor="bg-blue-100"
@@ -1716,7 +1730,7 @@ function Page() {
               iconColor="text-green-500"
             />
             <Card
-              name="Live Transfers"
+              name="Mins Talked"
               value={showDrawer?.totalDuration && showDrawer?.totalDuration > 0 ? (<div>{showDrawer?.totalDuration}</div>) : "-"}
               icon="/otherAssets/transferIcon.png"
               bgColor="bg-green-100"
@@ -1946,12 +1960,25 @@ function Page() {
                       <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>
                         Call back number
                       </div>
-                      <Image src={'/otherAssets/updateIcon.png'}
-                        height={15}
-                        width={20}
+                      <div
+                      // aria-owns={open ? 'mouse-over-popover' : undefined}
+                      // aria-haspopup="true"
+                      // onMouseEnter={handlePopoverOpen}
+                      // onMouseLeave={handlePopoverClose}
+                      >
+                        <Image src={'/otherAssets/updateIcon.png'}
+                          style={{
+                            height: "20px",
+                            width: "20px",
+                            objectFit: "cover" // Ensures proper fitting
+                          }}
+                          height={20}
+                          width={20}
+                          alt='call'
+                        />
+                      </div>
+                      {/* Code for popover */}
 
-                        alt='call'
-                      />
                     </div>
                     <div
                       style={{
@@ -1969,12 +1996,18 @@ function Page() {
                       <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>
                         Call transfer number
                       </div>
-                      <Image src={'/otherAssets/updateIcon.png'}
-                        height={15}
+                      <Image
+                        src={'/otherAssets/updateIcon.png'}
+                        style={{
+                          height: "20px",
+                          width: "20px",
+                          objectFit: "cover" // Ensures proper fitting
+                        }}
+                        alt="call"
+                        height={20}
                         width={20}
-
-                        alt='call'
                       />
+
                     </div>
                     <div>
                       {showDrawer?.liveTransferNumber ?
@@ -2032,6 +2065,40 @@ function Page() {
               </div>
             ) : ""
           }
+
+          <div className='flex flex-row justify-end w-full mt-4'>
+            <button
+              className='flex flex-row gap-2 items-center'
+              onClick={() => { setDelAgentModal(true) }}
+              style={{
+                position: "absolute", bottom: 20
+              }}
+            >
+              {/* <Image src={'/otherAssets/redDeleteIcon.png'}
+                height={24}
+                width={24}
+                alt='del'
+              /> */}
+
+              <Image
+                src={'/otherAssets/redDeleteIcon.png'}
+                height={24}
+                width={24}
+                alt="del"
+                style={{
+                  filter: "brightness(0) saturate(100%) opacity(0.6)" // Convert to black and make semi-transparent
+                }}
+              />
+
+
+              <div style={{
+                fontSize: 15, fontWeight: '600',
+                color: '#00000060', textDecorationLine: 'underline',
+              }}>
+                Delete Agent
+              </div>
+            </button>
+          </div>
 
 
 
@@ -2285,10 +2352,10 @@ function Page() {
         <Box className="w-10/12 sm:w-10/12 md:w-8/12 lg:w-6/12 p-8 rounded-[15px]" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
           <div style={{ width: "100%", }}>
 
-            <div className='h-[75vh]' style={{ scrollbarWidth: "none" }}>
+            <div className='h-[90vh]' style={{ scrollbarWidth: "none" }}>
               <div style={{ height: "10%", width: "100%", direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 {/* <div style={{ width: "20%" }} /> */}
-                <div style={{ fontWeight: "500", fontSize: 17 }}>
+                <div style={{ fontWeight: "600", fontSize: 22 }}>
                   {showScriptModal?.name?.slice(0, 1).toUpperCase(0)}{showScriptModal?.name?.slice(1)}
                 </div>
                 <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
@@ -2302,7 +2369,7 @@ function Page() {
 
               <div className='mt-6 flex flex-row gap-6'
                 style={{ height: "", fontWeight: "500", fontSize: 15 }}>
-                <button className='px-2'
+                <button className='px-2 pb-1'
                   style={{
                     borderBottom: showScript && "2px solid #7902DF"
                   }}
@@ -2310,7 +2377,7 @@ function Page() {
                 >
                   Script
                 </button>
-                <button className='px-2'
+                <button className='px-2 pb-1'
                   style={{
                     borderBottom: SeledtedScriptKYC && "2px solid #7902DF"
                   }}
@@ -2318,7 +2385,7 @@ function Page() {
                 >
                   KYC
                 </button>
-                <button className='px-2'
+                <button className='px-2 pb-1'
                   style={{
                     borderBottom: SeledtedScriptAdvanceSetting && "2px solid #7902DF"
                   }}
@@ -2331,105 +2398,120 @@ function Page() {
               {
                 showScript && (
                   <div style={{ height: "80%", overflow: "auto", scrollbarWidth: "none" }}>
-                    <div className='bg-[#00000012] p-2 mt-6'>
-                      <div style={styles.inputStyle} className='flex flex-row items-center gap-2'>
-                        <Image src={"/assets/lightBulb.png"} alt='*' height={24} width={24} />  Editing Tips
-                      </div>
-                      <div style={styles.inputStyle} className='flex flex-row flex-wrap gap-2'>
-                        <div>
-                          You can use these variables:
-                        </div>
-                        {/* <div className='flex flex-row items-center gap-2'> */}
-                        <div style={{ width: "fit-content" }} className='text-purple flex flex-row gap-2'>
-                          {`{Address}`},{`{Phone}`}, {`{Email}`},{`{Kyc}`}
-                          {/* {`{First Name}`}, {`{Email}`}, */}
-                        </div>
 
-                        {
-                          uniqueColumns.length > 0 && showMoreUniqueColumns ?
-                            <div className='flex flex-row flex-wrap gap-2'>
-                              {
-                                uniqueColumns.map((item, index) => (
-                                  <div key={index} className='flex flex-row items-center gap-2 text-purple'>
-                                    {`{${item}}`},
-                                  </div>
-                                ))
-                              }
-                              <button className='text-purple outline-none' onClick={handleShowUniqueCols}>
-                                show less
-                              </button>
-                            </div> :
-                            <div>
-                              {
-                                uniqueColumns.length > 0 && (
-                                  <button
-                                    className='text-purple flex flex-row items-center font-bold outline-none'
-                                    onClick={() => {
-                                      handleShowUniqueCols()
-                                    }}
-                                  >
-                                    <Plus weight='bold' size={15}
-                                      style={{
-                                        strokeWidth: 40, // Adjust as needed
+                    <div style={{ height: "90%" }}>
+                      <div className='bg-[#00000002] p-2 mt-6'>
+                        <div style={styles.inputStyle} className='flex flex-row items-center gap-2'>
+                          <Image src={"/assets/lightBulb.png"} alt='*' height={24} width={24} />  Editing Tips
+                        </div>
+                        <div style={styles.inputStyle} className='flex flex-row flex-wrap gap-2'>
+                          <div>
+                            You can use these variables:
+                          </div>
+                          {/* <div className='flex flex-row items-center gap-2'> */}
+                          <div style={{ width: "fit-content" }} className='text-purple flex flex-row gap-2'>
+                            {`{Address}`},{`{Phone}`}, {`{Email}`},{`{Kyc}`}
+                            {/* {`{First Name}`}, {`{Email}`}, */}
+                          </div>
+
+                          {
+                            uniqueColumns.length > 0 && showMoreUniqueColumns ?
+                              <div className='flex flex-row flex-wrap gap-2'>
+                                {
+                                  uniqueColumns.map((item, index) => (
+                                    <div key={index} className='flex flex-row items-center gap-2 text-purple'>
+                                      {`{${item}}`},
+                                    </div>
+                                  ))
+                                }
+                                <button className='text-purple outline-none' onClick={handleShowUniqueCols}>
+                                  show less
+                                </button>
+                              </div> :
+                              <div>
+                                {
+                                  uniqueColumns.length > 0 && (
+                                    <button
+                                      className='text-purple flex flex-row items-center font-bold outline-none'
+                                      onClick={() => {
+                                        handleShowUniqueCols()
                                       }}
-                                    />
-                                    {uniqueColumns.length}
-                                  </button>
-                                )
-                              }
-                            </div>
-                        }
+                                    >
+                                      <Plus weight='bold' size={15}
+                                        style={{
+                                          strokeWidth: 40, // Adjust as needed
+                                        }}
+                                      />
+                                      {uniqueColumns.length}
+                                    </button>
+                                  )
+                                }
+                              </div>
+                          }
 
 
-                        {/* </div> */}
-                      </div>
-                    </div>
-
-                    <div className='flex flex-row items-center mt-4'>
-                      <button className='flex flex-row items-center gap-4' onClick={() => { setIntroVideoModal(true) }}>
-                        <Image src={"/assets/youtubeplay.png"} height={45} width={45} alt='*' style={{ borderRadius: "7px" }} />
-                        <div
-                          style={{
-                            fontSize: 15,
-                            fontWeight: "500",
-                            borderColor: "#00000020"
-                          }} className='underline'>
-                          Learn how to customize your script
+                          {/* </div> */}
                         </div>
-                      </button>
-                    </div>
-
-                    <div className='flex flex-row items-center justify-between'>
-                      <div className='mt-2' style={{ ...styles.paragraph, color: "#00000060" }}>
-                        Greeting
                       </div>
-                      <div>
-                        {
-                          UpdateAgentLoader ?
-                            <CircularProgress size={15} /> :
-                            <button
-                              className='underline text-purple'
-                              style={{ fontWeight: "600", fontSize: 15 }}
-                              onClick={() => { updateAgent() }}
-                            >
-                              Save Changes
-                            </button>
-                        }
+
+                      <div className='w-full'>
+                        <div className='flex flex-row items-center mt-4'>
+                          <button className='flex flex-row items-center gap-4' onClick={() => { setIntroVideoModal(true) }}>
+                            <Image src={"/assets/youtubeplay.png"} height={45} width={45} alt='*' style={{ borderRadius: "7px" }} />
+                            <div
+                              style={{
+                                fontSize: 15,
+                                fontWeight: "500",
+                                borderColor: "#00000020"
+                              }} className='underline'>
+                              Learn how to customize your script
+                            </div>
+                          </button>
+                        </div>
+
+                        <div className='mt-4' style={{ fontSize: 24, fontWeight: "700" }}>
+                          Script
+                        </div>
+
+                        <div className='flex flex-row items-center justify-between'>
+                          <div className='mt-2' style={{ ...styles.paragraph, color: "#00000060" }}>
+                            Greeting
+                          </div>
+
+                        </div>
+
+                        <div className='mt-2'>
+                          <GreetingTagInput greetTag={greetingTagInput} kycsList={kycsData} uniqueColumns={uniqueColumns} tagValue={setGreetingTagInput} scrollOffset={scrollOffset} />
+                        </div>
+                        <div className='mt-4 w-full'>
+
+                          <PromptTagInput promptTag={scriptTagInput} kycsList={kycsData} tagValue={setScriptTagInput} scrollOffset={scrollOffset} />
+
+                          {/* <DynamicDropdown /> */}
+
+                        </div>
                       </div>
                     </div>
 
-                    <div className='mt-2'>
-                      <GreetingTagInput greetTag={greetingTagInput} kycsList={kycsData} uniqueColumns={uniqueColumns} tagValue={setGreetingTagInput} scrollOffset={scrollOffset} />
-                    </div>
-                    <div className='mt-4' style={{ fontSize: 24, fontWeight: "700" }}>
-                      Script
-                    </div>
-                    <div className='mt-2 w-full'>
-
-                      <PromptTagInput promptTag={scriptTagInput} kycsList={kycsData} tagValue={setScriptTagInput} scrollOffset={scrollOffset} />
-
-                      {/* <DynamicDropdown /> */}
-
+                    <div style={{ height: "10%" }}>
+                      {
+                        !showSaveChangesBtn && (
+                          <div className='w-full pb-8'>
+                            {
+                              UpdateAgentLoader ?
+                                <div className='w-full flex flex-row justify-center'>
+                                  <CircularProgress size={15} />
+                                </div> :
+                                <button
+                                  className='underline bg-purple w-full h-[50px] rounded-xl mb-4 text-white'
+                                  style={{ fontWeight: "600", fontSize: 15 }}
+                                  onClick={() => { updateAgent() }}
+                                >
+                                  Save Changes
+                                </button>
+                            }
+                          </div>)
+                      }
                     </div>
 
                   </div>
@@ -2438,7 +2520,7 @@ function Page() {
 
               {
                 SeledtedScriptAdvanceSetting && (
-                  <div style={{ height: "100%" }}>
+                  <div style={{ height: "80%" }}>
                     <div className='flex flex-row items-center gap-2 mt-4'>
                       <button className='px-2 outline-none' style={{ borderBottom: showObjection && "2px solid #7902DF" }} onClick={handleShowObjection}>
                         Objection
@@ -2450,12 +2532,19 @@ function Page() {
                         onClick={handleShowGuardrails}>
                         Guardrails
                       </button>
+                      <button
+                        className='px-2 outline-none' style={{
+                          borderBottom: showObjectives && "2px solid #7902DF"
+                        }}
+                        onClick={handleShowObjectives}>
+                        Objectives
+                      </button>
                     </div>
 
                     {
                       showObjection && (
                         <div style={{ height: "80%" }}>
-                          <div style={{ overflow: "auto", scrollbarWidth: "none", marginTop: "40px", height: "80%" }}>
+                          <div style={{ marginTop: "40px", height: "80%" }}>
                             <Objection showTitle={true} selectedAgentId={showScriptModal} />
                           </div>
                         </div>
@@ -2465,8 +2554,18 @@ function Page() {
                     {
                       showGuardrails && (
                         <div style={{ height: "80%" }}>
-                          <div style={{ overflow: "auto", scrollbarWidth: "none", marginTop: "40px", height: "80%" }}>
+                          <div style={{ marginTop: "40px", height: "80%" }}>
                             <GuarduanSetting showTitle={true} selectedAgentId={showScriptModal} />
+                          </div>
+                        </div>
+                      )
+                    }
+
+                    {
+                      showObjectives && (
+                        <div style={{ height: "80%" }}>
+                          <div style={{ overflow: "auto", scrollbarWidth: "none", marginTop: "40px", height: "80%" }}>
+                            {showScriptModal?.prompt?.objective}
                           </div>
                         </div>
                       )

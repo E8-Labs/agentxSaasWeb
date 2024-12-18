@@ -35,7 +35,7 @@ const Page = ({ handleContinue, DefaultData }) => {
     return (
         <div style={backgroundImage} className="overflow-y-none flex flex-row justify-center items-center">
             <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
-                <div className='bg-white rounded-2xl w-10/12 h-[90%] py-4 flex flex-col ' style={{ scrollbarWidth: "none" }}>
+                <div className='bg-white rounded-2xl mx-2 w-full md:w-10/12 h-[90%] py-4 flex flex-col ' style={{ scrollbarWidth: "none" }}>
 
                     <div className='flex flex-col items-center h-[76vh]'>
                         {/* header */}
@@ -56,7 +56,7 @@ const Page = ({ handleContinue, DefaultData }) => {
                                 {`You’ve Joined the AgentX Waitlist`}
                             </div>
 
-                            <div className='mt-6 w-7/12 font-[400] overflow-auto' style={{ textAlign: "", fontSize: 15, scrollbarWidth: "none" }}>
+                            <div className='mt-6 w-full md:w-9/12 lg:w-7/12 font-[400] overflow-auto' style={{ textAlign: "", fontSize: 15, scrollbarWidth: "none" }}>
                                 <div style={{ fontFamily: 'Arial, sans-serif', lineHeight: '1.6', margin: '2rem' }}>
                                     <p><em>A letter from our Founder</em></p>
 

@@ -197,7 +197,7 @@ const Page = ({ length = 6, onComplete }) => {
           console.log("Response message is :", response.data.message);
           setCheckPhoneResponse(response.data.status);
 
-        } else {
+        } else if(response.data.status === false) {
           setCheckPhoneResponse(response.data.status);
         }
       }

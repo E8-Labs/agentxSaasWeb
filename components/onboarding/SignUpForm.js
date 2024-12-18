@@ -49,6 +49,9 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
   const [locationLoader, setLocationLoader] = useState(false);
   const [shouldContinue, setShouldContinue] = useState(true);
 
+  //congrats popup for small size screens
+  const [congratsPopup, setCongratsPopup] = useState(false);
+
   // Function to get the user's location and set the country code
   useEffect(() => {
     if (userName && userEmail && userPhoneNumber && userFarm && userBrokage &&
@@ -276,7 +279,19 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
             )}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
           }
 
-          handleContinue();
+          // handleContinue();
+
+          const screenWidth = window.innerWidth; // Get current screen width
+          const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
+
+          if (screenWidth <= SM_SCREEN_SIZE) {
+            setCongratsPopup(true);
+            console.log("This is a small size screen");
+          } else {
+            console.log("This is a large size screen");
+            handleContinue();
+          }
+
         }
       }
 
@@ -411,7 +426,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
 
   return (
     <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-      <div className='bg-white rounded-2xl w-10/12 max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+      <div className='bg-white rounded-2xl mx-2 w-full md:w-10/12 max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
         <div className='h-[80vh]'>
           {/* header */}
           <div className='h-[10%]'>
@@ -422,7 +437,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
             <div className='mt-6 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }} onClick={handleContinue}>
               Your Contact Information
             </div>
-            <div className='mt-8 w-6/12 flex flex-col max-h-[85%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2' style={{ scrollbarWidth: "none" }}>
+            <div className='mt-8 w-full md:w-10/12 lg:w-6/12 flex flex-col max-h-[85%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2' style={{ scrollbarWidth: "none" }}>
 
               <div style={styles.headingStyle}>
                 {`What's your full name`}
@@ -630,6 +645,8 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                 onChange={(e) => { setUserTransaction(e.target.value) }}
               />
 
+              {/* Modal for verify number */}
+
               <Modal
                 open={showVerifyPopup}
                 // onClose={() => setAddKYCQuestion(false)}
@@ -642,10 +659,10 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                   },
                 }}
               >
-                <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.verifyPopup}>
+                <Box className="lg:w-8/12 sm:w-full sm:w-10/12 w-full" sx={styles.verifyPopup}>
                   <div className="flex flex-row justify-center w-full">
                     <div
-                      className="sm:w-7/12 w-full"
+                      className="sm:w-7/12 w-full mx-2"
                       style={{
                         backgroundColor: "#ffffff",
                         padding: 20,
@@ -712,6 +729,85 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                             onClick={handleVerifyCode}
                           >
                             Continue
+                          </button>
+                      }
+                    </div>
+                  </div>
+                </Box>
+              </Modal>
+
+
+              {/* Modal for congrats */}
+              <Modal
+                open={congratsPopup}
+                // onClose={() => setAddKYCQuestion(false)}
+                closeAfterTransition
+                BackdropProps={{
+                  timeout: 1000,
+                  sx: {
+                    backgroundColor: "#00000020",
+                    backdropFilter: "blur(20px)",
+                  },
+                }}
+              >
+                <Box className="w-full" sx={styles.verifyPopup}>
+                  <div className="flex flex-row justify-center w-full">
+                    <div
+                      className="w-full mx-4"
+                      style={{
+                        backgroundColor: "#ffffff",
+                        padding: 20,
+                        borderRadius: "13px",
+                      }}
+                    >
+                      <div className='flex flex-row justify-end'>
+                        <button>
+                          <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                        </button>
+                      </div>
+                      <div style={{
+                        fontSize: 26,
+                        fontWeight: "700", textAlign: 'center'
+                      }}>
+                        Congrats
+                      </div>
+
+                      <div className='w-full mt-8 flex flex-row justify-center'>
+                        <Image className='' src="/agentXOrb.gif" style={{ height: "100px", width: "110px", resize: "contain" }} height={102} width={102} alt='*' />
+                      </div>
+
+                      <div style={{
+                        fontSize: 15,
+                        fontWeight: "600", textAlign: 'center', marginTop: 50, color: "#00000070"
+                      }}>
+                        Your account is created!
+                      </div>
+
+                      <div style={{
+                        fontSize: 17,
+                        fontWeight: "700", textAlign: 'center', marginTop: 15, color: "#000000"
+                      }}>
+                        {`Let’s build your AI AgentX`}
+                      </div>
+
+                      {
+                        registerLoader ?
+                          <div className='flex fex-row items-center justify-center mt-8'>
+                            <CircularProgress size={35} />
+                          </div>
+                          :
+                          <button
+                            className='text-white bg-purple outline-none rounded-xl w-full mt-8'
+                            style={{
+                              height: "50px",
+                              fontSize: 15,
+                              fontWeight: "700",
+                            }}
+                            onClick={() => {
+                              router.push("/createagent");
+                            }}
+                          >
+                            Build  AI AgentX
                           </button>
                       }
                     </div>

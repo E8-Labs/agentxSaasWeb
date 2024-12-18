@@ -193,7 +193,6 @@ const Objection = ({ showTitle, selectedAgentId }) => {
         showTitle && (
           <div className='flex flex-row items-center justify-between mt-4 pb-3'>
             <div style={{ fontWeight: "600", fontSize: 16.8 }}>
-              Objection
             </div>
             <button className='text-purple underline outline-none'
               style={{ fontWeight: "500", fontSize: 15 }}

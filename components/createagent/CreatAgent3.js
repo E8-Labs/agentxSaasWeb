@@ -189,7 +189,7 @@ const CreatAgent3 = ({ handleContinue }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4'>
+            <div className='bg-white rounded-2xl w-full lg:w-10/12 h-[90vh] py-4'>
 
                 <div className='h-[100%]'>
                     {/* header */}
@@ -198,7 +198,9 @@ const CreatAgent3 = ({ handleContinue }) => {
                     </div>
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full h-[80%]'>
-                        <div className='mt-6 w-11/12 sm:text-3xl text-lg font-[600]' style={{ textAlign: "center" }} onClick={handleContinue}>
+                        <div
+                            className='mt-6 w-11/12 sm:text-3xl text-xl font-[600]'
+                            style={{ textAlign: "center" }} onClick={handleContinue}>
                             Your first 30 minutes are on us!
                         </div>
                         <div className='mt-2 sm:text-[20px]' style={{ fontWeight: "400" }}>
@@ -206,7 +208,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                         </div>
 
                         <div className='h-[70%] overflow-auto w-full flex flex-col items-center' style={{ scrollbarWidth: "none" }}>
-                            <div className='flex flex-wrap w-4/12 ' style={{ backgroundColor: '' }}>
+                            <div className='flex flex-wrap w-full sm:w-10/12 md:w-4/12 ' style={{ backgroundColor: '' }}>
                                 {
                                     facilities.map((item, index) => (
                                         <div key={item.id} className='flex flex-row items-center justify-start pl-4 gap-2 w-1/2 mt-4'>
@@ -222,16 +224,23 @@ const CreatAgent3 = ({ handleContinue }) => {
                                     ))
                                 }
                             </div>
-                            <div className='flex flex-row items-center justify-center py-3 gap-4 mt-6 mb-8 px-4' style={{ backgroundColor: "#402FFF20", borderRadius: "50px", width: "fit-content" }}>
+                            <div className='hidden md:flex flex flex-row items-center justify-center py-3 gap-4 mt-6 mb-8 px-4' style={{ backgroundColor: "#402FFF20", borderRadius: "50px", width: "fit-content" }}>
                                 <Image src={"/assets/attachIcon.png"} height={24} width={24} alt='*' />
                                 <div className='text-purple' style={styles.giftTextStyle}>
                                     Invest in Your Business Growth - Quick Start, Minimal Cost, Maximum Value.
                                 </div>
                             </div>
 
+                            <div className='flex flex-row md:hidden items-center justify-center py-3 gap-4 mt-6 mb-8 px-4' style={{ backgroundColor: "#402FFF20", borderRadius: "50px", width: "fit-content" }}>
+                                <Image src={"/assets/gift.png"} height={24} width={24} alt='*' />
+                                <div className='text-purple' style={styles.giftTextStyle}>
+                                    Enjoy your next calls on us
+                                </div>
+                            </div>
+
                             {
                                 plans.map((item, index) => (
-                                    <button key={item.id} className='w-6/12 mt-4' onClick={(e) => handleTogglePlanClick(item)}>
+                                    <button key={item.id} className='w-full md:md-10/12 lg:w-6/12 mt-4' onClick={(e) => handleTogglePlanClick(item)}>
                                         <div className='px-4 py-1 pb-4'
                                             style={{
                                                 ...styles.pricingBox,
@@ -273,7 +282,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                             }
 
                             <div
-                                className='w-6/12 mt-4 flex flex-row items-start gap-2'
+                                className='w-full md:w-10/12 lg:w-6/12 mt-4 flex flex-row items-start gap-2'
                                 style={{
                                     borderRadius: "7px",
                                     border: "1px solid #15151540", padding: "15px", backgroundColor: "#330864",
@@ -295,7 +304,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                             </div>
                         </div>
 
-                        <div className='flex flex-row items-center gap-4 justify-start w-6/12 mt-6'>
+                        <div className='flex flex-row items-center gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6'>
                             <button onClick={handleToggleTermsClick}>
                                 {
                                     agreeTerms ?
@@ -327,7 +336,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                     {
                                         selectedPlan?.id > 1 ? (
                                             <button
-                                                className='bg-purple w-5/12 rounded-lg text-white h-[50px]'
+                                                className='bg-purple w-11/12 md:w-5/12 rounded-lg text-white h-[50px]'
                                                 style={{ fontSize: 16, fontWeight: "600" }}
                                                 onClick={() => { setAddPaymentPopUp(true) }}
                                             >
@@ -335,7 +344,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                             </button>
                                         ) : (
                                             <button
-                                                className='bg-purple w-5/12 rounded-lg text-white h-[50px]'
+                                                className='bg-purple w-11/12 md:w-5/12 rounded-lg text-white h-[50px]'
                                                 style={{ fontSize: 16, fontWeight: "600" }}
                                                 onClick={() => { setAddPaymentPopUp(true) }}
                                             >
@@ -353,7 +362,7 @@ const CreatAgent3 = ({ handleContinue }) => {
 
                 {/* Add Payment Modal */}
                 <Modal
-                    open={addPaymentPopUp}
+                    open={addPaymentPopUp} //addPaymentPopUp
                     // open={true}
                     closeAfterTransition
                     BackdropProps={{
@@ -364,7 +373,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                         },
                     }}
                 >
-                    <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.paymentModal}>
+                    <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
                         <div className="flex flex-row justify-center w-full">
                             <div
                                 className="sm:w-7/12 w-full"
@@ -379,16 +388,17 @@ const CreatAgent3 = ({ handleContinue }) => {
                                         <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
                                     </button>
                                 </div>
-                                <div className='text-center mt-2' style={{ fontWeight: "700", fontSize: 24 }}>
+                                <div className='text-center mt-2 text-[18px] font-[700] md:text-[24px] md:font-[700]'>
                                     Start for Free. Then Pay as you go!
                                 </div>
 
                                 {
                                     selectedPlan?.id > 1 ?
-                                        <div className='text-center mt-4' style={styles.headingStyle}>
+                                        <div className='text-center mt-4 text-[14px] font-[600] md:text-[17px] md:font-[700]' //style={styles.headingStyle}
+                                        >
                                             Your minutes will renew after using {selectedPlan?.mints} mins
                                         </div> :
-                                        <div className='text-center mt-4' style={styles.headingStyle}>
+                                        <div className='text-center mt-4 text-[14px] font-[600] md:text-[17px] md:font-[700]' style={styles.headingStyle}>
                                             Payment starts after your free {selectedPlan?.mints} mins
                                         </div>
                                 }
@@ -447,7 +457,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                         //selectedPlan={selectedPlan}
                                         stop={stop} getcardData={getcardData} setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                                         togglePlan={togglePlan}
-                                        // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                                    // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                                     />
                                 </Elements>
 
@@ -468,7 +478,7 @@ const CreatAgent3 = ({ handleContinue }) => {
 
                 {/* Add Payment Success Modal */}
                 <Modal
-                    open={addPaymentSuccessPopUp}
+                    open={addPaymentSuccessPopUp} //addPaymentSuccessPopUp
                     closeAfterTransition
                     BackdropProps={{
                         timeout: 1000,
@@ -478,10 +488,10 @@ const CreatAgent3 = ({ handleContinue }) => {
                         },
                     }}
                 >
-                    <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.paymentModal}>
+                    <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
                         <div className="flex flex-row justify-center w-full">
                             <div
-                                className="sm:w-7/12 w-full"
+                                className="sm:w-7/12 w-full mx-2"
                                 style={{
                                     backgroundColor: "#ffffff",
                                     padding: 20,
@@ -509,7 +519,22 @@ const CreatAgent3 = ({ handleContinue }) => {
                                 }
 
                                 <button
-                                    className='bg-purple text-white w-full rounded-xl mt-6 mb-6' style={{ ...styles.headingStyle, height: "50px", }} onClick={handleContinue}>
+                                    className='bg-purple text-white w-full rounded-xl mt-6 mb-6' style={{ ...styles.headingStyle, height: "50px", }}
+                                    onClick={() => {
+                                        
+                                        const screenWidth = window.innerWidth; // Get current screen width
+                                        const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
+
+                                        if (screenWidth <= SM_SCREEN_SIZE) {
+                                            router.push("/createagent/desktop")
+                                            console.log("This is a small size screen");
+                                        } else {
+                                            console.log("This is a large size screen");
+                                            handleContinue();
+                                        }
+
+                                    }}
+                                >
                                     Continue
                                 </button>
 

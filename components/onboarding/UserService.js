@@ -163,17 +163,17 @@ const UserService = ({ handleContinue, handleBack }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl flex flex-col justify-between w-10/12 h-[90%] py-4' style={{ scrollbarWidth: "none" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+            <div className='bg-white rounded-2xl flex flex-col justify-between w-full mx-2 md:w-10/12 h-[90%] py-4' style={{ scrollbarWidth: "none" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
             >
 
-                <div className='h-[82vh]'>
+                <div className='h-[82svh]'>
                     {/* header */}
                     <div className='h-[10%]'>
                         <Header />
                     </div>
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full h-[90%]'>
-                        <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
+                        <div className='mt-6 w-full md:w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
                             What would you like AgentX to help you with?
                         </div>
 
@@ -182,7 +182,7 @@ const UserService = ({ handleContinue, handleBack }) => {
                                 <div className='w-full flex flex-row justify-center items-center h-screen'>
                                     <CircularProgress size={35} />
                                 </div> :
-                                <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+                                <div className='mt-8 w-full md:w-10/12 lg:w-6/12 gap-4 flex flex-col max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
 
                                     {servicesData.map((item, index) => (
                                         <button key={item.id} onClick={() => { handleserviceId(item.id) }} className='border-none outline-none'>
@@ -192,7 +192,7 @@ const UserService = ({ handleContinue, handleBack }) => {
                                                     backgroundColor: serviceId.includes(item.id) ? "#402FFF05" : ""
                                                 }}>
                                                 <div className='flex flex-row items-start justify-between px-4 w-full py-2'>
-                                                    <div className='text-start w-[60%]'>
+                                                    <div className='text-start w-[100%] md:w-[60%]'>
                                                         <div style={{ fontFamily: "", fontWeight: "700", fontSize: 20 }}>
                                                             {item.title}
                                                         </div>

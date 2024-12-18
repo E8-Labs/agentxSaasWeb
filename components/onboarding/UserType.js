@@ -131,7 +131,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl w-10/12 h-[90%] py-4 flex flex-col ' style={{ scrollbarWidth: "none" }}>
+            <div className='bg-white rounded-2xl w-full mx-2 sm:w-10/12 h-[90%] py-4 flex flex-col ' style={{ scrollbarWidth: "none" }}>
 
                 <div className='flex flex-col items-center h-[73vh]'>
                     {/* header */}
@@ -145,20 +145,26 @@ const UserType = ({ handleContinue, DefaultData }) => {
                             Which AgentX will you build?
                         </div>
 
-                        <div className='mt-6 w-11/12 font-[400]' style={{ textAlign: "center", fontSize: 15 }}>
+                        <div className='mt-6 w-11/12 text-[10px] sm:text-[17px] font-[400]' style={{
+                            textAlign: "center", //fontSize: 15
+                        }}>
                             Scale your salesforce. Handle any business use case. With AgentX,<br></br>you can quickly build an AI agent in minutes.
                         </div>
 
-                        <div className='flex flex-wrap md:w-11/12 sm:w-3/6 lg:w-7/12 mt-8 h-[80%] overflow-auto' style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "none" }}>
+                        <div className='flex flex-wrap md:w-11/12 sm:w-full lg:w-7/12 mt-8 h-[80%] overflow-auto' style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "none" }}>
                             {
                                 userType.map((item, index) => (
-                                    <div key={item.id} className='flex w-4/12 p-2'>
-                                        <button className='w-full rounded-lg p-2 hover:border-2 hover:border-[#7902DF]'
+                                    <div key={item.id} className='flex w-6/12 md:w-4/12 p-2'>
+                                        <button className='w-full rounded-lg p-2 hover:border-2 hover:border-[#7902DF] border border-[#00000010]'
                                             onClick={(e) => { handleUserType(item) }} style={{ border: item.id === SelectUserType ? "2px solid #7902DF" : "" }}>
-                                            <div className='h-[198px] bg-gray-200 rounded w-full flex flex-col justify-center pb-[10px] items-center' style={{ backgroundColor: "#FAF9FF" }}>
+                                            <div className='h-[100px] sm:h-[198px] bg-gray-200 rounded w-full flex flex-col justify-center pb-[10px] items-center' style={{ backgroundColor: "#FAF9FF" }}>
                                                 <img src={item.icon} style={{ width: index > 1 ? "50%" : "90%", resize: "contain" }} alt='*' />
                                             </div>
-                                            <div className='text-center mt-2 pb-4' style={{ fontWeight: "600", fontSize: 17 }}>
+                                            <div className='text-center mt-2 pb-4'
+                                                style={{
+                                                    fontWeight: "600", fontSize: 17
+                                                }}
+                                            >
                                                 {item.title}
                                             </div>
                                         </button>
