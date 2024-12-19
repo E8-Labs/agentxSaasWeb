@@ -1108,7 +1108,15 @@ function Page() {
 
     console.log("Again setting data in array")
 
-    userDetails.map((item, index) => {
+    const localAgentsData = localStorage.getItem("localAgentDetails")
+
+    let localDetails = [];
+    if(localAgentsData){
+      localDetails = JSON.parse(localAgentsData);
+
+    }
+
+    localDetails.map((item, index) => {
       // Check if agents exist
       if (item.agents && item.agents.length > 0) {
         for (let i = 0; i < item.agents.length; i++) {
