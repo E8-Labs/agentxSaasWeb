@@ -896,6 +896,10 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
                                 handleCloseSellerKyc={handleCloseSellerKyc} handleAddBuyerKycData={handleAddBuyerKycData}
                                 OpenBuyerMotivation={OpenBuyerMotivation}
                                 OpenBuyerUrgency={OpenBuyerUrgency}
+                                BuyerNeedData={BuyerNeedData}
+                                BuyerMotivationData={BuyerMotivationData}
+                                BuyerUrgencyData={BuyerUrgencyData}
+                                mainAgentId={mainAgentId}
                             />
 
 

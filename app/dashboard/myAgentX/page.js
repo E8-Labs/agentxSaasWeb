@@ -98,6 +98,7 @@ function Page() {
   const [scrollOffset, setScrollOffset] = useState({ scrollTop: 0, scrollLeft: 0 });
   const containerRef = useRef(null); // Ref to the scrolling container
   const [showSuccessSnack, setShowSuccessSnack] = useState(null);
+  const [showErrorSnack, setShowErrorSnack] = useState(null);
   const [testAIloader, setTestAIloader] = useState(false);
   const [uniqueColumns, setUniqueColumns] = useState([]);
   const [showMoreUniqueColumns, setShowMoreUniqueColumns] = useState(false);
@@ -684,6 +685,8 @@ function Page() {
           //   callBackNumber: callBackNumber
           // }
           // localStorage.setItem("claimNumberData", JSON.stringify(calimNoData))
+        } else if (response.data.status === false) {
+          setShowErrorSnack(response.data.message);
         }
       }
 
@@ -1111,7 +1114,7 @@ function Page() {
     const localAgentsData = localStorage.getItem("localAgentDetails")
 
     let localDetails = [];
-    if(localAgentsData){
+    if (localAgentsData) {
       localDetails = JSON.parse(localAgentsData);
 
     }
@@ -1733,6 +1736,41 @@ function Page() {
             }}
           >
             {showSuccessSnack}
+          </Alert>
+        </Snackbar>
+      </div>
+
+      {/* Error snack bar message */}
+      <div>
+        <Snackbar
+          open={showErrorSnack}
+          autoHideDuration={3000}
+          onClose={() => {
+            setShowErrorSnack(null);
+          }}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "center",
+          }}
+          TransitionComponent={Fade}
+          TransitionProps={{
+            direction: "center",
+          }}
+        >
+          <Alert
+            onClose={() => {
+              setShowErrorSnack(null);
+            }}
+            severity="error"
+            // className='bg-purple rounded-lg text-white'
+            sx={{
+              width: "auto",
+              fontWeight: "700",
+              fontFamily: "inter",
+              fontSize: "22",
+            }}
+          >
+            {showErrorSnack}
           </Alert>
         </Snackbar>
       </div>

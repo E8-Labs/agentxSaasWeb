@@ -10,7 +10,14 @@ import { Box, style } from '@mui/system';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 
-const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc, OpenBuyerMotivation, OpenBuyerUrgency }) => {
+const AddBuyerKyc = ({
+    handleAddBuyerKycData,
+    handleCloseSellerKyc,
+    OpenBuyerMotivation, OpenBuyerUrgency,
+    BuyerNeedData,
+    BuyerMotivationData,
+    BuyerUrgencyData, mainAgentId
+}) => {
 
     const router = useRouter();
     const [toggleClick, setToggleClick] = useState(1);
@@ -30,16 +37,22 @@ const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc, OpenBuyerMot
         {
             id: 1,
             question: "What area are you looking in?",
+            category: "need",
+            type: "buyer",
             sampleAnswers: []
         },
         {
             id: 2,
             question: "What type of home are you looking for? Single family, townhouse, condo, apartment, etc",
+            category: "need",
+            type: "buyer",
             sampleAnswers: []
         },
         {
             id: 3,
             question: "Are you a first time home buyer?",
+            category: "need",
+            type: "buyer",
             sampleAnswers: []
         },
     ]);
@@ -48,16 +61,22 @@ const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc, OpenBuyerMot
         {
             id: 1,
             question: "Why is now the right time?",
+            category: "motivation",
+            type: "buyer",
             sampleAnswers: []
         },
         {
             id: 2,
             question: "Are you looking to downsize or upsize?",
+            category: "motivation",
+            type: "buyer",
             sampleAnswers: []
         },
         {
             id: 3,
             question: "Are you relocating for work?",
+            category: "motivation",
+            type: "buyer",
             sampleAnswers: []
         },
     ]);
@@ -66,26 +85,78 @@ const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc, OpenBuyerMot
         {
             id: 1,
             question: "When do you expect to move into your new place?",
+            category: "urgency",
+            type: "buyer",
             sampleAnswers: []
         },
         {
             id: 2,
             question: "When do you plan on buying a home?",
+            category: "urgency",
+            type: "buyer",
             sampleAnswers: []
         },
         {
             id: 3,
             question: "When do you plan to move into your new home?",
+            category: "urgency",
+            type: "buyer",
             sampleAnswers: []
         },
     ]);
 
 
     useEffect(() => {
-        if (OpenBuyerMotivation) {
-            setToggleClick(2)
-        } else if (OpenBuyerUrgency) {
-            setToggleClick(3)
+        if (BuyerNeedData.length > 0) {
+            console.log("Data passed is", BuyerNeedData)
+            setNeedKYCQuestions((prevNeedKycs) => [
+                ...prevNeedKycs.filter(
+                    (existing) => !BuyerNeedData.some((newData) => existing.question === newData.question)
+                ),
+                ...BuyerNeedData
+            ]);
+
+            // Remove matching items from SelectedNeedKYC and add the new items
+            setSelectedNeedKYC((prevSelected) => [
+                ...prevSelected.filter(
+                    (selectedItem) => !BuyerNeedData.some((newData) => selectedItem.id === newData.id)
+                ),
+                ...BuyerNeedData.map((item) => ({ id: item.id, question: item.question }))
+            ]);
+        }
+        if (BuyerMotivationData.length > 0) {
+            console.log("Data passed is", BuyerNeedData)
+            setMotivationKycQuestions((prevNeedKycs) => [
+                ...prevNeedKycs.filter(
+                    (existing) => !BuyerMotivationData.some((newData) => existing.question === newData.question)
+                ),
+                ...BuyerMotivationData
+            ]);
+
+            // Remove matching items from SelectedNeedKYC and add the new items
+            setSelectedMotivationKYC((prevSelected) => [
+                ...prevSelected.filter(
+                    (selectedItem) => !BuyerMotivationData.some((newData) => selectedItem.id === newData.id)
+                ),
+                ...BuyerMotivationData.map((item) => ({ id: item.id, question: item.question }))
+            ]);
+        }
+        if (BuyerUrgencyData.length > 0) {
+            console.log("Data passed is", BuyerNeedData)
+            setUrgencyKycQuestions((prevNeedKycs) => [
+                ...prevNeedKycs.filter(
+                    (existing) => !BuyerUrgencyData.some((newData) => existing.question === newData.question)
+                ),
+                ...BuyerUrgencyData
+            ]);
+
+            // Remove matching items from SelectedNeedKYC and add the new items
+            setSelectedUrgencyKyc((prevSelected) => [
+                ...prevSelected.filter(
+                    (selectedItem) => !BuyerUrgencyData.some((newData) => selectedItem.id === newData.id)
+                ),
+                ...BuyerUrgencyData.map((item) => ({ id: item.id, question: item.question }))
+            ]);
         }
     }, []);
 
@@ -232,6 +303,14 @@ const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc, OpenBuyerMot
                 AuthToken = UserDetails.token;
             }
 
+            let AgentId = null
+
+            if (mainAgentId) {
+                AgentId = mainAgentId
+            } else {
+                AgentId = MyAgentData.id
+            }
+
             if (agentDetails) {
                 console.log("trying")
                 const agentData = JSON.parse(agentDetails);
@@ -240,49 +319,68 @@ const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc, OpenBuyerMot
 
             }
 
-            const ApiPath = Apis.addKyc;
+            const ApiPath = Apis.updateKYC;
             let ApiData = [];
 
-            if (selectedNeedQuestions.length > 0) {
-                // console.log("#need Question details are :", selectedNeedQuestions);
-                const data = {
-                    kycQuestions: selectedNeedQuestions.map(item => ({
-                        question: item.question,
-                        category: "need",
-                        type: "buyer",
-                        examples: item.sampleAnswers.filter(answer => answer)
-                    })),
-                    mainAgentId: MyAgentData.id
-                };
-                // console.log("Data to send in api is", data);
-                ApiData = data;
-            } else if (selectedMotivationQuestions.length > 0) {
-                console.log("#motivation Question details are :", selectedMotivationQuestions);
-                const data = {
-                    kycQuestions: selectedMotivationQuestions.map(item => ({
-                        question: item.question,
-                        category: "motivation",
-                        type: "buyer",
-                        examples: item.sampleAnswers.filter(answer => answer)
-                    })),
-                    mainAgentId: MyAgentData.id
-                };
-                // console.log("Data to send in api is", data);
-                ApiData = data;
-            } else if (selectedUrgencyQuestions.length > 0) {
-                console.log("#urgency Question details are :", selectedUrgencyQuestions);
-                const data = {
-                    kycQuestions: selectedUrgencyQuestions.map(item => ({
-                        question: item.question,
-                        category: "urgency",
-                        type: "buyer",
-                        examples: item.sampleAnswers.filter(answer => answer)
-                    })),
-                    mainAgentId: MyAgentData.id
-                };
-                // console.log("Data to send in api is", data);
-                ApiData = data;
-            }
+            // if (selectedNeedQuestions.length > 0) {
+            //     // console.log("#need Question details are :", selectedNeedQuestions);
+            //     const data = {
+            //         kycQuestions: selectedNeedQuestions.map(item => ({
+            //             question: item.question,
+            //             category: "need",
+            //             type: "buyer",
+            //             examples: item.sampleAnswers.filter(answer => answer)
+            //         })),
+            //         mainAgentId: MyAgentData.id
+            //     };
+            //     // console.log("Data to send in api is", data);
+            //     ApiData = data;
+            // } else if (selectedMotivationQuestions.length > 0) {
+            //     console.log("#motivation Question details are :", selectedMotivationQuestions);
+            //     const data = {
+            //         kycQuestions: selectedMotivationQuestions.map(item => ({
+            //             question: item.question,
+            //             category: "motivation",
+            //             type: "buyer",
+            //             examples: item.sampleAnswers.filter(answer => answer)
+            //         })),
+            //         mainAgentId: MyAgentData.id
+            //     };
+            //     // console.log("Data to send in api is", data);
+            //     ApiData = data;
+            // } else if (selectedUrgencyQuestions.length > 0) {
+            //     console.log("#urgency Question details are :", selectedUrgencyQuestions);
+            //     const data = {
+            //         kycQuestions: selectedUrgencyQuestions.map(item => ({
+            //             question: item.question,
+            //             category: "urgency",
+            //             type: "buyer",
+            //             examples: item.sampleAnswers.filter(answer => answer)
+            //         })),
+            //         mainAgentId: MyAgentData.id
+            //     };
+            //     // console.log("Data to send in api is", data);
+            //     ApiData = data;
+            // }
+
+            let updatedKycs = [...selectedMotivationQuestions, ...selectedNeedQuestions, ...selectedUrgencyQuestions]
+
+            // let kycs = allKYCs.filter((item) => item.category != "motivation")
+            // kycs = [...kycs, ...updatedKycs]
+
+            const data = {
+                kycQuestions: updatedKycs.map(item => ({
+                    question: item.question,
+                    category: item.category,
+                    type: item.type,
+                    examples: item?.sampleAnswers?.filter(answer => answer)
+                })),
+                type: "buyer",
+                mainAgentId: AgentId
+            };
+            console.log("Data to send in api is", data);
+
+            ApiData = data;
 
             console.log("APi data is :--", ApiData);
 

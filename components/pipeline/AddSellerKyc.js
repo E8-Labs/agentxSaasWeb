@@ -454,6 +454,7 @@ const AddSellerKyc = ({
                         type: item.type,
                         examples: item?.sampleAnswers?.filter(answer => answer)
                     })),
+                    type: "seller",
                     mainAgentId: AgentId
                 };
                 console.log("Data to send in api is", data);
@@ -566,22 +567,22 @@ const AddSellerKyc = ({
                 //     mainAgentId: AgentId
                 // };
                 // console.log("Data to send in api is", data);
-                ApiData = data;
+                // ApiData = data;
             // } else if (selectedUrgencyQuestions.length > 0) {
 
                 // let newArray = selectedUrgencyQuestions.map((item) => item);
 
-                const updatedArray = selectedUrgencyQuestions.filter(
-                    (item) => newArray.includes(item)
-                );
+                // const updatedArray = selectedUrgencyQuestions.filter(
+                //     (item) => newArray.includes(item)
+                // );
 
                 //array to send in api
-                const mergedArray = [
-                    ...newArray,
-                    ...updatedArray.filter(
-                        (item2) => !newArray.some((item1) => item1 === item2)
-                    )
-                ];
+                // const mergedArray = [
+                //     ...newArray,
+                //     ...updatedArray.filter(
+                //         (item2) => !newArray.some((item1) => item1 === item2)
+                //     )
+                // ];
 
                 // const data = {
                 //     kycQuestions: mergedArray.map(item => ({
@@ -593,7 +594,7 @@ const AddSellerKyc = ({
                 //     mainAgentId: AgentId
                 // };
                 // console.log("Data to send in api is", data);
-                ApiData = data;
+                // ApiData = data;
             // }
 
             console.log("APi data is :--", ApiData);
