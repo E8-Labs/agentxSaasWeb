@@ -1,4 +1,5 @@
 import { Box, Modal } from "@mui/material";
+import { FrameCorners } from "@phosphor-icons/react";
 import { PencilSimpleLine } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import React, { useState, useRef, useEffect } from "react";
@@ -8,11 +9,12 @@ export const PromptTagInput = ({
   promptTag,
   kycsList,
   tagValue,
+  uniqueColumns
 }) => {
   // console.log("Scroll Offset Parent ", scrollOffset)
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
-  const [options] = useState([
+  const [options, setOptions] = useState([
     "First Name",
     "Last Name",
     "Address",
@@ -29,6 +31,12 @@ export const PromptTagInput = ({
   const [showScriptModal, setShowScriptModal] = useState(false);
 
   console.log("Kycs list is:", kycsList);
+
+  useEffect(()=> {
+    setOptions((prev)=> {
+      return [...prev, ...uniqueColumns]  
+    })
+  }, [uniqueColumns])
 
   useEffect(() => {
     let mirrorDiv = null;
@@ -401,7 +409,7 @@ export const PromptTagInput = ({
       // p: 2,
       mx: "auto",
       my: "50vh",
-      transform: "translateY(-55%)",
+      transform: "translateY(-50%)",
       borderRadius: 2,
       border: "none",
       outline: "none",
@@ -465,7 +473,7 @@ export const PromptTagInput = ({
               setShowScriptModal(true);
             }}
           >
-            <PencilSimpleLine size={17} />
+            <FrameCorners size={18} />
           </button>
         </div>
       </div>
@@ -518,7 +526,7 @@ export const PromptTagInput = ({
         }}
       >
         <Box
-          className="lg:w-5/12 sm:w-full w-8/12 h-[85vh] flex justify-center items-center"
+          className="lg:w-5/12 sm:w-full w-8/12 h-[93%] flex justify-center items-center"
           sx={styles.modalsStyle}
         >
           <div className="flex flex-row justify-center items-center w-full h-[100%]">
@@ -557,7 +565,7 @@ export const PromptTagInput = ({
                 </div>
               </div>
 
-              <div style={{ position: "relative", height: "70%" }}>
+              <div style={{ position: "relative", height: "80%" }}>
 
                 <textarea
                   className="outline-none rounded-xl focus:ring-0"
@@ -648,7 +656,7 @@ export const PromptTagInput = ({
                 )}
               </div>
 
-              <div className="mt-4 w-full h-[15%]">
+              {/* <div className="mt-4 w-full h-[15%]">
                 <button
                   className="bg-purple text-white text-xl font-medium w-full rounded-2xl h-[50px]"
                   onClick={() => {
@@ -657,7 +665,7 @@ export const PromptTagInput = ({
                 >
                   Update & Close
                 </button>
-              </div>
+              </div> */}
 
               {/* Can be use full to add shadow */}
               {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}

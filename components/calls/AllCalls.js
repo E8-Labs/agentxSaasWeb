@@ -308,7 +308,7 @@ function AllCalls() {
                                                     <div style={styles.text2}>{item?.PipelineStages?.stageTitle ? (item.PipelineStages?.stageTitle) : "No Stage"}</div>
                                                 </div>
                                                 <div className='w-1/12'>
-                                                    <div style={styles.text2}>{item?.status ? (item?.status) : "-"}</div>
+                                                    <div style={styles.text2}>{item?.callOutcome ? (item?.callOutcome) : "Ongoing"}</div>
                                                 </div>
                                                 <div className='w-1/12'>
                                                     <div style={styles.text2}>{moment(item.LeadModel?.createdAt).format('MM/DD/YYYY')}</div>

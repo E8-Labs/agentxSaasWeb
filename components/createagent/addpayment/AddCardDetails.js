@@ -35,6 +35,11 @@ const AddCardDetails = ({
     const cardExpiryRef = useRef(null);
     const cardCvcRef = useRef(null);
 
+    //check for button
+    const [CardAdded, setCardAdded] = useState(false);
+    const [CardExpiry, setCardExpiry] = useState(false);
+    const [CVC, setCVC] = useState(false);
+
     // Autofocus the first field when the component mounts
     useEffect(() => {
         console.log("Trying to focus check 2")
@@ -336,7 +341,16 @@ const AddCardDetails = ({
                     <CardNumberElement
                         options={elementOptions}
                         autoFocus={true}
-                        onChange={(event) => handleFieldChange(event, cardExpiryRef)}
+                        onChange={(event) => {
+                            handleFieldChange(event, cardExpiryRef);
+                            if (event.complete) {
+                                console.log("Card Number is complete");
+                                setCardAdded(true);
+                            } else {
+                                setCardAdded(false);
+                            }
+                        }
+                        }
                         ref={cardNumberRef}
                         onReady={(element) => {
                             cardNumberRef.current = element
@@ -357,7 +371,16 @@ const AddCardDetails = ({
                                 width: '100%', padding: '8px',
                                 color: 'white', fontSize: '22px', border: '1px solid blue', borderRadius: '4px'
                             }}
-                            onChange={(event) => handleFieldChange(event, cardCvcRef)}
+                            onChange={(event) => {
+                                handleFieldChange(event, cardCvcRef);
+                                if (event.complete) {
+                                    console.log("Card expiry is complete");
+                                    setCardExpiry(true);
+                                } else {
+                                    setCardExpiry(false);
+                                }
+                            }
+                            }
                             ref={cardExpiryRef}
                             onReady={(element) => {
                                 cardExpiryRef.current = element
@@ -380,6 +403,17 @@ const AddCardDetails = ({
                             onReady={(element) => {
                                 cardCvcRef.current = element
                             }}
+
+                            onChange={(event) => {
+                                // handleFieldChange(event, cardCvcRef);
+                                if (event.complete) {
+                                    console.log("CVC is complete");
+                                    setCVC(true);
+                                } else {
+                                    setCVC(false);
+                                }
+                            }
+                            }
                         />
                     </div>
                 </div>
@@ -392,9 +426,19 @@ const AddCardDetails = ({
                             <CircularProgress size={30} />
                         </div> :
                         <div className='flex flex-row justify-end items-center mt-8 w-full'>
-                            <button onClick={handleAddCard} className='bg-purple w-full h-[50px] rounded-xl px-8 text-white py-3' style={{ fontWeight: "600", fontSize: 17 }}>
-                                Continue
-                            </button>
+                            {
+                                CardAdded && CardExpiry && CVC ? (
+                                    <button onClick={handleAddCard} className='bg-purple w-full h-[50px] rounded-xl px-8 text-white py-3' style={{ fontWeight: "600", fontSize: 17 }}>
+                                        Continue
+                                    </button>
+                                ) : (
+                                    <button
+                                        disabled={true}
+                                        className='bg-[#00000060] w-full h-[50px] rounded-xl px-8 text-white py-3' style={{ fontWeight: "600", fontSize: 17 }}>
+                                        Continue
+                                    </button>
+                                )
+                            }
                         </div>
                 }
             </div>

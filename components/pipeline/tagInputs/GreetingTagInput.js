@@ -4,12 +4,18 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
     //console.log("Scroll Offset Parent ", scrollOffset)
     const [popupVisible, setPopupVisible] = useState(false);
     const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
-    const [options] = useState(["First Name", "Last Name", "Address", "Email", "Phone"]);
+    const [options, setOptions] = useState(["First Name", "Last Name", "Address", "Email", "Phone"]);
     const [filteredOptions, setFilteredOptions] = useState(options);
     const [text, setText] = useState("");
     const [cursorPosition, setCursorPosition] = useState(0);
     const textFieldRef = useRef(null);
     const mirrorDivRef = useRef(null);
+
+    useEffect(() => {
+        setOptions((prev) => {
+            return [...prev, ...uniqueColumns]
+        })
+    }, [uniqueColumns])
 
     useEffect(() => {
         let mirrorDiv = null

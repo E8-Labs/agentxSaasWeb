@@ -10,7 +10,7 @@ import { Box, style } from '@mui/system';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 
-const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc }) => {
+const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc, OpenBuyerMotivation, OpenBuyerUrgency }) => {
 
     const router = useRouter();
     const [toggleClick, setToggleClick] = useState(1);
@@ -79,6 +79,15 @@ const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc }) => {
             sampleAnswers: []
         },
     ]);
+
+
+    useEffect(() => {
+        if (OpenBuyerMotivation) {
+            setToggleClick(2)
+        } else if (OpenBuyerUrgency) {
+            setToggleClick(3)
+        }
+    }, []);
 
     //code to add kycQuestion in array
     // const handleAddKycQuestion = () => {
@@ -341,7 +350,7 @@ const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='rounded-lg w-10/12 h-[60vh] flex flex-col justify-between'>
+            <div className='rounded-lg w-10/12 h-[90%] flex flex-col justify-between'>
                 <div className='h-[60vh] py-4 overflow-auto' style={{ scrollbarWidth: "none" }}>
                     {/* header */}
                     {/* <Header /> */}
@@ -570,8 +579,16 @@ const AddBuyerKyc = ({ handleAddBuyerKycData, handleCloseSellerKyc }) => {
 
                                         <div className='w-full h-[80px]'>
                                             {
-                                                inputs.filter(input => input.value.trim()).length === 3 && newQuestion && (
+                                                inputs.filter(input => input.value.trim()).length === 3 && newQuestion ? (
                                                     <button className='bg-purple outline-none border-none rounded-lg text-white w-full mt-4 mx-2' style={{ ...styles.headingStyle, height: "50px" }} onClick={handleAddKycQuestion}>
+                                                        Add Question
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        disabled={true}
+                                                        className='bg-[#00000060] outline-none border-none rounded-lg text-white w-full mt-4 mx-2'
+                                                        style={{ ...styles.headingStyle, height: "50px" }}
+                                                        onClick={handleAddKycQuestion}>
                                                         Add Question
                                                     </button>
                                                 )

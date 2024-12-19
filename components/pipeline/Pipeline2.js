@@ -670,7 +670,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                             </div>
                             <div className='mt-6'>
 
-                                <PromptTagInput promptTag={scriptTagInput} kycsList={kycsData} tagValue={setScriptTagInput} scrollOffset={scrollOffset} />
+                                <PromptTagInput promptTag={scriptTagInput} kycsList={kycsData} tagValue={setScriptTagInput} scrollOffset={scrollOffset} uniqueColumns={uniqueColumns} />
 
                                 {/* <DynamicDropdown /> */}
 

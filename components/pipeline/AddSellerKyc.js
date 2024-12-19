@@ -10,7 +10,17 @@ import { Box, style } from '@mui/system';
 import Apis from '../apis/Apis';
 import axios from 'axios';
 
-const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
+const AddSellerKyc = ({
+    handleCloseSellerKyc,
+    handleAddSellerKycData,
+    OpenSelerMotivation, OpenSellerNeeds,
+    OpenSellerUrgency, SellerNeedData,
+    hideTitle,
+    SellerMotivationData,
+    SellerUrgencyData, mainAgentId, allKYCs
+}) => {
+
+    console.log("Satus of passed is", allKYCs)
 
     const router = useRouter();
     const [toggleClick, setToggleClick] = useState(1);
@@ -30,6 +40,8 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
         {
             id: 1,
             question: "Why have you decided to sell your home?",
+            category: "need",
+            type: "seller",
             sampleAnswers: []
         },
         // {
@@ -40,6 +52,8 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
         {
             id: 2,
             question: "Are there any significant life changes prompting this decision, such as job relocation or changes in the family?",
+            category: "need",
+            type: "seller",
             sampleAnswers: []
         },
     ]);
@@ -48,16 +62,22 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
         {
             id: 1,
             question: "What's your primary motivation for selling now rather than waiting?", //Why is now the right time?
+            category: "motivation",
+            type: "seller",
             sampleAnswers: []
         },
         {
             id: 2,
             question: "How important is the selling price to you versus the speed of the sale?", //Are you looking to downsize or upsize?
+            category: "motivation",
+            type: "seller",
             sampleAnswers: []
         },
         {
             id: 3,
             question: "Are there any specific factors that would influence your decision to accept an offer or reject it?", //Are you relocating for work?
+            category: "motivation",
+            type: "seller",
             sampleAnswers: []
         },
     ]);
@@ -66,19 +86,103 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
         {
             id: 1,
             question: "When do you hope to have your home sold?", //When do you expect to move into your new place?
+            category: "urgency",
+            type: "seller",
             sampleAnswers: []
         },
         {
             id: 2,
             question: "Are there any specific events or dates driving this timeline (e.g., starting a new job, school for kids, purchasing another property)?", //When do you plan on buying a home?
+            category: "urgency",
+            type: "seller",
             sampleAnswers: []
         },
         {
             id: 3,
             question: "How would it impact you if the sale took longer than anticipated?", //When do you plan to move into your new home?
+            category: "urgency",
+            type: "seller",
             sampleAnswers: []
         },
     ]);
+
+    //directly open the desired tab
+    useEffect(() => {
+        // if (OpenSellerNeeds === true) {
+
+
+            // setNeedKYCQuestions((prevNeedKycs) => [
+            //     ...prevNeedKycs.filter(
+            //         (existing) => !SellerNeedData.some((newData) => existing.question === newData.question)
+            //     ),
+            //     ...SellerNeedData
+            // ]);
+
+
+            // setSelectedMotivationKYC(prevSelected => [
+            //     ...prevSelected.filter(
+            //         (existing) => !SellerMotivationData.some((newData) => existing.question === newData.question)
+            //     ),
+            //     ...SellerMotivationData
+            // ]);
+
+            setToggleClick(1);
+            if (SellerNeedData.length > 0) {
+                console.log("Data passed is", SellerNeedData)
+                setNeedKYCQuestions((prevNeedKycs) => [
+                    ...prevNeedKycs.filter(
+                        (existing) => !SellerNeedData.some((newData) => existing.question === newData.question)
+                    ),
+                    ...SellerNeedData
+                ]);
+
+                // Remove matching items from SelectedNeedKYC and add the new items
+                setSelectedNeedKYC((prevSelected) => [
+                    ...prevSelected.filter(
+                        (selectedItem) => !SellerNeedData.some((newData) => selectedItem.id === newData.id)
+                    ),
+                    ...SellerNeedData.map((item) => ({ id: item.id, question: item.question }))
+                ]);
+            }
+            if (SellerMotivationData.length > 0) {
+                console.log("Data passed is", SellerNeedData)
+                setMotivationKycQuestions((prevNeedKycs) => [
+                    ...prevNeedKycs.filter(
+                        (existing) => !SellerMotivationData.some((newData) => existing.question === newData.question)
+                    ),
+                    ...SellerMotivationData
+                ]);
+
+                // Remove matching items from SelectedNeedKYC and add the new items
+                setSelectedMotivationKYC((prevSelected) => [
+                    ...prevSelected.filter(
+                        (selectedItem) => !SellerMotivationData.some((newData) => selectedItem.id === newData.id)
+                    ),
+                    ...SellerMotivationData.map((item) => ({ id: item.id, question: item.question }))
+                ]);
+            }
+            if (SellerUrgencyData.length > 0) {
+                console.log("Data passed is", SellerNeedData)
+                setUrgencyKycQuestions((prevNeedKycs) => [
+                    ...prevNeedKycs.filter(
+                        (existing) => !SellerUrgencyData.some((newData) => existing.question === newData.question)
+                    ),
+                    ...SellerUrgencyData
+                ]);
+
+                // Remove matching items from SelectedNeedKYC and add the new items
+                setSelectedUrgencyKyc((prevSelected) => [
+                    ...prevSelected.filter(
+                        (selectedItem) => !SellerUrgencyData.some((newData) => selectedItem.id === newData.id)
+                    ),
+                    ...SellerUrgencyData.map((item) => ({ id: item.id, question: item.question }))
+                ]);
+            }
+        // } 
+
+    }, [])
+
+
 
     //code to add kycQuestion in array
     // const handleAddKycQuestion = () => {
@@ -111,23 +215,59 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
 
         if (toggleClick === 1) {
             // Add to the "Needs" questions and auto-select the new question
-            setNeedKYCQuestions(prevQuestions => {
-                const updatedQuestions = [...prevQuestions, newKYCQuestion];
-                setSelectedNeedKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
-                return updatedQuestions;
-            });
+            // setNeedKYCQuestions(prevQuestions => {
+            //     const updatedQuestions = [...prevQuestions, newKYCQuestion];
+            //     setSelectedNeedKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+            //     return updatedQuestions;
+            // });
+            if (needKYCQuestions.some((item) => item.question === newKYCQuestion.question)) {
+                alert("Question already exists!!!");
+                console.log("Question Already exists");
+                return
+            } else {
+                // console.log("New question");
+                setNeedKYCQuestions(prevQuestions => {
+                    const updatedQuestions = [...prevQuestions, newKYCQuestion];
+                    setSelectedNeedKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+                    return updatedQuestions;
+                });
+            }
         } else if (toggleClick === 2) {
-            setMotivationKycQuestions(prevQuestions => {
-                const updatedQuestions = [...prevQuestions, newKYCQuestion];
-                setSelectedMotivationKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
-                return updatedQuestions;
-            });
+            // setMotivationKycQuestions(prevQuestions => {
+            //     const updatedQuestions = [...prevQuestions, newKYCQuestion];
+            //     setSelectedMotivationKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+            //     return updatedQuestions;
+            // });
+
+            if (motivationKycQuestions.some((item) => item.question === newKYCQuestion.question)) {
+                alert("Question already exists!!!");
+                console.log("Question Already exists");
+                return
+            } else {
+                setMotivationKycQuestions(prevQuestions => {
+                    const updatedQuestions = [...prevQuestions, newKYCQuestion];
+                    setSelectedMotivationKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+                    return updatedQuestions;
+                });
+            }
+
         } else if (toggleClick === 3) {
-            setUrgencyKycQuestions(prevQuestions => {
-                const updatedQuestions = [...prevQuestions, newKYCQuestion];
-                setSelectedUrgencyKyc(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
-                return updatedQuestions;
-            });
+            // setUrgencyKycQuestions(prevQuestions => {
+            //     const updatedQuestions = [...prevQuestions, newKYCQuestion];
+            //     setSelectedUrgencyKyc(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+            //     return updatedQuestions;
+            // });
+            if (urgencyKycQuestions.some((item) => item.question === newKYCQuestion.question)) {
+                alert("Question already exists!!!");
+                console.log("Question Already exists");
+                return
+            } else {
+                setUrgencyKycQuestions(prevQuestions => {
+                    const updatedQuestions = [...prevQuestions, newKYCQuestion];
+                    setSelectedUrgencyKyc(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+                    return updatedQuestions;
+                });
+            }
         }
 
         setAddKYCQuestion(false);
@@ -152,6 +292,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
     };
 
     const handleToggleClick = (id) => {
+        console.log("Id passed is", id)
         setToggleClick(prevId => (prevId === id ? null : id))
     }
 
@@ -191,6 +332,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
         setAddKYCQuestion(false);
     }
 
+    //api call to add kyc
     const handleAddNewKyc = async () => {
         // Get only the selected questions
         const selectedNeedQuestions = needKYCQuestions.filter((question) =>
@@ -212,7 +354,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
         // handleContinue();
 
         //code for api call
-
+        console.log("Check 1 claer")
         setSellerKycLoader(true);
 
         try {
@@ -225,60 +367,239 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
                 AuthToken = UserDetails.token;
             }
 
+            let AgentId = null
+
+
+
             if (agentDetails) {
                 console.log("trying")
                 const agentData = JSON.parse(agentDetails);
                 console.log("ActualAgent details are :--", agentData);
                 MyAgentData = agentData;
-
             }
 
-            const ApiPath = Apis.addKyc;
+            const ApiPath = Apis.updateKYC;
             let ApiData = [];
 
-            if (selectedNeedQuestions.length > 0) {
-                // console.log("#need Question details are :", selectedNeedQuestions);
-                const data = {
-                    kycQuestions: selectedNeedQuestions.map(item => ({
-                        question: item.question,
-                        category: "need",
-                        type: "seller",
-                        examples: item.sampleAnswers.filter(answer => answer)
-                    })),
-                    mainAgentId: MyAgentData.id
-                };
-                // console.log("Data to send in api is", data);
-                ApiData = data;
-            } else if (selectedMotivationQuestions.length > 0) {
-                console.log("#motivation Question details are :", selectedMotivationQuestions);
-                const data = {
-                    kycQuestions: selectedMotivationQuestions.map(item => ({
-                        question: item.question,
-                        category: "motivation",
-                        type: "seller",
-                        examples: item.sampleAnswers.filter(answer => answer)
-                    })),
-                    mainAgentId: MyAgentData.id
-                };
-                // console.log("Data to send in api is", data);
-                ApiData = data;
-            } else if (selectedUrgencyQuestions.length > 0) {
-                console.log("#urgency Question details are :", selectedUrgencyQuestions);
-                const data = {
-                    kycQuestions: selectedUrgencyQuestions.map(item => ({
-                        question: item.question,
-                        category: "urgency",
-                        type: "seller",
-                        examples: item.sampleAnswers.filter(answer => answer)
-                    })),
-                    mainAgentId: MyAgentData.id
-                };
-                // console.log("Data to send in api is", data);
-                ApiData = data;
+            if (mainAgentId) {
+                AgentId = mainAgentId
+            } else {
+                AgentId = MyAgentData.id
             }
+
+            // if (selectedNeedQuestions.length > 0) {
+                // let newArray = selectedNeedQuestions.map((item) => item);
+
+                // const updatedArray = selectedNeedQuestions.filter(
+                //     (item) => newArray.includes(item)
+                // );
+
+                // //array to send in api
+                // const mergedArray = [
+                //     ...newArray,
+                //     ...updatedArray.filter(
+                //         (item2) => !newArray.some((item1) => item1 === item2)
+                //     )
+                // ];
+
+                let newArray = [];
+
+                console.log("Alll kycs are", allKYCs);
+
+
+                for (let i = 0; i < allKYCs.length; i++) {
+                    const itemA = allKYCs[i];
+                    let existsInArrayB = false;
+                    for (let j = 0; j < selectedNeedQuestions.length; j++) {
+                        if (itemA.question === selectedNeedQuestions[j].question) {
+                            existsInArrayB = true;
+                            break;
+                        }
+                    }
+                    if (existsInArrayB) {
+                        newArray.push(itemA);
+                    }
+                }
+
+                for (let i = 0; i < selectedNeedQuestions.length; i++) {
+                    const itemB = selectedNeedQuestions[i];
+                    let existsInArrayA = false;
+                    for (let j = 0; j < allKYCs.length; j++) {
+                        if (itemB.question === allKYCs[j].question) {
+                            existsInArrayA = true;
+                            break;
+                        }
+                    }
+                    if (!existsInArrayA) {
+                        newArray.push(itemB);
+                    }
+                }
+
+                console.log("Final array is", newArray);
+
+
+                // let kycs = allKYCs.filter((item) => item.category != "motivation")
+                // kycs = [...kycs, ...selectedMotivationQuestions]
+
+                // let categoryType = ""
+                let updatedKycs = [...selectedMotivationQuestions, ...selectedNeedQuestions, ...selectedUrgencyQuestions]
+
+                // let kycs = allKYCs.filter((item) => item.category != "motivation")
+                // kycs = [...kycs, ...updatedKycs]
+
+                const data = {
+                    kycQuestions: updatedKycs.map(item => ({
+                        question: item.question,
+                        category: item.category,
+                        type: item.type,
+                        examples: item?.sampleAnswers?.filter(answer => answer)
+                    })),
+                    mainAgentId: AgentId
+                };
+                console.log("Data to send in api is", data);
+                // return
+                ApiData = data;
+            // } else if (selectedMotivationQuestions.length > 0) {
+                // console.log("Contains only Previous sent kycs", SellerMotivationData);
+                // console.log("Contains only selected kycs :", selectedMotivationQuestions);
+
+                //array contains new selected kycs
+                // let newArray = selectedMotivationQuestions.map((item) => item);
+
+                // const updatedArray = SellerMotivationData.filter((item) => newArray.includes(item.question));
+                // const updatedArray = SellerMotivationData.filter(
+                //     (item) => newArray.includes(item)
+                // );
+
+                //array to send in api
+                // const mergedArray = [
+                //     ...newArray,
+                //     ...updatedArray.filter(
+                //         (item2) => !newArray.some((item1) => item1 === item2)
+                //     )
+                // ];
+
+                // const newArray1 = selectedMotivationQuestions.filter(itemB => {
+                //     // Check if `itemB.question` exists in arrayA
+                //     const isInArrayA = allKYCs.some(itemA => itemA.question === itemB.question);
+
+                //     // Keep the item if it's in arrayA or not in arrayA
+                //     return isInArrayA || !allKYCs.some(itemA => itemA.question === itemB.question);
+                // });
+
+                // allKYCs.forEach(itemA => {
+                //     const isInArrayB = selectedMotivationQuestions.some(itemB => itemB.question === itemA.question);
+                //     console.log(`ItemA: ${itemA.question}, IsInArrayB: ${isInArrayB}`);
+                // });
+
+                // const newArray = allKYCs.filter(itemA => {
+                //     // Check if `itemA.question` exists in arrayB
+                //     const isInArrayB = selectedMotivationQuestions.some(itemB => itemB.question === itemA.question);
+                //     console.log("Is in all kycs array", isInArrayB);
+                //     // Keep the item if it's in arrayB
+                //     return isInArrayB;
+                // }).concat(
+                //     selectedMotivationQuestions.filter(itemB => {
+                //         // Check if `itemB.question` exists in arrayA
+                //         const isInArrayA = allKYCs.some(itemA => itemA.question === itemB.question);
+
+                //         // Keep the item if it's not in arrayA
+                //         return !isInArrayA;
+                //     })
+                // );
+
+                // let newArray = [];
+
+                // console.log("Alll kycs are", allKYCs);
+
+                // Same logic as above
+                // let kycs = allKYCs.filter((item) => item.category != "motivation")
+                // kycs = [...kycs, ...selectedMotivationQuestions]
+
+                // console.log("New kycs ")
+                // console.log(kycs)
+                // return
+                // for (let i = 0; i < allKYCs.length; i++) {
+                //     const itemA = allKYCs[i];
+                //     let existsInArrayB = false;
+                //     for (let j = 0; j < selectedMotivationQuestions.length; j++) {
+                //         if (itemA.question === selectedMotivationQuestions[j].question) {
+                //             existsInArrayB = true;
+                //             break;
+                //         }
+                //     }
+                //     if (existsInArrayB) {
+                //         newArray.push(itemA);
+                //     }
+                // }
+
+                // for (let i = 0; i < selectedMotivationQuestions.length; i++) {
+                //     const itemB = selectedMotivationQuestions[i];
+                //     let existsInArrayA = false;
+                //     for (let j = 0; j < allKYCs.length; j++) {
+                //         if (itemB.question === allKYCs[j].question) {
+                //             existsInArrayA = true;
+                //             break;
+                //         }
+                //     }
+                //     if (!existsInArrayA) {
+                //         newArray.push(itemB);
+                //     }
+                // }
+
+                console.log("Final array is", newArray);
+
+                // console.log(newArray);
+
+                // console.log("Final array is", newArray);
+
+                // return
+                // allKYCs.push(...selectedMotivationQuestions)
+                // console.log("Array to send in api is", allKYCs);
+                // const data = {
+                //     kycQuestions: newArray.map(item => ({
+                //         question: item.question,
+                //         category: "motivation",
+                //         type: "seller",
+                //         examples: item?.sampleAnswers?.filter(answer => answer)
+                //     })),
+                //     mainAgentId: AgentId
+                // };
+                // console.log("Data to send in api is", data);
+                ApiData = data;
+            // } else if (selectedUrgencyQuestions.length > 0) {
+
+                // let newArray = selectedUrgencyQuestions.map((item) => item);
+
+                const updatedArray = selectedUrgencyQuestions.filter(
+                    (item) => newArray.includes(item)
+                );
+
+                //array to send in api
+                const mergedArray = [
+                    ...newArray,
+                    ...updatedArray.filter(
+                        (item2) => !newArray.some((item1) => item1 === item2)
+                    )
+                ];
+
+                // const data = {
+                //     kycQuestions: mergedArray.map(item => ({
+                //         question: item.question,
+                //         category: "urgency",
+                //         type: "seller",
+                //         examples: item?.sampleAnswers?.filter(answer => answer)
+                //     })),
+                //     mainAgentId: AgentId
+                // };
+                // console.log("Data to send in api is", data);
+                ApiData = data;
+            // }
 
             console.log("APi data is :--", ApiData);
             // return
+
+            console.log("Apipath is", ApiPath);
 
             const response = await axios.post(ApiPath, ApiData, {
                 headers: {
@@ -357,7 +678,7 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='w-full py-4 overflow-auto h-[60vh] flex flex-col justify-between'>
+            <div className='w-full py-4 overflow-auto h-[90%] flex flex-col justify-between'>
                 <div className='overflow-auto h-[60vh]' style={{ scrollbarWidth: "none" }}>
                     {/* header */}
                     {/* <Header /> */}
@@ -367,9 +688,13 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
                             What would you like to ask sellers?
                         </div>
-                        <button className='mt-10 underline text-purple' style={styles.inputStyle} onClick={handleCloseSellerKyc}>
-                            {`I don't need questions for sellers`}
-                        </button>
+                        {
+                            !hideTitle && (
+                                <button className='mt-10 underline text-purple' style={styles.inputStyle} onClick={handleCloseSellerKyc}>
+                                    {`I don't need questions for sellers`}
+                                </button>
+                            )
+                        }
                         <div className='flex flex-row items-center gap-10 mt-10'>
                             {
                                 KYCQuestionType.map((item, index) => (
@@ -567,8 +892,16 @@ const AddSellerKyc = ({ handleCloseSellerKyc, handleAddSellerKycData }) => {
 
                                         <div className='w-full h-[80px]'>
                                             {
-                                                inputs.filter(input => input.value.trim() !== "").length === 3 && newQuestion && (
+                                                inputs.filter(input => input.value.trim() !== "").length === 3 && newQuestion ? (
                                                     <button className='bg-purple outline-none border-none rounded-lg text-white w-full mt-4 mx-2' style={{ ...styles.headingStyle, height: "50px" }} onClick={handleAddKycQuestion}>
+                                                        Add Question
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        disabled={true}
+                                                        className='bg-[#00000060] outline-none border-none rounded-lg text-white w-full mt-4 mx-2'
+                                                        style={{ ...styles.headingStyle, height: "50px" }}
+                                                        onClick={handleAddKycQuestion}>
                                                         Add Question
                                                     </button>
                                                 )

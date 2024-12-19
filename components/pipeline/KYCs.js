@@ -7,15 +7,15 @@ import Apis from '../apis/Apis'
 import AddSellerKyc from './AddSellerKyc'
 import AddBuyerKyc from './AddBuyerKyc'
 
-const KYCs = ({ kycsDetails }) => {
+const KYCs = ({ kycsDetails, mainAgentId }) => {
 
 
     const [anchorEl, setAnchorEl] = useState(null);
     const [BuyerAnchor, setBuyerAnchor] = useState(null);
-    const [kycsData, setKycsData] = useState(null);
+    const [kycsData, setKycsData] = useState([]);
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
-
+    console.log("Main agent id", mainAgentId)
     const openBuyerKyc = Boolean(BuyerAnchor);
     const buyerId = openBuyerKyc ? 'buyer-popover' : undefined;
     const [selectedKyc, setSelectedKyc] = useState(null);
@@ -29,6 +29,13 @@ const KYCs = ({ kycsDetails }) => {
     const [showSellerUrgencyData, setShowSellerUrgencyData] = useState(false);
     const [addSellerKyc, setAddSellerKyc] = useState(false);
 
+    //directly open the desired add seeler question tab
+    const [OpenSellerNeeds, setOpenSellerNeeds] = useState(false);
+    const [OpenSelerMotivation, setOpenSelerMotivation] = useState(false);
+    const [OpenSellerUrgency, setOpenSellerUrgency] = useState(false);
+
+    console.log("Status of motivation", OpenSelerMotivation)
+
     //buyer kyc data
     const [BuyerNeedData, setBuyerNeedData] = useState([]);
     const [showBuyerNeedData, setShowBuyerNeedData] = useState(false);
@@ -37,6 +44,10 @@ const KYCs = ({ kycsDetails }) => {
     const [BuyerUrgencyData, setBuyerUrgencyData] = useState([]);
     const [showBuyerUrgencyData, setShowBuyerUrgencyData] = useState(false);
     const [addBuyerKyc, setAddBuyerKyc] = useState(false);
+
+    //directly open the desired add seeler question tab
+    const [OpenBuyerMotivation, setOpenBuyerMotivation] = useState(false);
+    const [OpenBuyerUrgency, setOpenBuyerUrgency] = useState(false);
 
     //code for deleting the kycs
     const [DelKycLoader, setDelKycLoader] = useState(false);
@@ -77,13 +88,15 @@ const KYCs = ({ kycsDetails }) => {
 
             console.log("Auth token is :--", AuthToken);
 
-            const ApiPath = `${Apis.getKYCs}?mainAgentId=${MainAgentData}`;
-            console.log("Api path is :--", ApiPath);
-            const ApiData = {
-                mainAgentId: MainAgentData
+            let ApiPath = null;
+
+            if (mainAgentId) {
+                ApiPath = `${Apis.getKYCs}?mainAgentId=${mainAgentId}`;
+            } else {
+                ApiPath = `${Apis.getKYCs}?mainAgentId=${MainAgentData}`;
             }
 
-            console.log("Main agent id is :", ApiData);
+            console.log("Api path is :--", ApiPath);
             // return
             const response = await axios.get(ApiPath, {
                 headers: {
@@ -138,6 +151,11 @@ const KYCs = ({ kycsDetails }) => {
 
     //close add seller kyc modal
     const handleCloseSellerKyc = () => {
+        // console.log("Status of motivational data", OpenSelerMotivation);
+        // console.log("Status of urgency data", OpenSellerUrgency);
+        setOpenSelerMotivation(false);
+        setOpenSellerUrgency(false)
+        setOpenSellerNeeds(false);
         setAddSellerKyc(false);
         setAddBuyerKyc(false);
     }
@@ -363,7 +381,10 @@ const KYCs = ({ kycsDetails }) => {
                         )
                     }
 
-                    <button className='underline text-purple mt-4' style={styles.inputStyle} onClick={() => { setAddSellerKyc(true) }}>
+                    <button className='underline text-purple mt-4' style={styles.inputStyle} onClick={() => {
+                        setOpenSellerNeeds(true);
+                        setAddSellerKyc(true);
+                    }}>
                         Add Question
                     </button>
                 </div>
@@ -445,7 +466,10 @@ const KYCs = ({ kycsDetails }) => {
                         )
                     }
 
-                    <button className='underline text-purple mt-4' style={styles.inputStyle} onClick={() => { setAddSellerKyc(true) }}>
+                    <button className='underline text-purple mt-4' style={styles.inputStyle} onClick={() => {
+                        setOpenSelerMotivation(true);
+                        setAddSellerKyc(true);
+                    }}>
                         Add Question
                     </button>
                 </div>
@@ -529,7 +553,10 @@ const KYCs = ({ kycsDetails }) => {
                         )
                     }
 
-                    <button className='underline text-purple mt-4' style={styles.inputStyle} onClick={() => { setAddSellerKyc(true) }}>
+                    <button className='underline text-purple mt-4' style={styles.inputStyle} onClick={() => {
+                        setAddSellerKyc(true);
+                        setOpenSellerUrgency(true);
+                    }}>
                         Add Question
                     </button>
                 </div>
@@ -544,7 +571,7 @@ const KYCs = ({ kycsDetails }) => {
             {/* Modals code goes here */}
             <Modal
                 open={addSellerKyc}
-                onClose={() => setAddSellerKyc(false)}
+                // onClose={() => setAddSellerKyc(false)}
                 closeAfterTransition
                 BackdropProps={{
                     timeout: 1000,
@@ -565,12 +592,30 @@ const KYCs = ({ kycsDetails }) => {
                             }}
                         >
                             <div className='flex flex-row justify-end'>
-                                <button onClick={() => { setAddSellerKyc(false) }}>
+                                <button onClick={() => {
+                                    setAddSellerKyc(false);
+                                    setOpenSelerMotivation(false);
+                                    setOpenSellerUrgency(false);
+                                    setOpenSellerNeeds(false);
+                                }}>
                                     <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
                                 </button>
                             </div>
 
-                            <AddSellerKyc handleCloseSellerKyc={handleCloseSellerKyc} handleAddSellerKycData={handleAddSellerKycData} />
+                            <AddSellerKyc
+                                mainAgentId={mainAgentId}
+                                hideTitle={true}
+                                handleCloseSellerKyc={handleCloseSellerKyc}
+                                handleAddSellerKycData={handleAddSellerKycData}
+                                OpenSellerNeeds={OpenSellerNeeds}
+                                OpenSelerMotivation={OpenSelerMotivation}
+                                OpenSellerUrgency={OpenSellerUrgency}
+                                //sending already existing questions
+                                SellerNeedData={SellerNeedData}
+                                SellerMotivationData={SellerMotivationData}
+                                SellerUrgencyData={SellerUrgencyData}
+                                allKYCs={kycsData}
+                            />
 
 
                             {/* Can be use full to add shadow */}
@@ -595,7 +640,9 @@ const KYCs = ({ kycsDetails }) => {
                         <div className='border flex flex-row items-center justify-center' style={{ height: "20px", width: "18px", fontSize: 12, fontWeight: "700", borderRadius: "50%" }}>
                             {BuyerNeedData.length}
                         </div>
-                        <button onClick={() => { setShowBuyerNeedData(!showBuyerNeedData) }}>
+                        <button onClick={() => {
+                            setShowBuyerNeedData(!showBuyerNeedData)
+                        }}>
                             {
                                 showBuyerNeedData ?
                                     <CaretUp size={25} weight='bold' /> :
@@ -726,7 +773,10 @@ const KYCs = ({ kycsDetails }) => {
                         )
                     }
 
-                    <button className='underline text-purple' style={styles.inputStyle} onClick={() => { setAddBuyerKyc(true) }}>
+                    <button className='underline text-purple' style={styles.inputStyle} onClick={() => {
+                        setAddBuyerKyc(true);
+                        setOpenBuyerMotivation(true);
+                    }}>
                         Add Question
                     </button>
                 </div>
@@ -799,7 +849,10 @@ const KYCs = ({ kycsDetails }) => {
                         )
                     }
 
-                    <button className='underline text-purple' style={styles.inputStyle} onClick={() => { setAddBuyerKyc(true) }}>
+                    <button className='underline text-purple' style={styles.inputStyle} onClick={() => {
+                        setAddBuyerKyc(true);
+                        setOpenBuyerUrgency(true);
+                    }}>
                         Add Question
                     </button>
                 </div>
@@ -809,7 +862,7 @@ const KYCs = ({ kycsDetails }) => {
             {/* Add modals code */}
             <Modal
                 open={addBuyerKyc}
-                onClose={() => setAddBuyerKyc(false)}
+                // onClose={() => setAddBuyerKyc(false)}
                 closeAfterTransition
                 BackdropProps={{
                     timeout: 1000,
@@ -830,12 +883,20 @@ const KYCs = ({ kycsDetails }) => {
                             }}
                         >
                             <div className='flex flex-row justify-end'>
-                                <button onClick={() => { setAddBuyerKyc(false) }}>
+                                <button onClick={() => {
+                                    setAddBuyerKyc(false)
+                                    setAddBuyerKyc(false);
+                                    setOpenBuyerMotivation(false);
+                                }}>
                                     <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
                                 </button>
                             </div>
 
-                            <AddBuyerKyc handleCloseSellerKyc={handleCloseSellerKyc} handleAddBuyerKycData={handleAddBuyerKycData} />
+                            <AddBuyerKyc
+                                handleCloseSellerKyc={handleCloseSellerKyc} handleAddBuyerKycData={handleAddBuyerKycData}
+                                OpenBuyerMotivation={OpenBuyerMotivation}
+                                OpenBuyerUrgency={OpenBuyerUrgency}
+                            />
 
 
                             {/* Can be use full to add shadow */}

@@ -15,6 +15,7 @@ const Apis = {
     getVoices: "https://fine-tuner.ai/api/1.1/wf/v2_voice_agent_voices",
     addKyc: `${BasePath}api/agent/addKyc`,
     deleteKyc: `${BasePath}api/agent/deleteKyc`,
+    updateKYC: `${BasePath}api/agent/updateKyc`,
     getKYCs: `${BasePath}api/agent/getKycs`,
     getPipelines: `${BasePath}api/pipeline/getPipelines`,
     updatePipeline: `${BasePath}api/pipeline/updatePipeline`,
