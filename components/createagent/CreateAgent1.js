@@ -42,6 +42,11 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
     const bottomToAddress = useRef(null); // Ref for scrolling
     const [addressSelected, setAddressSelected] = useState(null);
 
+    //code for address picker
+    const [addressValue, setAddressValue] = useState("");
+    const [selectedPlace, setSelectedPlace] = useState(null);
+    const [showDropdown, setShowDropdown] = useState(false);
+
     useEffect(() => {
         setAddress(address?.label);
     }, [addressSelected]);
@@ -208,7 +213,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                     formData.append("status", selectedStatus.title);
                 }
             }
-            if (address) {
+            if (addressValue) {
                 formData.append("address", addressValue);
             }
             if (agentObjective.id === 100) {
@@ -270,9 +275,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
         apiKey: process.env.NEXT_PUBLIC_AddressPickerApiKey,
     });
 
-    const [addressValue, setAddressValue] = useState(""); // Holds the input field value
-    const [selectedPlace, setSelectedPlace] = useState(null); // Holds the selected place details
-    const [showDropdown, setShowDropdown] = useState(false); // Controls dropdown visibility
+    //function for address picker
 
     const handleSelectAddress = (placeId, description) => {
         // Set the input field to the selected place's description

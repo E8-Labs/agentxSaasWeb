@@ -26,9 +26,10 @@ const CreateAgentVoice = ({ handleBack }) => {
     const [voices, setVoices] = useState([]);
     const [voicesLoader, setVoicesLoader] = useState(false);
     const [selectedVoiceId, setSelectedVoiceId] = useState("");
-    const [preview, setPreview] = useState("");
+    const [preview, setPreview] = useState(null);
     const [agentDetails, setAgentDetails] = useState(null);
     const [shouldContinue, setShouldContinue] = useState(true);
+    const [audio, setAudio] = useState(null);
 
     useEffect(() => {
         setVoices(voicesList);
@@ -113,8 +114,12 @@ const CreateAgentVoice = ({ handleBack }) => {
     }
 
     const playVoice = (url) => {
-        const audio = new Audio(url); // Create a new Audio object with the preview URL
-        audio.play();                // Play the audio
+        if (audio) {
+            audio.pause();
+        }
+        const ad = new Audio(url); // Create a new Audio object with the preview URL
+        ad.play();
+        setAudio(ad)                // Play the audio
     };
 
     const avatarImages = [
@@ -168,7 +173,7 @@ const CreateAgentVoice = ({ handleBack }) => {
                         <div className='w-full flex flex-row justify-center'>
                             <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[53vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
                                 {
-                                    voices.map((item, index) => (
+                                    voices.slice(0, 20).map((item, index) => (
                                         <button
                                             key={index}
                                             style={{
@@ -207,7 +212,17 @@ const CreateAgentVoice = ({ handleBack }) => {
                                                 <div>
                                                     {
                                                         preview === item.preview ?
-                                                            <PauseCircle size={38} weight='regular' /> :
+                                                            <div
+                                                                onClick={() => {
+                                                                    if (audio) {
+                                                                        audio.pause()
+                                                                    }
+                                                                    setPreview(null);
+                                                                }}
+                                                            >
+                                                                <PauseCircle size={38} weight='regular' />
+                                                            </div>
+                                                            :
                                                             <div onClick={(e) => {
                                                                 setPreview(item.preview);
                                                                 playVoice(item.preview);

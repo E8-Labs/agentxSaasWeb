@@ -113,7 +113,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     //code to format the number
     const formatPhoneNumber = (rawNumber) => {
         const phoneNumber = parsePhoneNumberFromString(
-            rawNumber.startsWith('+') ? rawNumber : `+${rawNumber}`
+            rawNumber?.startsWith('+') ? rawNumber : `+${rawNumber}`
         );
         // console.log("Raw number is", rawNumber);
         return phoneNumber ? phoneNumber.formatInternational() : 'Invalid phone number';
@@ -1079,7 +1079,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                         fontSize: 15,
                                         fontWeight: "500"
                                     }}>
-                                    Please confirm you would like to reassign <span className='text-purple'>({formatPhoneNumber(showConfirmationModal?.phoneNumber)})</span> to {`{${showDrawer?.name}}`}.
+                                    Please confirm you would like to reassign <span className='text-purple'>({formatPhoneNumber(showConfirmationModal?.phoneNumber)})</span> to {`{${showConfirmationModal?.claimedBy?.name}}`}.
                                 </p>
 
                             </div>
