@@ -126,7 +126,14 @@ const AddSellerKyc = ({
             //     ...SellerMotivationData
             // ]);
 
-            setToggleClick(1);
+            if(OpenSellerNeeds){
+                setToggleClick(1);
+            }else if(OpenSelerMotivation){
+                setToggleClick(2)
+            }else if(OpenSellerUrgency){
+                setToggleClick(3)
+            }
+
             if (SellerNeedData.length > 0) {
                 console.log("Data passed is", SellerNeedData)
                 setNeedKYCQuestions((prevNeedKycs) => [
@@ -726,7 +733,7 @@ const AddSellerKyc = ({
                         {
                             toggleClick === 1 ?
                                 (
-                                    <div className='mt-8 w-10/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                                    <div className='mt-8 w-10/12 md:w-8/12  lg:w-6/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                         {
                                             needKYCQuestions.map((item, index) => (
                                                 <button
@@ -755,7 +762,7 @@ const AddSellerKyc = ({
                                 ) :
                                 toggleClick === 2 ?
                                     (
-                                        <div className='mt-8 w-10/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                                        <div className='mt-8 w-10/12 md:w-8/12  lg:w-6/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                             {
                                                 motivationKycQuestions.map((item, index) => (
                                                     <button
@@ -783,7 +790,7 @@ const AddSellerKyc = ({
                                     ) :
                                     toggleClick === 3 ?
                                         (
-                                            <div className='mt-8 w-10/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                                            <div className='mt-8 w-10/12 md:w-8/12  lg:w-6/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                                 {
                                                     urgencyKycQuestions.map((item, index) => (
                                                         <button
@@ -811,7 +818,7 @@ const AddSellerKyc = ({
                         }
 
 
-                        <button className='mt-2 w-10/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
+                        <button className='mt-2 w-10/12 md:w-8/12  lg:w-6/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
                             Add Question
                         </button>
                         {/* Modal to add KYC */}
@@ -923,7 +930,7 @@ const AddSellerKyc = ({
                             <div className='flex flex-row justify-center'>
                                 <CircularProgress />
                             </div> :
-                            <button className='bg-purple text-white rounded-lg w-10/12 h-[50px]'
+                            <button className='bg-purple text-white rounded-lg w-10/12 md:w-8/12  lg:w-6/12 h-[50px]'
                                 style={styles.headingStyle}
                                 onClick={handleAddNewKyc}
                             >

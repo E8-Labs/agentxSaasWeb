@@ -46,6 +46,7 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
     const [addBuyerKyc, setAddBuyerKyc] = useState(false);
 
     //directly open the desired add seeler question tab
+    // const [OpenBuyerNeed, setOpenBuyerNeed] = useState(false);
     const [OpenBuyerMotivation, setOpenBuyerMotivation] = useState(false);
     const [OpenBuyerUrgency, setOpenBuyerUrgency] = useState(false);
 
@@ -887,6 +888,7 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
                                     setAddBuyerKyc(false)
                                     setAddBuyerKyc(false);
                                     setOpenBuyerMotivation(false);
+                                    setOpenBuyerUrgency(false);
                                 }}>
                                     <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
                                 </button>

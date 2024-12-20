@@ -186,7 +186,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
             const ApiData = {
                 agentId: item.claimedBy.id, //MyAgentData.agents[0].id,
-                phoneNumber: item.phoneNumber
+                phoneNumber: item.phoneNumber,
+                newAgentId: MyAgentData.agents[0].id
             }
             console.log("I a just trigered")
 
@@ -609,20 +610,36 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                             {
                                                 previousNumber.map((item, index) => (
                                                     <MenuItem key={index} style={styles.dropdownMenu} value={item.phoneNumber.slice(1)} className='flex flex-row items-center gap-2'>
-                                                        {item.phoneNumber}
+                                                        <div
+                                                            onClick={(e) => {
+                                                                if (item?.claimedBy) {
+                                                                    e.stopPropagation();
+                                                                    setShowConfirmationModal(item);
+                                                                }
+                                                            }}
+                                                        >
+                                                            {item.phoneNumber}
+                                                        </div>
                                                         {
                                                             showReassignBtn && (
                                                                 <div>
                                                                     {
                                                                         item.claimedBy && (
-                                                                            <div className='flex flex-row items-center gap-2'>
+                                                                            <div className='flex flex-row items-center gap-2'
+                                                                                onClick={(e) => {
+                                                                                    if (item?.claimedBy) {
+                                                                                        e.stopPropagation();
+                                                                                        setShowConfirmationModal(item);
+                                                                                    }
+                                                                                }}
+                                                                            >
                                                                                 {`(Claimed by {${item.claimedBy.name}})`}
                                                                                 {
                                                                                     reassignLoader?.claimedBy?.id === item.claimedBy.id ?
                                                                                         <CircularProgress size={15} /> :
                                                                                         <button className="text-purple underline" onClick={(e) => {
                                                                                             e.stopPropagation();
-                                                                                            handleReassignNumber(item);
+                                                                                            // handleReassignNumber(item);
                                                                                             setShowConfirmationModal(item)
                                                                                             // handleReassignNumber(e.target.value)
                                                                                         }} >

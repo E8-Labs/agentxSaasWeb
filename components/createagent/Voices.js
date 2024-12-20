@@ -1,5 +1,10 @@
 const voicesList = [
     {
+        "voice_id": "vDk1nD3UrMnJUoKxzruC",
+        "name": "Tristan v2",
+        "preview": ""
+    },
+    {
         "voice_id": "Mtewh2emAIf6sPTaximW",
         "name": "@@@",
         "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/Mtewh2emAIf6sPTaximW/a46327b2-cbf7-42d8-b547-7391eeef8d3f.mp3",

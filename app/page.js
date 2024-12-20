@@ -171,14 +171,29 @@ const Page = ({ length = 6, onComplete }) => {
 
       if (response) {
         console.log("Response of login api is :", response.data);
+
         if (response.data.status === true) {
-          localStorage.setItem("User", JSON.stringify(response.data.data));
-          //set cokie on locastorage to run middle ware
-          if (typeof document !== "undefined") {
-            document.cookie = `User=${encodeURIComponent(
-              JSON.stringify(response.data.data)
-            )}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
-            router.push("/dashboard");
+          if (response.data.data.user.userType !== "RealEstateAgent") {
+            console.log("Pushing user to wait list")
+
+            const twoHoursFromNow = new Date();
+            twoHoursFromNow.setTime(twoHoursFromNow.getTime() + 2 * 60 * 1000);
+            if (typeof document !== "undefined") {
+              document.cookie = `User=${encodeURIComponent(
+                JSON.stringify(response.data.data)
+              )}; path=/; expires=${twoHoursFromNow.toUTCString()}`;
+              router.push("/onboarding/WaitList");
+            }
+
+          } else {
+            localStorage.setItem("User", JSON.stringify(response.data.data));
+            //set cokie on locastorage to run middle ware
+            if (typeof document !== "undefined") {
+              document.cookie = `User=${encodeURIComponent(
+                JSON.stringify(response.data.data)
+              )}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+              router.push("/dashboard");
+            }
           }
         }
       }

@@ -89,6 +89,13 @@ function Page() {
   const [showObjection, setShowObjection] = useState(true);
   const [showGuardrails, setShowGuardrails] = useState(false);
   const [showObjectives, setShowObjectives] = useState(false);
+  //code for outboundObjective
+  const [objective, setObjective] = useState("");
+  const [oldObjective, setOldObjective] = useState("");
+  //code for inboundObjective
+  // const [inboundObjective, setInboundObjective] = useState("");
+  // const [inboundOldObjective, setInboundOldObjective] = useState("");
+  const [showObjectionsSaveBtn, setShowObjectionsSaveBtn] = useState(false);
   const [SeledtedScriptAdvanceSetting, setSeledtedScriptAdvanceSetting] = useState(false);
   const [introVideoModal, setIntroVideoModal] = useState(false);
   const [kycsData, setKycsData] = useState(null);
@@ -158,20 +165,22 @@ function Page() {
   }, []);
 
   //check if need to show the save btn or not
-  console.log("New tag  length", scriptTagInput.length)
   useEffect(() => {
-    console.log("Old tag length", OldScriptTagInput.length)
-    //console.log("olde tag 3 length", scriptTagInput.length)
-    if (oldGreetingTagInput !== greetingTagInput || OldScriptTagInput !== scriptTagInput) {
+    console.log("New tag  length", scriptTagInput?.length)
+    console.log("Old tag length", OldScriptTagInput?.length)
+    //console.log("olde tag 3 length", scriptTagInput?.length)
+    if (oldObjective !== objective || oldGreetingTagInput !== greetingTagInput || OldScriptTagInput !== scriptTagInput) {
       //console.log(greetingTagInput);
       //console.log(oldGreetingTagInput)
       //console.log("not same")
       setShowSaveChangesBtn(true);
+      setShowObjectionsSaveBtn(true);
     } else {
       //console.log("hde save")
       setShowSaveChangesBtn(false);
+      setShowObjectionsSaveBtn(false);
     }
-  }, [greetingTagInput, scriptTagInput]);//scriptTagInput
+  }, [greetingTagInput, scriptTagInput, objective]);//scriptTagInput
 
   //function to open drawer
   const handleShowDrawer = (item) => {
@@ -309,7 +318,9 @@ function Page() {
 
       const ApiData = {
         agentId: item.claimedBy.id,
-        phoneNumber: item.phoneNumber
+        phoneNumber: item.phoneNumber,
+        newAgentId: showDrawer.id
+
       }
       //console.log("I a just trigered")
 
@@ -326,12 +337,38 @@ function Page() {
       });
 
       if (response) {
-        //console.log("Respose of reassign api is:", response);
+        console.log("Respose of reassign api is:", response.data.data);
         setShowSuccessSnack(response.data.message);
-        setShowConfirmationModal(null);
+        // AssignNumber()
         // setShowClaimPopup(null);
         setAssignNumber(item.phoneNumber.slice(1));
         setOpenCalimNumDropDown(false);
+
+        //Update the selected number agents also
+
+        //check jo add karna hy us mein kia karna hyy k api ka response console karwao aur us k badus k response ko examine karo
+
+        //you will get 2 agents from api then 1 wo agnt 2 jis ko assign karwana hy agnt 1 jis ko null karna hy
+
+        setAgentsContent((prevAgents) =>
+          prevAgents.map((agent) =>
+            agent.id === response.data.data.agent2.id
+              ? { ...agent, phoneNumber: response.data.data.agent2.phoneNumber.slice(1) }
+              : agent
+          )
+        );
+
+        setAgentsContent((prevAgents) =>
+          prevAgents.map((agent) =>
+            agent.id === response.data.data.agent1.id
+              ? { ...agent, phoneNumber: response.data.data.agent1.phoneNumber }
+              : agent
+          )
+        );
+
+        // setShowConfirmationModal(null);
+        // setShowDrawer(null);
+
         //code to close the dropdown
         if (selectRef.current) {
           selectRef.current.blur(); // Triggers dropdown close
@@ -494,9 +531,11 @@ function Page() {
           //console.log("Is inbound true");
           formData.append("inboundGreeting", greetingTagInput);
           formData.append("inboundPrompt", scriptTagInput);
+          formData.append("inboundObjective", objective)
         } else {
           formData.append("prompt", scriptTagInput);
           formData.append("greeting", greetingTagInput);
+          formData.append("outboundObjective", objective)
         }
         formData.append("mainAgentId", MainAgentId);
       }
@@ -535,16 +574,16 @@ function Page() {
             agentsListDetails = agentsList;
             console.log("Loooop is tri");
             let updatedAgent = response.data.data;
-            for (let i = 0; i < agentsList.length; i++) {
+            for (let i = 0; i < agentsList?.length; i++) {
               let ag = agentsList[i]
               let subAgents = ag.agents;
 
-              for (let j = 0; j < subAgents.length; j++) {
+              for (let j = 0; j < subAgents?.length; j++) {
                 let subAg = subAgents[j];
                 if (subAg.id == updatedAgent.agents[0].id) {
                   subAgents[j] = updatedAgent.agents[0]
                 }
-                else if (subAg.length > 0 && subAg.id == updatedAgent.agents[1].id) {
+                else if (subAg?.length > 0 && subAg.id == updatedAgent.agents[1].id) {
                   subAgents[j] = updatedAgent.agents[1]
                 }
 
@@ -559,15 +598,15 @@ function Page() {
 
 
           //update on main agents list variable
-          if (showScriptModal) {
-            setUserDetails((prevAgents) =>
-              prevAgents.map((agent) =>
-                agent.id === showScriptModal.id
-                  ? { ...agent, ...response.data.data }
-                  : agent
-              )
-            );
-          }
+          // if (showScriptModal) {
+          //   setUserDetails((prevAgents) =>
+          //     prevAgents.map((agent) =>
+          //       agent.id === showScriptModal.id
+          //         ? { ...agent, ...response.data.data }
+          //         : agent
+          //     )
+          //   );
+          // }
 
           //update on localstorage
           // if (showScriptModal) {
@@ -667,6 +706,7 @@ function Page() {
         //console.log("Response of assign number api is :", response.data)
         if (response.data.status === true) {
           setShowSuccessSnack(response.data.message);
+          setShowConfirmationModal(null);
           setAgentsContent((prevAgents) =>
             prevAgents.map((agent) =>
               agent.id === showDrawer.id
@@ -738,7 +778,7 @@ function Page() {
     //console.log("Pipeline of selected agent", agentData[0].pipeline);
 
     setMainAgentId(agentData[0].id);
-    // if (agentData[0].agents.length === 2 || agentData[0].agents[0].agentType === "outbound") {
+    // if (agentData[0].agents?.length === 2 || agentData[0].agents[0].agentType === "outbound") {
     //   setUserPipeline(agentData[0].pipeline);
     //   setOldGreetingTagInput(agentData[0].greeting);
     //   setGreetingTagInput(agentData[0].greeting);
@@ -1121,8 +1161,8 @@ function Page() {
 
     localDetails.map((item, index) => {
       // Check if agents exist
-      if (item.agents && item.agents.length > 0) {
-        for (let i = 0; i < item.agents.length; i++) {
+      if (item.agents && item.agents?.length > 0) {
+        for (let i = 0; i < item.agents?.length; i++) {
           const agent = item.agents[i];
           //console.log("Agent spilting data is:", agent);
           // Add a condition here if needed  //.agentType === 'outbound'
@@ -1342,7 +1382,7 @@ function Page() {
                           </div>
                           <div className='flex flex-row gap-3 items-center text-purple' style={{ fontSize: 15, fontWeight: '500' }}>
                             <button onClick={() => {
-                              console.log("Grreting sending ", item.prompt.greeting);
+                              console.log("Grreting sending ", item);
                               setGreetingTagInput(item.prompt.greeting);
                               setOldGreetingTagInput(item.prompt.greeting);
                               setScriptTagInput(item.prompt.callScript);
@@ -1350,6 +1390,16 @@ function Page() {
                               setShowScriptModal(item);
                               matchingAgent(item);
                               setShowScript(true);
+                              if (item?.prompt?.outboundObjective) {
+                                setObjective(item?.prompt?.objective);
+                                setOldObjective(item?.prompt?.objective);
+                              }
+
+                              if (item?.prompt?.inboundObjective) {
+                                setObjective(item?.prompt?.inboundObjective);
+                                setOldObjective(item?.prompt?.inboundObjective);
+                              }
+
                             }}>
                               <div>
                                 View Script
@@ -1409,11 +1459,11 @@ function Page() {
                             let match;
                             let mainAgent = null;
                             userDetails.map((ma) => {
-                              if (ma.agents.length > 0) {
+                              if (ma.agents?.length > 0) {
                                 if (ma.agents[0].id == item.id) {
                                   mainAgent = ma
                                 }
-                                else if (ma.agents.length >= 2) {
+                                else if (ma.agents?.length >= 2) {
                                   if (ma.agents[1].id == item.id) {
                                     mainAgent = ma
                                   }
@@ -1426,7 +1476,7 @@ function Page() {
                               // "Email", "Address",
                               let defaultVariables = ["Full Name", "First Name", "Last Name", "firstName", "seller_kyc", "buyer_kyc", "CU_address", "CU_status"]
                               if (!defaultVariables.includes(match[1])) {
-                                // match[1].length < 15
+                                // match[1]?.length < 15
                                 if (!keys.includes(match[1]) && !kyc.includes(match[1])) {
                                   keys.push(match[1]);
                                 }
@@ -1661,7 +1711,7 @@ function Page() {
                       <input
                         placeholder="Type here"
                         // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                        className={`w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys.length - 1 ? "mb-16" : ""
+                        className={`w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
                           }`}
                         style={styles.inputStyle}
                         value={inputValues[index] || ""} // Default to empty string if no value
@@ -2098,10 +2148,25 @@ function Page() {
                             {
                               previousNumber.map((item, index) => (
                                 <MenuItem key={index} style={styles.dropdownMenu} value={item.phoneNumber.slice(1)} className='flex flex-row items-center gap-2'>
-                                  {item.phoneNumber}
+                                  <div
+                                    onClick={(e) => {
+                                      if (item?.claimedBy) {
+                                        e.stopPropagation();
+                                        setShowConfirmationModal(item);
+                                      }
+                                    }}
+                                  >
+                                    {item.phoneNumber}
+                                  </div>
                                   {
                                     showReassignBtn && (
-                                      <div>
+                                      <div
+                                        onClick={(e) => {
+                                          console.log("Should open confirmation modal")
+                                          e.stopPropagation();
+                                          setShowConfirmationModal(item);
+                                        }}
+                                      >
                                         {
                                           item.claimedBy && (
                                             <div className='flex flex-row items-center gap-2'>
@@ -2614,7 +2679,7 @@ function Page() {
                           </div>
 
                           {
-                            uniqueColumns.length > 0 && showMoreUniqueColumns ?
+                            uniqueColumns?.length > 0 && showMoreUniqueColumns ?
                               <div className='flex flex-row flex-wrap gap-2'>
                                 {
                                   uniqueColumns.map((item, index) => (
@@ -2629,7 +2694,7 @@ function Page() {
                               </div> :
                               <div>
                                 {
-                                  uniqueColumns.length > 0 && (
+                                  uniqueColumns?.length > 0 && (
                                     <button
                                       className='text-purple flex flex-row items-center font-bold outline-none'
                                       onClick={() => {
@@ -2641,7 +2706,7 @@ function Page() {
                                           strokeWidth: 40, // Adjust as needed
                                         }}
                                       />
-                                      {uniqueColumns.length}
+                                      {uniqueColumns?.length}
                                     </button>
                                   )
                                 }
@@ -2763,8 +2828,58 @@ function Page() {
                     {
                       showObjectives && (
                         <div style={{ height: "80%" }}>
-                          <div style={{ overflow: "auto", scrollbarWidth: "none", marginTop: "40px", height: "80%" }}>
-                            {showScriptModal?.prompt?.objective}
+                          <div style={{ marginTop: "40px", height: "80%" }}>
+                            {/* {showScriptModal?.prompt?.objective} */}
+                            <textarea
+                              className="outline-none rounded-xl focus:ring-0"
+                              // ref={objective}
+                              value={objective}
+                              onChange={(e) => {
+
+                                const value = e.target.value;
+                                // if (value !== oldObjective) {
+                                //   setShowObjectionsSaveBtn(true);
+                                // }
+                                // if (value === oldObjective) {
+                                //   setShowObjectionsSaveBtn(false);
+                                // }
+
+                                setObjective(value);
+                              }}
+                              placeholder="Add Objective"
+                              style={{
+                                fontSize: "15px",
+                                padding: "15px",
+                                width: "100%",
+                                fontWeight: "500",
+                                height: "100%", // Initial height
+                                maxHeight: "100%", // Maximum height before scrolling
+                                overflowY: "auto", // Enable vertical scrolling when max-height is exceeded
+                                resize: "none", // Disable manual resizing
+                                border: "1px solid #00000020",
+                              }}
+                            />
+                            <div>
+                              {
+                                showObjectionsSaveBtn && (
+                                  <div>
+                                    {
+                                      UpdateAgentLoader ?
+                                        <div className='w-full flex flex-row justify-center'>
+                                          <CircularProgress size={35} />
+                                        </div> :
+                                        <button
+                                          className='underline bg-purple w-full h-[50px] rounded-xl mb-4 text-white'
+                                          style={{ fontWeight: "600", fontSize: 15 }}
+                                          onClick={() => { updateAgent() }}
+                                        >
+                                          Save Changes
+                                        </button>
+                                    }
+                                  </div>
+                                )
+                              }
+                            </div>
                           </div>
                         </div>
                       )
@@ -2930,7 +3045,7 @@ function Page() {
                           </div> :
                           <div className='mt-6 max-h-[40vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                             {
-                              foundeNumbers.length > 0 ?
+                              foundeNumbers?.length > 0 ?
                                 <div className='w-full'>
                                   {
                                     foundeNumbers.map((item, index) => (

@@ -13,7 +13,7 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Apis from '../apis/Apis';
 import axios from 'axios';
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, Modal } from '@mui/material';
 import voicesList from './Voices';
 import { PauseCircle, PlayCircle } from '@phosphor-icons/react';
 
@@ -30,6 +30,8 @@ const CreateAgentVoice = ({ handleBack }) => {
     const [agentDetails, setAgentDetails] = useState(null);
     const [shouldContinue, setShouldContinue] = useState(true);
     const [audio, setAudio] = useState(null);
+
+    const [showNoAudioModal, setShowNoAudioModal] = useState(null);
 
     useEffect(() => {
         setVoices(voicesList);
@@ -87,10 +89,13 @@ const CreateAgentVoice = ({ handleBack }) => {
             formData.append("mainAgentId", mainAgentId);
             // return
             formData.append("voiceId", selectedVoiceId);
-            // for (let [key, value] of formData.entries()) {
-            //     console.log(`${key} : ${value}`)
-            // }
 
+
+
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key} : ${value}`)
+            }
+            // return
             const response = await axios.post(ApiPath, formData, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken,
@@ -156,7 +161,18 @@ const CreateAgentVoice = ({ handleBack }) => {
             height: "71px", width: "210px",
             border: "1px solid #15151550", borderRadius: "20px",
             fontWeight: "600", fontSize: 15
-        }
+        },
+        modalsStyle: {
+            height: "auto",
+            bgcolor: "transparent",
+            // p: 2,
+            mx: "auto",
+            my: "50vh",
+            transform: "translateY(-55%)",
+            borderRadius: 2,
+            border: "none",
+            outline: "none",
+        },
     }
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
@@ -204,33 +220,40 @@ const CreateAgentVoice = ({ handleBack }) => {
                                                 <div>
                                                     <Image src={"/assets/voice.png"} height={15} width={23} alt='*' />
                                                 </div>
-                                                {/* <div>
-                                                    <div className='flex flex-row items-center justify-center bg-white' style={{ height: "36px", width: "36px", border: "1px solid #00000080", borderRadius: "50%" }}>
-                                                        <Image src={"/assets/play.png"} height={16} width={16} style={{ borderRadius: "50%" }} alt='*' />
-                                                    </div>
-                                                </div> */}
-                                                <div>
-                                                    {
-                                                        preview === item.preview ?
-                                                            <div
-                                                                onClick={() => {
-                                                                    if (audio) {
-                                                                        audio.pause()
-                                                                    }
-                                                                    setPreview(null);
-                                                                }}
-                                                            >
-                                                                <PauseCircle size={38} weight='regular' />
-                                                            </div>
-                                                            :
+                                                {
+                                                    item.preview ? (
+                                                        <div>
+                                                            {
+                                                                preview === item.preview ?
+                                                                    <div
+                                                                        onClick={() => {
+                                                                            if (audio) {
+                                                                                audio.pause()
+                                                                            }
+                                                                            setPreview(null);
+                                                                        }}
+                                                                    >
+                                                                        <PauseCircle size={38} weight='regular' />
+                                                                    </div>
+                                                                    :
+                                                                    <div onClick={(e) => {
+                                                                        setPreview(item.preview);
+                                                                        playVoice(item.preview);
+                                                                    }}>
+                                                                        <Image src={"/assets/play.png"} height={25} width={25} alt='*' />
+                                                                    </div>
+                                                            }
+                                                        </div>
+                                                    ) : (
+                                                        <div>
                                                             <div onClick={(e) => {
-                                                                setPreview(item.preview);
-                                                                playVoice(item.preview);
+                                                                setShowNoAudioModal(item)
                                                             }}>
                                                                 <Image src={"/assets/play.png"} height={25} width={25} alt='*' />
                                                             </div>
-                                                    }
-                                                </div>
+                                                        </div>
+                                                    )
+                                                }
                                             </div>
                                         </button>
                                     ))
@@ -246,6 +269,50 @@ const CreateAgentVoice = ({ handleBack }) => {
                         } */}
                     </div>
                 </div>
+
+                {/* Modal for video */}
+                <Modal
+                    open={showNoAudioModal}
+                    onClose={() => setShowNoAudioModal(null)}
+                    closeAfterTransition
+                    BackdropProps={{
+                        timeout: 1000,
+                        sx: {
+                            backgroundColor: "#00000020",
+                            // backdropFilter: "blur(20px)",
+                        },
+                    }}
+                >
+                    <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.modalsStyle}>
+                        <div className="flex flex-row justify-center w-full">
+                            <div
+                                className="sm:w-full w-full"
+                                style={{
+                                    backgroundColor: "#ffffff",
+                                    padding: 20,
+                                    borderRadius: "13px",
+                                }}
+                            >
+                                <div className='flex flex-row justify-end'>
+                                    <button onClick={() => { setShowNoAudioModal(null) }}>
+                                        <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                    </button>
+                                </div>
+
+                                <div className='text-center sm:font-24 font-16' style={{ fontWeight: "700" }}>
+                                    Learn more about assigning leads
+                                </div>
+
+                                <div className='mt-6 text-red text-center font-[600] text-xl'>
+                                    No voice added by <span className='underline'>{showNoAudioModal?.name}</span>
+                                </div>
+
+                                {/* Can be use full to add shadow */}
+                                {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                            </div>
+                        </div>
+                    </Box>
+                </Modal>
 
                 <div>
                     <div>
