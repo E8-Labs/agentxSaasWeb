@@ -1484,7 +1484,7 @@ function Page() {
                         <Card
                           name="Mins Talked"
                           value={item.totalDuration && item.totalDuration > 0 ? (<div>{item.totalDuration}</div>) : "-"}
-                          icon='/otherAssets/transferIcon.png'
+                          icon='/otherAssets/minsCounter.png'
                           bgColor="green"
                           iconColor="text-orange-500"
                         />
@@ -1872,7 +1872,7 @@ function Page() {
             <Card
               name="Mins Talked"
               value={showDrawer?.totalDuration && showDrawer?.totalDuration > 0 ? (<div>{showDrawer?.totalDuration}</div>) : "-"}
-              icon="/otherAssets/transferIcon.png"
+              icon="/otherAssets/minsCounter.png"
               bgColor="bg-green-100"
               iconColor="text-green-500"
             />

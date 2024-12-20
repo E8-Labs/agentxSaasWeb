@@ -136,6 +136,23 @@ const Page = ({ length = 6, onComplete }) => {
     }
   };
 
+  //focus the first input field
+  useEffect(() => {
+    if (showVerifyPopup && verifyInputRef.current[0]) {
+      verifyInputRef.current[0].focus();
+    }
+  }, [showVerifyPopup]);
+
+  //code to show verify popup
+  const handleVerifyPopup = () => {
+    setShowVerifyPopup(true);
+    setTimeout(() => {
+      if (verifyInputRef.current[0]) {
+        verifyInputRef.current[0].focus();
+      }
+    }, 100); // Adjust the delay as needed, 0 should be enough
+  };
+
   //code to login
   const handleLogin = async () => {
     try {
@@ -197,7 +214,7 @@ const Page = ({ length = 6, onComplete }) => {
           console.log("Response message is :", response.data.message);
           setCheckPhoneResponse(response.data.status);
 
-        } else if(response.data.status === false) {
+        } else if (response.data.status === false) {
           setCheckPhoneResponse(response.data.status);
         }
       }
@@ -337,7 +354,8 @@ const Page = ({ length = 6, onComplete }) => {
                     disabled={loading} // Disable input if still loading
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && userPhoneNumber && !errorMessage) {
-                        setShowVerifyPopup(true)
+                        handleVerifyPopup();
+                        // setShowVerifyPopup(true)
                       }
                     }}
                     style={{
@@ -374,7 +392,12 @@ const Page = ({ length = 6, onComplete }) => {
                     <div className='flex flex-row justify-center'>
                       <CircularProgress size={15} />
                     </div> :
-                    <button className='text-black bg-transparent border border-[#000000] rounded-full' style={{ fontSize: 16, fontWeight: "600" }} onClick={() => { setShowVerifyPopup(true) }}>
+                    <button className='text-black bg-transparent border border-[#000000] rounded-full' style={{ fontSize: 16, fontWeight: "600" }}
+                      onClick={() => {
+                        handleVerifyPopup()
+                        // setShowVerifyPopup(true)
+                      }}
+                    >
                       <ArrowRight size={20} weight='bold' />
                     </button>
                 }

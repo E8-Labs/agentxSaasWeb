@@ -36,6 +36,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     const [showClaimPopup, setShowClaimPopup] = useState(false);
     const [previousNumber, setPreviousNumber] = useState([]);
     //show reassign btn or not
+    const [showConfirmationModal, setShowConfirmationModal] = useState(null);
     const [showReassignBtn, setShowReassignBtn] = useState(false);
     const [showGlobalBtn, setShowGlobalBtn] = useState(true);
     //code for find numbers
@@ -173,7 +174,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             }
 
             if (agentDetails) {
-                console.log("trying")
+                console.log("trying");
+                setShowConfirmationModal(null);
                 const agentData = JSON.parse(agentDetails);
                 console.log("Agent details are :--", agentData);
                 MyAgentData = agentData;
@@ -620,7 +622,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                                                         <CircularProgress size={15} /> :
                                                                                         <button className="text-purple underline" onClick={(e) => {
                                                                                             e.stopPropagation();
-                                                                                            handleReassignNumber(item)
+                                                                                            handleReassignNumber(item);
+                                                                                            setShowConfirmationModal(item)
                                                                                             // handleReassignNumber(e.target.value)
                                                                                         }} >
                                                                                             Reassign
@@ -1021,6 +1024,109 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
                     <Footer handleContinue={AssignNumber} handleBack={handleBack} registerLoader={assignLoader} shouldContinue={shouldContinue} />
                 </div>
+
+
+                {/* Code for the confirmation of reassign button */}
+                <Modal
+                    open={showConfirmationModal}
+                    onClose={() => {
+                        setShowConfirmationModal(null);
+                    }}
+                >
+                    <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-5/12 p-8 rounded-[15px]" sx={{ ...styles.claimPopup, backgroundColor: 'white' }}>
+                        <div style={{ width: "100%", }}>
+
+                            <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+
+                                {/* <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "end", alignItems: "center" }}>
+                <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
+                  <button onClick={() => {
+                    setShowWarningModal(false);
+                  }} className='outline-none'>
+                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                  </button>
+                </div>
+              </div> */}
+
+                                <div className='flex flex-row items-center justify-between w-full'>
+                                    <div
+                                        style={{
+                                            fontSize: 17,
+                                            fontWeight: "600"
+                                        }}>
+                                        Reassign Number
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            setShowConfirmationModal(null);
+                                        }}>
+                                        <Image src={"/assets/blackBgCross.png"} height={20} width={20} alt='*' />
+                                    </button>
+                                </div>
+
+                                <div
+                                    className='mt-8'
+                                    style={{
+                                        fontSize: 22,
+                                        fontWeight: "600"
+                                    }}>
+                                    Confirm Action
+                                </div>
+
+                                <p
+                                    className='mt-8'
+                                    style={{
+                                        fontSize: 15,
+                                        fontWeight: "500"
+                                    }}>
+                                    Please confirm you would like to reassign <span className='text-purple'>({formatPhoneNumber(showConfirmationModal?.phoneNumber)})</span> to {`{${showDrawer?.name}}`}.
+                                </p>
+
+                            </div>
+
+                            <div className='flex flex-row items-center gap-4 mt-6'>
+                                <button
+                                    className='mt-4 outline-none w-1/2'
+                                    style={{
+                                        color: "black",
+                                        height: "50px", borderRadius: "10px", width: "100%",
+                                        fontWeight: 600, fontSize: '20'
+                                    }}
+                                    onClick={() => {
+                                        setShowClaimPopup(null);
+                                    }}
+                                >
+                                    Discard
+                                </button>
+                                <div className='w-full'>
+                                    {
+                                        reassignLoader ?
+                                            <div
+                                                className='mt-4 w-full flex flex-row items-center justify-center'>
+                                                <CircularProgress size={25} />
+                                            </div> :
+                                            <button
+                                                className='mt-4 outline-none bg-purple w-full'
+                                                style={{
+                                                    color: "white",
+                                                    height: "50px", borderRadius: "10px", width: "100%",
+                                                    fontWeight: 600, fontSize: '20'
+                                                }}
+                                                onClick={() => {
+                                                    handleReassignNumber(showConfirmationModal);
+                                                    //console.log("test")
+                                                }}
+                                            >
+                                                {`I'm sure`}
+                                            </button>
+                                    }
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </Box>
+                </Modal>
 
             </div>
         </div>
