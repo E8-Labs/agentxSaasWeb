@@ -22,6 +22,9 @@ const AddCalender = ({ handleContinue }) => {
   const [previousCalenders, setPreviousCalenders] = useState([]);
   const [showAddNewCalender, setShowAddNewCalender] = useState(false);
 
+
+  const [calendarSelected, setCalendarSelected] = useState(null)
+
   //code for the IANA time zone lists
 
   const [selectTimeZone, setSelectTimeZone] = useState("");
@@ -48,13 +51,28 @@ const AddCalender = ({ handleContinue }) => {
     getCalenders();
   }, [])
 
-  useEffect(() => {
-    if (calenderTitle && calenderApiKey && eventId) {
-      setshouldContinue(false);
-    } else {
-      setshouldContinue(true);
+  // useEffect(() => {
+  //   if (calenderTitle && calenderApiKey && eventId && selectTimeZone) {
+  //     setshouldContinue(false);
+  //   } else {
+  //     setshouldContinue(true);
+  //   }
+  // }, [calenderTitle, calenderApiKey, eventId, selectTimeZone]);
+
+
+  function isEnabled() {
+    if (calendarSelected) {
+      console.log("True because calenarSelected")
+      return true
     }
-  }, [calenderTitle, calenderApiKey, eventId]);
+    if (calenderTitle && calenderApiKey && eventId && selectTimeZone) {
+      console.log("True because all values are there")
+      return true
+    } else {
+      console.log("false  calenarSelected")
+      return false
+    }
+  }
 
   //code for the dropdown selection
 
@@ -126,16 +144,16 @@ const AddCalender = ({ handleContinue }) => {
 
       const formData = new FormData();
 
-      formData.append("apiKey", calenderApiKey)
-      formData.append("title", calenderTitle)
+      formData.append("apiKey", calendarSelected ? calendarSelected.apiKey : calenderApiKey)
+      formData.append("title", calendarSelected ? calendarSelected.title : calenderTitle)
       formData.append("mainAgentId", currentAgentDetails.id)
-      if (selectTimeZone) {
-        formData.append("timeZone", selectTimeZone)
-      }
+      // if (selectTimeZone) {
+      formData.append("timeZone", calendarSelected ? calendarSelected.timeZone : selectTimeZone)
+      // }
 
-      if (eventId) {
-        formData.append("eventId", eventId)
-      }
+      // if (eventId) {
+      formData.append("eventId", calendarSelected ? calendarSelected.eventId : eventId)
+      // }
 
       for (let [key, value] of formData.entries()) {
         console.log(`${key}: ${value}`);
@@ -199,7 +217,9 @@ const AddCalender = ({ handleContinue }) => {
             </div>
 
             <div>
-              <div style={{ fontWeight: "700", fontSize: 38, textAlign: "center" }}>
+              <div style={{ fontWeight: "700", fontSize: 38, textAlign: "center" }}
+                onClick={() => { handleAddCalender() }}
+              >
                 Add a Calendar
               </div>
               <div style={{ textAlign: "center", marginTop: 4, color: "#151515", fontWeight: "500" }}>
@@ -260,12 +280,14 @@ const AddCalender = ({ handleContinue }) => {
                             value={item.title}
                             key={index}
                           >
-                            <button onClick={() => {
+                            <button className='w-full text-start'
+                             onClick={() => {
                               console.log("Selected calender is:", item);
-                              setCalenderTitle(item.title);
-                              setCalenderApiKey(item.apiKey);
-                              setEventId(item.eventId);
-                              setSelectTimeZone(item.timeZone);
+                              setCalendarSelected(item)
+                              // setCalenderTitle(item.title);
+                              // setCalenderApiKey(item.apiKey);
+                              // setEventId(item.eventId);
+                              // setSelectTimeZone(item.timeZone);
                             }}
                             >
                               {item.title}
@@ -279,13 +301,14 @@ const AddCalender = ({ handleContinue }) => {
                       value="Custom Calender"
                     >
                       <button
-                        className='text-purple underline'
+                        className='text-purple underline w-full text-start'
                         onClick={() => {
                           console.log("Show show the modal");
-                          setCalenderTitle("");
-                          setCalenderApiKey("");
-                          setEventId("");
-                          setSelectTimeZone("");
+                          setCalendarSelected(null)
+                          // setCalenderTitle("");
+                          // setCalenderApiKey("");
+                          // setEventId("");
+                          // setSelectTimeZone("");
                           setShowAddNewCalender(true);
                         }}
                       >
@@ -301,7 +324,7 @@ const AddCalender = ({ handleContinue }) => {
 
           <div className='h-[13%]'>
             <ProgressBar value={33} />
-            <Footer handleContinue={handleAddCalender} donotShowBack={true} registerLoader={calenderLoader} shouldContinue={shouldContinue} />
+            <Footer handleContinue={handleAddCalender} donotShowBack={true} registerLoader={calenderLoader} shouldContinue={!isEnabled()} />
           </div>
         </div>
 

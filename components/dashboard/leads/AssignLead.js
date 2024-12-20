@@ -30,15 +30,29 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
     const [CallNow, setCallNow] = useState("");
     const [CallLater, setCallLater] = useState(false);
 
+    // useEffect(() => {
+    //     let NewList = [];
+    //     item.agents.forEach((agent) => {
+    //         if (agent.agentType !== "inbound") {
+    //             NewList.push(agent);
+    //         }
+    //     });
+    // })
+
     useEffect(() => {
-        if (ShouldContinue === true) {
-            console.log(
-                "hit"
-            )
-            setShouldContinue(false);
-        } else {
+
+        if (SelectedAgents.length === 0) {
             setShouldContinue(true);
         }
+
+        // if (ShouldContinue === true) {
+        //     console.log(
+        //         "hit"
+        //     )
+        //     setShouldContinue(false);
+        // } else {
+        //     setShouldContinue(true);
+        // }
     }, [SelectedAgents])
 
     useEffect(() => {
@@ -301,66 +315,76 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                     </div> :
                     <div className='max-h-[50vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                         {
-                            agentsList.map((item, index) => (
-                                <button key={index} className='rounded-xl p-2 mt-4 w-full outline-none'
-                                    style={{
-                                        border: SelectedAgents.includes(item) ? "2px solid #7902DF" : "1px solid #00000020",
-                                        backgroundColor: SelectedAgents.includes(item) ? "#402FFF05" : ""
-                                    }}
-                                    onClick={() => {
-                                        let canAssign = canAssignStage(item);
-                                        if (canAssign == 0) {
-                                            //push to the array
-                                            console.log("Cheak 1 at 0")
-                                            setSelectedAgents([...SelectedAgents, item]);
-                                            // setLastStepModal(true);//loader
-                                        }
-                                        else if (canAssign == 1) {
-                                            //remove from the array
-                                            console.log("Cheak 2")
-                                            let agents = SelectedAgents.filter((selectedItem) => selectedItem.id !== item.id);
-                                            setSelectedAgents(agents);
-                                        }
-                                        else if (canAssign == 2) {
-                                            //can not assign. Show popup
-                                            setCannotAssignLeadModal(true);
-                                        }
-                                    }}>
-                                    <div className='flex flex-row items-center justify-between pt-2'>
-                                        <div className='flex flex-row items-center gap-2'>
-                                            <div className='h-[60px] w-[60px] bg-gray-100 rounded-full flex flex-row items-center justify-center'>
-                                                <Image src={"/assets/avatar1.png"} height={42} width={42} alt='*' />
-                                            </div>
-                                            <span style={styles.heading}>
-                                                {item.name.slice(0, 1).toUpperCase()}{item.name.slice(1)}
-                                            </span>
-                                        </div>
-                                        <div>
-                                            {item.agents[0]?.agentRole}
-                                        </div>
-                                    </div>
-
-                                    <div className='flex flex-row items-center gap-2 mt-6 pb-2'>
-                                        <div className='flex flex-row items-center gap-1' style={styles.paragraph}>
-                                            <span className='text-purple'>Active in |   </span> {item.pipeline?.title}
-                                        </div>
-
-                                        <div className='flex flex-row gap-2 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
-                                            {
-                                                item.stages.map((item, index) => (
-                                                    <div className='px-3 py-1 rounded-3xl border' style={styles.paragraph} key={index}>
-                                                        {item.stageTitle}
-                                                    </div>
-                                                ))
+                            agentsList.map((item, index) => {
+                                let NewList = []
+                                // let agentsList = item.agents.filter((item) => item.agentType !== "inbound");
+                                agentsList.forEach((item) => {
+                                    let filteredAgents = item.agents.filter((agent) => agent.agentType !== "inbound");
+                                    NewList = NewList.concat(filteredAgents);
+                                });
+                                console.log("New agents list is", NewList);
+                                return (
+                                    <button key={index} className='rounded-xl p-2 mt-4 w-full outline-none'
+                                        style={{
+                                            border: SelectedAgents.includes(item) ? "2px solid #7902DF" : "1px solid #00000020",
+                                            backgroundColor: SelectedAgents.includes(item) ? "#402FFF05" : ""
+                                        }}
+                                        onClick={() => {
+                                            let canAssign = canAssignStage(item);
+                                            if (canAssign == 0) {
+                                                //push to the array
+                                                console.log("Cheak 1 at 0")
+                                                setSelectedAgents([...SelectedAgents, item]);
+                                                // setLastStepModal(true);//loader
+                                                setShouldContinue(false);
                                             }
+                                            else if (canAssign == 1) {
+                                                //remove from the array
+                                                console.log("Cheak 2")
+                                                let agents = SelectedAgents.filter((selectedItem) => selectedItem.id !== item.id);
+                                                setSelectedAgents(agents);
+                                            }
+                                            else if (canAssign == 2) {
+                                                //can not assign. Show popup
+                                                setCannotAssignLeadModal(true);
+                                            }
+                                        }}>
+                                        <div className='flex flex-row items-center justify-between pt-2'>
+                                            <div className='flex flex-row items-center gap-2'>
+                                                <div className='h-[60px] w-[60px] bg-gray-100 rounded-full flex flex-row items-center justify-center'>
+                                                    <Image src={"/assets/avatar1.png"} height={42} width={42} alt='*' />
+                                                </div>
+                                                <span style={styles.heading}>
+                                                    {item.name.slice(0, 1).toUpperCase()}{item.name.slice(1)}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                {item.agents[0]?.agentRole}
+                                            </div>
                                         </div>
 
-                                        {/* <div className='px-3 py-1 rounded-3xl border' style={styles.paragraph}>
+                                        <div className='flex flex-row items-center gap-2 mt-6 pb-2'>
+                                            <div className='flex flex-row items-center gap-1' style={styles.paragraph}>
+                                                <span className='text-purple'>Active in |   </span> {item.pipeline?.title}
+                                            </div>
+
+                                            <div className='flex flex-row gap-2 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+                                                {
+                                                    item.stages.map((item, index) => (
+                                                        <div className='px-3 py-1 rounded-3xl border' style={styles.paragraph} key={index}>
+                                                            {item.stageTitle}
+                                                        </div>
+                                                    ))
+                                                }
+                                            </div>
+
+                                            {/* <div className='px-3 py-1 rounded-3xl border' style={styles.paragraph}>
                                     New Lead
                                 </div> */}
-                                    </div>
-                                </button>
-                            ))
+                                        </div>
+                                    </button>
+                                )
+                            })
                         }
                     </div>
             }
