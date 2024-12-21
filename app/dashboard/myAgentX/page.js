@@ -546,7 +546,7 @@ function Page() {
           //console.log("Is inbound true");
           formData.append("inboundGreeting", greetingTagInput);
           formData.append("inboundPrompt", scriptTagInput);
-          formData.append("objective", objective);
+          formData.append("inboundObjective", objective);
         } else {
           formData.append("prompt", scriptTagInput);
           formData.append("greeting", greetingTagInput);
@@ -1474,7 +1474,7 @@ function Page() {
                             setShowScriptModal(item);
                             matchingAgent(item);
                             setShowScript(true);
-                            if (item?.prompt?.outboundObjective) {
+                            if (item?.prompt?.objective) {
                               setObjective(item?.prompt?.objective);
                               setOldObjective(item?.prompt?.objective);
                             }
