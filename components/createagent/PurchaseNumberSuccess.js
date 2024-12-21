@@ -6,7 +6,8 @@ const PurchaseNumberSuccess = ({ handleContinue, selectedNumber }) => {
     const [purchaseNumber, setPurchaseNumber] = useState(null);
 
     useEffect(() => {
-        const Data = localStorage.getItem("purchasedNumberDetails");
+        console.log("I am hit now")
+        const Data = localStorage.getItem("numberPurchased");
         if(Data){
             const localData = JSON.parse(Data);
             setPurchaseNumber(localData);
@@ -50,7 +51,7 @@ const PurchaseNumberSuccess = ({ handleContinue, selectedNumber }) => {
 
             <div className='flex flex-row justify-between items-center mt-8 w-full'>
                 <div style={styles.heading}>Selected State</div>
-                <div style={styles.details}>San Mateo, United States</div>
+                <div style={styles.details}>{purchaseNumber.locality} {purchaseNumber.region}</div>
             </div>
 
             <div className='flex flex-row justify-between items-center mt-12 w-full'>

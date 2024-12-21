@@ -276,6 +276,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     //code to select Purchase number
     const handlePurchaseNumberClick = (item, index) => {
         console.log("Item Selected is :---", item);
+        localStorage.setItem("numberPurchased", JSON.stringify(item))
         setSelectedPurchasedNumber(prevId => (prevId === item ? null : item));
         setSelectedPurchasedIndex(prevId => (prevId === index ? null : index));
     }
@@ -353,7 +354,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             }
 
             // localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
-            setOpenPurchaseSuccessModal(true);
+            // setOpenPurchaseSuccessModal(true);
             setSelectNumber(selectedPurchasedNumber.phoneNumber);
             setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
             setShowClaimPopup(false);

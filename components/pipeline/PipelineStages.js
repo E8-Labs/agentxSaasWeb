@@ -1219,8 +1219,8 @@ const PipelineStages = ({
                                                 <CircularProgress size={25} />
                                             </div> :
                                             <div className="w-full">
-                                                {
-                                                    inputs.filter(input => input.value.trim() !== "").length === 3 && newStageTitle ? (
+                                                { //inputs.filter(input => input.value.trim() !== "").length === 3 &&
+                                                    newStageTitle ? (
                                                         <button
                                                             className='mt-4 outline-none'
                                                             style={{

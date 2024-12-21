@@ -562,39 +562,61 @@ function Page() {
 
       if (response) {
         //console.log("Response of update api is :--", response.data);
+        console.log("Respons eof update api is", response.data.data)
         if (response.data.status === true) {
+
           setShowSuccessSnack(response.data.message);
 
           const localAgentsList = localStorage.getItem("localAgentDetails");
 
           let agentsListDetails = [];
 
+          // if (localAgentsList) {
+          //   const agentsList = JSON.parse(localAgentsList);
+          //   agentsListDetails = agentsList;
+          //   console.log("Loooop is trigered for", agentsListDetails);
+          //   let updatedAgent = response.data.data;
+          //   for (let i = 0; i < agentsList?.length; i++) {
+          //     let ag = agentsList[i]
+          //     let subAgents = ag.agents;
+
+          //     for (let j = 0; j < subAgents?.length; j++) {
+          //       let subAg = subAgents[j];
+          //       if (subAg.id == updatedAgent.agents[0].id) {
+          //         subAgents[j] = updatedAgent.agents[0]
+          //       }
+          //       else if (subAg?.length > 0 && subAg.id == updatedAgent.agents[1].id) {
+          //         subAgents[j] = updatedAgent.agents[1]
+          //       }
+
+          //     }
+          //     ag.agents = subAgents;
+          //     agentsList[i] = ag;
+          //   }
+          //   //save to localstorage
+          //   localStorage.setItem("localAgentDetails", JSON.stringify(agentsList))
+          //   console.log("Agent update is", agentsList);
+          // }
+
           if (localAgentsList) {
             const agentsList = JSON.parse(localAgentsList);
-            agentsListDetails = agentsList;
-            console.log("Loooop is tri");
-            let updatedAgent = response.data.data;
-            for (let i = 0; i < agentsList?.length; i++) {
-              let ag = agentsList[i]
-              let subAgents = ag.agents;
+            // agentsListDetails = agentsList;
 
-              for (let j = 0; j < subAgents?.length; j++) {
-                let subAg = subAgents[j];
-                if (subAg.id == updatedAgent.agents[0].id) {
-                  subAgents[j] = updatedAgent.agents[0]
-                }
-                else if (subAg?.length > 0 && subAg.id == updatedAgent.agents[1].id) {
-                  subAgents[j] = updatedAgent.agents[1]
-                }
+            const apiData = response.data.data;
 
-              }
-              ag.agents = subAgents;
-              agentsList[i] = ag;
-            }
-            //save to localstorage
-            localStorage.setItem("localAgentDetails", JSON.stringify(agentsList))
-            console.log("Agent update is", agentsList);
+            const updatedArray = agentsList.map((localItem) => {
+
+              const apiItem = apiData.id === localItem.id ? apiData : null;
+
+              return apiItem ? { ...localItem, ...apiItem } : localItem;
+            });
+
+            console.log("Updated agents list array is", updatedArray);
+            localStorage.setItem("localAgentDetails", JSON.stringify(updatedArray));
+            // agentsListDetails = updatedArray
           }
+
+
 
 
           //update on main agents list variable
@@ -609,27 +631,28 @@ function Page() {
           // }
 
           //update on localstorage
-          if (showScriptModal) {
-            agentsListDetails = agentsListDetails.map((agent) =>
-              agent.id === showScriptModal.id
-                ? { ...agent, ...response.data.data }
-                : agent
-            )
-            //console.log("Script updated")
-          }
+          // if (showScriptModal) {
+          //   console.log("It is trigered")
+          //   agentsListDetails = agentsListDetails.map((agent) =>
+          //     agent.id === response.data.data.agents[0].id
+          //       ? { ...agent, ...response.data.data }
+          //       : agent
+          //   )
+          //   console.log("Script updated", agentsListDetails);
+          // }
 
 
 
           //update on main agent variable
-          if (showDrawer) {
-            setUserDetails((prevAgents) =>
-              prevAgents.map((agent) =>
-                agent.id === showDrawer.id
-                  ? { ...agent, ...response.data.data }
-                  : agent
-              )
-            );
-          }
+          // if (showDrawer) {
+          //   setUserDetails((prevAgents) =>
+          //     prevAgents.map((agent) =>
+          //       agent.id === showDrawer.id
+          //         ? { ...agent, ...response.data.data }
+          //         : agent
+          //     )
+          //   );
+          // }
 
           // //update on localstorage
           // if (showDrawer) {
@@ -642,7 +665,6 @@ function Page() {
 
 
 
-          // localStorage.setItem("localAgentDetails", JSON.stringify(agentsListDetails));
           setGreetingTagInput("");
           setScriptTagInput("")
           setShowScriptModal(null);

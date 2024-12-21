@@ -1700,8 +1700,8 @@ const Pipeline1 = () => {
                         </div>
 
                         <div className='w-full h-[80px]'>
-                            {
-                                inputs.filter(input => input.value.trim()).length === 3 && newStageTitle ? (
+                            { //inputs.filter(input => input.value.trim()).length === 3 &&
+                                newStageTitle ? (
                                     <div>
                                         {
                                             addStageLoader ?
