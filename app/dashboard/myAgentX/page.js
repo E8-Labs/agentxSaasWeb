@@ -105,8 +105,8 @@ function Page() {
   //code for outboundObjective
   const [objective, setObjective] = useState("");
   const [oldObjective, setOldObjective] = useState("");
-  //code for inboundObjective
-  // const [inboundObjective, setInboundObjective] = useState("");
+  //code for objective
+  // const [objective, setobjective] = useState("");
   // const [inboundOldObjective, setInboundOldObjective] = useState("");
   const [showObjectionsSaveBtn, setShowObjectionsSaveBtn] = useState(false);
   const [SeledtedScriptAdvanceSetting, setSeledtedScriptAdvanceSetting] =
@@ -546,7 +546,7 @@ function Page() {
           //console.log("Is inbound true");
           formData.append("inboundGreeting", greetingTagInput);
           formData.append("inboundPrompt", scriptTagInput);
-          formData.append("inboundObjective", objective);
+          formData.append("objective", objective);
         } else {
           formData.append("prompt", scriptTagInput);
           formData.append("greeting", greetingTagInput);
@@ -1479,9 +1479,9 @@ function Page() {
                               setOldObjective(item?.prompt?.objective);
                             }
 
-                            if (item?.prompt?.inboundObjective) {
-                              setObjective(item?.prompt?.inboundObjective);
-                              setOldObjective(item?.prompt?.inboundObjective);
+                            if (item?.prompt?.objective) {
+                              setObjective(item?.prompt?.objective);
+                              setOldObjective(item?.prompt?.objective);
                             }
                           }}
                         >
