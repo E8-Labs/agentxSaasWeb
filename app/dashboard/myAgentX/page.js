@@ -1,38 +1,50 @@
-'use client'
-import React, { useEffect, useRef, useState } from 'react'
-import Image from 'next/image'
-import { Button, Modal, Box, Drawer, Snackbar, Fade, Alert, CircularProgress, Popover, Select, FormControl, MenuItem, InputLabel } from '@mui/material'
-import Apis from '@/components/apis/Apis';
-import axios from 'axios';
-import { Plus } from '@phosphor-icons/react';
-import { useRouter } from 'next/navigation';
-import moment from 'moment';
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
-import { parsePhoneNumberFromString } from 'libphonenumber-js';
-import { GreetingTagInput } from '@/components/pipeline/tagInputs/GreetingTagInput';
-import { PromptTagInput } from '@/components/pipeline/tagInputs/PromptTagInput';
-import KYCs from '@/components/pipeline/KYCs';
-import Objection from '@/components/pipeline/advancedsettings/Objection';
-import GuarduanSetting from '@/components/pipeline/advancedsettings/GuardianSetting';
-import PiepelineAdnStage from '@/components/dashboard/myagentX/PiepelineAdnStage';
-import voicesList from '@/components/createagent/Voices';
+"use client";
+import React, { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import {
+  Button,
+  Modal,
+  Box,
+  Drawer,
+  Snackbar,
+  Fade,
+  Alert,
+  CircularProgress,
+  Popover,
+  Select,
+  FormControl,
+  MenuItem,
+  InputLabel,
+} from "@mui/material";
+import Apis from "@/components/apis/Apis";
+import axios from "axios";
+import { Plus } from "@phosphor-icons/react";
+import { useRouter } from "next/navigation";
+import moment from "moment";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
+import { GreetingTagInput } from "@/components/pipeline/tagInputs/GreetingTagInput";
+import { PromptTagInput } from "@/components/pipeline/tagInputs/PromptTagInput";
+import KYCs from "@/components/pipeline/KYCs";
+import Objection from "@/components/pipeline/advancedsettings/Objection";
+import GuarduanSetting from "@/components/pipeline/advancedsettings/GuardianSetting";
+import PiepelineAdnStage from "@/components/dashboard/myagentX/PiepelineAdnStage";
+import voicesList from "@/components/createagent/Voices";
 
 function Page() {
-
-  let isInbound = null
+  let isInbound = null;
   const timerRef = useRef();
   const fileInputRef = useRef([]);
   // const fileInputRef = useRef(null);
-  const router = useRouter()
+  const router = useRouter();
   const [openTestAiModal, setOpenTestAiModal] = useState(false);
   const [name, setName] = useState("");
   //code for phonenumber
   const [phone, setPhone] = useState("");
-  const [countryCode, setCountryCode] = useState('');
+  const [countryCode, setCountryCode] = useState("");
   const [locationLoader, setLocationLoader] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [address, setAddress] = useState("");
   // const [budget, setBudget] = useState("");
@@ -41,13 +53,13 @@ function Page() {
   //calender details of selected agent
   const [calendarDetails, setCalendarDetails] = useState(null);
   const [activeTab, setActiveTab] = useState("Agent Info");
-  const [userDetails, setUserDetails] = useState([]);
+  const [userAgentsList, setUserAgentsList] = useState([]);
   const [agentData, setAgentData] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
 
   //code for assigning the umber
   // const []
-  const [assignNumber, setAssignNumber] = React.useState('');
+  const [assignNumber, setAssignNumber] = React.useState("");
   const [previousNumber, setPreviousNumber] = useState([]);
   const selectRef = useRef();
   const [openCalimNumDropDown, setOpenCalimNumDropDown] = useState(false);
@@ -59,7 +71,8 @@ function Page() {
   const [foundeNumbers, setFoundeNumbers] = useState([]);
   const [findNumber, setFindNumber] = useState("");
   const [purchaseLoader, setPurchaseLoader] = useState(false);
-  const [openPurchaseSuccessModal, setOpenPurchaseSuccessModal] = useState(false);
+  const [openPurchaseSuccessModal, setOpenPurchaseSuccessModal] =
+    useState(false);
   const [selectedPurchasedNumber, setSelectedPurchasedNumber] = useState(null);
   const [selectedPurchasedIndex, setSelectedPurchasedIndex] = useState(null);
   const [assignLoader, setAssignLoader] = useState(false);
@@ -96,13 +109,17 @@ function Page() {
   // const [inboundObjective, setInboundObjective] = useState("");
   // const [inboundOldObjective, setInboundOldObjective] = useState("");
   const [showObjectionsSaveBtn, setShowObjectionsSaveBtn] = useState(false);
-  const [SeledtedScriptAdvanceSetting, setSeledtedScriptAdvanceSetting] = useState(false);
+  const [SeledtedScriptAdvanceSetting, setSeledtedScriptAdvanceSetting] =
+    useState(false);
   const [introVideoModal, setIntroVideoModal] = useState(false);
   const [kycsData, setKycsData] = useState(null);
   //greeting tag input
-  const [greetingTagInput, setGreetingTagInput] = useState('');
-  const [oldGreetingTagInput, setOldGreetingTagInput] = useState('');
-  const [scrollOffset, setScrollOffset] = useState({ scrollTop: 0, scrollLeft: 0 });
+  const [greetingTagInput, setGreetingTagInput] = useState("");
+  const [oldGreetingTagInput, setOldGreetingTagInput] = useState("");
+  const [scrollOffset, setScrollOffset] = useState({
+    scrollTop: 0,
+    scrollLeft: 0,
+  });
   const containerRef = useRef(null); // Ref to the scrolling container
   const [showSuccessSnack, setShowSuccessSnack] = useState(null);
   const [showErrorSnack, setShowErrorSnack] = useState(null);
@@ -116,9 +133,8 @@ function Page() {
   const [kYCList, setKYCList] = useState([]);
 
   //prompt tag input
-  const [scriptTagInput, setScriptTagInput] = useState('');
-  const [OldScriptTagInput, setOldScriptTagInput] = useState("")
-
+  const [scriptTagInput, setScriptTagInput] = useState("");
+  const [OldScriptTagInput, setOldScriptTagInput] = useState("");
 
   //code for testing the ai
   let callScript = null;
@@ -146,8 +162,7 @@ function Page() {
           scrollTop: containerRef.current.scrollTop,
           scrollLeft: containerRef.current.scrollLeft,
         });
-      }
-      else {
+      } else {
         //////console.log("No ref div")
       }
     };
@@ -166,10 +181,14 @@ function Page() {
 
   //check if need to show the save btn or not
   useEffect(() => {
-    console.log("New tag  length", scriptTagInput?.length)
-    console.log("Old tag length", OldScriptTagInput?.length)
+    console.log("New tag  length", scriptTagInput?.length);
+    console.log("Old tag length", OldScriptTagInput?.length);
     //console.log("olde tag 3 length", scriptTagInput?.length)
-    if (oldObjective !== objective || oldGreetingTagInput !== greetingTagInput || OldScriptTagInput !== scriptTagInput) {
+    if (
+      oldObjective !== objective ||
+      oldGreetingTagInput !== greetingTagInput ||
+      OldScriptTagInput !== scriptTagInput
+    ) {
       //console.log(greetingTagInput);
       //console.log(oldGreetingTagInput)
       //console.log("not same")
@@ -180,7 +199,7 @@ function Page() {
       setShowSaveChangesBtn(false);
       setShowObjectionsSaveBtn(false);
     }
-  }, [greetingTagInput, scriptTagInput, objective]);//scriptTagInput
+  }, [greetingTagInput, scriptTagInput, objective]); //scriptTagInput
 
   //function to open drawer
   const handleShowDrawer = (item) => {
@@ -190,7 +209,7 @@ function Page() {
     // let comparedAgent = null;
     //console.log("Main agents list is:", userDetails);
 
-    const comparedAgent = userDetails.find((prevAgent) =>
+    const comparedAgent = userAgentsList.find((prevAgent) =>
       prevAgent.agents.some((subAgent) => subAgent.id === item.id)
     );
     //console.log("Agent selected details are", comparedAgent);
@@ -198,7 +217,7 @@ function Page() {
     setCalendarDetails(comparedAgent);
 
     //console.log("")
-    setShowDrawer(item)
+    setShowDrawer(item);
     //console.log("Selected agent is:", item);
     if (item.agentType === "inbound") {
       setShowReassignBtn(true);
@@ -206,34 +225,33 @@ function Page() {
     } else if (item.agentType === "outbound") {
       setShowReassignBtn(false);
     }
-  }
+  };
 
   //function to format the name of agent
   const formatName = (item) => {
-
     let agentName = null;
 
     if (item?.name?.length > 15) {
-      agentName = item?.name?.slice(0, 15) + "..."
+      agentName = item?.name?.slice(0, 15) + "...";
     } else {
-      agentName = item?.name
+      agentName = item?.name;
     }
     return (
       <div>
-        {agentName?.slice(0, 1).toUpperCase(0)}{agentName?.slice(1)}
+        {agentName?.slice(0, 1).toUpperCase(0)}
+        {agentName?.slice(1)}
       </div>
-    )
-  }
-
+    );
+  };
 
   //function to close script modal
   const handleCloseScriptModal = () => {
     setShowScriptModal(null);
-    setSeledtedScriptKYC(false)
+    setSeledtedScriptKYC(false);
     setSeledtedScriptAdvanceSetting(false);
     localStorage.removeItem("ObjectionsList");
     localStorage.removeItem("GuadrailsList");
-  }
+  };
 
   //function to select the number to assign to the user
   const handleAssignNumberChange = (event) => {
@@ -243,16 +261,18 @@ function Page() {
   //code for formating the number
   const formatPhoneNumber = (rawNumber) => {
     const phoneNumber = parsePhoneNumberFromString(
-      rawNumber?.startsWith('+') ? rawNumber : `+${rawNumber}`
+      rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
     );
     // //console.log("Raw number is", rawNumber);
-    return phoneNumber ? phoneNumber.formatInternational() : 'Invalid phone number';
+    return phoneNumber
+      ? phoneNumber.formatInternational()
+      : "Invalid phone number";
   };
 
   //fucntion for assigning the number
   const handleCloseClaimPopup = () => {
-    setShowClaimPopup(false)
-  }
+    setShowClaimPopup(false);
+  };
 
   //function to finad number
   //function to fine numbers api
@@ -271,9 +291,9 @@ function Page() {
       // return
       const response = await axios.get(ApiPath, {
         headers: {
-          "Authorization": "Bearer " + AuthToken,
-          "Content-Type": "application/json"
-        }
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
@@ -281,15 +301,13 @@ function Page() {
         if (response.data.status === true) {
           setFoundeNumbers(response.data.data);
         }
-
       }
-
     } catch (error) {
       console.error("Error occured in finde number api is :---", error);
     } finally {
       setFindeNumberLoader(false);
     }
-  }
+  };
 
   //code for reassigning the number api
   const handleReassignNumber = async (item) => {
@@ -311,7 +329,6 @@ function Page() {
         const agentData = JSON.parse(agentDetails);
         //console.log("Agent details are :--", agentData);
         MyAgentData = agentData;
-
       }
 
       const ApiPath = Apis.reassignNumber;
@@ -319,9 +336,8 @@ function Page() {
       const ApiData = {
         agentId: item.claimedBy.id,
         phoneNumber: item.phoneNumber,
-        newAgentId: showDrawer.id
-
-      }
+        newAgentId: showDrawer.id,
+      };
       //console.log("I a just trigered")
 
       //console.log("Data sending in api is:", ApiData);
@@ -331,9 +347,9 @@ function Page() {
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          "Authorization": "Bearer " + AuthToken,
-          "Content-Type": "application/json"
-        }
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
@@ -353,7 +369,10 @@ function Page() {
         setAgentsContent((prevAgents) =>
           prevAgents.map((agent) =>
             agent.id === response.data.data.agent2.id
-              ? { ...agent, phoneNumber: response.data.data.agent2.phoneNumber.slice(1) }
+              ? {
+                  ...agent,
+                  phoneNumber: response.data.data.agent2.phoneNumber.slice(1),
+                }
               : agent
           )
         );
@@ -374,21 +393,19 @@ function Page() {
           selectRef.current.blur(); // Triggers dropdown close
         }
 
-
         // if (response.data.status === true) {
         //     setSelectNumber(phoneNumber);
         // } else {
         //     setSelectNumber(phoneNumber);
         // }
       }
-
     } catch (error) {
       console.error("Error occured in reassign the number api:", error);
     } finally {
       setReassignLoader(null);
       //console.log("reassign api completed")
     }
-  }
+  };
 
   //function to purchse number
   const handlePurchaseNumber = async () => {
@@ -410,7 +427,6 @@ function Page() {
         const agentData = JSON.parse(agentDetails);
         //console.log("Agent details are :--", agentData);
         MyAgentData = agentData;
-
       }
 
       const ApiPath = Apis.purchaseNumber;
@@ -433,21 +449,23 @@ function Page() {
       // setShowClaimPopup(false);
       // setOpenCalimNumDropDown(false);
 
-
       // return
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
-          "Authorization": "Bearer " + AuthToken,
+          Authorization: "Bearer " + AuthToken,
           "Content-Type": "multipart/form-data",
           // "Content-Type": "application/json"
-        }
+        },
       });
 
       if (response) {
         //console.log("Response of purchase number api is :--", response.data);
         if (response.data.status === true) {
-          localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
+          localStorage.setItem(
+            "purchasedNumberDetails",
+            JSON.stringify(response.data.data)
+          );
           setOpenPurchaseSuccessModal(true);
           // handleContinue();
           setAssignNumber(selectedPurchasedNumber.phoneNumber);
@@ -456,20 +474,19 @@ function Page() {
           setOpenCalimNumDropDown(false);
         }
       }
-
     } catch (error) {
       console.error("Error occured in purchase number api is: --", error);
     } finally {
       setPurchaseLoader(false);
     }
-  }
+  };
 
   //function to select the number to purchase
   const handlePurchaseNumberClick = (item, index) => {
     //console.log("Item Selected is :---", item);
-    setSelectedPurchasedNumber(prevId => (prevId === item ? null : item));
-    setSelectedPurchasedIndex(prevId => (prevId === index ? null : index));
-  }
+    setSelectedPurchasedNumber((prevId) => (prevId === item ? null : item));
+    setSelectedPurchasedIndex((prevId) => (prevId === index ? null : index));
+  };
 
   //code to get the user previous numbers
   const getAvailabePhoneNumbers = async () => {
@@ -489,8 +506,8 @@ function Page() {
       // return
       const response = await axios.get(ApiPath, {
         headers: {
-          "Authorization": "Bearer " + AuthToken
-        }
+          Authorization: "Bearer " + AuthToken,
+        },
       });
 
       if (response) {
@@ -498,14 +515,12 @@ function Page() {
         //console.log("PArsed data is ", response.data.data);
         setPreviousNumber(response.data.data);
       }
-
     } catch (error) {
       console.error("Error occured in: ", error);
     } finally {
       //console.log("Api cal completed")
     }
-  }
-
+  };
 
   //code for update agent api
   const updateAgent = async (vocieId) => {
@@ -531,19 +546,17 @@ function Page() {
           //console.log("Is inbound true");
           formData.append("inboundGreeting", greetingTagInput);
           formData.append("inboundPrompt", scriptTagInput);
-          formData.append("inboundObjective", objective)
+          formData.append("inboundObjective", objective);
         } else {
           formData.append("prompt", scriptTagInput);
           formData.append("greeting", greetingTagInput);
-          formData.append("outboundObjective", objective)
+          formData.append("outboundObjective", objective);
         }
         formData.append("mainAgentId", MainAgentId);
       }
 
-
-
       if (SelectedVoice) {
-        formData.append("voiceId", vocieId)
+        formData.append("voiceId", vocieId);
       }
 
       if (showDrawer) {
@@ -556,15 +569,14 @@ function Page() {
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
-          "Authorization": "Bearer " + AuthToken
-        }
+          Authorization: "Bearer " + AuthToken,
+        },
       });
 
       if (response) {
         //console.log("Response of update api is :--", response.data);
-        console.log("Respons eof update api is", response.data.data)
+        console.log("Respons eof update api is", response.data.data);
         if (response.data.status === true) {
-
           setShowSuccessSnack(response.data.message);
 
           const localAgentsList = localStorage.getItem("localAgentDetails");
@@ -577,24 +589,28 @@ function Page() {
           //   console.log("Loooop is trigered for", agentsListDetails);
           //   let updatedAgent = response.data.data;
           //   for (let i = 0; i < agentsList?.length; i++) {
-          //     let ag = agentsList[i]
+          //     let ag = agentsList[i];
           //     let subAgents = ag.agents;
 
           //     for (let j = 0; j < subAgents?.length; j++) {
           //       let subAg = subAgents[j];
           //       if (subAg.id == updatedAgent.agents[0].id) {
-          //         subAgents[j] = updatedAgent.agents[0]
+          //         subAgents[j] = updatedAgent.agents[0];
+          //       } else if (
+          //         subAg?.length > 0 &&
+          //         subAg.id == updatedAgent.agents[1].id
+          //       ) {
+          //         subAgents[j] = updatedAgent.agents[1];
           //       }
-          //       else if (subAg?.length > 0 && subAg.id == updatedAgent.agents[1].id) {
-          //         subAgents[j] = updatedAgent.agents[1]
-          //       }
-
           //     }
           //     ag.agents = subAgents;
           //     agentsList[i] = ag;
           //   }
           //   //save to localstorage
-          //   localStorage.setItem("localAgentDetails", JSON.stringify(agentsList))
+          //   localStorage.setItem(
+          //     "localAgentDetails",
+          //     JSON.stringify(agentsList)
+          //   );
           //   console.log("Agent update is", agentsList);
           // }
 
@@ -602,22 +618,23 @@ function Page() {
             const agentsList = JSON.parse(localAgentsList);
             // agentsListDetails = agentsList;
 
-            const apiData = response.data.data;
+            const updateAgentData = response.data.data;
 
             const updatedArray = agentsList.map((localItem) => {
-
-              const apiItem = apiData.id === localItem.id ? apiData : null;
+              const apiItem =
+                updateAgentData.id === localItem.id ? updateAgentData : null;
 
               return apiItem ? { ...localItem, ...apiItem } : localItem;
             });
 
             console.log("Updated agents list array is", updatedArray);
-            localStorage.setItem("localAgentDetails", JSON.stringify(updatedArray));
+            localStorage.setItem(
+              "localAgentDetails",
+              JSON.stringify(updatedArray)
+            );
+            setUserAgentsList(updatedArray);
             // agentsListDetails = updatedArray
           }
-
-
-
 
           //update on main agents list variable
           // if (showScriptModal) {
@@ -641,8 +658,6 @@ function Page() {
           //   console.log("Script updated", agentsListDetails);
           // }
 
-
-
           //update on main agent variable
           // if (showDrawer) {
           //   setUserDetails((prevAgents) =>
@@ -663,28 +678,25 @@ function Page() {
           //   )
           // }
 
-
-
           setGreetingTagInput("");
-          setScriptTagInput("")
+          setScriptTagInput("");
           setShowScriptModal(null);
         }
       }
-
     } catch (error) {
       console.error("Error occured in api is", error);
     } finally {
       //console.log("Api call completed");
       setUpdateAgentLoader(false);
     }
-  }
+  };
 
   //function for scripts modal screen change
   const handleShowScript = () => {
     setShowScript(true);
     setSeledtedScriptKYC(false);
     setSeledtedScriptAdvanceSetting(false);
-  }
+  };
 
   const AssignNumber = async () => {
     try {
@@ -720,8 +732,8 @@ function Page() {
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
-          "Authorization": "Bearer " + AuthToken
-        }
+          Authorization: "Bearer " + AuthToken,
+        },
       });
 
       if (response) {
@@ -751,49 +763,50 @@ function Page() {
           setShowErrorSnack(response.data.message);
         }
       }
-
     } catch (error) {
       console.error("Error occured in api is:", error);
     } finally {
       //console.log("Assign Number Api call completed");
       setAssignLoader(false);
     }
-  }
+  };
 
   const handleShowKycs = () => {
     setShowScript(false);
     setSeledtedScriptKYC(true);
     setSeledtedScriptAdvanceSetting(false);
-  }
+  };
 
   const handleShowAdvanceSeting = () => {
     setShowScript(false);
     setSeledtedScriptKYC(false);
     setSeledtedScriptAdvanceSetting(true);
-  }
+  };
 
   //function to show the objection and guadrails
   const handleShowObjection = () => {
     setShowObjection(true);
     setShowGuardrails(false);
     setShowObjectives(false);
-  }
+  };
 
   const handleShowGuardrails = () => {
     setShowObjection(false);
     setShowGuardrails(true);
     setShowObjectives(false);
-  }
+  };
 
   const handleShowObjectives = () => {
     setShowObjectives(true);
     setShowObjection(false);
     setShowGuardrails(false);
-  }
+  };
 
   //function ot compare the selected agent wiith the main agents list
   const matchingAgent = (agent) => {
-    const agentData = userDetails.filter((prevAgent) => prevAgent.name === agent.name);
+    const agentData = userAgentsList.filter(
+      (prevAgent) => prevAgent.name === agent.name
+    );
     //console.log("Agent matcing grretings are:", agentData);
     setKYCList(agentData[0].kyc);
 
@@ -818,8 +831,7 @@ function Page() {
     // setGreetingTagInput(agentData[0].greeting);
     // // setOldGreetingTagInput(agentData[0].greeting);
     // setScriptTagInput(agentData[0].callScript);
-  }
-
+  };
 
   //code for getting uniqueCcolumns
   const getUniquesColumn = async () => {
@@ -839,9 +851,9 @@ function Page() {
 
       const response = await axios.get(ApiPath, {
         headers: {
-          "Authorization": "Bearer " + AuthToken,
-          "Content-Type": "application/json"
-        }
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
@@ -850,18 +862,17 @@ function Page() {
           setUniqueColumns(response.data.data);
         }
       }
-
     } catch (error) {
       console.error("Error occured in getColumn is :", error);
     } finally {
       // setColumnloader(false)
     }
-  }
+  };
 
   ///code to show more unique columns
   const handleShowUniqueCols = () => {
     setShowMoreUniqueColumns(!showMoreUniqueColumns);
-  }
+  };
 
   //function to handle input field change
   const handleInputChange = (index, value) => {
@@ -884,8 +895,8 @@ function Page() {
       }
 
       const ApiData = {
-        mainAgentId: showDrawer?.id
-      }
+        mainAgentId: showDrawer?.id,
+      };
       //console.log("Data sending in del agent api is:", ApiData);
       // return
       const ApiPath = Apis.DelAgent;
@@ -893,25 +904,25 @@ function Page() {
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          "Authorization": "Bearer " + AuthToken,
-          "Content-Type": "application/json"
-        }
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
         //console.log("Response of del agent api is:", response);
-        setAgentsContent(agentsContent.filter((item) => item.id !== showDrawer.id));
+        setAgentsContent(
+          agentsContent.filter((item) => item.id !== showDrawer.id)
+        );
         setShowDrawer(null);
         setDelAgentModal(false);
       }
-
     } catch (error) {
       console.error("Error occured in del agent api is:", error);
-    }
-    finally {
+    } finally {
       setDelLoader(false);
     }
-  }
+  };
 
   //function to call testAi Api
   const handleTestAiClick = async () => {
@@ -935,8 +946,8 @@ function Page() {
         agentId: selectedAgent.id,
         name: name,
         phone: phone,
-        extraColumns: newArray
-      }
+        extraColumns: newArray,
+      };
 
       const ApiPath = Apis.testAI;
 
@@ -945,9 +956,9 @@ function Page() {
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          "Authorization": "Bearer " + AuthToken,
-          "Content-Type": "application/json"
-        }
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
@@ -959,14 +970,13 @@ function Page() {
           setPhone("");
         }
       }
-
     } catch (error) {
       console.error("Error occured in test api is", error);
     } finally {
       //console.log("Test ai call api done");
       setTestAIloader(false);
     }
-  }
+  };
 
   //function for phonenumber input
   const handlePhoneNumberChange = (phone) => {
@@ -976,7 +986,6 @@ function Page() {
     if (!phone) {
       setErrorMessage("");
     }
-
   };
 
   //code to get user location
@@ -1000,7 +1009,9 @@ function Page() {
           const { latitude, longitude } = position.coords;
 
           // Fetch country code based on lat and long
-          const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+          const response = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+          );
           const data = await response.json();
 
           // Set the country code based on the geolocation API response
@@ -1016,18 +1027,21 @@ function Page() {
     };
 
     fetchCountry();
-  }
+  };
 
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
     // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
     // parsePhoneNumberFromString(`+${phone}`, countryCode.toUpperCase())
-    const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`, countryCode.toUpperCase());
+    const parsedNumber = parsePhoneNumberFromString(
+      `+${phoneNumber}`,
+      countryCode.toUpperCase()
+    );
     // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
-      setErrorMessage('Enter valid number');
+      setErrorMessage("Enter valid number");
     } else {
-      setErrorMessage('');
+      setErrorMessage("");
 
       if (timerRef.current) {
         clearTimeout(timerRef.current);
@@ -1039,11 +1053,10 @@ function Page() {
   };
 
   useEffect(() => {
-
     const agentLocalDetails = localStorage.getItem("localAgentDetails");
     if (agentLocalDetails) {
       const agentData = JSON.parse(agentLocalDetails);
-      setUserDetails(agentData);
+      setUserAgentsList(agentData);
     }
 
     const userData = localStorage.getItem("User");
@@ -1059,7 +1072,6 @@ function Page() {
     } finally {
       // setInitialLoader(false)
     }
-
   }, []);
 
   // code to select image
@@ -1119,41 +1131,41 @@ function Page() {
 
       const response = await axios.get(ApiPath, {
         headers: {
-          "Authorization": "Bearer " + AuthToken,
-          "Content-Type": "application/json"
-        }
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
         //console.log("Response of get agents api is:", response.data);
-        localStorage.setItem("localAgentDetails", JSON.stringify(response.data.data));
-        setUserDetails(response.data.data);
+        localStorage.setItem(
+          "localAgentDetails",
+          JSON.stringify(response.data.data)
+        );
+        setUserAgentsList(response.data.data);
       }
-
-
-
     } catch (error) {
       console.error("Error occured in get Agents api is :", error);
     } finally {
-      setInitialLoader(false)
+      setInitialLoader(false);
     }
-  }
+  };
 
   //function to add new agent
   const handleAddNewAgent = () => {
     const data = {
-      status: true
-    }
+      status: true,
+    };
     localStorage.setItem("fromDashboard", JSON.stringify(data));
     router.push("/createagent");
-  }
+  };
 
   //code for spiling the agnts
   // let agentsContent = [];
   //code for popover
 
   const handlePopoverOpen = (event, item) => {
-    console.log("Hovered index is", item)
+    console.log("Hovered index is", item);
     setActionInfoEl(event.currentTarget);
     setHoveredIndexStatus(item.status);
     setHoveredIndexAddress(item.address);
@@ -1168,17 +1180,15 @@ function Page() {
   const open = Boolean(actionInfoEl);
 
   useEffect(() => {
+    let agents = [];
 
-    let agents = []
+    console.log("Again setting data in array");
 
-    console.log("Again setting data in array")
-
-    const localAgentsData = localStorage.getItem("localAgentDetails")
+    const localAgentsData = localStorage.getItem("localAgentDetails");
 
     let localDetails = [];
     if (localAgentsData) {
       localDetails = JSON.parse(localAgentsData);
-
     }
 
     localDetails.map((item, index) => {
@@ -1189,7 +1199,7 @@ function Page() {
           //console.log("Agent spilting data is:", agent);
           // Add a condition here if needed  //.agentType === 'outbound'
           if (agent) {
-            agents.push(agent)
+            agents.push(agent);
           }
         }
       } else {
@@ -1199,12 +1209,10 @@ function Page() {
     setAgentsContent(agents);
 
     //console.log("Agents data in updated array is", agentsContent);
-
-
-  }, [userDetails]);
+  }, [userAgentsList]);
 
   //code for voices droopdown
-  const [SelectedVoice, setSelectedVoice] = useState('');
+  const [SelectedVoice, setSelectedVoice] = useState("");
   const [VoicesList, setVoicesList] = useState([]);
 
   //console.log("Voices list is", voicesList.slice(0, 10));
@@ -1228,16 +1236,16 @@ function Page() {
     },
     findNumberTitle: {
       fontSize: 17,
-      fontWeight: "500"
+      fontWeight: "500",
     },
     findNumberDescription: {
       fontSize: 15,
-      fontWeight: "500"
+      fontWeight: "500",
     },
     dropdownMenu: {
       fontSize: 15,
       fontWeight: "500",
-      color: "#000000"
+      color: "#000000",
     },
     modalsStyle: {
       height: "auto",
@@ -1250,325 +1258,412 @@ function Page() {
       border: "none",
       outline: "none",
     },
-  }
-
+  };
 
   // //console.log("Current agent selected is:", showDrawer)
 
-
   return (
-    <div className='w-full flex flex-col items-center'>
-      <div className='w-full flex flex-row justify-between items-center py-4 px-10'
-        style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
+    <div className="w-full flex flex-col items-center">
+      <div
+        className="w-full flex flex-row justify-between items-center py-4 px-10"
+        style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
-        <div style={{ fontSize: 24, fontWeight: '600' }}>
-          My Agents
-        </div>
+        <div style={{ fontSize: 24, fontWeight: "600" }}>My Agents</div>
 
-        <button className='pr-10'>
-          <img src='/otherAssets/notificationIcon.png'
+        <button className="pr-10">
+          <img
+            src="/otherAssets/notificationIcon.png"
             style={{ height: 24, width: 24 }}
-            alt='notificationIcon'
+            alt="notificationIcon"
           />
         </button>
       </div>
 
-      <div className='w-9/12 pt-10 items-center ' style={{}}>
-
+      <div className="w-9/12 pt-10 items-center " style={{}}>
         {/* code for agents list */}
-        {
-          initialLoader ?
-            <div className='h-[70vh] flex flex-row justify-center pt-32 gap-4'>
-              <CircularProgress size={45} />
-            </div> :
-            <div className='h-[70vh] overflow-auto flex flex-col gap-4' style={{ scrollbarWidth: "none" }}>
-              {
-                agentsContent.map((item, index) => (
-                  <div key={index}
-                    className='w-full px-10 py-2' style={{
-                      borderWidth: 1, borderColor: '#15151510', backgroundColor: '#FBFCFF',
-                      borderRadius: 20
-                    }}>
-                    <div className='w-12/12 flex flex-row items-center justify-between'>
-                      <div className='flex flex-row gap-5 items-center'>
-
-                        <div className='flex flex-row items-end'>
-                          {selectedImages[index] ? (
-                            <div>
-                              <Image
-                                src={selectedImages[index]}
-                                height={70}
-                                width={70}
-                                alt="Profile"
-                                style={{ borderRadius: "50%", objectFit: "cover", height: "60px", width: "60px" }}
-                              />
-                            </div>
-                          ) :
-                            <Image className='hidden md:flex' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain", borderRadius: "50%" }} height={69} width={69} alt='*' />
-                          }
-
-
-                          <input
-                            type="file"
-                            accept="image/*"
-                            ref={(el) => (fileInputRef.current[index] = el)} // Store a ref for each input
-                            onChange={(e) => handleProfileImgChange(e, index)}
-                            style={{ display: 'none' }}
+        {initialLoader ? (
+          <div className="h-[70vh] flex flex-row justify-center pt-32 gap-4">
+            <CircularProgress size={45} />
+          </div>
+        ) : (
+          <div
+            className="h-[70vh] overflow-auto flex flex-col gap-4"
+            style={{ scrollbarWidth: "none" }}
+          >
+            {agentsContent.map((item, index) => (
+              <div
+                key={index}
+                className="w-full px-10 py-2"
+                style={{
+                  borderWidth: 1,
+                  borderColor: "#15151510",
+                  backgroundColor: "#FBFCFF",
+                  borderRadius: 20,
+                }}
+              >
+                <div className="w-12/12 flex flex-row items-center justify-between">
+                  <div className="flex flex-row gap-5 items-center">
+                    <div className="flex flex-row items-end">
+                      {selectedImages[index] ? (
+                        <div>
+                          <Image
+                            src={selectedImages[index]}
+                            height={70}
+                            width={70}
+                            alt="Profile"
+                            style={{
+                              borderRadius: "50%",
+                              objectFit: "cover",
+                              height: "60px",
+                              width: "60px",
+                            }}
                           />
-
-                          <button style={{ marginLeft: -30 }} onClick={() => { handleSelectProfileImg(index) }}>
-                            <Image src={'/otherAssets/cameraBtn.png'}
-
-                              height={36}
-                              width={36}
-                              alt='profile'
-                            />
-                          </button>
                         </div>
-
-
-                        <div className='flex flex-col gap-1'>
-
-                          <div className='flex flex-row gap-3 items-center'>
-                            <button onClick={() => {
-                              //console.log("Drawer details are:", item);
-                              handleShowDrawer(item)
-                            }}>
-
-                              <div style={{ fontSize: 24, fontWeight: '600', color: '#000' }}>
-                                {/* {item.name?.slice(0, 1).toUpperCase(0)}{item.name?.slice(1)} */}
-                                {formatName(item)}
-                              </div>
-                            </button>
-                            <div style={{ fontSize: 12, fontWeight: '600', color: '#00000080' }} className='flex flex-row items-center gap-1'>
-                              <div
-                                aria-owns={open ? 'mouse-over-popover' : undefined}
-                                aria-haspopup="true"
-                                onMouseEnter={(event) => { handlePopoverOpen(event, item) }}
-                                onMouseLeave={handlePopoverClose}
-                                style={{ cursor: "pointer" }}
-                              >
-                                {item.agentObjective}
-                              </div>
-                              <div>
-                                | {item.agentType?.slice(0, 1).toUpperCase(0)}{item.agentType?.slice(1)}
-                              </div>
-                            </div>
-
-                            {/* Code for popover */}
-                            <Popover
-                              id="mouse-over-popover"
-                              sx={{
-                                pointerEvents: 'none',
-                                // marginBottom: "20px"
-                              }}
-                              open={open}
-                              anchorEl={actionInfoEl}
-                              anchorOrigin={{
-                                vertical: 'top',
-                                horizontal: 'center',
-                              }}
-                              transformOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'center',
-                              }}
-                              PaperProps={{
-                                elevation: 1, // This will remove the shadow
-                                style: {
-                                  boxShadow: "0px 0px 4px rgba(0, 0, 0, 0.01)",
-                                },
-                              }}
-                              onClose={handlePopoverClose}
-                              disableRestoreFocus
-                            >
-                              <div className="p-3 w-[250px]">
-                                <div className="flex flex-row items-center justify-between gap-1">
-                                  <p style={{ ...styles.paragraph, color: "#00000060" }}>
-                                    Status
-                                  </p>
-                                  <p style={styles.paragraph}>
-                                    {hoveredIndexStatus ? (hoveredIndexStatus) : "-"}
-                                  </p>
-                                </div>
-                                <div className="flex flex-row items-center justify-between mt-1 gap-1">
-                                  <p style={{ ...styles.paragraph, color: "#00000060" }}>
-                                    Address
-                                  </p>
-                                  <p style={styles.paragraph}>
-                                    {hoveredIndexAddress ? (hoveredIndexAddress) : "-"}
-                                  </p>
-                                </div>
-                              </div>
-                            </Popover>
-
-                          </div>
-                          <div className='flex flex-row gap-3 items-center text-purple' style={{ fontSize: 15, fontWeight: '500' }}>
-                            <button onClick={() => {
-                              console.log("Grreting sending ", item);
-                              setGreetingTagInput(item.prompt.greeting);
-                              setOldGreetingTagInput(item.prompt.greeting);
-                              setScriptTagInput(item.prompt.callScript);
-                              setOldScriptTagInput(item.prompt.callScript);
-                              setShowScriptModal(item);
-                              matchingAgent(item);
-                              setShowScript(true);
-                              if (item?.prompt?.outboundObjective) {
-                                setObjective(item?.prompt?.objective);
-                                setOldObjective(item?.prompt?.objective);
-                              }
-
-                              if (item?.prompt?.inboundObjective) {
-                                setObjective(item?.prompt?.inboundObjective);
-                                setOldObjective(item?.prompt?.inboundObjective);
-                              }
-
-                            }}>
-                              <div>
-                                View Script
-                              </div>
-                            </button>
-
-                            <div>
-                              |
-                            </div>
-
-                            <button onClick={() => {
-                              handleShowDrawer(item);
-                              matchingAgent(item);
-                            }}>
-                              <div>
-                                More info
-                              </div>
-                            </button>
-                          </div>
-                        </div>
-
-                      </div>
-
-
-                      <div className='flex flex-row items-start gap-8'>
-
-                        {
-                          !item.phoneNumber && (
-                            <div className='flex flex-row items-center gap-2 -mt-1'>
-                              <Image src={"/assets/warningFill.png"} height={18} width={18} alt='*' />
-                              <p>
-                                <i className='text-red' style={{
-                                  fontSize: 12,
-                                  fontWeight: "600"
-                                }}>
-                                  No Phone number assigned
-                                </i>
-                              </p>
-                            </div>
-                          )
-                        }
-
-                        <button className='bg-purple px-4 py-2 rounded-lg'
-                          onClick={() => {
-                            //console.log("Selected agent for test ai is:", item);
-                            if (!item.phoneNumber) {
-                              setShowWarningModal(item);
-                            } else {
-                              setOpenTestAiModal(true);
-                            }
-                            let callScript = item.prompt.callScript;
-
-                            // //console.log("Keys extracted are", callScript);
-
-                            //function for extracting the keys
-                            const regex = /\{(.*?)\}/g;
-                            let match;
-                            let mainAgent = null;
-                            userDetails.map((ma) => {
-                              if (ma.agents?.length > 0) {
-                                if (ma.agents[0].id == item.id) {
-                                  mainAgent = ma
-                                }
-                                else if (ma.agents?.length >= 2) {
-                                  if (ma.agents[1].id == item.id) {
-                                    mainAgent = ma
-                                  }
-                                }
-                              }
-                            })
-                            let kyc = (mainAgent?.kyc || []).map((kyc) => kyc.question)
-                            //console.log("Main agent selected ", mainAgent)
-                            while ((match = regex.exec(callScript)) !== null) {
-                              // "Email", "Address",
-                              let defaultVariables = ["Full Name", "First Name", "Last Name", "firstName", "seller_kyc", "buyer_kyc", "CU_address", "CU_status"]
-                              if (!defaultVariables.includes(match[1])) {
-                                // match[1]?.length < 15
-                                if (!keys.includes(match[1]) && !kyc.includes(match[1])) {
-                                  keys.push(match[1]);
-                                }
-                              }
-                              // Add the variable name (without braces) to the array
-                            }
-                            setScriptKeys(keys);
-                            //console.log("Keys extracted are", keys);
-                            setSelectedAgent(item);
+                      ) : (
+                        <Image
+                          className="hidden md:flex"
+                          src="/agentXOrb.gif"
+                          style={{
+                            height: "69px",
+                            width: "75px",
+                            resize: "contain",
+                            borderRadius: "50%",
                           }}
-                        >
-                          <div style={{ fontSize: 16, fontWeight: '600', color: '#fff' }}>
-                            Test AI
-                          </div>
-                        </button>
+                          height={69}
+                          width={69}
+                          alt="*"
+                        />
+                      )}
 
-                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        ref={(el) => (fileInputRef.current[index] = el)} // Store a ref for each input
+                        onChange={(e) => handleProfileImgChange(e, index)}
+                        style={{ display: "none" }}
+                      />
 
+                      <button
+                        style={{ marginLeft: -30 }}
+                        onClick={() => {
+                          handleSelectProfileImg(index);
+                        }}
+                      >
+                        <Image
+                          src={"/otherAssets/cameraBtn.png"}
+                          height={36}
+                          width={36}
+                          alt="profile"
+                        />
+                      </button>
                     </div>
 
+                    <div className="flex flex-col gap-1">
+                      <div className="flex flex-row gap-3 items-center">
+                        <button
+                          onClick={() => {
+                            //console.log("Drawer details are:", item);
+                            handleShowDrawer(item);
+                          }}
+                        >
+                          <div
+                            style={{
+                              fontSize: 24,
+                              fontWeight: "600",
+                              color: "#000",
+                            }}
+                          >
+                            {/* {item.name?.slice(0, 1).toUpperCase(0)}{item.name?.slice(1)} */}
+                            {formatName(item)}
+                          </div>
+                        </button>
+                        <div
+                          style={{
+                            fontSize: 12,
+                            fontWeight: "600",
+                            color: "#00000080",
+                          }}
+                          className="flex flex-row items-center gap-1"
+                        >
+                          <div
+                            aria-owns={open ? "mouse-over-popover" : undefined}
+                            aria-haspopup="true"
+                            onMouseEnter={(event) => {
+                              handlePopoverOpen(event, item);
+                            }}
+                            onMouseLeave={handlePopoverClose}
+                            style={{ cursor: "pointer" }}
+                          >
+                            {item.agentObjective}
+                          </div>
+                          <div>
+                            | {item.agentType?.slice(0, 1).toUpperCase(0)}
+                            {item.agentType?.slice(1)}
+                          </div>
+                        </div>
 
-                    <div style={{ marginTop: 20 }} className='w-9.12 bg-white p-6 rounded-2xl mb-4'>
-                      <div className='w-full flex flex-row items-center justify-between'>
+                        {/* Code for popover */}
+                        <Popover
+                          id="mouse-over-popover"
+                          sx={{
+                            pointerEvents: "none",
+                            // marginBottom: "20px"
+                          }}
+                          open={open}
+                          anchorEl={actionInfoEl}
+                          anchorOrigin={{
+                            vertical: "top",
+                            horizontal: "center",
+                          }}
+                          transformOrigin={{
+                            vertical: "bottom",
+                            horizontal: "center",
+                          }}
+                          PaperProps={{
+                            elevation: 1, // This will remove the shadow
+                            style: {
+                              boxShadow: "0px 0px 4px rgba(0, 0, 0, 0.01)",
+                            },
+                          }}
+                          onClose={handlePopoverClose}
+                          disableRestoreFocus
+                        >
+                          <div className="p-3 w-[250px]">
+                            <div className="flex flex-row items-center justify-between gap-1">
+                              <p
+                                style={{
+                                  ...styles.paragraph,
+                                  color: "#00000060",
+                                }}
+                              >
+                                Status
+                              </p>
+                              <p style={styles.paragraph}>
+                                {hoveredIndexStatus ? hoveredIndexStatus : "-"}
+                              </p>
+                            </div>
+                            <div className="flex flex-row items-center justify-between mt-1 gap-1">
+                              <p
+                                style={{
+                                  ...styles.paragraph,
+                                  color: "#00000060",
+                                }}
+                              >
+                                Address
+                              </p>
+                              <p style={styles.paragraph}>
+                                {hoveredIndexAddress
+                                  ? hoveredIndexAddress
+                                  : "-"}
+                              </p>
+                            </div>
+                          </div>
+                        </Popover>
+                      </div>
+                      <div
+                        className="flex flex-row gap-3 items-center text-purple"
+                        style={{ fontSize: 15, fontWeight: "500" }}
+                      >
+                        <button
+                          onClick={() => {
+                            console.log("Grreting sending ", item);
+                            setGreetingTagInput(item.prompt.greeting);
+                            setOldGreetingTagInput(item.prompt.greeting);
+                            setScriptTagInput(item.prompt.callScript);
+                            setOldScriptTagInput(item.prompt.callScript);
+                            setShowScriptModal(item);
+                            matchingAgent(item);
+                            setShowScript(true);
+                            if (item?.prompt?.outboundObjective) {
+                              setObjective(item?.prompt?.objective);
+                              setOldObjective(item?.prompt?.objective);
+                            }
 
-                        <Card
-                          name="Calls"
-                          value={item.calls && item.calls > 0 ? (<div>{item.calls}</div>) : "-"}
-                          icon='/assets/selectedCallIcon.png'
-                          bgColor="bg-blue-100"
-                          iconColor="text-blue-500"
-                        />
-                        <Card
-                          name="Convos"
-                          value={item.callsGt10 && item.callsGt10 > 0 ? (<div>{item.callsGt10}</div>) : "-"}
-                          icon='/otherAssets/convosIcon2.png'
-                          bgColor="bg-purple-100"
-                          iconColor="text-purple-500"
-                        />
-                        <Card
-                          name="Hot Leads"
-                          value="-"
-                          icon='/otherAssets/hotLeadsIcon2.png'
-                          bgColor="bg-orange-100"
-                          iconColor="text-orange-500"
-                        />
+                            if (item?.prompt?.inboundObjective) {
+                              setObjective(item?.prompt?.inboundObjective);
+                              setOldObjective(item?.prompt?.inboundObjective);
+                            }
+                          }}
+                        >
+                          <div>View Script</div>
+                        </button>
 
-                        <Card
-                          name="Booked Meetings"
-                          value="-"
-                          icon='/otherAssets/greenCalenderIcon.png'
-                          bgColor="green"
-                          iconColor="text-orange-500"
-                        />
+                        <div>|</div>
 
-                        <Card
-                          name="Mins Talked"
-                          value={item.totalDuration && item.totalDuration > 0 ? (<div>{item.totalDuration}</div>) : "-"}
-                          icon='/otherAssets/minsCounter.png'
-                          bgColor="green"
-                          iconColor="text-orange-500"
-                        />
+                        <button
+                          onClick={() => {
+                            handleShowDrawer(item);
+                            matchingAgent(item);
+                          }}
+                        >
+                          <div>More info</div>
+                        </button>
                       </div>
                     </div>
                   </div>
-                ))
-              }
-            </div>
-        }
 
+                  <div className="flex flex-row items-start gap-8">
+                    {!item.phoneNumber && (
+                      <div className="flex flex-row items-center gap-2 -mt-1">
+                        <Image
+                          src={"/assets/warningFill.png"}
+                          height={18}
+                          width={18}
+                          alt="*"
+                        />
+                        <p>
+                          <i
+                            className="text-red"
+                            style={{
+                              fontSize: 12,
+                              fontWeight: "600",
+                            }}
+                          >
+                            No Phone number assigned
+                          </i>
+                        </p>
+                      </div>
+                    )}
 
+                    <button
+                      className="bg-purple px-4 py-2 rounded-lg"
+                      onClick={() => {
+                        //console.log("Selected agent for test ai is:", item);
+                        if (!item.phoneNumber) {
+                          setShowWarningModal(item);
+                        } else {
+                          setOpenTestAiModal(true);
+                        }
+                        let callScript = item.prompt.callScript;
+
+                        // //console.log("Keys extracted are", callScript);
+
+                        //function for extracting the keys
+                        const regex = /\{(.*?)\}/g;
+                        let match;
+                        let mainAgent = null;
+                        userAgentsList.map((ma) => {
+                          if (ma.agents?.length > 0) {
+                            if (ma.agents[0].id == item.id) {
+                              mainAgent = ma;
+                            } else if (ma.agents?.length >= 2) {
+                              if (ma.agents[1].id == item.id) {
+                                mainAgent = ma;
+                              }
+                            }
+                          }
+                        });
+                        let kyc = (mainAgent?.kyc || []).map(
+                          (kyc) => kyc.question
+                        );
+                        //console.log("Main agent selected ", mainAgent)
+                        while ((match = regex.exec(callScript)) !== null) {
+                          // "Email", "Address",
+                          let defaultVariables = [
+                            "Full Name",
+                            "First Name",
+                            "Last Name",
+                            "firstName",
+                            "seller_kyc",
+                            "buyer_kyc",
+                            "CU_address",
+                            "CU_status",
+                          ];
+                          if (!defaultVariables.includes(match[1])) {
+                            // match[1]?.length < 15
+                            if (
+                              !keys.includes(match[1]) &&
+                              !kyc.includes(match[1])
+                            ) {
+                              keys.push(match[1]);
+                            }
+                          }
+                          // Add the variable name (without braces) to the array
+                        }
+                        setScriptKeys(keys);
+                        //console.log("Keys extracted are", keys);
+                        setSelectedAgent(item);
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: 16,
+                          fontWeight: "600",
+                          color: "#fff",
+                        }}
+                      >
+                        Test AI
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  style={{ marginTop: 20 }}
+                  className="w-9.12 bg-white p-6 rounded-2xl mb-4"
+                >
+                  <div className="w-full flex flex-row items-center justify-between">
+                    <Card
+                      name="Calls"
+                      value={
+                        item.calls && item.calls > 0 ? (
+                          <div>{item.calls}</div>
+                        ) : (
+                          "-"
+                        )
+                      }
+                      icon="/assets/selectedCallIcon.png"
+                      bgColor="bg-blue-100"
+                      iconColor="text-blue-500"
+                    />
+                    <Card
+                      name="Convos"
+                      value={
+                        item.callsGt10 && item.callsGt10 > 0 ? (
+                          <div>{item.callsGt10}</div>
+                        ) : (
+                          "-"
+                        )
+                      }
+                      icon="/otherAssets/convosIcon2.png"
+                      bgColor="bg-purple-100"
+                      iconColor="text-purple-500"
+                    />
+                    <Card
+                      name="Hot Leads"
+                      value="-"
+                      icon="/otherAssets/hotLeadsIcon2.png"
+                      bgColor="bg-orange-100"
+                      iconColor="text-orange-500"
+                    />
+
+                    <Card
+                      name="Booked Meetings"
+                      value="-"
+                      icon="/otherAssets/greenCalenderIcon.png"
+                      bgColor="green"
+                      iconColor="text-orange-500"
+                    />
+
+                    <Card
+                      name="Mins Talked"
+                      value={
+                        item.totalDuration && item.totalDuration > 0 ? (
+                          <div>{item.totalDuration}</div>
+                        ) : (
+                          "-"
+                        )
+                      }
+                      icon="/otherAssets/minsCounter.png"
+                      bgColor="green"
+                      iconColor="text-orange-500"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* code to add new agent */}
         <button
@@ -1578,22 +1673,22 @@ function Page() {
             border: "1px dashed #7902DF",
             borderRadius: "10px",
             // borderColor: '#7902DF',
-            boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
-            backgroundColor: "#FBFCFF"
+            boxShadow: "0px 0px 10px 10px rgba(64, 47, 255, 0.05)",
+            backgroundColor: "#FBFCFF",
           }}
           onClick={handleAddNewAgent}
         >
-          <div className='flex flex-row items-center gap-1'
+          <div
+            className="flex flex-row items-center gap-1"
             style={{
               fontSize: 20,
-              fontWeight: '600',
-              color: '#000',
+              fontWeight: "600",
+              color: "#000",
             }}
           >
-            <Plus weight='bold' size={22} /> Add New Agent
+            <Plus weight="bold" size={22} /> Add New Agent
           </div>
         </button>
-
       </div>
 
       {/* Test ai modal */}
@@ -1625,60 +1720,85 @@ function Page() {
                 borderRadius: "13px",
               }}
             >
-              <div className='flex flex-row justify-between'>
-                <div className='flex flex-row gap-3'>
+              <div className="flex flex-row justify-between">
+                <div className="flex flex-row gap-3">
                   <Image
-                    src={'/otherAssets/testAiIcon.png'}
-                    height={19} width={19} alt='icon'
+                    src={"/otherAssets/testAiIcon.png"}
+                    height={19}
+                    width={19}
+                    alt="icon"
                   />
-                  <div style={{ fontSize: 16, fontWeight: '500', color: '#000' }}>
+                  <div
+                    style={{ fontSize: 16, fontWeight: "500", color: "#000" }}
+                  >
                     Test
                   </div>
 
-                  {
-                    !selectedAgent?.phoneNumber && (
-                      <div className='flex flex-row items-center gap-2 -mt-1'>
-                        <Image src={"/assets/warningFill.png"} height={20} width={20} alt='*' />
-                        <p>
-                          <i className='text-red' style={{
+                  {!selectedAgent?.phoneNumber && (
+                    <div className="flex flex-row items-center gap-2 -mt-1">
+                      <Image
+                        src={"/assets/warningFill.png"}
+                        height={20}
+                        width={20}
+                        alt="*"
+                      />
+                      <p>
+                        <i
+                          className="text-red"
+                          style={{
                             fontSize: 12,
-                            fontWeight: "600"
-                          }}>
-                            No Phone number assigned
-                          </i>
-                        </p>
-                      </div>
-                    )
-                  }
-
+                            fontWeight: "600",
+                          }}
+                        >
+                          No Phone number assigned
+                        </i>
+                      </p>
+                    </div>
+                  )}
                 </div>
-                <button onClick={() => {
-                  setOpenTestAiModal(false);
-                  setName("");
-                  setPhone("");
-                  setErrorMessage("");
-                }}>
-                  <Image src={"/otherAssets/crossIcon.png"} height={24} width={24} alt='*' />
+                <button
+                  onClick={() => {
+                    setOpenTestAiModal(false);
+                    setName("");
+                    setPhone("");
+                    setErrorMessage("");
+                  }}
+                >
+                  <Image
+                    src={"/otherAssets/crossIcon.png"}
+                    height={24}
+                    width={24}
+                    alt="*"
+                  />
                 </button>
               </div>
 
-              <div style={{ fontSize: 24, fontWeight: '700', color: '#000', marginTop: 20 }}>
-                Tryout ({selectedAgent?.name.slice(0, 1).toUpperCase()}{selectedAgent?.name.slice(1)})
+              <div
+                style={{
+                  fontSize: 24,
+                  fontWeight: "700",
+                  color: "#000",
+                  marginTop: 20,
+                }}
+              >
+                Tryout ({selectedAgent?.name.slice(0, 1).toUpperCase()}
+                {selectedAgent?.name.slice(1)})
               </div>
 
-
-              <div className='pt-5' style={styles.headingStyle}>
+              <div className="pt-5" style={styles.headingStyle}>
                 Who are you calling
               </div>
               <input
                 placeholder="Name"
-                className='w-full rounded p-2 outline-none focus:outline-none focus:ring-0'
+                className="w-full rounded p-2 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, border: "1px solid #00000020" }}
                 value={name}
-                onChange={(e) => { setName(e.target.value) }}
+                onChange={(e) => {
+                  setName(e.target.value);
+                }}
               />
 
-              <div className='pt-5' style={styles.headingStyle}>
+              <div className="pt-5" style={styles.headingStyle}>
                 Phone Number
               </div>
 
@@ -1689,86 +1809,99 @@ function Page() {
                   value={phone}
                   onChange={handlePhoneNumberChange}
                   onFocus={getLocation}
-                  placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                  placeholder={
+                    locationLoader ? "Loading location ..." : "Enter Number"
+                  }
                   // disabled={loading} // Disable input if still loading
                   style={{ borderRadius: "7px" }}
                   inputStyle={{
-                    width: '100%',
-                    borderWidth: '0px',
-                    backgroundColor: 'transparent',
-                    paddingLeft: '60px',
+                    width: "100%",
+                    borderWidth: "0px",
+                    backgroundColor: "transparent",
+                    paddingLeft: "60px",
                     paddingTop: "20px",
                     paddingBottom: "20px",
                   }}
                   buttonStyle={{
-                    border: 'none',
-                    backgroundColor: 'transparent',
+                    border: "none",
+                    backgroundColor: "transparent",
                     // display: 'flex',
                     // alignItems: 'center',
                     // justifyContent: 'center',
                   }}
                   dropdownStyle={{
-                    maxHeight: '150px',
-                    overflowY: 'auto'
+                    maxHeight: "150px",
+                    overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                // defaultMask={loading ? 'Loading...' : undefined}
+                  // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
-              {
-                errorMessage ?
-                  <p style={{ ...styles.errmsg, color: errorMessage && 'red', height: '20px' }}>
-                    {errorMessage}
-                  </p> : ""
-              }
+              {errorMessage ? (
+                <p
+                  style={{
+                    ...styles.errmsg,
+                    color: errorMessage && "red",
+                    height: "20px",
+                  }}
+                >
+                  {errorMessage}
+                </p>
+              ) : (
+                ""
+              )}
 
-              <div className='h-[37vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
-                {
-                  scriptKeys?.map((key, index) => (
-                    <div key={index}>
-                      <div className='pt-5' style={styles.headingStyle}>
-                        Variable {`{${key}}`}
-                      </div>
-                      <input
-                        placeholder="Type here"
-                        // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                        className={`w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                          }`}
-                        style={styles.inputStyle}
-                        value={inputValues[index] || ""} // Default to empty string if no value
-                        onChange={(e) => handleInputChange(index, e.target.value)}
-                      />
+              <div
+                className="h-[37vh] overflow-auto"
+                style={{ scrollbarWidth: "none" }}
+              >
+                {scriptKeys?.map((key, index) => (
+                  <div key={index}>
+                    <div className="pt-5" style={styles.headingStyle}>
+                      Variable {`{${key}}`}
                     </div>
-                  ))
-                }
+                    <input
+                      placeholder="Type here"
+                      // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
+                      className={`w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 ${
+                        index === scriptKeys?.length - 1 ? "mb-16" : ""
+                      }`}
+                      style={styles.inputStyle}
+                      value={inputValues[index] || ""} // Default to empty string if no value
+                      onChange={(e) => handleInputChange(index, e.target.value)}
+                    />
+                  </div>
+                ))}
               </div>
 
-              <div className='w-full' style={{}}>
-                {
-                  testAIloader ?
-                    <div className="flex flex-row items-center justify-center w-full p-3 mt-2">
-                      <CircularProgress size={30} />
-                    </div> :
-                    <div>
-                      {
-                        name && phone && (
-                          <button style={{ marginTop: 20 }}
-                            className='w-full flex bg-purple p-3 rounded-lg items-center justify-center mb-8'
-                            onClick={handleTestAiClick}
-                          >
-                            <div style={{ fontSize: 16, fontWeight: '500', color: '#fff' }}>
-                              Test AI
-                            </div>
-                          </button>
-                        )
-                      }
-                    </div>
-                }
+              <div className="w-full" style={{}}>
+                {testAIloader ? (
+                  <div className="flex flex-row items-center justify-center w-full p-3 mt-2">
+                    <CircularProgress size={30} />
+                  </div>
+                ) : (
+                  <div>
+                    {name && phone && (
+                      <button
+                        style={{ marginTop: 20 }}
+                        className="w-full flex bg-purple p-3 rounded-lg items-center justify-center mb-8"
+                        onClick={handleTestAiClick}
+                      >
+                        <div
+                          style={{
+                            fontSize: 16,
+                            fontWeight: "500",
+                            color: "#fff",
+                          }}
+                        >
+                          Test AI
+                        </div>
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
-
-
-
 
               {/* Can be use full to add shadow */}
               {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
@@ -1862,7 +1995,6 @@ function Page() {
       >
         <div className="flex flex-col w-full">
           <div className="w-full flex flex-row items-center justify-between mb-8">
-
             <div className="flex flex-row items-center gap-4 ">
               <div className="flex items-end">
                 <Image
@@ -1880,13 +2012,21 @@ function Page() {
                   />
                 </button>
               </div>
-              <div className='flex flex-col gap-1 items-start '>
-                <div className='flex flex-row gap-2 items-center '>
+              <div className="flex flex-col gap-1 items-start ">
+                <div className="flex flex-row gap-2 items-center ">
                   <div style={{ fontSize: 22, fontWeight: "600" }}>
-                    {showDrawer?.name.slice(0, 1).toUpperCase()}{showDrawer?.name.slice(1)}
+                    {showDrawer?.name.slice(0, 1).toUpperCase()}
+                    {showDrawer?.name.slice(1)}
                   </div>
-                  <div className='text-purple' style={{ fontSize: 11, fontWeight: "600" }}>
-                    {showDrawer?.agentObjective} <span className='text-[#00000060]'> | {showDrawer?.agentType}</span>
+                  <div
+                    className="text-purple"
+                    style={{ fontSize: 11, fontWeight: "600" }}
+                  >
+                    {showDrawer?.agentObjective}{" "}
+                    <span className="text-[#00000060]">
+                      {" "}
+                      | {showDrawer?.agentType}
+                    </span>
                   </div>
                 </div>
 
@@ -1895,34 +2035,46 @@ function Page() {
                   {formatPhoneNumber(showDrawer?.phoneNumber)}
                 </div>
 
-                <div className='flex flex-row gap-2 items-center '>
-                  <div style={{ fontSize: 11, fontWeight: "500", color: "#666" }}>
+                <div className="flex flex-row gap-2 items-center ">
+                  <div
+                    style={{ fontSize: 11, fontWeight: "500", color: "#666" }}
+                  >
                     Created on:
                   </div>
-                  <div style={{ fontSize: 11, fontWeight: "500", color: "#000" }}>
+                  <div
+                    style={{ fontSize: 11, fontWeight: "500", color: "#000" }}
+                  >
                     {/* {showDrawer?.createdAt} */}
                     {moment(showDrawer?.createdAt).format("MMM DD, YYYY")}
                   </div>
-
                 </div>
               </div>
             </div>
-
           </div>
-
-
 
           <div className="grid grid-cols-5 gap-6 border p-8 flex-row justify-between w-full rounded-lg mb-6">
             <Card
               name="Calls"
-              value={showDrawer?.calls && showDrawer?.calls > 0 ? (<div>{showDrawer?.calls}</div>) : "-"}
+              value={
+                showDrawer?.calls && showDrawer?.calls > 0 ? (
+                  <div>{showDrawer?.calls}</div>
+                ) : (
+                  "-"
+                )
+              }
               icon="/assets/selectedCallIcon.png"
               bgColor="bg-blue-100"
               iconColor="text-blue-500"
             />
             <Card
               name="Convos"
-              value={showDrawer?.callsGt10 && showDrawer?.callsGt10 > 0 ? (<div>{showDrawer?.callsGt10}</div>) : "-"}
+              value={
+                showDrawer?.callsGt10 && showDrawer?.callsGt10 > 0 ? (
+                  <div>{showDrawer?.callsGt10}</div>
+                ) : (
+                  "-"
+                )
+              }
               icon="/otherAssets/convosIcon2.png"
               bgColor="bg-purple-100"
               iconColor="text-purple-500"
@@ -1943,7 +2095,13 @@ function Page() {
             />
             <Card
               name="Mins Talked"
-              value={showDrawer?.totalDuration && showDrawer?.totalDuration > 0 ? (<div>{showDrawer?.totalDuration}</div>) : "-"}
+              value={
+                showDrawer?.totalDuration && showDrawer?.totalDuration > 0 ? (
+                  <div>{showDrawer?.totalDuration}</div>
+                ) : (
+                  "-"
+                )
+              }
               icon="/otherAssets/minsCounter.png"
               bgColor="bg-green-100"
               iconColor="text-green-500"
@@ -1955,18 +2113,17 @@ function Page() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${activeTab === tab ? "text-purple border-b-2 border-purple" : "text-black-500"
-                  }`} style={{ fontSize: 15, fontWeight: '500' }}
+                className={`${
+                  activeTab === tab
+                    ? "text-purple border-b-2 border-purple"
+                    : "text-black-500"
+                }`}
+                style={{ fontSize: 15, fontWeight: "500" }}
               >
                 {tab}
               </button>
             ))}
-
           </div>
-
-
-
-
 
           {/* <div className='w-full flex items-end justify-end mb-5'>
             <button style={{ color: '#7902DF', fontSize: 15, fontWeight: '600' }}>
@@ -1975,124 +2132,147 @@ function Page() {
           </div> */}
 
           {/* Code for agent info */}
-          {
-            activeTab === "Agent Info" ? (
-              <div className='w-full'>
-                <div className="flex flex-col gap-4">
-                  <div className='flex flex-row items-center justify-between'>
-                    <div style={{ fontSize: 16, fontWeight: '600', color: '#000' }}>
-                      Agent
-                    </div>
-                    {
-                      assignLoader ?
-                        <div>
-                          <CircularProgress size={25} />
-                        </div> :
-                        <button
-                          className='text-purple underline'
-                          style={{ fontSize: 16, fontWeight: '600', color: '' }}
-                          onClick={AssignNumber}
-                        >
-                          Save Changes
-                        </button>
-                    }
+          {activeTab === "Agent Info" ? (
+            <div className="w-full">
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-row items-center justify-between">
+                  <div
+                    style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
+                  >
+                    Agent
                   </div>
-                  <div className="flex justify-between">
-                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Name</div>
-                    <div
-                      style={{
-                        fontSize: 15, fontWeight: '500', color: '#000'
-                      }}>
-                      {showDrawer?.name}
+                  {assignLoader ? (
+                    <div>
+                      <CircularProgress size={25} />
                     </div>
+                  ) : (
+                    <button
+                      className="text-purple underline"
+                      style={{ fontSize: 16, fontWeight: "600", color: "" }}
+                      onClick={AssignNumber}
+                    >
+                      Save Changes
+                    </button>
+                  )}
+                </div>
+                <div className="flex justify-between">
+                  <div
+                    style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                  >
+                    Name
                   </div>
-                  <div className="flex justify-between items-center mt-4">
-                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Role</div>
-                    <div
-                      style={{
-                        fontSize: 15, fontWeight: '500', color: '#000'
-                      }}>
-                      {showDrawer?.agentRole}
-                    </div>
+                  <div
+                    style={{
+                      fontSize: 15,
+                      fontWeight: "500",
+                      color: "#000",
+                    }}
+                  >
+                    {showDrawer?.name}
                   </div>
-                  <div className="flex justify-between items-center">
-                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>Voice</div>
-                    {/* <div className='flex flex-row items-center gap-1'
+                </div>
+                <div className="flex justify-between items-center mt-4">
+                  <div
+                    style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                  >
+                    Role
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 15,
+                      fontWeight: "500",
+                      color: "#000",
+                    }}
+                  >
+                    {showDrawer?.agentRole}
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div
+                    style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                  >
+                    Voice
+                  </div>
+                  {/* <div className='flex flex-row items-center gap-1'
                       style={{
                         fontSize: 15, fontWeight: '500', color: '#000'
                       }}>
                       <Image src={"/otherAssets/voiceAvt.png"} height={22} width={22} alt='*' />
                       {showDrawer?.voiceId}
                     </div> */}
-                    <FormControl size='fit-content'>
-                      <Select
-                        value={SelectedVoice}
-                        onChange={handleChangeVoice}
-                        displayEmpty // Enables placeholder
-                        renderValue={(selected) => {
-                          if (!selected) {
-                            return <div style={{ color: "#aaa" }}>Select Voice</div>; // Placeholder style
-                          }
-                          return selected;
-                        }}
-                        sx={{
-                          border: "none", // Default border
-                          "&:hover": {
-                            border: "none", // Same border on hover
-                          },
-                          "& .MuiOutlinedInput-notchedOutline": {
-                            border: "none", // Remove the default outline
-                          },
-                          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                            border: "none", // Remove outline on focus
-                          },
-                          "&.MuiSelect-select": {
-                            py: 0, // Optional padding adjustments
-                          },
-                        }}
-                        MenuProps={{
-                          PaperProps: {
-                            style: {
-                              maxHeight: "30vh", // Limit dropdown height
-                              overflow: "auto", // Enable scrolling in dropdown
-                              scrollbarWidth: "none",
-                              // borderRadius: "10px"
-                            },
-                          },
-                        }}
-                      >
-                        {
-                          voicesList.slice(0, 10).map((item, index) => {
-                            return (
-                              <MenuItem value={item?.voice_id} key={index}>
-                                {item?.voice_id}
-                              </MenuItem>
-                            )
-                          })
+                  <FormControl size="fit-content">
+                    <Select
+                      value={SelectedVoice}
+                      onChange={handleChangeVoice}
+                      displayEmpty // Enables placeholder
+                      renderValue={(selected) => {
+                        if (!selected) {
+                          return (
+                            <div style={{ color: "#aaa" }}>Select Voice</div>
+                          ); // Placeholder style
                         }
-                        {/* <MenuItem value={10}>Ten</MenuItem>
+                        return selected;
+                      }}
+                      sx={{
+                        border: "none", // Default border
+                        "&:hover": {
+                          border: "none", // Same border on hover
+                        },
+                        "& .MuiOutlinedInput-notchedOutline": {
+                          border: "none", // Remove the default outline
+                        },
+                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                          border: "none", // Remove outline on focus
+                        },
+                        "&.MuiSelect-select": {
+                          py: 0, // Optional padding adjustments
+                        },
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          style: {
+                            maxHeight: "30vh", // Limit dropdown height
+                            overflow: "auto", // Enable scrolling in dropdown
+                            scrollbarWidth: "none",
+                            // borderRadius: "10px"
+                          },
+                        },
+                      }}
+                    >
+                      {voicesList.slice(0, 10).map((item, index) => {
+                        return (
+                          <MenuItem value={item?.voice_id} key={index}>
+                            {item?.voice_id}
+                          </MenuItem>
+                        );
+                      })}
+                      {/* <MenuItem value={10}>Ten</MenuItem>
                         <MenuItem value={20}>Twenty</MenuItem>
                         <MenuItem value={30}>Thirty</MenuItem> */}
-                      </Select>
-                    </FormControl>
-                  </div>
+                    </Select>
+                  </FormControl>
                 </div>
-                <div className="flex flex-col gap-4 mt-4">
+              </div>
+              <div className="flex flex-col gap-4 mt-4">
+                <div style={{ fontSize: 16, fontWeight: "600", color: "#000" }}>
+                  Contact Info
+                </div>
 
-                  <div style={{ fontSize: 16, fontWeight: '600', color: '#000' }}>
-                    Contact Info
+                <div className="flex justify-between items-center">
+                  <div
+                    style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                  >
+                    Number used for calls
                   </div>
-
-                  <div className="flex justify-between items-center">
-                    <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>
-                      Number used for calls
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 15, fontWeight: '500', color: '#000'
-                      }}>
-                      {/*showDrawer?.phoneNumber*/}
-                      {/* <FormControl size="200px">
+                  <div
+                    style={{
+                      fontSize: 15,
+                      fontWeight: "500",
+                      color: "#000",
+                    }}
+                  >
+                    {/*showDrawer?.phoneNumber*/}
+                    {/* <FormControl size="200px">
 
                         <Select
                           value={assignNumber}
@@ -2135,229 +2315,253 @@ function Page() {
                           <MenuItem value={30}>Thirty</MenuItem>
                         </Select>
                       </FormControl> */}
-                      <Box className="w-full">
-                        <FormControl className="w-full">
-                          <Select
-                            ref={selectRef}
-                            open={openCalimNumDropDown}
-                            onClose={() => setOpenCalimNumDropDown(false)}
-                            onOpen={() => setOpenCalimNumDropDown(true)}
-                            className='border-none rounded-2xl outline-none p-0 m-0'
-                            displayEmpty
-                            value={assignNumber}
-                            // onChange={handleSelectNumber}
-                            onChange={(e) => {
-                              let value = e.target.value
-                              setAssignNumber(value)
-                              setOpenCalimNumDropDown(false);
-                            }}
-                            renderValue={(selected) => {
-                              if (selected === '') {
-                                return <div>Select Number</div>;
-                              }
-                              return selected;
-                            }}
-                            sx={{
-                              ...styles.dropdownMenu,
-                              backgroundColor: 'none',
-                              '& .MuiOutlinedInput-notchedOutline': {
-                                border: 'none',
-                              },
-                              padding: 0,
-                              margin: 0
-                            }}
-                          >
-                            {
-                              previousNumber.map((item, index) => (
-                                <MenuItem key={index} style={styles.dropdownMenu} value={item.phoneNumber.slice(1)} className='flex flex-row items-center gap-2'>
-                                  <div
-                                    onClick={(e) => {
-                                      if (item?.claimedBy) {
-                                        e.stopPropagation();
-                                        setShowConfirmationModal(item);
-                                      }
-                                    }}
-                                  >
-                                    {item.phoneNumber}
-                                  </div>
-                                  {
-                                    showReassignBtn && (
-                                      <div
-                                        onClick={(e) => {
-                                          console.log("Should open confirmation modal")
-                                          e.stopPropagation();
-                                          setShowConfirmationModal(item);
-                                        }}
-                                      >
-                                        {
-                                          item.claimedBy && (
-                                            <div className='flex flex-row items-center gap-2'>
-                                              {
-                                                showDrawer?.name !== item.claimedBy.name && (
-                                                  <div>
-                                                    {`(Claimed by {${item.claimedBy.name}})`}
-                                                    {
-                                                      reassignLoader === item ?
-                                                        <CircularProgress size={15} /> :
-                                                        <button className="text-purple underline" onClick={(e) => {
-                                                          e.stopPropagation();
-                                                          setShowConfirmationModal(item);
-                                                          // handleReassignNumber(item)
-                                                          // handleReassignNumber(e.target.value)
-                                                        }} >
-                                                          Reassign
-                                                        </button>
-                                                    }
-                                                  </div>
-                                                )
-                                              }
-                                            </div>
-                                          )
-                                        }
-                                      </div>
-                                    )
-                                  }
-                                </MenuItem>
-                              ))
-                            }
-                            <MenuItem style={styles.dropdownMenu} value={showGlobalBtn ? 14062040550 : ""}
-                              disabled={!showGlobalBtn}
-                            >
-                              +14062040550
-                              {
-                                showGlobalBtn && (
-                                  " (Our global phone number avail to first time users)"
-                                )
-                              }
-                              {
-                                showGlobalBtn == false && (
-                                  " (Only for outbound agents. You must Buy a number)"
-                                )
-                              }
-                            </MenuItem>
-                            <div className='ms-4' style={{ ...styles.inputStyle, color: '#00000070' }}><i>Get your own unique phone number.</i> <button className='text-purple underline' onClick={() => { setShowClaimPopup(true) }}>Claim one</button></div>
-                          </Select>
-                        </FormControl>
-                      </Box>
-                    </div>
-                  </div>
-                  <div className="flex justify-between">
-                    <div className='flex flex-row gap-3'>
-                      <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>
-                        Call back number
-                      </div>
-                      <div
-                      // aria-owns={open ? 'mouse-over-popover' : undefined}
-                      // aria-haspopup="true"
-                      // onMouseEnter={handlePopoverOpen}
-                      // onMouseLeave={handlePopoverClose}
-                      >
-                        <Image src={'/otherAssets/updateIcon.png'}
-                          style={{
-                            height: "20px",
-                            width: "20px",
-                            objectFit: "cover" // Ensures proper fitting
+                    <Box className="w-full">
+                      <FormControl className="w-full">
+                        <Select
+                          ref={selectRef}
+                          open={openCalimNumDropDown}
+                          onClose={() => setOpenCalimNumDropDown(false)}
+                          onOpen={() => setOpenCalimNumDropDown(true)}
+                          className="border-none rounded-2xl outline-none p-0 m-0"
+                          displayEmpty
+                          value={assignNumber}
+                          // onChange={handleSelectNumber}
+                          onChange={(e) => {
+                            let value = e.target.value;
+                            setAssignNumber(value);
+                            setOpenCalimNumDropDown(false);
                           }}
-                          height={20}
-                          width={20}
-                          alt='call'
-                        />
-                      </div>
-                      {/* Code for popover */}
-
+                          renderValue={(selected) => {
+                            if (selected === "") {
+                              return <div>Select Number</div>;
+                            }
+                            return selected;
+                          }}
+                          sx={{
+                            ...styles.dropdownMenu,
+                            backgroundColor: "none",
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              border: "none",
+                            },
+                            padding: 0,
+                            margin: 0,
+                          }}
+                        >
+                          {previousNumber.map((item, index) => (
+                            <MenuItem
+                              key={index}
+                              style={styles.dropdownMenu}
+                              value={item.phoneNumber.slice(1)}
+                              className="flex flex-row items-center gap-2"
+                            >
+                              <div
+                                onClick={(e) => {
+                                  if (item?.claimedBy) {
+                                    e.stopPropagation();
+                                    setShowConfirmationModal(item);
+                                  }
+                                }}
+                              >
+                                {item.phoneNumber}
+                              </div>
+                              {showReassignBtn && (
+                                <div
+                                  onClick={(e) => {
+                                    console.log(
+                                      "Should open confirmation modal"
+                                    );
+                                    e.stopPropagation();
+                                    setShowConfirmationModal(item);
+                                  }}
+                                >
+                                  {item.claimedBy && (
+                                    <div className="flex flex-row items-center gap-2">
+                                      {showDrawer?.name !==
+                                        item.claimedBy.name && (
+                                        <div>
+                                          {`(Claimed by {${item.claimedBy.name}})`}
+                                          {reassignLoader === item ? (
+                                            <CircularProgress size={15} />
+                                          ) : (
+                                            <button
+                                              className="text-purple underline"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setShowConfirmationModal(item);
+                                                // handleReassignNumber(item)
+                                                // handleReassignNumber(e.target.value)
+                                              }}
+                                            >
+                                              Reassign
+                                            </button>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </MenuItem>
+                          ))}
+                          <MenuItem
+                            style={styles.dropdownMenu}
+                            value={showGlobalBtn ? 14062040550 : ""}
+                            disabled={!showGlobalBtn}
+                          >
+                            +14062040550
+                            {showGlobalBtn &&
+                              " (Our global phone number avail to first time users)"}
+                            {showGlobalBtn == false &&
+                              " (Only for outbound agents. You must Buy a number)"}
+                          </MenuItem>
+                          <div
+                            className="ms-4"
+                            style={{ ...styles.inputStyle, color: "#00000070" }}
+                          >
+                            <i>Get your own unique phone number.</i>{" "}
+                            <button
+                              className="text-purple underline"
+                              onClick={() => {
+                                setShowClaimPopup(true);
+                              }}
+                            >
+                              Claim one
+                            </button>
+                          </div>
+                        </Select>
+                      </FormControl>
+                    </Box>
+                  </div>
+                </div>
+                <div className="flex justify-between">
+                  <div className="flex flex-row gap-3">
+                    <div
+                      style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                    >
+                      Call back number
                     </div>
                     <div
-                      style={{
-                        fontSize: 15, fontWeight: '500', color: '#000'
-                      }}>
-                      {showDrawer?.callbackNumber ?
-                        <div>
-                          {showDrawer?.callbackNumber}
-                        </div> : "-"
-                      }
-                    </div>
-                  </div>
-                  <div className="flex justify-between mt-4">
-                    <div className='flex flex-row gap-3'>
-                      <div style={{ fontSize: 15, fontWeight: '500', color: '#666' }}>
-                        Call transfer number
-                      </div>
+                    // aria-owns={open ? 'mouse-over-popover' : undefined}
+                    // aria-haspopup="true"
+                    // onMouseEnter={handlePopoverOpen}
+                    // onMouseLeave={handlePopoverClose}
+                    >
                       <Image
-                        src={'/otherAssets/updateIcon.png'}
+                        src={"/otherAssets/updateIcon.png"}
                         style={{
                           height: "20px",
                           width: "20px",
-                          objectFit: "cover" // Ensures proper fitting
+                          objectFit: "cover", // Ensures proper fitting
                         }}
-                        alt="call"
                         height={20}
                         width={20}
+                        alt="call"
                       />
-
                     </div>
-                    <div>
-                      {showDrawer?.liveTransferNumber ?
-                        <div>
-                          {showDrawer?.liveTransferNumber}
-                        </div> : "-"
-                      }
+                    {/* Code for popover */}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 15,
+                      fontWeight: "500",
+                      color: "#000",
+                    }}
+                  >
+                    {showDrawer?.callbackNumber ? (
+                      <div>{showDrawer?.callbackNumber}</div>
+                    ) : (
+                      "-"
+                    )}
+                  </div>
+                </div>
+                <div className="flex justify-between mt-4">
+                  <div className="flex flex-row gap-3">
+                    <div
+                      style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                    >
+                      Call transfer number
                     </div>
+                    <Image
+                      src={"/otherAssets/updateIcon.png"}
+                      style={{
+                        height: "20px",
+                        width: "20px",
+                        objectFit: "cover", // Ensures proper fitting
+                      }}
+                      alt="call"
+                      height={20}
+                      width={20}
+                    />
+                  </div>
+                  <div>
+                    {showDrawer?.liveTransferNumber ? (
+                      <div>{showDrawer?.liveTransferNumber}</div>
+                    ) : (
+                      "-"
+                    )}
                   </div>
                 </div>
               </div>
-            ) : activeTab === "Calender" ? (
-              <div>
-                <div className='flex flex-row items-center justify-between'>
-                  <p style={{ fontSize: 15, fontWeight: '600', color: '#666' }}>
-                    Title
-                  </p>
-                  <p style={{ fontSize: 16, fontWeight: '500', color: '#000' }}>
-                    {calendarDetails?.calendar?.title ?
-                      <div>
-                        {calendarDetails?.calendar?.title}
-                      </div> : "-"
-                    }
-                  </p>
-                </div>
-                <div className='flex flex-row items-center justify-between mt-6'>
-                  <p style={{ fontSize: 15, fontWeight: '600', color: '#666' }}>
-                    Event
-                  </p>
-                  <p style={{ fontSize: 16, fontWeight: '500', color: '#000' }}>
-                    {calendarDetails?.calendar?.eventId ?
-                      <div>
-                        {calendarDetails?.calendar?.eventId}
-                      </div>
-                      : "-"
-                    }
-                  </p>
-                </div>
-                <div className='flex flex-row items-center justify-between mt-6'>
-                  <p style={{ fontSize: 15, fontWeight: '600', color: '#666' }}>
-                    Api key
-                  </p>
-                  <p style={{ fontSize: 16, fontWeight: '500', color: '#000' }}>
-                    {calendarDetails?.calendar?.apiKey ?
-                      <div>
-                        {calendarDetails?.calendar?.apiKey}
-                      </div> : "-"
-                    }
-                  </p>
-                </div>
+            </div>
+          ) : activeTab === "Calender" ? (
+            <div>
+              <div className="flex flex-row items-center justify-between">
+                <p style={{ fontSize: 15, fontWeight: "600", color: "#666" }}>
+                  Title
+                </p>
+                <p style={{ fontSize: 16, fontWeight: "500", color: "#000" }}>
+                  {calendarDetails?.calendar?.title ? (
+                    <div>{calendarDetails?.calendar?.title}</div>
+                  ) : (
+                    "-"
+                  )}
+                </p>
               </div>
-            ) : activeTab === "Pipeline | Stages" ? (
-              <div className="flex flex-col gap-4">
-                <PiepelineAdnStage selectedAgent={showDrawer} UserPipeline={UserPipeline} />
+              <div className="flex flex-row items-center justify-between mt-6">
+                <p style={{ fontSize: 15, fontWeight: "600", color: "#666" }}>
+                  Event
+                </p>
+                <p style={{ fontSize: 16, fontWeight: "500", color: "#000" }}>
+                  {calendarDetails?.calendar?.eventId ? (
+                    <div>{calendarDetails?.calendar?.eventId}</div>
+                  ) : (
+                    "-"
+                  )}
+                </p>
               </div>
-            ) : ""
-          }
+              <div className="flex flex-row items-center justify-between mt-6">
+                <p style={{ fontSize: 15, fontWeight: "600", color: "#666" }}>
+                  Api key
+                </p>
+                <p style={{ fontSize: 16, fontWeight: "500", color: "#000" }}>
+                  {calendarDetails?.calendar?.apiKey ? (
+                    <div>{calendarDetails?.calendar?.apiKey}</div>
+                  ) : (
+                    "-"
+                  )}
+                </p>
+              </div>
+            </div>
+          ) : activeTab === "Pipeline | Stages" ? (
+            <div className="flex flex-col gap-4">
+              <PiepelineAdnStage
+                selectedAgent={showDrawer}
+                UserPipeline={UserPipeline}
+              />
+            </div>
+          ) : (
+            ""
+          )}
 
-          <div className='flex flex-row justify-end w-full mt-4'>
+          <div className="flex flex-row justify-end w-full mt-4">
             <button
-              className='flex flex-row gap-2 items-center'
-              onClick={() => { setDelAgentModal(true) }}
+              className="flex flex-row gap-2 items-center"
+              onClick={() => {
+                setDelAgentModal(true);
+              }}
               style={{
-                position: "absolute", bottom: 20
+                position: "absolute",
+                bottom: 20,
               }}
             >
               {/* <Image src={'/otherAssets/redDeleteIcon.png'}
@@ -2367,28 +2571,27 @@ function Page() {
               /> */}
 
               <Image
-                src={'/otherAssets/redDeleteIcon.png'}
+                src={"/otherAssets/redDeleteIcon.png"}
                 height={24}
                 width={24}
                 alt="del"
                 style={{
-                  filter: "brightness(0) saturate(100%) opacity(0.6)" // Convert to black and make semi-transparent
+                  filter: "brightness(0) saturate(100%) opacity(0.6)", // Convert to black and make semi-transparent
                 }}
               />
 
-
-              <div style={{
-                fontSize: 15, fontWeight: '600',
-                color: '#00000060', textDecorationLine: 'underline',
-              }}>
+              <div
+                style={{
+                  fontSize: 15,
+                  fontWeight: "600",
+                  color: "#00000060",
+                  textDecorationLine: "underline",
+                }}
+              >
                 Delete Agent
               </div>
             </button>
           </div>
-
-
-
-
         </div>
       </Drawer>
 
@@ -2399,57 +2602,81 @@ function Page() {
           setDelAgentModal(false);
         }}
       >
-        <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
-          <div style={{ width: "100%", }}>
-
-            <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
-              <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Box
+          className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
+          sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+        >
+          <div style={{ width: "100%" }}>
+            <div
+              className="max-h-[60vh] overflow-auto"
+              style={{ scrollbarWidth: "none" }}
+            >
+              <div
+                style={{
+                  width: "100%",
+                  direction: "row",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
                 {/* <div style={{ width: "20%" }} /> */}
                 <div style={{ fontWeight: "500", fontSize: 17 }}>
                   Delete Agent
                 </div>
-                <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
-                  <button onClick={() => {
-                    setDelAgentModal(false);
-                  }} className='outline-none'>
-                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                <div
+                  style={{
+                    direction: "row",
+                    display: "flex",
+                    justifyContent: "end",
+                  }}
+                >
+                  <button
+                    onClick={() => {
+                      setDelAgentModal(false);
+                    }}
+                    className="outline-none"
+                  >
+                    <Image
+                      src={"/assets/crossIcon.png"}
+                      height={40}
+                      width={40}
+                      alt="*"
+                    />
                   </button>
                 </div>
               </div>
 
-              <div className='mt-6' style={{ fontWeight: "700", fontSize: 22 }}>
+              <div className="mt-6" style={{ fontWeight: "700", fontSize: 22 }}>
                 This is irreversible. Are you sure?
               </div>
-
-
             </div>
 
-            <div className='flex flex-row items-center gap-4 mt-6'>
-              <button className='w-1/2'>
-                Cancel
-              </button>
-              <div className='w-1/2'>
-                {
-                  DelLoader ?
-                    <div className='flex flex-row iems-center justify-center w-full mt-4'>
-                      <CircularProgress size={25} />
-                    </div> :
-                    <button
-                      className='mt-4 outline-none bg-red'
-                      style={{
-                        color: "white",
-                        height: "50px", borderRadius: "10px", width: "100%",
-                        fontWeight: 600, fontSize: '20'
-                      }}
-                      onClick={handleDeleteAgent}
-                    >
-                      Yes! Delete
-                    </button>
-                }
+            <div className="flex flex-row items-center gap-4 mt-6">
+              <button className="w-1/2">Cancel</button>
+              <div className="w-1/2">
+                {DelLoader ? (
+                  <div className="flex flex-row iems-center justify-center w-full mt-4">
+                    <CircularProgress size={25} />
+                  </div>
+                ) : (
+                  <button
+                    className="mt-4 outline-none bg-red"
+                    style={{
+                      color: "white",
+                      height: "50px",
+                      borderRadius: "10px",
+                      width: "100%",
+                      fontWeight: 600,
+                      fontSize: "20",
+                    }}
+                    onClick={handleDeleteAgent}
+                  >
+                    Yes! Delete
+                  </button>
+                )}
               </div>
             </div>
-
-
           </div>
         </Box>
       </Modal>
@@ -2461,11 +2688,15 @@ function Page() {
           setShowWarningModal(null);
         }}
       >
-        <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
-          <div style={{ width: "100%", }}>
-
-            <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
-
+        <Box
+          className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
+          sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+        >
+          <div style={{ width: "100%" }}>
+            <div
+              className="max-h-[60vh] overflow-auto"
+              style={{ scrollbarWidth: "none" }}
+            >
               {/* <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "end", alignItems: "center" }}>
                 <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
                   <button onClick={() => {
@@ -2476,27 +2707,37 @@ function Page() {
                 </div>
               </div> */}
 
-              <div className='flex flex-row items-center justify-center gap-2 -mt-1'>
-                <Image src={"/assets/warningFill.png"} height={18} width={18} alt='*' />
+              <div className="flex flex-row items-center justify-center gap-2 -mt-1">
+                <Image
+                  src={"/assets/warningFill.png"}
+                  height={18}
+                  width={18}
+                  alt="*"
+                />
                 <p>
-                  <i className='text-red' style={{
-                    fontSize: 16,
-                    fontWeight: "600"
-                  }}>
+                  <i
+                    className="text-red"
+                    style={{
+                      fontSize: 16,
+                      fontWeight: "600",
+                    }}
+                  >
                     No Phone number assigned
                   </i>
                 </p>
               </div>
-
             </div>
 
-            <div className='flex flex-row items-center gap-4 mt-6'>
+            <div className="flex flex-row items-center gap-4 mt-6">
               <button
-                className='mt-4 outline-none w-1/2'
+                className="mt-4 outline-none w-1/2"
                 style={{
                   color: "black",
-                  height: "50px", borderRadius: "10px", width: "100%",
-                  fontWeight: 600, fontSize: '20'
+                  height: "50px",
+                  borderRadius: "10px",
+                  width: "100%",
+                  fontWeight: 600,
+                  fontSize: "20",
                 }}
                 onClick={() => {
                   setShowWarningModal(null);
@@ -2505,11 +2746,14 @@ function Page() {
                 Close
               </button>
               <button
-                className='mt-4 outline-none bg-purple w-1/2'
+                className="mt-4 outline-none bg-purple w-1/2"
                 style={{
                   color: "white",
-                  height: "50px", borderRadius: "10px", width: "100%",
-                  fontWeight: 600, fontSize: '20'
+                  height: "50px",
+                  borderRadius: "10px",
+                  width: "100%",
+                  fontWeight: 600,
+                  fontSize: "20",
                 }}
                 onClick={() => {
                   setShowDrawer(ShowWarningModal);
@@ -2519,8 +2763,6 @@ function Page() {
                 Assign Number
               </button>
             </div>
-
-
           </div>
         </Box>
       </Modal>
@@ -2532,11 +2774,15 @@ function Page() {
           setShowConfirmationModal(null);
         }}
       >
-        <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-5/12 p-8 rounded-[15px]" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
-          <div style={{ width: "100%", }}>
-
-            <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
-
+        <Box
+          className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-5/12 p-8 rounded-[15px]"
+          sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+        >
+          <div style={{ width: "100%" }}>
+            <div
+              className="max-h-[60vh] overflow-auto"
+              style={{ scrollbarWidth: "none" }}
+            >
               {/* <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "end", alignItems: "center" }}>
                 <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
                   <button onClick={() => {
@@ -2547,49 +2793,64 @@ function Page() {
                 </div>
               </div> */}
 
-              <div className='flex flex-row items-center justify-between w-full'>
+              <div className="flex flex-row items-center justify-between w-full">
                 <div
                   style={{
                     fontSize: 17,
-                    fontWeight: "600"
-                  }}>
+                    fontWeight: "600",
+                  }}
+                >
                   Reassign Number
                 </div>
                 <button
                   onClick={() => {
                     setShowConfirmationModal(null);
-                  }}>
-                  <Image src={"/assets/blackBgCross.png"} height={20} width={20} alt='*' />
+                  }}
+                >
+                  <Image
+                    src={"/assets/blackBgCross.png"}
+                    height={20}
+                    width={20}
+                    alt="*"
+                  />
                 </button>
               </div>
 
               <div
-                className='mt-8'
+                className="mt-8"
                 style={{
                   fontSize: 22,
-                  fontWeight: "600"
-                }}>
+                  fontWeight: "600",
+                }}
+              >
                 Confirm Action
               </div>
 
               <p
-                className='mt-8'
+                className="mt-8"
                 style={{
                   fontSize: 15,
-                  fontWeight: "500"
-                }}>
-                Please confirm you would like to reassign <span className='text-purple'>({formatPhoneNumber(showConfirmationModal?.phoneNumber)})</span> to {`{${showDrawer?.name}}`}.
+                  fontWeight: "500",
+                }}
+              >
+                Please confirm you would like to reassign{" "}
+                <span className="text-purple">
+                  ({formatPhoneNumber(showConfirmationModal?.phoneNumber)})
+                </span>{" "}
+                to {`{${showDrawer?.name}}`}.
               </p>
-
             </div>
 
-            <div className='flex flex-row items-center gap-4 mt-6'>
+            <div className="flex flex-row items-center gap-4 mt-6">
               <button
-                className='mt-4 outline-none w-1/2'
+                className="mt-4 outline-none w-1/2"
                 style={{
                   color: "black",
-                  height: "50px", borderRadius: "10px", width: "100%",
-                  fontWeight: 600, fontSize: '20'
+                  height: "50px",
+                  borderRadius: "10px",
+                  width: "100%",
+                  fontWeight: 600,
+                  fontSize: "20",
                 }}
                 onClick={() => {
                   setShowClaimPopup(null);
@@ -2597,32 +2858,32 @@ function Page() {
               >
                 Discard
               </button>
-              <div className='w-full'>
-                {
-                  reassignLoader ?
-                    <div
-                      className='mt-4 w-full flex flex-row items-center justify-center'>
-                      <CircularProgress size={25} />
-                    </div> :
-                    <button
-                      className='mt-4 outline-none bg-purple w-full'
-                      style={{
-                        color: "white",
-                        height: "50px", borderRadius: "10px", width: "100%",
-                        fontWeight: 600, fontSize: '20'
-                      }}
-                      onClick={() => {
-                        handleReassignNumber(showConfirmationModal);
-                        //console.log("test")
-                      }}
-                    >
-                      {`I'm sure`}
-                    </button>
-                }
+              <div className="w-full">
+                {reassignLoader ? (
+                  <div className="mt-4 w-full flex flex-row items-center justify-center">
+                    <CircularProgress size={25} />
+                  </div>
+                ) : (
+                  <button
+                    className="mt-4 outline-none bg-purple w-full"
+                    style={{
+                      color: "white",
+                      height: "50px",
+                      borderRadius: "10px",
+                      width: "100%",
+                      fontWeight: 600,
+                      fontSize: "20",
+                    }}
+                    onClick={() => {
+                      handleReassignNumber(showConfirmationModal);
+                      //console.log("test")
+                    }}
+                  >
+                    {`I'm sure`}
+                  </button>
+                )}
               </div>
             </div>
-
-
           </div>
         </Box>
       </Modal>
@@ -2632,48 +2893,80 @@ function Page() {
       <Modal
         open={showScriptModal}
         onClose={() => {
-          handleCloseScriptModal()
+          handleCloseScriptModal();
         }}
       >
-        <Box className="w-10/12 sm:w-10/12 md:w-8/12 lg:w-6/12 p-8 rounded-[15px]" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
-          <div style={{ width: "100%", }}>
-
-            <div className='h-[90vh]' style={{ scrollbarWidth: "none" }}>
-              <div style={{ height: "10%", width: "100%", direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Box
+          className="w-10/12 sm:w-10/12 md:w-8/12 lg:w-6/12 p-8 rounded-[15px]"
+          sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+        >
+          <div style={{ width: "100%" }}>
+            <div className="h-[90vh]" style={{ scrollbarWidth: "none" }}>
+              <div
+                style={{
+                  height: "10%",
+                  width: "100%",
+                  direction: "row",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
                 {/* <div style={{ width: "20%" }} /> */}
                 <div style={{ fontWeight: "600", fontSize: 22 }}>
-                  {showScriptModal?.name?.slice(0, 1).toUpperCase(0)}{showScriptModal?.name?.slice(1)}
+                  {showScriptModal?.name?.slice(0, 1).toUpperCase(0)}
+                  {showScriptModal?.name?.slice(1)}
                 </div>
-                <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
-                  <button onClick={() => {
-                    handleCloseScriptModal();
-                  }} className='outline-none'>
-                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                <div
+                  style={{
+                    direction: "row",
+                    display: "flex",
+                    justifyContent: "end",
+                  }}
+                >
+                  <button
+                    onClick={() => {
+                      handleCloseScriptModal();
+                    }}
+                    className="outline-none"
+                  >
+                    <Image
+                      src={"/assets/crossIcon.png"}
+                      height={40}
+                      width={40}
+                      alt="*"
+                    />
                   </button>
                 </div>
               </div>
 
-              <div className='mt-6 flex flex-row gap-6'
-                style={{ height: "", fontWeight: "500", fontSize: 15 }}>
-                <button className='px-2 pb-1'
+              <div
+                className="mt-6 flex flex-row gap-6"
+                style={{ height: "", fontWeight: "500", fontSize: 15 }}
+              >
+                <button
+                  className="px-2 pb-1"
                   style={{
-                    borderBottom: showScript && "2px solid #7902DF"
+                    borderBottom: showScript && "2px solid #7902DF",
                   }}
                   onClick={handleShowScript}
                 >
                   Script
                 </button>
-                <button className='px-2 pb-1'
+                <button
+                  className="px-2 pb-1"
                   style={{
-                    borderBottom: SeledtedScriptKYC && "2px solid #7902DF"
+                    borderBottom: SeledtedScriptKYC && "2px solid #7902DF",
                   }}
                   onClick={handleShowKycs}
                 >
                   KYC
                 </button>
-                <button className='px-2 pb-1'
+                <button
+                  className="px-2 pb-1"
                   style={{
-                    borderBottom: SeledtedScriptAdvanceSetting && "2px solid #7902DF"
+                    borderBottom:
+                      SeledtedScriptAdvanceSetting && "2px solid #7902DF",
                   }}
                   onClick={handleShowAdvanceSeting}
                 >
@@ -2681,249 +2974,296 @@ function Page() {
                 </button>
               </div>
 
-              {
-                showScript && (
-                  <div style={{ height: "82%" }}>
-
-                    <div style={{ height: "90%" }}>
-                      <div className='bg-[#00000002] p-2 mt-6'>
-                        <div style={styles.inputStyle} className='flex flex-row items-center gap-2'>
-                          <Image src={"/assets/lightBulb.png"} alt='*' height={24} width={24} />  Editing Tips
-                        </div>
-                        <div style={styles.inputStyle} className='flex flex-row flex-wrap gap-2'>
-                          <div>
-                            You can use these variables:
-                          </div>
-                          {/* <div className='flex flex-row items-center gap-2'> */}
-                          <div style={{ width: "fit-content" }} className='text-purple flex flex-row gap-2'>
-                            {`{Address}`},{`{Phone}`}, {`{Email}`},{`{Kyc}`}
-                            {/* {`{First Name}`}, {`{Email}`}, */}
-                          </div>
-
-                          {
-                            uniqueColumns?.length > 0 && showMoreUniqueColumns ?
-                              <div className='flex flex-row flex-wrap gap-2'>
-                                {
-                                  uniqueColumns.map((item, index) => (
-                                    <div key={index} className='flex flex-row items-center gap-2 text-purple'>
-                                      {`{${item}}`},
-                                    </div>
-                                  ))
-                                }
-                                <button className='text-purple outline-none' onClick={handleShowUniqueCols}>
-                                  show less
-                                </button>
-                              </div> :
-                              <div>
-                                {
-                                  uniqueColumns?.length > 0 && (
-                                    <button
-                                      className='text-purple flex flex-row items-center font-bold outline-none'
-                                      onClick={() => {
-                                        handleShowUniqueCols()
-                                      }}
-                                    >
-                                      <Plus weight='bold' size={15}
-                                        style={{
-                                          strokeWidth: 40, // Adjust as needed
-                                        }}
-                                      />
-                                      {uniqueColumns?.length}
-                                    </button>
-                                  )
-                                }
-                              </div>
-                          }
-
-
-                          {/* </div> */}
-                        </div>
+              {showScript && (
+                <div style={{ height: "82%" }}>
+                  <div style={{ height: "90%" }}>
+                    <div className="bg-[#00000002] p-2 mt-6">
+                      <div
+                        style={styles.inputStyle}
+                        className="flex flex-row items-center gap-2"
+                      >
+                        <Image
+                          src={"/assets/lightBulb.png"}
+                          alt="*"
+                          height={24}
+                          width={24}
+                        />{" "}
+                        Editing Tips
                       </div>
-
-                      <div className='w-full'>
-                        <div className='flex flex-row items-center mt-4'>
-                          <button className='flex flex-row items-center gap-4' onClick={() => { setIntroVideoModal(true) }}>
-                            <Image src={"/assets/youtubeplay.png"} height={45} width={45} alt='*' style={{ borderRadius: "7px" }} />
-                            <div
-                              style={{
-                                fontSize: 15,
-                                fontWeight: "500",
-                                borderColor: "#00000020"
-                              }} className='underline'>
-                              Learn how to customize your script
-                            </div>
-                          </button>
+                      <div
+                        style={styles.inputStyle}
+                        className="flex flex-row flex-wrap gap-2"
+                      >
+                        <div>You can use these variables:</div>
+                        {/* <div className='flex flex-row items-center gap-2'> */}
+                        <div
+                          style={{ width: "fit-content" }}
+                          className="text-purple flex flex-row gap-2"
+                        >
+                          {`{Address}`},{`{Phone}`}, {`{Email}`},{`{Kyc}`}
+                          {/* {`{First Name}`}, {`{Email}`}, */}
                         </div>
 
-                        <div className='mt-4' style={{ fontSize: 24, fontWeight: "700" }}>
-                          Script
-                        </div>
-
-                        <div className='flex flex-row items-center justify-between'>
-                          <div className='mt-2' style={{ ...styles.paragraph, color: "#00000060" }}>
-                            Greeting
+                        {uniqueColumns?.length > 0 && showMoreUniqueColumns ? (
+                          <div className="flex flex-row flex-wrap gap-2">
+                            {uniqueColumns.map((item, index) => (
+                              <div
+                                key={index}
+                                className="flex flex-row items-center gap-2 text-purple"
+                              >
+                                {`{${item}}`},
+                              </div>
+                            ))}
+                            <button
+                              className="text-purple outline-none"
+                              onClick={handleShowUniqueCols}
+                            >
+                              show less
+                            </button>
                           </div>
+                        ) : (
+                          <div>
+                            {uniqueColumns?.length > 0 && (
+                              <button
+                                className="text-purple flex flex-row items-center font-bold outline-none"
+                                onClick={() => {
+                                  handleShowUniqueCols();
+                                }}
+                              >
+                                <Plus
+                                  weight="bold"
+                                  size={15}
+                                  style={{
+                                    strokeWidth: 40, // Adjust as needed
+                                  }}
+                                />
+                                {uniqueColumns?.length}
+                              </button>
+                            )}
+                          </div>
+                        )}
 
-                        </div>
-
-                        <div className='mt-2'>
-                          <GreetingTagInput greetTag={showScriptModal?.prompt?.greeting} kycsList={kycsData} uniqueColumns={uniqueColumns} tagValue={setGreetingTagInput} scrollOffset={scrollOffset} />
-                        </div>
-                        <div className='mt-4 w-full'>
-
-                          <PromptTagInput promptTag={scriptTagInput} kycsList={kycsData} uniqueColumns={uniqueColumns} tagValue={setScriptTagInput} scrollOffset={scrollOffset} />
-
-                          {/* <DynamicDropdown /> */}
-
-                        </div>
+                        {/* </div> */}
                       </div>
                     </div>
 
-                    <div className='' style={{ height: "20%" }}>
-                      {
-                        showSaveChangesBtn && (
-                          <div className='w-full pb-8'>
-                            {
-                              UpdateAgentLoader ?
-                                <div className='w-full flex flex-row justify-center'>
+                    <div className="w-full">
+                      <div className="flex flex-row items-center mt-4">
+                        <button
+                          className="flex flex-row items-center gap-4"
+                          onClick={() => {
+                            setIntroVideoModal(true);
+                          }}
+                        >
+                          <Image
+                            src={"/assets/youtubeplay.png"}
+                            height={45}
+                            width={45}
+                            alt="*"
+                            style={{ borderRadius: "7px" }}
+                          />
+                          <div
+                            style={{
+                              fontSize: 15,
+                              fontWeight: "500",
+                              borderColor: "#00000020",
+                            }}
+                            className="underline"
+                          >
+                            Learn how to customize your script
+                          </div>
+                        </button>
+                      </div>
+
+                      <div
+                        className="mt-4"
+                        style={{ fontSize: 24, fontWeight: "700" }}
+                      >
+                        Script
+                      </div>
+
+                      <div className="flex flex-row items-center justify-between">
+                        <div
+                          className="mt-2"
+                          style={{ ...styles.paragraph, color: "#00000060" }}
+                        >
+                          Greeting
+                        </div>
+                      </div>
+
+                      <div className="mt-2">
+                        <GreetingTagInput
+                          greetTag={showScriptModal?.prompt?.greeting}
+                          kycsList={kycsData}
+                          uniqueColumns={uniqueColumns}
+                          tagValue={setGreetingTagInput}
+                          scrollOffset={scrollOffset}
+                        />
+                      </div>
+                      <div className="mt-4 w-full">
+                        <PromptTagInput
+                          promptTag={scriptTagInput}
+                          kycsList={kycsData}
+                          uniqueColumns={uniqueColumns}
+                          tagValue={setScriptTagInput}
+                          scrollOffset={scrollOffset}
+                        />
+
+                        {/* <DynamicDropdown /> */}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="" style={{ height: "20%" }}>
+                    {showSaveChangesBtn && (
+                      <div className="w-full pb-8">
+                        {UpdateAgentLoader ? (
+                          <div className="w-full flex flex-row justify-center">
+                            <CircularProgress size={35} />
+                          </div>
+                        ) : (
+                          <button
+                            className="underline bg-purple w-full h-[50px] rounded-xl mb-4 text-white"
+                            style={{ fontWeight: "600", fontSize: 15 }}
+                            onClick={() => {
+                              updateAgent();
+                            }}
+                          >
+                            Save Changes
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {SeledtedScriptAdvanceSetting && (
+                <div style={{ height: "80%" }}>
+                  <div className="flex flex-row items-center gap-2 mt-4">
+                    <button
+                      className="px-2 outline-none"
+                      style={{
+                        borderBottom: showObjection && "2px solid #7902DF",
+                      }}
+                      onClick={handleShowObjection}
+                    >
+                      Objection
+                    </button>
+                    <button
+                      className="px-2 outline-none"
+                      style={{
+                        borderBottom: showGuardrails && "2px solid #7902DF",
+                      }}
+                      onClick={handleShowGuardrails}
+                    >
+                      Guardrails
+                    </button>
+                    <button
+                      className="px-2 outline-none"
+                      style={{
+                        borderBottom: showObjectives && "2px solid #7902DF",
+                      }}
+                      onClick={handleShowObjectives}
+                    >
+                      Objectives
+                    </button>
+                  </div>
+
+                  {showObjection && (
+                    <div style={{ height: "80%" }}>
+                      <div style={{ marginTop: "40px", height: "80%" }}>
+                        <Objection
+                          showTitle={true}
+                          selectedAgentId={showScriptModal}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {showGuardrails && (
+                    <div style={{ height: "80%" }}>
+                      <div style={{ marginTop: "40px", height: "80%" }}>
+                        <GuarduanSetting
+                          showTitle={true}
+                          selectedAgentId={showScriptModal}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {showObjectives && (
+                    <div style={{ height: "80%" }}>
+                      <div style={{ marginTop: "40px", height: "80%" }}>
+                        {/* {showScriptModal?.prompt?.objective} */}
+                        <textarea
+                          className="outline-none rounded-xl focus:ring-0"
+                          // ref={objective}
+                          value={objective}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            // if (value !== oldObjective) {
+                            //   setShowObjectionsSaveBtn(true);
+                            // }
+                            // if (value === oldObjective) {
+                            //   setShowObjectionsSaveBtn(false);
+                            // }
+
+                            setObjective(value);
+                          }}
+                          placeholder="Add Objective"
+                          style={{
+                            fontSize: "15px",
+                            padding: "15px",
+                            width: "100%",
+                            fontWeight: "500",
+                            height: "100%", // Initial height
+                            maxHeight: "100%", // Maximum height before scrolling
+                            overflowY: "auto", // Enable vertical scrolling when max-height is exceeded
+                            resize: "none", // Disable manual resizing
+                            border: "1px solid #00000020",
+                          }}
+                        />
+                        <div>
+                          {showObjectionsSaveBtn && (
+                            <div>
+                              {UpdateAgentLoader ? (
+                                <div className="w-full flex flex-row justify-center">
                                   <CircularProgress size={35} />
-                                </div> :
+                                </div>
+                              ) : (
                                 <button
-                                  className='underline bg-purple w-full h-[50px] rounded-xl mb-4 text-white'
+                                  className="underline bg-purple w-full h-[50px] rounded-xl mb-4 text-white"
                                   style={{ fontWeight: "600", fontSize: 15 }}
-                                  onClick={() => { updateAgent() }}
+                                  onClick={() => {
+                                    updateAgent();
+                                  }}
                                 >
                                   Save Changes
                                 </button>
-                            }
-                          </div>)
-                      }
-                    </div>
-
-                  </div>
-                )
-              }
-
-              {
-                SeledtedScriptAdvanceSetting && (
-                  <div style={{ height: "80%" }}>
-                    <div className='flex flex-row items-center gap-2 mt-4'>
-                      <button className='px-2 outline-none' style={{ borderBottom: showObjection && "2px solid #7902DF" }} onClick={handleShowObjection}>
-                        Objection
-                      </button>
-                      <button
-                        className='px-2 outline-none' style={{
-                          borderBottom: showGuardrails && "2px solid #7902DF"
-                        }}
-                        onClick={handleShowGuardrails}>
-                        Guardrails
-                      </button>
-                      <button
-                        className='px-2 outline-none' style={{
-                          borderBottom: showObjectives && "2px solid #7902DF"
-                        }}
-                        onClick={handleShowObjectives}>
-                        Objectives
-                      </button>
-                    </div>
-
-                    {
-                      showObjection && (
-                        <div style={{ height: "80%" }}>
-                          <div style={{ marginTop: "40px", height: "80%" }}>
-                            <Objection showTitle={true} selectedAgentId={showScriptModal} />
-                          </div>
-                        </div>
-                      )
-                    }
-
-                    {
-                      showGuardrails && (
-                        <div style={{ height: "80%" }}>
-                          <div style={{ marginTop: "40px", height: "80%" }}>
-                            <GuarduanSetting showTitle={true} selectedAgentId={showScriptModal} />
-                          </div>
-                        </div>
-                      )
-                    }
-
-                    {
-                      showObjectives && (
-                        <div style={{ height: "80%" }}>
-                          <div style={{ marginTop: "40px", height: "80%" }}>
-                            {/* {showScriptModal?.prompt?.objective} */}
-                            <textarea
-                              className="outline-none rounded-xl focus:ring-0"
-                              // ref={objective}
-                              value={objective}
-                              onChange={(e) => {
-
-                                const value = e.target.value;
-                                // if (value !== oldObjective) {
-                                //   setShowObjectionsSaveBtn(true);
-                                // }
-                                // if (value === oldObjective) {
-                                //   setShowObjectionsSaveBtn(false);
-                                // }
-
-                                setObjective(value);
-                              }}
-                              placeholder="Add Objective"
-                              style={{
-                                fontSize: "15px",
-                                padding: "15px",
-                                width: "100%",
-                                fontWeight: "500",
-                                height: "100%", // Initial height
-                                maxHeight: "100%", // Maximum height before scrolling
-                                overflowY: "auto", // Enable vertical scrolling when max-height is exceeded
-                                resize: "none", // Disable manual resizing
-                                border: "1px solid #00000020",
-                              }}
-                            />
-                            <div>
-                              {
-                                showObjectionsSaveBtn && (
-                                  <div>
-                                    {
-                                      UpdateAgentLoader ?
-                                        <div className='w-full flex flex-row justify-center'>
-                                          <CircularProgress size={35} />
-                                        </div> :
-                                        <button
-                                          className='underline bg-purple w-full h-[50px] rounded-xl mb-4 text-white'
-                                          style={{ fontWeight: "600", fontSize: 15 }}
-                                          onClick={() => { updateAgent() }}
-                                        >
-                                          Save Changes
-                                        </button>
-                                    }
-                                  </div>
-                                )
-                              }
+                              )}
                             </div>
-                          </div>
+                          )}
                         </div>
-                      )
-                    }
-                  </div>
-                )
-              }
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
-              {
-                SeledtedScriptKYC && (
-                  <div style={{ height: "80%", overflow: "auto", scrollbarWidth: "none", backgroundColor: "" }}>
-                    <KYCs kycsDetails={setKycsData} mainAgentId={MainAgentId} />
-                  </div>
-                )
-              }
-
-
+              {SeledtedScriptKYC && (
+                <div
+                  style={{
+                    height: "80%",
+                    overflow: "auto",
+                    scrollbarWidth: "none",
+                    backgroundColor: "",
+                  }}
+                >
+                  <KYCs kycsDetails={setKycsData} mainAgentId={MainAgentId} />
+                </div>
+              )}
             </div>
-
-
-
-
           </div>
         </Box>
       </Modal>
@@ -2951,17 +3291,29 @@ function Page() {
                 borderRadius: "13px",
               }}
             >
-              <div className='flex flex-row justify-end'>
-                <button onClick={() => { setIntroVideoModal(false) }}>
-                  <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+              <div className="flex flex-row justify-end">
+                <button
+                  onClick={() => {
+                    setIntroVideoModal(false);
+                  }}
+                >
+                  <Image
+                    src={"/assets/crossIcon.png"}
+                    height={40}
+                    width={40}
+                    alt="*"
+                  />
                 </button>
               </div>
 
-              <div className='text-center sm:font-24 font-16' style={{ fontWeight: "700" }}>
+              <div
+                className="text-center sm:font-24 font-16"
+                style={{ fontWeight: "700" }}
+              >
                 Learn more about assigning leads
               </div>
 
-              <div className='mt-6'>
+              <div className="mt-6">
                 <iframe
                   src="https://www.youtube.com/embed/Dy9DM5u_GVg?autoplay=1&mute=1" //?autoplay=1&mute=1 to make it autoplay
                   frameBorder="0"
@@ -3007,34 +3359,50 @@ function Page() {
               }}
             >
               <div>
-                <div className='flex flex-row justify-end'>
+                <div className="flex flex-row justify-end">
                   <button onClick={handleCloseClaimPopup}>
-                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                    <Image
+                      src={"/assets/crossIcon.png"}
+                      height={40}
+                      width={40}
+                      alt="*"
+                    />
                   </button>
                 </div>
-                <div style={{
-                  fontSize: 24,
-                  fontWeight: "700",
-                  textAlign: "center"
-                }}>
+                <div
+                  style={{
+                    fontSize: 24,
+                    fontWeight: "700",
+                    textAlign: "center",
+                  }}
+                >
                   {`Let's claim your phone number`}
                 </div>
-                <div className='mt-2' style={{
-                  fontSize: 15,
-                  fontWeight: "700", textAlign: "center"
-                }}>
+                <div
+                  className="mt-2"
+                  style={{
+                    fontSize: 15,
+                    fontWeight: "700",
+                    textAlign: "center",
+                  }}
+                >
                   Enter the 3 digit area code you would like to use
                 </div>
-                <div className='mt-4'
+                <div
+                  className="mt-4"
                   style={{
                     fontSize: 13,
                     fontWeight: "500",
-                    color: "#15151550"
-                  }}>
+                    color: "#15151550",
+                  }}
+                >
                   Number
                 </div>
-                <div className='mt-2'>
-                  <input className='border border-[#00000010] outline-none p-3 rounded-lg w-full mx-2 focus:outline-none focus:ring-0' type='' placeholder='Ex: 619, 213, 313'
+                <div className="mt-2">
+                  <input
+                    className="border border-[#00000010] outline-none p-3 rounded-lg w-full mx-2 focus:outline-none focus:ring-0"
+                    type=""
+                    placeholder="Ex: 619, 213, 313"
                     value={findNumber}
                     onChange={(e) => {
                       setFindeNumberLoader(true);
@@ -3042,7 +3410,7 @@ function Page() {
                         clearTimeout(timerRef.current);
                       }
 
-                      const value = e.target.value
+                      const value = e.target.value;
                       setFindNumber(e.target.value.replace(/[^0-9]/g, ""));
                       // handleFindeNumbers(value)
                       if (value) {
@@ -3051,122 +3419,142 @@ function Page() {
                         }, 300);
                       } else {
                         //console.log("Should not search")
-                        return
+                        return;
                       }
                     }}
                   />
                 </div>
 
-                {
-                  findNumber ?
-                    <div>
-                      {
-                        findeNumberLoader ?
-                          <div className='flex flex-row justify-center mt-6'>
-                            <CircularProgress size={35} />
-                          </div> :
-                          <div className='mt-6 max-h-[40vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
-                            {
-                              foundeNumbers?.length > 0 ?
-                                <div className='w-full'>
-                                  {
-                                    foundeNumbers.map((item, index) => (
-                                      <div key={index} className='h-[10vh] rounded-2xl flex flex-col justify-center p-4 mb-4'
-                                        style={{
-                                          border: index === selectedPurchasedIndex ? "2px solid #7902DF" : "1px solid #00000020",
-                                          backgroundColor: index === selectedPurchasedIndex ? "#402FFF05" : ""
-                                        }}
-                                      >
-                                        <button className='flex flex-row items-start justify-between outline-none' onClick={(e) => { handlePurchaseNumberClick(item, index) }}>
-                                          <div>
-                                            <div style={styles.findNumberTitle}>
-                                              {item.phoneNumber}
-                                            </div>
-                                            <div className='text-start mt-2' style={styles.findNumberDescription}>
-                                              {item.locality} {item.region}
-                                            </div>
-                                          </div>
-                                          <div className="flex flex-row items-start gap-4">
-                                            <div style={styles.findNumberTitle}>
-                                              ${item.price}/mo
-                                            </div>
-                                            <div>
-                                              {
-                                                index == selectedPurchasedIndex ?
-                                                  <Image src={"/assets/charmTick.png"} height={35} width={35} alt='*' /> :
-                                                  <Image src={"/assets/charmUnMark.png"} height={35} width={35} alt='*' />
-                                              }
-                                            </div>
-                                          </div>
-                                        </button>
-                                      </div>
-                                    ))
-                                  }
-                                </div> :
-                                <div className='text-xl font-[600] text-center mt-4'>
-                                  No result found. Try a new search
-                                </div>
-                            }
-                          </div>
-                      }
-                    </div> :
-                    <div className='text-xl font-[600] text-center mt-4'>
-                      Enter number to search
-                    </div>
-                }
-
-
-
-              </div>
-              <div className='h-[50px]'>
-                <div>
-                  {
-                    purchaseLoader ?
-                      <div className='w-full flex flex-row justify-center mt-4'>
-                        <CircularProgress size={32} />
-                      </div> :
-                      <div>
-                        {
-                          selectedPurchasedNumber && (
-                            <button className='text-white bg-purple w-full h-[50px] rounded-lg' onClick={handlePurchaseNumber}>
-                              Proceed to Buy
-                            </button>
-                          )
-                        }
+                {findNumber ? (
+                  <div>
+                    {findeNumberLoader ? (
+                      <div className="flex flex-row justify-center mt-6">
+                        <CircularProgress size={35} />
                       </div>
-                  }
+                    ) : (
+                      <div
+                        className="mt-6 max-h-[40vh] overflow-auto"
+                        style={{ scrollbarWidth: "none" }}
+                      >
+                        {foundeNumbers?.length > 0 ? (
+                          <div className="w-full">
+                            {foundeNumbers.map((item, index) => (
+                              <div
+                                key={index}
+                                className="h-[10vh] rounded-2xl flex flex-col justify-center p-4 mb-4"
+                                style={{
+                                  border:
+                                    index === selectedPurchasedIndex
+                                      ? "2px solid #7902DF"
+                                      : "1px solid #00000020",
+                                  backgroundColor:
+                                    index === selectedPurchasedIndex
+                                      ? "#402FFF05"
+                                      : "",
+                                }}
+                              >
+                                <button
+                                  className="flex flex-row items-start justify-between outline-none"
+                                  onClick={(e) => {
+                                    handlePurchaseNumberClick(item, index);
+                                  }}
+                                >
+                                  <div>
+                                    <div style={styles.findNumberTitle}>
+                                      {item.phoneNumber}
+                                    </div>
+                                    <div
+                                      className="text-start mt-2"
+                                      style={styles.findNumberDescription}
+                                    >
+                                      {item.locality} {item.region}
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-row items-start gap-4">
+                                    <div style={styles.findNumberTitle}>
+                                      ${item.price}/mo
+                                    </div>
+                                    <div>
+                                      {index == selectedPurchasedIndex ? (
+                                        <Image
+                                          src={"/assets/charmTick.png"}
+                                          height={35}
+                                          width={35}
+                                          alt="*"
+                                        />
+                                      ) : (
+                                        <Image
+                                          src={"/assets/charmUnMark.png"}
+                                          height={35}
+                                          width={35}
+                                          alt="*"
+                                        />
+                                      )}
+                                    </div>
+                                  </div>
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-xl font-[600] text-center mt-4">
+                            No result found. Try a new search
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-xl font-[600] text-center mt-4">
+                    Enter number to search
+                  </div>
+                )}
+              </div>
+              <div className="h-[50px]">
+                <div>
+                  {purchaseLoader ? (
+                    <div className="w-full flex flex-row justify-center mt-4">
+                      <CircularProgress size={32} />
+                    </div>
+                  ) : (
+                    <div>
+                      {selectedPurchasedNumber && (
+                        <button
+                          className="text-white bg-purple w-full h-[50px] rounded-lg"
+                          onClick={handlePurchaseNumber}
+                        >
+                          Proceed to Buy
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </div>
         </Box>
       </Modal>
-
-    </div >
-  )
+    </div>
+  );
 }
-
 
 const Card = ({ name, value, icon, bgColor, iconColor }) => {
   return (
     <div className="flex flex-col items-start gap-2">
       {/* Icon */}
-      <Image src={icon}
-        height={24}
-        color={bgColor}
-        width={24}
-        alt='icon'
-      />
+      <Image src={icon} height={24} color={bgColor} width={24} alt="icon" />
 
-      <div style={{ fontSize: 15, fontWeight: '500', color: '#000' }}>{name}</div>
-      <div style={{ fontSize: 20, fontWeight: '600', color: '#000' }}>{value}</div>
+      <div style={{ fontSize: 15, fontWeight: "500", color: "#000" }}>
+        {name}
+      </div>
+      <div style={{ fontSize: 20, fontWeight: "600", color: "#000" }}>
+        {value}
+      </div>
     </div>
   );
 };
 
-
-export default Page
-
+export default Page;
 
 const styles = {
   modalsStyle: {
@@ -3182,17 +3570,16 @@ const styles = {
   },
   headingStyle: {
     fontSize: 16,
-    fontWeight: "700"
+    fontWeight: "700",
   },
   inputStyle: {
     fontSize: 15,
     fontWeight: "500",
     marginTop: 10,
-    borderColor: "#00000020"
+    borderColor: "#00000020",
   },
   paragraph: {
     fontSize: 15,
-    fontWeight: "500"
-  }
-}
-
+    fontWeight: "500",
+  },
+};
