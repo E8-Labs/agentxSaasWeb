@@ -551,7 +551,7 @@ function Page() {
       }
 
       for (let [key, value] of formData.entries()) {
-        //console.log(`${key}: ${value}`);
+        console.log(`${key}: ${value}`);
       }
       // return
       const response = await axios.post(ApiPath, formData, {
@@ -609,14 +609,14 @@ function Page() {
           // }
 
           //update on localstorage
-          // if (showScriptModal) {
-          //   agentsListDetails = agentsListDetails.map((agent) =>
-          //     agent.id === showScriptModal.id
-          //       ? { ...agent, ...response.data.data }
-          //       : agent
-          //   )
-          //   //console.log("Script updated")
-          // }
+          if (showScriptModal) {
+            agentsListDetails = agentsListDetails.map((agent) =>
+              agent.id === showScriptModal.id
+                ? { ...agent, ...response.data.data }
+                : agent
+            )
+            //console.log("Script updated")
+          }
 
 
 
