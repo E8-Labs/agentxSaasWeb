@@ -57,7 +57,36 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
 
     useEffect(() => {
         console.log("Leads asigned are :", leadIs);
+
+        let agentsList = [];
+
+        const localAgents = localStorage.getItem("localAgentDetails");
+        if (localAgents) {
+            agentsList = JSON.parse(localAgents);
+            console.log("Agents got from local host are", agentsList);
+            let newAgenstList = [];
+
+            newAgenstList = agentsList.filter((mainAgent) => {
+                // Check if all subagents are either outbound or both inbound and outbound
+                const subAgents = mainAgent.agents;
+                const hasOutbound = subAgents.some((item) => item.agentType === "outbound");
+                const hasInbound = subAgents.some((item) => item.agentType === "inbound");
+
+                // Keep the main agent if it has only outbound agents or both inbound and outbound agents
+                return hasOutbound && (!hasInbound || hasInbound);
+            });
+
+            console.log("Filtered agents list is", newAgenstList);
+
+
+            setAgentsList(newAgenstList);
+            setStages(newAgenstList.stages);
+        }
+        // else {
+        console.log("Agents got from api");
         getAgents();
+        // }
+
     }, []);
 
     useEffect(() => {
@@ -67,7 +96,10 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
     //get agents api
     const getAgents = async () => {
         try {
-            setInitialLoader(true);
+            const checkLocalAgentsList = localStorage.getItem("localAgentDetails");
+            if (!checkLocalAgentsList) {
+                setInitialLoader(true);
+            }
             const localData = localStorage.getItem("User");
             let AuthToken = null;
             if (localData) {
@@ -89,8 +121,20 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
 
             if (response) {
                 console.log("Response of get agents api is:", response.data);
-                setAgentsList(response.data.data);
-                setStages(response.data.data.stages);
+                localStorage.setItem("localAgentDetails", JSON.stringify(response.data.data));
+                // let filterredAgentsList = [];
+                // console.log("Parsed data is", JSON.parse(response.data.data));
+                const filterredAgentsList = response.data.data.filter((mainAgent) => {
+                    // Check if all subagents are either outbound or both inbound and outbound
+                    const subAgents = mainAgent.agents;
+                    const hasOutbound = subAgents.some((item) => item.agentType === "outbound");
+                    const hasInbound = subAgents.some((item) => item.agentType === "inbound");
+
+                    // Keep the main agent if it has only outbound agents or both inbound and outbound agents
+                    return hasOutbound && (!hasInbound || hasInbound);
+                })
+                setAgentsList(filterredAgentsList);
+                setStages(filterredAgentsList.stages);
             }
 
         } catch (error) {
@@ -227,7 +271,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
             const ApiPath = Apis.assignLeadToPipeLine;
 
             console.log("Data sending in api is :", Apidata);
-            // return
+            return
             const response = await axios.post(ApiPath, Apidata, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken,
@@ -322,7 +366,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                                     let filteredAgents = item.agents.filter((agent) => agent.agentType !== "inbound");
                                     NewList = NewList.concat(filteredAgents);
                                 });
-                                console.log("New agents list is", NewList);
+                                // console.log("New agents list is", NewList);
                                 return (
                                     <button key={index} className='rounded-xl p-2 mt-4 w-full outline-none'
                                         style={{

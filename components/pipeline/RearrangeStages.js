@@ -89,6 +89,27 @@ const RearrangeStages = ({
     ]);
     const [action, setAction] = useState("");
 
+    //variable to show and hide the add stage btn
+    const [showAddStageBtn, setShowAddStageBtn] = useState(false);
+
+    //code for showing the add stage button according to dirredent conditions
+    useEffect(() => {
+
+        if (showAdvanceSettings) {
+            if (newStageTitle && inputs.filter(input => input.value.trim() !== "").length === 3) {
+                console.log("Show continue to add stage")
+                setShowAddStageBtn(true);
+            } else {
+                setShowAddStageBtn(false);
+            }
+        } else if (newStageTitle) {
+            if (newStageTitle) {
+                setShowAddStageBtn(true);
+            }
+        }
+
+    }, [showAdvanceSettings, newStageTitle, inputs])
+
     //code to delete stage
     const handleDeleteStage = async () => {
         try {
@@ -706,7 +727,7 @@ const RearrangeStages = ({
                                     </div>
 
                                     {
-                                        addStageLoader ?
+                                        showAddStageBtn ?
                                             <div className='flex flex-row iems-center justify-center w-full mt-4'>
                                                 <CircularProgress size={25} />
                                             </div> :

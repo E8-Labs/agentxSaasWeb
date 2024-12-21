@@ -153,6 +153,27 @@ const Pipeline1 = () => {
     const [isExpanded, setIsExpanded] = useState([]);
     const [isExpandedActivity, setIsExpandedActivity] = useState([]);
 
+    //variable to show and hide the add stage btn
+    const [showAddStageBtn, setShowAddStageBtn] = useState(false);
+
+    //code for showing the add stage button according to dirredent conditions
+    useEffect(() => {
+
+        if (showAdvanceSettings) {
+            if (newStageTitle && inputs.filter(input => input.value.trim() !== "").length === 3) {
+                console.log("Show continue to add stage")
+                setShowAddStageBtn(true);
+            } else {
+                setShowAddStageBtn(false);
+            }
+        } else if (newStageTitle) {
+            if (newStageTitle) {
+                setShowAddStageBtn(true);
+            }
+        }
+
+    }, [showAdvanceSettings, newStageTitle, inputs])
+
 
     useEffect(() => {
         getPipelines()
@@ -1701,7 +1722,7 @@ const Pipeline1 = () => {
 
                         <div className='w-full h-[80px]'>
                             { //inputs.filter(input => input.value.trim()).length === 3 &&
-                                newStageTitle ? (
+                                showAddStageBtn ? (
                                     <div>
                                         {
                                             addStageLoader ?

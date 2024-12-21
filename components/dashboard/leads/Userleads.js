@@ -992,7 +992,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                             },
                                         }}
                                     >
-                                        <Box className="lg:w-4/12 sm:w-8/12 w-10/12" sx={styles.modalsStyle}>
+                                        <Box className="lg:w-5/12 sm:w-8/12 w-10/12" sx={styles.modalsStyle}>
                                             <div className="flex flex-row justify-center w-full">
                                                 <div
                                                     className="w-full"

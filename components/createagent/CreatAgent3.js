@@ -315,15 +315,20 @@ const CreatAgent3 = ({ handleContinue }) => {
                                         </div>
                                 }
                             </button>
-                            <button
-                                className='outline-none'
-                                onClick={() => {
-                                    handleToggleTermsClick()
-                                }}
+                            <div
+                                className='flex flex-row items-center gap-1'
                                 style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
                             >
-                                I agree to the <span className='underline'>Terms & Conditions.</span>
-                            </button>
+                                I agree to the
+                                <button
+                                    className='underline'
+                                    onClick={() => {
+                                        window.open("https://www.myagentx.com/terms-and-condition", "_blank");
+                                    }}
+                                >
+                                    Terms & Conditions.
+                                </button>
+                            </div>
                         </div>
 
                     </div>
@@ -521,7 +526,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                 <button
                                     className='bg-purple text-white w-full rounded-xl mt-6 mb-6' style={{ ...styles.headingStyle, height: "50px", }}
                                     onClick={() => {
-                                        
+
                                         const screenWidth = window.innerWidth; // Get current screen width
                                         const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
 

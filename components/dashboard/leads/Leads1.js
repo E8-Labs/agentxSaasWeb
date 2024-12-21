@@ -286,6 +286,7 @@ const Leads1 = () => {
     accept: {
       "text/csv": [".csv"],
       "application/vnd.ms-excel": [".xls", ".xlsx"],
+      "text/tab-separated-values": [".tsv"]
     },
   });
 
@@ -938,7 +939,7 @@ const Leads1 = () => {
               {/* CSV File drag and drop logic */}
 
               <div
-                className="w-8/12 h-[40vh] flex flex-col justify-center "
+                className="w-10/12 h-[40vh] flex flex-col justify-center "
                 {...getRootProps()}
                 style={{
                   border: "2px dashed #ddd",
@@ -949,6 +950,7 @@ const Leads1 = () => {
                   // width: "430px",
                   margin: "auto",
                   marginTop: "20px",
+                  backgroundColor: "#F4F0F5"
                 }}
               >
                 <input {...getInputProps()} />
@@ -957,7 +959,7 @@ const Leads1 = () => {
                   style={{ marginBottom: "15px" }}
                 >
                   <Image
-                    src="/assets/docIcon.png"
+                    src="/assets/docIcon2.png"
                     alt="Upload Icon"
                     height={30}
                     width={30}
@@ -965,10 +967,10 @@ const Leads1 = () => {
                   />
                 </div>
                 <p style={{ ...styles.subHeadingStyle }}>
-                  Drag & drop your leads
+                  Drop your file here to upload
                 </p>
-                <p style={{ ...styles.subHeadingStyle }}>or</p>
-                <button
+                {/* <p style={{ ...styles.subHeadingStyle }}>or</p> */}
+                {/* <button
                   className="underline outline-none border-none"
                   style={{
                     ...styles.subHeadingStyle,
@@ -976,7 +978,7 @@ const Leads1 = () => {
                   }}
                 >
                   Browse your Computer
-                </button>
+                </button> */}
                 <p
                   style={{
                     fontSize: 12,
@@ -985,8 +987,22 @@ const Leads1 = () => {
                     fontWeight: "500",
                   }}
                 >
-                  Upload only a CSV or Excel file
+                  Works with only a CSV, TSV or Excel files
                 </p>
+                <button className="w-full flex flex-row justify-center mt-6 outline-none">
+                  <div className="border border-purple rounded-[10px]">
+                    <div
+                      className="bg-purple text-white flex flex-row items-center justify-center w-fit-content px-4 rounded-[10px]"
+                      style={{
+                        fontWeight: "500",
+                        fontSize: 12,
+                        height: "32px",
+                        margin: "2px"
+                      }}>
+                      Choose File
+                    </div>
+                  </div>
+                </button>
               </div>
 
               <div className="mt-8" style={{ height: "50px" }}>
