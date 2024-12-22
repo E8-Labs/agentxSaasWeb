@@ -158,7 +158,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
                                         <button className='w-full rounded-lg p-2 hover:border-2 hover:border-[#7902DF] border border-[#00000010]'
                                             onClick={(e) => { handleUserType(item) }} style={{ border: item.id === SelectUserType ? "2px solid #7902DF" : "" }}>
                                             <div className='h-[100px] sm:h-[198px] bg-gray-200 rounded w-full flex flex-col justify-center pb-[10px] items-center' style={{ backgroundColor: "#FAF9FF" }}>
-                                                <img src={item.icon} style={{ width: index > 1 ? "50%" : "90%", resize: "contain" }} alt='*' />
+                                                <img src={item.icon} style={{ width: "80%", resize: "contain" }} alt='*' />
                                             </div>
                                             <div className='text-center mt-2 pb-4'
                                                 style={{

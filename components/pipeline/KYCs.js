@@ -55,12 +55,14 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
 
     //popover code here
     const handleOpenPopover = (event, item) => {
+        console.log("Item selected is", item);
         setAnchorEl(event.currentTarget);
         setSelectedKyc(item);
     };
 
-    const handleOpenBuyerKycPopover = (event) => {
+    const handleOpenBuyerKycPopover = (event, item) => {
         setBuyerAnchor(event.currentTarget);
+        setSelectedKyc(item);
     };
 
     const handleClosePopover = () => {
@@ -224,6 +226,35 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
 
     }
 
+    //function to filter KYCs
+
+    const filterKycs = (KycsList) => {
+        const filteredSellerQuestions = KycsList.filter(item => item.type === 'seller');
+        const filteredBuyerQuestions = KycsList.filter(item => item.type === 'buyer');
+        console.log("Seler kycs are :=--", filteredSellerQuestions);
+        console.log("Buyer Kycs are :--", filteredBuyerQuestions);
+        //code for seller kyc questions
+        const filteredSellerNeedQuestions = filteredSellerQuestions.filter(item => item.category === 'need');
+        const filteredSellerMotivationQuestions = filteredSellerQuestions.filter(item => item.category === 'motivation');
+        const filteredSellerUrgencyQuestions = filteredSellerQuestions.filter(item => item.category === 'urgency');
+        console.log("Need kycs are :--", filteredSellerNeedQuestions);
+        setSellerNeedData(filteredSellerNeedQuestions);
+        console.log("Motivation KYCs are :--", filteredSellerMotivationQuestions);
+        setSellerMotivationData(filteredSellerMotivationQuestions);
+        console.log("Urgency kycs are :---", filteredSellerUrgencyQuestions);
+        setSellerUrgencyData(filteredSellerUrgencyQuestions);
+        //code for buyer kyc questions
+        const filteredBuyerNeedQuestions = filteredBuyerQuestions.filter(item => item.category === 'need');
+        const filteredBuyerMotivationQuestions = filteredBuyerQuestions.filter(item => item.category === 'motivation');
+        const filteredBuyerUrgencyQuestions = filteredBuyerQuestions.filter(item => item.category === 'urgency');
+        console.log("BuyerNeed kycs are :--", filteredSellerNeedQuestions);
+        setBuyerNeedData(filteredBuyerNeedQuestions);
+        console.log("BuyerMotivation KYCs are :--", filteredBuyerMotivationQuestions);
+        setBuyerMotivationData(filteredBuyerMotivationQuestions);
+        console.log("BuyerUrgency kycs are :---", filteredBuyerUrgencyQuestions);
+        setBuyerUrgencyData(filteredBuyerUrgencyQuestions);
+    }
+
     //delete kyc data
     const handleDeleteKyc = async () => {
         try {
@@ -259,6 +290,8 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
                 console.log("resopnse of delete kyc api is ", response.data);
                 if (response.data.status === true) {
                     // kycsDetails()
+                    filterKycs(response.data.data.kyc);
+                    handleClosePopover();
                 }
             }
 
@@ -664,7 +697,7 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
                                                 <div>
                                                     {item.question}
                                                 </div>
-                                                <button aria-describedby={buyerId} onClick={handleOpenBuyerKycPopover}>
+                                                <button aria-describedby={buyerId} onClick={(event) => { handleOpenBuyerKycPopover(event, item) }}>
                                                     <DotsThree size={35} weight='bold' />
                                                 </button>
                                                 <Popover
@@ -688,10 +721,14 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
                                                         },
                                                     }}
                                                 >
-                                                    <button className='p-2 px-3 rounded-xl flex flex-row items-center gap-2'>
-                                                        <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
-                                                        <div className='text-red' style={styles.inputStyle}>Delete</div>
-                                                    </button>
+                                                    {
+                                                        DelKycLoader ?
+                                                            <CircularProgress size={20} /> :
+                                                            <button className='p-2 px-3 rounded-xl flex flex-row items-center gap-2' onClick={handleDeleteKyc}>
+                                                                <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
+                                                                <div className='text-red' style={styles.inputStyle}>Delete</div>
+                                                            </button>
+                                                    }
                                                 </Popover>
                                             </div>
                                         </div>
@@ -738,7 +775,7 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
                                                 <div>
                                                     {item.question}
                                                 </div>
-                                                <button aria-describedby={buyerId} onClick={handleOpenBuyerKycPopover}>
+                                                <button aria-describedby={buyerId} onClick={(event) => { handleOpenBuyerKycPopover(event, item) }}>
                                                     <DotsThree size={35} weight='bold' />
                                                 </button>
                                                 <Popover
@@ -761,10 +798,14 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
                                                             borderRadius: "13px"
                                                         },
                                                     }}                                            >
-                                                    <button className='p-2 px-3 rounded-xl flex flex-row items-center gap-2'>
-                                                        <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
-                                                        <div className='text-red' style={styles.inputStyle}>Delete</div>
-                                                    </button>
+                                                    {
+                                                        DelKycLoader ?
+                                                            <CircularProgress size={20} /> :
+                                                            <button className='p-2 px-3 rounded-xl flex flex-row items-center gap-2' onClick={handleDeleteKyc}>
+                                                                <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
+                                                                <div className='text-red' style={styles.inputStyle}>Delete</div>
+                                                            </button>
+                                                    }
                                                 </Popover>
                                             </div>
                                         </div>
@@ -814,7 +855,7 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
                                                 <div>
                                                     {item.question}
                                                 </div>
-                                                <button aria-describedby={buyerId} onClick={handleOpenBuyerKycPopover}>
+                                                <button aria-describedby={buyerId} onClick={(event) => { handleOpenBuyerKycPopover(event, item) }}>
                                                     <DotsThree size={35} weight='bold' />
                                                 </button>
                                                 <Popover
@@ -837,10 +878,14 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
                                                             borderRadius: "13px"
                                                         },
                                                     }}                                            >
-                                                    <button className='p-2 px-3 rounded-xl flex flex-row items-center gap-2'>
-                                                        <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
-                                                        <div className='text-red' style={styles.inputStyle}>Delete</div>
-                                                    </button>
+                                                    {
+                                                        DelKycLoader ?
+                                                            <CircularProgress size={20} /> :
+                                                            <button className='p-2 px-3 rounded-xl flex flex-row items-center gap-2' onClick={handleDeleteKyc}>
+                                                                <Image src={"/assets/delIcon.png"} height={16} width={16} alt='*' />
+                                                                <div className='text-red' style={styles.inputStyle}>Delete</div>
+                                                            </button>
+                                                    }
                                                 </Popover>
                                             </div>
                                         </div>

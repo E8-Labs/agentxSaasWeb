@@ -2508,37 +2508,37 @@ function Page() {
                 <p style={{ fontSize: 15, fontWeight: "600", color: "#666" }}>
                   Title
                 </p>
-                <p style={{ fontSize: 16, fontWeight: "500", color: "#000" }}>
+                <div style={{ fontSize: 16, fontWeight: "500", color: "#000" }}>
                   {calendarDetails?.calendar?.title ? (
                     <div>{calendarDetails?.calendar?.title}</div>
                   ) : (
                     "-"
                   )}
-                </p>
+                </div>
               </div>
               <div className="flex flex-row items-center justify-between mt-6">
                 <p style={{ fontSize: 15, fontWeight: "600", color: "#666" }}>
                   Event
                 </p>
-                <p style={{ fontSize: 16, fontWeight: "500", color: "#000" }}>
+                <div style={{ fontSize: 16, fontWeight: "500", color: "#000" }}>
                   {calendarDetails?.calendar?.eventId ? (
                     <div>{calendarDetails?.calendar?.eventId}</div>
                   ) : (
                     "-"
                   )}
-                </p>
+                </div>
               </div>
               <div className="flex flex-row items-center justify-between mt-6">
                 <p style={{ fontSize: 15, fontWeight: "600", color: "#666" }}>
                   Api key
                 </p>
-                <p style={{ fontSize: 16, fontWeight: "500", color: "#000" }}>
+                <div style={{ fontSize: 16, fontWeight: "500", color: "#000" }}>
                   {calendarDetails?.calendar?.apiKey ? (
                     <div>{calendarDetails?.calendar?.apiKey}</div>
                   ) : (
                     "-"
                   )}
-                </p>
+                </div>
               </div>
             </div>
           ) : activeTab === "Pipeline | Stages" ? (

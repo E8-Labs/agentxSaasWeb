@@ -689,7 +689,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                 </button>
                             </div>
                             <KYCs kycsDetails={setKycsData} />
-                            <div className='mt-4' style={styles.headingStyle}>
+                            {/* <div className='mt-4' style={styles.headingStyle}>
                                 {`Agent's Objective`}
                             </div>
                             <div className='bg-white rounded-xl p-2 px-4 mt-4'>
@@ -711,14 +711,14 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                     showObjectiveDetail && (
                                         <div>
                                             <div className='mt-2' style={styles.inputStyle}>
-                                                Provide local homeowners with relevant updates on community events, real estate trends, or new listings in the area.
+                                                {AgentDetails && (AgentDetails?.agents[0]?.prompt.objective) || "-"}
                                             </div>
                                             <div className='flex flex-row items-center justify-between mt-2'>
                                                 <div style={{ ...styles.inputStyle, color: "#00000060" }}>
                                                     Status
                                                 </div>
                                                 <div style={styles.inputStyle}>
-                                                    {AgentDetails && (AgentDetails?.agents[0]?.status)}
+                                                    {AgentDetails && (AgentDetails?.agents[0]?.status) || "--"}
                                                 </div>
                                             </div>
                                             <div className='flex flex-row items-center justify-between mt-4'>
@@ -727,13 +727,13 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                                 </div>
 
                                                 <div style={{ ...styles.inputStyle }}>
-                                                    {AgentDetails && (AgentDetails?.agents[0]?.address)}
+                                                    {AgentDetails && (AgentDetails?.agents[0]?.address) || "--"}
                                                 </div>
                                             </div>
                                         </div>
                                     )
                                 }
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>

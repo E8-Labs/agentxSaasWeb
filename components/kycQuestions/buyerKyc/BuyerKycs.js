@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
-import { Modal } from '@mui/material';
+import { Alert, Fade, Modal, Snackbar } from '@mui/material';
 import { Box, style } from '@mui/system';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
@@ -24,7 +24,10 @@ const BuyerKycs = ({ handleContinue }) => {
     //code for motivation KYC
     const [selectedMotivationKyc, setSelectedMotivationKYC] = useState([]);
     //code for need kyc
-    const [selectedUrgencyKyc, setSelectedUrgencyKyc] = useState([])
+    const [selectedUrgencyKyc, setSelectedUrgencyKyc] = useState([]);
+
+    //alert
+    const [showErrorSnack, setShowErrorSnack] = useState(false);
 
     //needKYCQuestions
     const [needKYCQuestions, setNeedKYCQuestions] = useState([
@@ -123,7 +126,7 @@ const BuyerKycs = ({ handleContinue }) => {
         if (toggleClick === 1) {
             // Add to the "Needs" questions and auto-select the new question
             if (needKYCQuestions.some((item) => item.question === newKYCQuestion.question)) {
-                alert("Question already exists!!!");
+                setShowErrorSnack("Question already exists!!!");
                 console.log("Question Already exists");
                 return
             } else {
@@ -135,7 +138,7 @@ const BuyerKycs = ({ handleContinue }) => {
             }
         } else if (toggleClick === 2) {
             if (motivationKycQuestions.some((item) => item.question === newKYCQuestion.question)) {
-                alert("Question already exists!!!");
+                setShowErrorSnack("Question already exists!!!");
                 console.log("Question Already exists");
                 return
             } else {
@@ -147,7 +150,7 @@ const BuyerKycs = ({ handleContinue }) => {
             }
         } else if (toggleClick === 3) {
             if (urgencyKycQuestions.some((item) => item.question === newKYCQuestion.question)) {
-                alert("Question already exists!!!");
+                setShowErrorSnack("Question already exists!!!");
                 console.log("Question Already exists");
                 return
             } else {
@@ -648,6 +651,41 @@ const BuyerKycs = ({ handleContinue }) => {
                                             }
                                         </div>
 
+                                        {/* Error snack bar message */}
+                                        <div>
+                                            <Snackbar
+                                                open={showErrorSnack}
+                                                autoHideDuration={3000}
+                                                onClose={() => {
+                                                    setShowErrorSnack(null);
+                                                }}
+                                                anchorOrigin={{
+                                                    vertical: "top",
+                                                    horizontal: "center",
+                                                }}
+                                                TransitionComponent={Fade}
+                                                TransitionProps={{
+                                                    direction: "center",
+                                                }}
+                                            >
+                                                <Alert
+                                                    onClose={() => {
+                                                        setShowErrorSnack(null);
+                                                    }}
+                                                    severity="error"
+                                                    // className='bg-purple rounded-lg text-white'
+                                                    sx={{
+                                                        width: "auto",
+                                                        fontWeight: "700",
+                                                        fontFamily: "inter",
+                                                        fontSize: "22",
+                                                    }}
+                                                >
+                                                    {showErrorSnack}
+                                                </Alert>
+                                            </Snackbar>
+                                        </div>
+
                                         {/* Can be use full to add shadow */}
                                         {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
                                     </div>
@@ -663,6 +701,8 @@ const BuyerKycs = ({ handleContinue }) => {
 
                     <Footer handleContinue={handleNextclick} donotShowBack={true} registerLoader={buyerKycLoader} shouldContinue={shouldContinue} />
                 </div>
+
+
             </div>
         </div>
     )

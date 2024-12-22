@@ -360,13 +360,39 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                     <div className='max-h-[50vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                         {
                             agentsList.map((item, index) => {
-                                let NewList = []
-                                // let agentsList = item.agents.filter((item) => item.agentType !== "inbound");
-                                agentsList.forEach((item) => {
-                                    let filteredAgents = item.agents.filter((agent) => agent.agentType !== "inbound");
-                                    NewList = NewList.concat(filteredAgents);
-                                });
-                                // console.log("New agents list is", NewList);
+
+                                const noNumberWarning = (mainAgent) => {
+                                    console.log("Agent passed is", mainAgent?.agents?.map((item) => item.phoneNumber));
+                                    return mainAgent.agents.map((subAgents, index) => {
+                                        if (!subAgents.phoneNumber || subAgents.phoneNumber === "") {
+                                            return (
+                                                <div key={index}>
+                                                    <div className="flex flex-row items-center gap-2 -mt-1">
+                                                        <Image
+                                                            src={"/assets/warningFill.png"}
+                                                            height={18}
+                                                            width={18}
+                                                            alt="*"
+                                                        />
+                                                        <p>
+                                                            <i
+                                                                className="text-red"
+                                                                style={{
+                                                                    fontSize: 12,
+                                                                    fontWeight: "600",
+                                                                }}
+                                                            >
+                                                                No Phone number assigned
+                                                            </i>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )
+                                        }
+                                    })
+                                }
+
+
                                 return (
                                     <button key={index} className='rounded-xl p-2 mt-4 w-full outline-none'
                                         style={{
@@ -402,8 +428,16 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                                                     {item.name.slice(0, 1).toUpperCase()}{item.name.slice(1)}
                                                 </span>
                                             </div>
-                                            <div>
-                                                {item.agents[0]?.agentRole}
+                                            <div className='flex flex-col items-end'>
+                                                <div>
+                                                    {noNumberWarning(item)}
+                                                </div>
+                                                <div style={{
+                                                    fontWeight: "500",
+                                                    fontSize: 12
+                                                }}>
+                                                    {item.agents[0]?.agentRole}
+                                                </div>
                                             </div>
                                         </div>
 

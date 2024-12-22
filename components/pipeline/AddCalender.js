@@ -105,7 +105,7 @@ const AddCalender = ({ handleContinue }) => {
       });
 
       if (response) {
-        console.log("Response of get calender api is:", response.data);
+        console.log("Response of get calender api is:", response);
         setPreviousCalenders(response.data.data);
       }
 

@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
-import { CircularProgress, Modal } from '@mui/material';
+import { Alert, CircularProgress, Fade, Modal, Snackbar } from '@mui/material';
 import { Box, style } from '@mui/system';
 import Apis from '../apis/Apis';
 import axios from 'axios';
@@ -34,6 +34,10 @@ const AddSellerKyc = ({
     //code for need kyc
     const [selectedUrgencyKyc, setSelectedUrgencyKyc] = useState([]);
     const [sellerKycLoader, setSellerKycLoader] = useState(false);
+
+    //alert
+    const [showErrorSnack, setShowErrorSnack] = useState(false);
+
 
     //needKYCQuestions
     const [needKYCQuestions, setNeedKYCQuestions] = useState([
@@ -111,80 +115,80 @@ const AddSellerKyc = ({
         // if (OpenSellerNeeds === true) {
 
 
-            // setNeedKYCQuestions((prevNeedKycs) => [
-            //     ...prevNeedKycs.filter(
-            //         (existing) => !SellerNeedData.some((newData) => existing.question === newData.question)
-            //     ),
-            //     ...SellerNeedData
-            // ]);
+        // setNeedKYCQuestions((prevNeedKycs) => [
+        //     ...prevNeedKycs.filter(
+        //         (existing) => !SellerNeedData.some((newData) => existing.question === newData.question)
+        //     ),
+        //     ...SellerNeedData
+        // ]);
 
 
-            // setSelectedMotivationKYC(prevSelected => [
-            //     ...prevSelected.filter(
-            //         (existing) => !SellerMotivationData.some((newData) => existing.question === newData.question)
-            //     ),
-            //     ...SellerMotivationData
-            // ]);
+        // setSelectedMotivationKYC(prevSelected => [
+        //     ...prevSelected.filter(
+        //         (existing) => !SellerMotivationData.some((newData) => existing.question === newData.question)
+        //     ),
+        //     ...SellerMotivationData
+        // ]);
 
-            if(OpenSellerNeeds){
-                setToggleClick(1);
-            }else if(OpenSelerMotivation){
-                setToggleClick(2)
-            }else if(OpenSellerUrgency){
-                setToggleClick(3)
-            }
+        if (OpenSellerNeeds) {
+            setToggleClick(1);
+        } else if (OpenSelerMotivation) {
+            setToggleClick(2)
+        } else if (OpenSellerUrgency) {
+            setToggleClick(3)
+        }
 
-            if (SellerNeedData.length > 0) {
-                console.log("Data passed is", SellerNeedData)
-                setNeedKYCQuestions((prevNeedKycs) => [
-                    ...prevNeedKycs.filter(
-                        (existing) => !SellerNeedData.some((newData) => existing.question === newData.question)
-                    ),
-                    ...SellerNeedData
-                ]);
+        if (SellerNeedData.length > 0) {
+            console.log("Data passed is", SellerNeedData)
+            setNeedKYCQuestions((prevNeedKycs) => [
+                ...prevNeedKycs.filter(
+                    (existing) => !SellerNeedData.some((newData) => existing.question === newData.question)
+                ),
+                ...SellerNeedData
+            ]);
 
-                // Remove matching items from SelectedNeedKYC and add the new items
-                setSelectedNeedKYC((prevSelected) => [
-                    ...prevSelected.filter(
-                        (selectedItem) => !SellerNeedData.some((newData) => selectedItem.id === newData.id)
-                    ),
-                    ...SellerNeedData.map((item) => ({ id: item.id, question: item.question }))
-                ]);
-            }
-            if (SellerMotivationData.length > 0) {
-                console.log("Data passed is", SellerNeedData)
-                setMotivationKycQuestions((prevNeedKycs) => [
-                    ...prevNeedKycs.filter(
-                        (existing) => !SellerMotivationData.some((newData) => existing.question === newData.question)
-                    ),
-                    ...SellerMotivationData
-                ]);
+            // Remove matching items from SelectedNeedKYC and add the new items
+            setSelectedNeedKYC((prevSelected) => [
+                ...prevSelected.filter(
+                    (selectedItem) => !SellerNeedData.some((newData) => selectedItem.id === newData.id)
+                ),
+                ...SellerNeedData.map((item) => ({ id: item.id, question: item.question }))
+            ]);
+        }
+        if (SellerMotivationData.length > 0) {
+            console.log("Data passed is", SellerNeedData)
+            setMotivationKycQuestions((prevNeedKycs) => [
+                ...prevNeedKycs.filter(
+                    (existing) => !SellerMotivationData.some((newData) => existing.question === newData.question)
+                ),
+                ...SellerMotivationData
+            ]);
 
-                // Remove matching items from SelectedNeedKYC and add the new items
-                setSelectedMotivationKYC((prevSelected) => [
-                    ...prevSelected.filter(
-                        (selectedItem) => !SellerMotivationData.some((newData) => selectedItem.id === newData.id)
-                    ),
-                    ...SellerMotivationData.map((item) => ({ id: item.id, question: item.question }))
-                ]);
-            }
-            if (SellerUrgencyData.length > 0) {
-                console.log("Data passed is", SellerNeedData)
-                setUrgencyKycQuestions((prevNeedKycs) => [
-                    ...prevNeedKycs.filter(
-                        (existing) => !SellerUrgencyData.some((newData) => existing.question === newData.question)
-                    ),
-                    ...SellerUrgencyData
-                ]);
+            // Remove matching items from SelectedNeedKYC and add the new items
+            setSelectedMotivationKYC((prevSelected) => [
+                ...prevSelected.filter(
+                    (selectedItem) => !SellerMotivationData.some((newData) => selectedItem.id === newData.id)
+                ),
+                ...SellerMotivationData.map((item) => ({ id: item.id, question: item.question }))
+            ]);
+        }
+        if (SellerUrgencyData.length > 0) {
+            console.log("Data passed is", SellerNeedData)
+            setUrgencyKycQuestions((prevNeedKycs) => [
+                ...prevNeedKycs.filter(
+                    (existing) => !SellerUrgencyData.some((newData) => existing.question === newData.question)
+                ),
+                ...SellerUrgencyData
+            ]);
 
-                // Remove matching items from SelectedNeedKYC and add the new items
-                setSelectedUrgencyKyc((prevSelected) => [
-                    ...prevSelected.filter(
-                        (selectedItem) => !SellerUrgencyData.some((newData) => selectedItem.id === newData.id)
-                    ),
-                    ...SellerUrgencyData.map((item) => ({ id: item.id, question: item.question }))
-                ]);
-            }
+            // Remove matching items from SelectedNeedKYC and add the new items
+            setSelectedUrgencyKyc((prevSelected) => [
+                ...prevSelected.filter(
+                    (selectedItem) => !SellerUrgencyData.some((newData) => selectedItem.id === newData.id)
+                ),
+                ...SellerUrgencyData.map((item) => ({ id: item.id, question: item.question }))
+            ]);
+        }
         // } 
 
     }, [])
@@ -228,13 +232,13 @@ const AddSellerKyc = ({
             //     return updatedQuestions;
             // });
             if (needKYCQuestions.some((item) => item.question === newKYCQuestion.question)) {
-                alert("Question already exists!!!");
+                setShowErrorSnack("Question already exists!!!");
                 console.log("Question Already exists");
                 return
             } else {
                 // console.log("New question");
                 setNeedKYCQuestions(prevQuestions => {
-                    const updatedQuestions = [...prevQuestions, newKYCQuestion];
+                    const updatedQuestions = [...prevQuestions, { ...newKYCQuestion, type: "seller", category: "need" }];
                     setSelectedNeedKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
                     return updatedQuestions;
                 });
@@ -247,12 +251,12 @@ const AddSellerKyc = ({
             // });
 
             if (motivationKycQuestions.some((item) => item.question === newKYCQuestion.question)) {
-                alert("Question already exists!!!");
+                setShowErrorSnack("Question already exists!!!");
                 console.log("Question Already exists");
                 return
             } else {
                 setMotivationKycQuestions(prevQuestions => {
-                    const updatedQuestions = [...prevQuestions, newKYCQuestion];
+                    const updatedQuestions = [...prevQuestions, { ...newKYCQuestion, type: "seller", category: "motivation" }];
                     setSelectedMotivationKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
                     return updatedQuestions;
                 });
@@ -265,12 +269,12 @@ const AddSellerKyc = ({
             //     return updatedQuestions;
             // });
             if (urgencyKycQuestions.some((item) => item.question === newKYCQuestion.question)) {
-                alert("Question already exists!!!");
+                setShowErrorSnack("Question already exists!!!");
                 console.log("Question Already exists");
                 return
             } else {
                 setUrgencyKycQuestions(prevQuestions => {
-                    const updatedQuestions = [...prevQuestions, newKYCQuestion];
+                    const updatedQuestions = [...prevQuestions, { ...newKYCQuestion, type: "seller", category: "urgency" }];
                     setSelectedUrgencyKyc(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
                     return updatedQuestions;
                 });
@@ -395,213 +399,213 @@ const AddSellerKyc = ({
             }
 
             // if (selectedNeedQuestions.length > 0) {
-                // let newArray = selectedNeedQuestions.map((item) => item);
+            // let newArray = selectedNeedQuestions.map((item) => item);
 
-                // const updatedArray = selectedNeedQuestions.filter(
-                //     (item) => newArray.includes(item)
-                // );
+            // const updatedArray = selectedNeedQuestions.filter(
+            //     (item) => newArray.includes(item)
+            // );
 
-                // //array to send in api
-                // const mergedArray = [
-                //     ...newArray,
-                //     ...updatedArray.filter(
-                //         (item2) => !newArray.some((item1) => item1 === item2)
-                //     )
-                // ];
+            // //array to send in api
+            // const mergedArray = [
+            //     ...newArray,
+            //     ...updatedArray.filter(
+            //         (item2) => !newArray.some((item1) => item1 === item2)
+            //     )
+            // ];
 
-                let newArray = [];
+            let newArray = [];
 
-                console.log("Alll kycs are", allKYCs);
+            console.log("Alll kycs are", allKYCs);
 
 
-                for (let i = 0; i < allKYCs.length; i++) {
-                    const itemA = allKYCs[i];
-                    let existsInArrayB = false;
-                    for (let j = 0; j < selectedNeedQuestions.length; j++) {
-                        if (itemA.question === selectedNeedQuestions[j].question) {
-                            existsInArrayB = true;
-                            break;
-                        }
-                    }
-                    if (existsInArrayB) {
-                        newArray.push(itemA);
+            for (let i = 0; i < allKYCs.length; i++) {
+                const itemA = allKYCs[i];
+                let existsInArrayB = false;
+                for (let j = 0; j < selectedNeedQuestions.length; j++) {
+                    if (itemA.question === selectedNeedQuestions[j].question) {
+                        existsInArrayB = true;
+                        break;
                     }
                 }
+                if (existsInArrayB) {
+                    newArray.push(itemA);
+                }
+            }
 
-                for (let i = 0; i < selectedNeedQuestions.length; i++) {
-                    const itemB = selectedNeedQuestions[i];
-                    let existsInArrayA = false;
-                    for (let j = 0; j < allKYCs.length; j++) {
-                        if (itemB.question === allKYCs[j].question) {
-                            existsInArrayA = true;
-                            break;
-                        }
-                    }
-                    if (!existsInArrayA) {
-                        newArray.push(itemB);
+            for (let i = 0; i < selectedNeedQuestions.length; i++) {
+                const itemB = selectedNeedQuestions[i];
+                let existsInArrayA = false;
+                for (let j = 0; j < allKYCs.length; j++) {
+                    if (itemB.question === allKYCs[j].question) {
+                        existsInArrayA = true;
+                        break;
                     }
                 }
+                if (!existsInArrayA) {
+                    newArray.push(itemB);
+                }
+            }
 
-                console.log("Final array is", newArray);
+            console.log("Final array is", newArray);
 
 
-                // let kycs = allKYCs.filter((item) => item.category != "motivation")
-                // kycs = [...kycs, ...selectedMotivationQuestions]
+            // let kycs = allKYCs.filter((item) => item.category != "motivation")
+            // kycs = [...kycs, ...selectedMotivationQuestions]
 
-                // let categoryType = ""
-                let updatedKycs = [...selectedMotivationQuestions, ...selectedNeedQuestions, ...selectedUrgencyQuestions]
+            // let categoryType = ""
+            let updatedKycs = [...selectedMotivationQuestions, ...selectedNeedQuestions, ...selectedUrgencyQuestions]
 
-                // let kycs = allKYCs.filter((item) => item.category != "motivation")
-                // kycs = [...kycs, ...updatedKycs]
+            // let kycs = allKYCs.filter((item) => item.category != "motivation")
+            // kycs = [...kycs, ...updatedKycs]
 
-                const data = {
-                    kycQuestions: updatedKycs.map(item => ({
-                        question: item.question,
-                        category: item.category,
-                        type: item.type,
-                        examples: item?.sampleAnswers?.filter(answer => answer)
-                    })),
-                    type: "seller",
-                    mainAgentId: AgentId
-                };
-                console.log("Data to send in api is", data);
-                // return
-                ApiData = data;
+            const data = {
+                kycQuestions: updatedKycs.map(item => ({
+                    question: item.question,
+                    category: item.category,
+                    type: item.type,
+                    examples: item?.sampleAnswers?.filter(answer => answer)
+                })),
+                type: "seller",
+                mainAgentId: AgentId
+            };
+            console.log("Data to send in api is", data);
+            // return
+            ApiData = data;
             // } else if (selectedMotivationQuestions.length > 0) {
-                // console.log("Contains only Previous sent kycs", SellerMotivationData);
-                // console.log("Contains only selected kycs :", selectedMotivationQuestions);
+            // console.log("Contains only Previous sent kycs", SellerMotivationData);
+            // console.log("Contains only selected kycs :", selectedMotivationQuestions);
 
-                //array contains new selected kycs
-                // let newArray = selectedMotivationQuestions.map((item) => item);
+            //array contains new selected kycs
+            // let newArray = selectedMotivationQuestions.map((item) => item);
 
-                // const updatedArray = SellerMotivationData.filter((item) => newArray.includes(item.question));
-                // const updatedArray = SellerMotivationData.filter(
-                //     (item) => newArray.includes(item)
-                // );
+            // const updatedArray = SellerMotivationData.filter((item) => newArray.includes(item.question));
+            // const updatedArray = SellerMotivationData.filter(
+            //     (item) => newArray.includes(item)
+            // );
 
-                //array to send in api
-                // const mergedArray = [
-                //     ...newArray,
-                //     ...updatedArray.filter(
-                //         (item2) => !newArray.some((item1) => item1 === item2)
-                //     )
-                // ];
+            //array to send in api
+            // const mergedArray = [
+            //     ...newArray,
+            //     ...updatedArray.filter(
+            //         (item2) => !newArray.some((item1) => item1 === item2)
+            //     )
+            // ];
 
-                // const newArray1 = selectedMotivationQuestions.filter(itemB => {
-                //     // Check if `itemB.question` exists in arrayA
-                //     const isInArrayA = allKYCs.some(itemA => itemA.question === itemB.question);
+            // const newArray1 = selectedMotivationQuestions.filter(itemB => {
+            //     // Check if `itemB.question` exists in arrayA
+            //     const isInArrayA = allKYCs.some(itemA => itemA.question === itemB.question);
 
-                //     // Keep the item if it's in arrayA or not in arrayA
-                //     return isInArrayA || !allKYCs.some(itemA => itemA.question === itemB.question);
-                // });
+            //     // Keep the item if it's in arrayA or not in arrayA
+            //     return isInArrayA || !allKYCs.some(itemA => itemA.question === itemB.question);
+            // });
 
-                // allKYCs.forEach(itemA => {
-                //     const isInArrayB = selectedMotivationQuestions.some(itemB => itemB.question === itemA.question);
-                //     console.log(`ItemA: ${itemA.question}, IsInArrayB: ${isInArrayB}`);
-                // });
+            // allKYCs.forEach(itemA => {
+            //     const isInArrayB = selectedMotivationQuestions.some(itemB => itemB.question === itemA.question);
+            //     console.log(`ItemA: ${itemA.question}, IsInArrayB: ${isInArrayB}`);
+            // });
 
-                // const newArray = allKYCs.filter(itemA => {
-                //     // Check if `itemA.question` exists in arrayB
-                //     const isInArrayB = selectedMotivationQuestions.some(itemB => itemB.question === itemA.question);
-                //     console.log("Is in all kycs array", isInArrayB);
-                //     // Keep the item if it's in arrayB
-                //     return isInArrayB;
-                // }).concat(
-                //     selectedMotivationQuestions.filter(itemB => {
-                //         // Check if `itemB.question` exists in arrayA
-                //         const isInArrayA = allKYCs.some(itemA => itemA.question === itemB.question);
+            // const newArray = allKYCs.filter(itemA => {
+            //     // Check if `itemA.question` exists in arrayB
+            //     const isInArrayB = selectedMotivationQuestions.some(itemB => itemB.question === itemA.question);
+            //     console.log("Is in all kycs array", isInArrayB);
+            //     // Keep the item if it's in arrayB
+            //     return isInArrayB;
+            // }).concat(
+            //     selectedMotivationQuestions.filter(itemB => {
+            //         // Check if `itemB.question` exists in arrayA
+            //         const isInArrayA = allKYCs.some(itemA => itemA.question === itemB.question);
 
-                //         // Keep the item if it's not in arrayA
-                //         return !isInArrayA;
-                //     })
-                // );
+            //         // Keep the item if it's not in arrayA
+            //         return !isInArrayA;
+            //     })
+            // );
 
-                // let newArray = [];
+            // let newArray = [];
 
-                // console.log("Alll kycs are", allKYCs);
+            // console.log("Alll kycs are", allKYCs);
 
-                // Same logic as above
-                // let kycs = allKYCs.filter((item) => item.category != "motivation")
-                // kycs = [...kycs, ...selectedMotivationQuestions]
+            // Same logic as above
+            // let kycs = allKYCs.filter((item) => item.category != "motivation")
+            // kycs = [...kycs, ...selectedMotivationQuestions]
 
-                // console.log("New kycs ")
-                // console.log(kycs)
-                // return
-                // for (let i = 0; i < allKYCs.length; i++) {
-                //     const itemA = allKYCs[i];
-                //     let existsInArrayB = false;
-                //     for (let j = 0; j < selectedMotivationQuestions.length; j++) {
-                //         if (itemA.question === selectedMotivationQuestions[j].question) {
-                //             existsInArrayB = true;
-                //             break;
-                //         }
-                //     }
-                //     if (existsInArrayB) {
-                //         newArray.push(itemA);
-                //     }
-                // }
+            // console.log("New kycs ")
+            // console.log(kycs)
+            // return
+            // for (let i = 0; i < allKYCs.length; i++) {
+            //     const itemA = allKYCs[i];
+            //     let existsInArrayB = false;
+            //     for (let j = 0; j < selectedMotivationQuestions.length; j++) {
+            //         if (itemA.question === selectedMotivationQuestions[j].question) {
+            //             existsInArrayB = true;
+            //             break;
+            //         }
+            //     }
+            //     if (existsInArrayB) {
+            //         newArray.push(itemA);
+            //     }
+            // }
 
-                // for (let i = 0; i < selectedMotivationQuestions.length; i++) {
-                //     const itemB = selectedMotivationQuestions[i];
-                //     let existsInArrayA = false;
-                //     for (let j = 0; j < allKYCs.length; j++) {
-                //         if (itemB.question === allKYCs[j].question) {
-                //             existsInArrayA = true;
-                //             break;
-                //         }
-                //     }
-                //     if (!existsInArrayA) {
-                //         newArray.push(itemB);
-                //     }
-                // }
+            // for (let i = 0; i < selectedMotivationQuestions.length; i++) {
+            //     const itemB = selectedMotivationQuestions[i];
+            //     let existsInArrayA = false;
+            //     for (let j = 0; j < allKYCs.length; j++) {
+            //         if (itemB.question === allKYCs[j].question) {
+            //             existsInArrayA = true;
+            //             break;
+            //         }
+            //     }
+            //     if (!existsInArrayA) {
+            //         newArray.push(itemB);
+            //     }
+            // }
 
-                console.log("Final array is", newArray);
+            console.log("Final array is", newArray);
 
-                // console.log(newArray);
+            // console.log(newArray);
 
-                // console.log("Final array is", newArray);
+            // console.log("Final array is", newArray);
 
-                // return
-                // allKYCs.push(...selectedMotivationQuestions)
-                // console.log("Array to send in api is", allKYCs);
-                // const data = {
-                //     kycQuestions: newArray.map(item => ({
-                //         question: item.question,
-                //         category: "motivation",
-                //         type: "seller",
-                //         examples: item?.sampleAnswers?.filter(answer => answer)
-                //     })),
-                //     mainAgentId: AgentId
-                // };
-                // console.log("Data to send in api is", data);
-                // ApiData = data;
+            // return
+            // allKYCs.push(...selectedMotivationQuestions)
+            // console.log("Array to send in api is", allKYCs);
+            // const data = {
+            //     kycQuestions: newArray.map(item => ({
+            //         question: item.question,
+            //         category: "motivation",
+            //         type: "seller",
+            //         examples: item?.sampleAnswers?.filter(answer => answer)
+            //     })),
+            //     mainAgentId: AgentId
+            // };
+            // console.log("Data to send in api is", data);
+            // ApiData = data;
             // } else if (selectedUrgencyQuestions.length > 0) {
 
-                // let newArray = selectedUrgencyQuestions.map((item) => item);
+            // let newArray = selectedUrgencyQuestions.map((item) => item);
 
-                // const updatedArray = selectedUrgencyQuestions.filter(
-                //     (item) => newArray.includes(item)
-                // );
+            // const updatedArray = selectedUrgencyQuestions.filter(
+            //     (item) => newArray.includes(item)
+            // );
 
-                //array to send in api
-                // const mergedArray = [
-                //     ...newArray,
-                //     ...updatedArray.filter(
-                //         (item2) => !newArray.some((item1) => item1 === item2)
-                //     )
-                // ];
+            //array to send in api
+            // const mergedArray = [
+            //     ...newArray,
+            //     ...updatedArray.filter(
+            //         (item2) => !newArray.some((item1) => item1 === item2)
+            //     )
+            // ];
 
-                // const data = {
-                //     kycQuestions: mergedArray.map(item => ({
-                //         question: item.question,
-                //         category: "urgency",
-                //         type: "seller",
-                //         examples: item?.sampleAnswers?.filter(answer => answer)
-                //     })),
-                //     mainAgentId: AgentId
-                // };
-                // console.log("Data to send in api is", data);
-                // ApiData = data;
+            // const data = {
+            //     kycQuestions: mergedArray.map(item => ({
+            //         question: item.question,
+            //         category: "urgency",
+            //         type: "seller",
+            //         examples: item?.sampleAnswers?.filter(answer => answer)
+            //     })),
+            //     mainAgentId: AgentId
+            // };
+            // console.log("Data to send in api is", data);
+            // ApiData = data;
             // }
 
             console.log("APi data is :--", ApiData);
@@ -916,6 +920,41 @@ const AddSellerKyc = ({
                                             }
                                         </div>
 
+                                        {/* Error snack bar message */}
+                                        <div>
+                                            <Snackbar
+                                                open={showErrorSnack}
+                                                autoHideDuration={3000}
+                                                onClose={() => {
+                                                    setShowErrorSnack(null);
+                                                }}
+                                                anchorOrigin={{
+                                                    vertical: "top",
+                                                    horizontal: "center",
+                                                }}
+                                                TransitionComponent={Fade}
+                                                TransitionProps={{
+                                                    direction: "center",
+                                                }}
+                                            >
+                                                <Alert
+                                                    onClose={() => {
+                                                        setShowErrorSnack(null);
+                                                    }}
+                                                    severity="error"
+                                                    // className='bg-purple rounded-lg text-white'
+                                                    sx={{
+                                                        width: "auto",
+                                                        fontWeight: "700",
+                                                        fontFamily: "inter",
+                                                        fontSize: "22",
+                                                    }}
+                                                >
+                                                    {showErrorSnack}
+                                                </Alert>
+                                            </Snackbar>
+                                        </div>
+
                                         {/* Can be use full to add shadow */}
                                         {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
                                     </div>
@@ -938,6 +977,7 @@ const AddSellerKyc = ({
                             </button>
                     }
                 </div>
+
             </div>
         </div>
     )

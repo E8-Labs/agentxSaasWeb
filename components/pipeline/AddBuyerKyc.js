@@ -115,7 +115,7 @@ const AddBuyerKyc = ({
             setToggleClick(2)
         } else if (OpenBuyerUrgency) {
             setToggleClick(3)
-        }else{
+        } else {
             setToggleClick(1)
         }
 
@@ -202,19 +202,19 @@ const AddBuyerKyc = ({
         if (toggleClick === 1) {
             // Add to the "Needs" questions and auto-select the new question
             setNeedKYCQuestions(prevQuestions => {
-                const updatedQuestions = [...prevQuestions, newKYCQuestion];
+                const updatedQuestions = [...prevQuestions, { ...newKYCQuestion, type: "buyer", category: "need" }];
                 setSelectedNeedKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
                 return updatedQuestions;
             });
         } else if (toggleClick === 2) {
             setMotivationKycQuestions(prevQuestions => {
-                const updatedQuestions = [...prevQuestions, newKYCQuestion];
+                const updatedQuestions = [...prevQuestions, { ...newKYCQuestion, type: "buyer", category: "motivation" }];
                 setSelectedMotivationKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
                 return updatedQuestions;
             });
         } else if (toggleClick === 3) {
             setUrgencyKycQuestions(prevQuestions => {
-                const updatedQuestions = [...prevQuestions, newKYCQuestion];
+                const updatedQuestions = [...prevQuestions, { ...newKYCQuestion, type: "buyer", category: "urgency" }];
                 setSelectedUrgencyKyc(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
                 return updatedQuestions;
             });
