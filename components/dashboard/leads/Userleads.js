@@ -32,8 +32,11 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     const [showFromDatePicker, setShowFromDatePicker] = useState(false);
     const [showAddNewSheetModal, setShowAddNewSheetModal] = useState(false);
 
+    const [AllLeads, setAllLeads] = useState({})
+
     //code for pagination variables
     const [hasMore, setHasMore] = useState(true);
+    const [moreLeadsLoader, setMoreLeadsLoader] = useState(false);
 
     //code for delete smart list popover
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -388,7 +391,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     //function for filtering leads
     const handleFilterLeads = async () => {
         try {
-            // setSheetsLoader(true);
+            setMoreLeadsLoader(true);
 
             const localData = localStorage.getItem("User");
             let AuthToken = null;
@@ -407,7 +410,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
             console.log("Sages selected are ", stages);
             let ApiPath = null;
             if (selectedFromDate && selectedToDate) {
-                ApiPath = `${Apis.getLeads}?sheetId=${id}&fromDate=${formtFromDate}&toDate=${formtToDate}`;
+                ApiPath = `${Apis.getLeads}?sheetId=${id}&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${FilterLeads.length}`;
             } else {
                 ApiPath = `${Apis.getLeads}?sheetId=${id}&offset=${FilterLeads.length}`;
             }
@@ -427,6 +430,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                     setShowFilterModal(false);
                     // setLeadsList(response.data.data);
                     // setFilterLeads(response.data.data);
+                    let allLeads;
                     setShowFilterModal(false);
                     setShowNoLeadErr(response.data.message);
 
@@ -434,7 +438,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                     setLeadsList((prevDetails) => [...prevDetails, ...data]);
                     setFilterLeads((prevDetails) => [...prevDetails, ...data]);
 
-                    if (data.length < 5) {
+                    if (data.length < 50) {
                         setHasMore(false);
                     }
 
@@ -444,6 +448,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
         } catch (error) {
             console.error("Error occured in api is :", error);
         } finally {
+            setMoreLeadsLoader(false);
             setSheetsLoader(false);
             console.log("ApiCall completed")
         }
@@ -452,6 +457,8 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     //function for getting the leads
     const getLeads = async (item) => {
         try {
+            setLeadsList([]);
+            setFilterLeads([]);
             setSheetsLoader(true);
             setSelectedSheetId(item.id)
             const localData = localStorage.getItem("User");
@@ -465,7 +472,20 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
 
             console.log("Sheet selected is :", item);
             const id = item.id
-            const ApiPath = `${Apis.getLeads}?sheetId=${id}`;
+
+            // const ApiPath = `${Apis.getLeads}?sheetId=${id}`;
+
+            const formtFromDate = moment(selectedFromDate).format('MM/DD/YYYY');
+            const formtToDate = moment(selectedToDate).format('MM/DD/YYYY');
+
+            let ApiPath = null;
+            const stages = selectedStage.join(',');
+            if (selectedFromDate && selectedToDate) {
+                ApiPath = `${Apis.getLeads}?sheetId=${id}&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${FilterLeads.length}`;
+            } else {
+                ApiPath = `${Apis.getLeads}?sheetId=${id}&offset=${FilterLeads.length}`;
+            }
+
             console.log("Api path is :", ApiPath);
 
             // return
@@ -486,14 +506,17 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                 setLeadsList((prevDetails) => [...prevDetails, ...data]);
                 setFilterLeads((prevDetails) => [...prevDetails, ...data]);
                 leadData = response.data.data;
-                const dynamicColumns = [
-                    ...response.data.columns,
-                    // { title: "Tag" },
-                    {
-                        title: "More",
-                        idDefault: false
-                    },
-                ];
+                let dynamicColumns = []
+                if (response.data.data.length > 0) {
+                    dynamicColumns = [
+                        ...response.data.columns,
+                        // { title: "Tag" },
+                        {
+                            title: "More",
+                            idDefault: false
+                        },
+                    ];
+                }
                 // setLeadColumns(response.data.columns);
                 setLeadColumns(dynamicColumns);
                 leadColumns = response.data.columns;
@@ -1139,7 +1162,9 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                     <button style={styles.paragraph}
                                                         className='outline-none'
                                                         onClick={() => { getLeads(item) }}
-                                                    >{item.sheetName}</button>
+                                                    >
+                                                        {item.sheetName}
+                                                    </button>
                                                     <button
                                                         className='outline-none' aria-describedby={id} variant="contained"
                                                         onClick={(event) => { handleShowPopup(event, item) }}
@@ -1215,7 +1240,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                     <div>
                                         {
                                             LeadsList.length > 0 ?
-                                                <div className='max-h-[60vh] overflow-auto mt-6' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                                                <div className='max-h-[20vh] overflow-auto mt-6' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
                                                     id="scrollableDiv1"
                                                     style={{ scrollbarWidth: "none" }}
                                                 >
@@ -1236,7 +1261,11 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                         hasMore={hasMore}  // Check if there's more data
                                                         loader={
                                                             <div className='w-full flex flex-row justify-center mt-8'>
-                                                                <CircularProgress size={35} />
+                                                                {
+                                                                    moreLeadsLoader && (
+                                                                        <CircularProgress size={35} />
+                                                                    )
+                                                                }
                                                             </div>
                                                         }
                                                         style={{ overflow: "unset" }}
@@ -1445,6 +1474,8 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                             onClick={() => {
                                                                 if (selectedFromDate && selectedToDate && selectedStage.length > 0) {
                                                                     console.log("Can continue");
+                                                                    setLeadsList([]);
+                                                                    setFilterLeads([]);
                                                                     handleFilterLeads()
                                                                 } else {
                                                                     console.log("Cannot continue");
