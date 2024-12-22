@@ -11,6 +11,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css'; // Import default styles
 import CalendarInput from '@/components/test/DatePicker';
 import parsePhoneNumberFromString from 'libphonenumber-js';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, shouldSet }) => {
 
@@ -30,8 +31,11 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     const [selectedFromDate, setSelectedFromDate] = useState(null);
     const [showFromDatePicker, setShowFromDatePicker] = useState(false);
     const [showAddNewSheetModal, setShowAddNewSheetModal] = useState(false);
-    //code for delete smart list popover
 
+    //code for pagination variables
+    const [hasMore, setHasMore] = useState(true);
+
+    //code for delete smart list popover
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [delSmartListLoader, setDelSmartListLoader] = useState(false);
     const [selectedSmartList, setSelectedSmartList] = useState(null);
@@ -384,7 +388,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     //function for filtering leads
     const handleFilterLeads = async () => {
         try {
-            setSheetsLoader(true);
+            // setSheetsLoader(true);
 
             const localData = localStorage.getItem("User");
             let AuthToken = null;
@@ -401,7 +405,12 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
             const id = currentSheet.id;
             const stages = selectedStage.join(',');
             console.log("Sages selected are ", stages);
-            const ApiPath = `${Apis.getLeads}?sheetId=${id}&fromDate=${formtFromDate}&toDate=${formtToDate}`;
+            let ApiPath = null;
+            if (selectedFromDate && selectedToDate) {
+                ApiPath = `${Apis.getLeads}?sheetId=${id}&fromDate=${formtFromDate}&toDate=${formtToDate}`;
+            } else {
+                ApiPath = `${Apis.getLeads}?sheetId=${id}&offset=${FilterLeads.length}`;
+            }
             console.log("Api path is :", ApiPath);
 
             // return
@@ -416,10 +425,19 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                 console.log("Response of get leads filter api is api is :", response.data);
                 if (response.data.status === true) {
                     setShowFilterModal(false);
-                    setLeadsList(response.data.data);
-                    setFilterLeads(response.data.data);
+                    // setLeadsList(response.data.data);
+                    // setFilterLeads(response.data.data);
                     setShowFilterModal(false);
                     setShowNoLeadErr(response.data.message);
+
+                    const data = response.data.data;
+                    setLeadsList((prevDetails) => [...prevDetails, ...data]);
+                    setFilterLeads((prevDetails) => [...prevDetails, ...data]);
+
+                    if (data.length < 5) {
+                        setHasMore(false);
+                    }
+
                 }
             }
 
@@ -462,8 +480,11 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                 console.log("Response of get leads api is :", response.data);
                 let leadData = [];
                 let leadColumns = [];
-                setLeadsList(response.data.data);
-                setFilterLeads(response.data.data);
+                // setLeadsList(response.data.data);
+                // setFilterLeads(response.data.data);
+                const data = response.data.data;
+                setLeadsList((prevDetails) => [...prevDetails, ...data]);
+                setFilterLeads((prevDetails) => [...prevDetails, ...data]);
                 leadData = response.data.data;
                 const dynamicColumns = [
                     ...response.data.columns,
@@ -1194,14 +1215,36 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                     <div>
                                         {
                                             LeadsList.length > 0 ?
-                                                <div className='h-[60vh] overflow-auto mt-6' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                                                <div className='max-h-[60vh] overflow-auto mt-6' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                                                    id="scrollableDiv1"
                                                     style={{ scrollbarWidth: "none" }}
                                                 >
-
-                                                    <table className="table-auto w-full border-collapse border border-none">
-                                                        <thead>
-                                                            <tr style={{ fontWeight: "500" }}>
-                                                                {/* {leadColumns.map((column, index) => (
+                                                    <InfiniteScroll
+                                                        className='lg:flex hidden flex-col w-full'
+                                                        endMessage={
+                                                            <p style={{ textAlign: 'center', paddingTop: '10px', fontWeight: "400", fontFamily: "inter", fontSize: 16, color: "#00000060" }}>
+                                                                {`You're all caught up`}
+                                                            </p>
+                                                        }
+                                                        scrollableTarget="scrollableDiv1"
+                                                        dataLength={FilterLeads.length}
+                                                        next={() => {
+                                                            console.log("Loading more data");
+                                                            handleFilterLeads();
+                                                            // getLeads();
+                                                        }}  // Fetch more when scrolled
+                                                        hasMore={hasMore}  // Check if there's more data
+                                                        loader={
+                                                            <div className='w-full flex flex-row justify-center mt-8'>
+                                                                <CircularProgress size={35} />
+                                                            </div>
+                                                        }
+                                                        style={{ overflow: "unset" }}
+                                                    >
+                                                        <table className="table-auto w-full border-collapse border border-none">
+                                                            <thead>
+                                                                <tr style={{ fontWeight: "500" }}>
+                                                                    {/* {leadColumns.map((column, index) => (
                                                                     // <th key={index} className="border-none px-4 py-2 text-left text-[#00000060]">
                                                                     <th
                                                                         key={index}
@@ -1212,49 +1255,49 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                                         {column.title.slice(0, 1).toUpperCase()}{column.title.slice(1)}
                                                                     </th>
                                                                 ))} */}
-                                                                {leadColumns.map((column, index) => {
-                                                                    const isMoreColumn = column.title === "More";
-                                                                    const isDateColumn = column.title === "Date";
+                                                                    {leadColumns.map((column, index) => {
+                                                                        const isMoreColumn = column.title === "More";
+                                                                        const isDateColumn = column.title === "Date";
 
-                                                                    return (
-                                                                        <th
-                                                                            key={index}
-                                                                            className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn ? "sticky right-0 bg-white" : ""
-                                                                                }`}
-                                                                            style={isMoreColumn ? { zIndex: 1 } : {}}
-                                                                        >
-                                                                            {column.title.slice(0, 1).toUpperCase()}{column.title.slice(1)}
-                                                                        </th>
-                                                                    );
-                                                                })}
+                                                                        return (
+                                                                            <th
+                                                                                key={index}
+                                                                                className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn ? "sticky right-0 bg-white" : ""
+                                                                                    }`}
+                                                                                style={isMoreColumn ? { zIndex: 1 } : {}}
+                                                                            >
+                                                                                {column.title.slice(0, 1).toUpperCase()}{column.title.slice(1)}
+                                                                            </th>
+                                                                        );
+                                                                    })}
 
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {FilterLeads.map((item, index) => (
-                                                                <tr key={index} className="hover:bg-gray-50">
-                                                                    {leadColumns.map((column, colIndex) => (
-                                                                        // <td key={colIndex} className="border-none px-4 py-2">
-                                                                        <td
-                                                                            key={colIndex}
-                                                                            className={`border-none px-4 py-2 ${column.title === "More" ? "sticky right-0 bg-white" : ""
-                                                                                }`}
-                                                                            style={{
-                                                                                whiteSpace: "nowrap",
-                                                                                // overflow: "hidden",
-                                                                                // textOverflow: "ellipsis",
-                                                                                // maxWidth: "150px",
-                                                                                zIndex: column.title === "More" ? 1 : "auto",
-                                                                            }}
-                                                                        >
-                                                                            {getColumnData(column, item)}
-                                                                        </td>
-                                                                    ))}
                                                                 </tr>
-                                                            ))}
-                                                        </tbody>
-                                                    </table>
-
+                                                            </thead>
+                                                            <tbody>
+                                                                {FilterLeads.map((item, index) => (
+                                                                    <tr key={index} className="hover:bg-gray-50">
+                                                                        {leadColumns.map((column, colIndex) => (
+                                                                            // <td key={colIndex} className="border-none px-4 py-2">
+                                                                            <td
+                                                                                key={colIndex}
+                                                                                className={`border-none px-4 py-2 ${column.title === "More" ? "sticky right-0 bg-white" : ""
+                                                                                    }`}
+                                                                                style={{
+                                                                                    whiteSpace: "nowrap",
+                                                                                    // overflow: "hidden",
+                                                                                    // textOverflow: "ellipsis",
+                                                                                    // maxWidth: "150px",
+                                                                                    zIndex: column.title === "More" ? 1 : "auto",
+                                                                                }}
+                                                                            >
+                                                                                {getColumnData(column, item)}
+                                                                            </td>
+                                                                        ))}
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </InfiniteScroll>
                                                 </div> :
                                                 <div className='text-xl text-center mt-8' style={{ fontWeight: "700", fontSize: 22 }}>
                                                     {showNoLeadErr ? (showNoLeadErr) : "No lead found"}

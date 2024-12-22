@@ -8,6 +8,7 @@ import { CalendarDots } from '@phosphor-icons/react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import parsePhoneNumberFromString from 'libphonenumber-js';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 function AllCalls() {
 
@@ -66,6 +67,11 @@ function AllCalls() {
     const [selectedPipeline, setSelectedPipeline] = useState('');
     const [selectedStage, setSelectedStage] = useState([]);
 
+    //code for pagination
+    const [offset, setOffset] = useState(5);
+    const [hasMore, setHasMore] = useState(true);
+    const [loading, setLoading] = useState(false);
+
     //select pipeline
     const handleChangePipeline = (event) => {
         const selectedValue = event.target.value;
@@ -81,23 +87,25 @@ function AllCalls() {
     useEffect(() => {
 
         const localPipelines = localStorage.getItem("pipelinesData");
-        if (localPipelines) {
-            const PipelineDetails = JSON.parse(localPipelines);
-            console.log("Pipelines recieved from localstorage are:", PipelineDetails);
-            setPipelinesList(PipelineDetails);
-            setSelectedPipeline(PipelineDetails[0].title);
-            setStagesList(PipelineDetails[0].stages);
-        }
+        // if (localPipelines) {
+        //     const PipelineDetails = JSON.parse(localPipelines);
+        //     console.log("Pipelines recieved from localstorage are:", PipelineDetails);
+        //     setPipelinesList(PipelineDetails);
+        //     setSelectedPipeline(PipelineDetails[0].title);
+        //     setStagesList(PipelineDetails[0].stages);
+        // }
 
         getCallLogs();
+        setInitialLoader(true);
     }, []);
 
 
     //code for getting call log details
     const getCallLogs = async () => {
         try {
+
             setShowFilterModal(false);
-            setInitialLoader(true);
+            setLoading(true);
 
             let AuthToken = null;
             const localData = localStorage.getItem("User");
@@ -118,8 +126,12 @@ function AllCalls() {
             if (selectedFromDate && selectedToDate && stages.length > 0) {
                 ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}&stageIds=${stages}`;
             } else {
-                ApiPath = Apis.getCallLogs;
+                ApiPath = `${Apis.getCallLogs}?offset=${filteredCallDetails.length}` //Apis.getCallLogs;
             }
+
+            // if (selectedFromDate && selectedToDate && stages.length > 0) {
+            //     ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}&stageIds=${stages}&offset=${offset}&limit=10`;
+            // }
 
 
             console.log("Api path is", ApiPath);
@@ -136,8 +148,18 @@ function AllCalls() {
             if (response) {
                 if (response) {
                     console.log("response of get call logs api is :", response.data);
-                    setCallDetails(response.data.data);
-                    setFilteredCallDetails(response.data.data);
+                    // setCallDetails(response.data.data);
+                    // setFilteredCallDetails(response.data.data);
+
+                    const data = response.data.data;
+                    setCallDetails((prevDetails) => [...prevDetails, ...data]);
+                    setFilteredCallDetails((prevDetails) => [...prevDetails, ...data]);
+
+                    if (data.length < 5) {
+                        setHasMore(false);
+                    }
+                    // setOffset((prevOffset) => prevOffset + 5);
+
                 }
             }
 
@@ -147,6 +169,14 @@ function AllCalls() {
             setInitialLoader(false);
         }
     }
+
+    //fetch more data from api
+    const fetchMoreData = () => {
+        if (!loading && hasMore) {
+            setLoading(true); // Prevent multiple fetches during loading
+            getCallLogs(); // Fetch more call logs based on current offset
+        }
+    };
 
     //code to filter search
     const handleSearchChange = (value) => {
@@ -270,68 +300,107 @@ function AllCalls() {
             </div>
 
             {
-                initialLoader ?
+                initialLoader ? (
                     <div className='w-full flex flex-row items-center justify-center mt-12'>
                         <CircularProgress size={35} thickness={2} />
-                    </div> :
-                    <div className='h-[67vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
-                        {
-                            filteredCallDetails.length > 0 ?
-                                <div>
-                                    {
-                                        filteredCallDetails.map((item) => (
-                                            <div key={item.id} className='w-full flex flex-row justify-between items-center mt-10 px-10'>
-                                                <div className='w-2/12 flex flex-row gap-2 items-center'>
-                                                    <div className='h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white'>
-                                                        {item.LeadModel?.firstName.slice(0, 1).toUpperCase()}
-                                                    </div>
-                                                    <div style={styles.text2}>{item.LeadModel?.firstName}</div>
-                                                </div>
-                                                <div className='w-2/12 '>
-                                                    <div style={styles.text2}>
-                                                        {item.pipeline ?
-                                                            <div>
-                                                                {item.pipeline?.title}
-                                                            </div> :
-                                                            "-"
-                                                        }
-                                                    </div>
-                                                </div>
-                                                <div className='w-2/12'>
-                                                    {/* (item.LeadModel?.phone) */}
-                                                    <div style={styles.text2}>{item.LeadModel?.phone ?
-                                                        <div>
-                                                            {formatPhoneNumber(item?.LeadModel?.phone)}
-                                                        </div> : "-"}</div>
-                                                </div>
-                                                <div className='w-1/12'>
-                                                    <div style={styles.text2}>{item?.PipelineStages?.stageTitle ? (item.PipelineStages?.stageTitle) : "No Stage"}</div>
-                                                </div>
-                                                <div className='w-1/12'>
-                                                    <div style={styles.text2}>{item?.callOutcome ? (item?.callOutcome) : "Ongoing"}</div>
-                                                </div>
-                                                <div className='w-1/12'>
-                                                    <div style={styles.text2}>{moment(item.LeadModel?.createdAt).format('MM/DD/YYYY')}</div>
-                                                </div>
-                                                <div className='w-1/12'>
-                                                    <div style={styles.text2}>{moment(item.LeadModel?.createdAt).format('HH:mm:ss A')}</div>
-                                                </div>
-                                                <div className='w-1/12'>
-                                                    <button>
-                                                        <div style={{ fontSize: 12, color: '#7902DF', textDecorationLine: 'underline' }}>
-                                                            Details
-                                                        </div>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))
-                                    }
-                                </div> :
-                                <div className='text-center mt-4' style={{ fontWeight: "bold", fontSize: 20 }}>
-                                    No call log found
-                                </div>
-                        }
                     </div>
+                ) : (
+                    // <InfiniteScroll
+                    //     dataLength={filteredCallDetails.length} // Current list length
+                    //     next={getCallLogs} // Fetch more data
+                    //     hasMore={hasMore} // Whether there's more data to fetch
+                    //     loader={<CircularProgress size={35} thickness={2} />}
+                    //     endMessage={<div className='text-center mt-4'>No more call logs</div>}
+                    // >
+
+
+                    // </InfiniteScroll>
+
+
+                    <div className='max-h-[67vh] overflow-auto' id="scrollableDiv1" style={{ scrollbarWidth: "none" }}>
+                        <InfiniteScroll
+                            className='lg:flex hidden flex-col w-full'
+                            endMessage={
+                                <p style={{ textAlign: 'center', paddingTop: '10px', fontWeight: "400", fontFamily: "inter", fontSize: 16, color: "#00000060" }}>
+                                    {`You're all caught up`}
+                                </p>
+                            }
+                            scrollableTarget="scrollableDiv1"
+                            dataLength={filteredCallDetails.length}
+                            next={() => {
+                                console.log("Loading more data")
+                                getCallLogs();
+                            }}  // Fetch more when scrolled
+                            hasMore={hasMore}  // Check if there's more data
+                            loader={
+                                <div className='w-full flex flex-row justify-center mt-8'>
+                                    <CircularProgress size={35} />
+                                </div>
+                            }
+                            style={{ overflow: "unset" }}
+                        >
+                            {
+                                filteredCallDetails.length > 0 ?
+                                    <div>
+                                        {
+                                            filteredCallDetails.map((item) => (
+                                                <div key={item.id} className='w-full flex flex-row justify-between items-center mt-10 px-10'>
+                                                    <div className='w-2/12 flex flex-row gap-2 items-center'>
+                                                        <div className='h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white'>
+                                                            {item.LeadModel?.firstName.slice(0, 1).toUpperCase()}
+                                                        </div>
+                                                        <div style={styles.text2}>{item.LeadModel?.firstName}</div>
+                                                    </div>
+                                                    <div className='w-2/12 '>
+                                                        <div style={styles.text2}>
+                                                            {item.pipeline ?
+                                                                <div>
+                                                                    {item.pipeline?.title}
+                                                                </div> :
+                                                                "-"
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    <div className='w-2/12'>
+                                                        {/* (item.LeadModel?.phone) */}
+                                                        <div style={styles.text2}>{item.LeadModel?.phone ?
+                                                            <div>
+                                                                {formatPhoneNumber(item?.LeadModel?.phone)}
+                                                            </div> : "-"}</div>
+                                                    </div>
+                                                    <div className='w-1/12'>
+                                                        <div style={styles.text2}>{item?.PipelineStages?.stageTitle ? (item.PipelineStages?.stageTitle) : "No Stage"}</div>
+                                                    </div>
+                                                    <div className='w-1/12'>
+                                                        <div style={styles.text2}>{item?.callOutcome ? (item?.callOutcome) : "Ongoing"}</div>
+                                                    </div>
+                                                    <div className='w-1/12'>
+                                                        <div style={styles.text2}>{moment(item.LeadModel?.createdAt).format('MM/DD/YYYY')}</div>
+                                                    </div>
+                                                    <div className='w-1/12'>
+                                                        <div style={styles.text2}>{moment(item.LeadModel?.createdAt).format('HH:mm:ss A')}</div>
+                                                    </div>
+                                                    <div className='w-1/12'>
+                                                        <button>
+                                                            <div style={{ fontSize: 12, color: '#7902DF', textDecorationLine: 'underline' }}>
+                                                                Details
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        }
+                                    </div> :
+                                    <div className='text-center mt-4' style={{ fontWeight: "bold", fontSize: 20 }}>
+                                        No call log found
+                                    </div>
+                            }
+                        </InfiniteScroll>
+                    </div>
+
+
+
+                )
             }
 
             {/* Code for filter modal */}

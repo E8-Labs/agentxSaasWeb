@@ -100,9 +100,9 @@ function Page() {
   const [showScript, setShowScript] = useState(false);
   const [SeledtedScriptKYC, setSeledtedScriptKYC] = useState(false);
   //show objection and guadrails
-  const [showObjection, setShowObjection] = useState(true);
+  const [showObjection, setShowObjection] = useState(false);
   const [showGuardrails, setShowGuardrails] = useState(false);
-  const [showObjectives, setShowObjectives] = useState(false);
+  const [showObjectives, setShowObjectives] = useState(true);
   //code for outboundObjective
   const [objective, setObjective] = useState("");
   const [oldObjective, setOldObjective] = useState("");
@@ -248,6 +248,9 @@ function Page() {
   //function to close script modal
   const handleCloseScriptModal = () => {
     setShowScriptModal(null);
+    setShowScript(false);
+    setSeledtedScriptKYC(false);
+    setSeledtedScriptAdvanceSetting(false);
     setSeledtedScriptKYC(false);
     setSeledtedScriptAdvanceSetting(false);
     localStorage.removeItem("ObjectionsList");
@@ -682,6 +685,9 @@ function Page() {
           setGreetingTagInput("");
           setScriptTagInput("");
           setShowScriptModal(null);
+          setShowScript(false);
+          setSeledtedScriptKYC(false);
+          setSeledtedScriptAdvanceSetting(false);
         }
       }
     } catch (error) {
@@ -2098,7 +2104,8 @@ function Page() {
               name="Mins Talked"
               value={
                 showDrawer?.totalDuration && showDrawer?.totalDuration > 0 ? (
-                  <div>{showDrawer?.totalDuration}</div>
+                  // <div>{showDrawer?.totalDuration}</div>
+                  <div>{moment(showDrawer.totalDuration * 1000).format("mm:ss")}</div>
                 ) : (
                   "-"
                 )
@@ -3147,11 +3154,11 @@ function Page() {
                     <button
                       className="px-2 outline-none"
                       style={{
-                        borderBottom: showObjection && "2px solid #7902DF",
+                        borderBottom: showObjectives && "2px solid #7902DF",
                       }}
-                      onClick={handleShowObjection}
+                      onClick={handleShowObjectives}
                     >
-                      Objection
+                      Objectives
                     </button>
                     <button
                       className="px-2 outline-none"
@@ -3165,11 +3172,11 @@ function Page() {
                     <button
                       className="px-2 outline-none"
                       style={{
-                        borderBottom: showObjectives && "2px solid #7902DF",
+                        borderBottom: showObjection && "2px solid #7902DF",
                       }}
-                      onClick={handleShowObjectives}
+                      onClick={handleShowObjection}
                     >
-                      Objectives
+                      Objection
                     </button>
                   </div>
 

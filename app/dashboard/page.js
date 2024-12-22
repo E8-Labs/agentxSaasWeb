@@ -13,6 +13,7 @@ const Page = () => {
     const [statsDetails, setStatsDetails] = useState(null);
     const [statsComparisonDetails, setStatsComparisonDetails] = useState(null);
     const [initialLoader, setInitialLoader] = useState(false);
+    const [isinItiallyLoaded, setIsInitiallyLoaded] = useState(false);
 
     //code for dropdown
     const [Duration, setDuration] = useState("24 hrs");
@@ -26,7 +27,12 @@ const Page = () => {
 
     const getDashboardData = async (duration) => {
         try {
-            setInitialLoader(true);
+
+            console.log("Status of initial load is", isinItiallyLoaded);
+
+            if (isinItiallyLoaded === false) {
+                setInitialLoader(true);
+            }
 
             const localData = localStorage.getItem("User");
             let AuthToken = null;
@@ -67,8 +73,11 @@ const Page = () => {
 
             if (response) {
                 console.log("Response of get Dashboard data api is:", response.data);
-                setStatsDetails(response.data.data.stats);
-                setStatsComparisonDetails(response.data.data.statsComparison);
+                if (response.data.data.status === true) {
+                    setIsInitiallyLoaded(true);
+                    setStatsDetails(response.data.data.status);
+                    setStatsComparisonDetails(response.data.data.statsComparison);
+                }
             }
 
         } catch (error) {
@@ -78,6 +87,10 @@ const Page = () => {
             setInitialLoader(false);
         }
     }
+
+    useEffect(() => {
+        console.log("Status of initially loadded", isinItiallyLoaded)
+    }, [isinItiallyLoaded])
 
     //function to handle the dropdown
     const handleChange = (event) => {
@@ -139,9 +152,9 @@ const Page = () => {
                     </div> :
                     <div className='flex flex-col -mt-[10%] items-center w-full h-[100%]'>
                         <div className='w-9/12 flex flex-col items-center h-[100%]'>
-                            <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
+                            {/* <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
                                 Good to have you back, <span className='text-[#00000090]'>{userDetails?.name}</span>
-                            </div>
+                            </div> */}
                             <div className='h-[95%] w-11/12 flex flex-row justify-center bg-white'>
                                 <div className='w-11/12 h-[100%]'>
                                     <div className='w-full flex flex-row items-center justify-between h-[30%]'>
