@@ -191,10 +191,10 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId }) => {
                         //     return apiItem ? { ...localItem, calendar: updateAgentData } : localItem;
                         // });
 
-                        for(let i = 0; i < agentsList.length; i++){
+                        for (let i = 0; i < agentsList.length; i++) {
                             let ag = agentsList[i];
                             console.log(`Comparing ${ag.id} = ${updateAgentData.mainAgentId}`)
-                            if(ag.id == updateAgentData.mainAgentId){
+                            if (ag.id == updateAgentData.mainAgentId) {
                                 ag.calendar = updateAgentData
                             }
                             updatedArray.push(ag)
@@ -342,15 +342,25 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId }) => {
                             </Select>
                         </FormControl>
                     </div>
-                    <button
-                        className='text-purple underline w-full text-start'
-                        onClick={() => {
-                            console.log("Show show the modal");
-                            handleAddCalender();
-                        }}
-                    >
-                        Add New Calender
-                    </button>
+                    <div className='w-full mt-4'>
+                        {
+                            calenderLoader ?
+                                <div className='w-full flex flex-row items-center justify-center'>
+                                    <CircularProgress size={25} />
+                                </div> :
+                                <button
+                                    disabled={!isEnabled()}
+                                    className='h-[50px] w-full text-white rounded-xl'
+                                    style={{
+                                        fontWeight: "600", fontSize: 16,
+                                        backgroundColor: !isEnabled() ? "#00000060" : "#7902DF"
+                                    }}
+                                    onClick={handleAddCalender}
+                                >
+                                    Add
+                                </button>
+                        }
+                    </div>
                 </div>
 
                 {/* Modal to add custom calender */}
@@ -494,7 +504,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId }) => {
                                     <div className='w-full mt-4'>
                                         {
                                             calenderLoader ?
-                                                <div>
+                                                <div className='w-full flex flex-row items-center justify-center'>
                                                     <CircularProgress size={25} />
                                                 </div> :
                                                 <button
