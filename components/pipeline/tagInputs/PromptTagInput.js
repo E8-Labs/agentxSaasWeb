@@ -32,9 +32,9 @@ export const PromptTagInput = ({
 
   console.log("Kycs list is:", kycsList);
 
-  useEffect(()=> {
-    setOptions((prev)=> {
-      return [...prev, ...uniqueColumns]  
+  useEffect(() => {
+    setOptions((prev) => {
+      return [...prev, ...uniqueColumns]
     })
   }, [uniqueColumns])
 
@@ -293,20 +293,23 @@ export const PromptTagInput = ({
       while (currentChar != "{" && indexOfStart >= 0) {
         indexOfStart -= 1;
         currentChar = t.substring(indexOfStart - 1, indexOfStart);
-        if (currentChar == "}") {
+        if (currentChar == "}" && indexOfStart != cursorPos) {
+          console.log("Setting Should delete to false");
           ShouldDelete = false;
+          return;
         }
-        console.log("Chat is ", currentChar);
+        console.log("Char is ", currentChar);
       }
       console.log("Start Del from ", currentChar);
       console.log("Start Del from Index ", indexOfStart);
-      if (ShouldDelete) {
+      console.log("Should del", ShouldDelete);
+      if (ShouldDelete && indexOfStart > -1) {
         const firstOccurrenceEndChar = t.indexOf("}", indexOfStart); //}
-        const firstOccurrenceOfStartChar = t.indexOf("{", indexOfStart); //{
+        const firstOccurrenceOfStartChar = indexOfStart; //t.indexOf("{", indexOfStart); //{
 
         console.log("First pos of start Char ", firstOccurrenceOfStartChar);
         console.log("First pos of end Char ", firstOccurrenceEndChar);
-        if (firstOccurrenceEndChar < firstOccurrenceOfStartChar) {
+        if (firstOccurrenceEndChar > firstOccurrenceOfStartChar) {
           //delete all until endCharPos
           console.log("char delete falls bet {}");
           t = removeSubstring(t, indexOfStart - 1, firstOccurrenceEndChar);
@@ -334,44 +337,9 @@ export const PromptTagInput = ({
           }, 0);
         }
       }
-      return;
-
-      // Find all tags using a regular expression
-      const tagRegex = /\{[^\}]*\}/g; // Matches {name}, {address}, etc.
-      let match;
-      let tagToDelete = null;
-
-      while ((match = tagRegex.exec(text))) {
-        const start = match.index;
-        const end = match.index + match[0].length;
-
-        // Check if the cursor is within a tag
-        if (cursorPos > start && cursorPos <= end) {
-          tagToDelete = { start, end };
-          break;
-        }
-      }
-
-      // If a tag is found, delete the entire tag
-      if (tagToDelete) {
-        e.preventDefault(); // Prevent the default Backspace or Delete action
-        const newText =
-          text.substring(0, tagToDelete.start) +
-          text.substring(tagToDelete.end);
-        setText(newText);
-
-        // Adjust cursor position
-        const newCursorPos =
-          e.key === "Backspace" ? tagToDelete.start : tagToDelete.start;
-        setTimeout(() => {
-          input.focus();
-          input.setSelectionRange(newCursorPos, newCursorPos);
-        }, 0);
-        return;
-      }
     }
 
-    setCursorPosition(cursorPos);
+    // setCursorPosition(cursorPos);
   };
 
   const handleOptionSelect = (option) => {
@@ -465,7 +433,7 @@ export const PromptTagInput = ({
             resize: "none",
             // border: "1px solid #00000020",
           }}
-          // disabled={true}
+        // disabled={true}
         />
         <div className="h-[50px] flex flex-col justify-center">
           <button

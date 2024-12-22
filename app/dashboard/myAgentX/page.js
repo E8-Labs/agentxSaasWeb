@@ -31,6 +31,7 @@ import Objection from "@/components/pipeline/advancedsettings/Objection";
 import GuarduanSetting from "@/components/pipeline/advancedsettings/GuardianSetting";
 import PiepelineAdnStage from "@/components/dashboard/myagentX/PiepelineAdnStage";
 import voicesList from "@/components/createagent/Voices";
+import UserCalender from "@/components/dashboard/myagentX/UserCallender";
 
 function Page() {
   let isInbound = null;
@@ -1137,7 +1138,7 @@ function Page() {
       });
 
       if (response) {
-        //console.log("Response of get agents api is:", response.data);
+        console.log("Response of get agents api is:", response.data);
         localStorage.setItem(
           "localAgentDetails",
           JSON.stringify(response.data.data)
@@ -2346,7 +2347,7 @@ function Page() {
                             margin: 0,
                           }}
                         >
-                          {previousNumber.map((item, index) => (
+                          {previousNumber?.map((item, index) => (
                             <MenuItem
                               key={index}
                               style={styles.dropdownMenu}
@@ -2504,7 +2505,7 @@ function Page() {
             </div>
           ) : activeTab === "Calender" ? (
             <div>
-              <div className="flex flex-row items-center justify-between">
+              {/* <div className="flex flex-row items-center justify-between">
                 <p style={{ fontSize: 15, fontWeight: "600", color: "#666" }}>
                   Title
                 </p>
@@ -2539,7 +2540,10 @@ function Page() {
                     "-"
                   )}
                 </div>
-              </div>
+              </div> */}
+
+
+              <UserCalender calendarDetails={calendarDetails} setUserDetails={setUserAgentsList} mainAgentId={MainAgentId} />
             </div>
           ) : activeTab === "Pipeline | Stages" ? (
             <div className="flex flex-col gap-4">
