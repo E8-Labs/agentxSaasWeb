@@ -155,7 +155,7 @@ function AllCalls() {
                     setCallDetails((prevDetails) => [...prevDetails, ...data]);
                     setFilteredCallDetails((prevDetails) => [...prevDetails, ...data]);
 
-                    if (data.length < 5) {
+                    if (data.length < 50) {
                         setHasMore(false);
                     }
                     // setOffset((prevOffset) => prevOffset + 5);
