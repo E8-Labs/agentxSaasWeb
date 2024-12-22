@@ -44,13 +44,19 @@ const ProfileNav = () => {
     }, {
       id: 6,
       name: 'Integration',
-      href: '/dashboard/intigration',
+      href: '/dashboard/integration',
       selected: '/assets/selectedIntegration.png',
       uneselected: '/assets/unSelectedIntegrationIcon.png'
     }, {
       id: 7,
       name: 'Team',
       href: '/dashboard/team',
+      selected: '/assets/selectedTeamIcon.png',
+      uneselected: '/assets/unSelectedTeamIcon.png'
+    }, {
+      id: 8,
+      name: 'My Account',
+      href: '/dashboard/myAccount',
       selected: '/assets/selectedTeamIcon.png',
       uneselected: '/assets/unSelectedTeamIcon.png'
     },

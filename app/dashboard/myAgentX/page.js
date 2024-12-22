@@ -370,9 +370,9 @@ function Page() {
           prevAgents.map((agent) =>
             agent.id === response.data.data.agent2.id
               ? {
-                  ...agent,
-                  phoneNumber: response.data.data.agent2.phoneNumber.slice(1),
-                }
+                ...agent,
+                phoneNumber: response.data.data.agent2.phoneNumber.slice(1),
+              }
               : agent
           )
         );
@@ -385,8 +385,8 @@ function Page() {
           )
         );
 
-        // setShowConfirmationModal(null);
-        // setShowDrawer(null);
+        setShowConfirmationModal(null);
+        setShowDrawer(null);
 
         //code to close the dropdown
         if (selectRef.current) {
@@ -511,7 +511,7 @@ function Page() {
       });
 
       if (response) {
-        //console.log("Response of api is :", response.data);
+        console.log("Response of api is :", response.data);
         //console.log("PArsed data is ", response.data.data);
         setPreviousNumber(response.data.data);
       }
@@ -1494,6 +1494,7 @@ function Page() {
                           onClick={() => {
                             handleShowDrawer(item);
                             matchingAgent(item);
+                            console.log("Item details are", item);
                           }}
                         >
                           <div>More info</div>
@@ -1631,7 +1632,7 @@ function Page() {
                     />
                     <Card
                       name="Hot Leads"
-                      value="-"
+                      value={item.hotleads ? item.hotleads : "-"}
                       icon="/otherAssets/hotLeadsIcon2.png"
                       bgColor="bg-orange-100"
                       iconColor="text-orange-500"
@@ -1639,7 +1640,7 @@ function Page() {
 
                     <Card
                       name="Booked Meetings"
-                      value="-"
+                      value={item.booked ? item.booked : "-"}
                       icon="/otherAssets/greenCalenderIcon.png"
                       bgColor="green"
                       iconColor="text-orange-500"
@@ -1649,7 +1650,7 @@ function Page() {
                       name="Mins Talked"
                       value={
                         item.totalDuration && item.totalDuration > 0 ? (
-                          <div>{item.totalDuration}</div>
+                          <div>{moment(item.totalDuration * 1000).format("mm:ss")}</div>
                         ) : (
                           "-"
                         )
@@ -1834,7 +1835,7 @@ function Page() {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                  // defaultMask={loading ? 'Loading...' : undefined}
+                // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -1864,9 +1865,8 @@ function Page() {
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 ${
-                        index === scriptKeys?.length - 1 ? "mb-16" : ""
-                      }`}
+                      className={`w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
+                        }`}
                       style={styles.inputStyle}
                       value={inputValues[index] || ""} // Default to empty string if no value
                       onChange={(e) => handleInputChange(index, e.target.value)}
@@ -2113,11 +2113,10 @@ function Page() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${
-                  activeTab === tab
-                    ? "text-purple border-b-2 border-purple"
-                    : "text-black-500"
-                }`}
+                className={`${activeTab === tab
+                  ? "text-purple border-b-2 border-purple"
+                  : "text-black-500"
+                  }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >
                 {tab}
@@ -2378,25 +2377,25 @@ function Page() {
                                     <div className="flex flex-row items-center gap-2">
                                       {showDrawer?.name !==
                                         item.claimedBy.name && (
-                                        <div>
-                                          {`(Claimed by {${item.claimedBy.name}})`}
-                                          {reassignLoader === item ? (
-                                            <CircularProgress size={15} />
-                                          ) : (
-                                            <button
-                                              className="text-purple underline"
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                setShowConfirmationModal(item);
-                                                // handleReassignNumber(item)
-                                                // handleReassignNumber(e.target.value)
-                                              }}
-                                            >
-                                              Reassign
-                                            </button>
-                                          )}
-                                        </div>
-                                      )}
+                                          <div>
+                                            {`(Claimed by {${item.claimedBy.name}})`}
+                                            {reassignLoader === item ? (
+                                              <CircularProgress size={15} />
+                                            ) : (
+                                              <button
+                                                className="text-purple underline"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  setShowConfirmationModal(item);
+                                                  // handleReassignNumber(item)
+                                                  // handleReassignNumber(e.target.value)
+                                                }}
+                                              >
+                                                Reassign
+                                              </button>
+                                            )}
+                                          </div>
+                                        )}
                                     </div>
                                   )}
                                 </div>

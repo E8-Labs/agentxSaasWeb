@@ -218,7 +218,7 @@ const AddCalender = ({ handleContinue }) => {
 
             <div>
               <div style={{ fontWeight: "700", fontSize: 38, textAlign: "center" }}
-                onClick={() => { handleAddCalender() }}
+                // onClick={() => { handleAddCalender() }}
               >
                 Add a Calendar
               </div>
@@ -281,14 +281,14 @@ const AddCalender = ({ handleContinue }) => {
                             key={index}
                           >
                             <button className='w-full text-start'
-                             onClick={() => {
-                              console.log("Selected calender is:", item);
-                              setCalendarSelected(item)
-                              // setCalenderTitle(item.title);
-                              // setCalenderApiKey(item.apiKey);
-                              // setEventId(item.eventId);
-                              // setSelectTimeZone(item.timeZone);
-                            }}
+                              onClick={() => {
+                                console.log("Selected calender is:", item);
+                                setCalendarSelected(item)
+                                // setCalenderTitle(item.title);
+                                // setCalenderApiKey(item.apiKey);
+                                // setEventId(item.eventId);
+                                // setSelectTimeZone(item.timeZone);
+                              }}
                             >
                               {item.title}
                             </button>
@@ -351,6 +351,7 @@ const AddCalender = ({ handleContinue }) => {
                         setCalenderTitle("");
                         setCalenderApiKey("");
                         setEventId("");
+                        setSelectTimeZone("");
                       }}>
                       <Image src={"/assets/blackBgCross.png"} height={20} width={20} alt='*' />
                     </button>
@@ -362,7 +363,7 @@ const AddCalender = ({ handleContinue }) => {
                   <div>
                     <input
                       className='w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1'
-                      placeholder='Calnder name'
+                      placeholder='Calender name'
                       style={styles.inputStyles}
                       value={calenderTitle}
                       onChange={(e) => {
@@ -377,7 +378,7 @@ const AddCalender = ({ handleContinue }) => {
                   <div>
                     <input
                       className='w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1'
-                      placeholder='Calnder name'
+                      placeholder='Enter api key'
                       style={styles.inputStyles}
                       value={calenderApiKey}
                       onChange={(e) => {
@@ -392,7 +393,7 @@ const AddCalender = ({ handleContinue }) => {
                   <div>
                     <input
                       className='w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1'
-                      placeholder='Calnder name'
+                      placeholder='Enter event id'
                       style={styles.inputStyles}
                       value={eventId}
                       onChange={(e) => {
@@ -476,11 +477,11 @@ const AddCalender = ({ handleContinue }) => {
                           <CircularProgress size={25} />
                         </div> :
                         <button
-                          disabled={shouldContinue}
+                          disabled={!isEnabled()}
                           className='h-[50px] w-full text-white rounded-xl'
                           style={{
                             fontWeight: "600", fontSize: 16,
-                            backgroundColor: shouldContinue ? "#00000060" : "#7902DF"
+                            backgroundColor: !isEnabled() ? "#00000060" : "#7902DF"
                           }}
                           onClick={handleAddCalender}
                         >
