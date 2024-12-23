@@ -489,7 +489,7 @@ export const PromptTagInput = ({
           timeout: 1000,
           sx: {
             backgroundColor: "#00000010",
-            backdropFilter: "blur(20px)",
+            //backdropFilter: "blur(20px)",
           },
         }}
       >

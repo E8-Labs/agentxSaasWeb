@@ -34,7 +34,7 @@ import voicesList from "@/components/createagent/Voices";
 import UserCalender from "@/components/dashboard/myagentX/UserCallender";
 
 function Page() {
-  let isInbound = null;
+
   const timerRef = useRef();
   const fileInputRef = useRef([]);
   // const fileInputRef = useRef(null);
@@ -820,20 +820,19 @@ function Page() {
     //console.log("Pipeline of selected agent", agentData[0].pipeline);
 
     setMainAgentId(agentData[0].id);
-    // if (agentData[0].agents?.length === 2 || agentData[0].agents[0].agentType === "outbound") {
-    //   setUserPipeline(agentData[0].pipeline);
-    //   setOldGreetingTagInput(agentData[0].greeting);
-    //   setGreetingTagInput(agentData[0].greeting);
-    //   setScriptTagInput(agentData[0].callScript);
-    //   setOldScriptTagInput(agentData[0].callScript);
-    // } else if (agentData[0].agents[0].agentType === "inbound") {
-    //   setUserPipeline(agentData[0].pipeline);
-    //   isInbound = "inbound"
-    //   setGreetingTagInput(agentData[0].inboundGreeting);
-    //   setOldGreetingTagInput(agentData[0].inboundGreeting);
-    //   setScriptTagInput(agentData[0].inboundScript);
-    //   setOldScriptTagInput(agentData[0].inboundScript);
-    // }
+    if (agentData[0].agents?.length === 2 || agentData[0].agents[0].agentType === "outbound") {
+      setUserPipeline(agentData[0].pipeline);
+      // setOldGreetingTagInput(agentData[0].greeting);
+      // setGreetingTagInput(agentData[0].greeting);
+      // setScriptTagInput(agentData[0].callScript);
+      // setOldScriptTagInput(agentData[0].callScript);
+    } else if (agentData[0].agents[0].agentType === "inbound") {
+      setUserPipeline(agentData[0].pipeline);
+      // setGreetingTagInput(agentData[0].inboundGreeting);
+      // setOldGreetingTagInput(agentData[0].inboundGreeting);
+      // setScriptTagInput(agentData[0].inboundScript);
+      // setOldScriptTagInput(agentData[0].inboundScript);
+    }
 
     // setGreetingTagInput(agentData[0].greeting);
     // // setOldGreetingTagInput(agentData[0].greeting);
@@ -1714,7 +1713,7 @@ function Page() {
           timeout: 500,
           sx: {
             backgroundColor: "#00000030",
-            // backdropFilter: "blur(20px)",
+            // //backdropFilter: "blur(20px)",
           },
         }}
       >
@@ -3287,7 +3286,7 @@ function Page() {
           timeout: 1000,
           sx: {
             backgroundColor: "#00000020",
-            // backdropFilter: "blur(20px)",
+            // //backdropFilter: "blur(20px)",
           },
         }}
       >
@@ -3354,7 +3353,7 @@ function Page() {
           timeout: 1000,
           sx: {
             backgroundColor: "#00000020",
-            // backdropFilter: "blur(20px)",
+            // //backdropFilter: "blur(20px)",
           },
         }}
       >

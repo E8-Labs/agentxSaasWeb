@@ -655,7 +655,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                   timeout: 1000,
                   sx: {
                     backgroundColor: "#00000020",
-                    backdropFilter: "blur(20px)",
+                    ////backdropFilter: "blur(5px)"
                   },
                 }}
               >
@@ -746,7 +746,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                   timeout: 1000,
                   sx: {
                     backgroundColor: "#00000020",
-                    backdropFilter: "blur(20px)",
+                    ////backdropFilter: "blur(5px)"
                   },
                 }}
               >

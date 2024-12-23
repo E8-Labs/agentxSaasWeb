@@ -834,7 +834,7 @@ const AddSellerKyc = ({
                                 timeout: 1000,
                                 sx: {
                                     backgroundColor: "#00000000",
-                                    backdropFilter: "blur(20px)",
+                                    //backdropFilter: "blur(20px)",
                                 },
                             }}
                         >

@@ -611,7 +611,7 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
                     timeout: 1000,
                     sx: {
                         backgroundColor: "#00000020",
-                        backdropFilter: "blur(20px)",
+                        //backdropFilter: "blur(20px)",
                     },
                 }}
             >
@@ -914,7 +914,7 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
                     timeout: 1000,
                     sx: {
                         backgroundColor: "#00000020",
-                        backdropFilter: "blur(20px)",
+                        //backdropFilter: "blur(20px)",
                     },
                 }}
             >

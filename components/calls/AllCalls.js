@@ -9,6 +9,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import parsePhoneNumberFromString from 'libphonenumber-js';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import LeadDetails from '../dashboard/leads/extras/LeadDetails';
 
 function AllCalls() {
 
@@ -60,8 +61,10 @@ function AllCalls() {
     const [pipelinesList, setPipelinesList] = useState([]);
     const [stagesList, setStagesList] = useState([]);
 
-    const [selectedPipelineItem, setSelectedPipelineItem] = useState(null);
-    const [selectedPipelineStages, setSelectedPipelineStages] = useState([]);
+    //code for details modal
+    const [selectedLeadsDetails, setselectedLeadsDetails] = useState(null);
+    const [showDetailsModal, setShowDetailsModal] = useState(false)
+    console.log("Status of modal1 is", showDetailsModal);
 
 
     const [selectedPipeline, setSelectedPipeline] = useState('');
@@ -95,7 +98,15 @@ function AllCalls() {
         //     setStagesList(PipelineDetails[0].stages);
         // }
 
-        getCallLogs();
+        const localCalls = localStorage.getItem("calldetails");
+        if (localCalls) {
+            const localCallData = JSON.parse(localCalls);
+            setCallDetails(localCallData);
+            setFilteredCallDetails(localCallData);
+        }else{
+            getCallLogs();
+        }
+
         setInitialLoader(true);
     }, []);
 
@@ -152,6 +163,7 @@ function AllCalls() {
                     // setFilteredCallDetails(response.data.data);
 
                     const data = response.data.data;
+                    localStorage.setItem("callDetails", response.data.data);
                     setCallDetails((prevDetails) => [...prevDetails, ...data]);
                     setFilteredCallDetails((prevDetails) => [...prevDetails, ...data]);
 
@@ -381,7 +393,13 @@ function AllCalls() {
                                                         <div style={styles.text2}>{moment(item.LeadModel?.createdAt).format('HH:mm:ss A')}</div>
                                                     </div>
                                                     <div className='w-1/12'>
-                                                        <button>
+                                                        <button
+                                                            onClick={() => {
+                                                                console.log("Selected item is", item);
+                                                                setselectedLeadsDetails(item);
+                                                                setShowDetailsModal(true);
+                                                            }}
+                                                        >
                                                             <div style={{ fontSize: 12, color: '#7902DF', textDecorationLine: 'underline' }}>
                                                                 Details
                                                             </div>
@@ -411,7 +429,7 @@ function AllCalls() {
                     BackdropProps={{
                         sx: {
                             backgroundColor: "#00000020",
-                            backdropFilter: "blur(5px)",
+                            // //backdropFilter: "blur(5px)",
                         },
                     }}
                 >
@@ -604,6 +622,18 @@ function AllCalls() {
                     </Box>
                 </Modal>
             </div>
+
+
+            {/* Code for details view */}
+            {
+                showDetailsModal && (
+                    <LeadDetails
+                        selectedLead={selectedLeadsDetails}
+                        showDetailsModal={showDetailsModal}
+                        setShowDetailsModal={setShowDetailsModal}
+                    />
+                )
+            }
 
         </div>
     )

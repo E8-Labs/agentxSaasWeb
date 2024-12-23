@@ -39,7 +39,7 @@ const LoaderAnimation = ({ loaderModal }) => {
                 BackdropProps={{
                     sx: {
                         backgroundColor: "#00000020",
-                        backdropFilter: "blur(5px)",
+                        // //backdropFilter: "blur(5px)",
                     },
                 }}
             >

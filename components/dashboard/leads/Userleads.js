@@ -1032,7 +1032,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                             timeout: 1000,
                                             sx: {
                                                 backgroundColor: "#00000020",
-                                                backdropFilter: "blur(5px)",
+                                                // //backdropFilter: "blur(5px)",
                                             },
                                         }}
                                     >
@@ -1343,7 +1343,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                     BackdropProps={{
                                         sx: {
                                             backgroundColor: "#00000020",
-                                            backdropFilter: "blur(5px)",
+                                            // //backdropFilter: "blur(5px)",
                                         },
                                     }}
                                 >
@@ -1499,7 +1499,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                     BackdropProps={{
                                         sx: {
                                             backgroundColor: "#00000020",
-                                            backdropFilter: "blur(5px)",
+                                            // //backdropFilter: "blur(5px)",
                                         },
                                     }}
                                 >
@@ -1630,7 +1630,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                     timeout: 1000,
                     sx: {
                         backgroundColor: "#00000020",
-                        backdropFilter: "blur(20px)",
+                        // //backdropFilter: "blur(20px)",
                     },
                 }}
             >
@@ -2149,7 +2149,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                 BackdropProps={{
                     sx: {
                         backgroundColor: "#00000020",
-                        backdropFilter: "blur(5px)",
+                        // //backdropFilter: "blur(5px)",
                     },
                 }}
             >
@@ -2191,7 +2191,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                 BackdropProps={{
                     sx: {
                         backgroundColor: "#00000020",
-                        backdropFilter: "blur(5px)",
+                        // //backdropFilter: "blur(5px)",
                     },
                 }}
             >
@@ -2235,7 +2235,6 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                     timeout: 1000,
                     sx: {
                         backgroundColor: "#00000020",
-                        backdropFilter: "blur(20px)",
                     },
                 }}
             >

@@ -2049,7 +2049,7 @@ const Pipeline1 = () => {
                     timeout: 1000,
                     sx: {
                         backgroundColor: "#00000020",
-                        backdropFilter: "blur(5px)",
+                        // ////backdropFilter: "blur(5px)",
                     },
                 }}
             >
@@ -2196,7 +2196,7 @@ const Pipeline1 = () => {
                     timeout: 1000,
                     sx: {
                         backgroundColor: "#00000020",
-                        backdropFilter: "blur(5px)",
+                        // ////backdropFilter: "blur(5px)",
                     },
                 }}
             >
@@ -2264,7 +2264,7 @@ const Pipeline1 = () => {
                     timeout: 1000,
                     sx: {
                         backgroundColor: "#00000020",
-                        backdropFilter: "blur(20px)",
+                        // //backdropFilter: "blur(20px)",
                     },
                 }}
             >
@@ -2784,7 +2784,7 @@ const Pipeline1 = () => {
                 BackdropProps={{
                     sx: {
                         backgroundColor: "#00000020",
-                        backdropFilter: "blur(5px)",
+                        ////backdropFilter: "blur(5px)",
                     },
                 }}
             >
@@ -2826,7 +2826,7 @@ const Pipeline1 = () => {
                 BackdropProps={{
                     sx: {
                         backgroundColor: "#00000020",
-                        backdropFilter: "blur(5px)",
+                        ////backdropFilter: "blur(5px)",
                     },
                 }}
             >
@@ -2870,7 +2870,7 @@ const Pipeline1 = () => {
                     timeout: 1000,
                     sx: {
                         backgroundColor: "#00000020",
-                        backdropFilter: "blur(20px)",
+                        // //backdropFilter: "blur(20px)",
                     },
                 }}
             >

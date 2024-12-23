@@ -361,7 +361,7 @@ const RearrangeStages = ({
                                                     timeout: 1000,
                                                     sx: {
                                                         backgroundColor: "#00000010",
-                                                        backdropFilter: "blur(5px)",
+                                                        //backdropFilter: "blur(5px)",
                                                     },
                                                 }}
                                             >

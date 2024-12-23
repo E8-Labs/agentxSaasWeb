@@ -639,7 +639,7 @@ const SellerKycs = ({ handleContinue }) => {
                                 timeout: 1000,
                                 sx: {
                                     backgroundColor: "#00000050",
-                                    backdropFilter: "blur(20px)",
+                                    // //backdropFilter: "blur(20px)",
                                 },
                             }}
                         >

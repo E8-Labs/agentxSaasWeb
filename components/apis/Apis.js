@@ -52,7 +52,9 @@ const Apis = {
     delLeadTag: `${BasePath}api/leads/deleteLeadTag`,
     //apis to add card & subscribe plan
     addCard: `${BasePath}api/user/addPaymentMethod`,
-    subscribePlan: `${BasePath}api/user/subscribePlan`
+    subscribePlan: `${BasePath}api/user/subscribePlan`,
+
+    getLeadDetails: `${BasePath}api/leads/leadDetail`
 
 }
 

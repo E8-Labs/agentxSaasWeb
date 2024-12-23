@@ -6,6 +6,7 @@ import ProgressBar from './ProgressBar';
 import Footer from './Footer';
 import { Box, CircularProgress, Modal } from '@mui/material';
 import { localeData } from 'moment';
+import styles from "../global.module.css";
 
 const UserType = ({ handleContinue, DefaultData }) => {
 
@@ -155,8 +156,13 @@ const UserType = ({ handleContinue, DefaultData }) => {
                             {
                                 userType.map((item, index) => (
                                     <div key={item.id} className='flex w-6/12 md:w-4/12 p-2'>
-                                        <button className='w-full rounded-lg p-2 hover:border-2 hover:border-[#7902DF] border border-[#00000010]'
-                                            onClick={(e) => { handleUserType(item) }} style={{ border: item.id === SelectUserType ? "2px solid #7902DF" : "" }}>
+                                        <button
+                                            className='w-full rounded-lg p-2 hover:border-2 hover:border-[#7902DF] border border-[#00000010] transition-all duration-400 ease-in-out transform active:scale-90'
+                                            onClick={(e) => { handleUserType(item) }}
+                                            style={{
+                                                border: item.id === SelectUserType ? "2px solid #7902DF" : "",
+                                                transform: "scale(0.9)", transition: "0.4s ease"
+                                            }}>
                                             <div className='h-[100px] sm:h-[198px] bg-gray-200 rounded w-full flex flex-col justify-center pb-[10px] items-center' style={{ backgroundColor: "#FAF9FF" }}>
                                                 <img src={item.icon} style={{ width: "80%", resize: "contain" }} alt='*' />
                                             </div>
@@ -197,7 +203,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
                         timeout: 1000,
                         sx: {
                             backgroundColor: "#00000040",
-                            // backdropFilter: "blur(20px)",
+                            // //backdropFilter: "blur(20px)",
                         },
                     }}
                 >

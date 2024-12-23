@@ -430,13 +430,18 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                         borderRadius: "23px", border: OutBoundCalls ? "2px solid #7902DF" : ""
                                     }}
                                     onClick={handleOutBoundCallClick}>
-                                    {OutBoundCalls ?
-                                        <Image src={"/assets/callOutFocus.png"} height={24} width={24} alt='*' /> :
-                                        <Image src={"/assets/callOut.png"} height={24} width={24} alt='*' />
+                                    {
+                                        OutBoundCalls ?
+                                            <Image src={"/assets/callOutFocus.png"} height={24} width={24} alt='*' /> :
+                                            <Image src={"/assets/callOut.png"} height={24} width={24} alt='*' />
                                     }
                                     <div
-                                        className='text-start ms-2 sm:text-center sm:ms-0'
-                                        style={styles.inputStyle}
+                                        className={`text-start ms-2 sm:text-center sm:ms-0`} // transition-all duration-400 ease-in-out transform active:scale-90
+                                        style={{
+                                            ...styles.inputStyle,
+                                            // transition: "0.4s ease",
+                                            // scale: "0.9"
+                                        }}
                                     >
                                         Making outbound calls
                                     </div>
@@ -548,7 +553,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                 BackdropProps={{
                     sx: {
                         backgroundColor: "#00000020",
-                        backdropFilter: "blur(5px)",
+                        // //backdropFilter: "blur(5px)",
                     },
                 }}
             >
@@ -664,7 +669,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                 BackdropProps={{
                     sx: {
                         backgroundColor: "#00000020",
-                        backdropFilter: "blur(5px)",
+                        // //backdropFilter: "blur(5px)",
                     },
                 }}
             >

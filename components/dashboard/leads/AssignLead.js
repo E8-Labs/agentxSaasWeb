@@ -271,7 +271,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
             const ApiPath = Apis.assignLeadToPipeLine;
 
             console.log("Data sending in api is :", Apidata);
-            return
+
             const response = await axios.post(ApiPath, Apidata, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken,
@@ -492,7 +492,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                 BackdropProps={{
                     sx: {
                         backgroundColor: "#00000020",
-                        backdropFilter: "blur(5px)",
+                        // //backdropFilter: "blur(5px)",
                     },
                 }}
             >
@@ -534,7 +534,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                     timeout: 1000,
                     sx: {
                         backgroundColor: "#00000020",
-                        backdropFilter: "blur(20px)",
+                        // //backdropFilter: "blur(20px)",
                     },
                 }}
             >
@@ -666,7 +666,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                                             timeout: 1000,
                                             sx: {
                                                 backgroundColor: "#00000020",
-                                                backdropFilter: "blur(5px)",
+                                                // //backdropFilter: "blur(5px)",
                                             },
                                         }}
                                     >
