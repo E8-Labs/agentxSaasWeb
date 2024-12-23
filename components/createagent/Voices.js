@@ -41,12 +41,6 @@ const voicesList = [
         "workspace": "1711297163700x954223200313016300"
     },
     {
-        "voice_id": "vshdfKN0F58IWbtyB3fn",
-        "name": "1.0 MT 11L Adam - Deep",
-        "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/vshdfKN0F58IWbtyB3fn/c6dba2ef-9a92-4c52-9954-5a89612d5104.mp3",
-        "workspace": "1711297163700x954223200313016300"
-    },
-    {
         "voice_id": "YdyNcsfx3kERGPH9K5lz",
         "name": "Xen",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/YdyNcsfx3kERGPH9K5lz/724ddcde-3d8d-4bcf-ae52-df490babe737.mp3",
@@ -24213,7 +24207,13 @@ const voicesList = [
         "name": "اگوریتم",
         "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/03blEaI4dpayv2RWcKL8/cf12f35f-220f-4cbd-8bbe-0b04f982a877.mp3",
         "workspace": "1711297163700x954223200313016300"
-    }
+    },
+    {
+        "voice_id": "vshdfKN0F58IWbtyB3fn",
+        "name": "1.0 MT 11L Adam - Deep",
+        "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/vshdfKN0F58IWbtyB3fn/c6dba2ef-9a92-4c52-9954-5a89612d5104.mp3",
+        "workspace": "1711297163700x954223200313016300"
+    },
 
 
 ]

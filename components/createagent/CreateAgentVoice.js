@@ -189,7 +189,7 @@ const CreateAgentVoice = ({ handleBack }) => {
                         <div className='w-full flex flex-row justify-center'>
                             <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[53vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
                                 {
-                                    voices.slice(0, 10).map((item, index) => (
+                                    voices.slice(0, 9).map((item, index) => (
                                         <button
                                             key={index}
                                             style={{
