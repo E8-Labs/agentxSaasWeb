@@ -389,7 +389,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     };
 
     //function for filtering leads
-    const handleFilterLeads = async () => {
+    const handleFilterLeads = async (offset = 0) => {
         try {
             setMoreLeadsLoader(true);
 
@@ -410,9 +410,9 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
             console.log("Sages selected are ", stages);
             let ApiPath = null;
             if (selectedFromDate && selectedToDate) {
-                ApiPath = `${Apis.getLeads}?sheetId=${id}&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${FilterLeads.length}`;
+                ApiPath = `${Apis.getLeads}?sheetId=${id}&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}`;
             } else {
-                ApiPath = `${Apis.getLeads}?sheetId=${id}&offset=${FilterLeads.length}`;
+                ApiPath = `${Apis.getLeads}?sheetId=${id}&offset=${offset}`;
             }
             console.log("Api path is :", ApiPath);
 
@@ -455,7 +455,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     }
 
     //function for getting the leads
-    const getLeads = async (item) => {
+    const getLeads = async (item, offset = 0) => {
         try {
             setLeadsList([]);
             setFilterLeads([]);
@@ -481,9 +481,9 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
             let ApiPath = null;
             const stages = selectedStage.join(',');
             if (selectedFromDate && selectedToDate) {
-                ApiPath = `${Apis.getLeads}?sheetId=${id}&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${FilterLeads.length}`;
+                ApiPath = `${Apis.getLeads}?sheetId=${id}&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}`;
             } else {
-                ApiPath = `${Apis.getLeads}?sheetId=${id}&offset=${FilterLeads.length}`;
+                ApiPath = `${Apis.getLeads}?sheetId=${id}&offset=${offset}`;
             }
 
             console.log("Api path is :", ApiPath);
@@ -830,7 +830,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                     handleShowUserLeads("leads exist");
                     setSheetsList(response.data.data);
                     setCurrentSheet(response.data.data[0]);
-                    getLeads(response.data.data[0]);
+                    getLeads(response.data.data[0], 0);
                 }
             }
 
@@ -1161,7 +1161,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                 >
                                                     <button style={styles.paragraph}
                                                         className='outline-none'
-                                                        onClick={() => { getLeads(item) }}
+                                                        onClick={() => { getLeads(item, 0) }}
                                                     >
                                                         {item.sheetName}
                                                     </button>
@@ -1255,7 +1255,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                         dataLength={FilterLeads.length}
                                                         next={() => {
                                                             console.log("Loading more data");
-                                                            handleFilterLeads();
+                                                            handleFilterLeads(FilterLeads.length);
                                                             // getLeads();
                                                         }}  // Fetch more when scrolled
                                                         hasMore={hasMore}  // Check if there's more data
@@ -1476,7 +1476,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                                     console.log("Can continue");
                                                                     setLeadsList([]);
                                                                     setFilterLeads([]);
-                                                                    handleFilterLeads()
+                                                                    handleFilterLeads(0)
                                                                 } else {
                                                                     console.log("Cannot continue");
                                                                 }

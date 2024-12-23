@@ -1,5 +1,5 @@
 import Apis from '@/components/apis/Apis'
-import { Box, CircularProgress, Modal, TextareaAutosize } from '@mui/material'
+import { Alert, Box, CircularProgress, Fade, FormControl, InputLabel, MenuItem, Modal, Select, Snackbar, TextareaAutosize } from '@mui/material'
 import { CaretDown, CaretUp, EnvelopeSimple, Plus, X } from '@phosphor-icons/react'
 import axios from 'axios'
 import parsePhoneNumberFromString from 'libphonenumber-js'
@@ -10,10 +10,11 @@ import React, { useEffect, useState } from 'react'
 const LeadDetails = ({
     showDetailsModal, selectedLead, setShowDetailsModal }) => {
 
+    const [columnsLength, setcolumnsLength] = useState([]);
 
     const [initialLoader, setInitialLoader] = useState(false);
 
-    const [selectedLeadsDetails, setSelectedLeadsDetailstate] = useState(null);
+    const [selectedLeadsDetails, setSelectedLeadsDetails] = useState(null);
     const [leadColumns, setLeadColumns] = useState([]);
 
     //code for buttons of details popup
@@ -38,10 +39,74 @@ const LeadDetails = ({
     //show custom variables
     const [showCustomVariables, setShowCustomVariables] = useState(false);
 
+    //code for del tag
+    const [DelTagLoader, setDelTagLoader] = useState(null);
+
+    //code for stages drop down
+    const [selectedStage, setSelectedStage] = useState('');
+    const [stagesList, setStagesList] = useState([]);
+
+    //code for snakbars
+    const [showSuccessSnack, setShowSuccessSnack] = useState(null);
+    const [showErrorSnack, setShowErrorSnack] = useState(null);
+
 
     useEffect(() => {
-        getLeadDetails(selectedLead)
+        getLeadDetails(selectedLead);
+        getStagesList(selectedLead);
     }, [])
+
+    //function to handle stages dropdown selection
+    const handleStageChange = (event) => {
+        setSelectedStage(event.target.value);
+        // updateLeadStage();
+    };
+
+    //function to update stage
+    const updateLeadStage = async (stage) => {
+        try {
+
+            console.log("I am trigered")
+            let AuthToken = null;
+
+            const localDetails = localStorage.getItem("User");
+            if (localDetails) {
+                const Data = JSON.parse(localDetails);
+                // console.log("User details are", Data);
+                AuthToken = Data.token;
+            }
+
+            const ApiData = {
+                pipelineId: selectedLead.id,
+                stageId: stage.id
+            }
+
+            console.log("Api data sending is", ApiData);
+
+            const ApiPath = Apis.updateLeadStageApi;
+            return
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("response of update api is", response.data);
+                if (response.data.status === true) {
+                    setShowSuccessSnack(response.data.message);
+                } else if (response.data.status === false) {
+                    setShowErrorSnack(response.data.message);
+                }
+            }
+
+        } catch (error) {
+            console.error("Error occured in api is", error);
+        } finally {
+            console.log("Update api done")
+        }
+    }
 
     //function to get the lead detils
     const getLeadDetails = async (selectedLead) => {
@@ -84,9 +149,11 @@ const LeadDetails = ({
                     },
                 ];
                 // setLeadColumns(response.data.columns);
-                setSelectedLeadsDetailstate(response.data.data);
+                setSelectedLeadsDetails(response.data.data);
                 setLeadColumns(dynamicColumns);
+                setcolumnsLength(response.data.columns);
                 setNoteDetails(response.data.data.notes);
+                setSelectedStage(response.data.data.stage.stageTitle);
             }
 
         } catch (error) {
@@ -94,6 +161,48 @@ const LeadDetails = ({
         } finally {
             setInitialLoader(false);
             console.log("Api call completed")
+        }
+    }
+
+    //function to get the stages list using pipelineId
+    const getStagesList = async () => {
+        try {
+            let AuthToken = null;
+
+            const localDetails = localStorage.getItem("User");
+            if (localDetails) {
+                const Data = JSON.parse(localDetails);
+                // console.log("User details are", Data);
+                AuthToken = Data.token;
+            }
+
+            console.log("Auth token is", AuthToken);
+
+            console.log("Lead details are", selectedLead.LeadModel.id);
+
+            const ApiPath = `${Apis.getStagesList}?pipelineId=${selectedLead.PipelineStages.pipelineId}`;
+
+            console.log("Apipath is", ApiPath);
+
+            const response = await axios.get(ApiPath, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of getStages list is ", response.data);
+                if (response.data.status === true) {
+                    setStagesList(response.data.data[0].stages);
+                }
+            }
+
+
+        } catch (error) {
+            console.error("Error occured in api is", error);
+        } finally {
+            console.log("Get stages ai call done")
         }
     }
 
@@ -244,12 +353,64 @@ const LeadDetails = ({
 
     };
 
+    //code for del tag api
+    const handleDelTag = async (tag) => {
+        try {
+            setDelTagLoader(tag);
+
+            let AuthToken = null
+
+            const userData = localStorage.getItem("User");
+            if (userData) {
+                const localData = JSON.parse(userData);
+                AuthToken = localData.token
+            }
+
+            console.log("Auth token is:", AuthToken);
+
+            const ApiData = {
+                tag: tag
+            }
+
+            const ApiPath = Apis.delLeadTag;
+            console.log("Data sending in api is:", ApiData);
+            console.log("Api path is:", ApiPath);
+
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of del tag api is:", response.data);
+                if (response.data.status === true) {
+                    console.log("Staus is true");
+
+                    const updatedTags = selectedLeadsDetails.tags.filter((item) => item !== tag);
+                    setSelectedLeadsDetails((prevDetails) => ({
+                        ...prevDetails,
+                        tags: updatedTags,
+                    }));
+
+                }
+            }
+
+
+        } catch (error) {
+            console.error("Error occured in api is:", error);
+        } finally {
+            setDelTagLoader(null);
+        }
+    }
+
 
     const styles = {
         modalsStyle: {
             height: "auto",
             bgcolor: "transparent",
-            p: 2,
+            // p: 2,
             mx: "auto",
             my: "50vh",
             transform: "translateY(-50%)",
@@ -271,7 +432,7 @@ const LeadDetails = ({
                     },
                 }}
             >
-                <Box className="lg:w-6/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[80vh] overflow-auto" sx={{ ...styles.modalsStyle, scrollbarWidth: "none", backgroundColor: "white" }}>
+                <Box className="lg:w-6/12 sm:w-7/12 w-8/12 bg-white py-2 h-[80vh] overflow-auto" sx={{ ...styles.modalsStyle, scrollbarWidth: "none", backgroundColor: "white" }}>
                     <div className="w-full flex flex-col items-center h-full">
                         {/* <div className='flex flex-row justify-between items-center'>
                             <div style={{ fontWeight: "500", fontSize: 16.9 }}>
@@ -283,270 +444,352 @@ const LeadDetails = ({
                         </div> */}
                         <div className='w-full'>
                             {initialLoader ?
-                                <div className='w-full flex flex-row items-center justify-center'>
-                                    <CircularProgress size={25} />
+                                <div className='w-full flex flex-row items-center justify-center mt-24'>
+                                    <CircularProgress size={45} thickness={2} />
                                 </div> :
                                 <div>
-                                    <div className='flex flex-row justify-between items-center'>
-                                        <div style={{ fontWeight: "500", fontSize: 16.9 }}>
-                                            Details
+                                    <div
+                                        style={{
+                                            padding: 20,
+                                            paddingInline: 30,
+                                        }}
+                                    >
+                                        <div className='flex flex-row justify-between items-center'>
+                                            <div style={{ fontWeight: "500", fontSize: 16.9 }}>
+                                                Details
+                                            </div>
+                                            <button onClick={() => { setShowDetailsModal(false) }}>
+                                                <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                            </button>
                                         </div>
-                                        <button onClick={() => { setShowDetailsModal(false) }}>
-                                            <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
-                                        </button>
-                                    </div>
 
-                                    <div className='flex flex-row items-center gap-4'>
-                                        <div className='h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white'
-                                            onClick={() => handleToggleClick(item.id)}>
-                                            {selectedLeadsDetails?.firstName.slice(0, 1)}
-                                        </div>
-                                        <div className='truncate'
-                                            onClick={() => handleToggleClick(item.id)}>
-                                            {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
-                                        </div>
-                                    </div>
-
-                                    <div className='flex flex-row items-center w-full justify-between mt-4'>
-                                        <div className='flex flex-row items-center gap-2'>
-                                            <EnvelopeSimple size={20} color='#00000060' />
-                                            <div style={styles.subHeading}>
-                                                Email Address
+                                        <div className='flex flex-row items-center gap-4'>
+                                            <div className='h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white'
+                                                onClick={() => handleToggleClick(item.id)}>
+                                                {selectedLeadsDetails?.firstName.slice(0, 1)}
+                                            </div>
+                                            <div className='truncate'
+                                                onClick={() => handleToggleClick(item.id)}>
+                                                {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
                                             </div>
                                         </div>
-                                        <div>
-                                            <div className="text-end" style={styles.heading2}>
-                                                {selectedLeadsDetails?.email}
-                                            </div>
-                                            <div className='flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]' style={styles.paragraph}>
-                                                <Image src={"/assets/power.png"} height={9} width={7} alt='*' />
-                                                <div>
-                                                    <span className='text-purple'>New</span> hamza@yahoo.com
+
+                                        <div className='flex flex-row items-center w-full justify-between mt-4'>
+                                            <div className='flex flex-row items-center gap-2'>
+                                                <EnvelopeSimple size={20} color='#00000060' />
+                                                <div style={styles.subHeading}>
+                                                    Email Address
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className='flex flex-row items--center w-full justify-between mt-4'>
-                                        <div className='flex flex-row items-center gap-2'>
-                                            {/* <EnvelopeSimple size={20} color='#00000060' /> */}
-                                            <Image src={"/assets/call.png"} height={16} width={16} alt='man' />
-                                            <div style={styles.subHeading}>
-                                                Phone Number
-                                            </div>
-                                        </div>
-                                        <div className="text-end" style={styles.paragraph}>
-                                            {/* {selectedLeadsDetails?.phone} */}
-                                            {formatPhoneNumber(selectedLeadsDetails?.phone)}
-                                        </div>
-                                    </div>
-
-                                    <div className='flex flex-row items--center w-full justify-between mt-4'>
-                                        <div className='flex flex-row items-center gap-2'>
-                                            {/* <EnvelopeSimple size={20} color='#00000060' /> */}
-                                            <Image src={"/assets/location.png"} height={16} width={16} alt='man' />
-                                            <div style={styles.subHeading}>
-                                                Address
-                                            </div>
-                                        </div>
-                                        <div className="text-end" style={styles.paragraph}>
-                                            {selectedLeadsDetails?.address}
-                                        </div>
-                                    </div>
-
-                                    <div className='flex flex-row items--center w-full justify-between mt-4'>
-                                        <div className='flex flex-row items-center gap-2'>
-                                            <Image src={"/assets/tag.png"} height={16} width={16} alt='man' />
-                                            <div style={styles.subHeading}>
-                                                Tag
-                                            </div>
-                                        </div>
-                                        {
-                                            selectedLeadsDetails?.tags.length > 0 ? (
-                                                <div className="text-end flex flex-row items-center gap-2" style={styles.paragraph}>
-                                                    {
-                                                        // selectedLeadsDetails?.tags?.map.slice(0, 1)
-                                                        selectedLeadsDetails?.tags.slice(0, 2).map((tag, index) => {
-                                                            return (
-                                                                <div key={index} className='flex flex-row items-center gap-2'>
-                                                                    <div
-                                                                        className='flex flex-row items-center gap-2 bg-[#402FFF30] px-2 py-1 rounded-lg'
-                                                                    >
-                                                                        <div
-                                                                            className="text-[#402FFF]" //1C55FF10
-                                                                        >
-                                                                            {tag}
-                                                                        </div>
-                                                                        {
-                                                                            DelTagLoader && tag.includes(DelTagLoader) ?
-                                                                                <div>
-                                                                                    <CircularProgress size={15} />
-                                                                                </div> :
-                                                                                <button onClick={() => { handleDelTag(tag) }}>
-                                                                                    <X size={15} weight='bold' color='#402fff' />
-                                                                                </button>
-                                                                        }
-
-                                                                    </div>
-                                                                    <div>
-                                                                        {
-                                                                            selectedLeadsDetails?.tags.length > 2 && (
-                                                                                <div>
-                                                                                    +{selectedLeadsDetails?.tags.length - 2}
-                                                                                </div>
-                                                                            )
-                                                                        }
-                                                                    </div>
-                                                                </div>
-                                                            )
-                                                        })
-                                                    }
-                                                </div>
-                                            ) : "-"
-                                        }
-                                    </div>
-
-                                    <div className='flex flex-row items--center w-full justify-between mt-4'>
-                                        <div className='flex flex-row items-center gap-2'>
-                                            <Image src={"/assets/arrow.png"} height={16} width={16} alt='man' />
-                                            <div style={styles.subHeading}>
-                                                Stage
-                                            </div>
-                                        </div>
-                                        <div className="text-end flex flex-row items-center gap-1" style={styles.paragraph}>
-                                            <div className='h-[10px] w-[10px] rounded-full' style={{ backgroundColor: selectedLeadsDetails?.stage?.defaultColor }}>
-                                            </div>
-                                            {selectedLeadsDetails?.stage?.stageTitle || "-"}
-                                        </div>
-                                    </div>
-
-                                    <div className='flex flex-row items--center w-full justify-between mt-4'>
-                                        <div className='flex flex-row items-center gap-2'>
-                                            <Image src={"/assets/manIcn.png"} height={16} width={16} alt='man' />
-                                            <div style={styles.subHeading}>
-                                                Assigne
-                                            </div>
-                                        </div>
-                                        <div className="text-end" style={styles.paragraph}>
-                                            <Image src={"/assets/manIcon.png"} height={40} width={40} alt='man' />
-                                        </div>
-                                    </div>
-
-                                    {/* Code for custom variables */}
-
-                                    <div className='mt-2'>
-                                        <button
-                                            onClick={() => {
-                                                setShowCustomVariables(!showCustomVariables);
-                                            }}
-                                            className='flex flex-row items-center w-full justify-between border rounded-xl h-[40px] px-2'
-                                        >
-                                            <div className='flex flex-row items-center gap-3'>
-                                                <Image
-                                                    src={"/assets/customsIcon.svg"} alt='*'
-                                                    height={16} width={16}
-                                                />
-                                                <div
-                                                    style={{
-                                                        fontWeight: "600", fontsize: 15,
-                                                        color: "#15151560"
-                                                    }}
-                                                >
-                                                    Custom fields
-                                                </div>
-                                                {
-                                                    showCustomVariables ? (
-                                                        <CaretUp size={16} weight='bold' color='#15151570' />
-                                                    ) : (
-                                                        <CaretDown size={16} weight='bold' color='#15151570' />
-                                                    )
-                                                }
                                             </div>
                                             <div>
-                                                {
-                                                    leadColumns.length > 0 && (
-                                                        <div>
-                                                            +{leadColumns.length}
-                                                        </div>
-                                                    )
-                                                }
+                                                <div className="text-end" style={styles.heading2}>
+                                                    {selectedLeadsDetails?.email}
+                                                </div>
+                                                <div className='flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]' style={styles.paragraph}>
+                                                    <Image src={"/assets/power.png"} height={9} width={7} alt='*' />
+                                                    <div>
+                                                        <span className='text-purple'>New</span> hamza@yahoo.com
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </button>
-                                    </div>
+                                        </div>
 
-                                    {
-                                        showCustomVariables && (
-                                            <div className='flex flex-col gap-4 mt-4'>
-                                                {
+                                        <div className='flex flex-row items--center w-full justify-between mt-4'>
+                                            <div className='flex flex-row items-center gap-2'>
+                                                {/* <EnvelopeSimple size={20} color='#00000060' /> */}
+                                                <Image src={"/assets/call.png"} height={16} width={16} alt='man' />
+                                                <div style={styles.subHeading}>
+                                                    Phone Number
+                                                </div>
+                                            </div>
+                                            <div className="text-end" style={styles.paragraph}>
+                                                {/* {selectedLeadsDetails?.phone} */}
+                                                {formatPhoneNumber(selectedLeadsDetails?.phone)}
+                                            </div>
+                                        </div>
 
-                                                    leadColumns.map((column, index) => {
-                                                        if (column.title == "Name" || column.title == "Phone" || column.title == "More" || column.title == "Stage") {
-                                                            return (
-                                                                // <div key={index}></div>
-                                                                ""
+                                        <div className='flex flex-row items--center w-full justify-between mt-4'>
+                                            <div className='flex flex-row items-center gap-2'>
+                                                {/* <EnvelopeSimple size={20} color='#00000060' /> */}
+                                                <Image src={"/assets/location.png"} height={16} width={16} alt='man' />
+                                                <div style={styles.subHeading}>
+                                                    Address
+                                                </div>
+                                            </div>
+                                            <div className="text-end" style={styles.paragraph}>
+                                                {selectedLeadsDetails?.address}
+                                            </div>
+                                        </div>
+
+                                        <div className='flex flex-row items--center w-full justify-between mt-4'>
+                                            <div className='flex flex-row items-center gap-2'>
+                                                <Image src={"/assets/tag.png"} height={16} width={16} alt='man' />
+                                                <div style={styles.subHeading}>
+                                                    Tag
+                                                </div>
+                                            </div>
+                                            {
+                                                selectedLeadsDetails?.tags.length > 0 ? (
+                                                    <div className="text-end flex flex-row items-center gap-2" style={styles.paragraph}>
+                                                        {
+                                                            // selectedLeadsDetails?.tags?.map.slice(0, 1)
+                                                            selectedLeadsDetails?.tags.slice(0, 2).map((tag, index) => {
+                                                                return (
+                                                                    <div key={index} className='flex flex-row items-center gap-2'>
+                                                                        <div
+                                                                            className='flex flex-row items-center gap-2 bg-[#402FFF30] px-2 py-1 rounded-lg'
+                                                                        >
+                                                                            <div
+                                                                                className="text-[#402FFF]" //1C55FF10
+                                                                            >
+                                                                                {tag}
+                                                                            </div>
+                                                                            {
+                                                                                DelTagLoader && tag.includes(DelTagLoader) ?
+                                                                                    <div>
+                                                                                        <CircularProgress size={15} />
+                                                                                    </div> :
+                                                                                    <button onClick={() => { handleDelTag(tag) }}>
+                                                                                        <X size={15} weight='bold' color='#402fff' />
+                                                                                    </button>
+                                                                            }
+
+                                                                        </div>
+                                                                        <div>
+                                                                            {
+                                                                                selectedLeadsDetails?.tags.length > 2 && (
+                                                                                    <div>
+                                                                                        +{selectedLeadsDetails?.tags.length - 2}
+                                                                                    </div>
+                                                                                )
+                                                                            }
+                                                                        </div>
+                                                                    </div>
+                                                                )
+                                                            })
+                                                        }
+                                                    </div>
+                                                ) : "-"
+                                            }
+                                        </div>
+
+                                        <div className='flex flex-row items--center w-full justify-between mt-4'>
+                                            <div className='flex flex-row items-center gap-2'>
+                                                <Image src={"/assets/arrow.png"} height={16} width={16} alt='man' />
+                                                <div style={styles.subHeading}>
+                                                    Stage
+                                                </div>
+                                            </div>
+                                            <div className="text-end flex flex-row items-center gap-1" style={styles.paragraph}>
+                                                <div className='h-[10px] w-[10px] rounded-full' style={{ backgroundColor: selectedLeadsDetails?.stage?.defaultColor }}>
+                                                </div>
+                                                {/* {selectedLeadsDetails?.stage?.stageTitle || "-"} */}
+                                                <FormControl size="fit-content">
+                                                    <Select
+                                                        value={selectedStage}
+                                                        onChange={handleStageChange}
+                                                        displayEmpty // Enables placeholder
+                                                        renderValue={(selected) => {
+                                                            if (!selected) {
+                                                                return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
+                                                            }
+                                                            return selected;
+                                                        }}
+                                                        sx={{
+                                                            border: "none", // Default border
+                                                            "&:hover": {
+                                                                border: "none", // Same border on hover
+                                                            },
+                                                            "& .MuiOutlinedInput-notchedOutline": {
+                                                                border: "none", // Remove the default outline
+                                                            },
+                                                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                                                border: "none", // Remove outline on focus
+                                                            },
+                                                            "& .MuiSelect-select": {
+                                                                padding: "0 24px 0 8px", // Add padding to create space for the icon
+                                                                lineHeight: 1, // Align with font size
+                                                                minHeight: "unset", // Ensure no extra height is enforced
+                                                                display: "flex", // Proper alignment
+                                                                alignItems: "center",
+                                                            },
+                                                            "& .MuiSelect-icon": {
+                                                                right: "4px", // Adjust the position of the icon
+                                                                top: "50%", // Center the icon vertically
+                                                                transform: "translateY(-50%)", // Ensure vertical alignment
+                                                            },
+                                                        }}
+                                                        MenuProps={{
+                                                            PaperProps: {
+                                                                style: {
+                                                                    maxHeight: "30vh", // Limit dropdown height
+                                                                    overflow: "auto", // Enable scrolling in dropdown
+                                                                    scrollbarWidth: "none",
+                                                                    // borderRadius: "10px"
+                                                                },
+                                                            },
+                                                        }}
+                                                    >
+                                                        {
+                                                            stagesList.map((item, index) => {
+                                                                return (
+                                                                    <MenuItem
+                                                                        value={item.stageTitle}
+                                                                        key={index}
+                                                                    >
+                                                                        <button
+                                                                            className='outline-none border-none'
+                                                                            onClick={() => {updateLeadStage(item)}}
+                                                                        >
+                                                                            {item.stageTitle}
+                                                                        </button>
+                                                                    </MenuItem>
+                                                                )
+                                                            }
                                                             )
                                                         }
-                                                        return (
-                                                            <div key={index} className='flex flex-row w-full justify-between'>
-                                                                <div className='flex flex-row items-center gap-4'>
-                                                                    {/* <Image src={"/"} */}
-                                                                    <div>
-                                                                        -
-                                                                    </div>
-                                                                    <div style={styles.subHeading}>
-                                                                        {column.title}
-                                                                    </div>
-                                                                </div>
-                                                                <div style={styles.paragraph}>
-                                                                    {getDetailsColumnData(column, selectedLeadsDetails)}
-                                                                </div>
+                                                    </Select>
+                                                </FormControl>
+                                            </div>
+                                        </div>
+
+                                        <div className='flex flex-row items--center w-full justify-between mt-4'>
+                                            <div className='flex flex-row items-center gap-2'>
+                                                <Image src={"/assets/manIcn.png"} height={16} width={16} alt='man' />
+                                                <div style={styles.subHeading}>
+                                                    Assigne
+                                                </div>
+                                            </div>
+                                            <div className="text-end" style={styles.paragraph}>
+                                                <Image src={"/assets/manIcon.png"} height={40} width={40} alt='man' />
+                                            </div>
+                                        </div>
+
+                                        {/* Code for custom variables */}
+
+                                        <div className='mt-2'>
+                                            <button
+                                                onClick={() => {
+                                                    setShowCustomVariables(!showCustomVariables);
+                                                }}
+                                                className='flex flex-row items-center w-full justify-between border rounded-xl h-[40px] px-2 outline-none'
+                                            >
+                                                <div className='flex flex-row items-center gap-3'>
+                                                    <Image
+                                                        src={"/assets/customsIcon.svg"} alt='*'
+                                                        height={16} width={16}
+                                                    />
+                                                    <div
+                                                        style={{
+                                                            fontWeight: "600", fontsize: 15,
+                                                            color: "#15151560"
+                                                        }}
+                                                    >
+                                                        Custom fields
+                                                    </div>
+                                                    {
+                                                        showCustomVariables ? (
+                                                            <CaretUp size={16} weight='bold' color='#15151570' />
+                                                        ) : (
+                                                            <CaretDown size={16} weight='bold' color='#15151570' />
+                                                        )
+                                                    }
+                                                </div>
+                                                <div>
+                                                    {
+                                                        leadColumns.length > 0 && (
+                                                            <div
+                                                                className='text-purple underline'
+                                                                style={{ fontsize: 15, fontWeight: "500" }}
+                                                            >
+                                                                +{columnsLength?.length - 4}
                                                             </div>
                                                         )
-                                                    })}
-                                            </div>
-                                        )
-                                    }
-
-                                    <div style={{}}>
-
-                                        <div className='flex flex-row items-center gap-4 mt-2' style={styles.paragraph}>
-                                            <button className='outline-none'
-                                                onClick={() => {
-                                                    setShowKycDetails(true);
-                                                    setShowNotesDetails(false);
-                                                    setShowAcitivityDetails(false);
-                                                }}
-                                                style={{
-                                                    borderBottom: showKYCDetails ? "2px solid #7902DF" : ""
-                                                }}
-                                            >
-                                                KYC
-                                            </button>
-                                            <button className='outline-none'
-                                                onClick={() => {
-                                                    setShowKycDetails(false);
-                                                    setShowNotesDetails(true);
-                                                    setShowAcitivityDetails(false);
-                                                }}
-                                                style={{
-                                                    borderBottom: showNotesDetails ? "2px solid #7902DF" : ""
-                                                }}
-                                            >
-                                                Notes
-                                            </button>
-                                            <button className='outline-none'
-                                                onClick={() => {
-                                                    setShowKycDetails(false);
-                                                    setShowNotesDetails(false);
-                                                    setShowAcitivityDetails(true);
-                                                }}
-                                                style={{
-                                                    borderBottom: showAcitivityDetails ? "2px solid #7902DF" : ""
-                                                }}
-                                            >
-                                                Activity
+                                                    }
+                                                </div>
                                             </button>
                                         </div>
+
+                                        {
+                                            showCustomVariables && (
+                                                <div className='flex flex-col gap-4 mt-4'>
+                                                    {
+
+                                                        leadColumns.map((column, index) => {
+                                                            if (column.title == "Name" || column.title == "Phone" || column.title == "address" || column.title == "More" || column.title == 0 || column.title == "Stage") {
+                                                                return (
+                                                                    // <div key={index}></div>
+                                                                    ""
+                                                                )
+                                                            }
+                                                            return (
+                                                                <div key={index} className='flex flex-row w-full justify-between'>
+                                                                    <div className='flex flex-row items-center gap-4'>
+                                                                        {/* <Image src={"/"} */}
+                                                                        <div>
+                                                                            -
+                                                                        </div>
+                                                                        <div style={styles.subHeading}>
+                                                                            {column.title}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div style={styles.paragraph}>
+                                                                        {getDetailsColumnData(column, selectedLeadsDetails)}
+                                                                    </div>
+                                                                </div>
+                                                            )
+                                                        })}
+                                                </div>
+                                            )
+                                        }
+
+                                    </div>
+
+                                    <div className='flex flex-row items-center gap-4 mt-2'
+                                        style={{
+                                            ...styles.paragraph,
+                                            paddingInline: 30
+                                        }}>
+                                        <button className='outline-none'
+                                            onClick={() => {
+                                                setShowKycDetails(true);
+                                                setShowNotesDetails(false);
+                                                setShowAcitivityDetails(false);
+                                            }}
+                                            style={{
+                                                borderBottom: showKYCDetails ? "2px solid #7902DF" : ""
+                                            }}
+                                        >
+                                            KYC
+                                        </button>
+                                        <button className='outline-none'
+                                            onClick={() => {
+                                                setShowKycDetails(false);
+                                                setShowNotesDetails(true);
+                                                setShowAcitivityDetails(false);
+                                            }}
+                                            style={{
+                                                borderBottom: showNotesDetails ? "2px solid #7902DF" : ""
+                                            }}
+                                        >
+                                            Notes
+                                        </button>
+                                        <button className='outline-none'
+                                            onClick={() => {
+                                                setShowKycDetails(false);
+                                                setShowNotesDetails(false);
+                                                setShowAcitivityDetails(true);
+                                            }}
+                                            style={{
+                                                borderBottom: showAcitivityDetails ? "2px solid #7902DF" : ""
+                                            }}
+                                        >
+                                            Activity
+                                        </button>
+                                    </div>
+                                    <div className='w-full' style={{ height: "1px", backgroundColor: "#15151530" }} />
+
+                                    <div style={{ paddingInline: 30 }}>
 
                                         {
                                             showKYCDetails && (
@@ -969,6 +1212,76 @@ const LeadDetails = ({
                     </div>
                 </Box>
             </Modal>
+
+            {/* Success snack bar */}
+            <div>
+                <Snackbar
+                    open={showSuccessSnack}
+                    autoHideDuration={3000}
+                    onClose={() => {
+                        setShowSuccessSnack(null);
+                    }}
+                    anchorOrigin={{
+                        vertical: "top",
+                        horizontal: "center",
+                    }}
+                    TransitionComponent={Fade}
+                    TransitionProps={{
+                        direction: "center",
+                    }}
+                >
+                    <Alert
+                        onClose={() => {
+                            setShowSuccessSnack(null);
+                        }}
+                        severity="success"
+                        // className='bg-purple rounded-lg text-white'
+                        sx={{
+                            width: "auto",
+                            fontWeight: "700",
+                            fontFamily: "inter",
+                            fontSize: "22",
+                        }}
+                    >
+                        {showSuccessSnack}
+                    </Alert>
+                </Snackbar>
+            </div>
+
+            {/* Error snack bar message */}
+            <div>
+                <Snackbar
+                    open={showErrorSnack}
+                    autoHideDuration={3000}
+                    onClose={() => {
+                        setShowErrorSnack(null);
+                    }}
+                    anchorOrigin={{
+                        vertical: "top",
+                        horizontal: "center",
+                    }}
+                    TransitionComponent={Fade}
+                    TransitionProps={{
+                        direction: "center",
+                    }}
+                >
+                    <Alert
+                        onClose={() => {
+                            setShowErrorSnack(null);
+                        }}
+                        severity="error"
+                        // className='bg-purple rounded-lg text-white'
+                        sx={{
+                            width: "auto",
+                            fontWeight: "700",
+                            fontFamily: "inter",
+                            fontSize: "22",
+                        }}
+                    >
+                        {showErrorSnack}
+                    </Alert>
+                </Snackbar>
+            </div>
 
         </div>
     )

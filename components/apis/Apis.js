@@ -54,7 +54,9 @@ const Apis = {
     addCard: `${BasePath}api/user/addPaymentMethod`,
     subscribePlan: `${BasePath}api/user/subscribePlan`,
 
-    getLeadDetails: `${BasePath}api/leads/leadDetail`
+    getLeadDetails: `${BasePath}api/leads/leadDetail`,
+    getStagesList: `${BasePath}api/pipeline/getPipeline`,
+    updateLeadStageApi: `${BasePath}api/leads/updateLeadStage`
 
 }
 

@@ -6,37 +6,37 @@ const voicesList = [
     },
     {
         "voice_id": "Mtewh2emAIf6sPTaximW",
-        "name": "@@@",
+        "name": "Dax",
         "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/Mtewh2emAIf6sPTaximW/a46327b2-cbf7-42d8-b547-7391eeef8d3f.mp3",
         "workspace": "1711297163700x954223200313016300"
     },
     {
         "voice_id": "OwJhPTZ4lzFyFezy7s44",
-        "name": "🤖[ROMEO]Agente GPT.O (Voice)",
+        "name": "Zane",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/OwJhPTZ4lzFyFezy7s44/130dfda4-808c-4ad2-8c06-67e66bb0a8f2.mp3",
         "workspace": "1711297163700x954223200313016300"
     },
     {
         "voice_id": "vjDLFGLODo1aXEe4wfjr",
-        "name": "1",
+        "name": "Cade",
         "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/vjDLFGLODo1aXEe4wfjr/9ccd8c10-8dac-450c-8e81-b70ddd6b8972.mp3",
         "workspace": "1711297163700x954223200313016300"
     },
     {
         "voice_id": "dET7jF0sHOQ3QYYh1ATa",
-        "name": "1.0 AUS MALE PS",
+        "name": "Elon",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/dET7jF0sHOQ3QYYh1ATa/a294e51a-c27b-4389-ae11-8bbaa8eda1f7.mp3",
         "workspace": "1711297163700x954223200313016300"
     },
     {
         "voice_id": "Kv0DPNbR5iMqZTeA31M1",
-        "name": "1.0 Kareena Aus Female Voice",
+        "name": "Max",
         "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/Kv0DPNbR5iMqZTeA31M1/4a4cec99-6222-4121-bcf8-d767c4316b58.mp3",
         "workspace": "1711297163700x954223200313016300"
     },
     {
         "voice_id": "8bcxjQ6X7kOds3OyEf6Q",
-        "name": "1.0 MT 11L Adam - Deep",
+        "name": "Axel",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/8bcxjQ6X7kOds3OyEf6Q/e0e495f0-2b7c-4847-9b61-ea33ede5288d.mp3",
         "workspace": "1711297163700x954223200313016300"
     },
@@ -48,13 +48,13 @@ const voicesList = [
     },
     {
         "voice_id": "YdyNcsfx3kERGPH9K5lz",
-        "name": "1.0 MT 11L Alex - Australian Casual",
+        "name": "Xen",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/YdyNcsfx3kERGPH9K5lz/724ddcde-3d8d-4bcf-ae52-df490babe737.mp3",
         "workspace": "1711297163700x954223200313016300"
     },
     {
         "voice_id": "nefh8u15F5ECgY6ijXg3",
-        "name": "1.0 MT 11L Alex - Australian Casual",
+        "name": "Neo",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/nefh8u15F5ECgY6ijXg3/a63a5568-0b7b-449a-bb27-65a8ee49138e.mp3",
         "workspace": "1711297163700x954223200313016300"
     },
