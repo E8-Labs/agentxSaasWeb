@@ -1240,7 +1240,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                     <div>
                                         {
                                             LeadsList.length > 0 ?
-                                                <div className='max-h-[20vh] overflow-auto mt-6' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                                                <div className='max-h-[60vh] overflow-auto mt-6' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
                                                     id="scrollableDiv1"
                                                     style={{ scrollbarWidth: "none" }}
                                                 >
