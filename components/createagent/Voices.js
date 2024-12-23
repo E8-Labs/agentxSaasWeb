@@ -1,9 +1,9 @@
 const voicesList = [
-    {
-        "voice_id": "vDk1nD3UrMnJUoKxzruC",
-        "name": "Tristan v2",
-        "preview": ""
-    },
+    // {
+    //     "voice_id": "vDk1nD3UrMnJUoKxzruC",
+    //     "name": "Tristan v2",
+    //     "preview": ""
+    // },
     {
         "voice_id": "Mtewh2emAIf6sPTaximW",
         "name": "Dax",

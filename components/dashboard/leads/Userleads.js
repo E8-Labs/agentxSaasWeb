@@ -734,8 +734,8 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                 return item.phone ? item.phone : "-";
             case "Stage":
                 return item.stage ? item.stage.stageTitle : "No Stage";
-            case "Date":
-                return item.createdAt ? moment(item.createdAt).format('MMM DD, YYYY') : "-";
+            // case "Date":
+            //     return item.createdAt ? moment(item.createdAt).format('MMM DD, YYYY') : "-";
             case "More":
                 return (
                     <button

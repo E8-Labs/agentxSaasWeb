@@ -77,14 +77,14 @@ const LeadDetails = ({
             }
 
             const ApiData = {
-                pipelineId: selectedLead.id,
+                leadId: selectedLead.LeadModel.id,
                 stageId: stage.id
             }
 
             console.log("Api data sending is", ApiData);
 
             const ApiPath = Apis.updateLeadStageApi;
-            return
+            // return
             const response = await axios.post(ApiPath, ApiData, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken,
