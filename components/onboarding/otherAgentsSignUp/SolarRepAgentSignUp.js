@@ -11,6 +11,8 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import { Alert, Box, CircularProgress, Fade, Modal, Snackbar } from '@mui/material';
+import SendVerificationCode from '../services/AuthVerification/AuthService';
+import SnackMessages from '../services/AuthVerification/SnackMessages';
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
 const SolarRepAgentSignUp = ({ handleContinue, handleWaitList, handleSolarAgentBack, length = 6, onComplete }) => {
@@ -18,6 +20,9 @@ const SolarRepAgentSignUp = ({ handleContinue, handleWaitList, handleSolarAgentB
     const verifyInputRef = useRef([]);
     const timerRef = useRef(null);
 
+    const [isVisible, setIsVisible] = useState(false);
+    let [response, setResponse] = useState({});
+    const [sendcodeLoader, setSendcodeLoader] = useState(false);
 
     const router = useRouter();
     const [userName, setUserName] = useState("");
@@ -190,7 +195,18 @@ const SolarRepAgentSignUp = ({ handleContinue, handleWaitList, handleSolarAgentB
 
     //code for verify number popup
 
-    const handleVerifyPopup = () => {
+    const handleVerifyPopup = async () => {
+        try {
+            setSendcodeLoader(true);
+            let response = await SendVerificationCode(userPhoneNumber, true);
+            setResponse(response)
+            setIsVisible(true)
+            console.log("Response recieved is", response);
+        } catch (error) {
+            console.error("Error occured", error);
+        } finally {
+            setSendcodeLoader(false);
+        }
         setShowVerifyPopup(true);
         setTimeout(() => {
             if (verifyInputRef.current[0]) {
@@ -293,6 +309,8 @@ const SolarRepAgentSignUp = ({ handleContinue, handleWaitList, handleSolarAgentB
             formData.append("projectSizeKw", installationVolume);
             formData.append("projectsPerYear", projectSize);
             formData.append("primaryClientType", clienttype);
+            formData.append("login", false);
+            formData.append("verificationCode", VerifyCode.join(""));
 
 
             console.log("Data for user registeration is :-----");
@@ -303,6 +321,8 @@ const SolarRepAgentSignUp = ({ handleContinue, handleWaitList, handleSolarAgentB
             // return
             const response = await axios.post(ApiPath, formData);
             if (response) {
+                setResponse(response.data)
+                setIsVisible(true)
                 console.log("Response of register api is:--", response);
                 if (response.data.status === true) {
                     console.log("Status is :---", response.data.status);
@@ -810,8 +830,17 @@ const SolarRepAgentSignUp = ({ handleContinue, handleWaitList, handleSolarAgentB
                                                     />
                                                 ))}
                                             </div>
-                                            <div className='mt-8' style={styles.inputStyle}>
-                                                {`Didn't receive code?`} <button className='outline-none border-none text-purple'>Resend</button>
+                                            <div className='mt-8 flex flex-row items-center gap-2' style={styles.inputStyle}>
+                                                {`Didn't receive code?`}
+                                                {
+                                                    sendcodeLoader ?
+                                                        <CircularProgress size={17} /> :
+                                                        <button
+                                                            className='outline-none border-none text-purple'
+                                                            onClick={handleVerifyPopup}>
+                                                            Resend
+                                                        </button>
+                                                }
                                             </div>
                                             {
                                                 registerLoader ?
@@ -832,33 +861,9 @@ const SolarRepAgentSignUp = ({ handleContinue, handleWaitList, handleSolarAgentB
                                 </Box>
                             </Modal>
 
-                            <div>
-                                <Snackbar
-                                    open={phoneVerifiedSuccessSnack}
-                                    autoHideDuration={3000}
-                                    onClose={() => {
-                                        setPhoneVerifiedSuccessSnack(false);
-                                    }}
-                                    anchorOrigin={{
-                                        vertical: 'top',
-                                        horizontal: 'center'
-                                    }}
-                                    TransitionComponent={Fade}
-                                    TransitionProps={{
-                                        direction: 'center'
-                                    }}
-                                >
-                                    <Alert
-                                        onClose={() => {
-                                            setPhoneVerifiedSuccessSnack(false)
-                                        }} severity="success"
-                                        // className='bg-purple rounded-lg text-white'
-                                        sx={{ width: 'auto', fontWeight: '700', fontFamily: 'inter', fontSize: '22' }}
-                                    >
-                                        Phone number verified
-                                    </Alert>
-                                </Snackbar>
-                            </div>
+                            <SnackMessages message={response.message} isVisible={isVisible} setIsVisible={(visible) => {
+                                setIsVisible(visible)
+                            }} success={response.status} />
 
                         </div>
                     </div>

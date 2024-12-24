@@ -1,5 +1,6 @@
 import Apis from '@/components/apis/Apis';
-import { Box, CircularProgress, Modal, TextareaAutosize } from '@mui/material';
+import { Alert, Box, CircularProgress, Fade, Modal, Popover, Snackbar, TextareaAutosize } from '@mui/material';
+import { CaretDown, CaretUp, DotsThree } from '@phosphor-icons/react';
 import axios from 'axios';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
@@ -13,6 +14,21 @@ const Objection = ({ showTitle, selectedAgentId }) => {
   const [addObjDescription, setAddObjDescription] = useState("");
 
   const [addObjectionLoader, setAddObjectionLoader] = useState(false);
+
+  //show details
+  const [showDetails, setShowDetails] = useState([]);
+
+  //code for del popover
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [SelectedObjection, setSelectedObjection] = useState(null);
+  const [delLoader, setDelLoader] = useState(false);
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
+
+  //code for desnack bars
+  const [showErrorSnack, setShowErrorSnack] = useState(null);
+  const [showSuccessSnack, setShowSuccessSnack] = useState(null);
 
   useEffect(() => {
     console.log("Check 1 clear")
@@ -156,6 +172,83 @@ const Objection = ({ showTitle, selectedAgentId }) => {
   }
 
 
+  //function to handle show details
+  const handleShowDetails = (item) => {
+    setShowDetails((prevItems) => {
+      // Check if the item is already in the array (expanded)
+      if (prevItems.some((prevItem) => prevItem.id === item.id)) {
+        // Remove the item to collapse it
+        return prevItems.filter((prevItem) => prevItem.id !== item.id);
+      } else {
+        // Add the item to expand it
+        return [...prevItems, item];
+      }
+    });
+  }
+
+  //functions for del popover
+  const handleClick = (event, item) => {
+    console.log("Selected item is", item);
+    setSelectedObjection(item);
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  //funciton to delete the objection
+  const handleDelObjection = async () => {
+    try {
+      setDelLoader(true);
+
+      const localData = localStorage.getItem("User");
+      let AuthToken = null;
+      if (localData) {
+        const UserDetails = JSON.parse(localData);
+        AuthToken = UserDetails.token;
+      }
+
+      console.log("Authtoken is", AuthToken);
+
+      const formData = new FormData();
+      formData.append("id", SelectedObjection.id);
+
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`)
+      }
+
+      const ApiPath = Apis.DelObjectGuard;
+      // return
+      const response = await axios.post(ApiPath, formData, {
+        headers: {
+          "Authorization": "Bearer " + AuthToken,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        console.log("Response of del guardrails is", response);
+        if (response.data.status === true) {
+          setObjectionsList(response.data.data.objections);
+          setShowSuccessSnack(response.data.message);
+          localStorage.setItem("ObjectionsList", JSON.stringify(response.data.data.objections));
+          setAnchorEl(null);
+        } else if (response.data.status === false) {
+          setShowErrorSnack(response.data.message);
+        }
+      }
+
+    } catch (error) {
+      console.error("Error occured in api is", error);
+    } finally {
+      setDelLoader(false);
+      console.log("Api call done");
+    }
+  }
+
+
+
 
   const styles = {
     modalsStyle: {
@@ -206,16 +299,71 @@ const Objection = ({ showTitle, selectedAgentId }) => {
 
       {
         ObjectionsList.length > 0 ?
-          <div style={{ scrollbarWidth: "none", overflow: !showTitle && "auto", maxHeight: showTitle ? "100%" : "40vh" }}>
+          <div style={{ scrollbarWidth: "none", overflow: "auto", maxHeight: showTitle ? "60vh" : "40vh" }}>
             {ObjectionsList.map((item, index) => {
+              const isExpanded = showDetails.some((detail) => detail.id === item.id);
               return (
                 <div className='p-3 rounded-xl mt-4' key={index} style={{ border: "1px solid #00000020" }}>
-                  <div style={{ fontWeight: "600", fontSize: 15 }}>
-                    {item.title}
+                  <div className='flex flex-row items-center justify-between'>
+                    <div style={{ fontWeight: "600", fontSize: 15 }}>
+                      {item.title}
+                    </div>
+                    <button onClick={() => { handleShowDetails(item) }}>
+                      {
+                        isExpanded ?
+                          <CaretUp size={20} /> :
+                          <CaretDown size={20} />
+                      }
+                    </button>
                   </div>
-                  <div className='mt-2 bg-gray-100 p-2' style={{ fontWeight: "500", fontSize: 15 }}>
-                    {item.description}
-                  </div>
+                  {
+                    isExpanded && (
+                      <div className='flex flex-row items-start justify-between'>
+                        <div className='mt-2 bg-gray-100 p-2' style={{ fontWeight: "500", fontSize: 15 }}>
+                          {item.description}
+                        </div>
+                        <div>
+                          <button
+                            onClick={(event) => { handleClick(event, item) }}
+                          >
+                            <DotsThree weight='bold' size={35} />
+                          </button>
+                          <Popover
+                            id={id}
+                            open={open}
+                            anchorEl={anchorEl}
+                            onClose={handleClose}
+                            anchorOrigin={{
+                              vertical: 'bottom',
+                              horizontal: 'right',
+                            }}
+                            transformOrigin={{
+                              vertical: 'center',
+                              horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
+                            }}
+                            PaperProps={{
+                              elevation: 0, // This will remove the shadow
+                              style: {
+                                boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                                // borderRadius: "13px"
+                              },
+                            }}
+                          >
+                            {
+                              delLoader ?
+                                <CircularProgress size={20} /> :
+                                <button
+                                  onClick={() => { handleDelObjection() }}
+                                  className='text-red p-2 px-4'
+                                  style={{ fontsize: 15, fontWeight: "500", padding: 2 }}>
+                                  Delete
+                                </button>
+                            }
+                          </Popover>
+                        </div>
+                      </div>
+                    )
+                  }
                 </div>
               )
             })}
@@ -300,6 +448,78 @@ const Objection = ({ showTitle, selectedAgentId }) => {
           </div>
         </Box>
       </Modal>
+
+      {/* Snack for Err Msg */}
+      <div>
+        <Snackbar
+          open={showErrorSnack}
+          autoHideDuration={3000}
+          onClose={() => {
+            setShowErrorSnack(null);
+          }}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "center",
+          }}
+          TransitionComponent={Fade}
+          TransitionProps={{
+            direction: "center",
+          }}
+        >
+          <Alert
+            onClose={() => {
+              setShowErrorSnack(null);
+            }}
+            severity="error"
+            // className='bg-purple rounded-lg text-white'
+            sx={{
+              width: "auto",
+              fontWeight: "700",
+              fontFamily: "inter",
+              fontSize: "22",
+            }}
+          >
+            {showErrorSnack}
+          </Alert>
+        </Snackbar>
+      </div>
+
+      {/* Code for success snack */}
+      <div>
+        <Snackbar
+          open={showSuccessSnack}
+          autoHideDuration={3000}
+          onClose={() => {
+            setShowSuccessSnack(null);
+          }}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "center",
+          }}
+          TransitionComponent={Fade}
+          TransitionProps={{
+            direction: "center",
+          }}
+        >
+          <Alert
+            onClose={() => {
+              setShowSuccessSnack(null);
+            }}
+            severity="success"
+            // className='bg-purple rounded-lg text-white'
+            sx={{
+              width: "auto",
+              fontWeight: "700",
+              fontFamily: "inter",
+              fontSize: "22",
+            }}
+          >
+            {showSuccessSnack}
+          </Alert>
+        </Snackbar>
+      </div>
+
+
     </div>
   )
 }

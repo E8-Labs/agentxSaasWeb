@@ -423,6 +423,11 @@ const LeadDetails = ({
             border: "none",
             outline: "none",
         },
+        subHeading:{
+            fontsize: 12,
+            fontWeight: "500",
+            color: "#15151560"
+        }
     }
 
     return (
@@ -936,7 +941,7 @@ const LeadDetails = ({
                                                 <div>
                                                     {
                                                         selectedLeadsDetails?.notes.length < 1 ? (
-                                                            <div className='flex flex-col items-center justify-center h-[100%] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
+                                                            <div className='flex flex-col items-center justify-center h-[20vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
                                                                 <div className='h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'>
                                                                     <Image src={"/assets/notes.png"} height={24} width={24} alt='*' />
                                                                 </div>
@@ -1031,11 +1036,11 @@ const LeadDetails = ({
                                                                                                             fontWeight: "600",
                                                                                                             fontsize: 15
                                                                                                         }}>
-                                                                                                        Outcome |
+                                                                                                        Outcome 
                                                                                                     </div>
-                                                                                                    <div className='text-purple' style={{ fontWeight: "600", fontsize: 12 }}>
+                                                                                                    {/* <div className='text-purple' style={{ fontWeight: "600", fontsize: 12 }}>
                                                                                                         {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
-                                                                                                    </div>
+                                                                                                    </div> */}
                                                                                                 </div>
                                                                                                 <button
                                                                                                     className="text-end flex flex-row items-center gap-1"

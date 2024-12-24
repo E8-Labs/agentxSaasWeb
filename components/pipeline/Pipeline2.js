@@ -553,7 +553,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         },
         {
             id: 3,
-            title: "Objection"
+            title: "Objections"
         }
     ]
 

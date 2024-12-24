@@ -1,5 +1,5 @@
 import Apis from '@/components/apis/Apis';
-import { Box, CircularProgress, Modal, Popover, TextareaAutosize } from '@mui/material';
+import { Box, CircularProgress, FormControl, MenuItem, Modal, Popover, Select, TextareaAutosize } from '@mui/material';
 import { CalendarDots, CaretDown, CaretUp, Cross, DotsThree, EnvelopeSimple, Plus, X } from '@phosphor-icons/react'
 import axios from 'axios';
 import { filter, first } from 'draft-js/lib/DefaultDraftBlockRenderMap';
@@ -32,6 +32,8 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     const [selectedFromDate, setSelectedFromDate] = useState(null);
     const [showFromDatePicker, setShowFromDatePicker] = useState(false);
     const [showAddNewSheetModal, setShowAddNewSheetModal] = useState(false);
+
+    const [LeadsInSheet, setLeadsInSheet] = useState({})
 
     const [AllLeads, setAllLeads] = useState({})
 
@@ -73,40 +75,8 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     // const [showFilterModal, setShowFilterModal] = useState(false);
     const [selectedToDate, setSelectedToDate] = useState(null);
     const [showToDatePicker, setShowToDatePicker] = useState(false);
-    const stagesList = [
-        {
-            id: 1,
-            title: "New Lead"
-        },
-        {
-            id: 2,
-            title: "Follow Up"
-        },
-        {
-            id: 3,
-            title: "Hot Lead"
-        },
-        {
-            id: 4,
-            title: "Booked"
-        },
-        {
-            id: 5,
-            title: "No Show"
-        },
-        {
-            id: 6,
-            title: "Not Interested"
-        },
-        {
-            id: 7,
-            title: "Unresponsive"
-        },
-        {
-            id: 8,
-            title: "No Stage"
-        },
-    ];
+    const [stagesList, setStagesList] = useState([]);
+    const [stagesLoader, setStagesLoader] = useState(false);
     const [selectedStage, setSelectedStage] = useState([]);
 
     //code for buttons of details popup
@@ -120,15 +90,29 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     const [noteDetails, setNoteDetails] = useState([]);
     const [addLeadNoteLoader, setAddLeadNoteLoader] = useState(false);
 
-    //code for audio play popup
-    const [showAudioPlay, setShowAudioPlay] = useState(null);
-    const [showNoAudioPlay, setShowNoAudioPlay] = useState(false);
 
     //code for deltag loader
     const [DelTagLoader, setDelTagLoader] = useState(null);
 
+    //code for pipelines api
+    const [pipelinesList, setPipelinesList] = useState([]);
+
+    //pipelines dropdown
+    // const [selectedPipeline, setSelectedPipeline] = useState("");
+    const [selectedPipeline, setSelectedPipeline] = useState('');
+
+    const handleChange = (event) => {
+        setSelectedPipeline(event.target.value);
+    };
+
     useEffect(() => {
         // getLeads();
+        const localPipelines = localStorage.getItem("pipelinesList");
+        if (localPipelines) {
+            const Data = JSON.parse(localPipelines);
+            setPipelinesList(Data);
+        }
+        getPipelines();
         getSheets();
     }, []);
 
@@ -393,6 +377,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     const handleFilterLeads = async (offset = 0) => {
         try {
             setMoreLeadsLoader(true);
+            setSheetsLoader(true);
 
             const localData = localStorage.getItem("User");
             let AuthToken = null;
@@ -458,10 +443,48 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     //function for getting the leads
     const getLeads = async (item, offset = 0) => {
         try {
+            const id = item.id
+            //Set leads in cache
+            let leadsData = LeadsInSheet[id] || null;
+            if (!leadsData) {
+                console.log("Data not cached so looking for localstorage")
+                let d = localStorage.getItem(`Leads${id}`)
+                if (d) {
+                    console.log("Data found in localstorage")
+                    leadsData = JSON.parse(d)
+                }
+            }
+            let leads = leadsData?.data;
+            let leadColumns = leadsData?.columns;
+            setSelectedSheetId(item.id)
             setLeadsList([]);
             setFilterLeads([]);
-            setSheetsLoader(true);
-            setSelectedSheetId(item.id)
+            if (leads && leadColumns) {
+                // console.log("Leads already cached for sheet", id)
+                setLeadsList((prevDetails) => [...prevDetails, ...leads]);
+                setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
+                let dynamicColumns = []
+                if (leads.length > 0) {
+                    dynamicColumns = [
+                        ...leadColumns,
+                        // { title: "Tag" },
+                        {
+                            title: "More",
+                            idDefault: false
+                        },
+                    ];
+                }
+                // setLeadColumns(response.data.columns);
+                setLeadColumns(dynamicColumns);
+                // return
+            }
+            else {
+                console.log("leads not already cached for sheet ", id)
+            }
+
+            // setSheetsLoader(true);
+
+
             const localData = localStorage.getItem("User");
             let AuthToken = null;
             if (localData) {
@@ -472,7 +495,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
             console.log("Auth token is :--", AuthToken);
 
             console.log("Sheet selected is :", item);
-            const id = item.id
+
 
             // const ApiPath = `${Apis.getLeads}?sheetId=${id}`;
 
@@ -504,9 +527,18 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                 // setLeadsList(response.data.data);
                 // setFilterLeads(response.data.data);
                 const data = response.data.data;
-                setLeadsList((prevDetails) => [...prevDetails, ...data]);
-                setFilterLeads((prevDetails) => [...prevDetails, ...data]);
-                leadData = response.data.data;
+                setLeadsList((prevDetails) => [...data]);
+                setFilterLeads((prevDetails) => [...data]);
+                leadData = data;
+
+
+                if (leads) {
+                    // leads = {...leads, ...data}
+                }
+                else {
+                    LeadsInSheet[id] = response.data;
+                    localStorage.setItem(`Leads${id}`, JSON.stringify(response.data))
+                }
                 let dynamicColumns = []
                 if (response.data.data.length > 0) {
                     dynamicColumns = [
@@ -524,49 +556,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                 console.log("Leads data are:", leadData);
                 console.log("Leads data are", leadColumns);
 
-                // const columnTitles = leadColumns.map(column => column.title);
 
-                // // Filter and match keys
-                // let matchingData = leadData.map(entry => {
-                //     // Create a new object with matching keys only
-                //     const matchedEntry = {};
-                //     for (const key in entry) {
-                //         if (columnTitles.includes(key)) {
-                //             matchedEntry[key] = entry[key];
-                //         }
-                //     }
-                //     return matchedEntry;
-                // });
-
-                // const columnTitles = leadColumns.map(column => column.title);
-
-                // Helper function to handle 'Name' mapping
-                // function mapName(entry) {
-                //     if (columnTitles.includes("Name")) {
-                //         return `${entry.firstName} ${entry.lastName}`;
-                //     }
-                //     return null;
-                // }
-
-                // Filter and match keys
-                // const matchingData = leadData.map(entry => {
-                //     // Create a new object with matching keys only
-                //     const matchedEntry = {};
-                //     for (const key in entry) {
-                //         if (columnTitles.includes(key)) {
-                //             matchedEntry[key] = entry[key];
-                //         }
-                //     }
-
-                //     // Handle 'Name' case separately
-                //     if (columnTitles.includes("Name")) {
-                //         matchedEntry["Name"] = mapName(entry);
-                //     }
-
-                //     return matchedEntry;
-                // });
-
-                // console.log("Matching data found is:", matchingData);
             }
 
         } catch (error) {
@@ -763,6 +753,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     };
 
 
+    //stoped for some reason
     const getDetailsColumnData = (column, item) => {
         let filteredColumns = column
 
@@ -840,6 +831,92 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
         } finally {
             setInitialLoader(false);
             console.log("ApiCall completed")
+        }
+    }
+
+    //function to get the stages list using pipelineId
+    const getStagesList = async (item) => {
+        try {
+            setStagesLoader(true);
+            let AuthToken = null;
+
+            const localDetails = localStorage.getItem("User");
+            if (localDetails) {
+                const Data = JSON.parse(localDetails);
+                // console.log("User details are", Data);
+                AuthToken = Data.token;
+            }
+
+            console.log("Auth token is", AuthToken);
+
+
+
+            const ApiPath = `${Apis.getStagesList}?pipelineId=${item.id}`;
+
+            console.log("Apipath of get stages api is is", ApiPath);
+
+            const response = await axios.get(ApiPath, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of getStages list is ", response.data);
+                if (response.data.status === true) {
+                    setStagesList(response?.data?.data[0]?.stages);
+                }
+            }
+
+
+        } catch (error) {
+            console.error("Error occured in api is", error);
+        } finally {
+            console.log("Get stages ai call done");
+            setStagesLoader(false);
+        }
+    }
+
+    //function to get pipelines
+    const getPipelines = async () => {
+        try {
+            let AuthToken = null;
+
+            const localDetails = localStorage.getItem("User");
+            if (localDetails) {
+                const Data = JSON.parse(localDetails);
+                // console.log("User details are", Data);
+                AuthToken = Data.token;
+            }
+
+            console.log("Auth token is", AuthToken);
+
+
+
+            const ApiPath = Apis.getPipelines;
+
+            const response = await axios.get(ApiPath, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of get pipelines list api is", response.data.data);
+                if (response.data.status === true) {
+                    localStorage.setItem("pipelinesList", JSON.stringify(response.data.data));
+                    setPipelinesList(response.data.data);
+                }
+            }
+
+
+        } catch (error) {
+            console.error("Error occured in api is error", error);
+        }
+        finally {
+            console.log("Api call done");
         }
     }
 
@@ -1162,7 +1239,9 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                 >
                                                     <button style={styles.paragraph}
                                                         className='outline-none'
-                                                        onClick={() => { getLeads(item, 0) }}
+                                                        onClick={() => {
+                                                            getLeads(item, 0);
+                                                        }}
                                                     >
                                                         {item.sheetName}
                                                     </button>
@@ -1432,24 +1511,100 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                     </div>
                                                 </div>
 
-                                                <div className='mt-6' style={{ fontWeight: "500", fontSize: 12, color: "#00000060", marginTop: 10 }}>
+                                                <div className='mt-6' style={{ fontWeight: "500", fontSize: 14, color: "#00000060", marginTop: 10 }}>
+                                                    Select Pipeline
+                                                </div>
+
+                                                <div className='mt-2'>
+                                                    <FormControl fullWidth>
+                                                        <Select
+                                                            labelId="demo-simple-select-label"
+                                                            id="demo-simple-select"
+                                                            value={selectedPipeline}
+                                                            label="Age"
+                                                            onChange={handleChange}
+                                                            displayEmpty // Enables placeholder
+                                                            renderValue={(selected) => {
+                                                                if (!selected) {
+                                                                    return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
+                                                                }
+                                                                return selected;
+                                                            }}
+                                                            sx={{
+                                                                border: "1px solid #00000020", // Default border
+                                                                "&:hover": {
+                                                                    border: "1px solid #00000020", // Same border on hover
+                                                                },
+                                                                "& .MuiOutlinedInput-notchedOutline": {
+                                                                    border: "none", // Remove the default outline
+                                                                },
+                                                                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                                                    border: "none", // Remove outline on focus
+                                                                },
+                                                                "&.MuiSelect-select": {
+                                                                    py: 0, // Optional padding adjustments
+                                                                },
+                                                            }}
+                                                            MenuProps={{
+                                                                PaperProps: {
+                                                                    style: {
+                                                                        maxHeight: "30vh", // Limit dropdown height
+                                                                        overflow: "auto", // Enable scrolling in dropdown
+                                                                        scrollbarWidth: "none",
+                                                                        // borderRadius: "10px"
+                                                                    },
+                                                                },
+                                                            }}
+                                                        >
+                                                            {
+                                                                pipelinesList.map((item, index) => {
+                                                                    return (
+                                                                        <MenuItem
+                                                                            key={index}
+                                                                            value={item.title}
+                                                                        >
+                                                                            <button
+                                                                                onClick={() => {
+                                                                                    console.log("Item passed is", item);
+                                                                                    setSelectedStage([]);
+                                                                                    getStagesList(item)
+                                                                                }}
+                                                                            >
+                                                                                {item.title}
+                                                                            </button>
+                                                                        </MenuItem>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </Select>
+                                                    </FormControl>
+                                                </div>
+
+                                                <div className='mt-6' style={{ fontWeight: "500", fontSize: 14, color: "#00000060", marginTop: 10 }}>
                                                     Stage
                                                 </div>
 
-                                                <div className='w-full flex flex-wrap gap-4'>
-                                                    {
-                                                        stagesList.map((item, index) => (
-                                                            <div key={index} className='flex flex-row items-center mt-2 justify-start' style={{ fontSize: 15, fontWeight: "500" }}>
-                                                                <button
-                                                                    onClick={() => { handleSelectStage(item) }}
-                                                                    className={`p-2 border border-[#00000020] ${selectedStage.includes(item.id) ? `bg-purple` : "bg-transparent"} px-6
+                                                {
+                                                    stagesLoader ?
+                                                        <div className='w-full flex flex-row justify-center mt-8'>
+                                                            <CircularProgress size={25} />
+                                                        </div> :
+                                                        <div className='w-full flex flex-wrap gap-4'>
+                                                            {
+                                                                stagesList?.map((item, index) => (
+                                                                    <div key={index} className='flex flex-row items-center mt-2 justify-start' style={{ fontSize: 15, fontWeight: "500" }}>
+                                                                        <button
+                                                                            onClick={() => { handleSelectStage(item) }}
+                                                                            className={`p-2 border border-[#00000020] ${selectedStage.includes(item.id) ? `bg-purple` : "bg-transparent"} px-6
                                                                 ${selectedStage.includes(item.id) ? `text-white` : "text-black"} rounded-2xl`}>
-                                                                    {item.title}
-                                                                </button>
-                                                            </div>
-                                                        ))
-                                                    }
-                                                </div>
+                                                                            {item.stageTitle}
+                                                                        </button>
+                                                                    </div>
+                                                                ))
+                                                            }
+                                                        </div>
+                                                }
+
                                             </div>
 
                                             <div className='flex flex-row items-center w-full justify-between mt-4 pb-8'>
@@ -1470,17 +1625,21 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                             className='bg-purple h-[45px] w-[140px] bg-purple text-white rounded-xl outline-none'
                                                             style={{
                                                                 fontSize: 16.8, fontWeight: "600",
-                                                                backgroundColor: selectedFromDate && selectedToDate && selectedStage.length > 0 ? "" : "#00000050"
+                                                                // backgroundColor: selectedFromDate && selectedToDate && selectedStage.length > 0 ? "" : "#00000050"
                                                             }}
                                                             onClick={() => {
-                                                                if (selectedFromDate && selectedToDate && selectedStage.length > 0) {
-                                                                    console.log("Can continue");
-                                                                    setLeadsList([]);
-                                                                    setFilterLeads([]);
-                                                                    handleFilterLeads(0)
-                                                                } else {
-                                                                    console.log("Cannot continue");
-                                                                }
+                                                                console.log("Can continue");
+                                                                setLeadsList([]);
+                                                                setFilterLeads([]);
+                                                                handleFilterLeads(0)
+                                                                // if (selectedFromDate && selectedToDate && selectedStage.length > 0) {
+                                                                //     console.log("Can continue");
+                                                                //     setLeadsList([]);
+                                                                //     setFilterLeads([]);
+                                                                //     handleFilterLeads(0)
+                                                                // } else {
+                                                                //     console.log("Cannot continue");
+                                                                // }
                                                             }}
                                                         >
                                                             Apply Filter

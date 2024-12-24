@@ -43,6 +43,7 @@ const Apis = {
     UpdateStage: `${BasePath}api/pipeline/updateStage`,
     addObjectionGuardrial: `${BasePath}api/agent/addObjectionGuardRail`,
     getObjectionGuardrial: `${BasePath}api/agent/getObjectionsAndGuardrails`,
+    DelObjectGuard: `${BasePath}api/agent/deleteObjectionGuardRail`,
     reorderStages: `${BasePath}api/pipeline/reorderStages`,
     createPipeLine: `${BasePath}api/pipeline/createPipeline`,
     testAI: `${BasePath}api/agent/testAi`,
@@ -56,7 +57,9 @@ const Apis = {
 
     getLeadDetails: `${BasePath}api/leads/leadDetail`,
     getStagesList: `${BasePath}api/pipeline/getPipeline`,
-    updateLeadStageApi: `${BasePath}api/leads/updateLeadStage`
+    updateLeadStageApi: `${BasePath}api/leads/updateLeadStage`,
+
+    sendVerificationCode: `${BasePath}api/user/sendVerificationCode`
 
 }
 

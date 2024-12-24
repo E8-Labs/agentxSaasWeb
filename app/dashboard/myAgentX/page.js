@@ -3194,7 +3194,7 @@ function Page() {
                       }}
                       onClick={handleShowObjectives}
                     >
-                      Objectives
+                      Objective
                     </button>
                     <button
                       className="px-2 outline-none"
@@ -3212,7 +3212,7 @@ function Page() {
                       }}
                       onClick={handleShowObjection}
                     >
-                      Objection
+                      Objections
                     </button>
                   </div>
 

@@ -12,6 +12,8 @@ import Apis from '../apis/Apis';
 import axios from 'axios';
 import { Alert, Box, CircularProgress, Fade, Modal, Snackbar } from '@mui/material';
 import VerificationCodeInput from '../test/VerificationCodeInput';
+import SendVerificationCode from './services/AuthVerification/AuthService';
+import SnackMessages from './services/AuthVerification/SnackMessages';
 
 const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
 
@@ -22,6 +24,8 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
   const router = useRouter();
   const [userName, setUserName] = useState("");
   const [showVerifyPopup, setShowVerifyPopup] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  let [response, setResponse] = useState({});
   const [registerLoader, setRegisterLoader] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   // const [emailErr, setEmailCheckResponse] = useState(false);
@@ -33,6 +37,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
   const [countryCode, setCountryCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [sendcodeLoader, setSendcodeLoader] = useState(false);
   const [userData, setUserData] = useState(null);
   const [phoneVerifiedSuccessSnack, setPhoneVerifiedSuccessSnack] = useState(false);
   //verify code input fields
@@ -161,7 +166,21 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
 
   //code for verify number popup
 
-  const handleVerifyPopup = () => {
+  const handleVerifyPopup = async () => {
+    // let response = await SendVerificationCode(userPhoneNumber, true);
+    try {
+      setSendcodeLoader(true);
+      let response = await SendVerificationCode(userPhoneNumber, true);
+      setResponse(response)
+      setIsVisible(true)
+      console.log("Response recieved is", response);
+    } catch (error) {
+      console.error("Error occured", error);
+    } finally {
+      setSendcodeLoader(false);
+    }
+    // setResponse(response)
+    // setIsVisible(true)
     setShowVerifyPopup(true);
     setTimeout(() => {
       if (verifyInputRef.current[0]) {
@@ -252,6 +271,8 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
       formData.append("agentService", JSON.stringify(userData.serviceID));
       formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
       formData.append("userType", formatAgentTypeTitle(agentTitle));
+      formData.append("login", false);
+      formData.append("verificationCode", VerifyCode.join(""));
 
       console.log("Data for user registeration is :-----");
       for (let [key, value] of formData.entries()) {
@@ -262,6 +283,9 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
       const response = await axios.post(ApiPath, formData);
       if (response) {
         console.log("Response of register api is:--", response);
+        let result = response.data
+        setResponse(result);
+        setIsVisible(true);
         if (response.data.status === true) {
           console.log("Status is :---", response.data.status);
           localStorage.removeItem("registerDetails");
@@ -714,8 +738,17 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                           />
                         ))}
                       </div>
-                      <div className='mt-8' style={styles.inputStyle}>
-                        {`Didn't receive code?`} <button className='outline-none border-none text-purple'>Resend</button>
+                      <div className='mt-8 flex flex-row items-center gap-2' style={styles.inputStyle}>
+                        {`Didn't receive code?`}
+                        {
+                          sendcodeLoader ?
+                            <CircularProgress size={17} /> :
+                            <button
+                              className='outline-none border-none text-purple'
+                              onClick={handleVerifyPopup}>
+                              Resend
+                            </button>
+                        }
                       </div>
                       {
                         registerLoader ?
@@ -815,33 +848,9 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                 </Box>
               </Modal>
 
-              <div>
-                <Snackbar
-                  open={phoneVerifiedSuccessSnack}
-                  autoHideDuration={3000}
-                  onClose={() => {
-                    setPhoneVerifiedSuccessSnack(false);
-                  }}
-                  anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'center'
-                  }}
-                  TransitionComponent={Fade}
-                  TransitionProps={{
-                    direction: 'center'
-                  }}
-                >
-                  <Alert
-                    onClose={() => {
-                      setPhoneVerifiedSuccessSnack(false)
-                    }} severity="success"
-                    // className='bg-purple rounded-lg text-white'
-                    sx={{ width: 'auto', fontWeight: '700', fontFamily: 'inter', fontSize: '22' }}
-                  >
-                    Phone number verified
-                  </Alert>
-                </Snackbar>
-              </div>
+              <SnackMessages message={response.message} isVisible={isVisible} setIsVisible={(visible) => {
+                setIsVisible(visible)
+              }} success={response.status} />
 
             </div>
           </div>

@@ -691,7 +691,7 @@ const AddSellerKyc = ({
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
             <div className='w-full py-4 overflow-auto h-[90%] flex flex-col justify-between'>
-                <div className='overflow-auto h-[60vh]' style={{ scrollbarWidth: "none" }}>
+                <div className='h-[62vh]' style={{ scrollbarWidth: "none" }}>
                     {/* header */}
                     {/* <Header /> */}
                     <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' />

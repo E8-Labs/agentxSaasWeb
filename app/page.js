@@ -10,6 +10,8 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { useRouter } from 'next/navigation';
 import { ArrowRight } from '@phosphor-icons/react/dist/ssr';
 import LoaderAnimation from '@/components/animations/LoaderAnimation';
+import SendVerificationCode from '@/components/onboarding/services/AuthVerification/AuthService';
+import SnackMessages from '@/components/onboarding/services/AuthVerification/SnackMessages';
 
 const Page = ({ length = 6, onComplete }) => {
 
@@ -34,8 +36,12 @@ const Page = ({ length = 6, onComplete }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef();
   const router = useRouter();
+  const [isVisible, setIsVisible] = useState(false);
+  let [response, setResponse] = useState({});
   const [countryCode, setCountryCode] = useState(""); // Default country
   const [userPhoneNumber, setUserPhoneNumber] = useState("");
+  const [sendcodeLoader, setSendcodeLoader] = useState(false);
+  const [SendCodeMessage, setSendCodeMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [locationLoader, setLocationLoader] = useState(false);
   const [loginLoader, setLoginLoader] = useState(false);
@@ -144,7 +150,19 @@ const Page = ({ length = 6, onComplete }) => {
   }, [showVerifyPopup]);
 
   //code to show verify popup
-  const handleVerifyPopup = () => {
+
+  const handleVerifyPopup = async () => {
+    try {
+      setSendcodeLoader(true);
+      let response = await SendVerificationCode(userPhoneNumber, true);
+      setResponse(response)
+      setIsVisible(true)
+      console.log("Response recieved is", response);
+    } catch (error) {
+      console.error("Error occured", error);
+    } finally {
+      setSendcodeLoader(false);
+    }
     setShowVerifyPopup(true);
     setTimeout(() => {
       if (verifyInputRef.current[0]) {
@@ -159,7 +177,8 @@ const Page = ({ length = 6, onComplete }) => {
       setLoginLoader(true);
       const ApiPath = Apis.LogIn;
       const AipData = {
-        phone: userPhoneNumber
+        phone: userPhoneNumber,
+        verificationCode: VerifyCode.join("")
       }
       console.log("Api data for login api is :", AipData);
 
@@ -171,7 +190,9 @@ const Page = ({ length = 6, onComplete }) => {
 
       if (response) {
         console.log("Response of login api is :", response.data);
-
+        let result = response.data
+        setResponse(result);
+        setIsVisible(true);
         if (response.data.status === true) {
           if (response.data.data.user.userType !== "RealEstateAgent") {
             console.log("Pushing user to wait list")
@@ -569,8 +590,17 @@ const Page = ({ length = 6, onComplete }) => {
                   />
                 ))}
               </div>
-              <div className='mt-8' style={styles.inputStyle}>
-                {`Didn't receive code?`} <button className='outline-none border-none text-purple'>Resend</button>
+              <div className='mt-8 flex flex-row items-center gap-1' style={styles.inputStyle}>
+                {`Didn't receive code?`}
+                {
+                  sendcodeLoader ?
+                    <CircularProgress size={17} /> :
+                    <button
+                      className='outline-none border-none text-purple'
+                      onClick={handleVerifyPopup}>
+                      Resend
+                    </button>
+                }
               </div>
               {
                 loginLoader ?
@@ -590,6 +620,10 @@ const Page = ({ length = 6, onComplete }) => {
           </div>
         </Box>
       </Modal>
+
+      <SnackMessages message={response.message} isVisible={isVisible} setIsVisible={(visible) => {
+        setIsVisible(visible)
+      }} success={response.status} />
 
     </div>
   )
