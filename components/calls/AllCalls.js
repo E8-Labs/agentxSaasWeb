@@ -628,7 +628,8 @@ function AllCalls() {
             {
                 showDetailsModal && (
                     <LeadDetails
-                        selectedLead={selectedLeadsDetails}
+                        selectedLead={selectedLeadsDetails?.LeadModel?.id}
+                        pipelineId={selectedLeadsDetails?.PipelineStages?.pipelineId}
                         showDetailsModal={showDetailsModal}
                         setShowDetailsModal={setShowDetailsModal}
                     />

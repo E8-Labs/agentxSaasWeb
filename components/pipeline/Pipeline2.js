@@ -53,6 +53,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     const [uniqueColumns, setUniqueColumns] = useState([]);
     const [showMoreUniqueColumns, setShowMoreUniqueColumns] = useState(false);
 
+    //code for objective
+    const [objective, setObjective] = useState("");
+
     // const handleInputChange = (e) => {
     //     const value = e.target.value;
     //     const cursorPos = e.target.selectionStart;
@@ -246,6 +249,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             if (localAgentData.agents.length === 2 || localAgentData.agents[0].agentType === "outbound") {
                 setGreetingTagInput(localAgentData.greeting);
                 setScriptTagInput(localAgentData.callScript);
+                setObjective(localAgentData.agents[0].prompt.objective);
             } else if (localAgentData.agents[0].agentType === "inbound") {
                 setGreetingTagInput(localAgentData.inboundGreeting);
                 setScriptTagInput(localAgentData.inboundScript);
@@ -407,6 +411,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             formData.append("status", "Just Listed");
             formData.append("address", Address);
             formData.append("mainAgentId", mainAgentId);
+            formData.append("outboundObjective", objective);
             // formData.append("voiceId", VoiceId);
             if (isInbound) {
                 formData.append("inboundGreeting", greetingTagInput);
@@ -540,11 +545,15 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     const advanceSettingType = [
         {
             id: 1,
-            title: "Objection"
+            title: "Objective"
         },
         {
             id: 2,
             title: "Guardrails"
+        },
+        {
+            id: 3,
+            title: "Objection"
         }
     ]
 
@@ -788,11 +797,14 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                         {
                                             settingToggleClick === 1 ?
                                                 (
-                                                    <Image src={"/assets/objectionSetting.png"} height={5} width={200} alt='*' />
+                                                    <Image src={"/assets/needKYC.png"} height={5} width={303} alt='*' />
                                                 ) :
                                                 settingToggleClick === 2 ?
                                                     (
-                                                        <Image src={"/assets/motivationSetting.png"} height={5} width={200} alt='*' />
+                                                        <Image src={"/assets/motivationKyc.png"} height={5} width={303} alt='*' />
+                                                    ) :
+                                                    settingToggleClick === 3 ? (
+                                                        <Image src={"/assets/urgencyKyc.png"} height={8} width={310} alt='*' />
                                                     ) : ""
                                         }
                                     </div>
@@ -802,12 +814,45 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                     {
                                         settingToggleClick === 1 ?
                                             (
-                                                <Objection />
+                                                <div>
+                                                    <textarea
+                                                        className="outline-none rounded-xl focus:ring-0"
+                                                        // ref={objective}
+                                                        value={objective}
+                                                        onChange={(e) => {
+                                                            const value = e.target.value;
+                                                            // if (value !== oldObjective) {
+                                                            //   setShowObjectionsSaveBtn(true);
+                                                            // }
+                                                            // if (value === oldObjective) {
+                                                            //   setShowObjectionsSaveBtn(false);
+                                                            // }
+
+                                                            setObjective(value);
+                                                        }}
+                                                        placeholder="Add Objective"
+                                                        style={{
+                                                            fontSize: "15px",
+                                                            padding: "15px",
+                                                            width: "100%",
+                                                            fontWeight: "500",
+                                                            height: "50vh", // Initial height
+                                                            maxHeight: "80vh", // Maximum height before scrolling
+                                                            overflowY: "auto", // Enable vertical scrolling when max-height is exceeded
+                                                            resize: "none", // Disable manual resizing
+                                                            border: "1px solid #00000020",
+                                                        }}
+                                                    />
+                                                </div>
                                             ) :
                                             settingToggleClick === 2 ?
                                                 (
                                                     <GuardianSetting />
-                                                ) : ""
+                                                ) :
+                                                settingToggleClick === 3 ?
+                                                    (
+                                                        <Objection />
+                                                    ) : ""
                                     }
                                 </div>
 

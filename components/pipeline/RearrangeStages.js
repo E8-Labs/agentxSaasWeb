@@ -96,19 +96,26 @@ const RearrangeStages = ({
     useEffect(() => {
 
         if (showAdvanceSettings) {
-            if (newStageTitle && inputs.filter(input => input.value.trim() !== "").length === 3) {
-                console.log("Show continue to add stage")
-                setShowAddStageBtn(true);
-            } else {
+            if (!newStageTitle || !action || inputs.filter(input => input.value.trim() !== "").length < 3) {
+                console.log("Shoukd hide ")
                 setShowAddStageBtn(false);
             }
-        } else if (newStageTitle) {
-            if (newStageTitle) {
+            else if (newStageTitle && action && inputs.filter(input => input.value.trim() !== "").length === 3) {
+                console.log("Show continue to add stage")
                 setShowAddStageBtn(true);
             }
         }
+        else if (!showAdvanceSettings) {
+            // if (newStageTitle) {
+            if (newStageTitle) {
+                setShowAddStageBtn(true);
+            } else if (!newStageTitle) {
+                setShowAddStageBtn(false);
+            }
+            // }
+        }
 
-    }, [showAdvanceSettings, newStageTitle, inputs])
+    }, [showAdvanceSettings, newStageTitle, inputs, action])
 
     //code to delete stage
     const handleDeleteStage = async () => {

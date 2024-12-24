@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
-import { CircularProgress, Modal } from '@mui/material';
+import { Alert, CircularProgress, Fade, Modal, Snackbar } from '@mui/material';
 import { Box, style } from '@mui/system';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
@@ -30,7 +30,10 @@ const AddBuyerKyc = ({
     //code for motivation KYC
     const [selectedMotivationKyc, setSelectedMotivationKYC] = useState([]);
     //code for need kyc
-    const [selectedUrgencyKyc, setSelectedUrgencyKyc] = useState([])
+    const [selectedUrgencyKyc, setSelectedUrgencyKyc] = useState([]);
+
+    //err msg when same question
+    const [showErrorSnack, setShowErrorSnack] = useState(null);
 
     //needKYCQuestions
     const [needKYCQuestions, setNeedKYCQuestions] = useState([
@@ -201,23 +204,62 @@ const AddBuyerKyc = ({
 
         if (toggleClick === 1) {
             // Add to the "Needs" questions and auto-select the new question
-            setNeedKYCQuestions(prevQuestions => {
-                const updatedQuestions = [...prevQuestions, { ...newKYCQuestion, type: "buyer", category: "need" }];
-                setSelectedNeedKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
-                return updatedQuestions;
-            });
+            // setNeedKYCQuestions(prevQuestions => {
+            //     const updatedQuestions = [...prevQuestions, { ...newKYCQuestion, type: "buyer", category: "need" }];
+            //     setSelectedNeedKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+            //     return updatedQuestions;
+            // });
+
+            if (needKYCQuestions.some((item) => item.question.toLowerCase() === newKYCQuestion.question.toLowerCase())) {
+                setShowErrorSnack("Question already exists!!!");
+                console.log("Question Already exists");
+                return
+            } else {
+                // console.log("New question");
+                setNeedKYCQuestions(prevQuestions => {
+                    const updatedQuestions = [...prevQuestions, { ...newKYCQuestion, type: "seller", category: "need" }];
+                    setSelectedNeedKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+                    return updatedQuestions;
+                });
+            }
+
         } else if (toggleClick === 2) {
-            setMotivationKycQuestions(prevQuestions => {
-                const updatedQuestions = [...prevQuestions, { ...newKYCQuestion, type: "buyer", category: "motivation" }];
-                setSelectedMotivationKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
-                return updatedQuestions;
-            });
+            // setMotivationKycQuestions(prevQuestions => {
+            //     const updatedQuestions = [...prevQuestions, { ...newKYCQuestion, type: "buyer", category: "motivation" }];
+            //     setSelectedMotivationKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+            //     return updatedQuestions;
+            // });
+
+            if (motivationKycQuestions.some((item) => item.question.toLowerCase() === newKYCQuestion.question.toLowerCase())) {
+                setShowErrorSnack("Question already exists!!!");
+                return
+            } else {
+                setMotivationKycQuestions(prevQuestions => {
+                    const updatedQuestions = [...prevQuestions, { ...newKYCQuestion, type: "seller", category: "motivation" }];
+                    setSelectedMotivationKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+                    return updatedQuestions;
+                });
+            }
+
         } else if (toggleClick === 3) {
-            setUrgencyKycQuestions(prevQuestions => {
-                const updatedQuestions = [...prevQuestions, { ...newKYCQuestion, type: "buyer", category: "urgency" }];
-                setSelectedUrgencyKyc(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
-                return updatedQuestions;
-            });
+            // setUrgencyKycQuestions(prevQuestions => {
+            //     const updatedQuestions = [...prevQuestions, { ...newKYCQuestion, type: "buyer", category: "urgency" }];
+            //     setSelectedUrgencyKyc(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+            //     return updatedQuestions;
+            // });
+
+            if (urgencyKycQuestions.some((item) => item.question.toLowerCase() === newKYCQuestion.question.toLowerCase())) {
+                setShowErrorSnack("Question already exists!!!");
+                console.log("Question Already exists");
+                return
+            } else {
+                setUrgencyKycQuestions(prevQuestions => {
+                    const updatedQuestions = [...prevQuestions, { ...newKYCQuestion, type: "seller", category: "urgency" }];
+                    setSelectedUrgencyKyc(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
+                    return updatedQuestions;
+                });
+            }
+
         }
 
         setAddKYCQuestion(false);
@@ -708,11 +750,48 @@ const AddBuyerKyc = ({
                                         {/* Can be use full to add shadow */}
                                         {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
                                     </div>
+
+                                    {/* Error snack bar message */}
+                                    <div>
+                                        <Snackbar
+                                            open={showErrorSnack}
+                                            autoHideDuration={3000}
+                                            onClose={() => {
+                                                setShowErrorSnack(null);
+                                            }}
+                                            anchorOrigin={{
+                                                vertical: "top",
+                                                horizontal: "center",
+                                            }}
+                                            TransitionComponent={Fade}
+                                            TransitionProps={{
+                                                direction: "center",
+                                            }}
+                                        >
+                                            <Alert
+                                                onClose={() => {
+                                                    setShowErrorSnack(null);
+                                                }}
+                                                severity="error"
+                                                // className='bg-purple rounded-lg text-white'
+                                                sx={{
+                                                    width: "auto",
+                                                    fontWeight: "700",
+                                                    fontFamily: "inter",
+                                                    fontSize: "22",
+                                                }}
+                                            >
+                                                {showErrorSnack}
+                                            </Alert>
+                                        </Snackbar>
+                                    </div>
+
                                 </div>
                             </Box>
                         </Modal>
                     </div>
                 </div>
+
                 <div className='mt-8 w-full flex flex-row justify-center'>
                     {
                         buyerKycLoader ?

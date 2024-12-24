@@ -363,8 +363,9 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
 
                                 const noNumberWarning = (mainAgent) => {
                                     console.log("Agent passed is", mainAgent?.agents?.map((item) => item.phoneNumber));
-                                    return mainAgent.agents.map((subAgents, index) => {
-                                        if (!subAgents.phoneNumber || subAgents.phoneNumber === "") {
+                                    return mainAgent.agents.map((subAgent, index) => {
+                                        // Check if the agent is of type 'outbound' and has no phone number
+                                        if (subAgent.agentType === "outbound" && (!subAgent.phoneNumber || subAgent.phoneNumber === "")) {
                                             return (
                                                 <div key={index}>
                                                     <div className="flex flex-row items-center gap-2 -mt-1">
@@ -387,10 +388,12 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                                                         </p>
                                                     </div>
                                                 </div>
-                                            )
+                                            );
                                         }
-                                    })
-                                }
+                                        return null;
+                                    });
+                                };
+
 
 
                                 return (

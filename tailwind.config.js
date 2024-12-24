@@ -13,7 +13,8 @@ module.exports = {
         purple: "#7902DF",
         green: "#01CB76",
         red: "#FF4E4E",
-        purple2: "#1C55FF"
+        purple2: "#1C55FF",
+        lightBlue: "#402fff10"
       },
       scrollbar: {
         width: '15px', // Customize scrollbar width

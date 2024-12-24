@@ -901,9 +901,15 @@ function Page() {
       }
 
       const ApiData = {
-        mainAgentId: showDrawer?.id,
+        agentId: showDrawer.id,
       };
-      //console.log("Data sending in del agent api is:", ApiData);
+      console.log("Data sending in del agent api is:", ApiData);
+
+      console.log("Current agent selected is", showDrawer);
+
+
+
+
       // return
       const ApiPath = Apis.DelAgent;
       //console.log("Apipath is:", ApiPath);
@@ -916,12 +922,43 @@ function Page() {
       });
 
       if (response) {
-        //console.log("Response of del agent api is:", response);
+        console.log("Response of del agent api is:", response);
         setAgentsContent(
           agentsContent.filter((item) => item.id !== showDrawer.id)
         );
+
         setShowDrawer(null);
         setDelAgentModal(false);
+
+        //updating data on localstorage
+        const localAgentsList = localStorage.getItem("localAgentDetails");
+        if (localAgentsList) {
+          const agentsList = JSON.parse(localAgentsList);
+          // agentsListDetails = agentsList;
+
+          const updateAgentData = showDrawer;
+
+          const updatedAgentsList = agentsList.map((agentGroup) => {
+            if (Array.isArray(agentGroup.agents)) {
+              // Remove the agent with the matching ID from the 'agents' array
+              const updatedAgents = agentGroup.agents.filter(
+                (localItem) => localItem.id !== updateAgentData.id
+              );
+
+              // Return the updated agentGroup with the modified 'agents' array
+              return {
+                ...agentGroup,
+                agents: updatedAgents,
+              };
+            }
+            return agentGroup; // Return the item as is if 'agents' is not an array
+          });
+
+          console.log("Updated agents list array is", updatedAgentsList);
+          localStorage.setItem("localAgentDetails", JSON.stringify(updatedAgentsList));
+          // agentsListDetails = updatedArray
+        }
+
       }
     } catch (error) {
       console.error("Error occured in del agent api is:", error);
@@ -2153,8 +2190,8 @@ function Page() {
                     </div>
                   ) : (
                     <button
-                      className="text-purple underline"
-                      style={{ fontSize: 16, fontWeight: "600", color: "" }}
+                      className="underline bg-purple w-[fit-content] py-1 px-2 rounded-xl mb-4 text-white"
+                      style={{ fontWeight: "600", fontSize: 16 }}
                       onClick={AssignNumber}
                     >
                       Save Changes

@@ -8,7 +8,7 @@ import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
 const LeadDetails = ({
-    showDetailsModal, selectedLead, setShowDetailsModal }) => {
+    showDetailsModal, selectedLead, setShowDetailsModal, pipelineId }) => {
 
     const [columnsLength, setcolumnsLength] = useState([]);
 
@@ -16,6 +16,9 @@ const LeadDetails = ({
 
     const [selectedLeadsDetails, setSelectedLeadsDetails] = useState(null);
     const [leadColumns, setLeadColumns] = useState([]);
+
+    //code for emailPopup
+    const [showAllEmails, setShowAllEmails] = useState(false);
 
     //code for buttons of details popup
     const [showKYCDetails, setShowKycDetails] = useState(true);
@@ -53,7 +56,10 @@ const LeadDetails = ({
 
     useEffect(() => {
         getLeadDetails(selectedLead);
-        getStagesList(selectedLead);
+        if (pipelineId) {
+            console.log("Get stages api called", pipelineId)
+            getStagesList(selectedLead);
+        }
     }, [])
 
     //function to handle stages dropdown selection
@@ -77,7 +83,7 @@ const LeadDetails = ({
             }
 
             const ApiData = {
-                leadId: selectedLead.LeadModel.id,
+                leadId: selectedLead,
                 stageId: stage.id
             }
 
@@ -124,9 +130,8 @@ const LeadDetails = ({
 
             console.log("Auth token is", AuthToken);
 
-            console.log("Lead details are", selectedLead.LeadModel.id);
 
-            const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedLead.LeadModel.id}`;
+            const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedLead}`;
 
             console.log("Apipath is", ApiPath);
 
@@ -153,7 +158,7 @@ const LeadDetails = ({
                 setLeadColumns(dynamicColumns);
                 setcolumnsLength(response.data.columns);
                 setNoteDetails(response.data.data.notes);
-                setSelectedStage(response.data.data.stage.stageTitle);
+                setSelectedStage(response?.data?.data?.stage?.stageTitle);
             }
 
         } catch (error) {
@@ -178,9 +183,9 @@ const LeadDetails = ({
 
             console.log("Auth token is", AuthToken);
 
-            console.log("Lead details are", selectedLead.LeadModel.id);
 
-            const ApiPath = `${Apis.getStagesList}?pipelineId=${selectedLead.PipelineStages.pipelineId}`;
+
+            const ApiPath = `${Apis.getStagesList}?pipelineId=${pipelineId}`;
 
             console.log("Apipath is", ApiPath);
 
@@ -483,16 +488,83 @@ const LeadDetails = ({
                                             </div>
                                             <div>
                                                 <div className="text-end" style={styles.heading2}>
-                                                    {selectedLeadsDetails?.email}
-                                                </div>
-                                                <div className='flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]' style={styles.paragraph}>
-                                                    <Image src={"/assets/power.png"} height={9} width={7} alt='*' />
-                                                    <div>
-                                                        <span className='text-purple'>New</span> hamza@yahoo.com
-                                                    </div>
+                                                    {selectedLeadsDetails?.email || "-"}
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <div className='flex flex-row w-full justify-end'>
+                                            {
+                                                selectedLeadsDetails?.emails?.slice(0, 1).map((email, emailIndex) => {
+                                                    return (
+                                                        <div key={emailIndex} className='flex flex-row items-center gap-2'>
+                                                            <div className='flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]' style={styles.paragraph}>
+                                                                <Image src={"/assets/power.png"} height={9} width={7} alt='*' />
+                                                                <div>
+                                                                    <span className='text-purple'>New</span> hamza@yahoo.com
+                                                                </div>
+                                                            </div>
+                                                            <button
+                                                                className='text-purple underline'
+                                                                onClick={() => { setShowAllEmails(true) }}
+                                                            >
+                                                                +{selectedLeadsDetails?.emails?.length - 1}
+                                                            </button>
+                                                        </div>
+                                                    )
+                                                })
+                                            }
+                                        </div>
+
+                                        <Modal
+                                            open={showAllEmails}
+                                            onClose={() => setShowAllEmails(null)}
+                                            closeAfterTransition
+                                            BackdropProps={{
+                                                timeout: 1000,
+                                                sx: {
+                                                    backgroundColor: "#00000020",
+                                                    // //backdropFilter: "blur(20px)",
+                                                },
+                                            }}
+                                        >
+                                            <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.modalsStyle}>
+                                                <div className="flex flex-row justify-center w-full">
+                                                    <div
+                                                        className="sm:w-full w-full"
+                                                        style={{
+                                                            backgroundColor: "#ffffff",
+                                                            padding: 20,
+                                                            borderRadius: "13px",
+                                                        }}
+                                                    >
+                                                        <div>
+                                                            {
+                                                                selectedLeadsDetails?.emails.map((email, emailIndex) => {
+                                                                    return (
+                                                                        <div key={emailIndex}>
+                                                                            <div className='flex flex-row items-center gap-2 px-1 mt-2 rounded-lg py-2 border border-[#00000020]' style={styles.paragraph}>
+                                                                                <Image src={"/assets/power.png"} height={9} width={7} alt='*' />
+                                                                                <div>
+                                                                                    <span className='text-purple'>New</span> {email?.email}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </div>
+                                                        <div className='mt-4'>
+                                                            <button
+                                                                onClick={() => { setShowAllEmails(false) }}
+                                                                className='h-[50px] rounded-xl bg-purple text-white w-full'>
+                                                                Close
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </Box>
+                                        </Modal>
 
                                         <div className='flex flex-row items--center w-full justify-between mt-4'>
                                             <div className='flex flex-row items-center gap-2'>
@@ -584,72 +656,79 @@ const LeadDetails = ({
                                                 <div className='h-[10px] w-[10px] rounded-full' style={{ backgroundColor: selectedLeadsDetails?.stage?.defaultColor }}>
                                                 </div>
                                                 {/* {selectedLeadsDetails?.stage?.stageTitle || "-"} */}
-                                                <FormControl size="fit-content">
-                                                    <Select
-                                                        value={selectedStage}
-                                                        onChange={handleStageChange}
-                                                        displayEmpty // Enables placeholder
-                                                        renderValue={(selected) => {
-                                                            if (!selected) {
-                                                                return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
-                                                            }
-                                                            return selected;
-                                                        }}
-                                                        sx={{
-                                                            border: "none", // Default border
-                                                            "&:hover": {
-                                                                border: "none", // Same border on hover
-                                                            },
-                                                            "& .MuiOutlinedInput-notchedOutline": {
-                                                                border: "none", // Remove the default outline
-                                                            },
-                                                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                                                border: "none", // Remove outline on focus
-                                                            },
-                                                            "& .MuiSelect-select": {
-                                                                padding: "0 24px 0 8px", // Add padding to create space for the icon
-                                                                lineHeight: 1, // Align with font size
-                                                                minHeight: "unset", // Ensure no extra height is enforced
-                                                                display: "flex", // Proper alignment
-                                                                alignItems: "center",
-                                                            },
-                                                            "& .MuiSelect-icon": {
-                                                                right: "4px", // Adjust the position of the icon
-                                                                top: "50%", // Center the icon vertically
-                                                                transform: "translateY(-50%)", // Ensure vertical alignment
-                                                            },
-                                                        }}
-                                                        MenuProps={{
-                                                            PaperProps: {
-                                                                style: {
-                                                                    maxHeight: "30vh", // Limit dropdown height
-                                                                    overflow: "auto", // Enable scrolling in dropdown
-                                                                    scrollbarWidth: "none",
-                                                                    // borderRadius: "10px"
-                                                                },
-                                                            },
-                                                        }}
-                                                    >
-                                                        {
-                                                            stagesList.map((item, index) => {
-                                                                return (
-                                                                    <MenuItem
-                                                                        value={item.stageTitle}
-                                                                        key={index}
-                                                                    >
-                                                                        <button
-                                                                            className='outline-none border-none'
-                                                                            onClick={() => {updateLeadStage(item)}}
-                                                                        >
-                                                                            {item.stageTitle}
-                                                                        </button>
-                                                                    </MenuItem>
-                                                                )
-                                                            }
-                                                            )
-                                                        }
-                                                    </Select>
-                                                </FormControl>
+                                                {
+                                                    pipelineId ? (
+                                                        <FormControl size="fit-content">
+                                                            <Select
+                                                                value={selectedStage}
+                                                                onChange={handleStageChange}
+                                                                displayEmpty // Enables placeholder
+                                                                renderValue={(selected) => {
+                                                                    if (!selected) {
+                                                                        return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
+                                                                    }
+                                                                    return selected;
+                                                                }}
+                                                                sx={{
+                                                                    border: "none", // Default border
+                                                                    "&:hover": {
+                                                                        border: "none", // Same border on hover
+                                                                    },
+                                                                    "& .MuiOutlinedInput-notchedOutline": {
+                                                                        border: "none", // Remove the default outline
+                                                                    },
+                                                                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                                                        border: "none", // Remove outline on focus
+                                                                    },
+                                                                    "& .MuiSelect-select": {
+                                                                        padding: "0 24px 0 8px", // Add padding to create space for the icon
+                                                                        lineHeight: 1, // Align with font size
+                                                                        minHeight: "unset", // Ensure no extra height is enforced
+                                                                        display: "flex", // Proper alignment
+                                                                        alignItems: "center",
+                                                                    },
+                                                                    "& .MuiSelect-icon": {
+                                                                        right: "4px", // Adjust the position of the icon
+                                                                        top: "50%", // Center the icon vertically
+                                                                        transform: "translateY(-50%)", // Ensure vertical alignment
+                                                                    },
+                                                                }}
+                                                                MenuProps={{
+                                                                    PaperProps: {
+                                                                        style: {
+                                                                            maxHeight: "30vh", // Limit dropdown height
+                                                                            overflow: "auto", // Enable scrolling in dropdown
+                                                                            scrollbarWidth: "none",
+                                                                            // borderRadius: "10px"
+                                                                        },
+                                                                    },
+                                                                }}
+                                                            >
+                                                                {
+                                                                    stagesList.map((item, index) => {
+                                                                        return (
+                                                                            <MenuItem
+                                                                                value={item.stageTitle}
+                                                                                key={index}
+                                                                                className='hover:bg-lightBlue hover:text-[#000000]'
+                                                                            >
+                                                                                <button
+                                                                                    className='outline-none border-none'
+                                                                                    onClick={() => { updateLeadStage(item) }}
+                                                                                >
+                                                                                    {item.stageTitle}
+                                                                                </button>
+                                                                            </MenuItem>
+                                                                        )
+                                                                    }
+                                                                    )
+                                                                }
+                                                            </Select>
+                                                        </FormControl>
+                                                    ) : (
+                                                        "-"
+                                                    )
+                                                }
                                             </div>
                                         </div>
 
@@ -697,13 +776,15 @@ const LeadDetails = ({
                                                 </div>
                                                 <div>
                                                     {
-                                                        leadColumns.length > 0 && (
+                                                        columnsLength.length > 4 ? (
                                                             <div
                                                                 className='text-purple underline'
                                                                 style={{ fontsize: 15, fontWeight: "500" }}
                                                             >
                                                                 +{columnsLength?.length - 4}
                                                             </div>
+                                                        ) : (
+                                                            ""
                                                         )
                                                     }
                                                 </div>

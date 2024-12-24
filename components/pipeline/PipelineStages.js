@@ -26,9 +26,12 @@ const PipelineStages = ({
     const [pipelineStages, setPipelineStages] = useState(stages);
     const [delStageLoader, setDelStageLoader] = useState(false);
     const [successSnack, setSuccessSnack] = useState(null);
+    //code for stages list
+    const [stagesList, setStagesList] = useState([]);
     //code for deleting stage
     const [showDelStagePopup, setShowDelStagePopup] = useState(null);
     const [actionInfoEl, setActionInfoEl] = React.useState(null);
+    const [actionInfoEl2, setActionInfoEl2] = React.useState(null);
     //code for dropdown stages when delstage
     const [assignNextStage, setAssignNextStage] = useState('');
     const [assignNextStageId, setAssignNextStageId] = useState('');
@@ -61,23 +64,47 @@ const PipelineStages = ({
     //variable to show and hide the add stage btn
     const [showAddStageBtn, setShowAddStageBtn] = useState(false);
 
-    //code for showing the add stage button according to dirredent conditions
+    //ading stages data
     useEffect(() => {
-
-        if (showAdvanceSettings) {
-            if (newStageTitle && inputs.filter(input => input.value.trim() !== "").length === 3) {
-                console.log("Show continue to add stage")
-                setShowAddStageBtn(true);
-            } else {
-                setShowAddStageBtn(false);
-            }
-        } else if (newStageTitle) {
-            if (newStageTitle) {
-                setShowAddStageBtn(true);
-            }
+        if (selectedPipelineStages) {
+            setStagesList(selectedPipelineStages);
         }
+    }, [])
 
-    }, [showAdvanceSettings, newStageTitle, inputs])
+    //code for showing the add stage button according to dirredent conditions
+    // useEffect(() => {
+
+    //     if (action) {
+    //         if (!newStageTitle || !action || inputs.filter(input => input.value.trim() !== "").length < 3) {
+    //             console.log("Shoukd hide ")
+    //             setShowAddStageBtn(false);
+    //         }
+    //         else if (newStageTitle && action && inputs.filter(input => input.value.trim() !== "").length === 3) {
+    //             console.log("Show continue to add stage")
+    //             setShowAddStageBtn(true);
+    //         }
+    //     }
+    //     else if (!action) {
+    //         // if (newStageTitle) {
+    //         if (newStageTitle) {
+    //             setShowAddStageBtn(true);
+    //         } else if (!newStageTitle) {
+    //             setShowAddStageBtn(false);
+    //         }
+    //         // }
+    //     }
+
+    // }, [showAdvanceSettings, newStageTitle, inputs, action])
+
+    function canProceed(){
+        if(newStageTitle.length > 0 && action.length == 0){
+            return true
+        }
+        if(action && action.length > 0 && newStageTitle && newStageTitle.length > 0 && inputs.filter(input => input.value.trim() !== "").length === 3){
+            return true
+        }
+        return false
+    }
 
     const handlePopoverOpen = (event) => {
         setActionInfoEl(event.currentTarget);
@@ -85,9 +112,11 @@ const PipelineStages = ({
 
     const handlePopoverClose = () => {
         setActionInfoEl(null);
+        setActionInfoEl2(null);
     };
 
     const open = Boolean(actionInfoEl);
+    const openAction = Boolean(actionInfoEl2);
 
     useEffect(() => {
         console.log("Stagesrecieved are :", stages);
@@ -308,7 +337,8 @@ const PipelineStages = ({
                     setPipelineStages(response.data.data.stages);
                     handleCloseAddStage();
                     setNewStageTitle("");
-                    setStageColor("");
+                    // setStageColor("");
+                    setStagesList(response.data.data.stages)
                 }
             }
 
@@ -704,7 +734,7 @@ const PipelineStages = ({
                                                                             }}
                                                                         >
 
-                                                                            {selectedPipelineStages.map(
+                                                                            {stagesList.map(
                                                                                 (dropDownStateItem) => (
                                                                                     <MenuItem
                                                                                         disabled={dropDownStateItem.id <= item.id}
@@ -1156,7 +1186,7 @@ const PipelineStages = ({
 
                                                     <div className='flex flex-row items-center gap-2 mt-4'>
                                                         <p style={{ fontWeight: "600", fontSize: 15 }}>
-                                                            Notify a team member when leads move here
+                                                            Assign to
                                                         </p>
                                                         {/* <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' /> */}
                                                         <Image
@@ -1170,18 +1200,18 @@ const PipelineStages = ({
                                                                 //     ? 'invert(17%) sepia(96%) saturate(7493%) hue-rotate(-5deg) brightness(102%) contrast(115%)' // Red
                                                                 //     : 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
                                                             }}
-                                                            aria-owns={open ? 'mouse-over-popover' : undefined}
+                                                            aria-owns={openAction ? 'mouse-over-popover2' : undefined}
                                                             aria-haspopup="true"
-                                                            onMouseEnter={handlePopoverOpen}
+                                                            onMouseEnter={(event) => { setActionInfoEl2(event.currentTarget) }}
                                                             onMouseLeave={handlePopoverClose}
                                                         />
                                                         <Popover
-                                                            id="mouse-over-popover"
+                                                            id="mouse-over-popover2"
                                                             sx={{
                                                                 pointerEvents: 'none'
                                                             }}
-                                                            open={open}
-                                                            anchorEl={actionInfoEl}
+                                                            open={openAction}
+                                                            anchorEl={actionInfoEl2}
                                                             anchorOrigin={{
                                                                 vertical: 'top',
                                                                 horizontal: 'center',
@@ -1203,12 +1233,46 @@ const PipelineStages = ({
                                                                 <div className="flex flex-row items-center gap-1">
                                                                     <Image src={"/assets/infoIcon.png"} height={24} width={24} alt="*" />
                                                                     <p style={{ fontWeight: "500", fontSize: 12 }}>
-                                                                        Tip: Tell your AI when to move the leads to this stage.
+                                                                        Notify a team member when leads move here.
                                                                     </p>
                                                                 </div>
                                                             </div>
                                                         </Popover>
                                                     </div>
+
+                                                    {/* <Popover
+                                                        id="mouse-over-popover"
+                                                        sx={{
+                                                            pointerEvents: 'none'
+                                                        }}
+                                                        open={open}
+                                                        anchorEl={actionInfoEl}
+                                                        anchorOrigin={{
+                                                            vertical: 'top',
+                                                            horizontal: 'center',
+                                                        }}
+                                                        transformOrigin={{
+                                                            vertical: 'bottom',
+                                                            horizontal: 'left',
+                                                        }}
+                                                        PaperProps={{
+                                                            elevation: 1, // This will remove the shadow
+                                                            style: {
+                                                                boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
+                                                            },
+                                                        }}
+                                                        onClose={handlePopoverClose}
+                                                        disableRestoreFocus
+                                                    >
+                                                        <div className="p-2">
+                                                            <div className="flex flex-row items-center gap-1">
+                                                                <Image src={"/assets/infoIcon.png"} height={24} width={24} alt="*" />
+                                                                <p style={{ fontWeight: "500", fontSize: 12 }}>
+                                                                    Tip: Tell your AI when to move the leads to this stage.
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </Popover> */}
 
                                                     <button className='flex flex-row items-center w-full justify-between rounded-lg h-[50px] px-2 mt-1 outline-none'
                                                         style={{ border: "1px solid #00000020" }}>
@@ -1241,7 +1305,7 @@ const PipelineStages = ({
                                             </div> :
                                             <div className="w-full">
                                                 { //inputs.filter(input => input.value.trim() !== "").length === 3 &&
-                                                    showAddStageBtn ? (
+                                                    canProceed() ? (
                                                         <button
                                                             className='mt-4 outline-none'
                                                             style={{

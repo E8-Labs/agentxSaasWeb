@@ -125,7 +125,7 @@ const BuyerKycs = ({ handleContinue }) => {
 
         if (toggleClick === 1) {
             // Add to the "Needs" questions and auto-select the new question
-            if (needKYCQuestions.some((item) => item.question === newKYCQuestion.question)) {
+            if (needKYCQuestions.some((item) => item.question.toLowerCase() === newKYCQuestion.question.toLowerCase())) {
                 setShowErrorSnack("Question already exists!!!");
                 console.log("Question Already exists");
                 return
@@ -137,7 +137,7 @@ const BuyerKycs = ({ handleContinue }) => {
                 });
             }
         } else if (toggleClick === 2) {
-            if (motivationKycQuestions.some((item) => item.question === newKYCQuestion.question)) {
+            if (motivationKycQuestions.some((item) => item.question.toLowerCase() === newKYCQuestion.question.toLowerCase())) {
                 setShowErrorSnack("Question already exists!!!");
                 console.log("Question Already exists");
                 return
@@ -149,7 +149,7 @@ const BuyerKycs = ({ handleContinue }) => {
                 });
             }
         } else if (toggleClick === 3) {
-            if (urgencyKycQuestions.some((item) => item.question === newKYCQuestion.question)) {
+            if (urgencyKycQuestions.some((item) => item.question.toLowerCase() === newKYCQuestion.question.toLowerCase())) {
                 setShowErrorSnack("Question already exists!!!");
                 console.log("Question Already exists");
                 return

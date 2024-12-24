@@ -34,6 +34,8 @@ const Pipeline1 = () => {
     const openStage = Boolean(StageAnchorel);
     const stageId = StageAnchorel ? 'stageAnchor' : undefined;
 
+    const [initialLoader, setInitialLoader] = useState(false);
+
     const [SelectedPipeline, setSelectedPipeline] = useState(null);
     const [PipeLines, setPipeLines] = useState([]);
     const [StagesList, setStagesList] = useState([]);
@@ -43,7 +45,7 @@ const Pipeline1 = () => {
     //code to add new stage
     const [addNewStageModal, setAddNewStageModal] = useState(false);
     const [newStageTitle, setNewStageTitle] = useState("");
-    const [stageColor, setStageColor] = useState("");
+    const [stageColor, setStageColor] = useState("#F3F4F6");
     const [addStageLoader, setAddStageLoader] = useState(false);
     //code for advance setting modal inside new stages
     const [showAdvanceSettings, setShowAdvanceSettings] = useState(false);
@@ -56,7 +58,9 @@ const Pipeline1 = () => {
     const [action, setAction] = useState("");
     //code for popover
     const [actionInfoEl, setActionInfoEl] = React.useState(null);
+    const [assigntoActionInfoEl, setAssigntoActionInfoEl] = React.useState(null);
     const openaction = Boolean(actionInfoEl);
+    const openAssigneAction = Boolean(assigntoActionInfoEl);
 
     //code for adding new pipeline
     const [createPipeline, setCreatePipeline] = useState(false);
@@ -75,6 +79,7 @@ const Pipeline1 = () => {
 
     const handlePopoverClose = () => {
         setActionInfoEl(null);
+        setAssigntoActionInfoEl(null);
     };
     //dele stage loader
     const [selectedStage, setSelectedStage] = useState(null);
@@ -157,22 +162,39 @@ const Pipeline1 = () => {
     const [showAddStageBtn, setShowAddStageBtn] = useState(false);
 
     //code for showing the add stage button according to dirredent conditions
-    useEffect(() => {
+    // useEffect(() => {
 
-        if (showAdvanceSettings) {
-            if (newStageTitle && inputs.filter(input => input.value.trim() !== "").length === 3) {
-                console.log("Show continue to add stage")
-                setShowAddStageBtn(true);
-            } else {
-                setShowAddStageBtn(false);
-            }
-        } else if (newStageTitle) {
-            if (newStageTitle) {
-                setShowAddStageBtn(true);
-            }
+    //     if (showAdvanceSettings) {
+    //         if (!newStageTitle || !action || inputs.filter(input => input.value.trim() !== "").length < 3) {
+    //             console.log("Shoukd hide ")
+    //             setShowAddStageBtn(false);
+    //         }
+    //         else if (newStageTitle && action && inputs.filter(input => input.value.trim() !== "").length === 3) {
+    //             console.log("Show continue to add stage")
+    //             setShowAddStageBtn(true);
+    //         }
+    //     }
+    //     else if (!showAdvanceSettings) {
+    //         // if (newStageTitle) {
+    //         if (newStageTitle) {
+    //             setShowAddStageBtn(true);
+    //         } else if (!newStageTitle) {
+    //             setShowAddStageBtn(false);
+    //         }
+    //         // }
+    //     }
+
+    // }, [showAdvanceSettings, newStageTitle, inputs, action])
+
+    function canProceed() {
+        if (newStageTitle.length > 0 && action.length == 0) {
+            return true
         }
-
-    }, [showAdvanceSettings, newStageTitle, inputs])
+        if (action && action.length > 0 && newStageTitle && newStageTitle.length > 0 && inputs.filter(input => input.value.trim() !== "").length === 3) {
+            return true
+        }
+        return false
+    }
 
 
     useEffect(() => {
@@ -278,6 +300,7 @@ const Pipeline1 = () => {
     //code for get pipeline
     const getPipelines = async () => {
         try {
+            setInitialLoader(true);
             const localData = localStorage.getItem("User");
             let AuthToken = null;
             if (localData) {
@@ -311,7 +334,8 @@ const Pipeline1 = () => {
         } catch (error) {
             console.error("Error occured in api is:", error);
         } finally {
-            console.log("Api call completed")
+            console.log("Api call completed");
+            setInitialLoader(false);
         }
     }
 
@@ -910,7 +934,7 @@ const Pipeline1 = () => {
     const handleCloseAddStage = () => {
         setAddNewStageModal(false);
         setNewStageTitle("");
-        setStageColor("");
+        // setStageColor("");
         setInputs([
             { id: 1, value: '', placeholder: `Sure, i'd be interested in knowing what my home is worth` },
             { id: 2, value: '', placeholder: "Yeah, how much is my home worth today?" },
@@ -1233,276 +1257,282 @@ const Pipeline1 = () => {
             </div>
 
 
-            <div className='flex flex-col items-center w-full'>
-                <div className="w-[95%] flex flex-col items-start overflow-x-auto h-screen mt-8" style={{ scrollbarWidth: "none" }}>
-                    <div className="flex flex-row items-center gap-4">
+            {
+                initialLoader ?
+                    <div className='w-full flex flex-row justify-center mt-12'>
+                        <CircularProgress size={35} />
+                    </div> :
+                    <div className='flex flex-col items-center w-full'>
+                        <div className="w-[95%] flex flex-col items-start overflow-x-auto h-screen mt-8" style={{ scrollbarWidth: "none" }}>
+                            <div className="flex flex-row items-center gap-4">
 
 
-                    </div>
+                            </div>
 
-                    <div className='flex flex-row items-start gap-2'>
-                        <div className="flex flex-row items-start gap-4">
-                            {StagesList.map((stage, index) => (
-                                <div key={index} style={{ width: "300px" }} className="flex flex-col items-start h-full gap-8">
-                                    {/* Display the stage */}
-                                    <div className='flex flex-row items-center w-full justify-between'>
-                                        <div
-                                            className="h-[36px] flex flex-row items-center justify-center gap-8 rounded-xl px-4"
-                                            style={{
-                                                ...styles.heading, backgroundColor: stage.defaultColor,
-                                                color: 'white',
-                                                // textShadow: '1px 1px 2px rgba(0, 0, 0, 0.6)',
-                                            }}
-                                        >
-                                            <span>{stage.stageTitle}</span>
-                                            <div
-                                                className="h-[23px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center text-black"
-                                                style={{ ...styles.paragraph, fontSize: 14 }}
-                                            >
-                                                {leadCounts[stage.id] ?
-                                                    <div>
-                                                        {leadCounts[stage.id]}
-                                                    </div> : "0"}
-
-                                                {/* {leadCounts.map((item) => {
-
-                                            })} */}
-                                            </div>
-                                        </div>
-
-                                        <button aria-describedby={stageId} variant="contained" onClick={(evetn) => { handleShowStagePopover(evetn, stage) }} className='outline-none'>
-                                            <DotsThree size={27} weight="bold" />
-                                        </button>
-                                    </div>
-                                    <Popover
-                                        id={stageId}
-                                        open={openStage}
-                                        anchorEl={StageAnchorel}
-                                        onClose={handleCloseStagePopover}
-                                        anchorOrigin={{
-                                            vertical: 'bottom',
-                                            horizontal: 'right',
-                                        }}
-                                        transformOrigin={{
-                                            vertical: 'top',
-                                            horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
-                                        }}
-                                        PaperProps={{
-                                            elevation: 0, // This will remove the shadow
-                                            style: {
-                                                boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.02)',
-                                                borderRadius: '12px',
-                                            },
-                                        }}
-                                    >
-                                        <div className='p-3'>
-                                            <div className='w-full flex flex-row'>
-                                                <button
-                                                    className='text-black flex flex-row items-center gap-4 me-2 outline-none'
-                                                    style={styles.paragraph}
-                                                    onClick={() => {
-                                                        setShowRenamePopup(true);
-                                                        console.log("Selected stage is:", selectedStage);
-                                                        setRenameStage(selectedStage.stageTitle);
-                                                        setUpdateStageColor(selectedStage.defaultColor);
-                                                    }} //handleRenameStage
-                                                >
-                                                    <Image src={"/assets/editPen.png"} height={15} width={15} alt='*' />
-                                                    Rename
-                                                </button>
-                                            </div>
-                                            <div className='w-full flex flex-row mt-4'>
-                                                {/* {
-                                                    delStageLoader ?
-                                                        <CircularProgress size={20} /> :
-                                                        
-                                                } */}
+                            <div className='flex flex-row items-start gap-2'>
+                                <div className="flex flex-row items-start gap-4">
+                                    {StagesList.map((stage, index) => (
+                                        <div key={index} style={{ width: "300px" }} className="flex flex-col items-start h-full gap-8">
+                                            {/* Display the stage */}
+                                            <div className='flex flex-row items-center w-full justify-between'>
                                                 <div
-                                                    className='text-black flex flex-row items-center gap-4 me-2 outline-none'
-                                                    style={styles.paragraph}
-                                                // onClick={handleDeleteStage}
+                                                    className="h-[36px] flex flex-row items-center justify-center gap-8 rounded-xl px-4"
+                                                    style={{
+                                                        ...styles.heading, backgroundColor: stage.defaultColor,
+                                                        color: 'white',
+                                                        // textShadow: '1px 1px 2px rgba(0, 0, 0, 0.6)',
+                                                    }}
                                                 >
-                                                    <button
-                                                        className='flex flex-row gap-2 outline-none'
-                                                        onClick={() => colorPickerRef.current.click()}
-                                                    >
-                                                        <Image src={"/assets/colorDrop.png"} height={18} width={15} alt='*' />
-                                                        Change Color
-                                                    </button>
+                                                    <span>{stage.stageTitle}</span>
                                                     <div
-                                                        style={{
-                                                            height: "15px",
-                                                            width: "15px",
-                                                            borderRadius: "50%",
-                                                            backgroundColor: stageColorUpdate,
-                                                            cursor: "pointer", // Pointer to indicate clickable
-                                                        }}
-                                                        onClick={() => colorPickerRef.current.click()} // Trigger ColorPicker
-                                                    />
-                                                    <div
-                                                        style={{
-                                                            opacity: 0,
-                                                            position: "absolute",
-                                                            pointerEvents: "auto", // Ensure interactions still work
-                                                        }}
+                                                        className="h-[23px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center text-black"
+                                                        style={{ ...styles.paragraph, fontSize: 14 }}
                                                     >
-                                                        <ColorPicker
-                                                            ref={colorPickerRef}
-                                                            setStageColor2={setStageColorUpdate}
-                                                            setStageColor={setUpdateStageColor}
-                                                            onlyShowColorBox={true}
-                                                            updateOnchange={true}
-                                                            handleUpdateColor={handleUpdateColor}
-                                                            stageColor={stageColorUpdate}
-                                                        />
+                                                        {leadCounts[stage.id] ?
+                                                            <div>
+                                                                {leadCounts[stage.id]}
+                                                            </div> : "0"}
+
+                                                        {/* {leadCounts.map((item) => {
+    
+                                                })} */}
                                                     </div>
                                                 </div>
 
-                                            </div>
-                                            <div ref={bottomRef}></div>
-                                            <div className='w-full flex flex-row mt-4'>
-                                                <button
-                                                    className='text-red flex flex-row items-center gap-4 me-2 outline-none'
-                                                    style={styles.paragraph}
-                                                    onClick={() => {
-                                                        console.log("Selected stage is:", selectedStage);
-                                                        setShowDelStageModal(true);
-                                                    }}>
-                                                    <Image src={"/assets/delIcon.png"} height={18} width={18} alt='*' />
-                                                    Delete
+                                                <button aria-describedby={stageId} variant="contained" onClick={(evetn) => { handleShowStagePopover(evetn, stage) }} className='outline-none'>
+                                                    <DotsThree size={27} weight="bold" />
                                                 </button>
                                             </div>
-                                        </div>
-                                    </Popover>
-
-                                    {/* Display leads matching this stage */}
-                                    {
-                                        LeadsList.filter((lead) => lead.lead.stage === stage.id).length > 0 && (
-                                            <div className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl" style={{
-                                                scrollbarWidth: "none", borderWidth: 1, borderRadius: '12',
-                                                borderStyle: "solid", borderColor: "#00000010",
-                                            }}>
-                                                {LeadsList.filter((lead) => lead.lead.stage === stage.id).map((lead, leadIndex) => (
-                                                    <div className="p-3 h-full" style={{ width: "300px", height: 200 }} key={leadIndex}>
-                                                        <div className="border rounded-xl px-4 py-2 h-full">
+                                            <Popover
+                                                id={stageId}
+                                                open={openStage}
+                                                anchorEl={StageAnchorel}
+                                                onClose={handleCloseStagePopover}
+                                                anchorOrigin={{
+                                                    vertical: 'bottom',
+                                                    horizontal: 'right',
+                                                }}
+                                                transformOrigin={{
+                                                    vertical: 'top',
+                                                    horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
+                                                }}
+                                                PaperProps={{
+                                                    elevation: 0, // This will remove the shadow
+                                                    style: {
+                                                        boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.02)',
+                                                        borderRadius: '12px',
+                                                    },
+                                                }}
+                                            >
+                                                <div className='p-3'>
+                                                    <div className='w-full flex flex-row'>
+                                                        <button
+                                                            className='text-black flex flex-row items-center gap-4 me-2 outline-none'
+                                                            style={styles.paragraph}
+                                                            onClick={() => {
+                                                                setShowRenamePopup(true);
+                                                                console.log("Selected stage is:", selectedStage);
+                                                                setRenameStage(selectedStage.stageTitle);
+                                                                setUpdateStageColor(selectedStage.defaultColor);
+                                                            }} //handleRenameStage
+                                                        >
+                                                            <Image src={"/assets/editPen.png"} height={15} width={15} alt='*' />
+                                                            Rename
+                                                        </button>
+                                                    </div>
+                                                    <div className='w-full flex flex-row mt-4'>
+                                                        {/* {
+                                                        delStageLoader ?
+                                                            <CircularProgress size={20} /> :
+                                                            
+                                                    } */}
+                                                        <div
+                                                            className='text-black flex flex-row items-center gap-4 me-2 outline-none'
+                                                            style={styles.paragraph}
+                                                        // onClick={handleDeleteStage}
+                                                        >
                                                             <button
-                                                                className="flex flex-row items-center gap-3"
-                                                                onClick={() => {
-                                                                    console.log("Selected lead details are:", lead.lead)
-                                                                    setShowDetailsModal(true);
-                                                                    setSelectedLeadsDetails(lead.lead);
-                                                                    setNoteDetails(lead.lead.notes);
+                                                                className='flex flex-row gap-2 outline-none'
+                                                                onClick={() => colorPickerRef.current.click()}
+                                                            >
+                                                                <Image src={"/assets/colorDrop.png"} height={18} width={15} alt='*' />
+                                                                Change Color
+                                                            </button>
+                                                            <div
+                                                                style={{
+                                                                    height: "15px",
+                                                                    width: "15px",
+                                                                    borderRadius: "50%",
+                                                                    backgroundColor: stageColorUpdate,
+                                                                    cursor: "pointer", // Pointer to indicate clickable
+                                                                }}
+                                                                onClick={() => colorPickerRef.current.click()} // Trigger ColorPicker
+                                                            />
+                                                            <div
+                                                                style={{
+                                                                    opacity: 0,
+                                                                    position: "absolute",
+                                                                    pointerEvents: "auto", // Ensure interactions still work
                                                                 }}
                                                             >
-                                                                <div
-                                                                    className="bg-black text-white rounded-full flex flex-row item-center justify-center"
-                                                                    style={{ height: "27px", width: "27px" }}
-                                                                >
-                                                                    {lead.lead.firstName.slice(0, 1)}
-                                                                </div>
-                                                                <div style={styles.paragraph}>{lead.lead.firstName}</div>
-                                                            </button>
-                                                            <div className="flex flex-row items-center justify-between w-full mt-2">
-                                                                <div className="text-[#00000060]" style={styles.agentName}>
-                                                                    Email
-                                                                </div>
-                                                                <div className="flex flex-row items-center gap-4">
-                                                                    <Image
-                                                                        src={"/assets/colorCircle.png"}
-                                                                        height={24}
-                                                                        width={24}
-                                                                        alt="*"
-                                                                    />
-                                                                    <div className="text-purple underline" style={styles.agentName}>
-                                                                        {lead.agent.name}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div className="w-full flex flex-row items-center justify-between mt-12">
-                                                                <Image
-                                                                    src={"/assets/manIcon.png"}
-                                                                    height={32}
-                                                                    width={32}
-                                                                    alt="*"
+                                                                <ColorPicker
+                                                                    ref={colorPickerRef}
+                                                                    setStageColor2={setStageColorUpdate}
+                                                                    setStageColor={setUpdateStageColor}
+                                                                    onlyShowColorBox={true}
+                                                                    updateOnchange={true}
+                                                                    handleUpdateColor={handleUpdateColor}
+                                                                    stageColor={stageColorUpdate}
                                                                 />
-                                                                {/* <div className="flex flex-row items-center gap-3">
-                                                                    <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
-                                                                        Tag
-                                                                    </div>
-                                                                    <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
-                                                                        Tag
-                                                                    </div>
-                                                                </div> */}
-
-                                                                {
-                                                                    lead.lead.tags.length > 0 ? (
-                                                                        <div className='flex flex-row items-center gap-1'>
-                                                                            {
-                                                                                lead.lead.tags.slice(0, 2).map((tagVal, index) => {
-                                                                                    return (
-                                                                                        // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
-                                                                                        //     {tagVal}
-                                                                                        // </div>
-                                                                                        <div key={index}
-                                                                                            className='flex flex-row items-center gap-2 bg-[#402FFF30] px-2 py-1 rounded-lg'
-                                                                                        >
-                                                                                            <div
-                                                                                                className="text-[#402FFF]" //1C55FF10
-                                                                                            >
-                                                                                                {tagVal}
-                                                                                            </div>
-                                                                                            {
-                                                                                                DelTagLoader && tagVal.includes(DelTagLoader) ?
-                                                                                                    <div>
-                                                                                                        <CircularProgress size={15} />
-                                                                                                    </div> :
-                                                                                                    <button onClick={() => { handleDelTag(tagVal) }}>
-                                                                                                        <X size={15} weight='bold' color='#402fff' />
-                                                                                                    </button>
-                                                                                            }
-
-                                                                                        </div>
-                                                                                    )
-                                                                                })
-                                                                            }
-                                                                            {
-                                                                                lead.lead.tags.length > 2 && (
-                                                                                    <div>
-                                                                                        +{lead.lead.tags.length - 2}
-                                                                                    </div>
-                                                                                )
-                                                                            }
-                                                                        </div>
-                                                                    ) : "-"
-                                                                }
-
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )
-                                    }
 
+                                                    </div>
+                                                    <div ref={bottomRef}></div>
+                                                    <div className='w-full flex flex-row mt-4'>
+                                                        <button
+                                                            className='text-red flex flex-row items-center gap-4 me-2 outline-none'
+                                                            style={styles.paragraph}
+                                                            onClick={() => {
+                                                                console.log("Selected stage is:", selectedStage);
+                                                                setShowDelStageModal(true);
+                                                            }}>
+                                                            <Image src={"/assets/delIcon.png"} height={18} width={18} alt='*' />
+                                                            Delete
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </Popover>
+
+                                            {/* Display leads matching this stage */}
+                                            {
+                                                LeadsList.filter((lead) => lead.lead.stage === stage.id).length > 0 && (
+                                                    <div className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl" style={{
+                                                        scrollbarWidth: "none", borderWidth: 1, borderRadius: '12',
+                                                        borderStyle: "solid", borderColor: "#00000010",
+                                                    }}>
+                                                        {LeadsList.filter((lead) => lead.lead.stage === stage.id).map((lead, leadIndex) => (
+                                                            <div className="p-3 h-full" style={{ width: "300px", height: 200 }} key={leadIndex}>
+                                                                <div className="border rounded-xl px-4 py-2 h-full">
+                                                                    <button
+                                                                        className="flex flex-row items-center gap-3"
+                                                                        onClick={() => {
+                                                                            console.log("Selected lead details are:", lead.lead)
+                                                                            setShowDetailsModal(true);
+                                                                            setSelectedLeadsDetails(lead.lead);
+                                                                            setNoteDetails(lead.lead.notes);
+                                                                        }}
+                                                                    >
+                                                                        <div
+                                                                            className="bg-black text-white rounded-full flex flex-row item-center justify-center"
+                                                                            style={{ height: "27px", width: "27px" }}
+                                                                        >
+                                                                            {lead.lead.firstName.slice(0, 1)}
+                                                                        </div>
+                                                                        <div style={styles.paragraph}>{lead.lead.firstName}</div>
+                                                                    </button>
+                                                                    <div className="flex flex-row items-center justify-between w-full mt-2">
+                                                                        <div className="text-[#00000060]" style={styles.agentName}>
+                                                                            Email
+                                                                        </div>
+                                                                        <div className="flex flex-row items-center gap-4">
+                                                                            <Image
+                                                                                src={"/assets/colorCircle.png"}
+                                                                                height={24}
+                                                                                width={24}
+                                                                                alt="*"
+                                                                            />
+                                                                            <div className="text-purple underline" style={styles.agentName}>
+                                                                                {lead.agent.name}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="w-full flex flex-row items-center justify-between mt-12">
+                                                                        <Image
+                                                                            src={"/assets/manIcon.png"}
+                                                                            height={32}
+                                                                            width={32}
+                                                                            alt="*"
+                                                                        />
+                                                                        {/* <div className="flex flex-row items-center gap-3">
+                                                                        <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
+                                                                            Tag
+                                                                        </div>
+                                                                        <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
+                                                                            Tag
+                                                                        </div>
+                                                                    </div> */}
+
+                                                                        {
+                                                                            lead.lead.tags.length > 0 ? (
+                                                                                <div className='flex flex-row items-center gap-1'>
+                                                                                    {
+                                                                                        lead.lead.tags.slice(0, 2).map((tagVal, index) => {
+                                                                                            return (
+                                                                                                // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
+                                                                                                //     {tagVal}
+                                                                                                // </div>
+                                                                                                <div key={index}
+                                                                                                    className='flex flex-row items-center gap-2 bg-[#402FFF30] px-2 py-1 rounded-lg'
+                                                                                                >
+                                                                                                    <div
+                                                                                                        className="text-[#402FFF]" //1C55FF10
+                                                                                                    >
+                                                                                                        {tagVal}
+                                                                                                    </div>
+                                                                                                    {
+                                                                                                        DelTagLoader && tagVal.includes(DelTagLoader) ?
+                                                                                                            <div>
+                                                                                                                <CircularProgress size={15} />
+                                                                                                            </div> :
+                                                                                                            <button onClick={() => { handleDelTag(tagVal) }}>
+                                                                                                                <X size={15} weight='bold' color='#402fff' />
+                                                                                                            </button>
+                                                                                                    }
+
+                                                                                                </div>
+                                                                                            )
+                                                                                        })
+                                                                                    }
+                                                                                    {
+                                                                                        lead.lead.tags.length > 2 && (
+                                                                                            <div>
+                                                                                                +{lead.lead.tags.length - 2}
+                                                                                            </div>
+                                                                                        )
+                                                                                    }
+                                                                                </div>
+                                                                            ) : "-"
+                                                                        }
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )
+                                            }
+
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
-                        <div className='h-[36px] flex flex-row items-start justify-center'>
-                            <button className='h-[23px] text-purple outline-none mt-2'
-                                style={{
-                                    width: "200px",
-                                    fontSize: "16.8",
-                                    fontWeight: "700"
-                                }}
-                                onClick={() => { setAddNewStageModal(true) }}
-                            >
-                                Add Stage
-                            </button>
+                                <div className='h-[36px] flex flex-row items-start justify-center'>
+                                    <button className='h-[23px] text-purple outline-none mt-2'
+                                        style={{
+                                            width: "200px",
+                                            fontSize: "16.8",
+                                            fontWeight: "700"
+                                        }}
+                                        onClick={() => { setAddNewStageModal(true) }}
+                                    >
+                                        Add Stage
+                                    </button>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
-
-                </div>
-            </div>
+            }
 
 
 
@@ -1675,7 +1705,7 @@ const Pipeline1 = () => {
 
                                         <div className='flex flex-row items-center gap-2 mt-4'>
                                             <p style={{ fontWeight: "600", fontSize: 15 }}>
-                                                Notify a team member when leads move here
+                                                Assign to
                                             </p>
                                             {/* <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' /> */}
                                             <Image
@@ -1689,12 +1719,46 @@ const Pipeline1 = () => {
                                                     //     ? 'invert(17%) sepia(96%) saturate(7493%) hue-rotate(-5deg) brightness(102%) contrast(115%)' // Red
                                                     //     : 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
                                                 }}
-                                                aria-owns={open ? 'mouse-over-popover' : undefined}
+                                                aria-owns={open ? 'mouse-over-popover2' : undefined}
                                                 aria-haspopup="true"
-                                                onMouseEnter={handlePopoverOpen}
+                                                onMouseEnter={(event) => { setAssigntoActionInfoEl(event.currentTarget) }}
                                                 onMouseLeave={handlePopoverClose}
                                             />
                                         </div>
+
+                                        <Popover
+                                            id="mouse-over-popover2"
+                                            sx={{
+                                                pointerEvents: 'none'
+                                            }}
+                                            open={openAssigneAction}
+                                            anchorEl={assigntoActionInfoEl}
+                                            anchorOrigin={{
+                                                vertical: 'top',
+                                                horizontal: 'center',
+                                            }}
+                                            transformOrigin={{
+                                                vertical: 'bottom',
+                                                horizontal: 'left',
+                                            }}
+                                            PaperProps={{
+                                                elevation: 1, // This will remove the shadow
+                                                style: {
+                                                    boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
+                                                },
+                                            }}
+                                            onClose={handlePopoverClose}
+                                            disableRestoreFocus
+                                        >
+                                            <div className="p-2">
+                                                <div className="flex flex-row items-center gap-1">
+                                                    <Image src={"/assets/infoIcon.png"} height={24} width={24} alt="*" />
+                                                    <p style={{ fontWeight: "500", fontSize: 12 }}>
+                                                        Notify a team member when leads move here.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </Popover>
 
                                         <button className='flex flex-row items-center w-full justify-between rounded-lg h-[50px] px-2 mt-1 outline-none'
                                             style={{ border: "1px solid #00000020" }}>
@@ -1722,7 +1786,7 @@ const Pipeline1 = () => {
 
                         <div className='w-full h-[80px]'>
                             { //inputs.filter(input => input.value.trim()).length === 3 &&
-                                showAddStageBtn ? (
+                                canProceed() ? (
                                     <div>
                                         {
                                             addStageLoader ?

@@ -146,7 +146,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
                             Which AgentX will you build?
                         </div>
 
-                        <div className='mt-6 w-11/12 text-[10px] sm:text-[17px] font-[400]' style={{
+                        <div className='mt-2 w-11/12 text-[10px] sm:text-[17px] font-[400]' style={{
                             textAlign: "center", //fontSize: 15
                         }}>
                             Scale your salesforce. Handle any business use case. With AgentX,<br></br>you can quickly build an AI agent in minutes.
@@ -166,7 +166,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
                                             <div className='h-[100px] sm:h-[198px] bg-gray-200 rounded w-full flex flex-col justify-center pb-[10px] items-center' style={{ backgroundColor: "#FAF9FF" }}>
                                                 <img src={item.icon} style={{ width: "80%", resize: "contain" }} alt='*' />
                                             </div>
-                                            <div className='text-center mt-2 pb-4'
+                                            <div className='text-center mt-4 pb-4Centre 6730.151 61,007 3160 137 another Box 2 with 4 x 1200 properties properties four height taken with'
                                                 style={{
                                                     fontWeight: "600", fontSize: 17
                                                 }}
@@ -188,7 +188,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
                         <ProgressBar value={value} />
                     </div>
 
-                    <div className='mb-8' style={{ height: "40px" }}>
+                    <div className='mb-4' style={{ height: "40px" }}>
                         <Footer handleContinue={handleNext} donotShowBack={true} shouldContinue={shouldContinue} />
                     </div>
                 </div>
