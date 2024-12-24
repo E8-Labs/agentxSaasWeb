@@ -166,7 +166,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
                                             <div className='h-[100px] sm:h-[198px] bg-gray-200 rounded w-full flex flex-col justify-center pb-[10px] items-center' style={{ backgroundColor: "#FAF9FF" }}>
                                                 <img src={item.icon} style={{ width: "80%", resize: "contain" }} alt='*' />
                                             </div>
-                                            <div className='text-center mt-4 pb-4Centre 6730.151 61,007 3160 137 another Box 2 with 4 x 1200 properties properties four height taken with'
+                                            <div className='text-center mt-4 pb-4'
                                                 style={{
                                                     fontWeight: "600", fontSize: 17
                                                 }}
