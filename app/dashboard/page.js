@@ -20,6 +20,12 @@ const Page = () => {
 
 
     useEffect(() => {
+        console.log("Stats details ar", statsDetails);
+        console.log("Comparison details", statsComparisonDetails);
+    }, [statsDetails, statsComparisonDetails])
+
+
+    useEffect(() => {
         getDashboardData();
     }, []);
 
@@ -73,9 +79,9 @@ const Page = () => {
 
             if (response) {
                 console.log("Response of get Dashboard data api is:", response.data);
-                if (response.data.data.status === true) {
-                    setIsInitiallyLoaded(true);
-                    setStatsDetails(response.data.data.status);
+                if (response.data.status === true) {
+                    console.log("Getting details are", response.data.data.stats)
+                    setStatsDetails(response.data.data.stats);
                     setStatsComparisonDetails(response.data.data.statsComparison);
                 }
             }
@@ -166,7 +172,7 @@ const Page = () => {
                                                 Total calls made
                                             </div>
                                             <div style={{ fontSize: 75, fontWeight: '700', color: '#000' }}>
-                                                {statsDetails?.totalCalls}
+                                                {statsDetails?.totalCalls || "-"}
                                             </div>
                                         </div>
                                         <div className='w-8/12 flex flex-col items-end gap-2'>
@@ -252,7 +258,7 @@ const Page = () => {
                                                             // className='lg:text-3xl font-bold text-white'
                                                             style={{ fontSize: 40, fontWeight: '400', color: '#fff' }}
                                                         >
-                                                            {statsDetails?.totalDuration}
+                                                            {statsDetails?.totalDuration || "-"}
                                                         </div>
 
 
@@ -286,9 +292,9 @@ const Page = () => {
                                             <Card
                                                 icon="/otherAssets/convosIcon.png"
                                                 title="Convos >10 Sec"
-                                                value={statsDetails?.totalCallsGt10}
+                                                value={statsDetails?.totalCallsGt10 || "-"}
                                                 subtitle="Answer rate"
-                                                rate={`${statsComparisonDetails?.callsGt10Change.toFixed(2)}%`}
+                                                rate={statsComparisonDetails?.callsGt10Change ? `${statsComparisonDetails?.callsGt10Change.toFixed(2)}%` : "-"}
                                                 borderSide="border-b-2"
                                             />
 
@@ -296,9 +302,9 @@ const Page = () => {
                                             <Card
                                                 icon="/otherAssets/hotLeadsIcon.png"
                                                 title="Hot Leads"
-                                                value={statsDetails?.hotLeads}
+                                                value={statsDetails?.hotLeads || "-"}
                                                 subtitle="Conversion rate"
-                                                rate={`${statsComparisonDetails?.hotLeadsChange.toFixed(2)}%`}
+                                                rate={statsComparisonDetails?.hotLeadsChange ? `${statsComparisonDetails?.hotLeadsChange.toFixed(2)}%` : "-"}
                                                 borderSide="border-l-2 border-b-2"
                                             />
 
@@ -306,9 +312,9 @@ const Page = () => {
                                             <Card
                                                 icon="/otherAssets/bookedMeetingsIcon.png"
                                                 title="Booked Meetings"
-                                                value={statsDetails?.meetingScheduled}
+                                                value={statsDetails?.meetingScheduled || "-"}
                                                 subtitle="Conversion rate"
-                                                rate={`${statsComparisonDetails?.durationChange.toFixed(2)}%`}
+                                                rate={statsComparisonDetails?.durationChange ? `${statsComparisonDetails?.durationChange.toFixed(2)}%` : "-"}
                                                 borderSide="border-l-2 border-b-2"
                                             />
 
@@ -316,7 +322,7 @@ const Page = () => {
                                             <Card
                                                 icon="/otherAssets/voicemailIcon.png"
                                                 title="Voicemails"
-                                                value={statsDetails?.voicemail}
+                                                value={statsDetails?.voicemail || "-"}
                                                 borderSide=""
 
                                             />
@@ -325,7 +331,7 @@ const Page = () => {
                                             <Card
                                                 icon="/otherAssets/notInterestedIcon.png"
                                                 title="Not Interested"
-                                                value={statsDetails?.notInterested}
+                                                value={statsDetails?.notInterested || "-"}
                                                 borderSide="border-l-2"
                                             />
 
@@ -333,7 +339,7 @@ const Page = () => {
                                             <Card
                                                 icon="/otherAssets/avgDurationIcon.png"
                                                 title="Avg Convo Duration"
-                                                value={statsDetails?.avDuration}
+                                                value={statsDetails?.avDuration || "-"}
                                                 borderSide="border-l-2"
                                             />
                                         </div>

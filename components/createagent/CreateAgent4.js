@@ -454,9 +454,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             } else {
                 formData.append("callbackNumber", officeNumber);
             }
-            formData.append("liveTransforNumber", callBackNumber);
+            formData.append("liveTransferNumber", callBackNumber);
             formData.append("mainAgentId", MyAgentData.id);
-            formData.append("liveTransfer", toggleClick);
+            formData.append("liveTransfer", !toggleClick);
 
             const ApiPath = Apis.asignPhoneNumber;
 
