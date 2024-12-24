@@ -2382,12 +2382,12 @@ const Pipeline1 = () => {
                                     </div>
                                     <div>
                                         <div className="text-end" style={styles.heading2}>
-                                            {selectedLeadsDetails?.email}
+                                            {selectedLeadsDetails?.email || "-"}
                                         </div>
                                         <div className='flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]' style={styles.paragraph}>
                                             <Image src={"/assets/power.png"} height={9} width={7} alt='*' />
                                             <div>
-                                                <span className='text-purple'>New</span> hamza@yahoo.com
+                                                <span className='text-purple'>New</span>{selectedLeadsDetails?.email || "-"}
                                             </div>
                                         </div>
                                     </div>

@@ -2032,13 +2032,13 @@ function Page() {
         sx={{
           "& .MuiDrawer-paper": {
             width: "50%", // Adjust the width as per your design
-            padding: "60px", // Add padding for internal spacing
+            paddingInline: "60px", // Add padding for internal spacing
           },
         }}
       >
         <div className="flex flex-col w-full">
           <div className="w-full flex flex-row items-center justify-between mb-8">
-            <div className="flex flex-row items-center gap-4 ">
+            <div className="flex flex-row items-center gap-4 mt-4">
               <div className="flex items-end">
                 <Image
                   src={"/assets/colorCircle.png"}
@@ -2606,8 +2606,9 @@ function Page() {
                 setDelAgentModal(true);
               }}
               style={{
-                position: "absolute",
-                bottom: 20,
+                marginTop: 20
+                // position: "absolute",
+                // bottom: "5%",
               }}
             >
               {/* <Image src={'/otherAssets/redDeleteIcon.png'}

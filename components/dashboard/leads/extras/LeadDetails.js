@@ -410,6 +410,21 @@ const LeadDetails = ({
         }
     }
 
+    //fucntion to read more transcript text
+    const handleReadMoreToggle = (item) => {
+        // setIsExpanded(!isExpanded);
+
+        setIsExpanded((prevIds) => {
+            if (prevIds.includes(item.id)) {
+                // Unselect the item if it's already selected
+                return prevIds.filter((prevId) => prevId !== item.id);
+            } else {
+                // Select the item if it's not already selected
+                return [...prevIds, item.id];
+            }
+        });
+    };
+
 
     const styles = {
         modalsStyle: {
@@ -423,7 +438,7 @@ const LeadDetails = ({
             border: "none",
             outline: "none",
         },
-        subHeading:{
+        subHeading: {
             fontsize: 12,
             fontWeight: "500",
             color: "#15151560"
@@ -442,7 +457,7 @@ const LeadDetails = ({
                     },
                 }}
             >
-                <Box className="lg:w-6/12 sm:w-7/12 w-8/12 bg-white py-2 h-[80vh] overflow-auto" sx={{ ...styles.modalsStyle, scrollbarWidth: "none", backgroundColor: "white" }}>
+                <Box className="lg:w-6/12 sm:w-7/12 w-8/12 bg-white py-2 h-[89vh] overflow-auto" sx={{ ...styles.modalsStyle, scrollbarWidth: "none", backgroundColor: "white" }}>
                     <div className="w-full flex flex-col items-center h-full">
                         {/* <div className='flex flex-row justify-between items-center'>
                             <div style={{ fontWeight: "500", fontSize: 16.9 }}>
@@ -506,7 +521,7 @@ const LeadDetails = ({
                                                             <div className='flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]' style={styles.paragraph}>
                                                                 <Image src={"/assets/power.png"} height={9} width={7} alt='*' />
                                                                 <div>
-                                                                    <span className='text-purple'>New</span> hamza@yahoo.com
+                                                                    <span className='text-purple'>New</span> {email.email}
                                                                 </div>
                                                             </div>
                                                             <button
@@ -614,7 +629,7 @@ const LeadDetails = ({
                                                                 return (
                                                                     <div key={index} className='flex flex-row items-center gap-2'>
                                                                         <div
-                                                                            className='flex flex-row items-center gap-2 bg-[#402FFF30] px-2 py-1 rounded-lg'
+                                                                            className='flex flex-row items-center gap-2 bg-[#402FFF17] px-2 py-1 rounded-lg'
                                                                         >
                                                                             <div
                                                                                 className="text-[#402FFF]" //1C55FF10
@@ -632,19 +647,19 @@ const LeadDetails = ({
                                                                             }
 
                                                                         </div>
-                                                                        <div>
-                                                                            {
-                                                                                selectedLeadsDetails?.tags.length > 2 && (
-                                                                                    <div>
-                                                                                        +{selectedLeadsDetails?.tags.length - 2}
-                                                                                    </div>
-                                                                                )
-                                                                            }
-                                                                        </div>
                                                                     </div>
                                                                 )
                                                             })
                                                         }
+                                                        <div>
+                                                            {
+                                                                selectedLeadsDetails?.tags.length > 2 && (
+                                                                    <div>
+                                                                        +{selectedLeadsDetails?.tags.length - 2}
+                                                                    </div>
+                                                                )
+                                                            }
+                                                        </div>
                                                     </div>
                                                 ) : "-"
                                             }
@@ -751,12 +766,12 @@ const LeadDetails = ({
 
                                         {/* Code for custom variables */}
 
-                                        <div className='mt-2'>
+                                        <div className='mt-2 border rounded-xl p-2'>
                                             <button
                                                 onClick={() => {
                                                     setShowCustomVariables(!showCustomVariables);
                                                 }}
-                                                className='flex flex-row items-center w-full justify-between border rounded-xl h-[40px] px-2 outline-none'
+                                                className='flex flex-row items-center w-full justify-between outline-none'
                                             >
                                                 <div className='flex flex-row items-center gap-3'>
                                                     <Image
@@ -794,40 +809,41 @@ const LeadDetails = ({
                                                     }
                                                 </div>
                                             </button>
-                                        </div>
 
-                                        {
-                                            showCustomVariables && (
-                                                <div className='flex flex-col gap-4 mt-4'>
-                                                    {
+                                            {
+                                                showCustomVariables && (
+                                                    <div className='flex flex-col gap-4 mt-4'>
+                                                        {
 
-                                                        leadColumns.map((column, index) => {
-                                                            if (column.title == "Name" || column.title == "Phone" || column.title == "address" || column.title == "More" || column.title == 0 || column.title == "Stage") {
+                                                            leadColumns.map((column, index) => {
+                                                                if (column.title == "Name" || column.title == "Phone" || column.title == "address" || column.title == "More" || column.title == 0 || column.title == "Stage") {
+                                                                    return (
+                                                                        // <div key={index}></div>
+                                                                        ""
+                                                                    )
+                                                                }
                                                                 return (
-                                                                    // <div key={index}></div>
-                                                                    ""
+                                                                    <div key={index} className='flex flex-row w-full justify-between'>
+                                                                        <div className='flex flex-row items-center gap-4'>
+                                                                            {/* <Image src={"/"} */}
+                                                                            <div>
+                                                                                -
+                                                                            </div>
+                                                                            <div style={styles.subHeading}>
+                                                                                {column.title}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div style={styles.paragraph}>
+                                                                            {getDetailsColumnData(column, selectedLeadsDetails)}
+                                                                        </div>
+                                                                    </div>
                                                                 )
-                                                            }
-                                                            return (
-                                                                <div key={index} className='flex flex-row w-full justify-between'>
-                                                                    <div className='flex flex-row items-center gap-4'>
-                                                                        {/* <Image src={"/"} */}
-                                                                        <div>
-                                                                            -
-                                                                        </div>
-                                                                        <div style={styles.subHeading}>
-                                                                            {column.title}
-                                                                        </div>
-                                                                    </div>
-                                                                    <div style={styles.paragraph}>
-                                                                        {getDetailsColumnData(column, selectedLeadsDetails)}
-                                                                    </div>
-                                                                </div>
-                                                            )
-                                                        })}
-                                                </div>
-                                            )
-                                        }
+                                                            })}
+                                                    </div>
+                                                )
+                                            }
+
+                                        </div>
 
                                     </div>
 
@@ -1036,7 +1052,7 @@ const LeadDetails = ({
                                                                                                             fontWeight: "600",
                                                                                                             fontsize: 15
                                                                                                         }}>
-                                                                                                        Outcome 
+                                                                                                        Outcome
                                                                                                     </div>
                                                                                                     {/* <div className='text-purple' style={{ fontWeight: "600", fontsize: 12 }}>
                                                                                                         {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
@@ -1156,7 +1172,7 @@ const LeadDetails = ({
                     },
                 }}
             >
-                <Box className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
+                <Box className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 h-[70vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
                     <div className="flex flex-row justify-center w-full h-[50vh]">
                         <div
                             className="w-full"
