@@ -213,7 +213,14 @@ const Page = ({ length = 6, onComplete }) => {
               document.cookie = `User=${encodeURIComponent(
                 JSON.stringify(response.data.data)
               )}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
-              router.push("/dashboard");
+              let w = window.innerWidth
+              if (w < 540) {
+                console.log("It is mobile view")
+                router.push("/createagent/desktop");
+              } else if (w > 540) {
+                console.log("It is desktop view")
+                router.push("/dashboard/leads");
+              }
             }
           }
         }

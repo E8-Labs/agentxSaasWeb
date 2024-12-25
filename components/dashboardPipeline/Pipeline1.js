@@ -1448,6 +1448,30 @@ const Pipeline1 = () => {
                                                                             </div>
                                                                         </div>
                                                                     </div>
+                                                                    <div
+                                                                        className='flex flex-row items-center gap-2'
+                                                                    >
+                                                                        <Image
+                                                                            src="/otherAssets/calenderIcon.png"
+                                                                            height={20}
+                                                                            width={20}
+                                                                            alt="*"
+                                                                            style={{
+                                                                                filter: 'invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)'
+                                                                            }}
+                                                                        />
+                                                                        {moment(lead?.lead?.booking?.date).format("MMM dd") || "-"}
+                                                                        <Image
+                                                                            src="/otherAssets/clockIcon.png"
+                                                                            height={20}
+                                                                            width={20}
+                                                                            alt="*"
+                                                                            style={{
+                                                                                filter: 'invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)'
+                                                                            }}
+                                                                        />
+                                                                        {lead?.lead?.booking?.time || "-"}
+                                                                    </div>
                                                                     <div className="w-full flex flex-row items-center justify-between mt-12">
                                                                         <Image
                                                                             src={"/assets/manIcon.png"}

@@ -503,7 +503,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 ////console.log("Response of create pipeline api is :---", response);
                 if (response.data.status === true) {
                     localStorage.removeItem("AddCadenceDetails");
-                    router.push("/dashboard");
+                    router.push("/dashboard/leads");
                 }
             }
 

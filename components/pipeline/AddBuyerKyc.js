@@ -20,6 +20,9 @@ const AddBuyerKyc = ({
 }) => {
 
     const router = useRouter();
+
+    const [shouldSave, setShouldSave] = useState(false)
+
     const [toggleClick, setToggleClick] = useState(1);
     const [addKYCQuestion, setAddKYCQuestion] = useState(false);
     const [inputs, setInputs] = useState([{ id: 1, value: '' }, { id: 2, value: '' }, { id: 3, value: '' }]);
@@ -27,10 +30,13 @@ const AddBuyerKyc = ({
     const [buyerKycLoader, setBuyerKycLoader] = useState(false);
     //code for need kyc
     const [selectedNeedKYC, setSelectedNeedKYC] = useState([]);
+    const [oldSelectedNeedKYC, setOldSelectedNeedKYC] = useState([]);
     //code for motivation KYC
     const [selectedMotivationKyc, setSelectedMotivationKYC] = useState([]);
+    const [oldSelectedMotivationKyc, setOldSelectedMotivationKYC] = useState([]);
     //code for need kyc
     const [selectedUrgencyKyc, setSelectedUrgencyKyc] = useState([]);
+    const [oldSelectedUrgencyKyc, setOldSelectedUrgencyKyc] = useState([]);
 
     //err msg when same question
     const [showErrorSnack, setShowErrorSnack] = useState(null);
@@ -109,6 +115,19 @@ const AddBuyerKyc = ({
     ]);
 
 
+    //check for the save and continue btn
+    useEffect(() => {
+        console.log("Should check btn status")
+        if (oldSelectedNeedKYC.length !== selectedNeedKYC.length || selectedMotivationKyc.length !== oldSelectedMotivationKyc.length || selectedUrgencyKyc.length !== oldSelectedUrgencyKyc.length) {
+            console.log("Should show save btn")
+            setShouldSave(true);
+        } else if (oldSelectedNeedKYC.length === selectedNeedKYC.length || selectedMotivationKyc.length !== oldSelectedMotivationKyc.length || selectedUrgencyKyc.length !== oldSelectedUrgencyKyc.length) {
+            console.log("Should not show save btn")
+            setShouldSave(false);
+        }
+    }, [oldSelectedNeedKYC, selectedNeedKYC, selectedMotivationKyc, oldSelectedMotivationKyc, selectedUrgencyKyc, oldSelectedUrgencyKyc])
+
+
     useEffect(() => {
 
         // if (OpenSellerNeeds) {
@@ -138,6 +157,13 @@ const AddBuyerKyc = ({
                 ),
                 ...BuyerNeedData.map((item) => ({ id: item.id, question: item.question }))
             ]);
+
+            setOldSelectedNeedKYC((prevSelected) => [
+                ...prevSelected.filter(
+                    (selectedItem) => !BuyerNeedData.some((newData) => selectedItem.id === newData.id)
+                ),
+                ...BuyerNeedData.map((item) => ({ id: item.id, question: item.question }))
+            ]);
         }
         if (BuyerMotivationData.length > 0) {
             console.log("Data passed is", BuyerNeedData)
@@ -155,6 +181,13 @@ const AddBuyerKyc = ({
                 ),
                 ...BuyerMotivationData.map((item) => ({ id: item.id, question: item.question }))
             ]);
+
+            setOldSelectedMotivationKYC((prevSelected) => [
+                ...prevSelected.filter(
+                    (selectedItem) => !BuyerMotivationData.some((newData) => selectedItem.id === newData.id)
+                ),
+                ...BuyerMotivationData.map((item) => ({ id: item.id, question: item.question }))
+            ]);
         }
         if (BuyerUrgencyData.length > 0) {
             console.log("Data passed is", BuyerNeedData)
@@ -167,6 +200,13 @@ const AddBuyerKyc = ({
 
             // Remove matching items from SelectedNeedKYC and add the new items
             setSelectedUrgencyKyc((prevSelected) => [
+                ...prevSelected.filter(
+                    (selectedItem) => !BuyerUrgencyData.some((newData) => selectedItem.id === newData.id)
+                ),
+                ...BuyerUrgencyData.map((item) => ({ id: item.id, question: item.question }))
+            ]);
+
+            setOldSelectedUrgencyKyc((prevSelected) => [
                 ...prevSelected.filter(
                     (selectedItem) => !BuyerUrgencyData.some((newData) => selectedItem.id === newData.id)
                 ),
@@ -799,12 +839,19 @@ const AddBuyerKyc = ({
                                 <CircularProgress size={30} />
                             </div>
                             :
-                            <button
-                                className='w-10/12 md:w-8/12  lg:w-6/12 h-[50px] rounded-lg bg-purple text-white'
-                                style={styles.headingStyle}
-                                onClick={handleAddNewKyc}>
-                                Save & Close
-                            </button>
+                            <div className='w-full flex flex-row item-center justify-center'>
+                                {
+                                    shouldSave ?
+                                        <button className='bg-purple text-white rounded-lg w-10/12 md:w-8/12  lg:w-6/12 h-[50px]'
+                                            style={styles.headingStyle}
+                                            onClick={handleAddNewKyc}
+                                        >
+                                            Save & Close
+                                        </button> :
+                                        <div>
+                                        </div>
+                                }
+                            </div>
                     }
                 </div>
                 {/* <div>

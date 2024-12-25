@@ -20,19 +20,27 @@ const AddSellerKyc = ({
     SellerUrgencyData, mainAgentId, allKYCs
 }) => {
 
-    console.log("Satus of passed is", allKYCs)
+    // console.log("Satus of passed is", allKYCs)
 
     const router = useRouter();
+
+    const [shouldSave, setShouldSave] = useState(false)
+
     const [toggleClick, setToggleClick] = useState(1);
     const [addKYCQuestion, setAddKYCQuestion] = useState(false);
     const [inputs, setInputs] = useState([{ id: 1, value: '' }, { id: 2, value: '' }, { id: 3, value: '' }]);
     const [newQuestion, setNewQuestion] = useState('');
     //code for need kyc
     const [selectedNeedKYC, setSelectedNeedKYC] = useState([]);
+    const [oldSelectedNeedKYC, setOldSelectedNeedKYC] = useState([]);
+    console.log("Old kycs length", SellerNeedData)
+    console.log("new kycs length", selectedNeedKYC)
     //code for motivation KYC
     const [selectedMotivationKyc, setSelectedMotivationKYC] = useState([]);
+    const [oldSelectedMotivationKyc, setOldSelectedMotivationKYC] = useState([]);
     //code for need kyc
     const [selectedUrgencyKyc, setSelectedUrgencyKyc] = useState([]);
+    const [oldSelectedUrgencyKyc, setOldSelectedUrgencyKyc] = useState([]);
     const [sellerKycLoader, setSellerKycLoader] = useState(false);
 
     //alert
@@ -110,6 +118,20 @@ const AddSellerKyc = ({
         },
     ]);
 
+
+    //check for the save and continue btn
+    useEffect(() => {
+        console.log("Should check btn status")
+        if (oldSelectedNeedKYC.length !== selectedNeedKYC.length || selectedMotivationKyc.length !== oldSelectedMotivationKyc.length || selectedUrgencyKyc.length !== oldSelectedUrgencyKyc.length) {
+            console.log("Should show save btn")
+            setShouldSave(true);
+        } else if (oldSelectedNeedKYC.length === selectedNeedKYC.length || selectedMotivationKyc.length !== oldSelectedMotivationKyc.length || selectedUrgencyKyc.length !== oldSelectedUrgencyKyc.length) {
+            console.log("Should not show save btn")
+            setShouldSave(false);
+        }
+    }, [oldSelectedNeedKYC, selectedNeedKYC, selectedMotivationKyc, oldSelectedMotivationKyc, selectedUrgencyKyc, oldSelectedUrgencyKyc])
+
+
     //directly open the desired tab
     useEffect(() => {
         // if (OpenSellerNeeds === true) {
@@ -154,6 +176,13 @@ const AddSellerKyc = ({
                 ),
                 ...SellerNeedData.map((item) => ({ id: item.id, question: item.question }))
             ]);
+
+            setOldSelectedNeedKYC((prevSelected) => [
+                ...prevSelected.filter(
+                    (selectedItem) => !SellerNeedData.some((newData) => selectedItem.id === newData.id)
+                ),
+                ...SellerNeedData.map((item) => ({ id: item.id, question: item.question }))
+            ]);
         }
         if (SellerMotivationData.length > 0) {
             console.log("Data passed is", SellerNeedData)
@@ -171,6 +200,13 @@ const AddSellerKyc = ({
                 ),
                 ...SellerMotivationData.map((item) => ({ id: item.id, question: item.question }))
             ]);
+
+            setOldSelectedMotivationKYC((prevSelected) => [
+                ...prevSelected.filter(
+                    (selectedItem) => !SellerMotivationData.some((newData) => selectedItem.id === newData.id)
+                ),
+                ...SellerMotivationData.map((item) => ({ id: item.id, question: item.question }))
+            ]);
         }
         if (SellerUrgencyData.length > 0) {
             console.log("Data passed is", SellerNeedData)
@@ -183,6 +219,13 @@ const AddSellerKyc = ({
 
             // Remove matching items from SelectedNeedKYC and add the new items
             setSelectedUrgencyKyc((prevSelected) => [
+                ...prevSelected.filter(
+                    (selectedItem) => !SellerUrgencyData.some((newData) => selectedItem.id === newData.id)
+                ),
+                ...SellerUrgencyData.map((item) => ({ id: item.id, question: item.question }))
+            ]);
+
+            setOldSelectedUrgencyKyc((prevSelected) => [
                 ...prevSelected.filter(
                     (selectedItem) => !SellerUrgencyData.some((newData) => selectedItem.id === newData.id)
                 ),
@@ -969,12 +1012,19 @@ const AddSellerKyc = ({
                             <div className='flex flex-row justify-center'>
                                 <CircularProgress />
                             </div> :
-                            <button className='bg-purple text-white rounded-lg w-10/12 md:w-8/12  lg:w-6/12 h-[50px]'
-                                style={styles.headingStyle}
-                                onClick={handleAddNewKyc}
-                            >
-                                Save & Close
-                            </button>
+                            <div className='w-full flex flex-row item-center justify-center'>
+                                {
+                                    shouldSave ?
+                                        <button className='bg-purple text-white rounded-lg w-10/12 md:w-8/12  lg:w-6/12 h-[50px]'
+                                            style={styles.headingStyle}
+                                            onClick={handleAddNewKyc}
+                                        >
+                                            Save & Close
+                                        </button> :
+                                        <div>
+                                        </div>
+                                }
+                            </div>
                     }
                 </div>
 
