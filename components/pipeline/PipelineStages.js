@@ -69,7 +69,7 @@ const PipelineStages = ({
         if (selectedPipelineStages) {
             setStagesList(selectedPipelineStages);
         }
-    }, [])
+    }, [selectedPipelineStages])
 
     //code for showing the add stage button according to dirredent conditions
     // useEffect(() => {
@@ -96,11 +96,11 @@ const PipelineStages = ({
 
     // }, [showAdvanceSettings, newStageTitle, inputs, action])
 
-    function canProceed(){
-        if(newStageTitle.length > 0 && action.length == 0){
+    function canProceed() {
+        if (newStageTitle.length > 0 && action.length == 0) {
             return true
         }
-        if(action && action.length > 0 && newStageTitle && newStageTitle.length > 0 && inputs.filter(input => input.value.trim() !== "").length === 3){
+        if (action && action.length > 0 && newStageTitle && newStageTitle.length > 0 && inputs.filter(input => input.value.trim() !== "").length === 3) {
             return true
         }
         return false
@@ -737,7 +737,7 @@ const PipelineStages = ({
                                                                             {stagesList.map(
                                                                                 (dropDownStateItem) => (
                                                                                     <MenuItem
-                                                                                        disabled={dropDownStateItem.id <= item.id}
+                                                                                        disabled={dropDownStateItem.order <= item.order}
                                                                                         key={dropDownStateItem.id}
                                                                                         value={
                                                                                             dropDownStateItem.stageTitle
@@ -749,7 +749,7 @@ const PipelineStages = ({
                                                                                                 "32px",
                                                                                         }}
                                                                                     >
-                                                                                        {dropDownStateItem.stageTitle}
+                                                                                        {dropDownStateItem.stageTitle.slice(0, 1).toUpperCase()}{dropDownStateItem.stageTitle.slice(1)}
                                                                                     </MenuItem>
                                                                                 )
                                                                             )}

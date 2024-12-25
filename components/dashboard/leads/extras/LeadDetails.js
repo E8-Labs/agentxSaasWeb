@@ -8,7 +8,7 @@ import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
 const LeadDetails = ({
-    showDetailsModal, selectedLead, setShowDetailsModal, pipelineId }) => {
+    showDetailsModal, selectedLead, setShowDetailsModal, pipelineId, handleDelLead }) => {
 
     const [columnsLength, setcolumnsLength] = useState([]);
 
@@ -52,6 +52,10 @@ const LeadDetails = ({
     //code for snakbars
     const [showSuccessSnack, setShowSuccessSnack] = useState(null);
     const [showErrorSnack, setShowErrorSnack] = useState(null);
+
+
+    //code for delete lead
+    const [delLeadLoader, setDelLeadLoader] = useState(false);
 
 
     useEffect(() => {
@@ -425,6 +429,46 @@ const LeadDetails = ({
         });
     };
 
+    const handleDeleteLead = async () => {
+        try {
+            setDelLeadLoader(true);
+            let AuthToken = null
+
+            const userData = localStorage.getItem("User");
+            if (userData) {
+                const localData = JSON.parse(userData);
+                AuthToken = localData.token
+            }
+
+            const ApiData = {
+                leadId: selectedLeadsDetails.id
+            }
+
+            console.log("Data sending in api is", ApiData);
+
+            const ApiPath = Apis.deleteLead;
+
+            handleDelLead(selectedLeadsDetails)
+
+            return
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of del lead api is", response)
+            }
+
+        } catch (error) {
+            console.error("Error occured in api is", error);
+        } finally {
+            setDelLeadLoader(false);
+        }
+    }
+
 
     const styles = {
         modalsStyle: {
@@ -488,15 +532,28 @@ const LeadDetails = ({
                                             </button>
                                         </div>
 
-                                        <div className='flex flex-row items-center gap-4'>
-                                            <div className='h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white'
-                                                onClick={() => handleToggleClick(item.id)}>
-                                                {selectedLeadsDetails?.firstName.slice(0, 1)}
+                                        <div className='flex flex-row items-center justify-between mt-12'>
+                                            <div className='flex flex-row items-center gap-4'>
+                                                <div className='h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white'
+                                                    onClick={() => handleToggleClick(item.id)}>
+                                                    {selectedLeadsDetails?.firstName.slice(0, 1)}
+                                                </div>
+                                                <div className='truncate'
+                                                    onClick={() => handleToggleClick(item.id)}>
+                                                    {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
+                                                </div>
                                             </div>
-                                            <div className='truncate'
-                                                onClick={() => handleToggleClick(item.id)}>
-                                                {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
-                                            </div>
+                                            {
+                                                delLeadLoader ?
+                                                    <CircularProgress size={20} /> :
+                                                    <button
+                                                        onClick={handleDeleteLead}
+                                                        className='text-red'
+                                                        style={{ fontsize: 15, fontWeight: "500" }}
+                                                    >
+                                                        Delete
+                                                    </button>
+                                            }
                                         </div>
 
                                         <div className='flex flex-row items-center w-full justify-between mt-4'>

@@ -151,6 +151,13 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
         });
     };
 
+    //function to delete lead
+    const handleDeleteLead = async (delLead) => {
+        console.log("Lead to delete details are", delLead);
+        setShowDetailsModal(false);
+        setLeadsList((prevLeads) => prevLeads.filter((lead) => lead.id !== delLead.id))
+    }
+
     //function to format the number
     const formatPhoneNumber = (rawNumber) => {
         const phoneNumber = parsePhoneNumberFromString(
@@ -1787,6 +1794,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                         pipelineId={selectedLeadsDetails?.stage?.pipelineId}
                         showDetailsModal={showDetailsModal}
                         setShowDetailsModal={setShowDetailsModal}
+                        handleDelLead={handleDeleteLead}
                     />
                 )
             }

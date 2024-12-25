@@ -14,6 +14,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
     const [value, setValue] = useState(8);
     const [SelectUserType, setSelectUserType] = useState(null);
     const [SelectUserTypeTitle, setSelectUserTypeTitle] = useState(null);
+    const [SelectedFocusAreaTitle, setSelectedFocusAreaTitle] = useState(null);
     const [ShowModal, setShowModal] = useState(false);
     const [shouldContinue, setShouldContinue] = useState(true);
 
@@ -37,6 +38,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
     const handleUserType = async (item) => {
         setSelectUserType(item.id);
         setSelectUserTypeTitle(item.title);
+        setSelectedFocusAreaTitle(item.areaOfFocusTitle);
         // if (item.id === 1) {
         //     setSelectUserType(item.id);
         //     setSelectUserTypeTitle(item.title);
@@ -49,22 +51,22 @@ const UserType = ({ handleContinue, DefaultData }) => {
 
     const handleNext = () => {
         localStorage.removeItem("registerDetails");
-        const data = localStorage.getItem("registerDetails");
-        if (data) {
-            const details = JSON.parse(data);
-            details.userType = SelectUserType;
-            details.userTypeTitle = SelectUserTypeTitle;
-            localStorage.setItem("registerDetails", JSON.stringify(details));
-            // handleContinue();
-        } else {
-            const userData = {
-                serviceID: "",
-                focusAreaId: "",
-                userType: SelectUserType,
-                userTypeTitle: SelectUserTypeTitle
-            }
-            localStorage.setItem("registerDetails", JSON.stringify(userData));
+        const userData = {
+            serviceID: "",
+            focusAreaId: "",
+            userType: SelectUserType,
+            userTypeTitle: SelectUserTypeTitle,
+            areaFocusTitle: SelectedFocusAreaTitle,
+            otherFocusArea: ""
         }
+
+        console.log("Data seting in api is", userData);
+
+        // return
+
+        localStorage.setItem("registerDetails", JSON.stringify(userData));
+
+
 
         if (SelectUserType) {
             handleContinue();
@@ -75,42 +77,50 @@ const UserType = ({ handleContinue, DefaultData }) => {
         {
             id: 1,
             title: "Real Estate Agent",
-            icon: "/usertype/avt1.png"
+            icon: "/usertype/avt1.png",
+            areaOfFocusTitle: "What area of real state do you focus on?"
         },
         {
             id: 2,
             title: "Sales Dev Rep",
-            icon: "/usertype/avt2.png"
+            icon: "/usertype/avt2.png",
+            areaOfFocusTitle: "What area of sales do you focus on?"
         },
         {
             id: 3,
             title: "Solar Rep",
-            icon: "/usertype/avt3.png"
+            icon: "/usertype/avt3.png",
+            areaOfFocusTitle: "What area of solar do you focus on?"
         },
         {
             id: 4,
             title: "Insurance Agent",
-            icon: "/usertype/avt4.png"
+            icon: "/usertype/avt4.png",
+            areaOfFocusTitle: "What area of insurance do you focus on?"
         },
         {
             id: 5,
             title: "Marketer",
-            icon: "/usertype/avt5.png"
+            icon: "/usertype/avt5.png",
+            areaOfFocusTitle: "What area of marketing do you focus on?"
         },
         {
             id: 6,
             title: "Website Owners",
-            icon: "/usertype/avt7.png"
+            icon: "/usertype/avt7.png",
+            areaOfFocusTitle: "How would you use AgentX?"
         },
         {
             id: 7,
             title: "Recuiter Agent",
-            icon: "/usertype/avt8.png"
+            icon: "/usertype/avt8.png",
+            areaOfFocusTitle: "What industries do you specialize in?"
         },
         {
             id: 8,
             title: "Tax Agent",
-            icon: "/usertype/avt9.png"
+            icon: "/usertype/avt9.png",
+            areaOfFocusTitle: "What type of clients do you primarily serve?"
         },
     ];
 
@@ -134,7 +144,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
         <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
             <div className='bg-white rounded-2xl w-full mx-2 sm:w-10/12 h-[90%] py-4 flex flex-col ' style={{ scrollbarWidth: "none" }}>
 
-                <div className='flex flex-col items-center h-[73vh]'>
+                <div className='flex flex-col items-center h-[82svh]'>
                     {/* header */}
                     <div className='w-full h-[10%]' onClick={handleContinue}>
                         <Header />
@@ -142,7 +152,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
 
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full h-[90%]'>
-                        <div className='mt-4 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
+                        <div className='mt-4 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }} onClick={handleContinue}>
                             Which AgentX will you build?
                         </div>
 
@@ -164,7 +174,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
                                                 transform: "scale(0.9)", transition: "0.4s ease"
                                             }}>
                                             <div className='h-[100px] sm:h-[198px] bg-gray-200 rounded w-full flex flex-col justify-center pb-[10px] items-center' style={{ backgroundColor: "#FAF9FF" }}>
-                                                <img src={item.icon} style={{ width: "80%", resize: "contain" }} alt='*' />
+                                                <img src={item.icon} style={{ width: "100%", resize: "contain" }} alt='*' />
                                             </div>
                                             <div className='text-center mt-4 pb-4'
                                                 style={{

@@ -451,7 +451,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
   return (
     <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
       <div className='bg-white rounded-2xl mx-2 w-full md:w-10/12 max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
-        <div className='h-[80vh]'>
+        <div className='h-[82svh]'>
           {/* header */}
           <div className='h-[10%]'>
             <Header />

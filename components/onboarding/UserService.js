@@ -173,7 +173,7 @@ const UserService = ({ handleContinue, handleBack }) => {
                     </div>
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full h-[90%]'>
-                        <div className='mt-6 w-full md:w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
+                        <div className='mt-6 w-full md:w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }}>
                             What would you like AgentX to help you with?
                         </div>
 
@@ -182,7 +182,7 @@ const UserService = ({ handleContinue, handleBack }) => {
                                 <div className='w-full flex flex-row justify-center items-center h-screen'>
                                     <CircularProgress size={35} />
                                 </div> :
-                                <div className='mt-8 w-full md:w-10/12 lg:w-6/12 gap-4 flex flex-col max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+                                <div className='mt-8 w-full md:w-10/12 lg:w-7/12 gap-4 flex flex-col max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
 
                                     {servicesData.map((item, index) => (
                                         <button key={item.id} onClick={() => { handleserviceId(item.id) }} className='border-none outline-none'>
@@ -192,7 +192,7 @@ const UserService = ({ handleContinue, handleBack }) => {
                                                     backgroundColor: serviceId.includes(item.id) ? "#402FFF05" : ""
                                                 }}>
                                                 <div className='flex flex-row items-start justify-between px-4 w-full py-2'>
-                                                    <div className='text-start w-[100%] md:w-[60%]'>
+                                                    <div className='text-start w-[100%] md:w-[90%]'>
                                                         <div style={{ fontFamily: "", fontWeight: "700", fontSize: 20 }}>
                                                             {item.title}
                                                         </div>

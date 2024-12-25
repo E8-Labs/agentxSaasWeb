@@ -444,7 +444,7 @@ const SalesDevAgent = ({ handleContinue, handleSalesAgentBack, length = 6, onCom
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
             <div className='bg-white rounded-2xl mx-2 w-full md:w-10/12 max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
-                <div className='h-[80vh]'>
+                <div className='h-[82svh]'>
                     {/* header */}
                     <div className='h-[10%]'>
                         <Header />
@@ -452,7 +452,7 @@ const SalesDevAgent = ({ handleContinue, handleSalesAgentBack, length = 6, onCom
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full h-[90%]'>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }} onClick={handleContinue}>
-                            Your Contact Information for SalesDevAgent
+                            Your Contact Information
                         </div>
                         <div className='mt-8 w-full md:w-10/12 lg:w-6/12 flex flex-col max-h-[85%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2' style={{ scrollbarWidth: "none" }}>
 
