@@ -1835,7 +1835,7 @@ function Page() {
               <input
                 placeholder="Name"
                 className="w-full rounded p-2 outline-none focus:outline-none focus:ring-0"
-                style={{ ...styles.inputStyle, border: "1px solid #00000020" }}
+                style={{ ...styles.inputStyle, border: "1px solid #00000010" }}
                 value={name}
                 onChange={(e) => {
                   setName(e.target.value);
@@ -1897,7 +1897,7 @@ function Page() {
               )}
 
               <div
-                className="h-[37vh] overflow-auto"
+                className="max-h-[37vh] overflow-auto"
                 style={{ scrollbarWidth: "none" }}
               >
                 {scriptKeys?.map((key, index) => (
@@ -1908,9 +1908,9 @@ function Page() {
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
                         }`}
-                      style={styles.inputStyle}
+                      style={{ ...styles.inputStyle, border: "1px solid #00000010" }}
                       value={inputValues[index] || ""} // Default to empty string if no value
                       onChange={(e) => handleInputChange(index, e.target.value)}
                     />
@@ -1927,8 +1927,8 @@ function Page() {
                   <div>
                     {name && phone && (
                       <button
-                        style={{ marginTop: 20 }}
-                        className="w-full flex bg-purple p-3 rounded-lg items-center justify-center mb-8"
+                        // style={{ marginTop: 10 }}
+                        className="w-full flex bg-purple p-3 rounded-lg items-center justify-center"
                         onClick={handleTestAiClick}
                       >
                         <div
@@ -2586,7 +2586,7 @@ function Page() {
               </div> */}
 
 
-              <UserCalender calendarDetails={calendarDetails} setUserDetails={setUserAgentsList} mainAgentId={MainAgentId} />
+              <UserCalender calendarDetails={calendarDetails} setUserDetails={setUserAgentsList} selectedAgent={showDrawer} mainAgentId={MainAgentId} />
             </div>
           ) : activeTab === "Pipeline | Stages" ? (
             <div className="flex flex-col gap-4">
@@ -2944,7 +2944,7 @@ function Page() {
         }}
       >
         <Box
-          className="w-10/12 sm:w-10/12 md:w-8/12 lg:w-6/12 p-8 rounded-[15px]"
+          className="w-10/12 sm:w-[760px] p-8 rounded-[15px]"
           sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
         >
           <div style={{ width: "100%" }}>

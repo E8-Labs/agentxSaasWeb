@@ -1220,7 +1220,7 @@ const Pipeline1 = () => {
                                             style={styles.paragraph}
                                             onClick={() => { setShowStagesPopup(true) }}
                                         >
-                                            <Image src={"/assets/colorDrop.png"} height={18} width={15} alt='*' />
+                                            <Image src={"/assets/list.png"} height={18} width={15} alt='*' />
                                             Rearrange Stage
                                         </button>
                                     </div>
@@ -1395,6 +1395,7 @@ const Pipeline1 = () => {
                                                             style={styles.paragraph}
                                                             onClick={() => {
                                                                 console.log("Selected stage is:", selectedStage);
+                                                                // setSelectedStage(item);
                                                                 setShowDelStageModal(true);
                                                             }}>
                                                             <Image src={"/assets/delIcon.png"} height={18} width={18} alt='*' />
@@ -1907,126 +1908,166 @@ const Pipeline1 = () => {
                 <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
                     <div style={{ width: "100%", }}>
 
-                        <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
-                            <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                {/* <div style={{ width: "20%" }} /> */}
-                                <div style={{ fontWeight: "700", fontSize: 22 }}>
-                                    Delete Stage
-                                </div>
-                                <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
-                                    <button onClick={() => {
-                                        setShowDelStageModal(false);
-                                        handleCloseStagePopover();
-                                    }} className='outline-none'>
-                                        <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
-                                    </button>
-                                </div>
+                        <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            {/* <div style={{ width: "20%" }} /> */}
+                            <div style={{ fontWeight: "700", fontSize: 22 }}>
+                                Delete Stage
                             </div>
-
-                            <div className='mt-6' style={{
-                                fontWeight: "500", fontSize: 15
-                            }}>
-                                This stage has leads associated with it. Move this lead to another stage before deleting.
+                            <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
+                                <button onClick={() => {
+                                    setShowDelStageModal(false);
+                                    handleCloseStagePopover();
+                                }} className='outline-none'>
+                                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                </button>
                             </div>
-
-                            <div className='mt-6' style={{
-                                fontWeight: "700", fontSize: 15
-                            }}>
-                                Move to
-                            </div>
-
-                            <FormControl fullWidth>
-                                <Select
-                                    id="demo-simple-select"
-                                    value={assignNextStage || ""} // Default to empty string when no value is selected
-                                    onChange={handleChangeNextStage}
-                                    displayEmpty // Enables placeholder
-                                    renderValue={(selected) => {
-                                        if (!selected) {
-                                            return <div style={{ color: "#aaa" }}>Select Stage</div>; // Placeholder style
-                                        }
-                                        return selected;
-                                    }}
-                                    sx={{
-                                        border: "1px solid #00000020", // Default border
-                                        "&:hover": {
-                                            border: "1px solid #00000020", // Same border on hover
-                                        },
-                                        "& .MuiOutlinedInput-notchedOutline": {
-                                            border: "none", // Remove the default outline
-                                        },
-                                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                            border: "none", // Remove outline on focus
-                                        },
-                                        "&.MuiSelect-select": {
-                                            py: 0, // Optional padding adjustments
-                                        },
-                                    }}
-                                    MenuProps={{
-                                        PaperProps: {
-                                            style: {
-                                                maxHeight: "30vh", // Limit dropdown height
-                                                overflow: "auto", // Enable scrolling in dropdown
-                                                scrollbarWidth: "none"
-                                            },
-                                        },
-                                    }}
-                                >
-                                    {
-                                        StagesList.map((stage, index) => {
-                                            return (
-                                                <MenuItem
-                                                    key={index}
-                                                    value={stage.stageTitle}
-                                                    disabled={stage.id === selectedStage?.id}
-                                                >
-                                                    {stage.stageTitle}
-                                                </MenuItem>
-                                            )
-                                        })
-                                    }
-                                </Select>
-                            </FormControl>
-
-
-
                         </div>
 
                         {
-                            delStageLoader2 ?
-                                <div className='flex flex-row iems-center justify-center w-full mt-10'>
-                                    <CircularProgress size={25} />
-                                </div> :
-                                <button
-                                    className='mt-10 outline-none bg-purple'
-                                    style={{
-                                        color: "white",
-                                        height: "50px", borderRadius: "10px", width: "100%",
-                                        fontWeight: 600, fontSize: '20'
-                                    }}
-                                    onClick={(e) => { handleDeleteStage("del2") }}
-                                >
-                                    Delete
-                                </button>
-                        }
+                            selectedStage?.hasLeads ? (
+                                <div>
+                                    <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
 
-                        {
-                            delStageLoader ?
-                                <div className='flex flex-row iems-center justify-center w-full mt-4'>
-                                    <CircularProgress size={25} />
-                                </div> :
-                                <div className='flex flex-row iems-center justify-center w-full'>
-                                    <button
-                                        className='mt-2 outline-none'
-                                        style={{
-                                            color: "#00000080",
-                                            fontWeight: "500", fontSize: 15, borderBottom: "1px solid #00000080"
-                                        }}
-                                        onClick={(e) => { handleDeleteStage("del") }}
-                                    >
-                                        Delete without moving
-                                    </button>
+                                        <div className='mt-6' style={{
+                                            fontWeight: "500", fontSize: 15
+                                        }}>
+                                            This stage has leads associated with it. Move this lead to another stage before deleting.
+                                        </div>
+
+                                        <div className='mt-6' style={{
+                                            fontWeight: "700", fontSize: 15
+                                        }}>
+                                            Move to
+                                        </div>
+
+                                        <FormControl fullWidth>
+                                            <Select
+                                                id="demo-simple-select"
+                                                value={assignNextStage || ""} // Default to empty string when no value is selected
+                                                onChange={handleChangeNextStage}
+                                                displayEmpty // Enables placeholder
+                                                renderValue={(selected) => {
+                                                    if (!selected) {
+                                                        return <div style={{ color: "#aaa" }}>Select Stage</div>; // Placeholder style
+                                                    }
+                                                    return selected;
+                                                }}
+                                                sx={{
+                                                    border: "1px solid #00000020", // Default border
+                                                    "&:hover": {
+                                                        border: "1px solid #00000020", // Same border on hover
+                                                    },
+                                                    "& .MuiOutlinedInput-notchedOutline": {
+                                                        border: "none", // Remove the default outline
+                                                    },
+                                                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                                        border: "none", // Remove outline on focus
+                                                    },
+                                                    "&.MuiSelect-select": {
+                                                        py: 0, // Optional padding adjustments
+                                                    },
+                                                }}
+                                                MenuProps={{
+                                                    PaperProps: {
+                                                        style: {
+                                                            maxHeight: "30vh", // Limit dropdown height
+                                                            overflow: "auto", // Enable scrolling in dropdown
+                                                            scrollbarWidth: "none"
+                                                        },
+                                                    },
+                                                }}
+                                            >
+                                                {
+                                                    StagesList.map((stage, index) => {
+                                                        return (
+                                                            <MenuItem
+                                                                key={index}
+                                                                value={stage.stageTitle}
+                                                                disabled={stage.id === selectedStage?.id}
+                                                            >
+                                                                {stage.stageTitle}
+                                                            </MenuItem>
+                                                        )
+                                                    })
+                                                }
+                                            </Select>
+                                        </FormControl>
+
+
+
+                                    </div>
+
+                                    {
+                                        delStageLoader2 ?
+                                            <div className='flex flex-row iems-center justify-center w-full mt-10'>
+                                                <CircularProgress size={25} />
+                                            </div> :
+                                            <button
+                                                className='mt-10 outline-none bg-purple'
+                                                disabled={!assignNextStage}
+                                                style={{
+                                                    color: "white",
+                                                    height: "50px", borderRadius: "10px", width: "100%",
+                                                    backgroundColor: !assignNextStage && "#00000060",
+                                                    fontWeight: 600, fontSize: '20'
+                                                }}
+                                                onClick={(e) => { handleDeleteStage("del2") }}
+                                            >
+                                                Delete
+                                            </button>
+                                    }
+
+                                    {
+                                        delStageLoader ?
+                                            <div className='flex flex-row iems-center justify-center w-full mt-4'>
+                                                <CircularProgress size={25} />
+                                            </div> :
+                                            <div className='flex flex-row iems-center justify-center w-full'>
+                                                <button
+                                                    className='mt-2 outline-none'
+                                                    style={{
+                                                        color: "#00000080",
+                                                        fontWeight: "500", fontSize: 15, borderBottom: "1px solid #00000080"
+                                                    }}
+                                                    onClick={(e) => { handleDeleteStage("del") }}
+                                                >
+                                                    Delete without moving
+                                                </button>
+                                            </div>
+                                    }
                                 </div>
+                            ) : (
+                                <div>
+                                    <div className='mt-6' style={{
+                                        fontWeight: "500", fontSize: 15
+                                    }}>
+                                        Confirm you want to delete this stage.This action is irreversible.
+                                    </div>
+                                    <div className='flex flex-row items-center w-full mt-8'>
+                                        <div
+                                            className='w-1/2 text-center'
+                                            onClick={() => {
+                                                setShowDelStageModal(false);
+                                                handleCloseStagePopover();
+                                            }}
+                                        >
+                                            Cancel
+                                        </div>
+                                        {
+                                            delStageLoader ?
+                                                <div className='flex flex-row iems-center justify-center w-1/2'>
+                                                    <CircularProgress size={25} />
+                                                </div> :
+                                                <button
+                                                    className='bg-red text-white w-1/2 h-[44px] rounded-[10px]'
+                                                    onClick={(e) => { handleDeleteStage("del") }}
+                                                >
+                                                    Delete
+                                                </button>
+                                        }
+                                    </div>
+                                </div>
+                            )
                         }
 
 
@@ -3000,7 +3041,7 @@ const Pipeline1 = () => {
 
 
 
-        </div>
+        </div >
     )
 }
 

@@ -155,7 +155,12 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     const handleDeleteLead = async (delLead) => {
         console.log("Lead to delete details are", delLead);
         setShowDetailsModal(false);
-        setLeadsList((prevLeads) => prevLeads.filter((lead) => lead.id !== delLead.id))
+        let filtered = LeadsList.filter((lead) => lead.id !== delLead.id)
+        console.log('Filtered Leads ', filtered)
+        // return
+        localStorage.setItem(`Leads${SelectedSheetId}`, JSON.stringify(filtered))
+        setLeadsList(filtered)
+        setFilterLeads(filtered)
     }
 
     //function to format the number
@@ -1234,18 +1239,41 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
 
                             </div>
 
-                            <div className='flex flex-row items-center mt-8 gap-2' style={styles.paragraph}>
-                                <div className='flex flex-row items-center gap-2'>
+                            <div className='flex flex-row items-center mt-8 gap-2 w-full overflow-auto' style={styles.paragraph}
+                            // className="flex flex-row items-center mt-8 gap-2"
+                            // style={{ ...styles.paragraph, overflowY: "hidden" }}
+                            >
+                                <div
+                                    className='flex flex-row items-center gap-2 w-full w-full overflow-x-auto'
+                                    style={{
+                                        ...styles.paragraph,
+                                        overflowY: "hidden",
+                                        scrollbarWidth: "none", // For Firefox
+                                        msOverflowStyle: "none", // For Internet Explorer and Edge
+                                    }}
+                                >
+                                    <style jsx>{`
+    div::-webkit-scrollbar {
+      display: none; /* For Chrome, Safari, and Opera */
+    }
+  `}
+                                    </style>
                                     {
                                         SheetsList.map((item, index) => {
                                             return (
                                                 <div
                                                     key={index}
-                                                    className='flex flex-row items-center gap-1 px-3'
-                                                    style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
+                                                    className="flex flex-row items-center gap-1 px-3"
+                                                    style={{
+                                                        borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "",
+                                                        color: SelectedSheetId === item.id ? "#7902DF" : "",
+                                                        whiteSpace: "nowrap", // Prevent text wrapping
+                                                    }}
+                                                // className='flex flex-row items-center gap-1 px-3'
+                                                // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
                                                 >
                                                     <button style={styles.paragraph}
-                                                        className='outline-none'
+                                                        className='outline-none w-full'
                                                         onClick={() => {
                                                             getLeads(item, 0);
                                                         }}
@@ -1298,7 +1326,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                         })
                                     }
                                 </div>
-                                <button className='flex flex-row items-center gap-1 text-purple' style={styles.paragraph} onClick={() => { setShowAddNewSheetModal(true) }}>
+                                <button className='flex flex-row items-center gap-1 text-purple flex-shrink-0' style={styles.paragraph} onClick={() => { setShowAddNewSheetModal(true) }}>
                                     <Plus size={15} color='#7902DF' weight='bold' />
                                     <span>
                                         New list

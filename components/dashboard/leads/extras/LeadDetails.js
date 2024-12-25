@@ -8,7 +8,10 @@ import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
 const LeadDetails = ({
+
     showDetailsModal, selectedLead, setShowDetailsModal, pipelineId, handleDelLead }) => {
+
+    console.log("Lead details are ", selectedLead)
 
     const [columnsLength, setcolumnsLength] = useState([]);
 
@@ -448,9 +451,9 @@ const LeadDetails = ({
 
             const ApiPath = Apis.deleteLead;
 
-            handleDelLead(selectedLeadsDetails)
 
-            return
+
+            // return
             const response = await axios.post(ApiPath, ApiData, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken,
@@ -459,7 +462,10 @@ const LeadDetails = ({
             });
 
             if (response) {
-                console.log("Response of del lead api is", response)
+                console.log("Response of del lead api is", response);
+                if (response.data.status === true) {
+                    handleDelLead(selectedLeadsDetails)
+                }
             }
 
         } catch (error) {
@@ -501,7 +507,7 @@ const LeadDetails = ({
                     },
                 }}
             >
-                <Box className="lg:w-6/12 sm:w-7/12 w-8/12 bg-white py-2 h-[89vh] overflow-auto" sx={{ ...styles.modalsStyle, scrollbarWidth: "none", backgroundColor: "white" }}>
+                <Box className="lg:w-6/12 sm:w-7/12 w-8/12 bg-white py-2 h-[85vh] overflow-auto" sx={{ ...styles.modalsStyle, scrollbarWidth: "none", backgroundColor: "white" }}>
                     <div className="w-full flex flex-col items-center h-full">
                         {/* <div className='flex flex-row justify-between items-center'>
                             <div style={{ fontWeight: "500", fontSize: 16.9 }}>
@@ -722,6 +728,29 @@ const LeadDetails = ({
                                             }
                                         </div>
 
+
+                                        <div className='flex flex-row items--center w-full justify-between mt-4'>
+                                            <div className='flex flex-row items-center gap-2'>
+                                                {/* <Image src={"/otherAssets/calenderIcon.png"} height={16} width={16} alt='man' /> */}
+                                                <Image
+                                                    src="/assets/pipelineIcon.svg"
+                                                    height={20}
+                                                    width={20}
+                                                    alt="*"
+                                                    style={{
+                                                        filter: 'invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)'
+                                                    }}
+                                                />
+                                                <div style={styles.subHeading}>
+                                                    Pipeline
+                                                </div>
+                                            </div>
+                                            <div className="text-end" style={styles.paragraph}>
+                                                {/* {selectedLeadsDetails?.phone} */}
+                                                {selectedLeadsDetails?.pipeline ? (selectedLeadsDetails.pipeline.title) : "-"}
+                                            </div>
+                                        </div>
+
                                         <div className='flex flex-row items--center w-full justify-between mt-4'>
                                             <div className='flex flex-row items-center gap-2'>
                                                 <Image src={"/assets/arrow.png"} height={16} width={16} alt='man' />
@@ -813,11 +842,32 @@ const LeadDetails = ({
                                             <div className='flex flex-row items-center gap-2'>
                                                 <Image src={"/assets/manIcn.png"} height={16} width={16} alt='man' />
                                                 <div style={styles.subHeading}>
-                                                    Assigne
+                                                    Assign
                                                 </div>
                                             </div>
                                             <div className="text-end" style={styles.paragraph}>
-                                                <Image src={"/assets/manIcon.png"} height={40} width={40} alt='man' />
+                                                <Image src={"/assets/manIcon.png"} height={30} width={30} alt='man' />
+                                            </div>
+                                        </div>
+
+                                        <div className='flex flex-row items--center w-full justify-between mt-4'>
+                                            <div className='flex flex-row items-center gap-2'>
+                                                <Image
+                                                    src="/otherAssets/calenderIcon.png"
+                                                    height={20}
+                                                    width={20}
+                                                    alt="*"
+                                                    style={{
+                                                        filter: 'invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)'
+                                                    }}
+                                                />
+                                                <div style={styles.subHeading}>
+                                                    Appointment
+                                                </div>
+                                            </div>
+                                            <div className="text-end" style={styles.paragraph}>
+                                                {/* {selectedLeadsDetails?.phone} */}
+                                                {selectedLeadsDetails?.booking ? (selectedLeadsDetails.booking.date + " - " + selectedLeadsDetails.booking.time) : "-"}
                                             </div>
                                         </div>
 

@@ -135,11 +135,11 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline }) => {
                                         className='w-full flex flex-row items-center justify-between'
                                     >
                                         <div>
-                                            {stage.cadence.stage.stageTitle}
+                                            {stage?.cadence?.stage?.stageTitle || "-"}
                                         </div>
                                         <div>
                                             <div>
-                                                {expandedStages.includes(stage.cadence.id) ? (
+                                                {expandedStages.includes(stage?.cadence?.id) ? (
                                                     <CaretUp size={20} weight='bold' />
                                                 ) : (
                                                     <CaretDown size={20} weight='bold' />
@@ -147,7 +147,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline }) => {
                                             </div>
                                         </div>
                                     </button>
-                                    {expandedStages.includes(stage.cadence.id) && (
+                                    {expandedStages.includes(stage?.cadence?.id) && (
                                         <div style={{ border: "1px solid #00000020", borderRadius: "5px", padding: 10, marginTop: 15 }}>
 
                                             {
@@ -191,7 +191,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline }) => {
                                                         borderRadius: "7px",
                                                         border: "1px solid #00000010"
                                                     }}>
-                                                    {stage.cadence.moveToStage.stageTitle}
+                                                    {stage?.cadence?.moveToStage?.stageTitle}
                                                 </div>
                                             </div>
                                         </div>

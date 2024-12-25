@@ -737,7 +737,7 @@ const AddSellerKyc = ({
                         {
                             toggleClick === 1 ?
                                 (
-                                    <div className='mt-8 w-10/12 md:w-8/12  lg:w-6/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                                    <div className='mt-8 w-[90%] max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                         {
                                             needKYCQuestions.map((item, index) => (
                                                 <button
@@ -766,7 +766,7 @@ const AddSellerKyc = ({
                                 ) :
                                 toggleClick === 2 ?
                                     (
-                                        <div className='mt-8 w-10/12 md:w-8/12  lg:w-6/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                                        <div className='mt-8 w-[90%] max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                             {
                                                 motivationKycQuestions.map((item, index) => (
                                                     <button
@@ -794,7 +794,7 @@ const AddSellerKyc = ({
                                     ) :
                                     toggleClick === 3 ?
                                         (
-                                            <div className='mt-8 w-10/12 md:w-8/12  lg:w-6/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                                            <div className='mt-8 w-[90%] max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                                 {
                                                     urgencyKycQuestions.map((item, index) => (
                                                         <button
@@ -822,7 +822,7 @@ const AddSellerKyc = ({
                         }
 
 
-                        <button className='mt-2 w-10/12 md:w-8/12  lg:w-6/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
+                        <button className='mt-2 w-[90%] outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
                             Add Question
                         </button>
                         {/* Modal to add KYC */}
@@ -841,7 +841,7 @@ const AddSellerKyc = ({
                             <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.AddNewKYCQuestionModal}>
                                 <div className="flex flex-row justify-center w-full">
                                     <div
-                                        className="sm:w-9/12 w-full"
+                                        className="w-full"
                                         style={{
                                             backgroundColor: "#ffffff",
                                             padding: 20,

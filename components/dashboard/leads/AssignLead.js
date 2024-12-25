@@ -7,9 +7,13 @@ import Image from 'next/image';
 import React, { use, useEffect, useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import AgentSelectSnackMessage from "./AgentSelectSnackMessage";
 
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import dayjs from "dayjs"; // Import Day.js
 
 
 const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
@@ -26,9 +30,21 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
     const [customLeadsToSend, setCustomLeadsToSend] = useState("");
     const [selectedFromDate, setSelectedFromDate] = useState(null);
     const [showFromDatePicker, setShowFromDatePicker] = useState(false);
-    const [selectedDateTime, setSelectedDateTime] = useState(new Date());
+    const [selectedDateTime, setSelectedDateTime] = useState(dayjs());
     const [CallNow, setCallNow] = useState("");
     const [CallLater, setCallLater] = useState(false);
+
+    //new code by salman
+    const [errorMessage, setErrorMessage] = useState(null);
+    const SelectAgentErrorTimeout = 4000; //change this to change the duration of the snack timer
+
+    useEffect(() => {
+        if (errorMessage) {
+            setTimeout(() => {
+                setErrorMessage(null);
+            }, SelectAgentErrorTimeout);
+        }
+    }, [errorMessage]);
 
     // useEffect(() => {
     //     let NewList = [];
@@ -152,12 +168,14 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
         //1 selected
         //2 can not assign
         // Check if the item is already selected
-        const isAlreadySelected = SelectedAgents.some((selectedItem) => selectedItem.id === item.id);
+        const isAlreadySelected = SelectedAgents.some(
+            (selectedItem) => selectedItem.id === item.id
+        );
 
         if (isAlreadySelected) {
             // Remove the item if it's already selected
-            console.log("Cheak 1")
-            return 1
+            console.log("Cheak 1");
+            return 1;
             // return prevSelectedItems.filter((selectedItem) => selectedItem.id !== item.id);
         } else {
             let allSelectedAgentStages = [];
@@ -166,24 +184,29 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
             // })
 
             SelectedAgents.map((agent) => {
-                allSelectedAgentStages = [...allSelectedAgentStages, ...agent.stages]
+                allSelectedAgentStages = [...allSelectedAgentStages, ...agent.stages];
                 // allSelectedAgentStages.push(agent.stages)
-            })
+            });
 
-            let canAssignStage = 0
+            let canAssignStage = 0;
             // Check if the pipeline.id matches with any previously selected item's pipeline.id
             if (item) {
                 SelectedAgents.map((agent) => {
                     if (agent.pipeline.id != item.pipeline.id) {
                         canAssignStage = 2;
                     }
-                })
+                });
             }
 
             if (canAssignStage == 0) {
                 console.log("Pipeline matches");
             } else {
                 console.log("Pipeline does not match");
+                if (!errorMessage) {
+                    setErrorMessage(
+                        "You can’t assign leads to agents to different pipelines"
+                    );
+                }
                 return 2;
             }
 
@@ -197,14 +220,18 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
             if (item.stages) {
                 item.stages.map((stage) => {
                     allSelectedAgentStages.map((selectedStage) => {
-                        // console.log(`Matchin stage ${stage.id} with ${JSON.stringify(selectedStage)}`)
+                        // console.log(Matchin stage ${stage.id} with ${JSON.stringify(selectedStage)})
                         if (stage.id == selectedStage.id) {
-                            console.log("Agents in same stage so can not assign")
+                            console.log("Agents in same stage so can not assign");
+                            if (!errorMessage) {
+                                setErrorMessage(
+                                    "You can’t assign leads to agents in the same stage"
+                                );
+                            }
                             canAssignStage = 2;
-
                         }
-                    })
-                })
+                    });
+                });
             }
 
             // item.stages.forEach((stage) => {
@@ -216,8 +243,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
             //     });
             // });
 
-
-            return canAssignStage
+            return canAssignStage;
         }
         // });
     };
@@ -240,13 +266,17 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
             if (CallNow) {
                 timer = 0
             } else if (CallLater) {
-                const currentDateTime = new Date();
-                const currentDate = currentDateTime.toLocaleString();
-                const futureDate = selectedDateTime.toLocaleString();
+                const currentDateTime = dayjs(); // Get current date and time using Day.js
+                const currentDate = currentDateTime.format("YYYY-MM-DD HH:mm:ss"); // Format as string
+                const futureDate = selectedDateTime.format("YYYY-MM-DD HH:mm:ss"); // Format as string
 
-                const differenceInMilliseconds = selectedDateTime.getTime() - currentDateTime.getTime();
-                const minutes = differenceInMilliseconds / (1000 * 60);
-                timer = minutes.toFixed(0)
+                const differenceInMilliseconds = selectedDateTime.diff(currentDateTime); // Difference in ms
+                const minutes = differenceInMilliseconds / (1000 * 60); // Convert ms to minutes
+                timer = minutes.toFixed(0); // Round to nearest integer
+
+                console.log("Current Date:", currentDate);
+                console.log("Future Date:", futureDate);
+                console.log("Difference in Minutes:", timer);
             }
 
             const Apidata = {
@@ -300,6 +330,15 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
     //code for date picker
 
     const handleDateChange = (date) => {
+        if (!date) {
+            console.log("No date selected");
+            return;
+        }
+
+        // Print in the desired format
+        console.log("Selected date and time:", date.format("DD/MM/YYYY HH:mm"));
+
+        // Save the selected date
         setSelectedDateTime(date);
     };
 
@@ -340,6 +379,12 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
 
     return (
         <div className='w-full'>
+            <div
+                className="flex justify-center item-center -mt-4 "
+                style={{ height: 60 }}
+            >
+                {errorMessage && <AgentSelectSnackMessage message={errorMessage} />}
+            </div>
             <div className='flex flex-row items-center justify-between mt-4'>
                 <div style={{ fontSize: 24, fontWeight: "700" }}>
                     Select your Agent
@@ -485,48 +530,6 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                 </button>
             </div>
 
-
-
-            {/* code for warning modal */}
-            <Modal
-                open={CannotAssignLeadModal}
-                onClose={() => setCannotAssignLeadModal(false)}
-                closeAfterTransition
-                BackdropProps={{
-                    sx: {
-                        backgroundColor: "#00000020",
-                        // //backdropFilter: "blur(5px)",
-                    },
-                }}
-            >
-                <Box className="lg:w-3/12 sm:w-5/12 w-8/12" sx={styles.modalsStyle}>
-                    <div className="flex flex-row justify-center w-full">
-                        <div
-                            className="w-full"
-                            style={{
-                                backgroundColor: "#ffffff",
-                                padding: 20,
-                                borderRadius: "13px",
-                            }}
-                        >
-
-                            <div style={{ fontWeight: "600", fontSize: 16 }}>
-                                Unselect the selected agent to select new agent !
-                            </div>
-                            <button
-                                className='text-white w-full h-[50px] rounded-lg bg-purple mt-4'
-                                onClick={() => { setCannotAssignLeadModal(false) }}
-                                style={{ fontWeight: "600", fontSize: 15 }}
-                            >
-                                Close
-                            </button>
-
-                            {/* Can be use full to add shadow
-                            <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-                        </div>
-                    </div>
-                </Box>
-            </Modal>
 
             {/* last step modal */}
             <Modal
@@ -694,14 +697,43 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                                                             Select date and time to shedule call
                                                         </div>
                                                         <div className='w-full mt-4 flex flex-row justify-center'>
-                                                            <DatePicker
-                                                                selected={selectedDateTime}
-                                                                onChange={handleDateChange}
-                                                                showTimeSelect
-                                                                dateFormat="Pp" // Date and time format
-                                                                className="border p-2 rounded"
-                                                                placeholderText="Select date and time"
-                                                            />
+
+                                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                                <DateTimePicker
+                                                                    // label="Select date and time"
+                                                                    minDateTime={dayjs()}
+                                                                    //   value={value}
+                                                                    onChange={handleDateChange}
+                                                                    renderInput={(params) => (
+                                                                        <input
+                                                                            {...params.inputProps}
+                                                                            style={{
+                                                                                border: "none", // Disable border
+                                                                                outline: "none",
+                                                                                padding: "8px",
+                                                                                backgroundColor: "#f9f9f9", // Optional: subtle background for better visibility
+                                                                            }}
+                                                                            onFocus={(e) => {
+                                                                                e.target.style.border = "none"; // Ensure no border on focus
+                                                                                e.target.style.outline = "none"; // Ensure no outline on focus
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                e.target.style.border = "none"; // Reset border on blur
+                                                                                e.target.style.outline = "none"; // Reset outline on blur
+                                                                            }}
+                                                                            onMouseEnter={(e) => {
+                                                                                e.target.style.border = "none"; // Remove border on hover
+                                                                                e.target.style.outline = "none"; // Remove outline on hover
+                                                                            }}
+                                                                            onMouseLeave={(e) => {
+                                                                                e.target.style.border = "none"; // Reset border on hover out
+                                                                                e.target.style.outline = "none"; // Reset outline on hover out
+                                                                            }}
+                                                                        />
+                                                                    )}
+                                                                />
+                                                            </LocalizationProvider>
+
                                                         </div>
                                                         <div className='w-full flex flex-row justify-center mt-6'>
                                                             <button

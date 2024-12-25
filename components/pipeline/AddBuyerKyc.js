@@ -502,8 +502,8 @@ const AddBuyerKyc = ({
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='rounded-lg w-10/12 h-[90%] flex flex-col justify-between'>
-                <div className='h-[62vh] py-4' style={{ scrollbarWidth: "none" }}>
+            <div className='rounded-lg w-10/12 h-[100%] flex flex-col'>
+                <div className='h-[90%] py-4' style={{ scrollbarWidth: "none" }}>
                     {/* header */}
                     {/* <Header /> */}
                     <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' />
@@ -549,7 +549,7 @@ const AddBuyerKyc = ({
                         {
                             toggleClick === 1 ?
                                 (
-                                    <div className='mt-8 w-10/12 md:w-8/12  lg:w-6/12 max-h-[37vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                                    <div className='mt-8 w-[90%] max-h-[37vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                         {
                                             needKYCQuestions.map((item, index) => (
                                                 <button
@@ -578,7 +578,7 @@ const AddBuyerKyc = ({
                                 ) :
                                 toggleClick === 2 ?
                                     (
-                                        <div className='mt-8 w-10/12 md:w-8/12  lg:w-6/12 max-h-[37vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                                        <div className='mt-8 w-[90%] max-h-[37vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                             {
                                                 motivationKycQuestions.map((item, index) => (
                                                     <button
@@ -606,7 +606,7 @@ const AddBuyerKyc = ({
                                     ) :
                                     toggleClick === 3 ?
                                         (
-                                            <div className='mt-8 w-10/12 md:w-8/12  lg:w-6/12 max-h-[37vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                                            <div className='mt-8 w-[90%] max-h-[37vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                                 {
                                                     urgencyKycQuestions.map((item, index) => (
                                                         <button
@@ -649,7 +649,7 @@ const AddBuyerKyc = ({
                             ))}
                         </div> */}
 
-                        <button className='mt-2 w-10/12 md:w-8/12  lg:w-6/12 outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
+                        <button className='mt-2 w-[90%] outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple text-purple' style={{ fontWeight: "700", fontSize: 15 }} onClick={handleAddKyc}>
                             Add Question
                         </button>
                         {/* Modal */}
@@ -668,7 +668,7 @@ const AddBuyerKyc = ({
                             <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.AddNewKYCQuestionModal}>
                                 <div className="flex flex-row justify-center w-full">
                                     <div
-                                        className="sm:w-9/12 w-full"
+                                        className="w-full"
                                         style={{
                                             backgroundColor: "#ffffff",
                                             padding: 20,
@@ -792,7 +792,7 @@ const AddBuyerKyc = ({
                     </div>
                 </div>
 
-                <div className='mt-8 w-full flex flex-row justify-center'>
+                <div className='h-[10%] w-full flex flex-row justify-center'>
                     {
                         buyerKycLoader ?
                             <div className='flex flex-row justify-center w-full'>

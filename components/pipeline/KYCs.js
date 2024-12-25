@@ -615,7 +615,7 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
                     },
                 }}
             >
-                <Box className="sm:w-10/12 w-10/12 h-[85vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
+                <Box className="sm:w-[760px] w-10/12 h-[85vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
                     <div className="flex flex-row justify-center w-full h-[100%]">
                         <div
                             className="w-full h-[100%]"
@@ -918,7 +918,7 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
                     },
                 }}
             >
-                <Box className="sm:w-10/12 w-10/12 h-[85vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
+                <Box className="sm:w-[760px] h-[85vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}>
                     <div className="flex flex-row justify-center w-full h-[100%]">
                         <div
                             className="w-full h-[100%]"
