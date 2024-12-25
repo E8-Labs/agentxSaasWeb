@@ -850,26 +850,30 @@ const LeadDetails = ({
                                             </div>
                                         </div>
 
-                                        <div className='flex flex-row items--center w-full justify-between mt-4'>
-                                            <div className='flex flex-row items-center gap-2'>
-                                                <Image
-                                                    src="/otherAssets/calenderIcon.png"
-                                                    height={20}
-                                                    width={20}
-                                                    alt="*"
-                                                    style={{
-                                                        filter: 'invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)'
-                                                    }}
-                                                />
-                                                <div style={styles.subHeading}>
-                                                    Appointment
+                                        {
+                                            selectedLeadsDetails?.booking && (
+                                                <div className='flex flex-row items--center w-full justify-between mt-4'>
+                                                    <div className='flex flex-row items-center gap-2'>
+                                                        <Image
+                                                            src="/otherAssets/calenderIcon.png"
+                                                            height={20}
+                                                            width={20}
+                                                            alt="*"
+                                                            style={{
+                                                                filter: 'invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)'
+                                                            }}
+                                                        />
+                                                        <div style={styles.subHeading}>
+                                                            Appointment
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-end" style={styles.paragraph}>
+                                                        {/* {selectedLeadsDetails?.phone} */}
+                                                        {selectedLeadsDetails?.booking ? (selectedLeadsDetails.booking.date + " - " + selectedLeadsDetails.booking.time) : "-"}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="text-end" style={styles.paragraph}>
-                                                {/* {selectedLeadsDetails?.phone} */}
-                                                {selectedLeadsDetails?.booking ? (selectedLeadsDetails.booking.date + " - " + selectedLeadsDetails.booking.time) : "-"}
-                                            </div>
-                                        </div>
+                                            )
+                                        }
 
                                         {/* Code for custom variables */}
 
