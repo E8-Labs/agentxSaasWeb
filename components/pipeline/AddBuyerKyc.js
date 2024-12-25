@@ -546,7 +546,7 @@ const AddBuyerKyc = ({
                 <div className='h-[90%] py-4' style={{ scrollbarWidth: "none" }}>
                     {/* header */}
                     {/* <Header /> */}
-                    <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' />
+                    {/* <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full'>
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
