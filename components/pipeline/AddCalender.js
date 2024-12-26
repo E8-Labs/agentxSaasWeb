@@ -481,7 +481,8 @@ const AddCalender = ({ handleContinue }) => {
                           className='h-[50px] w-full text-white rounded-xl'
                           style={{
                             fontWeight: "600", fontSize: 16,
-                            backgroundColor: !isEnabled() ? "#00000060" : "#7902DF"
+                            backgroundColor: !isEnabled() ? "#00000020" : "#7902DF",
+                            color: !isEnabled() ? "#000000" : ""
                           }}
                           onClick={handleAddCalender}
                         >

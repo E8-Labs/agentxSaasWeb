@@ -659,7 +659,7 @@ const LeadDetails = ({
                                             </div>
                                             <div className="text-end" style={styles.paragraph}>
                                                 {/* {selectedLeadsDetails?.phone} */}
-                                                {formatPhoneNumber(selectedLeadsDetails?.phone)}
+                                                {formatPhoneNumber(selectedLeadsDetails?.phone) || "-"}
                                             </div>
                                         </div>
 
@@ -672,7 +672,7 @@ const LeadDetails = ({
                                                 </div>
                                             </div>
                                             <div className="text-end" style={styles.paragraph}>
-                                                {selectedLeadsDetails?.address}
+                                                {selectedLeadsDetails?.address || "-"}
                                             </div>
                                         </div>
 

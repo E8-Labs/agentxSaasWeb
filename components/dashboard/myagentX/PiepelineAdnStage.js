@@ -13,12 +13,16 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline }) => {
         { id: 3, title: "s3", description: "Testing the stage3" },
     ]);
 
+
     const [agentCadence, setAgentCadence] = useState([]);
 
     const [initialLoader, setInitialLoader] = useState(false);
 
     useEffect(() => {
-        handleGetCadence();
+        if (selectedAgent.agentType !== "inbound") {
+            console.log("Trigered the get cadence api")
+            handleGetCadence();
+        }
     }, []);
 
 
@@ -116,92 +120,97 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline }) => {
                     {UserPipeline?.title ? (UserPipeline?.title) : "-"}
                 </div>
             </div>
-            <div className='mt-4' style={{ fontWeight: "700", fontSize: 16.8 }}>
-                Stages
-            </div>
 
-            {
-                initialLoader ? (
-                    <div className='w-full flex flex-row items-center justify-center'>
-                        <CircularProgress size={25} />
+            {selectedAgent?.agentType !== "inbound" && (
+                <div className='w-full'>
+                    <div className='mt-4' style={{ fontWeight: "700", fontSize: 16.8 }}>
+                        Stages
                     </div>
-                ) : (
-                    <div>
-                        {agentCadence.map((stage, index) => (
-                            <div key={index} className='mt-4'>
-                                <div style={{ border: "1px solid #00000020", borderRadius: "8px", padding: 15 }}>
-                                    <button
-                                        onClick={() => toggleStageDetails(stage)}
-                                        className='w-full flex flex-row items-center justify-between'
-                                    >
-                                        <div>
-                                            {stage?.cadence?.stage?.stageTitle || "-"}
-                                        </div>
-                                        <div>
-                                            <div>
-                                                {expandedStages.includes(stage?.cadence?.id) ? (
-                                                    <CaretUp size={20} weight='bold' />
-                                                ) : (
-                                                    <CaretDown size={20} weight='bold' />
-                                                )}
-                                            </div>
-                                        </div>
-                                    </button>
-                                    {expandedStages.includes(stage?.cadence?.id) && (
-                                        <div style={{ border: "1px solid #00000020", borderRadius: "5px", padding: 10, marginTop: 15 }}>
-
-                                            {
-                                                stage.calls.map((item, index) => {
-                                                    return (
-                                                        <div key={index} className='flex flex-row items-center gap-4' style={styles.paragraph}>
-                                                            <div>
-                                                                Wait
-                                                            </div>
-                                                            <div className='flex flex-row items-center w-[240px]' style={{ color: "#00000070" }}>
-                                                                <div className='text-center' style={{ width: "33%", border: "1px solid #00000020", borderTopLeftRadius: "7px", borderBottomLeftRadius: "7px", padding: 5 }}>
-                                                                    {item.waitTimeDays}
-                                                                </div>
-                                                                <div className='text-center' style={{ width: "33%", borderBottom: "1px solid #00000020", borderTop: "1px solid #00000020", padding: 5 }}>
-                                                                    {item.waitTimeHours}
-                                                                </div>
-                                                                <div className='text-center' style={{ width: "33%", border: "1px solid #00000020", borderTopRightRadius: "7px", borderBottomRightRadius: "7px", padding: 5 }}>
-                                                                    {item.waitTimeMinutes}
-                                                                </div>
-                                                            </div>
-                                                            <div>
-                                                                , then Make Call
-                                                            </div>
-                                                        </div>
-                                                    )
-                                                })
-                                            }
-
-                                            <div className='flex flex-row items-center gap-2 mt-4'>
-                                                <p style={styles.paragraph}>
-                                                    Then move to
-                                                </p>
-                                                <div
-                                                    className='py-1 text-center px-2 flex flex-col justify-center'
-                                                    style={{
-                                                        width: "fit-centent",
-                                                        backgroundColor: "#15151520",
-                                                        fontWeight: "500",
-                                                        fontSize: 15,
-                                                        height: "33px",
-                                                        borderRadius: "7px",
-                                                        border: "1px solid #00000010"
-                                                    }}>
-                                                    {stage?.cadence?.moveToStage?.stageTitle}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
+                    {
+                        initialLoader ? (
+                            <div className='w-full flex flex-row items-center justify-center'>
+                                <CircularProgress size={25} />
                             </div>
-                        ))}
-                    </div>
-                )
-            }
+                        ) : (
+                            <div>
+                                {agentCadence.map((stage, index) => (
+                                    <div key={index} className='mt-4'>
+                                        <div style={{ border: "1px solid #00000020", borderRadius: "8px", padding: 15 }}>
+                                            <button
+                                                onClick={() => toggleStageDetails(stage)}
+                                                className='w-full flex flex-row items-center justify-between'
+                                            >
+                                                <div>
+                                                    {stage?.cadence?.stage?.stageTitle || "-"}
+                                                </div>
+                                                <div>
+                                                    <div>
+                                                        {expandedStages.includes(stage?.cadence?.id) ? (
+                                                            <CaretUp size={20} weight='bold' />
+                                                        ) : (
+                                                            <CaretDown size={20} weight='bold' />
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </button>
+                                            {expandedStages.includes(stage?.cadence?.id) && (
+                                                <div style={{ border: "1px solid #00000020", borderRadius: "5px", padding: 10, marginTop: 15 }}>
+
+                                                    {
+                                                        stage.calls.map((item, index) => {
+                                                            return (
+                                                                <div key={index} className='flex flex-row items-center gap-4' style={styles.paragraph}>
+                                                                    <div>
+                                                                        Wait
+                                                                    </div>
+                                                                    <div className='flex flex-row items-center w-[240px]' style={{ color: "#00000070" }}>
+                                                                        <div className='text-center' style={{ width: "33%", border: "1px solid #00000020", borderTopLeftRadius: "7px", borderBottomLeftRadius: "7px", padding: 5 }}>
+                                                                            {item.waitTimeDays}
+                                                                        </div>
+                                                                        <div className='text-center' style={{ width: "33%", borderBottom: "1px solid #00000020", borderTop: "1px solid #00000020", padding: 5 }}>
+                                                                            {item.waitTimeHours}
+                                                                        </div>
+                                                                        <div className='text-center' style={{ width: "33%", border: "1px solid #00000020", borderTopRightRadius: "7px", borderBottomRightRadius: "7px", padding: 5 }}>
+                                                                            {item.waitTimeMinutes}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div>
+                                                                        , then Make Call
+                                                                    </div>
+                                                                </div>
+                                                            )
+                                                        })
+                                                    }
+
+                                                    <div className='flex flex-row items-center gap-2 mt-4'>
+                                                        <p style={styles.paragraph}>
+                                                            Then move to
+                                                        </p>
+                                                        <div
+                                                            className='py-1 text-center px-2 flex flex-col justify-center'
+                                                            style={{
+                                                                width: "fit-centent",
+                                                                backgroundColor: "#15151520",
+                                                                fontWeight: "500",
+                                                                fontSize: 15,
+                                                                height: "33px",
+                                                                borderRadius: "7px",
+                                                                border: "1px solid #00000010"
+                                                            }}>
+                                                            {stage?.cadence?.moveToStage?.stageTitle}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )
+                    }
+                </div>
+            )}
+
 
         </div>
     );

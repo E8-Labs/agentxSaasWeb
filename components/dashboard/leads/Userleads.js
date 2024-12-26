@@ -540,11 +540,11 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                 // setFilterLeads(response.data.data);
 
                 const data = response.data.data;
-                if(SelectedSheetId == item.id){
-                    setLeadsList((prevDetails) => [...data]);
-                    setFilterLeads((prevDetails) => [...data]);
+                if (SelectedSheetId == item.id) {
+                    setLeadsList([...data]);
+                    setFilterLeads([...data]);
                 }
-                
+
                 leadData = data;
 
 
@@ -1120,7 +1120,9 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                     <button
                                         style={{ backgroundColor: toggleClick.length > 0 ? "#7902DF" : "", color: toggleClick.length > 0 ? "white" : "#00000060" }}
                                         className='flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center'
-                                        onClick={() => { setAssignLeadModal(true) }}>
+                                        onClick={() => { setAssignLeadModal(true) }}
+                                        disabled={!toggleClick.length > 0}
+                                    >
                                         {
                                             toggleClick.length > 0 ?
                                                 <Image src={"/assets/callBtnFocus.png"} height={17} width={17} alt='*' /> :

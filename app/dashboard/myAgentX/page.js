@@ -3161,7 +3161,7 @@ function Page() {
                     </div>
                   </div>
 
-                  <div className="" style={{ height: "20%" }}>
+                  <div className="" style={{ height: "" }}>
                     {showSaveChangesBtn && (
                       <div className="w-full pb-8">
                         {UpdateAgentLoader ? (

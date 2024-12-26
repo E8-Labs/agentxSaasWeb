@@ -650,7 +650,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                                     <button className='w-full flex flex-col justify-between p-4 rounded-2xl'
                                         style={{ border: CallLater ? "2px solid #7902DF" : "1px solid #00000040", height: "119px" }}
                                         onClick={() => {
-                                            setShowFromDatePicker(true);
+                                            setShowFromDatePicker(!showFromDatePicker);
                                             setCallNow("");
                                             setCallLater(true);
                                         }}
@@ -676,7 +676,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                                     </div> */}
 
                                     <Modal
-                                        open={showFromDatePicker}
+                                        // open={showFromDatePicker}
                                         onClose={() => setShowFromDatePicker(false)}
                                         closeAfterTransition
                                         BackdropProps={{
@@ -765,6 +765,60 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                             </div>
 
                             {
+                                CallLater && (
+                                    <div>
+                                        <div
+                                            className='mt-4'
+                                            style={{
+                                                fontWeight: "500",
+                                                fontsize: 12, color: "#00000050"
+                                            }}
+                                        >
+                                            Select date & time
+                                        </div>
+                                        <div className='mt-2'>
+                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                <DateTimePicker
+                                                    // label="Select date and time"
+                                                    // minDateTime={dayjs()}
+                                                    //   value={value}
+                                                    minDate={dayjs()}
+                                                    onChange={handleDateChange}
+                                                    renderInput={(params) => (
+                                                        <input
+                                                            {...params.inputProps}
+                                                            style={{
+                                                                border: "none", // Disable border
+                                                                outline: "none",
+                                                                padding: "8px",
+                                                                backgroundColor: "#f9f9f9", // Optional: subtle background for better visibility
+                                                            }}
+                                                            onFocus={(e) => {
+                                                                e.target.style.border = "none"; // Ensure no border on focus
+                                                                e.target.style.outline = "none"; // Ensure no outline on focus
+                                                            }}
+                                                            onBlur={(e) => {
+                                                                e.target.style.border = "none"; // Reset border on blur
+                                                                e.target.style.outline = "none"; // Reset outline on blur
+                                                            }}
+                                                            onMouseEnter={(e) => {
+                                                                e.target.style.border = "none"; // Remove border on hover
+                                                                e.target.style.outline = "none"; // Remove outline on hover
+                                                            }}
+                                                            onMouseLeave={(e) => {
+                                                                e.target.style.border = "none"; // Reset border on hover out
+                                                                e.target.style.outline = "none"; // Reset outline on hover out
+                                                            }}
+                                                        />
+                                                    )}
+                                                />
+                                            </LocalizationProvider>
+                                        </div>
+                                    </div>
+                                )
+                            }
+
+                            {
                                 loader ?
                                     <div className='mt-4 w-full flex flex-row items-center justify-center'>
                                         <CircularProgress size={30} />
@@ -779,7 +833,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                                                     Continue
                                                 </button>
                                             ) : (
-                                                <button className='text-white w-full h-[50px] rounded-lg bg-[#00000060] mt-4'
+                                                <button className='text-[#000000] w-full h-[50px] rounded-lg bg-[#00000020] mt-4'
                                                     disabled={true}>
                                                     Continue
                                                 </button>

@@ -107,7 +107,7 @@ const ProfileNav = () => {
         </div>
 
         <div className='w-full px-6'>
-          <button className='text-red text-start mt-4 bg-[#FF4E4E40] px-3 py-1 rounded-3xl' style={{ fontWeight: "600", fontSize: 17 }} onClick={() => {
+          {/* <button className='text-red text-start mt-4 bg-[#FF4E4E40] px-3 py-1 rounded-3xl' style={{ fontWeight: "600", fontSize: 17 }} onClick={() => {
             // localStorage.clear();
             localStorage.removeItem("User");
             localStorage.removeItem("localAgentDetails");
@@ -117,7 +117,7 @@ const ProfileNav = () => {
             router.push("/");
           }}>
             Log Out
-          </button>
+          </button> */}
         </div>
       </div>
     </div>

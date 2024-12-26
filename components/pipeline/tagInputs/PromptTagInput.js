@@ -429,7 +429,7 @@ export const PromptTagInput = ({
             width: "100%",
             fontWeight: "500",
             fontSize: 15,
-            height: "350px",
+            height: "220px",
             resize: "none",
             // border: "1px solid #00000020",
           }}

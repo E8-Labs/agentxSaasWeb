@@ -3,10 +3,12 @@
 import React, { useState } from 'react'
 import Image from 'next/image'
 import { TextField, Button, Box } from '@mui/material';
+import { useRouter } from 'next/navigation';
 
 
 function BasicInfo() {
 
+  const router = useRouter();
   const [focusedName, setFocusedName] = useState(false);
   const [focusedFarm, setFocusedFarm] = useState(false);
   const [focusedBrokerage, setFocusedBrokerage] = useState(false);
@@ -145,16 +147,34 @@ function BasicInfo() {
   return (
     <div className='w-full flex flex-col items-start px-8 py-2' style={{ paddingBottom: '50px', height: '100%', overflow: 'auto', scrollbarWidth: 'none' }}>
 
-      <div style={{ fontSize: 22, fontWeight: "700", color: '#000' }}>
-        Basic Information
-      </div>
+      <div className='w-full flex flex-row items-center justify-between'>
+        <div>
+          <div style={{ fontSize: 22, fontWeight: "700", color: '#000' }}>
+            Basic Information
+          </div>
 
-      <div style={{ fontSize: 12, fontWeight: "500", color: '#00000090' }}>
-        {"Account > Basic Information"}
+          <div style={{ fontSize: 12, fontWeight: "500", color: '#00000090' }}>
+            {"Account > Basic Information"}
+          </div>
+        </div>
+        <div>
+          <button className='text-red text-start mt-4 bg-[#FF4E4E40] px-3 py-1 rounded-3xl' style={{ fontWeight: "600", fontSize: 17 }} onClick={() => {
+            // localStorage.clear();
+            localStorage.removeItem("User");
+            localStorage.removeItem("localAgentDetails");
+            if (typeof document !== "undefined") {
+              document.cookie = "User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            }
+            router.push("/");
+          }}>
+            Log Out
+          </button>
+        </div>
       </div>
 
 
       <button
+        className='mt-8'
         onClick={() => document.getElementById("fileInput").click()}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -175,7 +195,7 @@ function BasicInfo() {
               />
             </div>
           ) : (
-            <Image src={'/otherAssets/profileImage.png'}
+            <Image src={'/agentXOrb.gif'}
               height={74}
               width={74}
               alt='profileImage'

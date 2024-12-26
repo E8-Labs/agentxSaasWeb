@@ -159,13 +159,15 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
       });
 
       if (response) {
-        console.log("Response of add objection api is:", response);
+        console.log("Response of add guardrails api is:", response);
         if (response.data.status === true) {
           setGuardrailsList(response.data.data.guardrails);
           localStorage.setItem("GuadrailsList", JSON.stringify(response.data.data.guardrails));
           setShowAddObjForm(false);
           setAddObjTitle("");
           setAddObjDescription("");
+        } else if (response.data.status === false) {
+          setShowErrorSnack(response.data.message);
         }
       }
 
@@ -386,7 +388,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
                 <div className='text-center text-2xl mt-6'>
                   <div className='flex flex-col items-center justify-center h-[20vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
                     <div className='h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'>
-                      <Image src={"/assets/activityClock.png"} height={24} width={24} alt='*' />
+                      <Image src={"/assets/notes.png"} height={24} width={24} alt='*' />
                     </div>
                     <div className='mt-4'>
                       <i style={{ fontWeight: "500", fontsize: 15 }}>
