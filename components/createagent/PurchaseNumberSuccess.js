@@ -51,7 +51,7 @@ const PurchaseNumberSuccess = ({ handleContinue, selectedNumber }) => {
 
             <div className='flex flex-row justify-between items-center mt-8 w-full'>
                 <div style={styles.heading}>Selected State</div>
-                <div style={styles.details}>{purchaseNumber.locality} {purchaseNumber.region}</div>
+                <div style={styles.details}>{purchaseNumber?.locality} {purchaseNumber?.region}</div>
             </div>
 
             <div className='flex flex-row justify-between items-center mt-12 w-full'>

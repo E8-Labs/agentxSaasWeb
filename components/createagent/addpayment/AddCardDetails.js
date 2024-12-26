@@ -434,7 +434,7 @@ const AddCardDetails = ({
                                 ) : (
                                     <button
                                         disabled={true}
-                                        className='bg-[#00000060] w-full h-[50px] rounded-xl px-8 text-white py-3' style={{ fontWeight: "600", fontSize: 17 }}>
+                                        className='bg-[#00000020] w-full h-[50px] rounded-xl px-8 text-[#000000] py-3' style={{ fontWeight: "600", fontSize: 17 }}>
                                         Continue
                                     </button>
                                 )

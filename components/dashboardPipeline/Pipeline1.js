@@ -1503,7 +1503,17 @@ const Pipeline1 = () => {
                                                                                                     <div
                                                                                                         className="text-[#402FFF]" //1C55FF10
                                                                                                     >
-                                                                                                        {tagVal}
+                                                                                                        {
+                                                                                                            tagVal.length > 3 ? (
+                                                                                                                <div>
+                                                                                                                    {tagVal.slice(0, 3)}{"..."}
+                                                                                                                </div>
+                                                                                                            ) : (
+                                                                                                                <div>
+                                                                                                                    {tagVal}
+                                                                                                                </div>
+                                                                                                            )
+                                                                                                        }
                                                                                                     </div>
                                                                                                     {
                                                                                                         DelTagLoader && tagVal.includes(DelTagLoader) ?
