@@ -251,9 +251,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
         if (!parsedNumber || !parsedNumber.isValid()) {
             if (e) {
-                setOfficeErrorMessage('Enter valid number');
+                setOfficeErrorMessage('Invalid number');
             } else {
-                setErrorMessage('Enter valid number');
+                setErrorMessage('Invalid number');
             }
         } else {
             setErrorMessage('');
@@ -613,7 +613,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                                     <MenuItem key={index} style={styles.dropdownMenu} value={item.phoneNumber.slice(1)} className='flex flex-row items-center gap-2'>
                                                         <div
                                                             onClick={(e) => {
-                                                                if (item?.claimedBy) {
+                                                                if (showReassignBtn && item?.claimedBy) {
                                                                     e.stopPropagation();
                                                                     setShowConfirmationModal(item);
                                                                 }

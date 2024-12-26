@@ -1082,7 +1082,7 @@ function Page() {
     );
     // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
-      setErrorMessage("Enter valid number");
+      setErrorMessage("Invalid number");
     } else {
       setErrorMessage("");
 
@@ -1918,7 +1918,7 @@ function Page() {
                 ))}
               </div>
 
-              <div className="w-full" style={{}}>
+              <div className="w-full mt-6" style={{}}>
                 {testAIloader ? (
                   <div className="flex flex-row items-center justify-center w-full p-3 mt-2">
                     <CircularProgress size={30} />
@@ -2399,7 +2399,7 @@ function Page() {
                             >
                               <div
                                 onClick={(e) => {
-                                  if (item?.claimedBy) {
+                                  if (showReassignBtn && item?.claimedBy) {
                                     e.stopPropagation();
                                     setShowConfirmationModal(item);
                                   }

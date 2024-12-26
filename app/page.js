@@ -125,7 +125,7 @@ const Page = ({ length = 6, onComplete }) => {
     const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`, countryCode.toUpperCase());
     // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
-      setErrorMessage('Enter valid number');
+      setErrorMessage('Invalid number');
     } else {
       setErrorMessage('');
 

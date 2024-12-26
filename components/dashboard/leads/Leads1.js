@@ -25,6 +25,10 @@ const Leads1 = () => {
 
 
   const addColRef = useRef(null);
+  const bottomRef = useRef(null);
+
+  //code for the new ui add lead modal
+  const [addNewLeadModal, setAddNewLeadModal] = useState(false);
 
   const [showAddLeadModal, setShowAddLeadModal] = useState(false);
   const [SelectedFile, setSelectedFile] = useState(null);
@@ -48,6 +52,13 @@ const Leads1 = () => {
   const [introVideoModal, setIntroVideoModal] = useState(false);
   //popup for deleting the column
   const [ShowDelCol, setShowDelCol] = useState(false);
+
+  //functions for add custom stage list
+  const [showAddNewSheetModal, setShowAddNewSheetModal] = useState(false);
+
+  const [newSheetName, setNewSheetName] = useState("");
+  const [inputs, setInputs] = useState([{ id: 1, value: 'First Name' }, { id: 2, value: 'Last Name' }, { id: 3, value: 'Phone Number' }, { id: 4, value: '' }, { id: 5, value: '' }, { id: 6, value: '' }]);
+  const [showaddCreateListLoader, setShowaddCreateListLoader] = useState(false);
 
   //code for adding tags
   const [tagsValue, setTagsValue] = useState([]);
@@ -159,41 +170,32 @@ const Leads1 = () => {
       dbName: "address",
     },
   ];
-  // const matchColumn = (columnName, mappings, columnsMatched = null) => {
-  // const lowerCaseName = columnName.toLowerCase();
 
-  // //console.log("Col mappings ", columnsMatched);
-  // // //console.log("Col name ", columnName);
+  //function to scroll to the bottom when add new column
+  useEffect(() => {
+    // Scroll to the bottom when inputs change
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [inputs]);
 
-  // for (const key in mappings) {
-  // // //console.log("Key ", key);
-  // if (
-  // mappings[key].mappings.some((alias) => lowerCaseName.includes(alias))
-  // ) {
-  // // //console.log(`Mappings[${key}] includes => ${lowerCaseName}`);
-  // if (columnsMatched) {
-  // let matched = false;
-  // columnsMatched.forEach((item) => {
-  // // //console.log("Matched Col Item ", item);
-  // if (item.dbName == key) {
-  // // //console.log("return Null item.dbName == key");
-  // // matched = true;
-  // return null;
-  // }
-  // });
-  // // if (matched) {
-  // // //console.log("Col matched to some other col");
-  // // return null;
-  // // }
-  // }
-  // // //console.log("return Key ", key);
-  // return key;
-  // }
-  // }
-  // // //console.log("return null last");
-  // return null;
-  // };
+  // Handle change in input field
+  const handleInputChange = (id, value) => {
+    setInputs(inputs.map(input => (input.id === id ? { ...input, value } : input)));
+  };
 
+  // Handle deletion of input field
+  const handleDelete = (id) => {
+    setInputs(inputs.filter(input => input.id !== id));
+  };
+
+  // Handle adding a new input field
+  const handleAddInput = () => {
+    const newId = inputs.length ? inputs[inputs.length - 1].id + 1 : 1;
+    setInputs([...inputs, { id: newId, value: '' }]);
+  };
+
+  //function to match column
   const matchColumn = (columnName, mappings, columnsMatched = []) => {
     const lowerCaseName = columnName.toLowerCase();
     // console.log("--------------------------------");
@@ -267,7 +269,7 @@ const Leads1 = () => {
   };
 
   const handleShowAddLeadModal = (status) => {
-    setShowAddLeadModal(status);
+    setAddNewLeadModal(status);
   };
 
   //code for csv file drag and drop
@@ -728,6 +730,7 @@ const Leads1 = () => {
           setSelectedFile(null);
           localStorage.setItem("userLeads", JSON.stringify(response.data.data));
           setUserLeads(response.data.data);
+          setAddNewLeadModal(false);
           setSetData(true);
           setSuccessSnack(response.data.message);
         }
@@ -809,6 +812,58 @@ const Leads1 = () => {
     return ColumnsNotMatched;
   }
 
+
+  //code to add new sheet list
+  const handleAddSheetNewList = async () => {
+    try {
+      setShowaddCreateListLoader(true);
+
+      const localData = localStorage.getItem("User");
+      let AuthToken = null;
+      if (localData) {
+        const UserDetails = JSON.parse(localData);
+        AuthToken = UserDetails.token;
+      }
+
+      console.log("Auth token is :--", AuthToken);
+
+      const ApiData = {
+        sheetName: newSheetName,
+        columns: inputs.map((columns) => (columns.value))
+      }
+      console.log("Data to send in api is:", ApiData);
+
+      const ApiPath = Apis.addSmartList;
+      console.log("Api Path is", ApiPath);
+
+      // return
+
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          "Authorization": "Bearer " + AuthToken,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        console.log("Response of add new smart list api is :", response);
+        if (response.data.status === true) {
+          // setSheetsList([...SheetsList, response.data.data]);
+          setUserLeads(response.data.data);
+          setAddNewLeadModal(false);
+          setShowAddNewSheetModal(false);
+          setInputs([{ id: 1, value: 'First Name' }, { id: 2, value: 'Last Name' }, { id: 3, value: 'Phone Number' }, { id: 4, value: '' }, { id: 5, value: '' }, { id: 6, value: '' }]);
+          setNewSheetName("");
+        }
+      }
+
+    } catch (error) {
+      console.error("Error occured in adding new list api is:", error);
+    } finally {
+      setShowaddCreateListLoader(false);
+    }
+  }
+
   return (
     <div className="w-full">
       {initialLoader ? (
@@ -842,21 +897,40 @@ const Leads1 = () => {
               >
                 {`Looks like you don't have any leads yet`}
               </div>
-              <div className="w-full flex flex-row justify-center mt-10">
-                <button
-                  className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
-                  onClick={() => {
-                    setShowAddLeadModal(true);
-                  }}
-                >
-                  <Image
-                    src={"/assets/addManIcon.png"}
-                    height={20}
-                    width={20}
-                    alt="*"
-                  />
-                  <span style={styles.headingStyle}>Add Leads</span>
-                </button>
+
+              <div className="w-full flex flex-row gap-6 justify-center mt-10 gap-4">
+                <div className="">
+                  <button
+                    className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
+                    onClick={() => {
+                      setShowAddLeadModal(true);
+                    }}
+                  >
+                    <Image
+                      src={"/assets/addManIcon.png"}
+                      height={20}
+                      width={20}
+                      alt="*"
+                    />
+                    <span style={styles.headingStyle}>Add Leads</span>
+                  </button>
+                </div>
+                <div className="">
+                  <button
+                    className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
+                    onClick={() => {
+                      setShowAddNewSheetModal(true);
+                    }}
+                  >
+                    <Image
+                      src={"/assets/smartlistIcn.svg"}
+                      height={24}
+                      width={24}
+                      alt="*"
+                    />
+                    <span style={styles.headingStyle}>Create Smartlist</span>
+                  </button>
+                </div>
               </div>
 
               <div
@@ -969,16 +1043,6 @@ const Leads1 = () => {
                 <p style={{ ...styles.subHeadingStyle }}>
                   Drop your file here to upload
                 </p>
-                {/* <p style={{ ...styles.subHeadingStyle }}>or</p> */}
-                {/* <button
-                  className="underline outline-none border-none"
-                  style={{
-                    ...styles.subHeadingStyle,
-                    cursor: "pointer",
-                  }}
-                >
-                  Browse your Computer
-                </button> */}
                 <p
                   style={{
                     fontSize: 12,
@@ -1561,6 +1625,237 @@ const Leads1 = () => {
           </div>
         </Box>
       </Modal>
+
+      {/* Modal to add lead or import lead */}
+      <Modal
+        open={addNewLeadModal}
+        onClose={() => setAddNewLeadModal(false)}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(20px)",
+          },
+        }}
+      >
+        <Box className="md:w-[627px] w-8/12" sx={styles.modalsStyle}>
+          <div className="flex flex-row justify-center w-full">
+            <div
+              className="sm:w-full w-full"
+              style={{
+                backgroundColor: "#ffffff",
+                padding: 20,
+                borderRadius: "13px",
+                height: "579px"
+              }}
+            >
+              <div className="flex flex-row justify-between">
+                <div
+                  style={{
+                    fontWeight: "500",
+                    fontSize: 15
+                  }}
+                >
+                  New List
+                </div>
+                <button
+                  onClick={() => {
+                    setAddNewLeadModal(false);
+                  }}
+                >
+                  <Image
+                    src={"/assets/crossIcon.png"}
+                    height={40}
+                    width={40}
+                    alt="*"
+                  />
+                </button>
+              </div>
+
+              <div
+                className="flex flex-row items-center w-full justify-center mt-12"
+              >
+                <Image
+                  src={"/assets/placeholder.png"}
+                  height={140}
+                  width={490}
+                  alt="*"
+                />
+              </div>
+
+              <div
+                className="text-center sm:font-24 font-16 mt-12"
+                style={{ fontWeight: "600", fontSize: 29 }}
+              >
+                How do you want to add  leads?
+              </div>
+
+              <div className="w-full flex flex-row gap-6 justify-center mt-10 gap-4">
+                <div className="">
+                  <button
+                    className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
+                    onClick={() => {
+                      setShowAddLeadModal(true);
+                    }}
+                  >
+                    <Image
+                      src={"/assets/addManIcon.png"}
+                      height={20}
+                      width={20}
+                      alt="*"
+                    />
+                    <span style={styles.headingStyle}>Add Leads</span>
+                  </button>
+                </div>
+                <div className="">
+                  <button
+                    className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
+                    onClick={() => {
+                      setShowAddNewSheetModal(true);
+                    }}
+                  >
+                    <Image
+                      src={"/assets/smartlistIcn.svg"}
+                      height={24}
+                      width={24}
+                      alt="*"
+                    />
+                    <span style={styles.headingStyle}>Create Smartlist</span>
+                  </button>
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+        </Box>
+      </Modal>
+
+
+      {/* Modal to add custom sheet */}
+      <div>
+        <Modal
+          open={showAddNewSheetModal}
+          closeAfterTransition
+          BackdropProps={{
+            sx: {
+              backgroundColor: "#00000020",
+              // //backdropFilter: "blur(5px)",
+            },
+          }}
+        >
+          <Box className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto rounded-3xl h-[70vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none", backgroundColor: "white" }}>
+            <div className="w-full flex flex-col items-center h-full justify-between" style={{ backgroundColor: "white" }}>
+
+              <div className='w-full'>
+                <div className='flex flex-row items-center justify-between w-full mt-4 px-2'>
+                  <div style={{ fontWeight: "500", fontSize: 15 }}>
+                    New SmartList
+                  </div>
+                  <button onClick={() => {
+                    setShowAddNewSheetModal(false);
+                    setNewSheetName("");
+                    setInputs([{ id: 1, value: 'First Name' }, { id: 2, value: 'Last Name' }, { id: 3, value: 'Phone Number' }, { id: 4, value: '' }, { id: 5, value: '' }, { id: 6, value: '' }])
+                  }}>
+                    <Image src={"/assets/cross.png"} height={15} width={15} alt='*' />
+                  </button>
+                </div>
+
+                <div className='px-4 w-full'>
+                  <div className='flex flex-row items-center justify-start mt-6 gap-2'>
+                    <span style={styles.paragraph}>
+                      List Name
+                    </span>
+                    <Image src={"/assets/infoIcon.png"} height={15} width={15} alt='*' />
+                  </div>
+                  <div className='mt-4'>
+                    <input
+                      value={newSheetName}
+                      onChange={(e) => { setNewSheetName(e.target.value) }}
+                      placeholder='Enter list name' className='outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px]'
+                      style={{
+                        ...styles.paragraph, border: "1px solid #00000020"
+                      }}
+                    />
+                  </div>
+                  <div className='mt-8' style={styles.paragraph}>
+                    Create Columns
+                  </div>
+                  <div className='max-h-[30vh] overflow-auto mt-2' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                    style={{ scrollbarWidth: "none" }}
+                  >
+                    {inputs.map((input, index) => (
+                      <div key={input.id} className='w-full flex flex-row items-center gap-4 mt-4'>
+                        <input
+                          className='border p-2 rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[53px]'
+                          style={{
+                            ...styles.paragraph,
+                            width: "95%", borderColor: "#00000020",
+                          }}
+                          placeholder={`Column Name`}
+                          value={input.value}
+                          onChange={(e) => {
+                            if (index > 2) {
+                              handleInputChange(input.id, e.target.value)
+                            }
+                          }}
+                        />
+                        <div style={{ width: "5%" }}>
+                          {
+                            index > 2 && (
+                              <button className='outline-none border-none' onClick={() => handleDelete(input.id)}>
+                                <Image src={"/assets/blackBgCross.png"} height={20} width={20} alt='*' />
+                              </button>
+                            )
+                          }
+                        </div>
+                      </div>
+                    ))}
+                    {/* Dummy element for scrolling */}
+                    <div ref={bottomRef}></div>
+                  </div>
+                  <div style={{ height: "50px" }}>
+                    {/*
+                                                        inputs.length < 3 && (
+                                                            <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
+                                                                fontSize: 15,
+                                                                fontWeight: "700"
+                                                            }}>
+                                                                Add New
+                                                            </button>
+                                                        )
+                                                    */ }
+                    <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={styles.paragraph}>
+                      New Column
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className='w-full pb-8'>
+                {
+                  showaddCreateListLoader ?
+                    <div className='flex flex-row items-center justify-center w-full h-[50px]'>
+                      <CircularProgress size={25} />
+                    </div> :
+                    <button
+                      className='bg-purple h-[50px] rounded-xl text-white w-full'
+                      style={{
+                        fontWeight: "600",
+                        fontSize: 16.8
+                      }}
+                      onClick={handleAddSheetNewList}
+                    >
+                      Create List
+                    </button>
+                }
+              </div>
+
+            </div>
+          </Box>
+        </Modal>
+      </div>
 
       <div>
         <Snackbar

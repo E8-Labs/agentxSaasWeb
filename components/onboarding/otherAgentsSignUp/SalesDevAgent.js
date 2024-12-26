@@ -130,7 +130,7 @@ const SalesDevAgent = ({ handleContinue, handleSalesAgentBack, length = 6, onCom
         const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`, countryCode.toUpperCase());
         // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
         if (!parsedNumber || !parsedNumber.isValid()) {
-            setErrorMessage('Enter valid number');
+            setErrorMessage('Invalid number');
         } else {
             setErrorMessage('');
 
@@ -541,7 +541,7 @@ const SalesDevAgent = ({ handleContinue, handleSalesAgentBack, length = 6, onCom
 
                                     if (!validateEmail(value)) {
                                         console.log("Invalid email pattern")
-                                        setValidEmail("Enter a valid email");
+                                        setValidEmail("Invalid email");
                                     } else {
                                         console.log("No trigered")
                                         if (value) {

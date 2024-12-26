@@ -489,12 +489,26 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                                             </div>
                                         </div>
 
-                                        <div className='flex flex-row items-center gap-2 mt-6 pb-2'>
-                                            <div className='flex flex-row items-center gap-1' style={styles.paragraph}>
+                                        <div
+                                            className='flex flex-row items-center gap-2 mt-6 pb-2 w-full overflow-auto'
+                                            style={{
+                                                ...styles.paragraph,
+                                                overflowY: "hidden",
+                                                scrollbarWidth: "none", // For Firefox
+                                                msOverflowStyle: "none", // For Internet Explorer and Edge
+                                            }}
+                                        >
+                                            <style jsx>{`
+    div::-webkit-scrollbar {
+      display: none; /* For Chrome, Safari, and Opera */
+    }
+  `}
+                                            </style>
+                                            <div className='flex-shrink-0 flex flex-row items-center gap-1' style={styles.paragraph}>
                                                 <span className='text-purple'>Active in |   </span> {item.pipeline?.title}
                                             </div>
 
-                                            <div className='flex flex-row gap-2 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+                                            <div className='flex-shrink-0 flex flex-row gap-2 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
                                                 {
                                                     item.stages.map((item, index) => (
                                                         <div className='px-3 py-1 rounded-3xl border' style={styles.paragraph} key={index}>
@@ -503,11 +517,8 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                                                     ))
                                                 }
                                             </div>
-
-                                            {/* <div className='px-3 py-1 rounded-3xl border' style={styles.paragraph}>
-                                    New Lead
-                                </div> */}
                                         </div>
+
                                     </button>
                                 )
                             })

@@ -83,7 +83,10 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
             && toggleClick) {
             setShouldContinue(false);
             console.log("Should continue")
-        } else {
+        } else if (!OutBoundCalls || !InBoundCalls === true && !agentName
+            && !agentRole
+            && !toggleClick) {
+            setShouldContinue(true);
             console.log("Should Nott continue")
         }
     }, [agentName, agentRole, agentObjective, otherObjVal]);

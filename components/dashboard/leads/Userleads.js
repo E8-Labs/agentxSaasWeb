@@ -389,7 +389,6 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     const handleFilterLeads = async (offset = 0) => {
         try {
             setMoreLeadsLoader(true);
-            setSheetsLoader(true);
 
             const localData = localStorage.getItem("User");
             let AuthToken = null;
@@ -430,7 +429,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                     // setFilterLeads(response.data.data);
                     let allLeads;
                     setShowFilterModal(false);
-                    setShowNoLeadErr(response.data.message);
+                    setShowNoLeadErr("No leads found");
 
                     const data = response.data.data;
                     setLeadsList((prevDetails) => [...prevDetails, ...data]);
@@ -455,6 +454,7 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
     //function for getting the leads
     const getLeads = async (item, offset = 0) => {
         try {
+            setSheetsLoader(true);
             const id = item.id
             //Set leads in cache
             let leadsData = LeadsInSheet[id] || null;
@@ -538,9 +538,13 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                 let leadColumns = [];
                 // setLeadsList(response.data.data);
                 // setFilterLeads(response.data.data);
+
                 const data = response.data.data;
-                setLeadsList((prevDetails) => [...data]);
-                setFilterLeads((prevDetails) => [...data]);
+                if(SelectedSheetId == item.id){
+                    setLeadsList((prevDetails) => [...data]);
+                    setFilterLeads((prevDetails) => [...data]);
+                }
+                
                 leadData = data;
 
 
@@ -734,9 +738,17 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                     </div>
                 );
             case "Phone":
-                return item.phone ? item.phone : "-";
+                return (
+                    <button onClick={() => handleToggleClick(item.id)}>
+                        {item.phone ? item.phone : "-"}
+                    </button>
+                );
             case "Stage":
-                return item.stage ? item.stage.stageTitle : "No Stage";
+                return (
+                    <button onClick={() => handleToggleClick(item.id)}>
+                        {item.stage ? item.stage.stageTitle : "No Stage"}
+                    </button>
+                )
             // case "Date":
             //     return item.createdAt ? moment(item.createdAt).format('MMM DD, YYYY') : "-";
             case "More":
@@ -757,10 +769,15 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
             default:
                 const value = item[title];
                 if (typeof value === "object" && value !== null) {
-                    // Handle objects gracefully
-                    return JSON.stringify(value); // Convert to string or handle as needed
+                    JSON.stringify(value)
                 }
-                return value || "-";
+                return (
+                    <div className='cursor-pointer' onClick={() => {
+                        handleToggleClick(item.id)
+                    }}>
+                        {value || "-"}
+                    </div>
+                );
         }
     };
 
@@ -1188,19 +1205,40 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                     </div>
                                 </div>
 
-
                                 <div className='flex flex-row items-center gap-2'>
+
                                     {
-                                        toggleClick.length === FilterLeads.length ? (
+                                        toggleClick.length > 0 && (
                                             <div>
                                                 {
-                                                    LeadsList.length > 0 && (
+                                                    toggleClick.length === FilterLeads.length ? (
+                                                        <div>
+                                                            {
+                                                                LeadsList.length > 0 && (
+                                                                    <div className='flex flex-row items-center gap-2'>
+                                                                        <button
+                                                                            className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
+                                                                            onClick={() => { setToggleClick([]) }}
+                                                                        >
+                                                                            <Image src={"/assets/whiteTick.png"} height={10} width={10} alt='*' />
+                                                                        </button>
+                                                                        <div style={{ fontSize: "15", fontWeight: "600" }}>
+                                                                            Select All
+                                                                        </div>
+                                                                    </div>
+                                                                )
+                                                            }
+                                                        </div>
+                                                    ) : (
                                                         <div className='flex flex-row items-center gap-2'>
                                                             <button
-                                                                className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
-                                                                onClick={() => { setToggleClick([]) }}
+                                                                className="h-[20px] w-[20px] border-2 rounded outline-none"
+                                                                onClick={() => {
+                                                                    setToggleClick(
+                                                                        FilterLeads.map((item) => item.id)
+                                                                    );
+                                                                }}
                                                             >
-                                                                <Image src={"/assets/whiteTick.png"} height={10} width={10} alt='*' />
                                                             </button>
                                                             <div style={{ fontSize: "15", fontWeight: "600" }}>
                                                                 Select All
@@ -1209,33 +1247,17 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                                     )
                                                 }
                                             </div>
-                                        ) : (
-                                            <div className='flex flex-row items-center gap-2'>
-                                                <button
-                                                    className="h-[20px] w-[20px] border-2 rounded outline-none"
-                                                    onClick={() => {
-                                                        setToggleClick(
-                                                            FilterLeads.map((item) => item.id)
-                                                        );
-                                                    }}
-                                                >
-                                                </button>
-                                                <div style={{ fontSize: "15", fontWeight: "600" }}>
-                                                    Select All
-                                                </div>
-                                            </div>
                                         )
                                     }
 
-                                    <button className='flex flex-row items-center justify-center gap-2 bg-none outline-none border h-[43px] w-[101px] rounded' onClick={() => { handleShowAddLeadModal(true) }}>
+                                    {/* <button className='flex flex-row items-center justify-center gap-2 bg-none outline-none border h-[43px] w-[101px] rounded'>
                                         <span>
                                             Import
                                         </span>
                                         <Image src={"/assets/downloadIcon.png"} height={15} width={15} alt='*' />
-                                    </button>
+                                    </button> */}
+
                                 </div>
-
-
 
                             </div>
 
@@ -1326,10 +1348,15 @@ const Userleads = ({ handleShowAddLeadModal, handleShowUserLeads, newListAdded, 
                                         })
                                     }
                                 </div>
-                                <button className='flex flex-row items-center gap-1 text-purple flex-shrink-0' style={styles.paragraph} onClick={() => { setShowAddNewSheetModal(true) }}>
+                                <button
+                                    className='flex flex-row items-center gap-1 text-purple flex-shrink-0'
+                                    style={styles.paragraph}
+                                    // onClick={() => { setShowAddNewSheetModal(true) }}
+                                    onClick={() => { handleShowAddLeadModal(true) }}
+                                >
                                     <Plus size={15} color='#7902DF' weight='bold' />
                                     <span>
-                                        New list
+                                        New Leads
                                     </span>
                                 </button>
                             </div>

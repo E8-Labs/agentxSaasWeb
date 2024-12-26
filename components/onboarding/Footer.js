@@ -24,7 +24,7 @@ const Footer = ({ handleContinue, handleBack, donotShowBack, registerLoader, sho
                         <button
                             disabled={shouldContinue}
                             className='rounded-lg text-white bg-purple'
-                            style={{ fontWeight: "700", fontSize: "16", backgroundColor: shouldContinue && "#00000050", height: "40px", width: "100px" }} onClick={handleContinue}>
+                            style={{ fontWeight: "700", fontSize: "16", backgroundColor: shouldContinue && "#00000020", color: shouldContinue && "#000000", height: "40px", width: "100px" }} onClick={handleContinue}>
                             Continue
                         </button>
                 }

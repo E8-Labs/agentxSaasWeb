@@ -293,10 +293,18 @@ const FocusArea = ({
                                                         scrollbarWidth: "none", backgroundColor: checkOthersFocusArea ? "#402FFF05" : ""
                                                     }}>
                                                     <div className='w-full flex flex-row items-start justify-between px-4 py-2'>
-                                                        <div className='text-start w-[100%] md:w-[80%]'>
-                                                            <div style={{ fontFamily: "", fontWeight: "700", fontSize: 20 }}>
-                                                                Others (Type in)
-                                                            </div>
+                                                        <div className='text-start w-[100%] md:w-[90%]'>
+                                                            <button
+                                                                onClick={handleSelectOthersField}
+                                                                style={{
+                                                                    fontFamily: "", fontWeight: "700",
+                                                                    fontSize: 20, width: "100%",
+                                                                    backgroundColor: "", textAlign: "start",
+                                                                    outline: "none"
+                                                                }}
+                                                            >
+                                                                Other (Type in)
+                                                            </button>
                                                             <div className='mt-2'>
                                                                 <input
                                                                     ref={othersFocus}

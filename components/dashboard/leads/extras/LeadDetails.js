@@ -1203,7 +1203,7 @@ const LeadDetails = ({
                                                                                                         </div>
                                                                                                         <div className='flex flex-row items-center justify-between mt-4'>
                                                                                                             <div style={{ fontWeight: "500", fontSize: 15 }}>
-                                                                                                                {item.duration} mins
+                                                                                                                {moment(item?.duration * 1000).format("mm:ss")} mins
                                                                                                             </div>
                                                                                                             <button onClick={() => {
                                                                                                                 if (item?.recordingUrl) {

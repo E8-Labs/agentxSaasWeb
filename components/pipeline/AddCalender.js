@@ -208,7 +208,7 @@ const AddCalender = ({ handleContinue }) => {
 
   return (
     <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
-      <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col'>
+      <div className='bg-white rounded-2xl w-10/12 h-[91vh] py-4 flex flex-col'>
 
         <div className='h-[100%]'>
           <div className='h-[87%]'>

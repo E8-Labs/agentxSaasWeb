@@ -32,6 +32,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
             const localDetails = JSON.parse(localData);
             setSelectUserType(localDetails.userType);
             setSelectUserTypeTitle(localDetails.userTypeTitle);
+            setSelectedFocusAreaTitle(localDetails.areaFocusTitle);
         }
     }, [])
 
@@ -174,7 +175,12 @@ const UserType = ({ handleContinue, DefaultData }) => {
                                                 transform: "scale(0.9)", transition: "0.4s ease"
                                             }}>
                                             <div className='h-[100px] sm:h-[198px] bg-gray-200 rounded w-full flex flex-col justify-center pb-[10px] items-center' style={{ backgroundColor: "#FAF9FF" }}>
-                                                <img src={item.icon} style={{ width: "100%", resize: "contain" }} alt='*' />
+                                                {/* <img src={item.icon} style={{ width: "100%", resize: "contain" }} alt='*' /> */}
+                                                <img
+                                                    src={item.icon}
+                                                    style={{ width: "100%", transform: "scale(1.1)", resize: "contain" }}
+                                                    alt='*'
+                                                />
                                             </div>
                                             <div className='text-center mt-4 pb-4'
                                                 style={{

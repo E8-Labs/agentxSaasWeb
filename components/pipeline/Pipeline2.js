@@ -591,7 +591,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col justify-between'>
+            <div className='bg-white rounded-2xl w-10/12 h-[91vh] py-4 flex flex-col justify-between'>
                 <div>
                     {/* header */}
                     <Header />

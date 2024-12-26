@@ -500,7 +500,7 @@ const Pipeline1 = ({ handleContinue }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col justify-between' //overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+            <div className='bg-white rounded-2xl w-10/12 h-[100%] py-4 flex flex-col justify-between' //overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
             >
                 <div>
                     {/* header */}
@@ -511,7 +511,7 @@ const Pipeline1 = ({ handleContinue }) => {
                         >
                             Pipeline and Stages
                         </div>
-                        <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[56vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+                        <div className='mt-8 w-6/12 gap-4 flex flex-col h-[56vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
 
                             {pipelinesDetails.length > 1 && (
                                 <div>
