@@ -256,7 +256,7 @@ const FocusArea = ({
                                     <CircularProgress size={35} />
                                 </div>
                             ) : (
-                                <div className='mt-8 md:10/12 w-full lg:w-7/12 gap-4 flex flex-col max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+                                <div className='mt-2 sm:mt-8 md:10/12 w-full lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
 
                                     {focusData.map((item, index) => (
                                         <button key={item.id} onClick={() => { handlefocusArea(item.id) }} className='border-none outline-none'>

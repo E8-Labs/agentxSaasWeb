@@ -418,6 +418,10 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                             <input
                                 placeholder="Ex: Ana's AI, Ana.ai, Ana's Assistant"
                                 className='border rounded p-3 outline-none focus:outline-none focus:ring-0'
+                                autoComplete="off"
+                                autoCorrect="off"
+                                spellCheck="false"
+                                enterKeyHint="done"
                                 style={{ ...styles.inputStyle, border: "1px solid #00000020" }}
                                 value={agentName}
                                 onChange={(e) => { setAgentName(e.target.value) }}
@@ -470,6 +474,10 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                 {`What's this agent's role?`}
                             </div>
                             <input
+                                autoComplete="off"
+                                autoCorrect="off"
+                                spellCheck="false"
+                                enterKeyHint="done"
                                 placeholder="Ex: Senior Property Acquisition Specialist"
                                 className='border rounded p-3 outline-none focus:outline-none focus:ring-0'
                                 style={{ ...styles.inputStyle, border: "1px solid #00000020" }}
@@ -520,6 +528,10 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                         /> */}
                                         <input
                                             ref={bottomRef}
+                                            // autoComplete="off"
+                                            // autoCorrect="off"
+                                            // spellCheck="false"
+                                            enterKeyHint="done"
                                             placeholder="Type Here...."
                                             className="border w-6/12 rounded p-1 outline-none w-full mt-1 mx-2 mb-2 focus:outline-none focus:ring-0"
                                             style={{ ...styles.inputStyle, border: "1px solid #00000020" }}
@@ -626,7 +638,7 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                                     {`What's the address`}
                                 </div>
 
-                                <div className='mt-1' style={{ zIndex: 15 }}>
+                                <div className='mt-1 pb-4' style={{ zIndex: 15 }}>
                                     <div>
                                         <input
                                             className='w-full h-[50px] rounded-lg outline-none focus:ring-0'

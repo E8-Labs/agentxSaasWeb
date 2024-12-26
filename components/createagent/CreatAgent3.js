@@ -81,6 +81,26 @@ const CreatAgent3 = ({ handleContinue }) => {
         },
     ]
 
+    //code for mobile view facilities
+    const mobileFacilities = [
+        {
+            id: 1,
+            title: "Cancel anytime"
+        },
+        {
+            id: 2,
+            title: "Unlimited Agents"
+        },
+        {
+            id: 3,
+            title: "No commitment"
+        },
+        {
+            id: 6,
+            title: "Real Time Booking"
+        },
+    ]
+
     const plans = [
         {
             id: 1,
@@ -208,7 +228,27 @@ const CreatAgent3 = ({ handleContinue }) => {
                         </div>
 
                         <div className='h-[70%] overflow-auto w-full flex flex-col items-center' style={{ scrollbarWidth: "none" }}>
-                            <div className='flex flex-wrap w-full sm:w-10/12 md:w-4/12 ' style={{ backgroundColor: '' }}>
+
+                            {/* For mobile view */}
+                            <div className='sm:hidden flex flex-wrap w-full sm:w-10/12 md:w-4/12 ' style={{ backgroundColor: '' }}>
+                                {
+                                    mobileFacilities.map((item, index) => (
+                                        <div key={item.id} className='flex flex-row items-center justify-start pl-4 gap-2 w-1/2 mt-4'>
+                                            <div className='flex flex-row items-center gap-2 justify-start ml-2 ' style={{ width: "auto" }}>
+                                                <div>
+                                                    <Image src={"/assets/tickMark.png"} height={14} width={17} alt='*' />
+                                                </div>
+                                                <div style={{ fontWeight: '500', fontSize: 13 }}>
+                                                    {item.title}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                }
+                            </div>
+
+                            {/* For greater then small size screen */}
+                            <div className='sm:flex hidden flex flex-wrap w-full sm:w-10/12 md:w-4/12 ' style={{ backgroundColor: '' }}>
                                 {
                                     facilities.map((item, index) => (
                                         <div key={item.id} className='flex flex-row items-center justify-start pl-4 gap-2 w-1/2 mt-4'>
@@ -234,7 +274,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                             <div className='flex flex-row md:hidden items-center justify-center py-3 gap-4 mt-6 mb-8 px-4' style={{ backgroundColor: "#402FFF20", borderRadius: "50px", width: "fit-content" }}>
                                 <Image src={"/assets/gift.png"} height={24} width={24} alt='*' />
                                 <div className='text-purple' style={styles.giftTextStyle}>
-                                    Enjoy your next calls on us
+                                    Enjoy your first calls on us
                                 </div>
                             </div>
 
@@ -336,13 +376,17 @@ const CreatAgent3 = ({ handleContinue }) => {
                     <div className='w-full flex-col items-center flex gap-4 h-[10%]' >
 
                         {
-                            selectedPlan && agreeTerms && (
+                            selectedPlan && agreeTerms ? (
                                 <div className='w-full flex-col items-center flex'>
                                     {
                                         selectedPlan?.id > 1 ? (
                                             <button
                                                 className='bg-purple w-11/12 md:w-5/12 rounded-lg text-white h-[50px]'
-                                                style={{ fontSize: 16, fontWeight: "600" }}
+                                                style={{
+                                                    fontSize: 16, fontWeight: "600",
+                                                    // backgroundColor: selectedPlan && agreeTerms ? "#00000020" : "",
+                                                    // color: selectedPlan?.id > 1 && agreeTerms ? "#000000" : ""
+                                                }}
                                                 onClick={() => { setAddPaymentPopUp(true) }}
                                             >
                                                 Continue
@@ -350,7 +394,11 @@ const CreatAgent3 = ({ handleContinue }) => {
                                         ) : (
                                             <button
                                                 className='bg-purple w-11/12 md:w-5/12 rounded-lg text-white h-[50px]'
-                                                style={{ fontSize: 16, fontWeight: "600" }}
+                                                style={{
+                                                    fontSize: 16, fontWeight: "600",
+                                                    // backgroundColor: selectedPlan && agreeTerms ? "#00000020" : "",
+                                                    // color: selectedPlan && agreeTerms ? "#000000" : ""
+                                                }}
                                                 onClick={() => { setAddPaymentPopUp(true) }}
                                             >
                                                 Claim 30 mins
@@ -358,8 +406,22 @@ const CreatAgent3 = ({ handleContinue }) => {
                                         )
                                     }
                                 </div>
+                            ) : (
+                                <button
+                                    disabled={true}
+                                    className='w-11/12 md:w-5/12 rounded-lg text-white h-[50px]'
+                                    style={{
+                                        fontSize: 16, fontWeight: "600",
+                                        backgroundColor: "#00000020",
+                                        color: "#000000"
+                                    }}
+                                    onClick={() => { setAddPaymentPopUp(true) }}
+                                >
+                                    Continue
+                                </button>
                             )
                         }
+
                     </div>
                 </div>
 

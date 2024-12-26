@@ -374,8 +374,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             if (response) {
                 console.log("Response of purchase number api is :--", response.data);
                 if (response.data.status === true) {
-                    localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
                     setOpenPurchaseSuccessModal(true);
+                    localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
                     // handleContinue();
                     setSelectNumber(selectedPurchasedNumber.phoneNumber);
                     setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
@@ -875,9 +875,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                         >
                                             <div>
                                                 <div className='flex flex-row justify-end'>
-                                                    <button onClick={() => { setOpenPurchaseSuccessModal(false) }}>
+                                                    {/* <button onClick={() => { setOpenPurchaseSuccessModal(false) }}>
                                                         <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
-                                                    </button>
+                                                    </button> */}
                                                 </div>
                                                 <PurchaseNumberSuccess selectedNumber={selectedPurchasedNumber} handleContinue={() => { setOpenPurchaseSuccessModal(false) }} />
                                             </div>

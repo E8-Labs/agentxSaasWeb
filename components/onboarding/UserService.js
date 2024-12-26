@@ -163,7 +163,7 @@ const UserService = ({ handleContinue, handleBack }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl flex flex-col justify-between w-full mx-2 md:w-10/12 h-[90%] py-4' style={{ scrollbarWidth: "none" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+            <div className='bg-white rounded-2xl flex flex-col justify-between w-full mx-2 md:w-10/12 h-[100%] sm:h-[90%] py-4' style={{ scrollbarWidth: "none" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
             >
 
                 <div className='h-[82svh]'>
@@ -182,7 +182,7 @@ const UserService = ({ handleContinue, handleBack }) => {
                                 <div className='w-full flex flex-row justify-center items-center h-screen'>
                                     <CircularProgress size={35} />
                                 </div> :
-                                <div className='mt-8 w-full md:w-10/12 lg:w-7/12 gap-4 flex flex-col max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
+                                <div className='mt-2 sm:mt-8 w-full md:w-10/12 lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
 
                                     {servicesData.map((item, index) => (
                                         <button key={item.id} onClick={() => { handleserviceId(item.id) }} className='border-none outline-none'>

@@ -53,6 +53,9 @@ const Page = ({ length = 6, onComplete }) => {
   const [VerifyCode, setVerifyCode] = useState(Array(length).fill(''));
   const [showVerifyPopup, setShowVerifyPopup] = useState(false);
 
+  //code for detecting the window inner width
+  const [InnerWidth, setInnerWidth] = useState("");
+
   useEffect(() => {
     const localData = localStorage.getItem("User");
     if (localData) {
@@ -64,7 +67,13 @@ const Page = ({ length = 6, onComplete }) => {
     //   console.log("user agent details are :", localAgentData);
     //   // router.push("/dashboard");
     // }
-  }, [])
+  }, []);
+
+  //action detects inner width
+  useEffect(() => {
+    console.log("Window inner width is", window.innerWidth)
+    setInnerWidth(window.innerWidth);
+  }, [InnerWidth])
 
   const handlePhoneNumberChange = (phone) => {
     setUserPhoneNumber(phone);
@@ -357,7 +366,7 @@ const Page = ({ length = 6, onComplete }) => {
 
 
   return (
-    <div className='flex flex-row w-full justify-center h-screen'>
+    <div className='flex flex-row w-full justify-center h-[100svh]'>
       {/* <div className='w-6/12 ms-8 flex flex-row justify-center ' style={backgroundImage}>
         <div className='w-11/12'>
           <div className='h-[433px] w-[494px] md:w-[594px] bg-white mt-16'>
@@ -370,7 +379,7 @@ const Page = ({ length = 6, onComplete }) => {
           </div>
         </div>
       </div> */}
-      <div className='w-11/12 flex flex-col items-center h-[90vh] '>
+      <div className='w-11/12 flex flex-col items-center h-[90svh] '>
         <div className='w-full gap-3 h-[10%] flex flex-row items-end'>
           <Image className='' src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' />
           {/* <Image className='hidden md:flex' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain" }} height={69} width={69} alt='*' /> */}
@@ -385,7 +394,7 @@ const Page = ({ length = 6, onComplete }) => {
 
             {/* Code for phone input field */}
             <div className='flex flex-row items-center justify-center gap-2 w-full'>
-              <div className='flex flex-row items-center gap-2 border rounded-lg w-8/12 sm:w-4/12 justify-between pe-4'>
+              <div className='flex flex-row items-center gap-2 border rounded-lg w-full sm:w-4/12 justify-between pe-4'>
                 <div className='w-[90%]'>
                   <PhoneInput
                     className="outline-none bg-transparent focus:ring-0"
@@ -482,8 +491,8 @@ const Page = ({ length = 6, onComplete }) => {
             </div>
 
             <div className='flex flex-row items-center justify-center gap-1 mt-[40px]' style={{ fontWeight: "500", fontSize: 15 }}>
-              <div>
-                Donot have an account?
+              <div onClick={() => setShowVerifyPopup(true)}>
+                {`Don't have an account?`}
               </div>
               <button className='' onClick={() => { router.push("/onboarding") }} style={{ fontWeight: "bold", fontSize: 15 }}>
                 Sign Up
@@ -493,14 +502,14 @@ const Page = ({ length = 6, onComplete }) => {
           </div>
         </div>
 
-        <div className='mt-6 h-[10%] flex flex-row items-end justify-end w-10/12 gap-2' style={{ fontWeight: "500", fontSize: 11.6 }}>
-          <div>
+        <div className='mt-6 h-[10%] flex flex-row items-end justify-end w-10/12 gap-2 overflow-auto flex-shrink-0' style={{ fontWeight: "500", fontSize: 11.6 }}>
+          <div className='flex-shrink-0'>
             Copyrights @ 2024 MyAgentX. All Rights Reserved.
           </div>
-          <div>
+          <div className='flex-shrink-0'>
             | Terms of Service
           </div>
-          <div>
+          <div className='flex-shrink-0'>
             | Privacy Policy
           </div>
         </div>
@@ -538,7 +547,8 @@ const Page = ({ length = 6, onComplete }) => {
               <div style={{
                 fontSize: 26,
                 fontWeight: "700"
-              }}>
+              }}
+              >
                 Verify phone number
               </div>
               <div className='mt-8' style={{ ...styles.inputStyle, color: "#00000060" }}>
@@ -568,12 +578,14 @@ const Page = ({ length = 6, onComplete }) => {
                   />
                 ))}
               </div> */}
-              <div className='mt-8' style={{ display: 'flex', gap: '8px' }}>
+              <div className='mt-8 w-ful flex flex-row items-center gap-2 overflow-auto' style={{ display: 'flex', gap: '8px' }}>
                 {Array.from({ length }).map((_, index) => (
                   <input className=' focus:outline-none focus:ring-0'
                     key={index}
                     ref={(el) => (verifyInputRef.current[index] = el)}
-                    type="text"
+                    type="tel"
+                    inputMode="numeric"
+                    // type="tel"
                     maxLength="1"
                     value={VerifyCode[index]}
                     onChange={(e) => handleVerifyInputChange(e, index)}
@@ -587,10 +599,10 @@ const Page = ({ length = 6, onComplete }) => {
                     onPaste={handlePaste}
                     placeholder='-'
                     style={{
-                      width: '40px',
-                      height: '40px',
+                      width: InnerWidth < 540 ? '40px' : "40px",
+                      height: InnerWidth < 540 ? '40px' : "40px",
                       textAlign: 'center',
-                      fontSize: '20px',
+                      fontSize:  InnerWidth < 540 ? 15 : 20,
                       border: '1px solid #ccc',
                       borderRadius: '5px',
                     }}

@@ -142,8 +142,8 @@ const UserType = ({ handleContinue, DefaultData }) => {
 
 
     return (
-        <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl w-full mx-2 sm:w-10/12 h-[90%] py-4 flex flex-col ' style={{ scrollbarWidth: "none" }}>
+        <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center h-[100svh]">
+            <div className='bg-white rounded-2xl w-full mx-2 sm:w-10/12 h-[99%] sm:h-[90%] py-4 flex flex-col ' style={{ scrollbarWidth: "none" }}>
 
                 <div className='flex flex-col items-center h-[82svh]'>
                     {/* header */}

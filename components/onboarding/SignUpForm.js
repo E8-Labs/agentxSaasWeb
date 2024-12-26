@@ -20,6 +20,8 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
 
+  let inputsFields = useRef([]);
+
 
   const router = useRouter();
   const [userName, setUserName] = useState("");
@@ -56,6 +58,12 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
 
   //congrats popup for small size screens
   const [congratsPopup, setCongratsPopup] = useState(false);
+
+  //focus 1st field automaticallly
+  useEffect(() => {
+    // Focus the first input field on component load
+    inputsFields.current[0]?.focus();
+  }, []);
 
   // Function to get the user's location and set the country code
   useEffect(() => {
@@ -461,14 +469,19 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
             <div className='mt-6 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }} onClick={handleContinue}>
               Your Contact Information
             </div>
-            <div className='mt-8 w-full md:w-10/12 lg:w-6/12 flex flex-col max-h-[85%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2' style={{ scrollbarWidth: "none" }}>
+            <div className='mt-4 sm:mt-8 w-full md:w-10/12 lg:w-6/12 flex flex-col max-h-[90%] sm:max-h-[85%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2' style={{ scrollbarWidth: "none" }}>
 
               <div style={styles.headingStyle}>
                 {`What's your full name`}
               </div>
               <input
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
+                enterKeyHint="done"
                 placeholder='Name'
                 className='border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0'
+                ref={(el) => (inputsFields.current[0] = el)}
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userName}
                 onChange={(e) => {
@@ -485,6 +498,11 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                   //     : words[0].toLowerCase();
 
                   setUserName(formattedName);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === 'Done') {
+                    inputsFields.current[1]?.focus(); // Move to the second input
+                  }
                 }}
               />
 
@@ -515,6 +533,11 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
               </div>
 
               <input
+                ref={(el) => (inputsFields.current[1] = el)}
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
+                enterKeyHint="done"
                 placeholder='Email address'
                 className='border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0'
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
@@ -563,6 +586,14 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                     }
                   }
                 }}
+                onKeyDown={(e) => {
+                  const timer = setTimeout(() => {
+                    if (e.key === 'Enter' || e.key === 'Done') {
+                      inputsFields.current[2]?.focus(); // Move to the second input
+                    }
+                  }, [300]);
+                  clearTimeout(timer)
+                }}
               />
 
 
@@ -603,6 +634,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
 
               <div style={{ marginTop: "8px" }}>
                 <PhoneInput
+                  ref={(el) => (inputsFields.current[2] = el)}
                   className="border outline-none bg-white"
                   country={countryCode} // Set the default country
                   value={userPhoneNumber}
@@ -632,6 +664,12 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                   }}
                   countryCodeEditable={true}
                   defaultMask={loading ? 'Loading...' : undefined}
+
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === 'Done') {
+                      inputsFields.current[3]?.focus(); // Move to the second input
+                    }
+                  }}
                 />
               </div>
 
@@ -640,28 +678,53 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                 {`What’s your market territory`}
               </div>
               <input
-                placeholder='Your territory  '
+                ref={(el) => (inputsFields.current[3] = el)}
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
+                enterKeyHint="done"
+                placeholder='Your territory'
                 className='border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0'
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userFarm}
                 onChange={(e) => { setUserFarm(e.target.value) }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === 'Done') {
+                    inputsFields.current[4]?.focus(); // Move to the second input
+                  }
+                }}
               />
 
               <div style={styles.headingStyle} className='mt-6'>
                 Your brokerage
               </div>
               <input
+                ref={(el) => (inputsFields.current[4] = el)}
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
+                enterKeyHint="done"
                 placeholder='Brokerage'
                 className='border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0'
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userBrokage}
                 onChange={(e) => { setUserBrokage(e.target.value) }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === 'Done') {
+                    inputsFields.current[5]?.focus(); // Move to the second input
+                  }
+                }}
               />
 
               <div style={styles.headingStyle} className='mt-6'>
                 Average transaction volume per year
               </div>
               <input
+                ref={(el) => (inputsFields.current[5] = el)}
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
+                enterKeyHint="done"
                 placeholder='Value'
                 className='border border-[#00000010] rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0'
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
@@ -713,6 +776,10 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                           <input
                             key={index}
                             ref={(el) => (verifyInputRef.current[index] = el)}
+                            autoComplete="off"
+                            autoCorrect="off"
+                            spellCheck="false"
+                            enterKeyHint="done"
                             type="text"
                             maxLength="1"
                             value={VerifyCode[index]}
