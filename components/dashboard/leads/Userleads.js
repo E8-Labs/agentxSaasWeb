@@ -55,6 +55,8 @@ const Userleads = ({
   const [showFromDatePicker, setShowFromDatePicker] = useState(false);
   const [showAddNewSheetModal, setShowAddNewSheetModal] = useState(false);
 
+  const requestVersion = useRef(0);
+
   const [filtersSelected, setFiltersSelected] = useState([]);
 
   useEffect(() => {
@@ -566,6 +568,7 @@ const Userleads = ({
   //function for filtering leads
   const handleFilterLeads = async (offset = 0, filterText = null) => {
     //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}
+    const currentRequestVersion = ++requestVersion.current;
     try {
       setMoreLeadsLoader(true);
 
@@ -608,72 +611,74 @@ const Userleads = ({
         //   "Response of get leads filter api is api is :",
         //   response.data
         // );
-        if (response.data.status === true) {
-          setShowFilterModal(false);
-          // setLeadsList(response.data.data);
-          // setFilterLeads(response.data.data);
-          let allLeads;
+        if (currentRequestVersion === requestVersion.current) {
+          if (response.data.status === true) {
+            setShowFilterModal(false);
+            // setLeadsList(response.data.data);
+            // setFilterLeads(response.data.data);
+            let allLeads;
 
-          setShowFilterModal(false);
-          //   setShowNoLeadErr("No leads found");
+            setShowFilterModal(false);
+            //   setShowNoLeadErr("No leads found");
 
-          const data = response.data.data;
-          if (offset == 0) {
-            let sheetId = null;
-            if (data.length > 0) {
-              sheetId = data[0].sheetId;
-              setShowNoLeadsLabel(true);
+            const data = response.data.data;
+            if (offset == 0) {
+              let sheetId = null;
+              if (data.length > 0) {
+                sheetId = data[0].sheetId;
+                setShowNoLeadsLabel(true);
+              } else {
+                setShowNoLeadsLabel(false);
+              }
+              console.log("Saving Lcoal Data for sheet", SelectedSheetId);
+              console.log("Sheet from Leads Obtained ", sheetId);
+              if (sheetId == SelectedSheetId) {
+                LeadsInSheet[SelectedSheetId] = response.data;
+                localStorage.setItem(
+                  `Leads${SelectedSheetId}`,
+                  JSON.stringify(response.data)
+                );
+                setLeadsList(data);
+                setFilterLeads(data);
+              }
             } else {
               setShowNoLeadsLabel(false);
+              setLeadsList((prevDetails) => [...prevDetails, ...data]);
+              setFilterLeads((prevDetails) => [...prevDetails, ...data]);
             }
-            console.log("Saving Lcoal Data for sheet", SelectedSheetId);
-            console.log("Sheet from Leads Obtained ", sheetId);
-            if (sheetId == SelectedSheetId) {
-              LeadsInSheet[SelectedSheetId] = response.data;
-              localStorage.setItem(
-                `Leads${SelectedSheetId}`,
-                JSON.stringify(response.data)
-              );
-              setLeadsList(data);
-              setFilterLeads(data);
-            }
-          } else {
-            setShowNoLeadsLabel(false);
-            setLeadsList((prevDetails) => [...prevDetails, ...data]);
-            setFilterLeads((prevDetails) => [...prevDetails, ...data]);
-          }
 
-          let leads = data;
-          let leadColumns = response.data.columns;
-          //   setSelectedSheetId(item.id);
-          //   setLeadsList([]);
-          //   setFilterLeads([]);
-          if (leads && leadColumns) {
-            // ////console.log("Leads already cached for sheet", id)
-            // setLeadsList((prevDetails) => [...prevDetails, ...leads]);
-            // setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
-            let dynamicColumns = [];
-            if (leads.length > 0) {
-              dynamicColumns = [
-                ...leadColumns,
-                // { title: "Tag" },
-                {
-                  title: "More",
-                  idDefault: false,
-                },
-              ];
+            let leads = data;
+            let leadColumns = response.data.columns;
+            //   setSelectedSheetId(item.id);
+            //   setLeadsList([]);
+            //   setFilterLeads([]);
+            if (leads && leadColumns) {
+              // ////console.log("Leads already cached for sheet", id)
+              // setLeadsList((prevDetails) => [...prevDetails, ...leads]);
+              // setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
+              let dynamicColumns = [];
+              if (leads.length > 0) {
+                dynamicColumns = [
+                  ...leadColumns,
+                  // { title: "Tag" },
+                  {
+                    title: "More",
+                    idDefault: false,
+                  },
+                ];
+              }
+              // setLeadColumns(response.data.columns);
+              setLeadColumns(dynamicColumns);
+              // return
+            } else {
+              ////console.log("leads not already cached for sheet ", id);
             }
-            // setLeadColumns(response.data.columns);
-            setLeadColumns(dynamicColumns);
-            // return
-          } else {
-            ////console.log("leads not already cached for sheet ", id);
-          }
 
-          if (data.length < 500) {
-            setHasMore(false);
-          } else {
-            setHasMore(true);
+            if (data.length < 500) {
+              setHasMore(false);
+            } else {
+              setHasMore(true);
+            }
           }
         }
       }
