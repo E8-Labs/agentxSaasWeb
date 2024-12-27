@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { TextField, Button, Box } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import getProfileDetails from '../apis/GetProfile';
 
 
 function BasicInfo() {
@@ -29,6 +30,37 @@ function BasicInfo() {
   //code for image select and drag and drop
   const [selectedImage, setSelectedImage] = useState(null);
   const [dragging, setDragging] = useState(false);
+
+  //user details
+  const [UserDetails, setUserDetails] = useState(null);
+
+  //fetching the data
+  useEffect(() => {
+    const LocalData = localStorage.getItem("User");
+    if (LocalData) {
+      const userData = JSON.parse(LocalData);
+      console.log("Should set data")
+      setUserDetails(userData.user);
+      setName(userData?.user?.name);
+      setEmail(userData?.user?.email);
+      setFarm(userData?.user?.farm);
+      setTransaction(userData?.user?.averageTransactionPerYear);
+      setBrokerAge(userData?.user?.brokerage);
+      setPhone(userData?.user?.phone);
+    }
+    getProfile();
+  }, []);
+
+  //function to fetch the profile data
+  const getProfile = async () => {
+    try {
+
+      await getProfileDetails();
+
+    } catch (error) {
+      console.error("Error occured in api is error", error);
+    }
+  }
 
   //function to handle image selection
   const handleImageChange = (event) => {
@@ -236,6 +268,7 @@ function BasicInfo() {
           className='w-11/12 outline-none focus:ring-0'
           onFocus={() => setFocusedName(true)}
           onBlur={() => setFocusedName(false)}
+          value={email}
           onChange={(event) => {
             setName(event.target.value)
           }}
@@ -265,6 +298,7 @@ function BasicInfo() {
           className='w-11/12 outline-none focus:ring-0'
           onFocus={() => setFocusedFarm(true)}
           onBlur={() => setFocusedFarm(false)}
+          value={farm}
           onChange={(event) => {
             setFarm(event.target.value)
           }}
@@ -295,6 +329,7 @@ function BasicInfo() {
           className='w-11/12 outline-none focus:ring-0'
           onFocus={() => setFocusedBrokerage(true)}
           onBlur={() => setFocusedBrokerage(false)}
+          value={brokerAge}
           onChange={(event) => {
             setBrokerAge(event.target.value)
           }}
@@ -325,6 +360,7 @@ function BasicInfo() {
           className='w-11/12 outline-none focus:ring-0'
           onFocus={() => setFocusedTransaction(true)}
           onBlur={() => setFocusedTransaction(false)}
+          value={transaction}
           onChange={(event) => {
             setTransaction(event.target.value)
           }}
@@ -355,6 +391,7 @@ function BasicInfo() {
           className='w-11/12 outline-none focus:ring-0'
           onFocus={() => setFocusedEmail(true)}
           onBlur={() => setFocusedEmail(false)}
+          value={email}
           onChange={(event) => {
             setEmail(event.target.value)
           }}
@@ -384,6 +421,7 @@ function BasicInfo() {
           className='w-11/12'
           // onFocus={() => setFocusedEmail(true)}
           // onBlur={() => setFocusedEmail(false)}
+          value={phone}
           onChange={(event) => {
             setPhone(event.target.value)
           }}

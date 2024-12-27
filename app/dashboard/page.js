@@ -5,6 +5,7 @@ import axios from 'axios';
 import Apis from '@/components/apis/Apis';
 import { CircularProgress, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { duration } from 'moment';
+import getProfileDetails from '@/components/apis/GetProfile';
 
 const Page = () => {
 
@@ -27,7 +28,20 @@ const Page = () => {
 
     useEffect(() => {
         getDashboardData();
+        getProfile();
     }, []);
+
+
+    //function to get user profile details
+    const getProfile = async () => {
+        try {
+
+            await getProfileDetails();
+
+        } catch (error) {
+            console.error("Error occured in api is error", error);
+        }
+    }
 
     //function to get the dashboard data
 

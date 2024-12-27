@@ -1,4 +1,4 @@
-const BasePath = "https://www.blindcircle.com/agentx/"
+const BasePath = process.env.Environment == "Production" ? "https://www.blindcircle.com/agentx/" : "https://www.blindcircle.com/agentxtest/"
 
 const Apis = {
     getCalenders: `${BasePath}api/calendar/calendars`,
@@ -60,8 +60,15 @@ const Apis = {
     updateLeadStageApi: `${BasePath}api/leads/updateLeadStage`,
 
     sendVerificationCode: `${BasePath}api/user/sendVerificationCode`,
-    deleteLead: `${BasePath}api/leads/deleteLead`
+    deleteLead: `${BasePath}api/leads/deleteLead`,
+    getProfileData: `${BasePath}api/user/myProfile`,
+    getCardsList: `${BasePath}api/user/getPaymentMethods`,
+    makeDefaultCard: `${BasePath}api/user/setDefaultPaymentMethod`,
+    getPaymentHistory: `${BasePath}api/user/getTransactionsHistory`
 
 }
 
 export default Apis
+
+
+//2344233435567779

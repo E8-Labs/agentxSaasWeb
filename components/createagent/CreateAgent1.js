@@ -14,7 +14,7 @@ import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import GoogleAdddressPicker from '../test/GoogleAdddressPicker';
 import usePlacesService from "react-google-autocomplete/lib/usePlacesAutocompleteService";
 
-const CreateAgent1 = ({ handleContinue, handleBack }) => {
+const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
     const addressKey = process.env.NEXT_PUBLIC_AddressPickerApiKey;
 
@@ -190,10 +190,14 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
             setLoaderModal(true);
             const localData = localStorage.getItem("User");
             let AuthToken = null;
+            let LocalDetails = null;
             if (localData) {
                 const UserDetails = JSON.parse(localData);
+                console.log("Local agent details", UserDetails)
                 AuthToken = UserDetails.token;
+                LocalDetails = UserDetails;
             }
+            // return
             console.log("Auth token is :--", AuthToken);
             const ApiPath = Apis.buildAgent;
             console.log("Api link for build agent is :--", ApiPath);
@@ -246,6 +250,12 @@ const CreateAgent1 = ({ handleContinue, handleBack }) => {
                 if (response.data.status === true) {
                     console.log("Status of build agent is :", response.data.status);
                     localStorage.setItem("agentDetails", JSON.stringify(response.data.data));
+                    // if (LocalDetails.plan) {
+                    //     console.log("Should skip")
+                    //     handleSkipAddPayment();
+                    // } else {
+                    //     console.log("Should not skip")
+                    // }
                     handleContinue();
                 }
             }

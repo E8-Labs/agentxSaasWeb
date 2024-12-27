@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import Leads1 from '@/components/dashboard/leads/Leads1';
+import getProfileDetails from '@/components/apis/GetProfile';
 
 const Page = ({ params }) => {
 
@@ -10,7 +11,11 @@ const Page = ({ params }) => {
 
     let components = [Leads1];
 
-    let CurrentComp = components[index]
+    let CurrentComp = components[index];
+
+    useEffect(() => {
+        getProfile()
+    }, [])
 
     // Function to proceed to the next step
     const handleContinue = () => {
@@ -22,6 +27,17 @@ const Page = ({ params }) => {
         console.log("Component indexchanged ", index);
         setIndex(index - 1);
     };
+
+    //function to get user profile details
+    const getProfile = async () => {
+        try {
+            
+            await getProfileDetails();
+
+        } catch (error) {
+            console.error("Error occured in api is error", error);
+        }
+    }
 
     const backgroundImage = {
         // backgroundImage: 'url("/assets/background.png")',

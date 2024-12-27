@@ -239,7 +239,14 @@ const AddCardDetails = ({
                         } else if (response.data.status === true) {
                             //console.log("Here in subscribe plan else", fromBuildAiScreen)
                             setAddCardSuccess(true);
-                            handleSubscribePlan();
+
+                            if (!togglePlan) {
+                                handleClose(response.data);
+                            }
+
+                            if (togglePlan) {
+                                handleSubscribePlan();
+                            }
                             //console.log("Testing build screen data",);
                         }
                     } else {
@@ -333,7 +340,7 @@ const AddCardDetails = ({
     return (
         <div style={{ width: '100%' }}>
             <div className='mt-8'>
-                <div style={{ fontWeight: "400", fontFamily: "inter", fontSize: 13, color: "#4F5B76" }} onClick={() => { handleSubscribePlan() }}
+                <div style={{ fontWeight: "400", fontFamily: "inter", fontSize: 13, color: "#4F5B76" }}
                 >
                     Card Number
                 </div>

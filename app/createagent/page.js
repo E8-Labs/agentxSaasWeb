@@ -4,16 +4,28 @@ import CreateAgent1 from '@/components/createagent/CreateAgent1';
 import CreateAgent2 from '@/components/createagent/CreateAgent2';
 import CreateAgent4 from '@/components/createagent/CreateAgent4';
 import CreateAgentVoice from '@/components/createagent/CreateAgentVoice';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 
 const Page = () => {
 
 
     const [index, setIndex] = useState(0)
-    let components = [CreateAgent1, CreatAgent3, CreateAgent4, CreateAgentVoice]
+    const [components, setComponents ] = useState([CreateAgent1, CreatAgent3, CreateAgent4, CreateAgentVoice]);
 
     let CurrentComp = components[index]
+
+    useEffect(() => {
+        const localData = localStorage.getItem("User");
+        if(localData){
+            const Data = JSON.parse(localData);
+            if(Data.user.plan){
+                setComponents([CreateAgent1, CreateAgent4, CreateAgentVoice])
+            }else{
+                setComponents([CreateAgent1, CreatAgent3, CreateAgent4, CreateAgentVoice])
+            }
+        }
+    }, [])
 
     // Function to proceed to the next step
     const handleContinue = () => {
@@ -25,6 +37,11 @@ const Page = () => {
         console.log("Component indexchanged ", index);
         setIndex(index - 1);
     };
+
+    const handleSkipAddPayment = () => {
+        console.log("Component indexchanged ", index);
+        setIndex(index + 2);
+    }
 
     const backgroundImage = {
         // backgroundImage: 'url("/assets/background.png")',
@@ -56,7 +73,7 @@ const Page = () => {
                 <source src="/banerVideo.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
             </video>
-            <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
+            <CurrentComp handleContinue={handleContinue} handleBack={handleBack} handleSkipAddPayment={handleSkipAddPayment} />
         </div>
     )
 }
