@@ -9,7 +9,7 @@ export const PromptTagInput = ({
   promptTag,
   kycsList,
   tagValue,
-  uniqueColumns
+  uniqueColumns,
 }) => {
   // console.log("Scroll Offset Parent ", scrollOffset)
   const [popupVisible, setPopupVisible] = useState(false);
@@ -33,10 +33,18 @@ export const PromptTagInput = ({
   console.log("Kycs list is:", kycsList);
 
   useEffect(() => {
-    setOptions((prev) => {
-      return [...prev, ...uniqueColumns]
-    })
-  }, [uniqueColumns])
+    let arr = [...options];
+    uniqueColumns.map((item) => {
+      if (!arr.includes(item)) {
+        arr.push(item);
+      }
+    });
+    setOptions(arr);
+
+    // setOptions((prev) => {
+    //   return [...prev, ...uniqueColumns];
+    // });
+  }, [uniqueColumns]);
 
   useEffect(() => {
     let mirrorDiv = null;
@@ -305,11 +313,22 @@ export const PromptTagInput = ({
       console.log("Should del", ShouldDelete);
       if (ShouldDelete && indexOfStart > -1) {
         const firstOccurrenceEndChar = t.indexOf("}", indexOfStart); //}
+        const startCharPositionBetween = t.indexOf("{", indexOfStart + 1);
         const firstOccurrenceOfStartChar = indexOfStart; //t.indexOf("{", indexOfStart); //{
 
         console.log("First pos of start Char ", firstOccurrenceOfStartChar);
+        console.log("Second pos of start Char ", startCharPositionBetween);
         console.log("First pos of end Char ", firstOccurrenceEndChar);
-        if (firstOccurrenceEndChar > firstOccurrenceOfStartChar) {
+
+        const isTagInComplete =
+          startCharPositionBetween >= firstOccurrenceOfStartChar &&
+          startCharPositionBetween < firstOccurrenceEndChar;
+        console.log("Is tag completed ", isTagInComplete);
+
+        if (
+          firstOccurrenceEndChar > firstOccurrenceOfStartChar && // "{" should be ahead of "}"
+          !isTagInComplete
+        ) {
           //delete all until endCharPos
           console.log("char delete falls bet {}");
           t = removeSubstring(t, indexOfStart - 1, firstOccurrenceEndChar);
@@ -351,6 +370,11 @@ export const PromptTagInput = ({
     const lastOpenBraceIndex = textBeforeCursor.lastIndexOf("{");
     const beforeBrace = textBeforeCursor.substring(0, lastOpenBraceIndex);
     const afterBrace = text.substring(cursorPosition);
+
+    console.log("Cursor Pos", cursorPosition);
+    console.log("LAst Pos {", lastOpenBraceIndex);
+
+    console.log("After ", afterBrace);
 
     const updatedText = `${beforeBrace}{${option}}${afterBrace}`;
     setText(updatedText);
@@ -433,7 +457,7 @@ export const PromptTagInput = ({
             resize: "none",
             // border: "1px solid #00000020",
           }}
-        // disabled={true}
+          // disabled={true}
         />
         <div className="h-[50px] flex flex-col justify-center">
           <button
@@ -534,7 +558,6 @@ export const PromptTagInput = ({
               </div>
 
               <div style={{ position: "relative", height: "80%" }}>
-
                 <textarea
                   className="outline-none rounded-xl focus:ring-0"
                   ref={textFieldRef}
@@ -558,7 +581,6 @@ export const PromptTagInput = ({
                     border: "1px solid #00000020",
                   }}
                 />
-
 
                 {/* <textarea
                   className="outline-none rounded-xl focus:ring-0"
@@ -598,7 +620,7 @@ export const PromptTagInput = ({
                       minWidth: "150px",
                       maxHeight: "250px",
                       overflow: "auto",
-                      scrollbarWidth: "none"
+                      scrollbarWidth: "none",
                     }}
                   >
                     {filteredOptions.map((option) => (
