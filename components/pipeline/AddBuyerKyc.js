@@ -399,18 +399,18 @@ const AddBuyerKyc = ({
 
             let AgentId = null
 
-            if (mainAgentId) {
-                AgentId = mainAgentId
-            } else {
-                AgentId = MyAgentData.id
-            }
-
             if (agentDetails) {
                 console.log("trying")
                 const agentData = JSON.parse(agentDetails);
                 console.log("ActualAgent details are :--", agentData);
                 MyAgentData = agentData;
 
+            }
+
+            if (mainAgentId) {
+                AgentId = mainAgentId
+            } else {
+                AgentId = MyAgentData.id
             }
 
             const ApiPath = Apis.updateKYC;
