@@ -2472,7 +2472,7 @@ const Userleads = ({
       </div>
 
       {showDetailsModal && (
-        <div className="h-screen py-8 bg-red">
+        <div className="overflow-scroll" style={{backgroundColor :'red', height: window.innerHeight * 0.95, width: '100%'}}>
           <LeadDetails
           selectedLead={selectedLeadsDetails?.id}
           pipelineId={selectedLeadsDetails?.stage?.pipelineId}

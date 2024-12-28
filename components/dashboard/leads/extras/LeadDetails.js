@@ -507,7 +507,7 @@ const LeadDetails = ({
                     },
                 }}
             >
-                <Box className="lg:w-6/12 sm:w-7/12 w-8/12 bg-white py-2 h-[95svh] overflow-y-auto"
+                <Box className="lg:w-6/12 sm:w-7/12 w-8/12 bg-white py-2 h-[95svh] overflow-y-auto" 
                     sx={{
                         ...styles.modalsStyle,
                         scrollbarWidth: "none", backgroundColor: "white", //overflowY: "auto"
