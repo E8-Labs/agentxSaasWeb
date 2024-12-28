@@ -1878,7 +1878,7 @@ const Userleads = ({
               <div>
                 {LeadsList.length > 0 ? (
                   <div
-                    className="h-[70svh] overflow-auto mt-6" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                    className="h-[70svh] overflow-auto pb-[100px] mt-6" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
                     id="scrollableDiv1"
                     style={{ scrollbarWidth: "none" }}
                   >

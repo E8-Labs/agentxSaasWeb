@@ -507,7 +507,7 @@ const LeadDetails = ({
                     },
                 }}
             >
-                <Box className="lg:w-6/12 sm:w-7/12 w-8/12 bg-white py-2 h-[85vh] overflow-auto" sx={{ ...styles.modalsStyle, scrollbarWidth: "none", backgroundColor: "white" }}>
+                <Box className="lg:w-6/12 sm:w-7/12 w-8/12 bg-white py-2 h-[95svh] overflow-auto" sx={{ ...styles.modalsStyle, scrollbarWidth: "none", backgroundColor: "white" }}>
                     <div className="w-full flex flex-col items-center h-full">
                         {/* <div className='flex flex-row justify-between items-center'>
                             <div style={{ fontWeight: "500", fontSize: 16.9 }}>
@@ -571,33 +571,62 @@ const LeadDetails = ({
                                             </div>
                                             <div>
                                                 <div className="text-end" style={styles.heading2}>
-                                                    {selectedLeadsDetails?.email || "-"}
+                                                    {selectedLeadsDetails?.email ? (
+                                                        selectedLeadsDetails?.email
+                                                    ) : (
+                                                        <div>
+                                                            {
+                                                                selectedLeadsDetails?.emails?.slice(0, 1).map((email, emailIndex) => {
+                                                                    return (
+                                                                        <div key={emailIndex} className='flex flex-row items-center gap-2'>
+                                                                            <div className='flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]' style={styles.paragraph}>
+                                                                                <Image src={"/assets/power.png"} height={9} width={7} alt='*' />
+                                                                                <div>
+                                                                                    <span className='text-purple'>New</span> {email.email}
+                                                                                </div>
+                                                                            </div>
+                                                                            <button
+                                                                                className='text-purple underline'
+                                                                                onClick={() => { setShowAllEmails(true) }}
+                                                                            >
+                                                                                +{selectedLeadsDetails?.emails?.length > 1 && selectedLeadsDetails?.emails?.length - 1}
+                                                                            </button>
+                                                                        </div>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className='flex flex-row w-full justify-end'>
-                                            {
-                                                selectedLeadsDetails?.emails?.slice(0, 1).map((email, emailIndex) => {
-                                                    return (
-                                                        <div key={emailIndex} className='flex flex-row items-center gap-2'>
-                                                            <div className='flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]' style={styles.paragraph}>
-                                                                <Image src={"/assets/power.png"} height={9} width={7} alt='*' />
-                                                                <div>
-                                                                    <span className='text-purple'>New</span> {email.email}
+                                        {
+                                            selectedLeadsDetails?.email && (
+                                                <div className='flex flex-row w-full justify-end'>
+                                                    {
+                                                        selectedLeadsDetails?.emails?.slice(0, 1).map((email, emailIndex) => {
+                                                            return (
+                                                                <div key={emailIndex} className='flex flex-row items-center gap-2'>
+                                                                    <div className='flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]' style={styles.paragraph}>
+                                                                        <Image src={"/assets/power.png"} height={9} width={7} alt='*' />
+                                                                        <div>
+                                                                            <span className='text-purple'>New</span> {email.email}
+                                                                        </div>
+                                                                    </div>
+                                                                    <button
+                                                                        className='text-purple underline'
+                                                                        onClick={() => { setShowAllEmails(true) }}
+                                                                    >
+                                                                        +{selectedLeadsDetails?.emails?.length - 1}
+                                                                    </button>
                                                                 </div>
-                                                            </div>
-                                                            <button
-                                                                className='text-purple underline'
-                                                                onClick={() => { setShowAllEmails(true) }}
-                                                            >
-                                                                +{selectedLeadsDetails?.emails?.length - 1}
-                                                            </button>
-                                                        </div>
-                                                    )
-                                                })
-                                            }
-                                        </div>
+                                                            )
+                                                        })
+                                                    }
+                                                </div>
+                                            )
+                                        }
 
                                         <Modal
                                             open={showAllEmails}
@@ -877,84 +906,89 @@ const LeadDetails = ({
 
                                         {/* Code for custom variables */}
 
-                                        <div className='mt-2 border rounded-xl p-2'>
-                                            <button
-                                                onClick={() => {
-                                                    setShowCustomVariables(!showCustomVariables);
-                                                }}
-                                                className='flex flex-row items-center w-full justify-between outline-none'
-                                            >
-                                                <div className='flex flex-row items-center gap-3'>
-                                                    <Image
-                                                        src={"/assets/customsIcon.svg"} alt='*'
-                                                        height={16} width={16}
-                                                    />
-                                                    <div
-                                                        style={{
-                                                            fontWeight: "600", fontsize: 15,
-                                                            color: "#15151560"
+                                        {
+                                            columnsLength?.length && (
+                                                <div className='mt-2 border rounded-xl p-2'>
+                                                    <button
+                                                        onClick={() => {
+                                                            setShowCustomVariables(!showCustomVariables);
                                                         }}
+                                                        className='flex flex-row items-center w-full justify-between outline-none'
                                                     >
-                                                        Custom fields
-                                                    </div>
-                                                    {
-                                                        showCustomVariables ? (
-                                                            <CaretUp size={16} weight='bold' color='#15151570' />
-                                                        ) : (
-                                                            <CaretDown size={16} weight='bold' color='#15151570' />
-                                                        )
-                                                    }
-                                                </div>
-                                                <div>
-                                                    {
-                                                        columnsLength.length > 4 ? (
+                                                        <div className='flex flex-row items-center gap-3'>
+                                                            <Image
+                                                                src={"/assets/customsIcon.svg"} alt='*'
+                                                                height={16} width={16}
+                                                            />
                                                             <div
-                                                                className='text-purple underline'
-                                                                style={{ fontsize: 15, fontWeight: "500" }}
+                                                                style={{
+                                                                    fontWeight: "600", fontsize: 15,
+                                                                    color: "#15151560"
+                                                                }}
                                                             >
-                                                                +{columnsLength?.length - 4}
+                                                                Custom fields
                                                             </div>
-                                                        ) : (
-                                                            ""
+                                                            {
+                                                                showCustomVariables ? (
+                                                                    <CaretUp size={16} weight='bold' color='#15151570' />
+                                                                ) : (
+                                                                    <CaretDown size={16} weight='bold' color='#15151570' />
+                                                                )
+                                                            }
+                                                        </div>
+                                                        <div>
+                                                            {
+                                                                columnsLength.length > 4 ? (
+                                                                    <div
+                                                                        className='text-purple underline'
+                                                                        style={{ fontsize: 15, fontWeight: "500" }}
+                                                                    >
+                                                                        +{columnsLength?.length - 4}
+                                                                    </div>
+                                                                ) : (
+                                                                    ""
+                                                                )
+                                                            }
+                                                        </div>
+                                                    </button>
+
+                                                    {
+                                                        showCustomVariables && (
+                                                            <div className='flex flex-col gap-4 mt-4'>
+                                                                {
+
+                                                                    leadColumns.map((column, index) => {
+                                                                        if (column.title == "Name" || column.title == "Phone" || column.title == "address" || column.title == "More" || column.title == 0 || column.title == "Stage") {
+                                                                            return (
+                                                                                // <div key={index}></div>
+                                                                                ""
+                                                                            )
+                                                                        }
+                                                                        return (
+                                                                            <div key={index} className='flex flex-row w-full justify-between'>
+                                                                                <div className='flex flex-row items-center gap-4'>
+                                                                                    {/* <Image src={"/"} */}
+                                                                                    <div>
+                                                                                        -
+                                                                                    </div>
+                                                                                    <div style={styles.subHeading}>
+                                                                                        {column.title}
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div style={styles.paragraph}>
+                                                                                    {getDetailsColumnData(column, selectedLeadsDetails)}
+                                                                                </div>
+                                                                            </div>
+                                                                        )
+                                                                    })}
+                                                            </div>
                                                         )
                                                     }
+
                                                 </div>
-                                            </button>
+                                            )
+                                        }
 
-                                            {
-                                                showCustomVariables && (
-                                                    <div className='flex flex-col gap-4 mt-4'>
-                                                        {
-
-                                                            leadColumns.map((column, index) => {
-                                                                if (column.title == "Name" || column.title == "Phone" || column.title == "address" || column.title == "More" || column.title == 0 || column.title == "Stage") {
-                                                                    return (
-                                                                        // <div key={index}></div>
-                                                                        ""
-                                                                    )
-                                                                }
-                                                                return (
-                                                                    <div key={index} className='flex flex-row w-full justify-between'>
-                                                                        <div className='flex flex-row items-center gap-4'>
-                                                                            {/* <Image src={"/"} */}
-                                                                            <div>
-                                                                                -
-                                                                            </div>
-                                                                            <div style={styles.subHeading}>
-                                                                                {column.title}
-                                                                            </div>
-                                                                        </div>
-                                                                        <div style={styles.paragraph}>
-                                                                            {getDetailsColumnData(column, selectedLeadsDetails)}
-                                                                        </div>
-                                                                    </div>
-                                                                )
-                                                            })}
-                                                    </div>
-                                                )
-                                            }
-
-                                        </div>
 
                                     </div>
 
@@ -1067,7 +1101,7 @@ const LeadDetails = ({
                                             showNotesDetails && (
                                                 <div>
                                                     {
-                                                        selectedLeadsDetails?.notes.length < 1 ? (
+                                                        noteDetails?.length < 1 ? (
                                                             <div className='flex flex-col items-center justify-center h-[20vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
                                                                 <div className='h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'>
                                                                     <Image src={"/assets/notes.png"} height={24} width={24} alt='*' />
