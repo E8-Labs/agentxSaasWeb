@@ -268,7 +268,7 @@ function BasicInfo() {
           className='w-11/12 outline-none focus:ring-0'
           onFocus={() => setFocusedName(true)}
           onBlur={() => setFocusedName(false)}
-          value={email}
+          value={name}
           onChange={(event) => {
             setName(event.target.value)
           }}

@@ -1418,7 +1418,7 @@ const Pipeline1 = () => {
                                                                     <button
                                                                         className="flex flex-row items-center gap-3"
                                                                         onClick={() => {
-                                                                            console.log("Selected lead details are:", lead.lead)
+                                                                            console.log("Selected lead details are:", lead)
                                                                             setShowDetailsModal(true);
                                                                             setSelectedLeadsDetails(lead.lead);
                                                                             setNoteDetails(lead.lead.notes);
@@ -1575,6 +1575,13 @@ const Pipeline1 = () => {
             <Modal
                 open={addNewStageModal}
                 onClose={() => { handleCloseAddStage() }}
+                BackdropProps={{
+                    timeout: 100,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        // //backdropFilter: "blur(20px)",
+                    },
+                }}
             >
                 <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
                     <div style={{ width: "100%", }}>
@@ -1869,6 +1876,13 @@ const Pipeline1 = () => {
                     setShowRenamePopup(false);
                     handleCloseStagePopover();
                 }}
+                BackdropProps={{
+                    timeout: 100,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        //backdropFilter: "blur(20px)",
+                    },
+                }}
             >
                 <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
                     <div style={{ width: "100%", }}>
@@ -1937,6 +1951,13 @@ const Pipeline1 = () => {
                 onClose={() => {
                     setShowDelStageModal(false);
                     handleCloseStagePopover();
+                }}
+                BackdropProps={{
+                    timeout: 100,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        // //backdropFilter: "blur(20px)",
+                    },
                 }}
             >
                 <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
@@ -2115,6 +2136,13 @@ const Pipeline1 = () => {
                 onClose={() => {
                     setShowRenamePipelinePopup(false);
                     handlePipelineClosePopover();
+                }}
+                BackdropProps={{
+                    timeout: 100,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        // //backdropFilter: "blur(20px)",
+                    },
                 }}
             >
                 <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
@@ -2339,17 +2367,29 @@ const Pipeline1 = () => {
                     },
                 }}
             >
-                <Box className="lg:w-6/12 sm:w-8/12 w-10/12" sx={styles.modalsStyle}>
-                    <div className="flex flex-row justify-center w-full">
+                <Box className="lg:w-6/12 sm:w-8/12 w-10/12"
+                    sx={{
+                        height: "auto",
+                        bgcolor: "transparent",
+                        p: 2,
+                        mx: "auto",
+                        my: "50vh",
+                        transform: "translateY(-50%)",
+                        borderRadius: 2,
+                        border: "none",
+                        outline: "none",
+                    }}>
+                    <div className="flex flex-row justify-center w-full h-[100%]">
                         <div
-                            className="w-full"
+                            className="w-full h-[100%]"
                             style={{
                                 backgroundColor: "#ffffff",
                                 padding: 20,
                                 borderRadius: "13px",
+                                maxHeight: "90svh"
                             }}
                         >
-                            <div className='flex flex-row justify-between'>
+                            <div className='flex flex-row justify-between h-[10%] w-full'>
                                 <div style={{ fontWeight: "600", fontSize: 22 }}>
                                     Rearrange Stages
                                 </div>
@@ -2361,7 +2401,7 @@ const Pipeline1 = () => {
                                 </button>
                             </div>
 
-                            <div className='w-full h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                            <div className='w-full h-[80%] overflow-auto' style={{ scrollbarWidth: "none" }}>
                                 <RearrangeStages
                                     // stages={StagesList}
                                     // onUpdateOrder={(stages) => {
@@ -2386,6 +2426,27 @@ const Pipeline1 = () => {
                                     reorderStageLoader={reorderStageLoader}
                                 />
                             </div>
+
+
+                            <div className="w-full h-[10%]">
+                                {
+                                    reorderStageLoader ?
+                                        (
+                                            <div className="w-full flex flex-row items-center h-[50px] justify-center mt-6">
+                                                <CircularProgress size={25} />
+                                            </div>
+                                        ) :
+                                        (
+                                            <button
+                                                className="w-full bg-purple text-white mt-6 h-[50px] rounded-xl text-xl font-[500]"
+                                                onClick={() => { handleReorder() }}
+                                            >
+                                                Reorder stages & close
+                                            </button>
+                                        )
+                                }
+                            </div>
+
 
                             {/* Can be use full to add shadow */}
                             {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
@@ -2809,11 +2870,11 @@ const Pipeline1 = () => {
                                                                                                     fontWeight: "600",
                                                                                                     fontsize: 15
                                                                                                 }}>
-                                                                                                Outcome |
+                                                                                                Outcome
                                                                                             </div>
-                                                                                            <div className='text-purple' style={{ fontWeight: "600", fontsize: 12 }}>
+                                                                                            {/* <div className='text-purple' style={{ fontWeight: "600", fontsize: 12 }}>
                                                                                                 {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
-                                                                                            </div>
+                                                                                            </div> */}
                                                                                         </div>
                                                                                         <button
                                                                                             className="text-end flex flex-row items-center gap-1"
@@ -2849,7 +2910,7 @@ const Pipeline1 = () => {
                                                                                                 </div>
                                                                                                 <div className='flex flex-row items-center justify-between mt-4'>
                                                                                                     <div style={{ fontWeight: "500", fontSize: 15 }}>
-                                                                                                        {item.duration} mins
+                                                                                                        {moment(item?.duration * 1000).format("mm:ss")} mins
                                                                                                     </div>
                                                                                                     <button onClick={() => {
                                                                                                         if (item?.recordingUrl) {

@@ -1,13 +1,23 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { Link } from '@mui/material';
 
 const ProfileNav = () => {
 
-  const router = useRouter()
-  const pathname = usePathname()
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [userDetails, setUserDetails] = useState(null);
+
+  useEffect(() => {
+    const data = localStorage.getItem("User");
+    if (data) {
+      const LocalData = JSON.parse(data);
+      setUserDetails(LocalData);
+    }
+  }, [])
 
   const links = [
     {
@@ -53,13 +63,14 @@ const ProfileNav = () => {
       href: '/dashboard/team',
       selected: '/assets/selectedTeamIcon.png',
       uneselected: '/assets/unSelectedTeamIcon.png'
-    }, {
-      id: 8,
-      name: 'My Account',
-      href: '/dashboard/myAccount',
-      selected: '/assets/selectedTeamIcon.png',
-      uneselected: '/assets/unSelectedTeamIcon.png'
     },
+    // {
+    //   id: 8,
+    //   name: 'My Account',
+    //   href: '/dashboard/myAccount',
+    //   selected: '/assets/selectedTeamIcon.png',
+    //   uneselected: '/assets/unSelectedTeamIcon.png'
+    // },
   ]
 
   const handleOnClick = (e, href) => {
@@ -70,7 +81,7 @@ const ProfileNav = () => {
 
   return (
     <div>
-      <div className='w-full mt-10 flex flex-col items-center'
+      <div className='w-full pt-10 flex flex-col items-center'
         style={{ height: '90vh', overflow: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', }}
       >
         <div className='w-full flex flex-row gap-3 items-center justify-center'>
@@ -81,7 +92,7 @@ const ProfileNav = () => {
           </div>
         </div>
 
-        <div className='w-full mt-16 flex flex-col items-center gap-3'>
+        <div className='w-full mt-8 flex flex-col items-center gap-3'>
           {
             links.map((item) => (
               <div key={item.id} className='w-9/12 flex flex-col gap-3 '>
@@ -93,8 +104,8 @@ const ProfileNav = () => {
                     <Image src={pathname === item.href ? item.selected : item.uneselected}
                       height={24} width={24} alt='icon'
                     />
-                    <div className={pathname === item.href ? "text-black" : "text-purple"} style={{
-                      fontSize: 15, fontWeight: 500, color: pathname === item.href ? "#402FFF" : 'black'
+                    <div className={pathname === item.href ? "text-purple" : "text-black"} style={{
+                      fontSize: 15, fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
                     }}>
                       {item.name}
                     </div>
@@ -105,22 +116,31 @@ const ProfileNav = () => {
             ))
           }
         </div>
-
-        <div className='w-full px-6'>
-          {/* <button className='text-red text-start mt-4 bg-[#FF4E4E40] px-3 py-1 rounded-3xl' style={{ fontWeight: "600", fontSize: 17 }} onClick={() => {
-            // localStorage.clear();
-            localStorage.removeItem("User");
-            localStorage.removeItem("localAgentDetails");
-            if (typeof document !== "undefined") {
-              document.cookie = "User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-            }
-            router.push("/");
-          }}>
-            Log Out
-          </button> */}
-        </div>
       </div>
-    </div>
+
+      <div
+        className='w-full flex flex-row items-start justify-center h-[10%]'
+        style={{
+
+        }}>
+        <button
+          onClick={() => { router.push("/dashboard/myAccount") }}
+          className='w-9/12 border border-[#00000015] rounded-[10px] flex flex-row items-start gap-3 px-4 py-2 truncate outline-none text-start'
+          style={{ textOverflow: "ellipsis" }}>
+          <div className='h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center'>
+            {userDetails?.user?.name.slice(0, 1).toUpperCase()}
+          </div>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: "500", color: "" }}>
+              {userDetails?.user?.name}
+            </div>
+            <div className='truncate max-w-full' style={{ fontSize: 15, fontWeight: "500", color: "#15151560", textOverflow: "ellipsis" }}>
+              {userDetails?.user?.email}
+            </div>
+          </div>
+        </button>
+      </div>
+    </div >
   );
 }
 

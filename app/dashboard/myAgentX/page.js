@@ -1749,7 +1749,7 @@ function Page() {
         BackdropProps={{
           timeout: 500,
           sx: {
-            backgroundColor: "#00000030",
+            backgroundColor: "#00000020",
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -2033,6 +2033,13 @@ function Page() {
           "& .MuiDrawer-paper": {
             width: "50%", // Adjust the width as per your design
             paddingInline: "60px", // Add padding for internal spacing
+          },
+        }}
+        BackdropProps={{
+          timeout: 100,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(20px)",
           },
         }}
       >
@@ -2648,6 +2655,13 @@ function Page() {
         onClose={() => {
           setDelAgentModal(false);
         }}
+        BackdropProps={{
+          timeout: 200,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(20px)",
+          },
+        }}
       >
         <Box
           className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
@@ -2734,9 +2748,16 @@ function Page() {
         onClose={() => {
           setShowWarningModal(null);
         }}
+        BackdropProps={{
+          timeout: 100,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(20px)",
+          },
+        }}
       >
         <Box
-          className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
+          className="w-10/12 sm:w-7/12 md:w-5/12 lg:w-3/12 p-8 rounded-[15px]"
           sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
         >
           <div style={{ width: "100%" }}>
@@ -2777,12 +2798,12 @@ function Page() {
 
             <div className="flex flex-row items-center gap-4 mt-6">
               <button
-                className="mt-4 outline-none w-1/2"
+                className="mt-4 outline-none w-5/12"
                 style={{
                   color: "black",
                   height: "50px",
                   borderRadius: "10px",
-                  width: "100%",
+                  // width: "100%",
                   fontWeight: 600,
                   fontSize: "20",
                 }}
@@ -2793,12 +2814,12 @@ function Page() {
                 Close
               </button>
               <button
-                className="mt-4 outline-none bg-purple w-1/2"
+                className="mt-4 outline-none bg-purple w-7/12"
                 style={{
                   color: "white",
                   height: "50px",
                   borderRadius: "10px",
-                  width: "100%",
+                  // width: "100%",
                   fontWeight: 600,
                   fontSize: "20",
                 }}
@@ -2820,6 +2841,13 @@ function Page() {
         open={showConfirmationModal}
         onClose={() => {
           setShowConfirmationModal(null);
+        }}
+        BackdropProps={{
+          timeout: 100,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(20px)",
+          },
         }}
       >
         <Box
@@ -2942,6 +2970,13 @@ function Page() {
         open={showScriptModal}
         onClose={() => {
           handleCloseScriptModal();
+        }}
+        BackdropProps={{
+          timeout: 100,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(20px)",
+          },
         }}
       >
         <Box

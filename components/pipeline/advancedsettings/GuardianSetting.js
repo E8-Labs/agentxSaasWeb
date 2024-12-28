@@ -415,6 +415,13 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
       <Modal
         open={showAddObjForm}
         onClose={() => { setShowAddObjForm(false) }}
+        BackdropProps={{
+          timeout: 100,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(20px)",
+          },
+        }}
       >
         <Box sx={{ ...styles.modalsStyle, width: "30%", backgroundColor: 'white' }}>
           <div style={{ width: "100%", }}>

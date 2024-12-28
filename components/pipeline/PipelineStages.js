@@ -194,22 +194,32 @@ const PipelineStages = ({
 
     //code for drag and drop stages
     const handleOnDragEnd = (result) => {
+        console.log("Data passed in drag function", result);
         const { source, destination } = result;
-
+        console.log("Check 1")
         // if (!destination) return;
         if (!destination || source.index === 0 || destination.index === 0) {
+            console.log("Check 2 then return")
             return;
         }
 
+        // if (!destination || source.index === destination.index) {
+        //     console.log("Check 2 then return")
+        //     return;
+        // }
+
+        // console.log("Check 3")
         const items = Array.from(pipelineStages);
         const [reorderedItem] = items.splice(source.index, 1);
         items.splice(destination.index, 0, reorderedItem);
 
+        // console.log("Check 4")
         const updatedStages = items.map((stage, index) => ({
             ...stage,
             order: index + 1,
         }));
 
+        console.log("Check 5 about to call the api")
         setPipelineStages(updatedStages);
         onUpdateOrder(updatedStages);
     };

@@ -293,7 +293,7 @@ const RearrangeStages = ({
                         {...provided.droppableProps}
                         ref={provided.innerRef}
                         style={{
-                            maxHeight: "100vh",
+                            maxHeight: "100%",
                             // overflowY: "auto",
                             // borderRadius: "8px",
                             // padding: "10px",
@@ -302,52 +302,54 @@ const RearrangeStages = ({
                             marginTop: 20,
                         }}
                     >
-                        {pipelineStages.map((item, index) => (
-                            <Draggable
-                                key={item.id}
-                                draggableId={item.id.toString()}
-                                index={index}
-                                isDragDisabled={index === 0}
-                            >
-                                {(provided) => (
-                                    <div
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                        style={{
-                                            ...provided.draggableProps.style,
-                                            // border: "1px solid red",
-                                            borderRadius: "10px",
-                                            // padding: "15px",
-                                            marginBottom: "10px",
-                                            backgroundColor: "#fff",
-                                            // boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                                        }}
-                                        className="flex flex-row items-start"
-                                    >
-                                        <div className="w-[5%]">
-                                            <div className="outline-none mt-2">
-                                                {
-                                                    index > 0 && (
-                                                        <Image src={"/assets/list.png"} height={6} width={16} alt="*" />
-                                                    )
-                                                }
-                                            </div>
-                                        </div>
-                                        <div className="border w-[95%] rounded-xl p-3 px-4">
-                                            <div className="flex flex-row items-center justify-between">
-                                                <div>
-                                                    <div style={styles.inputStyle}>{item.stageTitle}</div>
-                                                    <div className="mt-3" style={{
-                                                        fontSize: 13,
-                                                        fontWeight: "500",
-                                                        color: "#00000060"
-                                                    }}>
-                                                        {item.description}
-                                                    </div>
+
+                        <div className="h-[90%] overflow-auto">
+                            {pipelineStages.map((item, index) => (
+                                <Draggable
+                                    key={item.id}
+                                    draggableId={item.id.toString()}
+                                    index={index}
+                                    isDragDisabled={index === 0}
+                                >
+                                    {(provided) => (
+                                        <div
+                                            ref={provided.innerRef}
+                                            {...provided.draggableProps}
+                                            {...provided.dragHandleProps}
+                                            style={{
+                                                ...provided.draggableProps.style,
+                                                // border: "1px solid red",
+                                                borderRadius: "10px",
+                                                // padding: "15px",
+                                                marginBottom: "10px",
+                                                backgroundColor: "#fff",
+                                                // boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                                            }}
+                                            className="flex flex-row items-start"
+                                        >
+                                            <div className="w-[5%]">
+                                                <div className="outline-none mt-2">
+                                                    {
+                                                        index > 0 && (
+                                                            <Image src={"/assets/list.png"} height={6} width={16} alt="*" />
+                                                        )
+                                                    }
                                                 </div>
                                             </div>
-                                            {/* <div className="w-full flex flex-row items-center justify-end mt-2">
+                                            <div className="border w-[95%] rounded-xl p-3 px-4">
+                                                <div className="flex flex-row items-center justify-between">
+                                                    <div>
+                                                        <div style={styles.inputStyle}>{item.stageTitle}</div>
+                                                        <div className="mt-3" style={{
+                                                            fontSize: 13,
+                                                            fontWeight: "500",
+                                                            color: "#00000060"
+                                                        }}>
+                                                            {item.description}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {/* <div className="w-full flex flex-row items-center justify-end mt-2">
                                                 <button className="flex flex-row items-center gap-1" onClick={() => { setShowDelStagePopup(item) }}>
                                                     <Image src={"/assets/delIcon.png"} height={20} width={18} alt="*"
                                                         style={{
@@ -360,7 +362,7 @@ const RearrangeStages = ({
                                                     </p>
                                                 </button>
                                             </div> */}
-                                            {/* <Modal
+                                                {/* <Modal
                                                 open={showDelStagePopup}
                                                 onClose={() => setShowDelStagePopup(null)}
                                                 closeAfterTransition
@@ -433,35 +435,15 @@ const RearrangeStages = ({
                                                     </div>
                                                 </Box>
                                             </Modal> */}
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
-                            </Draggable>
-                        ))}
-                        {provided.placeholder}
+                                    )}
+                                </Draggable>
+                            ))}
+                            {provided.placeholder}
+                        </div>
 
-                        {
-                            showReorderBtn && (
-                                <div className="w-full">
-                                    {
-                                        reorderStageLoader ?
-                                            (
-                                                <div className="w-full flex flex-row items-center h-[50px] justify-center mt-6">
-                                                    <CircularProgress size={25} />
-                                                </div>
-                                            ) :
-                                            (
-                                                <button
-                                                    className="w-full bg-purple text-white mt-6 h-[50px] rounded-xl text-xl font-[500]"
-                                                    onClick={() => { handleReorderStages() }}
-                                                >
-                                                    Reorder stages & close
-                                                </button>
-                                            )
-                                    }
-                                </div>
-                            )
-                        }
+                        
 
 
 

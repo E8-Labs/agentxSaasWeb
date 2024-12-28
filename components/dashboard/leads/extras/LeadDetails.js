@@ -911,7 +911,7 @@ const LeadDetails = ({
                                         {/* Code for custom variables */}
 
                                         {
-                                            columnsLength?.length && (
+                                            columnsLength?.length > 0 && (
                                                 <div className='mt-2 border rounded-xl p-2'>
                                                     <button
                                                         onClick={() => {

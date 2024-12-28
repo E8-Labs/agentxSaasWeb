@@ -281,7 +281,7 @@ const Page = () => {
 
                                                 <div className='flex flex-col gap-2'>
                                                     <div style={{ fontSize: 15, fontWeight: '400', color: '#fff' }}>
-                                                        Select your business
+                                                        Scale your business
                                                     </div>
                                                     <button className='flex flex-row items-center gap-2 justify-center bg-white h-[43px] w-[130px] rounded-[15px]'>
                                                         <Image src={"/otherAssets/king.png"} height={20} width={20} alt='*' />

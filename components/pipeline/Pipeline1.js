@@ -5,11 +5,12 @@ import React, { useEffect, useState } from 'react';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
-import { Alert, Box, Fade, FormControl, MenuItem, Modal, Select, Snackbar } from '@mui/material';
+import { Alert, Box, CircularProgress, Fade, FormControl, MenuItem, Modal, Select, Snackbar } from '@mui/material';
 import Apis from '../apis/Apis';
 import axios from 'axios';
 import { CaretDown, Minus, YoutubeLogo } from '@phosphor-icons/react';
 import PipelineStages from './PipelineStages';
+import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap';
 
 const Pipeline1 = ({ handleContinue }) => {
 
@@ -32,7 +33,7 @@ const Pipeline1 = ({ handleContinue }) => {
     // const [selectedNextStage, setSelectedNextStage] = useState([]);
 
     const [reorderSuccessBar, setReorderSuccessBar] = useState(null);
-    const [showDelStageBtn, setShowDelStageBtn] = useState(false);
+    const [reorderLoader, setReorderLoader] = useState(false);
     //code for new Lead calls
     // const [rows, setRows] = useState([]);
     // const [assignedNewLEad, setAssignedNewLead] = useState(false);
@@ -415,7 +416,7 @@ const Pipeline1 = ({ handleContinue }) => {
     //code to rearrange stages list
     const handleReorder = async () => {
         try {
-
+            setReorderLoader(true);
             const updateStages = selectedPipelineStages.map((stage, index) => ({
                 id: stage.id,
                 order: stage.order
@@ -457,6 +458,7 @@ const Pipeline1 = ({ handleContinue }) => {
             console.error("Error occured in rearrange order api is:", error);
         } finally {
             console.log("api call completed");
+            setReorderLoader(false);
         }
     }
 
@@ -571,6 +573,7 @@ const Pipeline1 = ({ handleContinue }) => {
                                 </button>
                             </div>
 
+                            {/* intro video modal */}
                             <Modal
                                 open={introVideoModal}
                                 onClose={() => setIntroVideoModal(false)}
@@ -647,6 +650,33 @@ const Pipeline1 = ({ handleContinue }) => {
                                 selectedPipelineStages={selectedPipelineStages}
                                 selectedPipelineItem={selectedPipelineItem}
                             />
+
+                            {/* Reorder stage loader modal */}
+                            <Modal
+                                open={reorderLoader}
+                                closeAfterTransition
+                                BackdropProps={{
+                                    timeout: 100,
+                                    sx: {
+                                        backgroundColor: "#00000020",
+                                        // //backdropFilter: "blur(20px)",
+                                    },
+                                }}
+                            >
+                                <Box
+                                    className="lg:w-6/12 sm:w-9/12 w-10/12"
+                                    sx={styles.AddNewKYCQuestionModal}
+                                >
+                                    <div className="w-full flex flex-row items-center justify-center">
+                                        <CircularProgress
+                                            className="text-purple"
+                                            size={150}
+                                            weight=""
+                                            thickness={1}
+                                        />
+                                    </div>
+                                </Box>
+                            </Modal>
 
                             {/* <div>
                                 <button className='text-red text-lg font-bold' onClick={handleReorder}>

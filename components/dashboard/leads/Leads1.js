@@ -985,7 +985,19 @@ const Leads1 = () => {
           },
         }}
       >
-        <Box className="lg:w-6/12 sm:w-9/12 w-10/12" sx={styles.modalsStyle}>
+        <Box className="lg:w-6/12 sm:w-9/12 w-10/12"
+          sx={{
+            height: "auto",
+            bgcolor: "transparent",
+            // p: 2,
+            mx: "auto",
+            my: "50vh",
+            transform: "translateY(-50%)",
+            borderRadius: 2,
+            border: "none",
+            outline: "none",
+          }}
+        >
           <div className="flex flex-row justify-center w-full">
             <div
               className="w-full"
@@ -993,6 +1005,7 @@ const Leads1 = () => {
                 backgroundColor: "#ffffff",
                 padding: 20,
                 borderRadius: "13px",
+                // height: window.innerHeight * 0.6
               }}
             >
               <div className="flex flex-row justify-end">
@@ -1150,7 +1163,7 @@ const Leads1 = () => {
         <Box className="lg:w-7/12 sm:w-10/12 w-10/12" sx={styles.modalsStyle}>
           <div className="flex flex-row justify-center w-full">
             <div
-              className="w-full"
+              className="w-full h-[90svh]"
               style={{
                 backgroundColor: "#ffffff",
                 padding: 20,
@@ -1175,7 +1188,7 @@ const Leads1 = () => {
                 Leads
               </div>
 
-              <div className="flex flex-row items-center gap-2 mt-2">
+              <div className="flex flex-row items-center gap-2 mt-8">
                 <span style={styles.subHeadingStyle}>List Name</span>{" "}
                 <Image
                   src={"/assets/infoIcon.png"}
@@ -1380,7 +1393,7 @@ const Leads1 = () => {
                         BackdropProps={{
                           timeout: 1000,
                           sx: {
-                            backgroundColor: "#00000008",
+                            backgroundColor: "#00000020",
                             // //backdropFilter: "blur(2px)",
                           },
                         }}
@@ -1534,7 +1547,7 @@ const Leads1 = () => {
         BackdropProps={{
           timeout: 1000,
           sx: {
-            backgroundColor: "#00000008",
+            backgroundColor: "#00000020",
             // //backdropFilter: "blur(2px)",
           },
         }}
