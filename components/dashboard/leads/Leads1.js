@@ -725,11 +725,13 @@ const Leads1 = () => {
       if (response) {
         //////console.log("Response of ad lead api is :", response.data.data);
         if (response.data.status === true) {
+          let sheet = response.data.data;
+          // let sheetsList = 
           console.log("Response of add lead list api is:", response.data.data);
           setShowUploadLeadModal(false);
           setSelectedFile(null);
           localStorage.setItem("userLeads", JSON.stringify(response.data.data));
-          setUserLeads(response.data.data);
+          setUserLeads(sheet);
           setAddNewLeadModal(false);
           setSetData(true);
           setSuccessSnack(response.data.message);
@@ -879,6 +881,7 @@ const Leads1 = () => {
                 handleShowUserLeads={handleShowUserLeads}
                 newListAdded={userLeads}
                 shouldSet={setData}
+                setSetData={setSetData}
               />
             </div>
           ) : (

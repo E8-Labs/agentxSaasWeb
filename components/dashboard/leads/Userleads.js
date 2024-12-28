@@ -1,12 +1,15 @@
 import Apis from "@/components/apis/Apis";
 import {
+  Alert,
   Box,
   CircularProgress,
+  Fade,
   FormControl,
   MenuItem,
   Modal,
   Popover,
   Select,
+  Snackbar,
   TextareaAutosize,
 } from "@mui/material";
 import {
@@ -31,14 +34,23 @@ import CalendarInput from "@/components/test/DatePicker";
 import parsePhoneNumberFromString from "libphonenumber-js";
 import InfiniteScroll from "react-infinite-scroll-component";
 import LeadDetails from "./extras/LeadDetails";
+import getProfileDetails from "@/components/apis/GetProfile";
 
 const Userleads = ({
   handleShowAddLeadModal,
   handleShowUserLeads,
   newListAdded,
-  shouldSet,
+  shouldSet, setSetData
 }) => {
+
+
+
   const bottomRef = useRef(null);
+
+  //user local data
+  const [userLocalData, setUserLocalData] = useState(null);
+  const [snackMessage, setSnackMessage] = useState(null);
+
   const [initialLoader, setInitialLoader] = useState(false);
   const [SheetsList, setSheetsList] = useState([]);
   const [currentSheet, setCurrentSheet] = useState(null);
@@ -171,6 +183,7 @@ const Userleads = ({
       const Data = JSON.parse(localPipelines);
       setPipelinesList(Data);
     }
+    getProfile();
     getPipelines();
     getSheets();
   }, []);
@@ -178,7 +191,22 @@ const Userleads = ({
   useEffect(() => {
     if (shouldSet === true) {
       ////console.log("Adding the new sheet is:", newListAdded);
-      setSheetsList([...SheetsList, newListAdded]);
+      let sheets = []
+      let found = false;
+      SheetsList.map((sheet) => {
+        if (sheet.id == newListAdded.id) {
+          console.log("Id of new list is same")
+          found = true
+        }
+        sheets.push(sheet)
+      })
+      if (!found) {
+        console.log("Id of new list is not same")
+        sheets.push(newListAdded)
+      }
+      setSelectedSheetId(newListAdded.id)// setSelectedSheetId(item.id);
+      setSheetsList(sheets);
+      setSetData(false)
     }
   }, [shouldSet]);
 
@@ -200,10 +228,27 @@ const Userleads = ({
     setFilterLeads([]);
     setLeadsList([]);
     let filterText = getFilterText();
-    //console.log("Filters changed", filterText);
+    console.log("Filters changed", filterText);
     handleFilterLeads(0, filterText);
     setShowNoLeadsLabel(false);
   }, [filtersSelected, SelectedSheetId]);
+
+  //code for get profile function
+  const getProfile = async () => {
+    try {
+
+      await getProfileDetails();
+
+      const Data = localStorage.getItem("User");
+      if (Data) {
+        const localData = JSON.parse(Data);
+        setUserLocalData(localData.user);
+      }
+
+    } catch (error) {
+      console.error("Error occured in api is error", error);
+    }
+  }
 
   //fucntion to read more transcript text
   const handleReadMoreToggle = (item) => {
@@ -1443,7 +1488,11 @@ const Userleads = ({
                   }}
                   className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
                   onClick={() => {
-                    setAssignLeadModal(true);
+                    if (userLocalData.plan) {
+                      setAssignLeadModal(true);
+                    } else {
+                      setSnackMessage("Add payment method to continue");
+                    }
                   }}
                   disabled={!toggleClick.length > 0}
                 >
@@ -1686,8 +1735,8 @@ const Userleads = ({
             <div
               className="flex flex-row items-center mt-8 gap-2"
               style={styles.paragraph}
-              // className="flex flex-row items-center mt-8 gap-2"
-              // style={{ ...styles.paragraph, overflowY: "hidden" }}
+            // className="flex flex-row items-center mt-8 gap-2"
+            // style={{ ...styles.paragraph, overflowY: "hidden" }}
             >
               <div
                 className="flex flex-row items-center gap-2 w-full"
@@ -1718,8 +1767,8 @@ const Userleads = ({
                         color: SelectedSheetId === item.id ? "#7902DF" : "",
                         whiteSpace: "nowrap", // Prevent text wrapping
                       }}
-                      // className='flex flex-row items-center gap-1 px-3'
-                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
+                    // className='flex flex-row items-center gap-1 px-3'
+                    // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
                     >
                       <button
                         style={styles.paragraph}
@@ -1829,7 +1878,7 @@ const Userleads = ({
               <div>
                 {LeadsList.length > 0 ? (
                   <div
-                    className="max-h-[60vh] overflow-auto mt-6" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                    className="h-[70svh] overflow-auto mt-6" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
                     id="scrollableDiv1"
                     style={{ scrollbarWidth: "none" }}
                   >
@@ -1886,11 +1935,10 @@ const Userleads = ({
                               return (
                                 <th
                                   key={index}
-                                  className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${
-                                    isMoreColumn
-                                      ? "sticky right-0 bg-white"
-                                      : ""
-                                  }`}
+                                  className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn
+                                    ? "sticky right-0 bg-white"
+                                    : ""
+                                    }`}
                                   style={isMoreColumn ? { zIndex: 1 } : {}}
                                 >
                                   {column.title.slice(0, 1).toUpperCase()}
@@ -1909,11 +1957,10 @@ const Userleads = ({
                                   // <td key={colIndex} className="border-none px-4 py-2">
                                   <td
                                     key={colIndex}
-                                    className={`border-none px-4 py-2 ${
-                                      column.title === "More"
-                                        ? "sticky right-0 bg-white"
-                                        : ""
-                                    }`}
+                                    className={`border-none px-4 py-2 ${column.title === "More"
+                                      ? "sticky right-0 bg-white"
+                                      : ""
+                                      }`}
                                     style={{
                                       whiteSpace: "nowrap",
                                       // overflow: "hidden",
@@ -2119,9 +2166,9 @@ const Userleads = ({
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -2186,14 +2233,12 @@ const Userleads = ({
                                   onClick={() => {
                                     handleSelectStage(item);
                                   }}
-                                  className={`p-2 border border-[#00000020] ${
-                                    found >= 0 ? `bg-purple` : "bg-transparent"
-                                  } px-6
-                                                                    ${
-                                                                      found >= 0
-                                                                        ? `text-white`
-                                                                        : "text-black"
-                                                                    } rounded-2xl`}
+                                  className={`p-2 border border-[#00000020] ${found >= 0 ? `bg-purple` : "bg-transparent"
+                                    } px-6
+                                                                    ${found >= 0
+                                      ? `text-white`
+                                      : "text-black"
+                                    } rounded-2xl`}
                                 >
                                   {item.stageTitle}
                                 </button>
@@ -2516,6 +2561,43 @@ const Userleads = ({
           </div>
         </Box>
       </Modal>
+
+
+      <div>
+        <Snackbar
+          open={snackMessage}
+          autoHideDuration={3000}
+          onClose={() => {
+            setSnackMessage(null);
+          }}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "center",
+          }}
+          TransitionComponent={Fade}
+          TransitionProps={{
+            direction: "center",
+          }}
+        >
+          <Alert
+            onClose={() => {
+              setSnackMessage(null);
+            }}
+            severity="error"
+            // className='bg-purple rounded-lg text-white'
+            sx={{
+              width: "auto",
+              fontWeight: "700",
+              fontFamily: "inter",
+              fontSize: "22",
+            }}
+          >
+            {snackMessage}
+          </Alert>
+        </Snackbar>
+      </div>
+
+
     </div>
   );
 };
