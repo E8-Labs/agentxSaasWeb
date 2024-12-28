@@ -2472,13 +2472,15 @@ const Userleads = ({
       </div>
 
       {showDetailsModal && (
-        <LeadDetails
+        <div className="h-screen py-8">
+          <LeadDetails
           selectedLead={selectedLeadsDetails?.id}
           pipelineId={selectedLeadsDetails?.stage?.pipelineId}
           showDetailsModal={showDetailsModal}
           setShowDetailsModal={setShowDetailsModal}
           handleDelLead={handleDeleteLead}
         />
+          </div>
       )}
 
       {/* Modal to add notes */}

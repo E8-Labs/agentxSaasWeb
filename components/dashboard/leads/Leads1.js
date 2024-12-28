@@ -791,7 +791,7 @@ const Leads1 = () => {
       // p: 2,
       mx: "auto",
       my: "50vh",
-      transform: "translateY(-55%)",
+      transform: "translateY(-50%)",
       borderRadius: 2,
       border: "none",
       outline: "none",
