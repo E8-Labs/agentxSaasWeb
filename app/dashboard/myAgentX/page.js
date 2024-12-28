@@ -34,7 +34,6 @@ import voicesList from "@/components/createagent/Voices";
 import UserCalender from "@/components/dashboard/myagentX/UserCallender";
 
 function Page() {
-
   const timerRef = useRef();
   const fileInputRef = useRef([]);
   // const fileInputRef = useRef(null);
@@ -374,9 +373,9 @@ function Page() {
           prevAgents.map((agent) =>
             agent.id === response.data.data.agent2.id
               ? {
-                ...agent,
-                phoneNumber: response.data.data.agent2.phoneNumber.slice(1),
-              }
+                  ...agent,
+                  phoneNumber: response.data.data.agent2.phoneNumber.slice(1),
+                }
               : agent
           )
         );
@@ -820,7 +819,10 @@ function Page() {
     //console.log("Pipeline of selected agent", agentData[0].pipeline);
 
     setMainAgentId(agentData[0].id);
-    if (agentData[0].agents?.length === 2 || agentData[0].agents[0].agentType === "outbound") {
+    if (
+      agentData[0].agents?.length === 2 ||
+      agentData[0].agents[0].agentType === "outbound"
+    ) {
       setUserPipeline(agentData[0].pipeline);
       // setOldGreetingTagInput(agentData[0].greeting);
       // setGreetingTagInput(agentData[0].greeting);
@@ -907,9 +909,6 @@ function Page() {
 
       console.log("Current agent selected is", showDrawer);
 
-
-
-
       // return
       const ApiPath = Apis.DelAgent;
       //console.log("Apipath is:", ApiPath);
@@ -955,10 +954,12 @@ function Page() {
           });
 
           console.log("Updated agents list array is", updatedAgentsList);
-          localStorage.setItem("localAgentDetails", JSON.stringify(updatedAgentsList));
+          localStorage.setItem(
+            "localAgentDetails",
+            JSON.stringify(updatedAgentsList)
+          );
           // agentsListDetails = updatedArray
         }
-
       }
     } catch (error) {
       console.error("Error occured in del agent api is:", error);
@@ -1301,6 +1302,20 @@ function Page() {
       border: "none",
       outline: "none",
     },
+    headingStyle: {
+      fontSize: 16,
+      fontWeight: "700",
+    },
+    inputStyle: {
+      fontSize: 15,
+      fontWeight: "500",
+      marginTop: 10,
+      borderColor: "#00000020",
+    },
+    paragraph: {
+      fontSize: 15,
+      fontWeight: "500",
+    },
   };
 
   // //console.log("Current agent selected is:", showDrawer)
@@ -1322,7 +1337,7 @@ function Page() {
         </button>
       </div>
 
-      <div className="w-9/12 pt-10 items-center " style={{}}>
+      <div className="w-9/12 items-center " style={{}}>
         {/* code for agents list */}
         {initialLoader ? (
           <div className="h-[70vh] flex flex-row justify-center pt-32 gap-4">
@@ -1330,7 +1345,7 @@ function Page() {
           </div>
         ) : (
           <div
-            className="h-[70vh] overflow-auto flex flex-col gap-4"
+            className="h-[75vh] overflow-auto flex flex-col gap-4 pt-10"
             style={{ scrollbarWidth: "none" }}
           >
             {agentsContent.map((item, index) => (
@@ -1339,7 +1354,7 @@ function Page() {
                 className="w-full px-10 py-2"
                 style={{
                   borderWidth: 1,
-                  borderColor: "#15151510",
+                  borderColor: "#00000007",
                   backgroundColor: "#FBFCFF",
                   borderRadius: 20,
                 }}
@@ -1465,7 +1480,8 @@ function Page() {
                           PaperProps={{
                             elevation: 1, // This will remove the shadow
                             style: {
-                              boxShadow: "0px 0px 4px rgba(0, 0, 0, 0.01)",
+                              // boxShadow: "0px 0px 4px 4px rgba(0, 0, 0, 0.01)",
+                              boxShadow: "0px 0px 12px rgba(0, 0, 0, 0.01)",
                             },
                           }}
                           onClose={handlePopoverClose}
@@ -1693,7 +1709,9 @@ function Page() {
                       name="Mins Talked"
                       value={
                         item.totalDuration && item.totalDuration > 0 ? (
-                          <div>{moment(item.totalDuration * 1000).format("mm:ss")}</div>
+                          <div>
+                            {moment(item.totalDuration * 1000).format("mm:ss")}
+                          </div>
                         ) : (
                           "-"
                         )
@@ -1754,7 +1772,7 @@ function Page() {
           },
         }}
       >
-        <Box className="lg:w-5/12 sm:w-full w-6/12" sx={styles.modalsStyle}>
+        <Box className="lg:w-4/12 sm:w-10/12 w-full" sx={styles.modalsStyle}>
           <div className="flex flex-row justify-center w-full max-h-[80vh]">
             <div
               className="sm:w-full w-full px-10 py-8"
@@ -1878,7 +1896,7 @@ function Page() {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                // defaultMask={loading ? 'Loading...' : undefined}
+                  // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -1908,9 +1926,13 @@ function Page() {
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                        }`}
-                      style={{ ...styles.inputStyle, border: "1px solid #00000010" }}
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
+                        index === scriptKeys?.length - 1 ? "mb-16" : ""
+                      }`}
+                      style={{
+                        ...styles.inputStyle,
+                        border: "1px solid #00000010",
+                      }}
                       value={inputValues[index] || ""} // Default to empty string if no value
                       onChange={(e) => handleInputChange(index, e.target.value)}
                     />
@@ -2148,7 +2170,9 @@ function Page() {
               value={
                 showDrawer?.totalDuration && showDrawer?.totalDuration > 0 ? (
                   // <div>{showDrawer?.totalDuration}</div>
-                  <div>{moment(showDrawer.totalDuration * 1000).format("mm:ss")}</div>
+                  <div>
+                    {moment(showDrawer.totalDuration * 1000).format("mm:ss")}
+                  </div>
                 ) : (
                   "-"
                 )
@@ -2164,10 +2188,11 @@ function Page() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${activeTab === tab
-                  ? "text-purple border-b-2 border-purple"
-                  : "text-black-500"
-                  }`}
+                className={`${
+                  activeTab === tab
+                    ? "text-purple border-b-2 border-purple"
+                    : "text-black-500"
+                }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >
                 {tab}
@@ -2428,25 +2453,25 @@ function Page() {
                                     <div className="flex flex-row items-center gap-2">
                                       {showDrawer?.name !==
                                         item.claimedBy.name && (
-                                          <div>
-                                            {`(Claimed by {${item.claimedBy.name}})`}
-                                            {reassignLoader === item ? (
-                                              <CircularProgress size={15} />
-                                            ) : (
-                                              <button
-                                                className="text-purple underline"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  setShowConfirmationModal(item);
-                                                  // handleReassignNumber(item)
-                                                  // handleReassignNumber(e.target.value)
-                                                }}
-                                              >
-                                                Reassign
-                                              </button>
-                                            )}
-                                          </div>
-                                        )}
+                                        <div>
+                                          {`(Claimed by {${item.claimedBy.name}})`}
+                                          {reassignLoader === item ? (
+                                            <CircularProgress size={15} />
+                                          ) : (
+                                            <button
+                                              className="text-purple underline"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setShowConfirmationModal(item);
+                                                // handleReassignNumber(item)
+                                                // handleReassignNumber(e.target.value)
+                                              }}
+                                            >
+                                              Reassign
+                                            </button>
+                                          )}
+                                        </div>
+                                      )}
                                     </div>
                                   )}
                                 </div>
@@ -2592,8 +2617,12 @@ function Page() {
                 </div>
               </div> */}
 
-
-              <UserCalender calendarDetails={calendarDetails} setUserDetails={setUserAgentsList} selectedAgent={showDrawer} mainAgentId={MainAgentId} />
+              <UserCalender
+                calendarDetails={calendarDetails}
+                setUserDetails={setUserAgentsList}
+                selectedAgent={showDrawer}
+                mainAgentId={MainAgentId}
+              />
             </div>
           ) : activeTab === "Pipeline | Stages" ? (
             <div className="flex flex-col gap-4">
@@ -2613,7 +2642,7 @@ function Page() {
                 setDelAgentModal(true);
               }}
               style={{
-                marginTop: 20
+                marginTop: 20,
                 // position: "absolute",
                 // bottom: "5%",
               }}
@@ -3638,31 +3667,3 @@ const Card = ({ name, value, icon, bgColor, iconColor }) => {
 };
 
 export default Page;
-
-const styles = {
-  modalsStyle: {
-    height: "auto",
-    bgcolor: "transparent",
-    // p: 2,
-    mx: "auto",
-    my: "50vh",
-    transform: "translateY(-55%)",
-    borderRadius: 2,
-    border: "none",
-    outline: "none",
-  },
-  headingStyle: {
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  inputStyle: {
-    fontSize: 15,
-    fontWeight: "500",
-    marginTop: 10,
-    borderColor: "#00000020",
-  },
-  paragraph: {
-    fontSize: 15,
-    fontWeight: "500",
-  },
-};
