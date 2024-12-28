@@ -1484,7 +1484,7 @@ const Userleads = ({
                 <button
                   style={{
                     backgroundColor: toggleClick.length > 0 ? "#7902DF" : "",
-                    color: toggleClick.length > 0 ? "white" : "#00000060",
+                    color: toggleClick.length > 0 ? "white" : "#000000",
                   }}
                   className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
                   onClick={() => {

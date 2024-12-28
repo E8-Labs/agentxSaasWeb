@@ -1755,7 +1755,7 @@ function Page() {
         }}
       >
         <Box className="lg:w-5/12 sm:w-full w-6/12" sx={styles.modalsStyle}>
-          <div className="flex flex-row justify-center w-full h-[80vh]">
+          <div className="flex flex-row justify-center w-full max-h-[80vh]">
             <div
               className="sm:w-full w-full px-10 py-8"
               style={{

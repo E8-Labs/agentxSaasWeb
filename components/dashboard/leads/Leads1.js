@@ -852,6 +852,7 @@ const Leads1 = () => {
         if (response.data.status === true) {
           // setSheetsList([...SheetsList, response.data.data]);
           setUserLeads(response.data.data);
+          setSetData(true)
           setAddNewLeadModal(false);
           setShowAddNewSheetModal(false);
           setInputs([{ id: 1, value: 'First Name' }, { id: 2, value: 'Last Name' }, { id: 3, value: 'Phone Number' }, { id: 4, value: '' }, { id: 5, value: '' }, { id: 6, value: '' }]);
