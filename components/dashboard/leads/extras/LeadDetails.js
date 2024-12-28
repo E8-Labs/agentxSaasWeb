@@ -478,7 +478,7 @@ const LeadDetails = ({
 
     const styles = {
         modalsStyle: {
-            height: "auto",
+            // height: "auto",
             bgcolor: "transparent",
             // p: 2,
             mx: "auto",
