@@ -416,7 +416,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
         open={showAddObjForm}
         onClose={() => { setShowAddObjForm(false) }}
       >
-        <Box sx={{ ...styles.modalsStyle, width: "50%", backgroundColor: 'white' }}>
+        <Box sx={{ ...styles.modalsStyle, width: "30%", backgroundColor: 'white' }}>
           <div style={{ width: "100%", }}>
             <div className='w-full' style={{ direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div style={{ fontWeight: "600", fontSize: 16.8 }}>

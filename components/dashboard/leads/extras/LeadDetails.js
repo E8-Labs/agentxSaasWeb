@@ -496,7 +496,7 @@ const LeadDetails = ({
     }
 
     return (
-        <div>
+        <div className='h-[100svh]'>
             <Modal
                 open={showDetailsModal}
                 closeAfterTransition
