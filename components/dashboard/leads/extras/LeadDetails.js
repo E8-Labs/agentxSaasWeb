@@ -507,7 +507,11 @@ const LeadDetails = ({
                     },
                 }}
             >
-                <Box className="lg:w-6/12 sm:w-7/12 w-8/12 bg-white py-2 h-[95svh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none", backgroundColor: "white", overflowY: "auto" }}>
+                <Box className="lg:w-6/12 sm:w-7/12 w-8/12 bg-white py-2 h-[95svh] overflow-y-auto"
+                    sx={{
+                        ...styles.modalsStyle,
+                        scrollbarWidth: "none", backgroundColor: "white", //overflowY: "auto"
+                    }}>
                     <div className="w-full flex flex-col items-center h-full">
                         {/* <div className='flex flex-row justify-between items-center'>
                             <div style={{ fontWeight: "500", fontSize: 16.9 }}>
