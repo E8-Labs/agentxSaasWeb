@@ -450,7 +450,7 @@ const Objection = ({ showTitle, selectedAgentId }) => {
                     <CircularProgress size={25} />
                   </div> :
                   <button className='text-white bg-purple h-[50px] rounded-xl w-full mt-8' onClick={addObjection} style={styles.title}>
-                    Save & Close
+                    Save
                   </button>
               }
             </div>

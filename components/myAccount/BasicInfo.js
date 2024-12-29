@@ -191,9 +191,9 @@ function BasicInfo() {
         </div>
         <div>
           <button className='text-red text-start mt-4 bg-[#FF4E4E40] px-3 py-1 rounded-3xl' style={{ fontWeight: "600", fontSize: 17 }} onClick={() => {
-            // localStorage.clear();
-            localStorage.removeItem("User");
-            localStorage.removeItem("localAgentDetails");
+            localStorage.clear();
+            // localStorage.removeItem("User");
+            // localStorage.removeItem("localAgentDetails");
             if (typeof document !== "undefined") {
               document.cookie = "User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
             }

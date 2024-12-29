@@ -373,9 +373,9 @@ function Page() {
           prevAgents.map((agent) =>
             agent.id === response.data.data.agent2.id
               ? {
-                  ...agent,
-                  phoneNumber: response.data.data.agent2.phoneNumber.slice(1),
-                }
+                ...agent,
+                phoneNumber: response.data.data.agent2.phoneNumber.slice(1),
+              }
               : agent
           )
         );
@@ -1482,12 +1482,13 @@ function Page() {
                             style: {
                               // boxShadow: "0px 0px 4px 4px rgba(0, 0, 0, 0.01)",
                               boxShadow: "0px 0px 12px rgba(0, 0, 0, 0.01)",
+                              width: "fit-content"
                             },
                           }}
                           onClose={handlePopoverClose}
                           disableRestoreFocus
                         >
-                          <div className="p-3 w-[250px]">
+                          <div className="p-3 min-w-[250px]">
                             <div className="flex flex-row items-center justify-between gap-1">
                               <p
                                 style={{
@@ -1510,11 +1511,15 @@ function Page() {
                               >
                                 Address
                               </p>
-                              <p style={styles.paragraph}>
+                              <div style={styles.paragraph}>
                                 {hoveredIndexAddress
-                                  ? hoveredIndexAddress
+                                  ? (
+                                    <div>
+                                      {hoveredIndexAddress.length > 15 ? (hoveredIndexAddress.slice(0, 15) + "...") : (hoveredIndexAddress)}
+                                    </div>
+                                  )
                                   : "-"}
-                              </p>
+                              </div>
                             </div>
                           </div>
                         </Popover>
@@ -1896,7 +1901,7 @@ function Page() {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                  // defaultMask={loading ? 'Loading...' : undefined}
+                // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -1926,9 +1931,8 @@ function Page() {
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
-                        index === scriptKeys?.length - 1 ? "mb-16" : ""
-                      }`}
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
+                        }`}
                       style={{
                         ...styles.inputStyle,
                         border: "1px solid #00000010",
@@ -2159,7 +2163,7 @@ function Page() {
               iconColor="text-orange-500"
             />
             <Card
-              name="Booked Meetings"
+              name="Booked"
               value="-"
               icon="/otherAssets/greenCalenderIcon.png"
               bgColor="bg-green-100"
@@ -2188,11 +2192,10 @@ function Page() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${
-                  activeTab === tab
-                    ? "text-purple border-b-2 border-purple"
-                    : "text-black-500"
-                }`}
+                className={`${activeTab === tab
+                  ? "text-purple border-b-2 border-purple"
+                  : "text-black-500"
+                  }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >
                 {tab}
@@ -2216,7 +2219,7 @@ function Page() {
                   >
                     Agent
                   </div>
-                  {assignLoader ? (
+                  {/* {assignLoader ? (
                     <div>
                       <CircularProgress size={25} />
                     </div>
@@ -2228,7 +2231,7 @@ function Page() {
                     >
                       Save Changes
                     </button>
-                  )}
+                  )} */}
                 </div>
                 <div className="flex justify-between">
                   <div
@@ -2286,7 +2289,19 @@ function Page() {
                             <div style={{ color: "#aaa" }}>Select Voice</div>
                           ); // Placeholder style
                         }
-                        return selected;
+                        // return selected;
+                        const selectedVoice = voicesList.find(voice => voice.voice_id === selected);
+                        return selectedVoice ? (
+                          <div style={{ display: "flex", alignItems: "center" }}>
+                            <Image
+                              src={selectedVoice.img}
+                              height={40}
+                              width={35}
+                              alt="Selected Voice"
+                            />
+                            <div>{selectedVoice.voice_id}</div>
+                          </div>
+                        ) : null;
                       }}
                       sx={{
                         border: "none", // Default border
@@ -2317,13 +2332,19 @@ function Page() {
                       {voicesList.slice(0, 10).map((item, index) => {
                         return (
                           <MenuItem value={item?.voice_id} key={index}>
-                            {item?.voice_id}
+                            <Image
+                              // src={avatarImages[index % avatarImages.length]} // Deterministic selection
+                              src={item.img} // Deterministic selection
+                              height={40}
+                              width={35}
+                              alt='*'
+                            />
+                            <div>
+                              {item?.voice_id}
+                            </div>
                           </MenuItem>
                         );
                       })}
-                      {/* <MenuItem value={10}>Ten</MenuItem>
-                        <MenuItem value={20}>Twenty</MenuItem>
-                        <MenuItem value={30}>Thirty</MenuItem> */}
                     </Select>
                   </FormControl>
                 </div>
@@ -2434,6 +2455,10 @@ function Page() {
                                   if (showReassignBtn && item?.claimedBy) {
                                     e.stopPropagation();
                                     setShowConfirmationModal(item);
+                                    // AssignNumber
+                                  } else {
+                                    console.log("Should call assign number api")
+                                    AssignNumber()
                                   }
                                 }}
                               >
@@ -2453,25 +2478,25 @@ function Page() {
                                     <div className="flex flex-row items-center gap-2">
                                       {showDrawer?.name !==
                                         item.claimedBy.name && (
-                                        <div>
-                                          {`(Claimed by {${item.claimedBy.name}})`}
-                                          {reassignLoader === item ? (
-                                            <CircularProgress size={15} />
-                                          ) : (
-                                            <button
-                                              className="text-purple underline"
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                setShowConfirmationModal(item);
-                                                // handleReassignNumber(item)
-                                                // handleReassignNumber(e.target.value)
-                                              }}
-                                            >
-                                              Reassign
-                                            </button>
-                                          )}
-                                        </div>
-                                      )}
+                                          <div>
+                                            {`(Claimed by {${item.claimedBy.name}})`}
+                                            {reassignLoader === item ? (
+                                              <CircularProgress size={15} />
+                                            ) : (
+                                              <button
+                                                className="text-purple underline"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  setShowConfirmationModal(item);
+                                                  // handleReassignNumber(item)
+                                                  // handleReassignNumber(e.target.value)
+                                                }}
+                                              >
+                                                Reassign
+                                              </button>
+                                            )}
+                                          </div>
+                                        )}
                                     </div>
                                   )}
                                 </div>
@@ -3235,7 +3260,7 @@ function Page() {
                           </div>
                         ) : (
                           <button
-                            className="underline bg-purple w-full h-[50px] rounded-xl mb-4 text-white"
+                            className="bg-purple w-full h-[50px] rounded-xl mb-4 text-white"
                             style={{ fontWeight: "600", fontSize: 15 }}
                             onClick={() => {
                               updateAgent();
@@ -3345,7 +3370,7 @@ function Page() {
                                 </div>
                               ) : (
                                 <button
-                                  className="underline bg-purple w-full h-[50px] rounded-xl mb-4 text-white"
+                                  className="bg-purple w-full h-[50px] rounded-xl mb-4 text-white"
                                   style={{ fontWeight: "600", fontSize: 15 }}
                                   onClick={() => {
                                     updateAgent();

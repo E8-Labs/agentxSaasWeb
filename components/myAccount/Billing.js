@@ -41,6 +41,15 @@ function Billing() {
 
     //array of plans
     const plans = [
+        // {
+        //     id: 1,
+        //     mints: 30,
+        //     calls: 25,
+        //     details: "Perfect for getting started! Free for the first 30 mins then $45 to continue.",
+        //     originalPrice: "45",
+        //     discountPrice: "0",
+        //     planStatus: "Free"
+        // },
         {
             id: 2,
             mints: 120,

@@ -5,256 +5,340 @@ const voicesList = [
     //     "preview": ""
     // },
     {
-        "voice_id": "Mtewh2emAIf6sPTaximW",
+        "voice_id": "sz74KZZVMr3DwJuTXjRF",
         "name": "Dax",
         "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/Mtewh2emAIf6sPTaximW/a46327b2-cbf7-42d8-b547-7391eeef8d3f.mp3",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
-        "voice_id": "OwJhPTZ4lzFyFezy7s44",
-        "name": "Zane",
+        "voice_id": "qZVyogWNtPPM0VPTPQQb",
+        "name": "Mia",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/OwJhPTZ4lzFyFezy7s44/130dfda4-808c-4ad2-8c06-67e66bb0a8f2.mp3",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/mia.svg",
+        "status": "Popular"
     },
     {
-        "voice_id": "vjDLFGLODo1aXEe4wfjr",
-        "name": "Cade",
-        "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/vjDLFGLODo1aXEe4wfjr/9ccd8c10-8dac-450c-8e81-b70ddd6b8972.mp3",
-        "workspace": "1711297163700x954223200313016300"
-    },
-    {
-        "voice_id": "dET7jF0sHOQ3QYYh1ATa",
-        "name": "Elon",
-        "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/dET7jF0sHOQ3QYYh1ATa/a294e51a-c27b-4389-ae11-8bbaa8eda1f7.mp3",
-        "workspace": "1711297163700x954223200313016300"
-    },
-    {
-        "voice_id": "Kv0DPNbR5iMqZTeA31M1",
-        "name": "Max",
-        "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/Kv0DPNbR5iMqZTeA31M1/4a4cec99-6222-4121-bcf8-d767c4316b58.mp3",
-        "workspace": "1711297163700x954223200313016300"
-    },
-    {
-        "voice_id": "8bcxjQ6X7kOds3OyEf6Q",
-        "name": "Axel",
-        "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/8bcxjQ6X7kOds3OyEf6Q/e0e495f0-2b7c-4847-9b61-ea33ede5288d.mp3",
-        "workspace": "1711297163700x954223200313016300"
-    },
-    {
-        "voice_id": "YdyNcsfx3kERGPH9K5lz",
+        "voice_id": "CvxifsWrvd7KUAkDHUTq",
         "name": "Xen",
+        "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/vjDLFGLODo1aXEe4wfjr/9ccd8c10-8dac-450c-8e81-b70ddd6b8972.mp3",
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/xen.svg",
+        "status": ""
+    },
+    {
+        "voice_id": "7oWqznej0zTv1hLyDxYb",
+        "name": "Max",
+        "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/dET7jF0sHOQ3QYYh1ATa/a294e51a-c27b-4389-ae11-8bbaa8eda1f7.mp3",
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": ""
+    },
+    // {
+    //     "voice_id": "Kv0DPNbR5iMqZTeA31M1",
+    //     "name": "Max",
+    //     "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/Kv0DPNbR5iMqZTeA31M1/4a4cec99-6222-4121-bcf8-d767c4316b58.mp3",
+    //     "workspace": "1711297163700x954223200313016300",
+    //     "img": "/voicesIcons/dax.svg",
+    //     "status": "Popular"
+    // },
+    {
+        "voice_id": "8iKM7M97Poa57n6zNwYk",
+        "name": "Aria",
+        "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/8bcxjQ6X7kOds3OyEf6Q/e0e495f0-2b7c-4847-9b61-ea33ede5288d.mp3",
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/aria.svg",
+        "status": ""
+    },
+    {
+        "voice_id": "AVWDTwpGcuPST1zxEsP7",
+        "name": "Kaia",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/YdyNcsfx3kERGPH9K5lz/724ddcde-3d8d-4bcf-ae52-df490babe737.mp3",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/kala.svg",
+        "status": "Popular"
     },
     {
-        "voice_id": "nefh8u15F5ECgY6ijXg3",
-        "name": "Neo",
+        "voice_id": "54TUjxRZp1CTKeNbtpUc",
+        "name": "Cade",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/nefh8u15F5ECgY6ijXg3/a63a5568-0b7b-449a-bb27-65a8ee49138e.mp3",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/cade.svg",
+        "status": ""
     },
     {
-        "voice_id": "6GVyQucC304UHGgMcWVg",
-        "name": "1.0 MT 11L Amy - Witty",
+        "voice_id": "oz7FsqINAUL7e6EWZ0tH",
+        "name": "Axel",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/6GVyQucC304UHGgMcWVg/4f5dd560-2475-444d-9775-14eec0af0185.mp3",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/axel.svg",
+        "status": ""
     },
     {
         "voice_id": "o3E7GHj69RKX5xFrKDhd",
-        "name": "1.0 MT 11L Amy - Witty",
+        "name": "Ava",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/o3E7GHj69RKX5xFrKDhd/6a8be761-9a5a-4858-bbb1-a1aa5bd88c51.mp3",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/ava.svg",
+        "status": ""
     },
     {
         "voice_id": "5aOHxVGviCbvOnsHsrWn",
-        "name": "1.0 MT 11L Arabella G2",
+        "name": "Neo",
         "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/5aOHxVGviCbvOnsHsrWn/d88b5e99-1892-4736-b401-5ed6172b6f2b.mp3",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/neo.svg",
+        "status": ""
     },
     {
-        "voice_id": "QnMK1D17qunjusMtgOTj",
-        "name": "1.0 MT 11L Arabella G2",
+        "voice_id": "yUeKuNxGTYAYe6vcplkT",
+        "name": "Luna",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/luna.svg",
+        "status": ""
     },
     {
         "voice_id": "D3VsFgig2CLX1ZhTo7oY",
         "name": "1.0 MT 11L Arabella - Gen",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/D3VsFgig2CLX1ZhTo7oY/52d14eb8-b19f-4a06-bd49-b745b4a1ec3e.mp3",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "YUZ5I7tvDj1pJm3apsDg",
         "name": "1.0 MT 11L Arabella - Gen",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/YUZ5I7tvDj1pJm3apsDg/f7095b61-5d1b-43ce-8fe1-e0bfa9b8c93b.mp3",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "mLVH8HwR9oamOU9EWBQO",
         "name": "1.0 MT 11L Arabella - Gen",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/mLVH8HwR9oamOU9EWBQO/b1a3f1c6-d77a-44c7-a04c-211897c83881.mp3",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "wODlDawrjMfJvMNWPWKJ",
         "name": "1.0 MT 11L Arabella - Gen",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "c0oLPprUNVFawKAGSb9g",
         "name": "1.0 MT 11L Arabella - Gen2",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "ft5dEMa71XP3xYUHiWEh",
         "name": "1.0 MT 11L Arabella - Gen2",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "reaD1KH6oeD675xxXx3T",
         "name": "1.0 MT 11L Arabella - Gen2",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "wrGyYi1p0yQYhq0dyYuH",
         "name": "1.0 MT 11L Arabella - Gen2",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "z9mADq6jHmeXbgchQsyF",
         "name": "1.0 MT 11L Arabella - Gen2",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "5oF8vOwt9kkHVcek3cBT",
         "name": "1.0 MT 11L Arabella - Gen3",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "DNhxT0BTPBvnfmkTRrGF",
         "name": "1.0 MT 11L Arabella - Gen3",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "QhQt7poqKXWoO78WS6Po",
         "name": "1.0 MT 11L Arabella - Gen3",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "ToLAhgpQ8IUkCHfCiDy1",
         "name": "1.0 MT 11L Arabella - Gen3",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "j1uEzjmzduq0vY6t3MN4",
         "name": "1.0 MT 11L Arabella - Gen3",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "k4TqRUTKTrWORaAWrSOI",
         "name": "1.0 MT 11L Arabella - Gen3",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "1Dj9bHr7BtE7aCvDmPQH",
         "name": "1.0 MT 11L Chloe - Gen",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/1Dj9bHr7BtE7aCvDmPQH/930b2f22-f4fe-4016-ba5b-60edfa2deaae.mp3",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "gafoErmYkc8w3gXMPlql",
         "name": "1.0 MT 11L Chloe - Gen",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/gafoErmYkc8w3gXMPlql/cd223443-f488-4d37-9b82-957f3dd90975.mp3",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "2xcgzUBryqcxjgjz8ius",
         "name": "1.0 MT 11L Chloe - Sassy",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "3czwlzNuVTjIUdJJdwo3",
         "name": "1.0 MT 11L Chloe - Sassy",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "MyD3nDXYSIXW7aRPFMas",
         "name": "1.0 MT 11L Chloe - Sassy",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "PtyXbVFHCM3QFeMNNY0f",
         "name": "1.0 MT 11L Chloe - Sassy",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "TQ2z6TX1VXKMNHopHfme",
         "name": "1.0 MT 11L Chloe - Sassy",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "U58uu9OfrQMjC2JL40JG",
         "name": "1.0 MT 11L Chloe - Sassy",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/U58uu9OfrQMjC2JL40JG/8d7c338b-c9f3-4dea-8a8e-a81060cb84ce.mp3",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "YLyP2tODKcicgEIs6UOU",
         "name": "1.0 MT 11L Chloe - Sassy",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "ee13ioDM5sNXvW80TmzX",
         "name": "1.0 MT 11L Chloe - Sassy",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/ee13ioDM5sNXvW80TmzX/951dc636-d3c2-44e7-b9f6-9891823ebd76.mp3",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "unMmZ0DaS3i4yeByJjqY",
         "name": "1.0 MT 11L Chloe - Sassy",
         "preview": "",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "5vlKInLyP1cYtnevBi59",
         "name": "1.0 MT 11L Clover - Calm",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/5vlKInLyP1cYtnevBi59/178877d6-67e4-443a-af58-ae5eff02b388.mp3",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "mapL2RCPYDjm2ZWDvVUI",
         "name": "1.0 MT 11L Clover - Calm",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/mapL2RCPYDjm2ZWDvVUI/28e2ff3a-d72a-4fc6-bfad-3866a6c4f822.mp3",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "0yYqdWXDcWnsP2oWc48C",
         "name": "1.0 MT 11L Dorothy - Pre",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/0yYqdWXDcWnsP2oWc48C/1d378521-a674-4f04-8110-632f790051f3.mp3",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "Hs6B4bqbs8SGfGhv8RIo",
         "name": "1.0 MT 11L Dorothy - Pre",
         "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/Hs6B4bqbs8SGfGhv8RIo/64845884-faab-4e7a-b9b2-5c455f46e190.mp3",
-        "workspace": "1711297163700x954223200313016300"
+        "workspace": "1711297163700x954223200313016300",
+        "img": "/voicesIcons/dax.svg",
+        "status": "Popular"
     },
     {
         "voice_id": "8hAJOsUE2Qo7evLJEYIi",

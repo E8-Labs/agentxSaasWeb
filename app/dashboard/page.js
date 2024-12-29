@@ -162,7 +162,7 @@ const Page = () => {
     }
 
     return (
-        <div className='w-full flex flex-col items-start justify-screen h-screen'>
+        <div className='w-full flex flex-col items-start justify-screen h-screen overflow-auto'>
             <div style={backgroundImage}>
             </div>
             {
@@ -170,7 +170,7 @@ const Page = () => {
                     <div className='flex flex-row items-center w-full justify-center h-[100%]'>
                         <CircularProgress size={45} />
                     </div> :
-                    <div className='flex flex-col -mt-[10%] items-center w-full h-[100%]'>
+                    <div className='flex flex-col -mt-[20%] items-center w-full h-[100%]'>
                         <div className='w-9/12 flex flex-col items-center h-[100%]'>
                             {/* <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
                                 Good to have you back, <span className='text-[#00000090]'>{userDetails?.name}</span>
@@ -190,12 +190,12 @@ const Page = () => {
                                             </div>
                                         </div>
                                         <div className='w-8/12 flex flex-col items-end gap-2'>
-                                            <div className='w-3/12 flex flex-row justify-between' style={{ backgroundColor: '#00000006 ', borderRadius: 5 }}>
+                                            <div className='w-fit-content flex flex-row justify-between' style={{ backgroundColor: '#00000006 ', borderRadius: 5 }}>
                                                 {/* <div style={{ fontSize: 15 }}>
                                                     Last 24hrs
                                                 </div> */}
 
-                                                <FormControl fullWidth>
+                                                <FormControl>
                                                     {/* <InputLabel id="demo-simple-select-label">Age</InputLabel> */}
                                                     <Select
                                                         // labelId="demo-simple-select-label"
@@ -238,9 +238,46 @@ const Page = () => {
                                                         }}
 
                                                     >
-                                                        <MenuItem value={"24 hrs"}>Last 24 Hours</MenuItem>
-                                                        <MenuItem value={"Last 7Days"}>Last 7 Days</MenuItem>
-                                                        <MenuItem value={"Last 30Days"}>Last 30 Days</MenuItem>
+                                                        <MenuItem
+                                                            className='hover:bg-[#402FFF10]'
+                                                            value={"24 hrs"}
+                                                            style={{
+                                                                backgroundColor: Duration === "24 hrs" && "#7902DF",
+                                                                color: Duration === "24 hrs" && "#ffffff",
+                                                            }}
+                                                        >
+                                                            Last 24 Hours
+                                                        </MenuItem>
+                                                        <MenuItem
+                                                            className='hover:bg-[#402FFF10]'
+                                                            value={"Last 7Days"}
+                                                            style={{
+                                                                backgroundColor: Duration === "Last 7Days" && "#7902DF",
+                                                                color: Duration === "Last 7Days" && "#ffffff",
+                                                            }}
+                                                        >
+                                                            Last 7 Days
+                                                        </MenuItem>
+                                                        <MenuItem
+                                                            className='hover:bg-[#402FFF10]'
+                                                            value={"Last 30Days"}
+                                                            style={{
+                                                                backgroundColor: Duration === "Last 30Days" && "#7902DF",
+                                                                color: Duration === "Last 30Days" && "#ffffff",
+                                                            }}
+                                                        >
+                                                            Last 30 Days
+                                                        </MenuItem>
+                                                        <MenuItem
+                                                            className='hover:bg-[#402FFF10]'
+                                                            value={"All time"}
+                                                            style={{
+                                                                backgroundColor: Duration === "All time" && "#7902DF",
+                                                                color: Duration === "All time" && "#ffffff",
+                                                            }}
+                                                        >
+                                                            All time
+                                                        </MenuItem>
                                                     </Select>
                                                 </FormControl>
 
@@ -299,13 +336,13 @@ const Page = () => {
 
 
                                     </div>
-                                    <div className="w-full py-8 h-[70%] overflow-auto">
+                                    <div className="w-full py-8 overflow-none">
                                         {/* Metrics Section */}
                                         <div className="w-full mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
                                             {/* Card: Conversations > 10 Sec */}
                                             <Card
                                                 icon="/otherAssets/convosIcon.png"
-                                                title="Convos >10 Sec"
+                                                title="Convos"
                                                 value={statsDetails?.totalCallsGt10 || "-"}
                                                 subtitle="Answer rate"
                                                 rate={statsComparisonDetails?.callsGt10Change ? `${statsComparisonDetails?.callsGt10Change.toFixed(2)}%` : "-"}
@@ -359,7 +396,7 @@ const Page = () => {
                                         </div>
 
                                         <div className='w-full flex flex-row items-center justify-between mt-4'>
-                                            <div className='w-6/12 bg-white rounded p-4'>
+                                            <div className='w-6/12 hover:bg-purple hover:text-white bg-white rounded p-4'>
                                                 <div className='flex flex-row gap-2'>
                                                     <Image src={'/otherAssets/calenderIcon.png'}
                                                         alt='calender'
@@ -376,19 +413,19 @@ const Page = () => {
                                                 </div>
                                             </div>
 
-                                            <div className='w-6/12 bg-purple rounded p-4'>
+                                            <div className='w-6/12 hover:bg-purple hover:text-white bg-white rounded p-4'>
                                                 <div className='flex flex-row gap-2'>
                                                     <Image src={'/otherAssets/screenIcon.png'}
                                                         alt='calender'
                                                         height={24}
                                                         width={24}
                                                     />
-                                                    <div style={{ fontSize: 16, fontWeight: '500', color: '#fff' }}>
+                                                    <div style={{ fontSize: 16, fontWeight: '500' }}>
                                                         Schedule a one on one consultation
                                                     </div>
 
                                                 </div>
-                                                <div style={{ fontSize: 14, fontWeight: '400', marginTop: '1vh', color: '#fff' }}>
+                                                <div style={{ fontSize: 14, fontWeight: '400', marginTop: '1vh' }}>
                                                     Lorem ipsum dolor sit amet consectetur. Odio in congue a magna in. Et placerat est in imperdiet odio facilisis donec
                                                 </div>
                                             </div>

@@ -189,7 +189,7 @@ const CreateAgentVoice = ({ handleBack }) => {
                         <div className='w-full flex flex-row justify-center'>
                             <div className='mt-8 w-6/12 gap-4 flex flex-col max-h-[53vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple' style={{ scrollbarWidth: "none" }}>
                                 {
-                                    voices.slice(0, 9).map((item, index) => (
+                                    voices.slice(0, 10).map((item, index) => (
                                         <button
                                             key={index}
                                             style={{
@@ -206,7 +206,8 @@ const CreateAgentVoice = ({ handleBack }) => {
                                                 <div className='flex flex-row items-center justify-center' style={{ height: "62px", width: "62px", borderRadius: "50%", backgroundColor: item.voice_id === (selectedVoiceId) ? "white" : "#d3d3d380" }}>
                                                     {/* <Image src={"/assets/warning.png"} height={40} width={35} alt='*' /> */}
                                                     <Image
-                                                        src={avatarImages[index % avatarImages.length]} // Deterministic selection
+                                                        // src={avatarImages[index % avatarImages.length]} // Deterministic selection
+                                                        src={item.img} // Deterministic selection
                                                         height={40}
                                                         width={35}
                                                         alt='*'

@@ -549,7 +549,7 @@ const AddBuyerKyc = ({
                     {/* <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full'>
-                        <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
+                        <div className='mt-6 w-11/12 md:text-3xl text-lg font-[700]' style={{ textAlign: "center" }}>
                             What would you like to ask buyers?
                         </div>
                         <button
@@ -700,7 +700,7 @@ const AddBuyerKyc = ({
                             BackdropProps={{
                                 timeout: 1000,
                                 sx: {
-                                    backgroundColor: "#00000020",
+                                    backgroundColor: "#00000030",
                                     // //backdropFilter: "blur(20px)",
                                 },
                             }}
@@ -778,7 +778,7 @@ const AddBuyerKyc = ({
                                                 ) : (
                                                     <button
                                                         disabled={true}
-                                                        className='bg-[#00000060] outline-none border-none rounded-lg text-white w-full mt-4 mx-2'
+                                                        className='bg-[#00000020] text-black outline-none border-none rounded-lg w-full mt-4 mx-2'
                                                         style={{ ...styles.headingStyle, height: "50px" }}
                                                         onClick={handleAddKycQuestion}>
                                                         Add Question
@@ -846,7 +846,7 @@ const AddBuyerKyc = ({
                                             style={styles.headingStyle}
                                             onClick={handleAddNewKyc}
                                         >
-                                            Save & Close
+                                            Save
                                         </button> :
                                         <div>
                                         </div>

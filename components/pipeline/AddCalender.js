@@ -358,7 +358,7 @@ const AddCalender = ({ handleContinue }) => {
                   </div>
 
                   <div className='mt-4' style={{ fontWeight: "600", fontSize: 16.8, textAlign: "start" }}>
-                    Add calender title
+                    Calender title
                   </div>
                   <div>
                     <input
@@ -373,7 +373,7 @@ const AddCalender = ({ handleContinue }) => {
                     />
                   </div>
                   <div className='mt-4' style={{ fontWeight: "600", fontSize: 16.8, textAlign: "start" }}>
-                    Add api key
+                    Api key
                   </div>
                   <div>
                     <input
@@ -388,7 +388,7 @@ const AddCalender = ({ handleContinue }) => {
                     />
                   </div>
                   <div className='mt-4' style={{ fontWeight: "600", fontSize: 16.8, textAlign: "start" }}>
-                    Add event id
+                    Event id
                   </div>
                   <div>
                     <input
@@ -404,7 +404,7 @@ const AddCalender = ({ handleContinue }) => {
                   </div>
 
                   <div className='mt-4' style={{ fontWeight: "600", fontSize: 16.8, textAlign: "start" }}>
-                    Add time zone
+                    Select timezone
                   </div>
 
                   <div className='w-full mt-2'>

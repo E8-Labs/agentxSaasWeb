@@ -1184,12 +1184,12 @@ const Pipeline1 = () => {
                     vertical: "bottom",
                     horizontal: "left",
                   }}
-                  // PaperProps={{
-                  //     elevation: 0, // This will remove the shadow
-                  //     style: {
-                  //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
-                  //     },
-                  // }}
+                // PaperProps={{
+                //     elevation: 0, // This will remove the shadow
+                //     style: {
+                //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
+                //     },
+                // }}
                 >
                   <div className="p-2">
                     {PipeLines.map((item, index) => (
@@ -1224,12 +1224,12 @@ const Pipeline1 = () => {
                   vertical: "bottom",
                   horizontal: "left",
                 }}
-                // PaperProps={{
-                //     elevation: 0, // This will remove the shadow
-                //     style: {
-                //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
-                //     },
-                // }}
+              // PaperProps={{
+              //     elevation: 0, // This will remove the shadow
+              //     style: {
+              //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
+              //     },
+              // }}
               >
                 <div className="p-3">
                   <button
@@ -1465,7 +1465,7 @@ const Pipeline1 = () => {
                           <div
                             className="text-black flex flex-row items-center gap-4 me-2 outline-none"
                             style={styles.paragraph}
-                            // onClick={handleDeleteStage}
+                          // onClick={handleDeleteStage}
                           >
                             <button
                               className="flex flex-row gap-2 outline-none"
@@ -1534,103 +1534,110 @@ const Pipeline1 = () => {
                     {/* Display leads matching this stage */}
                     {LeadsList.filter((lead) => lead.lead.stage === stage.id)
                       .length > 0 && (
-                      <div
-                        className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl"
-                        style={{
-                          scrollbarWidth: "none",
-                          borderWidth: 1,
-                          borderRadius: "12",
-                          borderStyle: "solid",
-                          borderColor: "#00000010",
-                        }}
-                      >
-                        {LeadsList.filter(
-                          (lead) => lead.lead.stage === stage.id
-                        ).map((lead, leadIndex) => (
-                          <div
-                            className="p-3 h-full"
-                            style={{ width: "300px", height: 200 }}
-                            key={leadIndex}
-                          >
-                            <div className="border rounded-xl px-4 py-2 h-full">
-                              <button
-                                className="flex flex-row items-center gap-3"
-                                onClick={() => {
-                                  console.log(
-                                    "Selected lead details are:",
-                                    lead
-                                  );
-                                  setShowDetailsModal(true);
-                                  setSelectedLeadsDetails(lead.lead);
-                                  setNoteDetails(lead.lead.notes);
-                                }}
-                              >
-                                <div
-                                  className="bg-black text-white rounded-full flex flex-row item-center justify-center"
-                                  style={{ height: "27px", width: "27px" }}
+                        <div
+                          className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl"
+                          style={{
+                            scrollbarWidth: "none",
+                            borderWidth: 1,
+                            borderRadius: "12",
+                            borderStyle: "solid",
+                            borderColor: "#00000010",
+                          }}
+                        >
+                          {LeadsList.filter(
+                            (lead) => lead.lead.stage === stage.id
+                          ).map((lead, leadIndex) => (
+                            <div
+                              className="p-3 h-full"
+                              style={{ width: "300px", height: 200 }}
+                              key={leadIndex}
+                            >
+                              <div className="border rounded-xl px-4 py-2 h-full">
+                                <button
+                                  className="flex flex-row items-center gap-3"
+                                  onClick={() => {
+                                    console.log(
+                                      "Selected lead details are:",
+                                      lead
+                                    );
+                                    setShowDetailsModal(true);
+                                    setSelectedLeadsDetails(lead.lead);
+                                    setNoteDetails(lead.lead.notes);
+                                  }}
                                 >
-                                  {lead.lead.firstName.slice(0, 1)}
-                                </div>
-                                <div style={styles.paragraph}>
-                                  {lead.lead.firstName}
-                                </div>
-                              </button>
-                              <div className="flex flex-row items-center justify-between w-full mt-2">
-                                <div
-                                  className="text-[#00000060]"
-                                  style={styles.agentName}
-                                >
-                                  Email
-                                </div>
-                                <div className="flex flex-row items-center gap-4">
-                                  <Image
-                                    src={"/assets/colorCircle.png"}
-                                    height={24}
-                                    width={24}
-                                    alt="*"
-                                  />
+                                  {/* T is center aligned */}
                                   <div
-                                    className="text-purple underline"
+                                    className="bg-black text-white rounded-full flex flex-row item-center justify-center"
+                                    style={{ height: "27px", width: "27px" }}
+                                  >
+                                    {lead.lead.firstName.slice(0, 1)}
+                                  </div>
+                                  <div style={styles.paragraph}>
+                                    {lead.lead.firstName}
+                                  </div>
+                                </button>
+                                <div className="flex flex-row items-center justify-between w-full mt-2">
+                                  <div
+                                    className="text-[#00000060]"
                                     style={styles.agentName}
                                   >
-                                    {lead.agent.name}
+                                    Email
+                                  </div>
+                                  <div className="flex flex-row items-center gap-4">
+                                    <Image
+                                      src={"/assets/colorCircle.png"}
+                                      height={24}
+                                      width={24}
+                                      alt="*"
+                                    />
+                                    <div
+                                      className="text-purple underline"
+                                      style={styles.agentName}
+                                    >
+                                      {lead.agent.name}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                              <div className="flex flex-row items-center gap-2">
-                                <Image
-                                  src="/otherAssets/calenderIcon.png"
-                                  height={20}
-                                  width={20}
-                                  alt="*"
-                                  style={{
-                                    filter:
-                                      "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
-                                  }}
-                                />
-                                {moment(lead?.lead?.booking?.date).format(
-                                  "MMM dd"
-                                ) || "-"}
-                                <Image
-                                  src="/otherAssets/clockIcon.png"
-                                  height={20}
-                                  width={20}
-                                  alt="*"
-                                  style={{
-                                    filter:
-                                      "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
-                                  }}
-                                />
-                                {lead?.lead?.booking?.time || "-"}
-                              </div>
-                              <div className="w-full flex flex-row items-center justify-between mt-12">
-                                <Image
-                                  src={"/assets/manIcon.png"}
-                                  height={32}
-                                  width={32}
-                                  alt="*"
-                                />
-                                {/* <div className="flex flex-row items-center gap-3">
+
+                                {
+                                  lead?.lead?.booking?.date && (
+                                    <div className="flex flex-row items-center gap-2">
+                                      <Image
+                                        src="/otherAssets/calenderIcon.png"
+                                        height={20}
+                                        width={20}
+                                        alt="*"
+                                        style={{
+                                          filter:
+                                            "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
+                                        }}
+                                      />
+                                      {moment(lead?.lead?.booking?.date).format(
+                                        "MMM dd"
+                                      ) || "-"}
+                                      <Image
+                                        src="/otherAssets/clockIcon.png"
+                                        height={20}
+                                        width={20}
+                                        alt="*"
+                                        style={{
+                                          filter:
+                                            "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
+                                        }}
+                                      />
+                                      {lead?.lead?.booking?.time || "-"}
+                                    </div>
+                                  )
+                                }
+
+                                <div className="w-full flex flex-row items-center justify-between mt-12">
+                                  <Image
+                                    src={"/assets/manIcon.png"}
+                                    height={32}
+                                    width={32}
+                                    alt="*"
+                                  />
+                                  {/* <div className="flex flex-row items-center gap-3">
                                                                         <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
                                                                             Tag
                                                                         </div>
@@ -1639,65 +1646,65 @@ const Pipeline1 = () => {
                                                                         </div>
                                                                     </div> */}
 
-                                {lead.lead.tags.length > 0 ? (
-                                  <div className="flex flex-row items-center gap-1">
-                                    {lead.lead.tags
-                                      .slice(0, 2)
-                                      .map((tagVal, index) => {
-                                        return (
-                                          // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
-                                          //     {tagVal}
-                                          // </div>
-                                          <div
-                                            key={index}
-                                            className="flex flex-row items-center gap-2 bg-[#402FFF30] px-2 py-1 rounded-lg"
-                                          >
+                                  {lead.lead.tags.length > 0 ? (
+                                    <div className="flex flex-row items-center gap-1">
+                                      {lead.lead.tags
+                                        .slice(0, 1)
+                                        .map((tagVal, index) => {
+                                          return (
+                                            // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
+                                            //     {tagVal}
+                                            // </div>
                                             <div
-                                              className="text-[#402FFF]" //1C55FF10
+                                              key={index}
+                                              className="flex flex-row items-center gap-2 bg-[#402FFF07] px-2 py-1 rounded-lg"
                                             >
-                                              {tagVal.length > 3 ? (
+                                              <div
+                                                className="text-[#402FFF]" //1C55FF10
+                                              >
+                                                {tagVal.length > 2 ? (
+                                                  <div>
+                                                    {tagVal.slice(0, 6)}
+                                                    {"..."}
+                                                  </div>
+                                                ) : (
+                                                  <div>{tagVal}</div>
+                                                )}
+                                              </div>
+                                              {DelTagLoader &&
+                                                tagVal.includes(DelTagLoader) ? (
                                                 <div>
-                                                  {tagVal.slice(0, 3)}
-                                                  {"..."}
+                                                  <CircularProgress size={15} />
                                                 </div>
                                               ) : (
-                                                <div>{tagVal}</div>
+                                                <button
+                                                  onClick={() => {
+                                                    handleDelTag(tagVal);
+                                                  }}
+                                                >
+                                                  <X
+                                                    size={15}
+                                                    weight="bold"
+                                                    color="#402fff"
+                                                  />
+                                                </button>
                                               )}
                                             </div>
-                                            {DelTagLoader &&
-                                            tagVal.includes(DelTagLoader) ? (
-                                              <div>
-                                                <CircularProgress size={15} />
-                                              </div>
-                                            ) : (
-                                              <button
-                                                onClick={() => {
-                                                  handleDelTag(tagVal);
-                                                }}
-                                              >
-                                                <X
-                                                  size={15}
-                                                  weight="bold"
-                                                  color="#402fff"
-                                                />
-                                              </button>
-                                            )}
-                                          </div>
-                                        );
-                                      })}
-                                    {lead.lead.tags.length > 2 && (
-                                      <div>+{lead.lead.tags.length - 2}</div>
-                                    )}
-                                  </div>
-                                ) : (
-                                  "-"
-                                )}
+                                          );
+                                        })}
+                                      {lead.lead.tags.length > 2 && (
+                                        <div>+{lead.lead.tags.length - 2}</div>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    "-"
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                          ))}
+                        </div>
+                      )}
                   </div>
                 ))}
               </div>

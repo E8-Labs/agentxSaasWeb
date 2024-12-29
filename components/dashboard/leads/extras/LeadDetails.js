@@ -1485,7 +1485,6 @@ const LeadDetails = ({
                                                   {moment(
                                                     item?.duration * 1000
                                                   ).format("mm:ss")}{" "}
-                                                  mins
                                                 </div>
                                                 <button
                                                   onClick={() => {

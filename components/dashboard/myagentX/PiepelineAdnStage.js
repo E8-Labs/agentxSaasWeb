@@ -197,7 +197,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline }) => {
                                                                 borderRadius: "7px",
                                                                 border: "1px solid #00000010"
                                                             }}>
-                                                            {stage?.cadence?.moveToStage?.stageTitle}
+                                                            {stage?.cadence?.moveToStage?.stageTitle || "No Stage"}
                                                         </div>
                                                     </div>
                                                 </div>

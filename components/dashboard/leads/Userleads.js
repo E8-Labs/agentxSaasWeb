@@ -514,8 +514,9 @@ const Userleads = ({
         if (response.data.status === true) {
           setSheetsList((prevSheetsList) =>
             prevSheetsList.filter((sheet) => sheet.id !== selectedSmartList.id)
-          );
-          handleClosePopup();
+        );
+        setToggleClick([]);
+        handleClosePopup();
         }
       }
     } catch (error) {
@@ -1776,6 +1777,7 @@ const Userleads = ({
                         onClick={() => {
                           setSearchLead("");
                           setSelectedSheetId(item.id);
+                          setToggleClick([]);
                           //   getLeads(item, 0);
                         }}
                       >
@@ -1931,7 +1933,7 @@ const Userleads = ({
                             {leadColumns.map((column, index) => {
                               const isMoreColumn = column.title === "More";
                               const isDateColumn = column.title === "Date";
-
+                              const columnWidth = column.title === "More" ? "200px" : "150px";
                               return (
                                 <th
                                   key={index}
@@ -1939,7 +1941,14 @@ const Userleads = ({
                                     ? "sticky right-0 bg-white"
                                     : ""
                                     }`}
-                                  style={isMoreColumn ? { zIndex: 1 } : {}}
+                                  // style={isMoreColumn ? { zIndex: 1 } : {}}
+                                  style={{
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    zIndex: isMoreColumn === "More" ? 1 : "auto",
+                                    maxWidth: columnWidth,
+                                  }}
                                 >
                                   {column.title.slice(0, 1).toUpperCase()}
                                   {column.title.slice(1)}
@@ -1968,6 +1977,7 @@ const Userleads = ({
                                       // maxWidth: "150px",
                                       zIndex:
                                         column.title === "More" ? 1 : "auto",
+                                      width: "200px",
                                     }}
                                   >
                                     {getColumnData(column, item)}
@@ -2472,15 +2482,15 @@ const Userleads = ({
       </div>
 
       {showDetailsModal && (
-        <div className="overflow-scroll" style={{backgroundColor :'', height: window.innerHeight * 0.95, width: '100%'}}>
+        <div className="overflow-scroll" style={{ backgroundColor: '', height: window.innerHeight * 0.95, width: '100%' }}>
           <LeadDetails
-          selectedLead={selectedLeadsDetails?.id}
-          pipelineId={selectedLeadsDetails?.stage?.pipelineId}
-          showDetailsModal={showDetailsModal}
-          setShowDetailsModal={setShowDetailsModal}
-          handleDelLead={handleDeleteLead}
-        />
-          </div>
+            selectedLead={selectedLeadsDetails?.id}
+            pipelineId={selectedLeadsDetails?.stage?.pipelineId}
+            showDetailsModal={showDetailsModal}
+            setShowDetailsModal={setShowDetailsModal}
+            handleDelLead={handleDeleteLead}
+          />
+        </div>
       )}
 
       {/* Modal to add notes */}
