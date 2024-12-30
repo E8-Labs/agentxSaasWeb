@@ -737,17 +737,20 @@ function Billing() {
                                 {`Here’s a Gift`}
                             </div>
 
-                            <div
-                                className='text-center'
-                                style={{
-                                    fontWeight: "600",
-                                    fontSize: 24,
-                                    width: "70%",
-                                    alignSelf: "center"
-                                }}
-                            >
-                                {`Don’t Hang Up Yet! Get 30 Minutes of Free Talk Time and Stay Connected!`}
+                            <div className='flex flex-row items-center justify-center w-full'>
+                                <div
+                                    className='text-center'
+                                    style={{
+                                        fontWeight: "600",
+                                        fontSize: 24,
+                                        width: "70%",
+                                        alignSelf: "center"
+                                    }}
+                                >
+                                    {`Don’t Hang Up Yet! Get 30 Minutes of Free Talk Time and Stay Connected!`}
+                                </div>
                             </div>
+
                         </div>
                     </div>
                 </Box>
