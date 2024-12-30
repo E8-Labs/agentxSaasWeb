@@ -392,31 +392,33 @@ function Billing() {
                                         >
                                             <div className="flex items-center gap-4">
                                                 <div
-                                                    className={`w-5 h-5 rounded-full border ${selectedCard?.id === item.id
-                                                        ? 'border-blue-500'
-                                                        : 'border-gray-400'
-                                                        } flex items-center justify-center`}
+                                                    className={`w-5 h-5 rounded-full border border-[#2548FD] flex items-center justify-center`}
+                                                    style={{ borderWidth: selectedCard?.id === item.id ? 3 : 1 }}
                                                 >
-                                                    {item?.isDefault === true && (
-                                                        <div
-                                                            className="w-3 h-3 rounded-full"
-                                                            style={{
-                                                                backgroundColor: '#0000ff', // Inner circle color
-                                                            }}
-                                                        ></div>
-                                                    )}
-                                                </div>
 
+                                                </div>
                                                 {/* Card Details */}
                                                 <div className="flex flex-col">
-                                                    <div
-                                                        style={{
-                                                            fontSize: '16px',
-                                                            fontWeight: '700',
-                                                            color: '#000',
-                                                        }}
-                                                    >
-                                                        ****{item.last4}
+                                                    <div className='flex flex-row items-center gap-3'>
+                                                        <div
+                                                            style={{
+                                                                fontSize: '16px',
+                                                                fontWeight: '700',
+                                                                color: '#000',
+                                                            }}
+                                                        >
+                                                            ****{item.last4}
+                                                        </div>
+                                                        {
+                                                            item.isDefault && (
+                                                                <div className='flex px-2 py-1 rounded-full bg-purple text-white text-[10]'
+                                                                    style={{ fontSize: 11, fontWeight: '500' }}
+                                                                >
+                                                                    Default
+                                                                </div>
+                                                            )
+                                                        }
+
                                                     </div>
                                                     <div
                                                         style={{
