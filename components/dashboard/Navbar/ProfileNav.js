@@ -76,45 +76,45 @@ const ProfileNav = () => {
       id: 1,
       name: 'Dashboard',
       href: '/dashboard',
-      selected: '/assets/selectdDashboardIcon.png',
-      uneselected: '/assets/unSelectedDashboardIcon.png'
+      selected: '/svgIcons/selectdDashboardIcon.svg',
+      uneselected: '/svgIcons/unSelectedDashboardIcon.svg'
     },
     {
       id: 2,
       name: 'My Agents',
       href: '/dashboard/myAgentX',
-      selected: '/assets/selectedAgentXIcon.png',
-      uneselected: '/assets/agentXIcon.png'
+      selected: '/svgIcons/selectedAgentXIcon.svg',
+      uneselected: '/svgIcons/agentXIcon.svg'
     }, {
       id: 3,
       name: 'Leads',
       href: '/dashboard/leads',
-      selected: '/assets/selectedLeadsIcon.png',
-      uneselected: '/assets/unSelectedLeadsIcon.png'
+      selected: '/svgIcons/selectedLeadsIcon.svg',
+      uneselected: '/svgIcons/unSelectedLeadsIcon.svg'
     }, {
       id: 4,
       name: 'Pipeline',
       href: '/dashboard/pipeline',
-      selected: '/assets/selectedPiplineIcon.png',
-      uneselected: '/assets/unSelectedPipelineIcon.png'
+      selected: '/svgIcons/selectedPiplineIcon.svg',
+      uneselected: '/svgIcons/unSelectedPipelineIcon.svg'
     }, {
       id: 5,
       name: 'Call Log',
       href: '/dashboard/callLog',
-      selected: '/assets/selectedCallIcon.png',
-      uneselected: '/assets/unSelectedCallIcon.png'
+      selected: '/svgIcons/selectedCallIcon.svg',
+      uneselected: '/svgIcons/unSelectedCallIcon.svg'
     }, {
       id: 6,
       name: 'Integration',
       href: '/dashboard/integration',
-      selected: '/assets/selectedIntegration.png',
-      uneselected: '/assets/unSelectedIntegrationIcon.png'
+      selected: '/svgIcons/selectedIntegration.svg',
+      uneselected: '/svgIcons/unSelectedIntegrationIcon.svg'
     }, {
       id: 7,
       name: 'Team',
       href: '/dashboard/team',
-      selected: '/assets/selectedTeamIcon.png',
-      uneselected: '/assets/unSelectedTeamIcon.png'
+      selected: '/svgIcons/selectedTeamIcon.svg',
+      uneselected: '/svgIcons/unSelectedTeamIcon.svg'
     },
     // {
     //   id: 8,

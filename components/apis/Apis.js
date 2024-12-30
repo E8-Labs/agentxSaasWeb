@@ -71,7 +71,9 @@ const Apis = {
   //cancel plan
   cancelPlan: `${BasePath}api/user/cancelPlan`,
   //redeem plan
-  redeemPlan: `${BasePath}api/user/redeemAbortCancelReward`
+  redeemPlan: `${BasePath}api/user/redeemAbortCancelReward`,
+
+  getNotifications:`${BasePath}api/user/notifications`
 
 };
 

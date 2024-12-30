@@ -3,11 +3,12 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import BasicInfo from '@/components/myAccount/BasicInfo'
 import MyPhoneNumber from '@/components/myAccount/MyPhoneNumber'
-import { Button } from '@mui/material'
+import { Button, Drawer } from '@mui/material'
 import SendFeedback from '@/components/myAccount/SendFeedback'
 import InviteAgentX from '@/components/myAccount/InviteAgentX'
 import Support from '@/components/myAccount/Support'
 import Billing from '@/components/myAccount/Billing'
+import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
 
 function Page() {
 
@@ -47,6 +48,7 @@ function Page() {
     ]
 
     const [selectedManu, setSelectedManu] = useState(manuBar[0])
+    const [showNotificationDrawer, setShowNotificationDrawer] = useState(false)
 
     const renderComponent = (selectedMenuId) => {
         switch (selectedMenuId) {
@@ -75,14 +77,36 @@ function Page() {
                 <div style={{ fontSize: 24, fontWeight: '600' }}>
                     My Account
                 </div>
-                <button className='pr-10'>
+                <button className='pr-10'
+                    onClick={() => {
+                        setShowNotificationDrawer(true)
+                    }}
+                >
                     <img src='/otherAssets/notificationIcon.png'
                         style={{ height: 24, width: 24 }}
                         alt='notificationIcon'
                     />
                 </button>
-            </div>
 
+            </div>
+            <div className='w-12/12'>
+
+                <Drawer
+                    anchor="right"
+                    sx={{
+                        "& .MuiDrawer-paper": {
+                            width: "30%", // Drawer width
+                            boxSizing: "border-box", // Ensure padding doesn't shrink content
+                        },
+                    }}
+                    open={showNotificationDrawer}
+                    onClose={() => setShowNotificationDrawer(false)}
+                >
+                    <div className="flex flex-col w-full h-full">
+                        <NotficationsDrawer close = {()=>{setShowNotificationDrawer(false)}} />
+                    </div>
+                </Drawer>
+            </div>
             <div className='w-full flex flex-row item-center pl-4'>
                 <div className='w-4/12 items-center flex flex-col pt-4 pr-2'>
                     {
