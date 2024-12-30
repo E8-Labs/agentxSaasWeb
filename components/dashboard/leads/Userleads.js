@@ -1051,7 +1051,7 @@ const Userleads = ({
           <button
             className="underline text-purple"
             onClick={() => {
-              ////console.log("It is ", item);
+              console.log("Selected item is", item);
               setSelectedLeadsDetails(item); // Pass selected lead data
               setNoteDetails(item.notes);
               setShowDetailsModal(true); // Show modal

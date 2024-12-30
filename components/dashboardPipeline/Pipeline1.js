@@ -158,6 +158,7 @@ const Pipeline1 = () => {
   //code for the lead details modal
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedLeadsDetails, setSelectedLeadsDetails] = useState(null);
+  const [pipelineId, setPipelineId] = useState("")
 
   //code for buttons of details popup
   const [showKYCDetails, setShowKycDetails] = useState(true);
@@ -1562,6 +1563,7 @@ const Pipeline1 = () => {
                                     );
                                     setShowDetailsModal(true);
                                     setSelectedLeadsDetails(lead.lead);
+                                    setPipelineId(lead.lead.pipeline.id)
                                     setNoteDetails(lead.lead.notes);
                                   }}
                                 >
@@ -2830,7 +2832,7 @@ const Pipeline1 = () => {
       {showDetailsModal && (
         <LeadDetails
           selectedLead={selectedLeadsDetails?.id}
-          pipelineId={selectedLeadsDetails?.pipelineId}
+          pipelineId={pipelineId && pipelineId}
           showDetailsModal={showDetailsModal}
           setShowDetailsModal={setShowDetailsModal}
         />

@@ -17,6 +17,10 @@ function Billing() {
     //stroes user cards list
     const [cards, setCards] = useState([]);
 
+    //userlocal data
+    const [userLocalData, setUserLocalData] = useState(null);
+    const [currentPlan, setCurrentPlan] = useState(null);
+
     //stoores payment history
     const [PaymentHistoryData, setPaymentHistoryData] = useState([]);
     const [historyLoader, setHistoryLoader] = useState(false);
@@ -31,7 +35,7 @@ function Billing() {
     const [cardData, getcardData] = useState("");
 
     //variables for selecting plans
-    const [togglePlan, setTogglePlan] = useState(false);
+    const [togglePlan, setTogglePlan] = useState(null);
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [subscribePlanLoader, setSubscribePlanLoader] = useState(false);
 
@@ -39,17 +43,21 @@ function Billing() {
     const [successSnack, setSuccessSnack] = useState(null);
     const [errorSnack, setErrorSnack] = useState(null);
 
+
+    //variables for cancel plan
+    const [giftPopup, setGiftPopup] = useState(false);
+
     //array of plans
     const plans = [
-        // {
-        //     id: 1,
-        //     mints: 30,
-        //     calls: 25,
-        //     details: "Perfect for getting started! Free for the first 30 mins then $45 to continue.",
-        //     originalPrice: "45",
-        //     discountPrice: "0",
-        //     planStatus: "Free"
-        // },
+        {
+            id: 1,
+            mints: 30,
+            calls: 25,
+            details: "Perfect for getting started! Free for the first 30 mins then $45 to continue.",
+            originalPrice: "45",
+            discountPrice: "0",
+            planStatus: "Free"
+        },
         {
             id: 2,
             mints: 120,
@@ -81,6 +89,24 @@ function Billing() {
 
 
     useEffect(() => {
+        const localData = localStorage.getItem("User");
+        if (localData) {
+            const LocalDetails = JSON.parse(localData);
+            setUserLocalData(LocalDetails.user);
+            let togglePlan = LocalDetails?.user?.plan?.type
+            let planType = null;
+            if (togglePlan === "Plan30") {
+                planType = 1
+            } else if (togglePlan === "Plan120") {
+                planType = 2
+            } else if (togglePlan === "Plan360") {
+                planType = 3
+            } else if (togglePlan === "Plan720") {
+                planType = 4
+            }
+            setTogglePlan(planType);
+            setCurrentPlan(planType);
+        }
         getPaymentHistory()
         getCardsList()
     }, []);
@@ -203,7 +229,9 @@ function Billing() {
 
             // console.log("Selected plan is:", togglePlan);
 
-            if (togglePlan === 2) {
+            if (togglePlan === 1) {
+                planType = "Plan30"
+            } else if (togglePlan === 2) {
                 planType = "Plan120"
             } else if (togglePlan === 3) {
                 planType = "Plan360"
@@ -528,8 +556,14 @@ function Billing() {
                         </div>
                     ) : (
                         <button
-                            className='text-white bg-purple rounded-xl w-9/12 mt-8'
-                            style={{ height: "50px", fontSize: 16, fontWeight: '700', flexShrink: 0 }}
+                            className='rounded-xl w-9/12 mt-8'
+                            disabled={togglePlan === currentPlan}
+                            style={{
+                                height: "50px", fontSize: 16,
+                                fontWeight: '700', flexShrink: 0,
+                                backgroundColor: togglePlan === currentPlan ? "#00000020" : "#7902DF",
+                                color: togglePlan === currentPlan ? "#000000" : "#ffffff"
+                            }}
                             onClick={handleSubscribePlan}
                         >
                             Continue
@@ -538,13 +572,17 @@ function Billing() {
                 }
             </div>
 
-            <button
-                className='text-black  outline-none rounded-xl w-9/12 mt-3'
-                style={{ fontSize: 16, fontWeight: '700', height: "50px", textDecorationLine: 'underline', flexShrink: 0 }}
-            // onClick={handleVerifyCode}
-            >
-                Cancel AgentX
-            </button>
+            {
+                togglePlan === currentPlan && (
+                    <button
+                        className='text-black  outline-none rounded-xl w-9/12 mt-3'
+                        style={{ fontSize: 16, fontWeight: '700', height: "50px", textDecorationLine: 'underline', flexShrink: 0 }}
+                        onClick={() => { setGiftPopup(true) }}
+                    >
+                        Cancel AgentX
+                    </button>
+                )
+            }
 
 
             <div style={{ fontSize: 16, fontWeight: '700', marginTop: 40 }}>
@@ -659,6 +697,62 @@ function Billing() {
                     </div>
                 </Box>
             </Modal>
+
+
+            <Modal
+                open={giftPopup}
+                // open={true}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 1000,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        // //backdropFilter: "blur(20px)",
+                    },
+                }}
+            >
+                <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
+                    <div className="flex flex-row justify-center w-full">
+                        <div
+                            className="sm:w-7/12 w-full"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                            }}
+                        >
+                            <div className='flex flex-row justify-end'>
+                                <button onClick={() => setGiftPopup(false)}>
+                                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                </button>
+                            </div>
+
+                            <div
+                                className='text-center text-purple'
+                                style={{
+                                    fontWeight: "600",
+                                    fontSize: 16.8
+                                }}
+                            >
+                                {`Here’s a Gift`}
+                            </div>
+
+                            <div
+                                className='text-center'
+                                style={{
+                                    fontWeight: "600",
+                                    fontSize: 24,
+                                    width: "70%",
+                                    alignSelf: "center"
+                                }}
+                            >
+                                {`Don’t Hang Up Yet! Get 30 Minutes of Free Talk Time and Stay Connected!`}
+                            </div>
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+
 
 
             <div>

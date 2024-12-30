@@ -1,4 +1,4 @@
-const BasePath = "https://www.blindcircle.com/agentx/"; //process.env.Environment == "Production" ? "https://www.blindcircle.com/agentx/" : "https://www.blindcircle.com/agentxtest/"
+const BasePath = "https://www.blindcircle.com/agentxtest/"; //process.env.Environment == "Production" ? "https://www.blindcircle.com/agentx/" : "https://www.blindcircle.com/agentxtest/"
 
 const Apis = {
   getCalenders: `${BasePath}api/calendar/calendars`,
