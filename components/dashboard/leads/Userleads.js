@@ -174,7 +174,19 @@ const Userleads = ({
   const [selectedPipeline, setSelectedPipeline] = useState("");
 
   const handleChange = (event) => {
+
+    const selectedValue = event.target.value;
+
     setSelectedPipeline(event.target.value);
+
+    const selectedItem = pipelinesList.find(
+      (item) => item.title === selectedValue
+    );
+
+    console.log("Selected stages", selectedItem.stages);
+
+    setStagesList(selectedItem.stages);
+
   };
 
   useEffect(() => {
@@ -1651,6 +1663,7 @@ const Userleads = ({
                               ////console.log("Stage ids ", stages);
                               ////console.log("Date ", [fromDate, toDate]);
                               ////console.log("Pipeline ", pipeline);
+                              console.log("Stages inheriting from", stages)
                               setSelectedStage(stages);
                               setSelectedFromDate(fromDate);
                               setSelectedToDate(toDate);
@@ -2200,7 +2213,7 @@ const Userleads = ({
                                     onClick={() => {
                                       ////console.log("Item passed is", item);
                                       setSelectedStage([]);
-                                      getStagesList(item);
+                                      // getStagesList(item);
                                     }}
                                   >
                                     {item.title}
