@@ -653,10 +653,10 @@ const Userleads = ({
       });
 
       if (response) {
-        ////console.log(
-        //   "Response of get leads filter api is api is :",
-        //   response.data
-        // );
+        console.log(
+          "Response of get leads filter api is api is :",
+          response.data
+        );
         if (currentRequestVersion === requestVersion.current) {
           if (response.data.status === true) {
             setShowFilterModal(false);
@@ -672,9 +672,9 @@ const Userleads = ({
               let sheetId = null;
               if (data.length > 0) {
                 sheetId = data[0].sheetId;
-                setShowNoLeadsLabel(true);
+                setShowNoLeadsLabel(null);
               } else {
-                setShowNoLeadsLabel(false);
+                setShowNoLeadsLabel(true);
               }
               console.log("Saving Lcoal Data for sheet", SelectedSheetId);
               console.log("Sheet from Leads Obtained ", sheetId);
@@ -725,6 +725,9 @@ const Userleads = ({
             } else {
               setHasMore(true);
             }
+          }
+          else{
+            console.log("False api get leads resposne")
           }
         }
       }
@@ -1520,7 +1523,7 @@ const Userleads = ({
                   onClose={() => setAssignLeadModal(false)}
                   closeAfterTransition
                   BackdropProps={{
-                    timeout: 1000,
+                    timeout: 100,
                     sx: {
                       backgroundColor: "#00000020",
                       // //backdropFilter: "blur(5px)",
@@ -1995,7 +1998,7 @@ const Userleads = ({
                     className="text-xl text-center mt-8"
                     style={{ fontWeight: "700", fontSize: 22 }}
                   >
-                    {showNoLeadsLabel ? "No leads found" : "Loading..."}
+                    {showNoLeadsLabel == true ? "No leads found" : "Loading..."}
                   </div>
                 )}
               </div>

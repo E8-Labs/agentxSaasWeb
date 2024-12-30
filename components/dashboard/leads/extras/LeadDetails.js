@@ -980,7 +980,7 @@ const LeadDetails = ({
                               <MenuItem
                                 className="text-sm text-[#15151560] font-bold"
                               >
-                                No stage found
+                                No Stage
                               </MenuItem>
                             )}
 

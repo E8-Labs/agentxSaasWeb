@@ -65,6 +65,12 @@ const Apis = {
   getCardsList: `${BasePath}api/user/getPaymentMethods`,
   makeDefaultCard: `${BasePath}api/user/setDefaultPaymentMethod`,
   getPaymentHistory: `${BasePath}api/user/getTransactionsHistory`,
+
+  //cancel plan
+  cancelPlan: `${BasePath}api/user/cancelPlan`,
+  //redeem plan
+  redeemPlan: `${BasePath}api/user/redeemAbortCancelReward`
+
 };
 
 export default Apis;

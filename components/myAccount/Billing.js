@@ -7,6 +7,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import AddCardDetails from '../createagent/addpayment/AddCardDetails';
 import { loadStripe } from '@stripe/stripe-js';
 import moment from 'moment';
+import getProfileDetails from '../apis/GetProfile';
 
 
 let stripePublickKey = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production" ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
@@ -20,6 +21,8 @@ function Billing() {
     //userlocal data
     const [userLocalData, setUserLocalData] = useState(null);
     const [currentPlan, setCurrentPlan] = useState(null);
+    const [cancelPlanLoader, setCancelPlanLoader] = useState(false);
+    const [redeemLoader, setRedeemLoader] = useState(false);
 
     //stoores payment history
     const [PaymentHistoryData, setPaymentHistoryData] = useState([]);
@@ -46,6 +49,8 @@ function Billing() {
 
     //variables for cancel plan
     const [giftPopup, setGiftPopup] = useState(false);
+    const [showConfirmCancelPlanPopup, setShowConfirmCancelPlanPopup] = useState(false);
+    const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] = useState(false);
 
     //array of plans
     const plans = [
@@ -56,7 +61,8 @@ function Billing() {
             details: "Perfect for getting started! Free for the first 30 mins then $45 to continue.",
             originalPrice: "45",
             discountPrice: "0",
-            planStatus: "Free"
+            planStatus: "Free",
+            status: ""
         },
         {
             id: 2,
@@ -65,7 +71,8 @@ function Billing() {
             details: "Approx 1,000 calls. Perfect for community updates.",
             originalPrice: "165",
             discountPrice: "99",
-            planStatus: "40%"
+            planStatus: "40%",
+            status: ""
         },
         {
             id: 3,
@@ -74,7 +81,8 @@ function Billing() {
             details: "Approx 3,000 calls. Great for 1-2 listing appointments.",
             originalPrice: "540",
             discountPrice: "370",
-            planStatus: "50%"
+            planStatus: "50%",
+            status: "Popular"
         },
         {
             id: 4,
@@ -83,33 +91,63 @@ function Billing() {
             details: "Approx 10,000 calls. Perfect for teams ramping up.",
             originalPrice: "1200",
             discountPrice: "480",
-            planStatus: "60%"
+            planStatus: "60%",
+            status: "Best Value"
+        },
+    ]
+
+    //cancel plan reasons
+    const cancelPlanReasons = [
+        {
+            id: 1,
+            reason: "It’s too expensive"
+        },
+        {
+            id: 2,
+            reason: "I’m using something else"
+        },
+        {
+            id: 3,
+            reason: "I’m not getting the results I expected"
+        },
+        {
+            id: 4,
+            reason: "It’s too complicated to use"
         },
     ]
 
 
     useEffect(() => {
-        const localData = localStorage.getItem("User");
-        if (localData) {
-            const LocalDetails = JSON.parse(localData);
-            setUserLocalData(LocalDetails.user);
-            let togglePlan = LocalDetails?.user?.plan?.type
-            let planType = null;
-            if (togglePlan === "Plan30") {
-                planType = 1
-            } else if (togglePlan === "Plan120") {
-                planType = 2
-            } else if (togglePlan === "Plan360") {
-                planType = 3
-            } else if (togglePlan === "Plan720") {
-                planType = 4
-            }
-            setTogglePlan(planType);
-            setCurrentPlan(planType);
-        }
+        getProfile();
         getPaymentHistory()
         getCardsList()
     }, []);
+
+    const getProfile = async () => {
+        try {
+            const localData = localStorage.getItem("User");
+            let response = await getProfileDetails();
+            console.log("Response of get progf", response)
+            if (response) {
+                let togglePlan = response?.data?.data?.plan?.type
+                let planType = null;
+                if (togglePlan === "Plan30") {
+                    planType = 1
+                } else if (togglePlan === "Plan120") {
+                    planType = 2
+                } else if (togglePlan === "Plan360") {
+                    planType = 3
+                } else if (togglePlan === "Plan720") {
+                    planType = 4
+                }
+                setTogglePlan(planType);
+                setCurrentPlan(planType);
+            }
+        } catch (error) {
+            console.error("Error in getprofile api is", error);
+
+        }
+    }
 
     //function to close the add card popup
     const handleClose = (data) => {
@@ -276,7 +314,23 @@ function Billing() {
                 if (response.data.status === true) {
                     localDetails.user.plan = response.data.data
                     console.log("Data updated is", localDetails);
-                    localStorage.setItem("User", JSON.stringify(localDetails));
+                    let response2 = await getProfileDetails();
+                    if (response2) {
+                        let togglePlan = response2?.data?.data?.plan?.type
+                        let planType = null;
+                        if (togglePlan === "Plan30") {
+                            planType = 1
+                        } else if (togglePlan === "Plan120") {
+                            planType = 2
+                        } else if (togglePlan === "Plan360") {
+                            planType = 3
+                        } else if (togglePlan === "Plan720") {
+                            planType = 4
+                        }
+                        setTogglePlan(planType);
+                        setCurrentPlan(planType);
+                    }
+                    // localStorage.setItem("User", JSON.stringify(localDetails));
                     setSuccessSnack(response.data.message);
                 } else if (response.data.status === false) {
                     setErrorSnack(response.data.message);
@@ -325,6 +379,115 @@ function Billing() {
             console.error("Error occured in get history api is", error);
         } finally {
             setHistoryLoader(false);
+        }
+    }
+
+
+    //function to cancel current plan
+    const handleCancelPlan = async () => {
+        try {
+            setCancelPlanLoader(true);
+
+            let AuthToken = null;
+
+            const localData = localStorage.getItem("User");
+            if (localData) {
+                const LocalDetails = JSON.parse(localData);
+                AuthToken = LocalDetails.token;
+            }
+
+            const ApiPath = Apis.cancelPlan;
+
+            console.log("Auth token ", AuthToken)
+
+            // console.log("Api data is", Apidata);
+            console.log("Apipath is", ApiPath);
+
+            const ApiData = {
+                "patanai": "Sari dunya"
+            }
+
+            // return
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Responmse fo cancel plan is", response.data);
+                if (response.data.status === true) {
+                    console.log("Response of cancel plan is true");
+                    await getProfileDetails();
+                    setShowConfirmCancelPlanPopup(false);
+                    setGiftPopup(false);
+                    setTogglePlan(null);
+                    setCurrentPlan(null);
+                    setShowConfirmCancelPlanPopup2(true);
+                }
+            }
+
+        } catch (error) {
+            console.error("Eror occured in cancel plan api is", error);
+        } finally {
+            setCancelPlanLoader(false);
+        }
+    }
+
+    //function to call redeem api
+    const handleRedeemPlan = async () => {
+        try {
+            setRedeemLoader(true);
+
+            let AuthToken = null;
+
+            const localData = localStorage.getItem("User");
+            if (localData) {
+                const LocalDetails = JSON.parse(localData);
+                AuthToken = LocalDetails.token;
+            }
+
+            const ApiPath = Apis.redeemPlan;
+
+            const ApiData = {
+                "sub_Type": "0" //send 1 for already redeemed plan
+            }
+
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of redeem api is", response.data);
+                let response2 = await getProfileDetails();
+                console.log("Response if")
+                if (response2) {
+                    let togglePlan = response2?.data?.data?.plan?.type
+                    let planType = null;
+                    if (togglePlan === "Plan30") {
+                        planType = 1
+                    } else if (togglePlan === "Plan120") {
+                        planType = 2
+                    } else if (togglePlan === "Plan360") {
+                        planType = 3
+                    } else if (togglePlan === "Plan720") {
+                        planType = 4
+                    }
+                    setTogglePlan(planType);
+                    setCurrentPlan(planType);
+                }
+                setGiftPopup(false);
+
+            }
+
+        } catch (error) {
+            console.error("Error occurd in api is", error);
+        } finally {
+            setRedeemLoader(false);
         }
     }
 
@@ -484,6 +647,7 @@ function Billing() {
             {
                 plans.map((item, index) => (
                     <button key={item.id} className='w-9/12 mt-4 outline-none' onClick={(e) => handleTogglePlanClick(item)}>
+
                         <div className='px-4 py-1 pb-4'
                             style={{
                                 ...styles.pricingBox,
@@ -505,8 +669,31 @@ function Billing() {
                                     </div>
                                 </div>
                                 <div className='w-full'>
-                                    <div style={{ color: "#151515", fontSize: 20, fontWeight: "600" }}>
-                                        {item.mints}mins
+
+                                    {
+                                        item.id === currentPlan && (
+                                            <div className='-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white'
+                                                style={{ fontSize: 11.6, fontWeight: '500', width: "fit-content" }}
+                                            >
+                                                Current Plan
+                                            </div>
+                                        )
+                                    }
+
+                                    <div className='flex flex-row items-center gap-3'>
+                                        <div style={{ color: "#151515", fontSize: 20, fontWeight: "600" }}>
+                                            {item.mints}mins
+                                        </div>
+                                        {
+                                            item.status && (
+                                                <div className='flex px-2 py-1 bg-purple rounded-full text-white'
+                                                    style={{ fontSize: 11.6, fontWeight: '500' }}
+                                                >
+                                                    {item.status}
+                                                </div>
+                                            )
+                                        }
+
                                     </div>
                                     <div className='flex flex-row items-center justify-between'>
                                         <div className='mt-2' style={{ color: "#15151590", fontSize: 12, width: "60%", fontWeight: "600" }}>
@@ -602,8 +789,6 @@ function Billing() {
                 <div className='w-3/12'>
                     <div style={styles.text}>Date</div>
                 </div>
-
-
             </div>
 
             <div className='w-full'>
@@ -662,7 +847,7 @@ function Billing() {
                 // open={true}
                 closeAfterTransition
                 BackdropProps={{
-                    timeout: 1000,
+                    timeout: 100,
                     sx: {
                         backgroundColor: "#00000020",
                         // //backdropFilter: "blur(20px)",
@@ -699,12 +884,13 @@ function Billing() {
             </Modal>
 
 
+            {/* Modal for Gift popup */}
             <Modal
                 open={giftPopup}
                 // open={true}
                 closeAfterTransition
                 BackdropProps={{
-                    timeout: 1000,
+                    timeout: 100,
                     sx: {
                         backgroundColor: "#00000020",
                         // //backdropFilter: "blur(20px)",
@@ -712,17 +898,20 @@ function Billing() {
                 }}
             >
                 <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
-                    <div className="flex flex-row justify-center w-full">
+                    <div className="flex flex-row justify-center w-full h-[100%]">
                         <div
-                            className="sm:w-7/12 w-full"
+                            className="sm:w-7/12 w-full h-[70%]"
                             style={{
                                 backgroundColor: "#ffffff",
                                 padding: 20,
                                 borderRadius: "13px",
+                                paddingBottom: "100px"
                             }}
                         >
                             <div className='flex flex-row justify-end'>
-                                <button onClick={() => setGiftPopup(false)}>
+                                <button
+                                    className='outline-none'
+                                    onClick={() => setGiftPopup(false)}>
                                     <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
                                 </button>
                             </div>
@@ -737,7 +926,7 @@ function Billing() {
                                 {`Here’s a Gift`}
                             </div>
 
-                            <div className='flex flex-row items-center justify-center w-full'>
+                            <div className='flex flex-row items-center justify-center w-full mt-6'>
                                 <div
                                     className='text-center'
                                     style={{
@@ -750,6 +939,230 @@ function Billing() {
                                     {`Don’t Hang Up Yet! Get 30 Minutes of Free Talk Time and Stay Connected!`}
                                 </div>
                             </div>
+
+                            <div className='flex flex-col items-center px-4 w-full'>
+                                <div className='flex flex-row items-center gap-2 text-purple mt-6 bg-[#402FFF10] py-2 px-4 rounded-full' style={styles.gitTextStyle}>
+                                    <Image src={"/assets/gift.png"} height={22} width={22} alt='*' />
+                                    Enjoy your next calls on us
+                                </div>
+                                <div className='w-full flex flex-row justify-center mt-8'>
+                                    <Image className='' src={"/assets/30.svg"} height={350} width={280} alt='*' />
+                                </div>
+                                {
+                                    redeemLoader ? (
+                                        <div
+                                            className='h-[50px] w-full flex flex-row items-center justify-center'
+                                        >
+                                            <CircularProgress size={30} />
+                                        </div>
+                                    ) : (
+                                        <button
+                                            className='rounded-lg text-white bg-purple outline-none'
+                                            style={{ fontWeight: "700", fontSize: "16", height: "50px", width: "340px" }}
+                                            onClick={handleRedeemPlan}
+                                        >
+                                            Claim my 30 minutes
+                                        </button>
+                                    )
+                                }
+                                <button
+                                    className='outline-none mt-6'
+                                    style={{
+                                        fontWeight: "600",
+                                        fontSize: 16.8
+                                    }}
+                                    onClick={() => { setShowConfirmCancelPlanPopup(true) }}
+                                >
+                                    {`No thank you, I’d like to cancel my Agentx`}
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+
+            {/* Modal for cancel plan confirmation */}
+            <Modal
+                open={showConfirmCancelPlanPopup} //addPaymentPopUp
+                // open={true}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 100,
+                    sx: {
+                        backgroundColor: "#00000030",
+                        // //backdropFilter: "blur(20px)",
+                    },
+                }}
+            >
+                <Box className="md:8/12 lg:w-6/12 sm:w-11/12 w-full" sx={styles.paymentModal}>
+                    <div className="flex flex-row justify-center w-full">
+                        <div
+                            className="sm:w-7/12 w-full"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                                height: "394px"
+                            }}
+                        >
+                            <div className='flex flex-row justify-end'>
+                                <button onClick={() => setShowConfirmCancelPlanPopup(false)}>
+                                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                </button>
+                            </div>
+                            <div
+                                className='text-center mt-8'
+                                style={{
+                                    fontWeight: "600",
+                                    fontSize: 22,
+                                }}
+                            >
+                                Are you sure ?
+                            </div>
+
+                            <div className='flex flex-row items-center justify-center w-full mt-6'>
+                                <div
+                                    className='text-center'
+                                    style={{
+                                        fontWeight: "500",
+                                        fontSize: 15,
+                                        width: "70%",
+                                        alignSelf: "center"
+                                    }}
+                                >
+                                    Canceling your AgentX means you lose access to your agents, leads, pipeline, staff and more.
+                                </div>
+                            </div>
+
+                            <button
+                                className='w-full flex flex-row items-center h-[50px] rounded-lg bg-purple text-white justify-center mt-10'
+                                style={{
+                                    fontWeight: "600",
+                                    fontSize: 16.8,
+                                    outline: "none"
+                                }}
+                            >
+                                Never mind, keep my AgentX
+                            </button>
+
+
+                            {
+                                cancelPlanLoader ?
+                                    <div className='w-full flex flex-row items-center justify-center mt-8'>
+                                        <CircularProgress size={30} />
+                                    </div> : (
+                                        <button
+                                            className='w-full flex flex-row items-center rounded-lg justify-center mt-8'
+                                            style={{
+                                                fontWeight: "600",
+                                                fontSize: 16.8,
+                                                outline: "none"
+                                            }}
+                                            onClick={handleCancelPlan}
+                                            // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
+                                        >
+                                            Yes. Cancel
+                                        </button>
+                                    )
+                            }
+
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+
+            {/* del pln last step */}
+            <Modal
+                open={showConfirmCancelPlanPopup2} //addPaymentPopUp
+                // open={true}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 100,
+                    sx: {
+                        backgroundColor: "#00000030",
+                        // //backdropFilter: "blur(20px)",
+                    },
+                }}
+            >
+                <Box className="md:10/12 lg:w-8/12 sm:w-11/12 w-full" sx={styles.paymentModal}>
+                    <div className="flex flex-row justify-center w-full">
+                        <div
+                            className="sm:w-7/12 w-full"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                                // height: "394px"
+                            }}
+                        >
+                            <div className='flex flex-row justify-end'>
+                                <button onClick={() => setShowConfirmCancelPlanPopup2(false)}>
+                                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                                </button>
+                            </div>
+
+                            <div
+                                style={{
+                                    fontWeight: "600",
+                                    fontSize: 22,
+                                    textAlign: "center"
+                                }}>
+                                AgentX Successfully Canceled
+                            </div>
+
+                            <div
+                                style={{
+                                    fontWeight: "500",
+                                    fontSize: 15,
+                                }}
+                            >
+                                {`Tell us why you’re canceling to better improve our platform for you.`}
+                            </div>
+
+                            <div className='mt-9'>
+                                {
+                                    cancelPlanReasons.map((item, index) => (
+                                        <div
+                                            key={index}
+                                            style={{
+                                                fontWeight: "500",
+                                                fontSize: 15,
+                                                textAlign: "center",
+                                                marginTop: 6
+                                            }}
+                                        >
+                                            {item.reason}
+                                        </div>
+                                    ))
+                                }
+                            </div>
+
+                            <div
+                                className='w-full flex flex-row items-center justify-center mt-1'
+                            >
+                                <button
+                                    style={{
+                                        textAlign: "center"
+                                    }}
+                                >
+                                    Other (type in)
+                                </button>
+                            </div>
+
+                            <button
+                                className='w-full flex flex-row items-center h-[50px] rounded-lg bg-purple text-white justify-center mt-10'
+                                style={{
+                                    fontWeight: "600",
+                                    fontSize: 16.8,
+                                    outline: "none"
+                                }}
+                                onClick={() => {
+                                    setShowConfirmCancelPlanPopup2(false);
+                                }}
+                            >
+                                Continue
+                            </button>
 
                         </div>
                     </div>
@@ -854,10 +1267,18 @@ const styles = {
         // p: 2,
         mx: "auto",
         my: "50vh",
-        transform: "translateY(-55%)",
+        transform: "translateY(-50%)",
         borderRadius: 2,
         border: "none",
         outline: "none",
+    },
+    headingStyle: {
+        fontSize: 16,
+        fontWeight: "700"
+    },
+    gitTextStyle: {
+        fontSize: 15,
+        fontWeight: "700"
     },
 
     //style for plans

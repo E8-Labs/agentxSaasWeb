@@ -608,7 +608,7 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
                 // onClose={() => setAddSellerKyc(false)}
                 closeAfterTransition
                 BackdropProps={{
-                    timeout: 1000,
+                    timeout: 100,
                     sx: {
                         backgroundColor: "#00000020",
                         //backdropFilter: "blur(20px)",
@@ -912,7 +912,7 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
                 // onClose={() => setAddBuyerKyc(false)}
                 closeAfterTransition
                 BackdropProps={{
-                    timeout: 1000,
+                    timeout: 100,
                     sx: {
                         backgroundColor: "#00000020",
                         //backdropFilter: "blur(20px)",

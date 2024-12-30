@@ -464,7 +464,7 @@ function SheduledCalls() {
                 onClose={() => setShowDetailsModal(false)}
                 closeAfterTransition
                 BackdropProps={{
-                    timeout: 1000,
+                    timeout: 100,
                     sx: {
                         backgroundColor: "#00000020",
                         // //backdropFilter: "blur(20px)",
@@ -612,7 +612,7 @@ function SheduledCalls() {
                 onClose={() => setShowLeadDetailsModal(false)}
                 closeAfterTransition
                 BackdropProps={{
-                    timeout: 1000,
+                    timeout: 100,
                     sx: {
                         backgroundColor: "#00000020",
                         // //backdropFilter: "blur(20px)",
