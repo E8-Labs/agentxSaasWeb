@@ -2,16 +2,68 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { Link } from '@mui/material';
+import { Alert, Box, CircularProgress, Fade, Link, Modal, Snackbar } from '@mui/material';
+import getProfileDetails from '@/components/apis/GetProfile';
+import Apis from '@/components/apis/Apis';
+import axios from 'axios';
 
 const ProfileNav = () => {
 
   const router = useRouter();
   const pathname = usePathname();
 
+  const [showPlansPopup, setShowPlansPopup] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
+  const [subscribePlanLoader, setSubscribePlanLoader] = useState(false);
+
+  const [togglePlan, setTogglePlan] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+
+  //snack messages variables
+  const [successSnack, setSuccessSnack] = useState(null);
+  const [errorSnack, setErrorSnack] = useState(null);
+
+  const plans = [
+    {
+      id: 1,
+      mints: 30,
+      calls: 25,
+      details: "Perfect for getting started! Free for the first 30 mins then $45 to continue.",
+      originalPrice: "45",
+      discountPrice: "0",
+      planStatus: "Free"
+    },
+    {
+      id: 2,
+      mints: 120,
+      calls: "1k",
+      details: "Perfect for neighborhood updates and engagement.",
+      originalPrice: "165",
+      discountPrice: "99",
+      planStatus: "40%"
+    },
+    {
+      id: 3,
+      mints: 360,
+      calls: "3k",
+      details: "Great for 2-3 listing appointments in your territory.",
+      originalPrice: "540",
+      discountPrice: "370",
+      planStatus: "50%"
+    },
+    {
+      id: 4,
+      mints: 720,
+      calls: "10k",
+      details: "Great for teams and reaching new GCI goals. ",
+      originalPrice: "1200",
+      discountPrice: "480",
+      planStatus: "60%"
+    },
+  ]
 
   useEffect(() => {
+    getProfile();
     const data = localStorage.getItem("User");
     if (data) {
       const LocalData = JSON.parse(data);
@@ -73,9 +125,173 @@ const ProfileNav = () => {
     // },
   ]
 
+  //function to getprofile
+  const getProfile = async () => {
+    try {
+
+      let response = await getProfileDetails();
+
+      console.log("Data recieved from get profile api", response);
+
+      if (response) {
+        if (response?.data?.data?.plan.status === "cancelled") {
+          setShowPlansPopup(true);
+        }
+      }
+
+    } catch (error) {
+      console.error("Error occured in api is error", error);
+    }
+  }
+
   const handleOnClick = (e, href) => {
+
+    if (!userDetails.user.plan) {
+      getProfile();
+    }
+
     e.preventDefault();
     router.push(href);
+  }
+
+
+  //function to subsscribe plan
+
+
+  //function to select plan
+  const handleTogglePlanClick = (item) => {
+    setTogglePlan(item.id);
+    setSelectedPlan(prevId => (prevId === item ? null : item));
+  }
+
+  const handleSubscribePlan = async () => {
+    try {
+
+      let planType = null;
+
+      // console.log("Selected plan is:", togglePlan);
+
+      if (togglePlan === 1) {
+        planType = "Plan30"
+      } else if (togglePlan === 2) {
+        planType = "Plan120"
+      } else if (togglePlan === 3) {
+        planType = "Plan360"
+      } else if (togglePlan === 4) {
+        planType = "Plan720"
+      }
+
+      console.log("Current plan is", planType)
+
+      setSubscribePlanLoader(true);
+      let AuthToken = null;
+      let localDetails = null
+      const localData = localStorage.getItem("User");
+      if (localData) {
+        const LocalDetails = JSON.parse(localData);
+        localDetails = LocalDetails
+        AuthToken = LocalDetails.token;
+      }
+
+      console.log("Authtoken is", AuthToken);
+
+      const ApiData = {
+        plan: planType
+      }
+
+      console.log("Api data is", ApiData);
+
+      const ApiPath = Apis.subscribePlan;
+      console.log("Apipath is", ApiPath);
+
+      // return
+
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          "Authorization": "Bearer " + AuthToken,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        console.log("Response of subscribe plan api is", response);
+        if (response.data.status === true) {
+          localDetails.user.plan = response.data.data
+          console.log("Data updated is", localDetails);
+          await getProfileDetails();
+          // localStorage.setItem("User", JSON.stringify(localDetails));
+          setSuccessSnack(response.data.message);
+          setShowPlansPopup(false);
+        } else if (response.data.status === false) {
+          setErrorSnack(response.data.message);
+        }
+      }
+
+    } catch (error) {
+      console.error("Error occured in api is:", error);
+    } finally {
+      setSubscribePlanLoader(false);
+    }
+  }
+
+
+  const styles = {
+    paymentModal: {
+      height: "auto",
+      bgcolor: "transparent",
+      // p: 2,
+      mx: "auto",
+      my: "50vh",
+      transform: "translateY(-50%)",
+      borderRadius: 2,
+      border: "none",
+      outline: "none",
+    },
+    cardStyles: {
+      fontSize: "14", fontWeight: "500", border: "1px solid #00000020"
+    },
+    pricingBox: {
+      position: 'relative',
+      // padding: '10px',
+      borderRadius: '10px',
+      // backgroundColor: '#f9f9ff',
+      display: 'inline-block',
+      width: '100%',
+    },
+    triangleLabel: {
+      position: 'absolute',
+      top: '0',
+      right: '0',
+      width: '0',
+      height: '0',
+      borderTop: '50px solid #7902DF', // Increased height again for more padding
+      borderLeft: '50px solid transparent',
+    },
+    labelText: {
+      position: 'absolute',
+      top: '10px', // Adjusted to keep the text centered within the larger triangle
+      right: '5px',
+      color: 'white',
+      fontSize: '10px',
+      fontWeight: 'bold',
+      transform: 'rotate(45deg)',
+    },
+    content: {
+      textAlign: 'left',
+      paddingTop: '10px',
+    },
+    originalPrice: {
+      textDecoration: 'line-through',
+      color: '#7902DF65',
+      fontSize: 18,
+      fontWeight: "600"
+    },
+    discountedPrice: {
+      color: '#000000',
+      fontWeight: 'bold',
+      fontSize: 18,
+      marginLeft: '10px',
+    },
   }
 
 
@@ -140,6 +356,184 @@ const ProfileNav = () => {
           </div>
         </button>
       </div>
+
+
+      <div>
+        <Modal
+          open={showPlansPopup}
+          // open={true}
+          closeAfterTransition
+          BackdropProps={{
+            timeout: 100,
+            sx: {
+              backgroundColor: "#00000020",
+              // //backdropFilter: "blur(20px)",
+            },
+          }}
+        >
+          <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
+            <div className="flex flex-row justify-center w-full">
+              <div
+                className="sm:w-7/12 w-full"
+                style={{
+                  backgroundColor: "#ffffff",
+                  padding: 20,
+                  borderRadius: "13px",
+                }}
+              >
+                <div className='flex flex-row justify-end'>
+                  <button onClick={() => setShowPlansPopup(false)}>
+                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                  </button>
+                </div>
+
+
+                {
+                  plans.map((item, index) => (
+                    <button key={item.id} className='w-full mt-4' onClick={(e) => handleTogglePlanClick(item)}>
+                      <div className='px-4 py-1 pb-4'
+                        style={{
+                          ...styles.pricingBox,
+                          border: item.id === togglePlan ? '2px solid #7902DF' : '1px solid #15151520',
+                          backgroundColor: item.id === togglePlan ? "#402FFF05" : ""
+                        }}>
+                        <div style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}></div>
+                        <span style={styles.labelText}>
+                          {item.planStatus}
+                        </span>
+                        <div className='flex flex-row items-start gap-3' style={styles.content}>
+                          <div className='mt-1'>
+                            <div>
+                              {
+                                item.id === togglePlan ?
+                                  <Image src={"/assets/checkMark.png"} height={24} width={24} alt='*' /> :
+                                  <Image src={"/assets/unCheck.png"} height={24} width={24} alt='*' />
+                              }
+                            </div>
+                          </div>
+                          <div className='w-full'>
+                            <div style={{ color: "#151515", fontSize: 20, fontWeight: "600" }}>
+                              {item.mints}mins | Approx {item.calls} Calls
+                            </div>
+                            <div className='flex flex-row items-center justify-between'>
+                              <div className='mt-2' style={{ color: "#15151590", fontSize: 12, width: "80%", fontWeight: "600" }}>
+                                {item.details}
+                              </div>
+                              <div className='flex flex-row items-center'>
+                                <div style={styles.originalPrice}>${item.originalPrice}</div>
+                                <div style={styles.discountedPrice}>${item.discountPrice}</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  ))
+                }
+
+                <div>
+                  {
+                    subscribePlanLoader ? (
+                      <div>
+                        <CircularProgress size={30} />
+                      </div>
+                    ) : (
+                      <div>
+                        <button
+                          disabled={!togglePlan}
+                          className='w-full flex flex-row items-center justify-center h-[50px] bg-purple rounded-lg text-white mt-6'
+                          style={{
+                            fontSize: 16.8, fontWeight: '600',
+                            backgroundColor: togglePlan ? "" : "#00000020",
+                            color: togglePlan ? "" : "#000000",
+                          }}
+                          onClick={handleSubscribePlan}
+                        >
+                          Subscribe Plan
+                        </button>
+                      </div>
+                    )
+                  }
+
+                </div>
+
+              </div>
+            </div>
+          </Box>
+        </Modal>
+      </div>
+
+      <div>
+        <Snackbar
+          open={errorSnack}
+          autoHideDuration={3000}
+          onClose={() => {
+            setErrorSnack(null);
+          }}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "center",
+          }}
+          TransitionComponent={Fade}
+          TransitionProps={{
+            direction: "center",
+          }}
+        >
+          <Alert
+            onClose={() => {
+              setErrorSnack(null);
+            }}
+            severity="error"
+            // className='bg-purple rounded-lg text-white'
+            sx={{
+              width: "auto",
+              fontWeight: "700",
+              fontFamily: "inter",
+              fontSize: "22",
+            }}
+          >
+            {errorSnack}
+          </Alert>
+        </Snackbar>
+      </div>
+
+      {/* Code for success snack */}
+      <div>
+        <Snackbar
+          open={successSnack}
+          autoHideDuration={3000}
+          onClose={() => {
+            setSuccessSnack(null);
+          }}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "center",
+          }}
+          TransitionComponent={Fade}
+          TransitionProps={{
+            direction: "center",
+          }}
+        >
+          <Alert
+            onClose={() => {
+              setSuccessSnack(null);
+            }}
+            severity="success"
+            // className='bg-purple rounded-lg text-white'
+            sx={{
+              width: "auto",
+              fontWeight: "700",
+              fontFamily: "inter",
+              fontSize: "22",
+            }}
+          >
+            {successSnack}
+          </Alert>
+        </Snackbar>
+      </div>
+
+
+
     </div >
   );
 }

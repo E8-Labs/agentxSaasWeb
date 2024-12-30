@@ -4,12 +4,14 @@ import Image from 'next/image';
 import axios from 'axios';
 import Apis from '@/components/apis/Apis';
 import { CircularProgress, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
-import { duration } from 'moment';
+import moment, { duration } from 'moment';
 import getProfileDetails from '@/components/apis/GetProfile';
 
 const Page = () => {
 
-    const [userDetails, setUserDetails] = useState(null)
+    const [userDetails, setUserDetails] = useState(null);
+
+    const [showPlansPopup, setShowPlansPopup] = useState(false);
 
     const [statsDetails, setStatsDetails] = useState(null);
     const [statsComparisonDetails, setStatsComparisonDetails] = useState(null);
@@ -36,7 +38,15 @@ const Page = () => {
     const getProfile = async () => {
         try {
 
-            await getProfileDetails();
+            let response = await getProfileDetails();
+
+            console.log("Data recieved from get profile api", response);
+
+            if (response) {
+                if (!response?.data?.data?.plan.status === "cancelled") {
+                    setShowPlansPopup(true);
+                }
+            }
 
         } catch (error) {
             console.error("Error occured in api is error", error);
@@ -118,6 +128,17 @@ const Page = () => {
         getDashboardData(event.target.value);
     };
 
+    //formating time
+    // utils/convertTime.js
+    function convertTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+
+        // Format minutes and seconds as "mins:ss"
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+
+
     const backgroundImage = {
         backgroundImage: 'url("/otherAssets/bg23.png")',
         backgroundSize: "cover",
@@ -144,7 +165,7 @@ const Page = () => {
                     </div>
 
                     {/* Title */}
-                    <h3 className="mt-4 text-lg font-medium">{title}</h3>
+                    <h3 className="mt-4 text-md font-medium">{title}</h3>
 
                     {/* Value */}
                     <p className="text-3xl font-bold mt-2">{value}</p>
@@ -305,11 +326,12 @@ const Page = () => {
                                                         <div style={{ fontSize: 15, fontWeight: '400', color: '#fff' }}>
                                                             Mins Balance
                                                         </div>
+
                                                         <div
                                                             // className='lg:text-3xl font-bold text-white'
                                                             style={{ fontSize: 40, fontWeight: '400', color: '#fff' }}
                                                         >
-                                                            {statsDetails?.totalDuration || "-"}
+                                                            {convertTime(userDetails?.totalSecondsAvailable)}
                                                         </div>
 
 
@@ -434,6 +456,13 @@ const Page = () => {
                                 </div>
                             </div>
                         </div>
+                        {/* {
+                            showPlansPopup && (
+                                <div className='h-screen w-full flex flex-row items-center justify-center'>
+                                    No plan
+                                </div>
+                            )
+                        } */}
                     </div>
             }
         </div>

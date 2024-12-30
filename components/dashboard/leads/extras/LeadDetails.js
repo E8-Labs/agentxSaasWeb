@@ -916,7 +916,9 @@ const LeadDetails = ({
                             renderValue={(selected) => {
                               if (!selected) {
                                 return (
-                                  <div style={{ color: "#aaa" }}>Select</div>
+                                  <div style={{ color: "#aaa" }}>
+                                    {stagesList?.length > 0 ? "Select" : "No Stage"}
+                                  </div>
                                 ); // Placeholder style
                               }
                               return selected;

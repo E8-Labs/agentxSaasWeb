@@ -142,6 +142,7 @@ function Billing() {
                 }
                 setTogglePlan(planType);
                 setCurrentPlan(planType);
+                setUserLocalData(response?.data?.data)
             }
         } catch (error) {
             console.error("Error in getprofile api is", error);
@@ -733,41 +734,47 @@ function Billing() {
                 </div>
             </div>
 
-            <div className='w-full'>
-                {
-                    subscribePlanLoader ? (
-                        <div
-                            className='w-9/12 mt-8 flex flex-row items-center justify-center h-[50px]'
-                        >
-                            <CircularProgress size={25} />
-                        </div>
-                    ) : (
-                        <button
-                            className='rounded-xl w-9/12 mt-8'
-                            disabled={togglePlan === currentPlan}
-                            style={{
-                                height: "50px", fontSize: 16,
-                                fontWeight: '700', flexShrink: 0,
-                                backgroundColor: togglePlan === currentPlan ? "#00000020" : "#7902DF",
-                                color: togglePlan === currentPlan ? "#000000" : "#ffffff"
-                            }}
-                            onClick={handleSubscribePlan}
-                        >
-                            Continue
-                        </button>
-                    )
-                }
-            </div>
-
             {
-                togglePlan === currentPlan && (
-                    <button
-                        className='text-black  outline-none rounded-xl w-9/12 mt-3'
-                        style={{ fontSize: 16, fontWeight: '700', height: "50px", textDecorationLine: 'underline', flexShrink: 0 }}
-                        onClick={() => { setGiftPopup(true) }}
-                    >
-                        Cancel AgentX
-                    </button>
+                userLocalData?.plan && (
+                    <div className='w-full'>
+                        <div className='w-full'>
+                            {
+                                subscribePlanLoader ? (
+                                    <div
+                                        className='w-9/12 mt-8 flex flex-row items-center justify-center h-[50px]'
+                                    >
+                                        <CircularProgress size={25} />
+                                    </div>
+                                ) : (
+                                    <button
+                                        className='rounded-xl w-9/12 mt-8'
+                                        disabled={togglePlan === currentPlan}
+                                        style={{
+                                            height: "50px", fontSize: 16,
+                                            fontWeight: '700', flexShrink: 0,
+                                            backgroundColor: togglePlan === currentPlan ? "#00000020" : "#7902DF",
+                                            color: togglePlan === currentPlan ? "#000000" : "#ffffff"
+                                        }}
+                                        onClick={handleSubscribePlan}
+                                    >
+                                        Continue
+                                    </button>
+                                )
+                            }
+                        </div>
+
+                        {
+                            togglePlan === currentPlan && (
+                                <button
+                                    className='text-black  outline-none rounded-xl w-9/12 mt-3'
+                                    style={{ fontSize: 16, fontWeight: '700', height: "50px", textDecorationLine: 'underline', flexShrink: 0 }}
+                                    onClick={() => { setGiftPopup(true) }}
+                                >
+                                    Cancel AgentX
+                                </button>
+                            )
+                        }
+                    </div>
                 )
             }
 
@@ -1060,7 +1067,7 @@ function Billing() {
                                                 outline: "none"
                                             }}
                                             onClick={handleCancelPlan}
-                                            // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
+                                        // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
                                         >
                                             Yes. Cancel
                                         </button>

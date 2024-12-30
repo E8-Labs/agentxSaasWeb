@@ -11,6 +11,9 @@ export default function DashboardLayout({ children }) {
                 <ProfileNav />
             </div>
             <div className="w-10/12">
+            <div>
+                {/* <NoPlanPopup /> */}
+            </div>
                 {children}
             </div>
         </div>

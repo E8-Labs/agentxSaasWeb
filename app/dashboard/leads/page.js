@@ -13,6 +13,8 @@ const Page = ({ params }) => {
 
     let CurrentComp = components[index];
 
+    const [showPlansPopup, setShowPlansPopup] = useState(false);
+
     useEffect(() => {
         getProfile()
     }, [])
@@ -31,8 +33,16 @@ const Page = ({ params }) => {
     //function to get user profile details
     const getProfile = async () => {
         try {
-            
-            await getProfileDetails();
+
+            let response = await getProfileDetails();
+
+            console.log("Data recieved from get profile api", response);
+
+            if (response) {
+                if (response?.data?.data?.plan.status === "cancelled") {
+                    setShowPlansPopup(true);
+                }
+            }
 
         } catch (error) {
             console.error("Error occured in api is error", error);
