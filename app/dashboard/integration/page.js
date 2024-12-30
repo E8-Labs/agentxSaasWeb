@@ -1,5 +1,6 @@
 import React from 'react'
 import Image from 'next/image'
+import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
 
 function Page() {
   return (
@@ -10,12 +11,9 @@ function Page() {
         <div style={{ fontSize: 24, fontWeight: '600' }}>
           Integration
         </div>
-        <button className='pr-10'>
-          <img src='/otherAssets/notificationIcon.png'
-            style={{ height: 24, width: 24 }}
-            alt='notificationIcon'
-          />
-        </button>
+        <div className="flex flex-col">
+          <NotficationsDrawer />
+        </div>
       </div>
 
       <div className='p-10 flex flex-col items-center w-7/12' style={{ alignSelf: 'flex-start' }}>

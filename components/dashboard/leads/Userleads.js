@@ -35,6 +35,7 @@ import parsePhoneNumberFromString from "libphonenumber-js";
 import InfiniteScroll from "react-infinite-scroll-component";
 import LeadDetails from "./extras/LeadDetails";
 import getProfileDetails from "@/components/apis/GetProfile";
+import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -514,9 +515,9 @@ const Userleads = ({
         if (response.data.status === true) {
           setSheetsList((prevSheetsList) =>
             prevSheetsList.filter((sheet) => sheet.id !== selectedSmartList.id)
-        );
-        setToggleClick([]);
-        handleClosePopup();
+          );
+          setToggleClick([]);
+          handleClosePopup();
         }
       }
     } catch (error) {
@@ -726,7 +727,7 @@ const Userleads = ({
               setHasMore(true);
             }
           }
-          else{
+          else {
             console.log("False api get leads resposne")
           }
         }
@@ -1459,14 +1460,9 @@ const Userleads = ({
         style={{ borderBottom: "1px solid #15151510" }}
       >
         <div className="flex fex-row items-center gap-6">
-          <button>
-            <Image
-              src={"/assets/notification.png"}
-              height={24}
-              width={24}
-              alt="*"
-            />
-          </button>
+          <div className="flex flex-col">
+            <NotficationsDrawer />
+          </div>
         </div>
       </div>
       <div className="w-[95%] pe-12 mt-6">

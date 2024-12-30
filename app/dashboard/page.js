@@ -6,6 +6,7 @@ import Apis from '@/components/apis/Apis';
 import { CircularProgress, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import moment, { duration } from 'moment';
 import getProfileDetails from '@/components/apis/GetProfile';
+import NotficationsDrawer from '@/components/notofications/NotficationsDrawer';
 
 const Page = () => {
 
@@ -206,6 +207,15 @@ const Page = () => {
                             {/* <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
                                 Good to have you back, <span className='text-[#00000090]'>{userDetails?.name}</span>
                             </div> */}
+                            <div
+                            style={{
+                                position: "absolute",
+                                top: 25,
+                                right: 100
+                            }}
+                            >
+                                <NotficationsDrawer />
+                            </div>
                             <div className='h-[95%] w-11/12 flex flex-row justify-center bg-white'>
                                 <div className='w-11/12 h-[100%]'>
                                     <div className='w-full flex flex-row items-center justify-between h-[30%]'>

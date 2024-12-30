@@ -77,21 +77,15 @@ function Page() {
                 <div style={{ fontSize: 24, fontWeight: '600' }}>
                     My Account
                 </div>
-                <button className='pr-10'
-                    onClick={() => {
-                        setShowNotificationDrawer(true)
-                    }}
-                >
-                    <img src='/otherAssets/notificationIcon.png'
-                        style={{ height: 24, width: 24 }}
-                        alt='notificationIcon'
-                    />
-                </button>
+
+                <div className="flex flex-col">
+                    <NotficationsDrawer />
+                </div>
 
             </div>
             <div className='w-12/12'>
 
-                <Drawer
+                {/* <Drawer
                     anchor="right"
                     sx={{
                         "& .MuiDrawer-paper": {
@@ -101,11 +95,9 @@ function Page() {
                     }}
                     open={showNotificationDrawer}
                     onClose={() => setShowNotificationDrawer(false)}
-                >
-                    <div className="flex flex-col w-full h-full">
-                        <NotficationsDrawer close = {()=>{setShowNotificationDrawer(false)}} />
-                    </div>
-                </Drawer>
+                > */}
+
+                {/* </Drawer> */}
             </div>
             <div className='w-full flex flex-row item-center pl-4'>
                 <div className='w-4/12 items-center flex flex-col pt-4 pr-2'>

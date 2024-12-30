@@ -36,6 +36,7 @@ import "@yaireo/tagify/dist/tagify.css";
 import parsePhoneNumberFromString from "libphonenumber-js";
 import moment from "moment";
 import LeadDetails from "../dashboard/leads/extras/LeadDetails";
+import NotficationsDrawer from "../notofications/NotficationsDrawer";
 // import "./TagsInput.css"; // Import the custom CSS
 // import TagsInput from '../dashboard/leads/TagsInput';
 
@@ -1343,14 +1344,9 @@ const Pipeline1 = () => {
                   />
                 </button>
               </div>
-              <button className="outline-none">
-                <Image
-                  src={"/assets/notification.png"}
-                  height={24}
-                  width={24}
-                  alt="n*"
-                />
-              </button>
+              <div className="flex flex-col">
+                <NotficationsDrawer />
+              </div>
             </div>
           </div>
         </div>
