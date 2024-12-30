@@ -187,7 +187,8 @@ const Page = ({ length = 6, onComplete }) => {
       const ApiPath = Apis.LogIn;
       const AipData = {
         phone: userPhoneNumber,
-        verificationCode: VerifyCode.join("")
+        verificationCode: VerifyCode.join(""),
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
       }
       console.log("Api data for login api is :", AipData);
 

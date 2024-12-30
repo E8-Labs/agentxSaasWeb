@@ -311,6 +311,7 @@ const SolarRepAgentSignUp = ({ handleContinue, handleWaitList, handleSolarAgentB
             formData.append("primaryClientType", clienttype);
             formData.append("login", false);
             formData.append("verificationCode", VerifyCode.join(""));
+            formData.append("timeZone", Intl.DateTimeFormat().resolvedOptions().timeZone);
 
 
             console.log("Data for user registeration is :-----");

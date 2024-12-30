@@ -269,6 +269,7 @@ const SalesDevAgent = ({ handleContinue, handleSalesAgentBack, length = 6, onCom
             formData.append("company", company);
             formData.append("login", false);
             formData.append("verificationCode", VerifyCode.join(""));
+            formData.append("timeZone", Intl.DateTimeFormat().resolvedOptions().timeZone);
 
 
             console.log("Data for user registeration is :-----");

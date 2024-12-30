@@ -280,6 +280,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
       formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
       formData.append("userType", formatAgentTypeTitle(agentTitle));
       formData.append("login", false);
+      formData.append("timeZone", Intl.DateTimeFormat().resolvedOptions().timeZone);
       formData.append("verificationCode", VerifyCode.join(""));
 
       console.log("Data for user registeration is :-----");

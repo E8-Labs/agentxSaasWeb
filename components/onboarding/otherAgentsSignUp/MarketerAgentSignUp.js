@@ -273,6 +273,7 @@ const MarketerAgentSignUp = ({ handleContinue, handleMarketerAgentBack, length =
             formData.append("company", company);
             formData.append("login", false);
             formData.append("verificationCode", VerifyCode.join(""));
+            formData.append("timeZone", Intl.DateTimeFormat().resolvedOptions().timeZone);
 
 
             console.log("Data for user registeration is :-----");

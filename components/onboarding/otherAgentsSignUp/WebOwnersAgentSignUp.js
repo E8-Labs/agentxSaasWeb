@@ -271,6 +271,7 @@ const WebOwnersAgentSignUp = ({ handleContinue, handleWebsiteAgentBack, length =
             formData.append("website", websiteUrl);
             formData.append("login", false);
             formData.append("verificationCode", VerifyCode.join(""));
+            formData.append("timeZone", Intl.DateTimeFormat().resolvedOptions().timeZone);
 
             console.log("Data for user registeration is :-----");
             for (let [key, value] of formData.entries()) {

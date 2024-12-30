@@ -1039,7 +1039,7 @@ const LeadDetails = ({
 
                     {/* Code for custom variables */}
 
-                    {columnsLength?.length > 0 && (
+                    {columnsLength?.length > 4 && (
                       <div className="mt-2 border rounded-xl p-2">
                         <button
                           onClick={() => {
@@ -1443,8 +1443,8 @@ const LeadDetails = ({
                                                       ?.defaultColor,
                                                 }}
                                               ></div>
-                                              {/* {selectedLeadsDetails?.stage?.stageTitle || "-"} */}
-                                              {checkCallStatus(item)}
+                                              {item.callOutcome || "-"}
+                                              {/* {checkCallStatus(item)} */}
                                               <div>
                                                 {isExpandedActivity.includes(
                                                   item.id

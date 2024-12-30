@@ -18,6 +18,10 @@ const Page = () => {
     const [initialLoader, setInitialLoader] = useState(false);
     const [isinItiallyLoaded, setIsInitiallyLoaded] = useState(false);
 
+    //variable for hover
+    const [aIWebinarhover, setAIWebinarhover] = useState(false);
+    const [consultHover, setConsulthover] = useState(false);
+
     //code for dropdown
     const [Duration, setDuration] = useState("24 hrs");
 
@@ -29,6 +33,9 @@ const Page = () => {
 
 
     useEffect(() => {
+        setInitialLoader(true);
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        console.log(`User's timezone: ${timezone}`);
         getDashboardData();
         getProfile();
     }, []);
@@ -60,9 +67,9 @@ const Page = () => {
 
             console.log("Status of initial load is", isinItiallyLoaded);
 
-            if (isinItiallyLoaded === false) {
-                setInitialLoader(true);
-            }
+            // if (isinItiallyLoaded === false) {
+            //     setInitialLoader(true);
+            // }
 
             const localData = localStorage.getItem("User");
             let AuthToken = null;
@@ -87,6 +94,8 @@ const Page = () => {
                 durationValue = 7
             } else if (duration === "Last 30Days") {
                 durationValue = 30
+            } else if (duration === "All time") {
+                durationValue = 365
             }
 
             console.log("details to show are:", durationValue);
@@ -124,6 +133,7 @@ const Page = () => {
 
     //function to handle the dropdown
     const handleChange = (event) => {
+        event.preventDefault();
         setDuration(event.target.value);
         getDashboardData(event.target.value);
     };
@@ -418,14 +428,33 @@ const Page = () => {
                                         </div>
 
                                         <div className='w-full flex flex-row items-center justify-between mt-4'>
-                                            <div className='w-6/12 hover:bg-purple hover:text-white bg-white rounded p-4'>
+                                            <div
+                                                className='w-6/12 hover:bg-purple hover:text-white bg-white rounded p-4'
+                                                style={{
+                                                    cursor: "pointer"
+                                                }}
+                                                onMouseEnter={() => { setAIWebinarhover(true) }}
+                                                onMouseLeave={() => { setAIWebinarhover(false) }}
+                                            >
                                                 <div className='flex flex-row gap-2'>
-                                                    <Image src={'/svgIcons/calenderIcon.svg'}
-                                                        alt='calender'
-                                                        height={24}
-                                                        width={24}
-                                                    />
-                                                    <div style={{ fontSize: 16, fontWeight: '500', color: '#402FFF' }}>
+
+                                                    {
+                                                        aIWebinarhover ? (
+                                                            <Image src={'/assets/whiteCalenderIcon.svg'}
+                                                                alt='calender'
+                                                                height={24}
+                                                                width={24}
+                                                            />
+                                                        ) : (
+                                                            <Image src={'/svgIcons/calenderIcon.svg'}
+                                                                alt='calender'
+                                                                height={24}
+                                                                width={24}
+                                                            />
+                                                        )
+                                                    }
+
+                                                    <div style={{ fontSize: 16, fontWeight: '600', color: aIWebinarhover ? "white" : '#7902DF' }}>
                                                         Join our weekly AI Webinar
                                                     </div>
 
@@ -435,14 +464,26 @@ const Page = () => {
                                                 </div>
                                             </div>
 
-                                            <div className='w-6/12 hover:bg-purple hover:text-white bg-white rounded p-4'>
+                                            <div
+                                                className='w-6/12 hover:bg-purple hover:text-white bg-white rounded p-4'
+                                                onMouseEnter={() => { setConsulthover(true) }}
+                                                onMouseLeave={() => { setConsulthover(false) }}
+                                            >
                                                 <div className='flex flex-row gap-2'>
-                                                    <Image src={'/svgIcons/screenIcon.svg'}
-                                                        alt='calender'
-                                                        height={24}
-                                                        width={24}
-                                                    />
-                                                    <div style={{ fontSize: 16, fontWeight: '500' }}>
+                                                    {
+                                                        consultHover ?
+                                                            <Image src={'/svgIcons/screenIcon.svg'}
+                                                                alt='calender'
+                                                                height={24}
+                                                                width={24}
+                                                            /> :
+                                                            <Image src={'/assets/blueScreenIcon.svg'}
+                                                                alt='calender'
+                                                                height={24}
+                                                                width={24}
+                                                            />
+                                                    }
+                                                    <div style={{ fontSize: 16, fontWeight: '600', color: consultHover ? "white" : "#7902DF" }}>
                                                         Schedule a one on one consultation
                                                     </div>
 
