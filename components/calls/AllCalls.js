@@ -19,6 +19,7 @@ import "react-calendar/dist/Calendar.css";
 import parsePhoneNumberFromString from "libphonenumber-js";
 import InfiniteScroll from "react-infinite-scroll-component";
 import LeadDetails from "../dashboard/leads/extras/LeadDetails";
+import { convertUTCToTimezone } from "@/utilities/utility";
 
 function AllCalls() {
   const [searchValue, setSearchValue] = useState("");
@@ -599,12 +600,16 @@ function AllCalls() {
                     </div>
                     <div className="w-1/12">
                       <div style={styles.text2}>
-                        {moment(item.LeadModel?.createdAt).format("MM/DD/YYYY")}
+                        {moment(
+                          convertUTCToTimezone(item.createdAt || "")
+                        ).format("MM/DD/YYYY")}
                       </div>
                     </div>
                     <div className="w-1/12">
                       <div style={styles.text2}>
-                        {moment(item.LeadModel?.createdAt).format("HH:mm:ss A")}
+                        {moment(
+                          convertUTCToTimezone(item.createdAt || "")
+                        ).format("HH:mm:ss A")}
                       </div>
                     </div>
                     <div className="w-1/12">

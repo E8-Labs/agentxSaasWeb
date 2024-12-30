@@ -1,27 +1,32 @@
-import Body from '@/components/onboarding/Body';
-import Header from '@/components/onboarding/Header';
-import Image from 'next/image';
-import React, { useEffect, useRef, useState } from 'react';
-import ProgressBar from '@/components/onboarding/ProgressBar';
-import { useRouter } from 'next/navigation';
-import Footer from '@/components/onboarding/Footer';
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
-import { parsePhoneNumberFromString } from 'libphonenumber-js';
-import Apis from '../apis/Apis';
-import axios from 'axios';
-import { Alert, Box, CircularProgress, Fade, Modal, Snackbar } from '@mui/material';
-import VerificationCodeInput from '../test/VerificationCodeInput';
-import SendVerificationCode from './services/AuthVerification/AuthService';
-import SnackMessages from './services/AuthVerification/SnackMessages';
+import Body from "@/components/onboarding/Body";
+import Header from "@/components/onboarding/Header";
+import Image from "next/image";
+import React, { useEffect, useRef, useState } from "react";
+import ProgressBar from "@/components/onboarding/ProgressBar";
+import { useRouter } from "next/navigation";
+import Footer from "@/components/onboarding/Footer";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
+import Apis from "../apis/Apis";
+import axios from "axios";
+import {
+  Alert,
+  Box,
+  CircularProgress,
+  Fade,
+  Modal,
+  Snackbar,
+} from "@mui/material";
+import VerificationCodeInput from "../test/VerificationCodeInput";
+import SendVerificationCode from "./services/AuthVerification/AuthService";
+import SnackMessages from "./services/AuthVerification/SnackMessages";
 
 const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
-
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
 
   let inputsFields = useRef([]);
-
 
   const router = useRouter();
   const [userName, setUserName] = useState("");
@@ -36,14 +41,15 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
   const [userTransaction, setUserTransaction] = useState("");
   //phone number input variable
   const [userPhoneNumber, setUserPhoneNumber] = useState("");
-  const [countryCode, setCountryCode] = useState('');
+  const [countryCode, setCountryCode] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const [sendcodeLoader, setSendcodeLoader] = useState(false);
   const [userData, setUserData] = useState(null);
-  const [phoneVerifiedSuccessSnack, setPhoneVerifiedSuccessSnack] = useState(false);
+  const [phoneVerifiedSuccessSnack, setPhoneVerifiedSuccessSnack] =
+    useState(false);
   //verify code input fields
-  const [VerifyCode, setVerifyCode] = useState(Array(length).fill(''));
+  const [VerifyCode, setVerifyCode] = useState(Array(length).fill(""));
   //check email availability
   const [emailLoader, setEmailLoader] = useState(false);
   const [emailCheckResponse, setEmailCheckResponse] = useState(null);
@@ -67,15 +73,40 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
 
   // Function to get the user's location and set the country code
   useEffect(() => {
-    if (userName && userEmail && userPhoneNumber && userFarm && userBrokage &&
-      userTransaction && emailCheckResponse?.status === true && checkPhoneResponse?.status === true) {
+    if (
+      userName &&
+      userEmail &&
+      userPhoneNumber &&
+      userFarm &&
+      userBrokage &&
+      userTransaction &&
+      emailCheckResponse?.status === true &&
+      checkPhoneResponse?.status === true
+    ) {
       setShouldContinue(false);
-    } else if (!userName || !userEmail || !userPhoneNumber ||
-      !userFarm || !userBrokage || !userTransaction ||
-      userTransaction || checkPhoneResponse?.status === false || emailCheckResponse?.status === false) {
+    } else if (
+      !userName ||
+      !userEmail ||
+      !userPhoneNumber ||
+      !userFarm ||
+      !userBrokage ||
+      !userTransaction ||
+      userTransaction ||
+      checkPhoneResponse?.status === false ||
+      emailCheckResponse?.status === false
+    ) {
       setShouldContinue(true);
     }
-  }, [userName, userEmail, userPhoneNumber, userFarm, userBrokage, userTransaction, checkPhoneResponse, emailCheckResponse]);
+  }, [
+    userName,
+    userEmail,
+    userPhoneNumber,
+    userFarm,
+    userBrokage,
+    userTransaction,
+    checkPhoneResponse,
+    emailCheckResponse,
+  ]);
 
   //code to focus the verify code input field
   useEffect(() => {
@@ -92,13 +123,12 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
     if (!phone) {
       setErrorMessage("");
     }
-
   };
 
   //code to get user location
 
   const getLocation = () => {
-    console.log("getlocation trigered")
+    console.log("getlocation trigered");
     const registerationDetails = localStorage.getItem("registerDetails");
     // let registerationData = null;
     setLocationLoader(true);
@@ -116,7 +146,9 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
           const { latitude, longitude } = position.coords;
 
           // Fetch country code based on lat and long
-          const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+          const response = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+          );
           const data = await response.json();
 
           // Set the country code based on the geolocation API response
@@ -132,29 +164,32 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
     };
 
     fetchCountry();
-  }
+  };
 
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
     // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
     // parsePhoneNumberFromString(`+${phone}`, countryCode.toUpperCase())
-    const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`, countryCode.toUpperCase());
+    const parsedNumber = parsePhoneNumberFromString(
+      `+${phoneNumber}`,
+      countryCode.toUpperCase()
+    );
     // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
-      setErrorMessage('Invalid number');
+      setErrorMessage("Invalid number");
     } else {
-      setErrorMessage('');
+      setErrorMessage("");
 
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
 
       // setCheckPhoneResponse(null);
-      console.log("Trigered")
+      console.log("Trigered");
 
       timerRef.current = setTimeout(() => {
         checkPhoneNumber(phoneNumber);
-        console.log('I am hit now');
+        console.log("I am hit now");
       }, 300);
     }
   };
@@ -179,8 +214,8 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
     try {
       setSendcodeLoader(true);
       let response = await SendVerificationCode(userPhoneNumber, true);
-      setResponse(response)
-      setIsVisible(true)
+      setResponse(response);
+      setIsVisible(true);
       console.log("Response recieved is", response);
     } catch (error) {
       console.error("Error occured", error);
@@ -197,16 +232,15 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
     }, 100); // Adjust the delay as needed, 0 should be enough
   };
 
-
   const handleClose = () => {
     setShowVerifyPopup(false);
-  }
+  };
 
   //code for handling verify code changes
 
   const handleVerifyInputChange = (e, index) => {
     const { value } = e.target;
-    if (!/[0-9]/.test(value) && value !== '') return; // Allow only numeric input
+    if (!/[0-9]/.test(value) && value !== "") return; // Allow only numeric input
 
     const newValues = [...VerifyCode];
     newValues[index] = value;
@@ -218,25 +252,27 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
     }
 
     // Trigger onComplete callback if all fields are filled
-    if (newValues.every((num) => num !== '') && onComplete) {
-      onComplete(newValues.join('')); // Convert array to a single string here
+    if (newValues.every((num) => num !== "") && onComplete) {
+      onComplete(newValues.join("")); // Convert array to a single string here
     }
   };
 
   const handleBackspace = (e, index) => {
-    if (e.key === 'Backspace') {
-      if (VerifyCode[index] === '' && index > 0) {
+    if (e.key === "Backspace") {
+      if (VerifyCode[index] === "" && index > 0) {
         verifyInputRef.current[index - 1].focus();
       }
       const newValues = [...VerifyCode];
-      newValues[index] = '';
+      newValues[index] = "";
       setVerifyCode(newValues);
     }
   };
 
   const handlePaste = (e) => {
-    const pastedText = e.clipboardData.getData('text').slice(0, length);
-    const newValues = pastedText.split('').map((char) => (/[0-9]/.test(char) ? char : ''));
+    const pastedText = e.clipboardData.getData("text").slice(0, length);
+    const newValues = pastedText
+      .split("")
+      .map((char) => (/[0-9]/.test(char) ? char : ""));
     setVerifyCode(newValues);
 
     // Set each input's value and move focus to the last filled input
@@ -247,8 +283,8 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
       }
     });
 
-    if (newValues.every((num) => num !== '') && onComplete) {
-      onComplete(newValues.join(''));
+    if (newValues.every((num) => num !== "") && onComplete) {
+      onComplete(newValues.join(""));
     }
   };
 
@@ -257,7 +293,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
     console.log("Verify code is :", VerifyCode.join(""));
     setPhoneVerifiedSuccessSnack(true);
     handleRegister();
-  }
+  };
 
   //code for registering user
   const handleRegister = async () => {
@@ -280,7 +316,10 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
       formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
       formData.append("userType", formatAgentTypeTitle(agentTitle));
       formData.append("login", false);
-      formData.append("timeZone", Intl.DateTimeFormat().resolvedOptions().timeZone);
+      formData.append(
+        "timeZone",
+        Intl.DateTimeFormat().resolvedOptions().timeZone
+      );
       formData.append("verificationCode", VerifyCode.join(""));
 
       console.log("Data for user registeration is :-----");
@@ -288,11 +327,11 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
         console.log(`${key}: ${value}`);
       }
 
-      // return
+      // return;
       const response = await axios.post(ApiPath, formData);
       if (response) {
         console.log("Response of register api is:--", response);
-        let result = response.data
+        let result = response.data;
         setResponse(result);
         setIsVisible(true);
         if (response.data.status === true) {
@@ -324,16 +363,14 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
             console.log("This is a large size screen");
             handleContinue();
           }
-
         }
       }
-
     } catch (error) {
       console.error("Error occured in register api is: ", error);
     } finally {
       setRegisterLoader(false);
     }
-  }
+  };
 
   //format the title
   const formatAgentTypeTitle = (title) => {
@@ -369,15 +406,15 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
       const ApiPath = Apis.CheckEmail;
 
       const ApiData = {
-        email: value
-      }
+        email: value,
+      };
 
       console.log("Api data is :", ApiData);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
@@ -389,13 +426,12 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
           setEmailCheckResponse(response.data);
         }
       }
-
     } catch (error) {
       console.error("Error occured in check email api is :", error);
     } finally {
       setEmailLoader(false);
     }
-  }
+  };
 
   const checkPhoneNumber = async (value) => {
     try {
@@ -403,15 +439,15 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
       const ApiPath = Apis.CheckPhone;
 
       const ApiData = {
-        phone: value
-      }
+        phone: value,
+      };
 
       console.log("Api data is :", ApiData);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
@@ -423,26 +459,27 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
           setCheckPhoneResponse(response.data);
         }
       }
-
     } catch (error) {
       console.error("Error occured in check phone api is :", error);
     } finally {
       setPhoneNumberLoader(false);
     }
-  }
+  };
 
   const styles = {
     headingStyle: {
       fontSize: 16,
-      fontWeight: "600"
+      fontWeight: "600",
     },
     inputStyle: {
       fontSize: 15,
-      fontWeight: "500", borderRadius: "7px"
+      fontWeight: "500",
+      borderRadius: "7px",
     },
     errmsg: {
       fontSize: 12,
-      fontWeight: "500", borderRadius: "7px"
+      fontWeight: "500",
+      borderRadius: "7px",
     },
     verifyPopup: {
       height: "auto",
@@ -455,42 +492,49 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
       border: "none",
       outline: "none",
     },
-  }
+  };
 
   return (
-    <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-      <div className='bg-white rounded-2xl mx-2 w-full md:w-10/12 max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
-        <div className='h-[82svh]'>
+    <div
+      style={{ width: "100%" }}
+      className="overflow-y-hidden flex flex-row justify-center items-center"
+    >
+      <div className="bg-white rounded-2xl mx-2 w-full md:w-10/12 max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+        <div className="h-[82svh]">
           {/* header */}
-          <div className='h-[10%]'>
+          <div className="h-[10%]">
             <Header />
           </div>
           {/* Body */}
-          <div className='flex flex-col items-center px-4 w-full h-[90%]'>
-            <div className='mt-6 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }} onClick={handleContinue}>
+          <div className="flex flex-col items-center px-4 w-full h-[90%]">
+            <div
+              className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
+              style={{ textAlign: "center" }}
+              onClick={handleContinue}
+            >
               Your Contact Information
             </div>
-            <div className='mt-4 sm:mt-8 w-full md:w-10/12 lg:w-6/12 flex flex-col max-h-[90%] sm:max-h-[85%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2' style={{ scrollbarWidth: "none" }}>
-
-              <div style={styles.headingStyle}>
-                {`What's your full name`}
-              </div>
+            <div
+              className="mt-4 sm:mt-8 w-full md:w-10/12 lg:w-6/12 flex flex-col max-h-[90%] sm:max-h-[85%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2"
+              style={{ scrollbarWidth: "none" }}
+            >
+              <div style={styles.headingStyle}>{`What's your full name`}</div>
               <input
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
-                placeholder='Name'
-                className='border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0'
+                placeholder="Name"
+                className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
                 ref={(el) => (inputsFields.current[0] = el)}
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userName}
                 onChange={(e) => {
                   const input = e.target.value;
                   const formattedName = input
-                    .split(' ')
+                    .split(" ")
                     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ');
+                    .join(" ");
 
                   // const words = input.split(' ');
                   // const formattedName =
@@ -501,33 +545,44 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                   setUserName(formattedName);
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === 'Done') {
+                  if (e.key === "Enter" || e.key === "Done") {
                     inputsFields.current[1]?.focus(); // Move to the second input
                   }
                 }}
               />
 
-              <div className='flex flex-row items-center w-full justify-between mt-6'>
+              <div className="flex flex-row items-center w-full justify-between mt-6">
                 <div style={styles.headingStyle}>
                   {`What's your email address`}
                 </div>
                 <div>
-                  {
-                    emailLoader ?
-                      <p style={{ ...styles.errmsg, color: "black" }}>
-                        Checking email ...
-                      </p> :
-                      <div>
-                        {
-                          emailCheckResponse ?
-                            <p style={{ ...styles.errmsg, color: emailCheckResponse.status === true ? "green" : 'red' }}>
-                              {emailCheckResponse.message.slice(0, 1).toUpperCase() + emailCheckResponse.message.slice(1)}
-                            </p> :
-                            <div />
-                        }
-                      </div>
-                  }
-                  <div style={{ ...styles.errmsg, color: 'red' }}>
+                  {emailLoader ? (
+                    <p style={{ ...styles.errmsg, color: "black" }}>
+                      Checking email ...
+                    </p>
+                  ) : (
+                    <div>
+                      {emailCheckResponse ? (
+                        <p
+                          style={{
+                            ...styles.errmsg,
+                            color:
+                              emailCheckResponse.status === true
+                                ? "green"
+                                : "red",
+                          }}
+                        >
+                          {emailCheckResponse.message
+                            .slice(0, 1)
+                            .toUpperCase() +
+                            emailCheckResponse.message.slice(1)}
+                        </p>
+                      ) : (
+                        <div />
+                      )}
+                    </div>
+                  )}
+                  <div style={{ ...styles.errmsg, color: "red" }}>
                     {validEmail}
                   </div>
                 </div>
@@ -539,12 +594,11 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
-                placeholder='Email address'
-                className='border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0'
+                placeholder="Email address"
+                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userEmail}
                 onChange={(e) => {
-
                   let value = e.target.value;
                   setUserEmail(value);
 
@@ -565,16 +619,16 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                   setEmailCheckResponse(null);
 
                   if (!value) {
-                    console.log("Should set the value to null")
+                    console.log("Should set the value to null");
                     setValidEmail("");
-                    return
+                    return;
                   }
 
                   if (!validateEmail(value)) {
-                    console.log("Invalid email pattern")
+                    console.log("Invalid email pattern");
                     setValidEmail("Invalid email");
                   } else {
-                    console.log("No trigered")
+                    console.log("No trigered");
                     if (value) {
                       // Set a new timeout
                       timerRef.current = setTimeout(() => {
@@ -589,47 +643,75 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                 }}
                 onKeyDown={(e) => {
                   const timer = setTimeout(() => {
-                    if (e.key === 'Enter' || e.key === 'Done') {
+                    if (e.key === "Enter" || e.key === "Done") {
                       inputsFields.current[2]?.focus(); // Move to the second input
                     }
                   }, [300]);
-                  clearTimeout(timer)
+                  clearTimeout(timer);
                 }}
               />
 
-
-              <div className='flex flex-row items-center justify-between w-full mt-6'>
+              <div className="flex flex-row items-center justify-between w-full mt-6">
                 <div style={styles.headingStyle}>
                   {`What's your phone number`}
                 </div>
                 {/* Display error or success message */}
                 <div>
-                  {
-                    locationLoader && (<p className='text-purple' style={{ ...styles.errmsg, height: '20px' }}>Getting location ...</p>)
-                  }
-                  {
-                    errorMessage ?
-                      <p style={{ ...styles.errmsg, color: errorMessage && 'red', height: '20px' }}>
-                        {errorMessage}
-                      </p> :
-                      <div>
-                        {
-                          phoneNumberLoader ?
-                            <p style={{ ...styles.errmsg, color: "black", height: '20px' }}>
-                              Checking phone number ...
-                            </p> :
-                            <div>
-                              {
-                                checkPhoneResponse ?
-                                  <p style={{ ...styles.errmsg, color: checkPhoneResponse.status === true ? "green" : 'red', height: '20px' }}>
-                                    {checkPhoneResponse.message.slice(0, 1).toUpperCase() + checkPhoneResponse.message.slice(1)}
-                                  </p> :
-                                  <div />
-                              }
-                            </div>
-                        }
-                      </div>
-                  }
+                  {locationLoader && (
+                    <p
+                      className="text-purple"
+                      style={{ ...styles.errmsg, height: "20px" }}
+                    >
+                      Getting location ...
+                    </p>
+                  )}
+                  {errorMessage ? (
+                    <p
+                      style={{
+                        ...styles.errmsg,
+                        color: errorMessage && "red",
+                        height: "20px",
+                      }}
+                    >
+                      {errorMessage}
+                    </p>
+                  ) : (
+                    <div>
+                      {phoneNumberLoader ? (
+                        <p
+                          style={{
+                            ...styles.errmsg,
+                            color: "black",
+                            height: "20px",
+                          }}
+                        >
+                          Checking phone number ...
+                        </p>
+                      ) : (
+                        <div>
+                          {checkPhoneResponse ? (
+                            <p
+                              style={{
+                                ...styles.errmsg,
+                                color:
+                                  checkPhoneResponse.status === true
+                                    ? "green"
+                                    : "red",
+                                height: "20px",
+                              }}
+                            >
+                              {checkPhoneResponse.message
+                                .slice(0, 1)
+                                .toUpperCase() +
+                                checkPhoneResponse.message.slice(1)}
+                            </p>
+                          ) : (
+                            <div />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -641,41 +723,41 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                   value={userPhoneNumber}
                   onChange={handlePhoneNumberChange}
                   onFocus={getLocation}
-                  placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                  placeholder={
+                    locationLoader ? "Loading location ..." : "Enter Number"
+                  }
                   disabled={loading} // Disable input if still loading
                   style={{ borderRadius: "7px" }}
                   inputStyle={{
-                    width: '100%',
-                    borderWidth: '0px',
-                    backgroundColor: 'transparent',
-                    paddingLeft: '60px',
+                    width: "100%",
+                    borderWidth: "0px",
+                    backgroundColor: "transparent",
+                    paddingLeft: "60px",
                     paddingTop: "20px",
                     paddingBottom: "20px",
                   }}
                   buttonStyle={{
-                    border: 'none',
-                    backgroundColor: 'transparent',
+                    border: "none",
+                    backgroundColor: "transparent",
                     // display: 'flex',
                     // alignItems: 'center',
                     // justifyContent: 'center',
                   }}
                   dropdownStyle={{
-                    maxHeight: '150px',
-                    overflowY: 'auto'
+                    maxHeight: "150px",
+                    overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                  defaultMask={loading ? 'Loading...' : undefined}
-
+                  defaultMask={loading ? "Loading..." : undefined}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === 'Done') {
+                    if (e.key === "Enter" || e.key === "Done") {
                       inputsFields.current[3]?.focus(); // Move to the second input
                     }
                   }}
                 />
               </div>
 
-
-              <div style={styles.headingStyle} className='mt-6'>
+              <div style={styles.headingStyle} className="mt-6">
                 {`What’s your market territory`}
               </div>
               <input
@@ -684,19 +766,21 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
-                placeholder='Your territory'
-                className='border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0'
+                placeholder="Your territory"
+                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userFarm}
-                onChange={(e) => { setUserFarm(e.target.value) }}
+                onChange={(e) => {
+                  setUserFarm(e.target.value);
+                }}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === 'Done') {
+                  if (e.key === "Enter" || e.key === "Done") {
                     inputsFields.current[4]?.focus(); // Move to the second input
                   }
                 }}
               />
 
-              <div style={styles.headingStyle} className='mt-6'>
+              <div style={styles.headingStyle} className="mt-6">
                 Your brokerage
               </div>
               <input
@@ -705,19 +789,21 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
-                placeholder='Brokerage'
-                className='border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0'
+                placeholder="Brokerage"
+                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userBrokage}
-                onChange={(e) => { setUserBrokage(e.target.value) }}
+                onChange={(e) => {
+                  setUserBrokage(e.target.value);
+                }}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === 'Done') {
+                  if (e.key === "Enter" || e.key === "Done") {
                     inputsFields.current[5]?.focus(); // Move to the second input
                   }
                 }}
               />
 
-              <div style={styles.headingStyle} className='mt-6'>
+              <div style={styles.headingStyle} className="mt-6">
                 Average transaction volume per year
               </div>
               <input
@@ -726,11 +812,13 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
-                placeholder='Value'
-                className='border border-[#00000010] rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0'
+                placeholder="Value"
+                className="border border-[#00000010] rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userTransaction}
-                onChange={(e) => { setUserTransaction(e.target.value) }}
+                onChange={(e) => {
+                  setUserTransaction(e.target.value);
+                }}
               />
 
               {/* Modal for verify number */}
@@ -747,7 +835,10 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                   },
                 }}
               >
-                <Box className="lg:w-8/12 sm:w-full sm:w-10/12 w-full" sx={styles.verifyPopup}>
+                <Box
+                  className="lg:w-8/12 sm:w-full sm:w-10/12 w-full"
+                  sx={styles.verifyPopup}
+                >
                   <div className="flex flex-row justify-center w-full">
                     <div
                       className="sm:w-7/12 w-full mx-2"
@@ -757,22 +848,36 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                         borderRadius: "13px",
                       }}
                     >
-                      <div className='flex flex-row justify-end'>
+                      <div className="flex flex-row justify-end">
                         <button onClick={handleClose}>
-                          <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                          <Image
+                            src={"/assets/crossIcon.png"}
+                            height={40}
+                            width={40}
+                            alt="*"
+                          />
                         </button>
                       </div>
-                      <div style={{
-                        fontSize: 26,
-                        fontWeight: "700"
-                      }}>
+                      <div
+                        style={{
+                          fontSize: 26,
+                          fontWeight: "700",
+                        }}
+                      >
                         Verify phone number
                       </div>
-                      <div className='mt-8' style={{ ...styles.inputStyle, color: "#00000060" }}>
-                        Enter code that was sent to number ending with *{userPhoneNumber.slice(-4)}.
+                      <div
+                        className="mt-8"
+                        style={{ ...styles.inputStyle, color: "#00000060" }}
+                      >
+                        Enter code that was sent to number ending with *
+                        {userPhoneNumber.slice(-4)}.
                       </div>
                       {/* <VerificationCodeInput /> */}
-                      <div className='mt-8' style={{ display: 'flex', gap: '8px' }}>
+                      <div
+                        className="mt-8"
+                        style={{ display: "flex", gap: "8px" }}
+                      >
                         {Array.from({ length }).map((_, index) => (
                           <input
                             key={index}
@@ -788,55 +893,60 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                             onKeyDown={(e) => handleBackspace(e, index)}
                             onKeyUp={(e) => {
                               // Check if the Enter key is pressed and all inputs are filled
-                              if (e.key === 'Enter' && VerifyCode.every((value) => value.trim() !== '')) {
+                              if (
+                                e.key === "Enter" &&
+                                VerifyCode.every((value) => value.trim() !== "")
+                              ) {
                                 handleVerifyCode();
                               }
                             }}
                             onPaste={handlePaste}
-                            placeholder='-'
+                            placeholder="-"
                             style={{
-                              width: '40px',
-                              height: '40px',
-                              textAlign: 'center',
-                              fontSize: '20px',
-                              border: '1px solid #ccc',
-                              borderRadius: '5px',
+                              width: "40px",
+                              height: "40px",
+                              textAlign: "center",
+                              fontSize: "20px",
+                              border: "1px solid #ccc",
+                              borderRadius: "5px",
                             }}
-                            className=' focus:outline-none focus:ring-0'
+                            className=" focus:outline-none focus:ring-0"
                           />
                         ))}
                       </div>
-                      <div className='mt-8 flex flex-row items-center gap-2' style={styles.inputStyle}>
+                      <div
+                        className="mt-8 flex flex-row items-center gap-2"
+                        style={styles.inputStyle}
+                      >
                         {`Didn't receive code?`}
-                        {
-                          sendcodeLoader ?
-                            <CircularProgress size={17} /> :
-                            <button
-                              className='outline-none border-none text-purple'
-                              onClick={handleVerifyPopup}>
-                              Resend
-                            </button>
-                        }
-                      </div>
-                      {
-                        registerLoader ?
-                          <div className='flex fex-row items-center justify-center mt-8'>
-                            <CircularProgress size={35} />
-                          </div>
-                          :
+                        {sendcodeLoader ? (
+                          <CircularProgress size={17} />
+                        ) : (
                           <button
-                            className='text-white bg-purple outline-none rounded-xl w-full mt-8'
-                            style={{ height: "50px" }}
-                            onClick={handleVerifyCode}
+                            className="outline-none border-none text-purple"
+                            onClick={handleVerifyPopup}
                           >
-                            Continue
+                            Resend
                           </button>
-                      }
+                        )}
+                      </div>
+                      {registerLoader ? (
+                        <div className="flex fex-row items-center justify-center mt-8">
+                          <CircularProgress size={35} />
+                        </div>
+                      ) : (
+                        <button
+                          className="text-white bg-purple outline-none rounded-xl w-full mt-8"
+                          style={{ height: "50px" }}
+                          onClick={handleVerifyCode}
+                        >
+                          Continue
+                        </button>
+                      )}
                     </div>
                   </div>
                 </Box>
               </Modal>
-
 
               {/* Modal for congrats */}
               <Modal
@@ -861,80 +971,116 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                         borderRadius: "13px",
                       }}
                     >
-                      <div className='flex flex-row justify-end'>
+                      <div className="flex flex-row justify-end">
                         <button>
-                          <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                          <Image
+                            src={"/assets/crossIcon.png"}
+                            height={40}
+                            width={40}
+                            alt="*"
+                          />
                         </button>
                       </div>
-                      <div style={{
-                        fontSize: 26,
-                        fontWeight: "700", textAlign: 'center'
-                      }}>
+                      <div
+                        style={{
+                          fontSize: 26,
+                          fontWeight: "700",
+                          textAlign: "center",
+                        }}
+                      >
                         Congrats
                       </div>
 
-                      <div className='w-full mt-8 flex flex-row justify-center'>
-                        <Image className='' src="/agentXOrb.gif" style={{ height: "100px", width: "110px", resize: "contain" }} height={102} width={102} alt='*' />
+                      <div className="w-full mt-8 flex flex-row justify-center">
+                        <Image
+                          className=""
+                          src="/agentXOrb.gif"
+                          style={{
+                            height: "100px",
+                            width: "110px",
+                            resize: "contain",
+                          }}
+                          height={102}
+                          width={102}
+                          alt="*"
+                        />
                       </div>
 
-                      <div style={{
-                        fontSize: 15,
-                        fontWeight: "600", textAlign: 'center', marginTop: 50, color: "#00000070"
-                      }}>
+                      <div
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "600",
+                          textAlign: "center",
+                          marginTop: 50,
+                          color: "#00000070",
+                        }}
+                      >
                         Your account is created!
                       </div>
 
-                      <div style={{
-                        fontSize: 17,
-                        fontWeight: "700", textAlign: 'center', marginTop: 15, color: "#000000"
-                      }}>
+                      <div
+                        style={{
+                          fontSize: 17,
+                          fontWeight: "700",
+                          textAlign: "center",
+                          marginTop: 15,
+                          color: "#000000",
+                        }}
+                      >
                         {`Let’s build your AI AgentX`}
                       </div>
 
-                      {
-                        registerLoader ?
-                          <div className='flex fex-row items-center justify-center mt-8'>
-                            <CircularProgress size={35} />
-                          </div>
-                          :
-                          <button
-                            className='text-white bg-purple outline-none rounded-xl w-full mt-8'
-                            style={{
-                              height: "50px",
-                              fontSize: 15,
-                              fontWeight: "700",
-                            }}
-                            onClick={() => {
-                              router.push("/createagent");
-                            }}
-                          >
-                            Build  AI AgentX
-                          </button>
-                      }
+                      {registerLoader ? (
+                        <div className="flex fex-row items-center justify-center mt-8">
+                          <CircularProgress size={35} />
+                        </div>
+                      ) : (
+                        <button
+                          className="text-white bg-purple outline-none rounded-xl w-full mt-8"
+                          style={{
+                            height: "50px",
+                            fontSize: 15,
+                            fontWeight: "700",
+                          }}
+                          onClick={() => {
+                            router.push("/createagent");
+                          }}
+                        >
+                          Build AI AgentX
+                        </button>
+                      )}
                     </div>
                   </div>
                 </Box>
               </Modal>
 
-              <SnackMessages message={response.message} isVisible={isVisible} setIsVisible={(visible) => {
-                setIsVisible(visible)
-              }} success={response.status} />
-
+              <SnackMessages
+                message={response.message}
+                isVisible={isVisible}
+                setIsVisible={(visible) => {
+                  setIsVisible(visible);
+                }}
+                success={response.status}
+              />
             </div>
           </div>
         </div>
 
-        <div className='h-[10%]'>
+        <div className="h-[10%]">
           <div>
             <ProgressBar value={80} />
           </div>
 
-          <Footer handleContinue={handleVerifyPopup} handleBack={handleBack} registerLoader={registerLoader} shouldContinue={shouldContinue} />
+          <Footer
+            handleContinue={handleVerifyPopup}
+            handleBack={handleBack}
+            registerLoader={registerLoader}
+            shouldContinue={shouldContinue}
+          />
         </div>
-
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SignUpForm
+export default SignUpForm;
