@@ -285,7 +285,7 @@ const Page = () => {
 
                                             <div className="w-full h-40vh flex flex-row justify-between items-center px-8 py-4"
                                                 style={{
-                                                    backgroundImage: "url('/assets/cardBg.png')",
+                                                    backgroundImage: "url('/svgIcons/cardBg.svg')",
                                                     backgroundSize: "cover",
                                                     backgroundRepeat: "no-repeat",
                                                     backgroundPosition: "center",
@@ -296,7 +296,7 @@ const Page = () => {
                                             >
                                                 <div className='flex flex-row gap-3 items-start'>
                                                     <Image
-                                                        src={'/assets/timerIcon.png'}
+                                                        src={'/svgIcons/timerIcon.svg'}
                                                         height={50}
                                                         width={50}
                                                         alt='timer'
@@ -321,7 +321,7 @@ const Page = () => {
                                                         Scale your business
                                                     </div>
                                                     <button className='flex flex-row items-center gap-2 justify-center bg-white h-[43px] w-[130px] rounded-[15px]'>
-                                                        <Image src={"/otherAssets/king.png"} height={20} width={20} alt='*' />
+                                                        <Image src={"/svgIcons/king.svg"} height={20} width={20} alt='*' />
                                                         <div
                                                             style={{
                                                                 fontWeight: "500",
@@ -341,7 +341,7 @@ const Page = () => {
                                         <div className="w-full mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
                                             {/* Card: Conversations > 10 Sec */}
                                             <Card
-                                                icon="/otherAssets/convosIcon.png"
+                                                icon="/svgIcons/convosIcon.svg"
                                                 title="Convos"
                                                 value={statsDetails?.totalCallsGt10 || "-"}
                                                 subtitle="Answer rate"
@@ -351,7 +351,7 @@ const Page = () => {
 
                                             {/* Card: Hot Leads */}
                                             <Card
-                                                icon="/otherAssets/hotLeadsIcon.png"
+                                                icon="/svgIcons/hotLeadsIcon.svg"
                                                 title="Hot Leads"
                                                 value={statsDetails?.hotLeads || "-"}
                                                 subtitle="Conversion rate"
@@ -361,7 +361,7 @@ const Page = () => {
 
                                             {/* Card: Booked Meetings */}
                                             <Card
-                                                icon="/otherAssets/bookedMeetingsIcon.png"
+                                                icon="/svgIcons/bookedMeetingsIcon.svg"
                                                 title="Booked Meetings"
                                                 value={statsDetails?.meetingScheduled || "-"}
                                                 subtitle="Conversion rate"
@@ -371,7 +371,7 @@ const Page = () => {
 
                                             {/* Card: Voicemails */}
                                             <Card
-                                                icon="/otherAssets/voicemailIcon.png"
+                                                icon="/svgIcons/voicemailIcon.svg"
                                                 title="Voicemails"
                                                 value={statsDetails?.voicemail || "-"}
                                                 borderSide=""
@@ -380,7 +380,7 @@ const Page = () => {
 
                                             {/* Card: Not Interested */}
                                             <Card
-                                                icon="/otherAssets/notInterestedIcon.png"
+                                                icon="/svgIcons/notInterestedIcon.svg"
                                                 title="Not Interested"
                                                 value={statsDetails?.notInterested || "-"}
                                                 borderSide="border-l-2"
@@ -388,7 +388,7 @@ const Page = () => {
 
                                             {/* Card: Avg Convo Duration */}
                                             <Card
-                                                icon="/otherAssets/avgDurationIcon.png"
+                                                icon="/svgIcons/avgDurationIcon.svg"
                                                 title="Avg Convo Duration"
                                                 value={statsDetails?.avDuration || "-"}
                                                 borderSide="border-l-2"
@@ -398,7 +398,7 @@ const Page = () => {
                                         <div className='w-full flex flex-row items-center justify-between mt-4'>
                                             <div className='w-6/12 hover:bg-purple hover:text-white bg-white rounded p-4'>
                                                 <div className='flex flex-row gap-2'>
-                                                    <Image src={'/otherAssets/calenderIcon.png'}
+                                                    <Image src={'/svgIcons/calenderIcon.svg'}
                                                         alt='calender'
                                                         height={24}
                                                         width={24}
@@ -415,7 +415,7 @@ const Page = () => {
 
                                             <div className='w-6/12 hover:bg-purple hover:text-white bg-white rounded p-4'>
                                                 <div className='flex flex-row gap-2'>
-                                                    <Image src={'/otherAssets/screenIcon.png'}
+                                                    <Image src={'/svgIcons/screenIcon.svg'}
                                                         alt='calender'
                                                         height={24}
                                                         width={24}
