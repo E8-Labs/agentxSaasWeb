@@ -1,6 +1,6 @@
-const BasePath = "https://www.blindcircle.com/agentx/"; //process.env.Environment == "Production" ? "https://www.blindcircle.com/agentx/" : "https://www.blindcircle.com/agentxtest/"
+const BasePath = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT == "Production" ? "https://www.blindcircle.com/agentx/" : "https://www.blindcircle.com/agentxtest/"
 
-console.log("Current environment is", process.env.Environment);
+console.log("Current environment is", process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT);
 
 const Apis = {
   getCalenders: `${BasePath}api/calendar/calendars`,
