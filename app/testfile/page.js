@@ -116,7 +116,7 @@ const Page = () => {
             <div
               style={{ marginTop: "10px", fontSize: 16.8, fontWeight: "600" }}
             >
-              What's Your AI Agent's Name?
+              {`What's Your AI Agent's Name?`}
             </div>
             <button>
               <Image
@@ -169,7 +169,7 @@ const Page = () => {
                 justifyContent: "space-between",
               }}
             >
-              What's this agents task?
+              {`What's this agents task?`}
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "row", gap: 2 }}>
@@ -229,7 +229,7 @@ const Page = () => {
               fontWeight: "600",
             }}
           >
-            What's This Agent's Role?
+            {`What's This Agent's Role?`}
           </div>
           <input
             placeholder="EX:Senior Proty Acquistion Specialist"
@@ -250,7 +250,7 @@ const Page = () => {
               fontWeight: "600",
             }}
           >
-            What's this agent's primary obgective during the call
+            {`What's this agent's primary obgective during the call`}
           </div>
           <div
             style={{

@@ -1,3 +1,4 @@
+"use client"
 import Apis from "@/components/apis/Apis";
 import {
   Alert,
