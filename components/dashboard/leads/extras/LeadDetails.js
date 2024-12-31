@@ -170,7 +170,7 @@ const LeadDetails = ({
       });
 
       if (response) {
-        console.log("Response of api is response", response.data);
+        console.log("Lead details Response of api is", response.data);
         let dynamicColumns = [];
         dynamicColumns = [
           ...response?.data?.columns,
@@ -652,11 +652,10 @@ const LeadDetails = ({
                                           setShowAllEmails(true);
                                         }}
                                       >
-                                        +
-                                        {selectedLeadsDetails?.emails?.length >
-                                          1 &&
-                                          selectedLeadsDetails?.emails?.length -
-                                          1}
+                                        
+                                        {selectedLeadsDetails?.emails?.length > 1 ?
+                                          `+${selectedLeadsDetails?.emails?.length -
+                                            1 }` : ""}
                                       </button>
                                     </div>
                                   );
@@ -698,7 +697,9 @@ const LeadDetails = ({
                                     setShowAllEmails(true);
                                   }}
                                 >
-                                  +{selectedLeadsDetails?.emails?.length > 1 && selectedLeadsDetails?.emails?.length - 1}
+                                  {selectedLeadsDetails?.emails?.length > 1 ?
+                                          `+${selectedLeadsDetails?.emails?.length -
+                                            1 }` : ""}
                                 </button>
                               </div>
                             );

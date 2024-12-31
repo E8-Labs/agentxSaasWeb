@@ -75,7 +75,7 @@ const Apis = {
 
   getNotifications:`${BasePath}api/user/notifications`,
 
-  updateAgent: `${BasePath}api/agent/updateAgentProfileImage`
+  updateAgentImg: `${BasePath}api/agent/updateAgentProfileImage`
 
 };
 

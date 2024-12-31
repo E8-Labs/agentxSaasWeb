@@ -318,7 +318,7 @@ function Page() {
         AuthToken = userData.token
       }
 
-      const ApiPath = Apis.updateAgent;
+      const ApiPath = Apis.updateAgentImg;
 
       const formData = new FormData();
 
