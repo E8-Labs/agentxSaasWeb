@@ -239,7 +239,7 @@ function Page() {
 
     const timer = setTimeout(() => {
       updateAgentProfile()
-    }, 500);
+    }, 100);
 
     return (() => clearTimeout(timer));
 
