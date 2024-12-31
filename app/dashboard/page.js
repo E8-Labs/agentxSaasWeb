@@ -554,6 +554,9 @@ const Page = () => {
                                                 onClick={() => {
                                                     window.open("https://web.whatsapp.com/", "_blank")
                                                 }}
+                                                style={{
+                                                    cursor: "pointer"
+                                                }}
                                             >
                                                 <div className='flex flex-row gap-2'>
                                                     {

@@ -1564,6 +1564,30 @@ function Page() {
                         </div>
 
                         {/* Code for popover */}
+                        {/* <Popover
+                          id="mouse-over-popover"
+                          sx={{
+                            pointerEvents: "none",
+                            // marginBottom: "20px"
+                          }}
+                          open={open}
+                          anchorEl={actionInfoEl}
+                          anchorOrigin={{
+                            vertical: "top",
+                            horizontal: "center",
+                          }}
+                          transformOrigin={{
+                            vertical: "bottom",
+                            horizontal: "center",
+                          }}
+                          PaperProps={{
+                            style: {
+                              width: "fit-content",
+                            },
+                          }}
+                          onClose={handlePopoverClose}
+                          disableRestoreFocus
+                        > */}
                         <Popover
                           id="mouse-over-popover"
                           sx={{
@@ -1581,10 +1605,11 @@ function Page() {
                             horizontal: "center",
                           }}
                           PaperProps={{
-                            elevation: 1,
                             style: {
                               width: "fit-content",
-                              boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.02)",
+                              border: "none", // Remove the border
+                              boxShadow: open ? "0px 2px 6px rgba(0, 0, 0, 0.04)" : "0px 0px 0px rgba(0, 0, 0, 0)", // Shadow with 60% opacity
+                              transition: "box-shadow 0.3s ease-in-out", // Smooth transition for shadow
                             },
                           }}
                           onClose={handlePopoverClose}
