@@ -66,6 +66,9 @@ const Leads1 = () => {
   //code for warning modal
   const [warningModal, setWarningModal] = useState(false);
 
+  //warning snack
+  const [errSnack, setErrSnack] = useState(null);
+
   //my custom logic
   //This variable will contain all columns from the sheet that we will obtain from the sheet or add new
   let [NewColumnsObtained, setNewColumnsObtained] = useState([]);
@@ -468,7 +471,7 @@ const Leads1 = () => {
   const validateColumns = () => {
     ////console.log("New Col Obtained ", NewColumnsObtained);
 
-    const requiredColumns = ["phone"];
+    // const requiredColumns = ["phone", "firstName", "lastName"];
     const hasFullName =
       NewColumnsObtained.some((col) => col.dbName === "fullName") ||
       NewColumnsObtained.some((col) => col.dbName === "firstName");
@@ -476,7 +479,14 @@ const Leads1 = () => {
     ////console.log("Has Full Name ", hasFullName);
     const hasPhone = NewColumnsObtained.some((col) => col.dbName === "phone");
     ////console.log("Has Phone Num", hasPhone);
-    return hasPhone && hasFullName;
+    // return hasPhone && hasFullName;
+    if (hasPhone && hasFullName) {
+      handleAddLead();
+      console.log("Al credentials valid");
+    } else {
+      console.log("Al credentials not valid");
+      setErrSnack("First Name, Last Name & Phone Number are complusory")
+    }
   };
 
   //File reading logic
@@ -666,12 +676,13 @@ const Leads1 = () => {
 
   //code to call api
   const handleAddLead = async () => {
-    let validated = validateColumns();
+    // let validated = validateColumns();
 
     //console.log("Columns validated", validated);
-    if (!validated) {
-      return;
-    }
+    // if (!validated) {
+
+    //   return;
+    // }
     let pd = processedData;
     ////console.log(pd);
     NewColumnsObtained.forEach((col) => {
@@ -1239,7 +1250,7 @@ const Leads1 = () => {
               </div>
 
               <div
-                className="max-h-[40vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+                className="max-h-[40vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-[55px]"
                 style={{ scrollbarWidth: "none" }}
               >
                 {NewColumnsObtained.map((item, index) => {
@@ -1327,14 +1338,14 @@ const Leads1 = () => {
                             horizontal: "center", // Ensures the Popover's top right corner aligns with the anchor point
                           }}
                           PaperProps={{
-                            elevation: 0, // This will remove the shadow
+                            elevation: 1, // This will remove the shadow
                             style: {
-                              boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.08)",
+                              boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.05)",
                             },
                           }}
                         >
                           <div
-                            className="w-[170px] p-2"
+                            className="w-[170px]"
                             style={styles.paragraph}
                           >
                             <div>
@@ -1344,7 +1355,7 @@ const Leads1 = () => {
                                 ).map((item, index) => {
                                   return (
                                     <button
-                                      className="text-start"
+                                      className="text-start hover:bg-[#402FFF10] p-2"
                                       key={index}
                                       onClick={() => {
                                         ChangeColumnName(item.UserFacingName);
@@ -1357,7 +1368,7 @@ const Leads1 = () => {
                               </div>
                             </div>
                             <button
-                              className="underline text-purple"
+                              className="underline text-purple p-2 hover:bg-[#402fff10] w-full text-start"
                               onClick={() => {
                                 setShowPopUp(true);
                               }}
@@ -1433,13 +1444,27 @@ const Leads1 = () => {
                 })}
               </div>
 
-              <div className="mt-4 flex flex-row justify-center">
+              <div
+                className=""
+                style={{
+                  position: "absolute",
+                  bottom: 10,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
                 {Loader ? (
                   <CircularProgress size={27} />
                 ) : (
                   <button
                     className="bg-purple text-white rounded-lg h-[50px] w-4/12"
-                    onClick={handleAddLead}
+                    onClick={() => {
+                      validateColumns()
+                    }}
                   >
                     Continue
                   </button>
@@ -1907,6 +1932,41 @@ const Leads1 = () => {
           </Alert>
         </Snackbar>
       </div>
+
+      <div>
+        <Snackbar
+          open={errSnack}
+          autoHideDuration={3000}
+          onClose={() => {
+            setErrSnack(null);
+          }}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "center",
+          }}
+          TransitionComponent={Fade}
+          TransitionProps={{
+            direction: "center",
+          }}
+        >
+          <Alert
+            onClose={() => {
+              setErrSnack(null);
+            }}
+            severity="error"
+            // className='bg-purple rounded-lg text-white'
+            sx={{
+              width: "auto",
+              fontWeight: "700",
+              fontFamily: "inter",
+              fontSize: "22",
+            }}
+          >
+            {errSnack}
+          </Alert>
+        </Snackbar>
+      </div>
+
     </div>
   );
 };

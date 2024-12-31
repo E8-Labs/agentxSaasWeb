@@ -941,6 +941,7 @@ function AllCalls() {
           pipelineId={selectedLeadsDetails?.PipelineStages?.pipelineId}
           showDetailsModal={showDetailsModal}
           setShowDetailsModal={setShowDetailsModal}
+          hideDelete={true}
         />
       )}
     </div>

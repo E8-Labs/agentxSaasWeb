@@ -33,6 +33,7 @@ import PiepelineAdnStage from "@/components/dashboard/myagentX/PiepelineAdnStage
 import voicesList from "@/components/createagent/Voices";
 import UserCalender from "@/components/dashboard/myagentX/UserCallender";
 import CircularLoader from "@/utilities/CircularLoader";
+import imageCompression from 'browser-image-compression';
 
 function Page() {
   const timerRef = useRef();
@@ -155,6 +156,7 @@ function Page() {
 
   //code for image select and drag and drop
   const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImage2, setSelectedImage2] = useState(null);
   const [dragging, setDragging] = useState(false);
 
   const [globalLoader, setGlobalLoader] = useState(false);
@@ -215,31 +217,75 @@ function Page() {
 
 
   //function for image selection on dashboard
-  const handleImageChange = (event) => {
+  const handleImageChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setSelectedImage(imageUrl);
     }
-    const timer = setTimeout(() => {
-      updateAgentProfile()
-    }, 500);
+
+    if (file) {
+      try {
+        // Compression options
+        const options = {
+          maxSizeMB: 1, // Maximum size in MB
+          maxWidthOrHeight: 1920, // Max width/height
+          useWebWorker: true, // Use web workers for better performance
+        };
+
+        // Compress the image
+        const compressedFile = await imageCompression(file, options);
+        console.log("Comptessed is ", compressedFile)
+        // Set the compressed image
+        setSelectedImage2(compressedFile);
+        updateAgentProfile(compressedFile)
+
+      } catch (error) {
+        console.error("Error while compressing the image:", error);
+      }
+    }
+
+
 
     return (() => clearTimeout(timer));
   };
 
-  const handleDrop = (event) => {
+  const handleDrop = async (event) => {
     event.preventDefault();
     setDragging(false);
     const file = event.dataTransfer.files[0];
+
+    console.log("Selected file is", file)
+
     if (file && file.type.startsWith("image/")) {
       const imageUrl = URL.createObjectURL(file);
       setSelectedImage(imageUrl);
     }
 
-    const timer = setTimeout(() => {
-      updateAgentProfile()
-    }, 100);
+    if (file) {
+      try {
+        // Compression options
+        const options = {
+          maxSizeMB: 1, // Maximum size in MB
+          maxWidthOrHeight: 1920, // Max width/height
+          useWebWorker: true, // Use web workers for better performance
+        };
+
+        // Compress the image
+        const compressedFile = await imageCompression(file, options);
+        console.log("Comptessed is ", compressedFile)
+        // Set the compressed image
+        setSelectedImage2(compressedFile);
+        updateAgentProfile(compressedFile)
+
+      } catch (error) {
+        console.error("Error while compressing the image:", error);
+      }
+    }
+
+    // const timer = setTimeout(() => {
+    //   updateAgentProfile()
+    // }, 100);
 
     return (() => clearTimeout(timer));
 
@@ -257,7 +303,7 @@ function Page() {
 
 
   //function to update agent profile image
-  const updateAgentProfile = async () => {
+  const updateAgentProfile = async (image) => {
     try {
 
       setGlobalLoader(true);
@@ -276,7 +322,7 @@ function Page() {
 
       const formData = new FormData();
 
-      formData.append("media", selectedImage);
+      formData.append("media", image);
       formData.append("agentId", showDrawer.id);
 
       for (let [key, value] of formData.entries()) {
@@ -294,6 +340,60 @@ function Page() {
 
       if (response) {
         console.log("Response of update agent api is", response);
+
+        if (response.data.status === true) {
+          const localAgentsList = localStorage.getItem("localAgentDetails");
+
+          if (localAgentsList) {
+            const agentsList = JSON.parse(localAgentsList);
+            // agentsListDetails = agentsList;
+
+            const updateAgentData = response.data.data;
+
+            console.log("Agents list is", agentsList);
+
+            // const updatedArray = agentsList.map((localItem) => {
+            //   const apiItem =
+            //     updateAgentData.id === localItem.id ? updateAgentData : null;
+
+            //   return apiItem ? { ...localItem, ...apiItem } : localItem;
+            // });
+
+
+            const updatedArray = agentsList.map((localItem) => {
+              // Check if there's a match with the agent's id
+              if (updateAgentData.mainAgentId === localItem.id) {
+                // Update sub-agents
+                const updatedSubAgents = localItem.agents.map((subAgent) => {
+                  // Check if the sub-agent id matches the updateAgentData.id (or another relevant sub-agent id)
+                  return updateAgentData.id === subAgent.id
+                    ? { ...subAgent, ...updateAgentData }  // Update the matching sub-agent
+                    : subAgent;  // Leave the others unchanged
+                });
+
+                console.log("Updated sub agents", updatedSubAgents);
+
+                // Return the updated agent with the updated subAgents
+                return { ...localItem, agents: updatedSubAgents };
+              }
+
+              // If no match for the agent, return the original item
+              return localItem;
+            });
+
+            console.log("Updated agents list array is", updatedArray);
+            localStorage.setItem(
+              "localAgentDetails",
+              JSON.stringify(updatedArray)
+            );
+            setUserAgentsList(updatedArray);
+            // agentsListDetails = updatedArray
+          }
+
+        } else if (response.data.status === false) {
+          console.log("Status is false")
+        }
+
       }
 
     } catch (error) {
@@ -1483,11 +1583,12 @@ function Page() {
                       ) : (
                         <Image
                           className="hidden md:flex"
-                          src="/agentXOrb.gif"
+                          src={item?.thumb_profile_image || "/agentXOrb.gif"}
                           style={{
                             height: "69px",
-                            width: "75px",
-                            resize: "contain",
+                            width: "69px",
+                            objectFit: "cover",
+                            resize: "cover",
                             borderRadius: "50%",
                           }}
                           height={69}
@@ -1555,7 +1656,7 @@ function Page() {
                             onMouseLeave={handlePopoverClose}
                             style={{ cursor: "pointer" }}
                           >
-                            {item.agentObjective}
+                            {item.agentObjective?.slice(0, 1).toUpperCase()}{item.agentObjective?.slice(1)}
                           </div>
                           <div>
                             | {item.agentType?.slice(0, 1).toUpperCase(0)}
@@ -1761,7 +1862,7 @@ function Page() {
                             "CU_address",
                             "CU_status",
                           ];
-                          if (!defaultVariables.includes(match[1])) {
+                          if (!defaultVariables.includes(match[1]) && match[1]?.length < 15 ) {
                             // match[1]?.length < 15
                             if (
                               !keys.includes(match[1]) &&
@@ -2198,7 +2299,7 @@ function Page() {
       >
         <div className="flex flex-col w-full">
           <div className="w-full flex flex-row items-center justify-between mb-8">
-            <div className="flex flex-row items-center gap-4 mt-4">
+            <div className="flex flex-row items-center gap-4 mt-8">
 
               {/* <div className="flex items-end">
                 <Image
@@ -2218,7 +2319,7 @@ function Page() {
               </div> */}
 
               <button
-                className='mt-8'
+                // className='mt-8'
                 onClick={() => document.getElementById("fileInput").click()}
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
@@ -2231,11 +2332,18 @@ function Page() {
                 >
 
                   {selectedImage ? (
-                    <div style={{ marginTop: "20px" }}>
+                    <div style={{ marginTop: "", background: "" }}>
                       <Image src={selectedImage}
                         height={74}
                         width={74}
                         alt='profileImage'
+                        className="rounded-full"
+                        style={{
+                          objectFit: "cover",
+                          resize: "cover",
+                          height: "74px",
+                          width: "74px",
+                        }}
                       />
                     </div>
                   ) : (

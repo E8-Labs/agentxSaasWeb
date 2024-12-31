@@ -2832,6 +2832,7 @@ const Pipeline1 = () => {
           pipelineId={pipelineId && pipelineId}
           showDetailsModal={showDetailsModal}
           setShowDetailsModal={setShowDetailsModal}
+          isPipeline={true}
         />
       )}
 

@@ -768,7 +768,13 @@ function Billing() {
                                 <button
                                     className='text-black  outline-none rounded-xl w-9/12 mt-3'
                                     style={{ fontSize: 16, fontWeight: '700', height: "50px", textDecorationLine: 'underline', flexShrink: 0 }}
-                                    onClick={() => { setGiftPopup(true) }}
+                                    onClick={() => {
+                                        if (userLocalData?.cancelPlanRedemptions === 0) {
+                                            setGiftPopup(true);
+                                        }else{
+                                            setShowConfirmCancelPlanPopup(true);
+                                        }
+                                    }}
                                 >
                                     Cancel AgentX
                                 </button>

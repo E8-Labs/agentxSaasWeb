@@ -7,6 +7,7 @@ import SheduledCalls from '@/components/calls/SheduledCalls';
 import CallActivities from '@/components/calls/CallActivties';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
+import NotficationsDrawer from '@/components/notofications/NotficationsDrawer';
 
 
 function Page() {
@@ -21,6 +22,10 @@ function Page() {
       >
         <div style={{ fontSize: 24, fontWeight: '600' }}>
           Call Log
+        </div>
+
+        <div>
+          <NotficationsDrawer />
         </div>
 
 

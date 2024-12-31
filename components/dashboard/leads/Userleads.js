@@ -1469,9 +1469,10 @@ const Userleads = ({
   return (
     <div className="w-full flex flex-col items-center">
       <div
-        className="flex flex-row items-center justify-end w-full pe-12 mt-4 pb-4"
+        className="flex flex-row items-center justify-between w-full px-10 mt-4 pb-4"
         style={{ borderBottom: "1px solid #15151510" }}
       >
+        <div style={{ fontWeight: "700", fontSize: 25 }}>Leads</div>
         <div className="flex fex-row items-center gap-6">
           <div className="flex flex-col">
             <NotficationsDrawer />
@@ -1485,8 +1486,7 @@ const Userleads = ({
           </div>
         ) : (
           <div>
-            <div className="flex flex-row items-center justify-between">
-              <div style={{ fontWeight: "700", fontSize: 25 }}>Leads</div>
+            <div className="flex flex-row items-center justify-end">
               <div className="flex flex-row items-center gap-6">
                 {/* <div className='flex flex-row items-center gap-2'>
                                         <Image src={"/assets/buyLeadIcon.png"} height={24} width={24} alt='*' />

@@ -62,6 +62,25 @@ const TagsInput = ({ setTags }) => {
         }
     };
 
+    //custom styles added
+    const customStyles = {
+        multiValue: (styles) => ({
+            ...styles,
+            backgroundColor: '#402fff20',
+        }),
+        multiValueLabel: (styles) => ({
+            ...styles,
+            color: 'balck',
+        }),
+        multiValueRemove: (styles) => ({
+            ...styles,
+            color: 'black',
+            ':hover': {
+                backgroundColor: 'darkred',
+            },
+        }),
+    };
+
     return (
         <CreatableSelect
             components={components}
@@ -74,6 +93,7 @@ const TagsInput = ({ setTags }) => {
             onKeyDown={handleKeyDown} // Handle key presses (Enter, Tab)
             placeholder="Type something and press enter..."
             value={value}
+            styles={customStyles}
         />
     );
 };

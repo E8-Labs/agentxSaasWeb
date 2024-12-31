@@ -386,11 +386,11 @@ const ProfileNav = () => {
                   borderRadius: "13px",
                 }}
               >
-                <div className='flex flex-row justify-end'>
+                {/* <div className='flex flex-row justify-end'>
                   <button onClick={() => setShowPlansPopup(false)}>
                     <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
                   </button>
-                </div>
+                </div> */}
 
 
                 {

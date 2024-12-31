@@ -208,8 +208,8 @@ const CreateAgentVoice = ({ handleBack }) => {
                                                     <Image
                                                         // src={avatarImages[index % avatarImages.length]} // Deterministic selection
                                                         src={item.img} // Deterministic selection
-                                                        height={40}
-                                                        width={35}
+                                                        height={60}
+                                                        width={55}
                                                         alt='*'
                                                     />
                                                 </div>
