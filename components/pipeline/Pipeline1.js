@@ -383,6 +383,7 @@ const Pipeline1 = ({ handleContinue }) => {
     console.log("Selected Item:", selectedItem.stages);
     setSelectedPipelineItem(selectedItem);
     setSelectedPipelineStages(selectedItem.stages);
+    setOldStages(selectedItem.stages);
   };
 
   // const handleSelectNextChange = (event) => {

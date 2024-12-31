@@ -32,6 +32,7 @@ import GuarduanSetting from "@/components/pipeline/advancedsettings/GuardianSett
 import PiepelineAdnStage from "@/components/dashboard/myagentX/PiepelineAdnStage";
 import voicesList from "@/components/createagent/Voices";
 import UserCalender from "@/components/dashboard/myagentX/UserCallender";
+import CircularLoader from "@/utilities/CircularLoader";
 
 function Page() {
   const timerRef = useRef();
@@ -150,6 +151,17 @@ function Page() {
   const [hoveredIndexStatus, setHoveredIndexStatus] = useState(null);
   const [hoveredIndexAddress, setHoveredIndexAddress] = useState(null);
 
+
+
+  //code for image select and drag and drop
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [dragging, setDragging] = useState(false);
+
+  const [globalLoader, setGlobalLoader] = useState(false);
+
+
+
+
   //code for scroll ofset
   useEffect(() => {
     getUniquesColumn();
@@ -201,6 +213,96 @@ function Page() {
     }
   }, [greetingTagInput, scriptTagInput, objective]); //scriptTagInput
 
+
+  //function for image selection on dashboard
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setSelectedImage(imageUrl);
+    }
+    const timer = setTimeout(() => {
+      updateAgentProfile()
+    }, 500);
+
+    return (() => clearTimeout(timer));
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    setDragging(false);
+    const file = event.dataTransfer.files[0];
+    if (file && file.type.startsWith("image/")) {
+      const imageUrl = URL.createObjectURL(file);
+      setSelectedImage(imageUrl);
+    }
+
+    const timer = setTimeout(() => {
+      updateAgentProfile()
+    }, 500);
+
+    return (() => clearTimeout(timer));
+
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    setDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setDragging(false);
+  };
+
+
+
+  //function to update agent profile image
+  const updateAgentProfile = async () => {
+    try {
+
+      setGlobalLoader(true);
+
+      const LocalData = localStorage.getItem("User");
+
+      let AuthToken = null;
+
+      if (LocalData) {
+        const userData = JSON.parse(LocalData);
+        console.log("Local data recieved is", userData);
+        AuthToken = userData.token
+      }
+
+      const ApiPath = Apis.updateAgent;
+
+      const formData = new FormData();
+
+      formData.append("media", selectedImage);
+      formData.append("agentId", showDrawer.id);
+
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key} :- ${value}`)
+      }
+
+      console.log("Apipath is", ApiPath);
+
+      // return
+      const response = await axios.post(ApiPath, formData, {
+        headers: {
+          "Authorization": "Bearer " + AuthToken,
+        }
+      });
+
+      if (response) {
+        console.log("Response of update agent api is", response);
+      }
+
+    } catch (error) {
+      console.error("Error occured in api is", error);
+    } finally {
+      setGlobalLoader(false);
+    }
+  }
+
   //function to open drawer
   const handleShowDrawer = (item) => {
     setAssignNumber(item?.phoneNumber);
@@ -218,6 +320,7 @@ function Page() {
 
     //console.log("")
     setShowDrawer(item);
+    setSelectedImage(item?.thumb_profile_image)
     //console.log("Selected agent is:", item);
     if (item.agentType === "inbound") {
       setShowReassignBtn(true);
@@ -1478,11 +1581,10 @@ function Page() {
                             horizontal: "center",
                           }}
                           PaperProps={{
-                            elevation: 1, // This will remove the shadow
+                            elevation: 1,
                             style: {
-                              // boxShadow: "0px 0px 4px 4px rgba(0, 0, 0, 0.01)",
-                              boxShadow: "0px 0px 12px rgba(0, 0, 0, 0.01)",
-                              width: "fit-content"
+                              width: "fit-content",
+                              boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.02)",
                             },
                           }}
                           onClose={handlePopoverClose}
@@ -2072,9 +2174,10 @@ function Page() {
         <div className="flex flex-col w-full">
           <div className="w-full flex flex-row items-center justify-between mb-8">
             <div className="flex flex-row items-center gap-4 mt-4">
-              <div className="flex items-end">
+
+              {/* <div className="flex items-end">
                 <Image
-                  src={"/assets/colorCircle.png"}
+                  src={"/agentXOrb.gif"}
                   height={90}
                   width={90}
                   alt="profile"
@@ -2087,7 +2190,66 @@ function Page() {
                     alt="camera"
                   />
                 </button>
-              </div>
+              </div> */}
+
+              <button
+                className='mt-8'
+                onClick={() => document.getElementById("fileInput").click()}
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+              >
+                <div className='flex flex-row items-end'
+                  style={{
+                    // border: dragging ? "2px dashed #0070f3" : "",
+                  }}
+                >
+
+                  {selectedImage ? (
+                    <div style={{ marginTop: "20px" }}>
+                      <Image src={selectedImage}
+                        height={74}
+                        width={74}
+                        alt='profileImage'
+                      />
+                    </div>
+                  ) : (
+                    <Image src={'/agentXOrb.gif'}
+                      height={74}
+                      width={74}
+                      alt='profileImage'
+                    />
+                  )
+                  }
+
+                  <Image src={'/otherAssets/cameraBtn.png'}
+                    style={{ marginLeft: -25 }}
+                    height={36}
+                    width={36}
+                    alt='profileImage'
+                  />
+                </div>
+              </button>
+
+              {/* Hidden file input */}
+              <input
+                type="file"
+                accept="image/*"
+                id="fileInput"
+                style={{ display: "none" }}
+                onChange={handleImageChange}
+              />
+
+              {/* Global Loader */}
+              {
+                globalLoader && (
+                  <CircularLoader
+                    globalLoader={globalLoader}
+                    setGlobalLoader={setGlobalLoader}
+                  />
+                )
+              }
+
               <div className="flex flex-col gap-1 items-start ">
                 <div className="flex flex-row gap-2 items-center ">
                   <div style={{ fontSize: 22, fontWeight: "600" }}>
@@ -2278,75 +2440,82 @@ function Page() {
                       <Image src={"/otherAssets/voiceAvt.png"} height={22} width={22} alt='*' />
                       {showDrawer?.voiceId}
                     </div> */}
-                  <FormControl size="fit-content">
-                    <Select
-                      value={SelectedVoice}
-                      onChange={handleChangeVoice}
-                      displayEmpty // Enables placeholder
-                      renderValue={(selected) => {
-                        if (!selected) {
-                          return (
-                            <div style={{ color: "#aaa" }}>Select Voice</div>
-                          ); // Placeholder style
-                        }
-                        // return selected;
-                        const selectedVoice = voicesList.find(voice => voice.voice_id === selected);
-                        return selectedVoice ? (
-                          <div style={{ display: "flex", alignItems: "center" }}>
-                            <Image
-                              src={selectedVoice.img}
-                              height={40}
-                              width={35}
-                              alt="Selected Voice"
-                            />
-                            <div>{selectedVoice.voice_id}</div>
-                          </div>
-                        ) : null;
-                      }}
-                      sx={{
-                        border: "none", // Default border
-                        "&:hover": {
-                          border: "none", // Same border on hover
-                        },
-                        "& .MuiOutlinedInput-notchedOutline": {
-                          border: "none", // Remove the default outline
-                        },
-                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                          border: "none", // Remove outline on focus
-                        },
-                        "&.MuiSelect-select": {
-                          py: 0, // Optional padding adjustments
-                        },
-                      }}
-                      MenuProps={{
-                        PaperProps: {
-                          style: {
-                            maxHeight: "30vh", // Limit dropdown height
-                            overflow: "auto", // Enable scrolling in dropdown
-                            scrollbarWidth: "none",
-                            // borderRadius: "10px"
-                          },
-                        },
-                      }}
-                    >
-                      {voicesList.slice(0, 10).map((item, index) => {
-                        return (
-                          <MenuItem value={item?.voice_id} key={index}>
-                            <Image
-                              // src={avatarImages[index % avatarImages.length]} // Deterministic selection
-                              src={item.img} // Deterministic selection
-                              height={40}
-                              width={35}
-                              alt='*'
-                            />
-                            <div>
-                              {item?.voice_id}
+                  <div style={{ width: "150px" }}>
+                    <FormControl fullWidth>
+                      <Select
+                        value={SelectedVoice}
+                        onChange={handleChangeVoice}
+                        displayEmpty // Enables placeholder
+                        renderValue={(selected) => {
+                          if (!selected) {
+                            return (
+                              <div style={{ color: "#aaa" }}>Select Voice</div>
+                            ); // Placeholder style
+                          }
+                          // return selected;
+                          const selectedVoice = voicesList.find(voice => voice.voice_id === selected);
+                          return selectedVoice ? (
+                            <div style={{ display: "flex", alignItems: "center" }}>
+                              <Image
+                                src={selectedVoice.img}
+                                height={40}
+                                width={35}
+                                alt="Selected Voice"
+                              />
+                              <div>{selectedVoice.name}</div>
                             </div>
-                          </MenuItem>
-                        );
-                      })}
-                    </Select>
-                  </FormControl>
+                          ) : null;
+                        }}
+                        sx={{
+                          border: "none", // Default border
+                          "&:hover": {
+                            border: "none", // Same border on hover
+                          },
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            border: "none", // Remove the default outline
+                          },
+                          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                            border: "none", // Remove outline on focus
+                          },
+                          "&.MuiSelect-select": {
+                            py: 0, // Optional padding adjustments
+                          },
+                        }}
+                        MenuProps={{
+                          PaperProps: {
+                            style: {
+                              maxHeight: "30vh", // Limit dropdown height
+                              overflow: "auto", // Enable scrolling in dropdown
+                              scrollbarWidth: "none",
+                              // borderRadius: "10px"
+                            },
+                          },
+                        }}
+                      >
+                        {voicesList.slice(0, 10).map((item, index) => {
+                          const selectedVoiceName = (id) => {
+                            const voiceName = voicesList.find(voice => voice.voice_id === id);
+
+                            return voiceName.name
+                          }
+                          return (
+                            <MenuItem value={item?.voice_id} key={index}>
+                              <Image
+                                // src={avatarImages[index % avatarImages.length]} // Deterministic selection
+                                src={item.img} // Deterministic selection
+                                height={40}
+                                width={35}
+                                alt='*'
+                              />
+                              <div>
+                                {selectedVoiceName(item.voice_id)}
+                              </div>
+                            </MenuItem>
+                          );
+                        })}
+                      </Select>
+                    </FormControl>
+                  </div>
                 </div>
               </div>
               <div className="flex flex-col gap-4 mt-4">

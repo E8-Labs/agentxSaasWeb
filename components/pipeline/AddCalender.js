@@ -7,6 +7,7 @@ import Apis from '../apis/Apis'
 import axios from 'axios'
 import { CircularProgress, FormControl, InputLabel, MenuItem, Modal, Select } from '@mui/material'
 import Image from 'next/image'
+import timeZones from '@/utilities/Timezones'
 
 const AddCalender = ({ handleContinue }) => {
 
@@ -28,23 +29,6 @@ const AddCalender = ({ handleContinue }) => {
   //code for the IANA time zone lists
 
   const [selectTimeZone, setSelectTimeZone] = useState("");
-
-  // const [timeZones, setTimeZones] = useState([]);
-  const timeZones = [
-    "Etc/UTC",
-    "Europe/London",
-    "America/New_York",
-    "America/Chicago",
-    "America/Denver",
-    "America/Los_Angeles",
-    "Asia/Dubai",
-    "Asia/Kolkata",
-    "Asia/Shanghai",
-    "Asia/Tokyo",
-    "Asia/Singapore",
-    "Australia/Sydney",
-    "Africa/Johannesburg",
-  ];
 
 
   useEffect(() => {

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import axios from 'axios';
 import Apis from '@/components/apis/Apis';
-import { CircularProgress, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { CircularProgress, FormControl, InputLabel, MenuItem, Popover, Select, Typography } from '@mui/material';
 import moment, { duration } from 'moment';
 import getProfileDetails from '@/components/apis/GetProfile';
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer';
@@ -26,6 +26,11 @@ const Page = () => {
     //code for dropdown
     const [Duration, setDuration] = useState("24 hrs");
 
+    //variables for popover
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const open = Boolean(anchorEl);
+
+
 
     useEffect(() => {
         console.log("Stats details ar", statsDetails);
@@ -41,6 +46,18 @@ const Page = () => {
         getProfile();
     }, []);
 
+    //function for tootip
+
+
+    const handlePopoverOpen = (event) => {
+        setAnchorEl(event.currentTarget); // Correct handling for mouse enter
+    };
+
+    const handlePopoverClose = () => {
+        setAnchorEl(null); // Correct handling for mouse leave
+    };
+
+
 
     //function to get user profile details
     const getProfile = async () => {
@@ -51,7 +68,7 @@ const Page = () => {
             console.log("Data recieved from get profile api", response);
 
             if (response) {
-                if (!response?.data?.data?.plan.status === "cancelled") {
+                if (!response?.data?.data?.plan?.status === "cancelled") {
                     setShowPlansPopup(true);
                 }
             }
@@ -91,9 +108,9 @@ const Page = () => {
 
             if (duration === "24 hrs") {
                 durationValue = 1
-            } else if (duration === "Last 7Days") {
+            } else if (duration === "Last 7 Days") {
                 durationValue = 7
-            } else if (duration === "Last 30Days") {
+            } else if (duration === "Last 30 Days") {
                 durationValue = 30
             } else if (duration === "All time") {
                 durationValue = 365
@@ -162,7 +179,7 @@ const Page = () => {
     };
 
     //function for cards
-    function Card({ icon, title, value, subtitle, rate, borderSide }) {
+    function Card({ icon, title, value, subtitle, rate, borderSide, recomendation }) {
         return (
             <div
                 className={`bg-white flex flex-col items-center  ${borderSide}`} style={{
@@ -171,8 +188,51 @@ const Page = () => {
             >
                 <div className='w-10/12 ps-4 py-4'>
                     {/* Icon */}
-                    <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-100">
-                        <Image src={icon} alt={title} width={30} height={30} />
+
+                    <div className='flex flex-row w-full items-center justify-between'>
+                        <div className="w-12 h-12 flex flex-row items-center justify-center rounded-full bg-gray-100">
+                            <Image src={icon} alt={title} width={30} height={30} />
+                        </div>
+
+                        {
+                            recomendation && (
+                                <div className='flex flex-row items-center gap-2'>
+                                    <div>
+                                        Recomendation
+                                    </div>
+                                    <Image
+                                        aria-owns={open ? 'mouse-over-popover' : undefined}
+                                        aria-haspopup="true"
+                                        onMouseEnter={handlePopoverOpen}
+                                        onMouseLeave={handlePopoverClose}
+                                        src={"/assets/infoIcon.png"}
+                                        height={20}
+                                        width={20}
+                                        alt='*'
+                                    />
+                                    {/* <Popover
+                                        id="mouse-over-popover"
+                                        sx={{ pointerEvents: 'none' }}
+                                        open={open}
+                                        anchorEl={anchorEl}
+                                        anchorOrigin={{
+                                            vertical: 'bottom',
+                                            horizontal: 'left',
+                                        }}
+                                        transformOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'left',
+                                        }}
+                                        onClose={handlePopoverClose}
+                                        disableRestoreFocus
+                                    >
+                                        <Typography sx={{ p: 1 }}>I use Popover.</Typography>
+                                    </Popover> */}
+                                </div>
+                            )
+                        }
+
+
                     </div>
 
                     {/* Title */}
@@ -188,6 +248,14 @@ const Page = () => {
                             <p className="text-blue-500 text-sm font-semibold">{rate}</p>
                         </div>
                     )}
+
+
+                    {/* Tooltip code here */}
+                    <div>
+
+                    </div>
+
+
                 </div>
             </div>
         );
@@ -208,11 +276,11 @@ const Page = () => {
                                 Good to have you back, <span className='text-[#00000090]'>{userDetails?.name}</span>
                             </div> */}
                             <div
-                            style={{
-                                position: "absolute",
-                                top: 25,
-                                right: 100
-                            }}
+                                style={{
+                                    position: "absolute",
+                                    top: 25,
+                                    right: 100
+                                }}
                             >
                                 <NotficationsDrawer />
                             </div>
@@ -291,20 +359,20 @@ const Page = () => {
                                                         </MenuItem>
                                                         <MenuItem
                                                             className='hover:bg-[#402FFF10]'
-                                                            value={"Last 7Days"}
+                                                            value={"Last 7 Days"}
                                                             style={{
-                                                                backgroundColor: Duration === "Last 7Days" && "#7902DF",
-                                                                color: Duration === "Last 7Days" && "#ffffff",
+                                                                backgroundColor: Duration === "Last 7 Days" && "#7902DF",
+                                                                color: Duration === "Last 7 Days" && "#ffffff",
                                                             }}
                                                         >
                                                             Last 7 Days
                                                         </MenuItem>
                                                         <MenuItem
                                                             className='hover:bg-[#402FFF10]'
-                                                            value={"Last 30Days"}
+                                                            value={"Last 30 Days"}
                                                             style={{
-                                                                backgroundColor: Duration === "Last 30Days" && "#7902DF",
-                                                                color: Duration === "Last 30Days" && "#ffffff",
+                                                                backgroundColor: Duration === "Last 30 Days" && "#7902DF",
+                                                                color: Duration === "Last 30 Days" && "#ffffff",
                                                             }}
                                                         >
                                                             Last 30 Days
@@ -399,6 +467,7 @@ const Page = () => {
                                                 subtitle="Conversion rate"
                                                 rate={statsComparisonDetails?.hotLeadsChange ? `${statsComparisonDetails?.hotLeadsChange.toFixed(2)}%` : "-"}
                                                 borderSide="border-l-2 border-b-2"
+                                                recomendation={true}
                                             />
 
                                             {/* Card: Booked Meetings */}
@@ -409,6 +478,7 @@ const Page = () => {
                                                 subtitle="Conversion rate"
                                                 rate={statsComparisonDetails?.durationChange ? `${statsComparisonDetails?.durationChange.toFixed(2)}%` : "-"}
                                                 borderSide="border-l-2 border-b-2"
+                                                recomendation={true}
                                             />
 
                                             {/* Card: Voicemails */}
@@ -445,6 +515,9 @@ const Page = () => {
                                                 }}
                                                 onMouseEnter={() => { setAIWebinarhover(true) }}
                                                 onMouseLeave={() => { setAIWebinarhover(false) }}
+                                                onClick={() => {
+                                                    window.open("https://web.whatsapp.com/", "_blank")
+                                                }}
                                             >
                                                 <div className='flex flex-row gap-2'>
 
@@ -478,6 +551,9 @@ const Page = () => {
                                                 className='w-6/12 hover:bg-purple hover:text-white bg-white rounded p-4'
                                                 onMouseEnter={() => { setConsulthover(true) }}
                                                 onMouseLeave={() => { setConsulthover(false) }}
+                                                onClick={() => {
+                                                    window.open("https://web.whatsapp.com/", "_blank")
+                                                }}
                                             >
                                                 <div className='flex flex-row gap-2'>
                                                     {

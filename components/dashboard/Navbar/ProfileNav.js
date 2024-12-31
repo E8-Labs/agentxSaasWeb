@@ -133,8 +133,13 @@ const ProfileNav = () => {
 
       console.log("Data recieved from get profile api", response);
 
+      let Data = response?.data?.data
+
       if (response) {
-        if (response?.data?.data?.plan.status === "cancelled") {
+        if (Data?.plan && Data?.plan?.status === "active") {
+          setShowPlansPopup(false);
+        }
+        else{
           setShowPlansPopup(true);
         }
       }
