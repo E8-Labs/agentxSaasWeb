@@ -842,6 +842,7 @@ const Pipeline1 = () => {
           console.log("Updated list of pipelines is:", updatedPipelines);
           setSelectedPipeline(updatedPipelines[0]);
           setStagesList(updatedPipelines[0].stages);
+          setLeadsList(updatedPipelines[0].leads);
           // setSelectedPipeline(PipeLines)
           handlePipelineClosePopover();
         }

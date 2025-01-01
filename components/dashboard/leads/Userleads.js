@@ -512,10 +512,10 @@ const Userleads = ({
         sheetId: selectedSmartList.id,
       };
 
-      ////console.log("Apidata is:", ApiData);
+      console.log("Apidata is:", ApiData);
 
       const ApiPath = Apis.delSmartList;
-      ////console.log("Apipath is:", ApiPath);
+      console.log("Apipath is:", ApiPath);
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -530,6 +530,9 @@ const Userleads = ({
             prevSheetsList.filter((sheet) => sheet.id !== selectedSmartList.id)
           );
           setToggleClick([]);
+          setFilterLeads([]);
+          setLeadsList([]);
+          setShowNoLeadsLabel(true);
           handleClosePopup();
         }
       }

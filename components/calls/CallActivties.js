@@ -355,7 +355,7 @@ function SheduledCalls() {
                                                     return (
                                                         <div key={index}>
                                                             <div className='w-full flex flex-row items-center justify-between mt-10 px-10' key={index}>
-                                                                <div className='w-3/12 flex flex-row gap-2 items-center'>
+                                                                <div className='w-3/12 flex flex-row gap-4 items-center'>
                                                                     {
                                                                         agent?.agents[0]?.thumb_profile_image ? (
                                                                             <Image

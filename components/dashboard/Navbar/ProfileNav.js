@@ -139,7 +139,7 @@ const ProfileNav = () => {
         if (Data?.plan && Data?.plan?.status === "active") {
           setShowPlansPopup(false);
         }
-        else{
+        else {
           setShowPlansPopup(true);
         }
       }
@@ -352,10 +352,10 @@ const ProfileNav = () => {
             {userDetails?.user?.name.slice(0, 1).toUpperCase()}
           </div>
           <div>
-            <div style={{ fontSize: 15, fontWeight: "500", color: "" }}>
+            <div className='truncate' style={{ fontSize: 15, fontWeight: "500", color: "", width: "100px" }}>
               {userDetails?.user?.name}
             </div>
-            <div className='truncate max-w-full' style={{ fontSize: 15, fontWeight: "500", color: "#15151560", textOverflow: "ellipsis" }}>
+            <div className='truncate w-[100px]' style={{ fontSize: 15, fontWeight: "500", color: "#15151560", textOverflow: "ellipsis" }}>
               {userDetails?.user?.email}
             </div>
           </div>
@@ -460,6 +460,17 @@ const ProfileNav = () => {
                     )
                   }
 
+                </div>
+
+                <div className='w-full mt-4 flex flex-row items-center justify-center'>
+                  <button
+                    onClick={() => {
+                      localStorage.clear();
+                    }}
+                    className='text-red bg-[#FF4E4E40] font-[600] text-lg px-4 py-1 rounded-full'
+                  >
+                    Logout
+                  </button>
                 </div>
 
               </div>
