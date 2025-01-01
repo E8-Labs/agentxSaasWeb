@@ -214,7 +214,22 @@ const CreateAgentVoice = ({ handleBack }) => {
                                                     />
                                                 </div>
                                                 <div>
-                                                    {item.name}
+                                                    <div
+                                                        className='text-start'
+                                                        style={{
+                                                            fontSize: 14,
+                                                            fontWeight: "bold"
+                                                        }}
+                                                    >
+                                                        {item.name} {item.status && `(${item.status})`}
+                                                    </div>
+                                                    <div
+                                                        style={{
+                                                            fontSize: 14,
+                                                        }}
+                                                    >
+                                                        {item.Dialect}
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div className='flex flex-row items-center gap-4'>

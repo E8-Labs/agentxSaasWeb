@@ -12,6 +12,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import Apis from '../apis/Apis';
 import axios from 'axios';
+import CycleArray from '../onboarding/extras/CycleArray';
 
 
 let stripePublickKey = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production" ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
@@ -467,6 +468,19 @@ const CreatAgent3 = ({ handleContinue }) => {
                                     Terms & Conditions.
                                 </button>
                             </div>
+                        </div>
+                        
+                        <div
+                            style={{
+                                fontWeight: "600",
+                                fontSize: 17,
+                                position: "absolute",
+                                bottom: 230,
+                                right: "11%",
+                                // backgroundColor: "red"
+                            }}
+                        >
+                            <CycleArray />
                         </div>
 
                     </div>

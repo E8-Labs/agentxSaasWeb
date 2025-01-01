@@ -7,34 +7,41 @@ const voicesList = [
     {
         "voice_id": "sz74KZZVMr3DwJuTXjRF",
         "name": "Dax",
-        "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/Mtewh2emAIf6sPTaximW/a46327b2-cbf7-42d8-b547-7391eeef8d3f.mp3",
+        "preview": "/voicesList/Dax.m4a", //"https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/Mtewh2emAIf6sPTaximW/a46327b2-cbf7-42d8-b547-7391eeef8d3f.mp3",
         "workspace": "1711297163700x954223200313016300",
         "img": "/voicesIcons/dax.svg",
-        "status": "Popular"
+        "status": "Popular",
+        "Dialect" : "Assertive, Energetic, Direct | American"
     },
     {
         "voice_id": "qZVyogWNtPPM0VPTPQQb",
         "name": "Mia",
-        "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/OwJhPTZ4lzFyFezy7s44/130dfda4-808c-4ad2-8c06-67e66bb0a8f2.mp3",
+        "preview": "/voicesList/Mia.m4a",
+        // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/OwJhPTZ4lzFyFezy7s44/130dfda4-808c-4ad2-8c06-67e66bb0a8f2.mp3",
         "workspace": "1711297163700x954223200313016300",
         "img": "/voicesIcons/mia.svg",
-        "status": "Popular"
+        "status": "Popular",
+        "Dialect" : "Expressive, Playful, Casual | American"
     },
     {
         "voice_id": "CvxifsWrvd7KUAkDHUTq",
         "name": "Xen",
-        "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/vjDLFGLODo1aXEe4wfjr/9ccd8c10-8dac-450c-8e81-b70ddd6b8972.mp3",
+        "preview": "/voicesList/Xen.m4a",
+        // "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/vjDLFGLODo1aXEe4wfjr/9ccd8c10-8dac-450c-8e81-b70ddd6b8972.mp3",
         "workspace": "1711297163700x954223200313016300",
         "img": "/voicesIcons/xen.svg",
-        "status": ""
+        "status": "",
+        "Dialect" : "Thoughtful, Inspirational, Empathetic | British"
     },
     {
-        "voice_id": "7oWqznej0zTv1hLyDxYb",
-        "name": "Max",
-        "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/dET7jF0sHOQ3QYYh1ATa/a294e51a-c27b-4389-ae11-8bbaa8eda1f7.mp3",
+        "voice_id": "5T8AzGjpnC5cQCfJofdO", //"7oWqznej0zTv1hLyDxYb",
+        "name": "Zane",
+        "preview": "/voicesList/Zane.m4a",
+        // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/dET7jF0sHOQ3QYYh1ATa/a294e51a-c27b-4389-ae11-8bbaa8eda1f7.mp3",
         "workspace": "1711297163700x954223200313016300",
-        "img": "/voicesIcons/dax.svg",
-        "status": ""
+        "img": "/voicesIcons/zane.svg",
+        "status": "Popular",
+        "Dialect" : "Confident, Relatable, Charismatic | American"
     },
     // {
     //     "voice_id": "Kv0DPNbR5iMqZTeA31M1",
@@ -47,57 +54,69 @@ const voicesList = [
     {
         "voice_id": "8iKM7M97Poa57n6zNwYk",
         "name": "Aria",
-        "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/8bcxjQ6X7kOds3OyEf6Q/e0e495f0-2b7c-4847-9b61-ea33ede5288d.mp3",
+        "preview": "/voicesList/Aria.m4a",
+        // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/8bcxjQ6X7kOds3OyEf6Q/e0e495f0-2b7c-4847-9b61-ea33ede5288d.mp3",
         "workspace": "1711297163700x954223200313016300",
         "img": "/voicesIcons/aria.svg",
-        "status": ""
+        "status": "",
+        "Dialect" : "Warm, Poised, Relatable | American"
     },
     {
         "voice_id": "AVWDTwpGcuPST1zxEsP7",
         "name": "Kaia",
-        "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/YdyNcsfx3kERGPH9K5lz/724ddcde-3d8d-4bcf-ae52-df490babe737.mp3",
+        "preview": "/voicesList/Kaia.m4a",
+        // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/YdyNcsfx3kERGPH9K5lz/724ddcde-3d8d-4bcf-ae52-df490babe737.mp3",
         "workspace": "1711297163700x954223200313016300",
         "img": "/voicesIcons/kala.svg",
-        "status": "Popular"
+        "status": "Popular",
+        "Dialect" : "Motivational, Direct, Empowering | American"
     },
     {
         "voice_id": "54TUjxRZp1CTKeNbtpUc",
         "name": "Cade",
-        "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/nefh8u15F5ECgY6ijXg3/a63a5568-0b7b-449a-bb27-65a8ee49138e.mp3",
+        "preview": "/voicesList/Cade.m4a",
+        // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/nefh8u15F5ECgY6ijXg3/a63a5568-0b7b-449a-bb27-65a8ee49138e.mp3",
         "workspace": "1711297163700x954223200313016300",
         "img": "/voicesIcons/cade.svg",
-        "status": ""
+        "status": "",
+        "Dialect" : "Strategic, Confident, Analytical | American"
     },
     {
-        "voice_id": "oz7FsqINAUL7e6EWZ0tH",
+        "voice_id": "LCsWedsKZj9Tc6Cv7z5x", //"oz7FsqINAUL7e6EWZ0tH",
         "name": "Axel",
-        "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/6GVyQucC304UHGgMcWVg/4f5dd560-2475-444d-9775-14eec0af0185.mp3",
+        "preview": "/voicesList/Axel.m4a",
+        // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/6GVyQucC304UHGgMcWVg/4f5dd560-2475-444d-9775-14eec0af0185.mp3",
         "workspace": "1711297163700x954223200313016300",
         "img": "/voicesIcons/axel.svg",
-        "status": ""
+        "status": "Popular",
+        "Dialect" : "Straightforward, Persuasive, Analytical | American"
     },
     {
-        "voice_id": "o3E7GHj69RKX5xFrKDhd",
+        "voice_id": "aZXFgXrDxDmHxtZlTB7G", //"o3E7GHj69RKX5xFrKDhd",
         "name": "Ava",
-        "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/o3E7GHj69RKX5xFrKDhd/6a8be761-9a5a-4858-bbb1-a1aa5bd88c51.mp3",
+        "preview": "/voicesList/Ava.m4a",
+        // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/o3E7GHj69RKX5xFrKDhd/6a8be761-9a5a-4858-bbb1-a1aa5bd88c51.mp3",
         "workspace": "1711297163700x954223200313016300",
         "img": "/voicesIcons/ava.svg",
-        "status": ""
+        "status": "",
+        "Dialect" : "Calm, Intense, Focused | American"
     },
     {
-        "voice_id": "5aOHxVGviCbvOnsHsrWn",
-        "name": "Neo",
-        "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/5aOHxVGviCbvOnsHsrWn/d88b5e99-1892-4736-b401-5ed6172b6f2b.mp3",
+        "voice_id": "yUeKuNxGTYAYe6vcplkT", //"5aOHxVGviCbvOnsHsrWn",
+        "name": "Luna",
+        "preview": "/voicesList/Luna.m4a",
+        // "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/5aOHxVGviCbvOnsHsrWn/d88b5e99-1892-4736-b401-5ed6172b6f2b.mp3",
         "workspace": "1711297163700x954223200313016300",
-        "img": "/voicesIcons/neo.svg",
-        "status": ""
+        "img": "/voicesIcons/luna.svg",
+        "status": "",
+        "Dialect" : "Personable, Assertive, Encouraging | American"
     },
     {
         "voice_id": "yUeKuNxGTYAYe6vcplkT",
         "name": "Luna",
         "preview": "",
         "workspace": "1711297163700x954223200313016300",
-        "img": "/voicesIcons/luna.svg",
+        "img": "/voicesIcons/Luna.svg",
         "status": ""
     },
     {
