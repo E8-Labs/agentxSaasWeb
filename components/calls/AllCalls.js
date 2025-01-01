@@ -72,7 +72,7 @@ function AllCalls() {
   //code for details modal
   const [selectedLeadsDetails, setselectedLeadsDetails] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  console.log("Status of modal1 is", showDetailsModal);
+
 
   const [selectedPipeline, setSelectedPipeline] = useState("");
   const [selectedStageIds, setSelectedStageIds] = useState([]);
@@ -252,8 +252,14 @@ function AllCalls() {
         AuthToken = Data.token;
       }
 
-      const startDate = moment(selectedFromDate).format("MM-DD-YYYY");
-      const endDate = moment(selectedToDate).format("MM-DD-YYYY");
+      let startDate = "";
+      let endDate = "";
+
+      if (selectedFromDate && selectedToDate) {
+        startDate = moment(selectedFromDate).format("MM-DD-YYYY");
+        endDate = moment(selectedToDate).format("MM-DD-YYYY");
+      }
+
 
       const stages = selectedStageIds.join(",");
       console.log("Sages selected are ", stages);
@@ -861,18 +867,16 @@ function AllCalls() {
                         onClick={() => {
                           handleSelectStage(item);
                         }}
-                        className={`p-2 border border-[#00000020] ${
-                          selectedStageIds.includes(item.id)
-                            ? `bg-purple`
-                            : "bg-transparent"
-                        } px-6
-                                                                ${
-                                                                  selectedStageIds.includes(
-                                                                    item.id
-                                                                  )
-                                                                    ? `text-white`
-                                                                    : "text-black"
-                                                                } rounded-2xl`}
+                        className={`p-2 border border-[#00000020] ${selectedStageIds.includes(item.id)
+                          ? `bg-purple`
+                          : "bg-transparent"
+                          } px-6
+                                                                ${selectedStageIds.includes(
+                            item.id
+                          )
+                            ? `text-white`
+                            : "text-black"
+                          } rounded-2xl`}
                       >
                         {item.stageTitle}
                       </button>
@@ -905,11 +909,12 @@ function AllCalls() {
                       fontWeight: "600",
                       backgroundColor:
                         (selectedFromDate && selectedToDate) ||
-                        selectedStageIds.length > 0
+                          selectedStageIds.length > 0
                           ? ""
                           : "#00000050",
                     }}
                     onClick={() => {
+                      console.log("Check 1");
                       if (
                         (selectedFromDate && selectedToDate) ||
                         selectedStageIds.length > 0

@@ -2301,6 +2301,7 @@ const Userleads = ({
                             ////console.log("Can continue");
                             // setLeadsList([]);
                             // setFilterLeads([]);
+                            setShowFilterModal(false)
                             setFiltersFromSelection();
 
                             // let filterText = getFilterText();

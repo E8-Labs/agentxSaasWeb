@@ -73,9 +73,14 @@ const Apis = {
   //redeem plan
   redeemPlan: `${BasePath}api/user/redeemAbortCancelReward`,
 
-  getNotifications:`${BasePath}api/user/notifications`,
+  getNotifications: `${BasePath}api/user/notifications`,
 
-  updateAgentImg: `${BasePath}api/agent/updateAgentProfileImage`
+  updateAgentImg: `${BasePath}api/agent/updateAgentProfileImage`,
+  myApiKeys: `${BasePath}api/user/apiKeys`,
+  genrateApiKey: `${BasePath}api/user/generateApiKey`,
+
+
+  getImportantCalls: `${BasePath}api/leads/importantCalls`,
 
 };
 

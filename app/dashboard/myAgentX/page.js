@@ -912,7 +912,7 @@ function Page() {
     setSeledtedScriptAdvanceSetting(false);
   };
 
-  const AssignNumber = async () => {
+  const AssignNumber = async (phoneNumber) => {
     try {
       setAssignLoader(true);
       let AuthToken = null;
@@ -924,7 +924,7 @@ function Page() {
       }
 
       const formData = new FormData();
-      formData.append("phoneNumber", assignNumber);
+      formData.append("phoneNumber", phoneNumber);
       formData.append("callbackNumber", showDrawer?.callbackNumber);
       // if (userSelectedNumber) {
       //   formData.append("callbackNumber", assignNumber);
@@ -958,7 +958,7 @@ function Page() {
           setAgentsContent((prevAgents) =>
             prevAgents.map((agent) =>
               agent.id === showDrawer.id
-                ? { ...agent, phoneNumber: assignNumber }
+                ? { ...agent, phoneNumber: phoneNumber }
                 : agent
             )
           );
@@ -2671,51 +2671,8 @@ function Page() {
                       color: "#000",
                     }}
                   >
-                    {/*showDrawer?.phoneNumber*/}
-                    {/* <FormControl size="200px">
-
-                        <Select
-                          value={assignNumber}
-                          onChange={handleAssignNumberChange}
-                          displayEmpty // Enables placeholder
-                          renderValue={(selected) => {
-                            if (!selected) {
-                              return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
-                            }
-                            return selected;
-                          }}
-                          sx={{
-                            border: "1px solid #00000020", // Default border
-                            "&:hover": {
-                              border: "1px solid #00000020", // Same border on hover
-                            },
-                            "& .MuiOutlinedInput-notchedOutline": {
-                              border: "none", // Remove the default outline
-                            },
-                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                              border: "none", // Remove outline on focus
-                            },
-                            "&.MuiSelect-select": {
-                              py: 0, // Optional padding adjustments
-                            },
-                          }}
-                          MenuProps={{
-                            PaperProps: {
-                              style: {
-                                maxHeight: "30vh", // Limit dropdown height
-                                overflow: "auto", // Enable scrolling in dropdown
-                                scrollbarWidth: "none",
-                                // borderRadius: "10px"
-                              },
-                            },
-                          }}
-                        >
-                          <MenuItem value={10}>Ten</MenuItem>
-                          <MenuItem value={20}>Twenty</MenuItem>
-                          <MenuItem value={30}>Thirty</MenuItem>
-                        </Select>
-                      </FormControl> */}
                     <Box className="w-full">
+                      
                       <FormControl className="w-full">
                         <Select
                           ref={selectRef}
@@ -2762,7 +2719,8 @@ function Page() {
                                     // AssignNumber
                                   } else {
                                     console.log("Should call assign number api")
-                                    AssignNumber()
+                                    AssignNumber(item.phoneNumber)
+                                    console.log("Updated number is", item.phoneNumber)
                                   }
                                 }}
                               >

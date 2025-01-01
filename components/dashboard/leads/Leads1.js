@@ -485,7 +485,12 @@ const Leads1 = () => {
       console.log("Al credentials valid");
     } else {
       console.log("Al credentials not valid");
-      setErrSnack("First Name, Last Name & Phone Number are complusory")
+      if (!hasPhone) {
+        setErrSnack("Phone number is required Can't upload leads without a phone")
+      }
+      if (!hasFullName) {
+        setErrSnack("Name is required. Please define the name to continue")
+      }
     }
   };
 

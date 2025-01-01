@@ -38,6 +38,9 @@ const Pipeline1 = ({ handleContinue }) => {
 
   const [nextStage, setNextStage] = useState({});
   const [selectedNextStage, setSelectedNextStage] = useState({});
+
+  const [showRearrangeErr, setShowRearrangeErr] = useState(false);
+
   // const [nextStage, setNextStage] = useState([]);
   // const [selectedNextStage, setSelectedNextStage] = useState([]);
 
@@ -684,6 +687,7 @@ const Pipeline1 = ({ handleContinue }) => {
                 handleSelectNextChange={handleSelectNextChange}
                 selectedPipelineStages={selectedPipelineStages}
                 selectedPipelineItem={selectedPipelineItem}
+                setShowRearrangeErr={setShowRearrangeErr}
               />
 
               {/* Reorder stage loader modal */}
@@ -769,6 +773,41 @@ const Pipeline1 = ({ handleContinue }) => {
           </Alert>
         </Snackbar>
       </div>
+
+      <div>
+        <Snackbar
+          open={showRearrangeErr}
+          autoHideDuration={3000}
+          onClose={() => {
+            setShowRearrangeErr(false);
+          }}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "center",
+          }}
+          TransitionComponent={Fade}
+          TransitionProps={{
+            direction: "center",
+          }}
+        >
+          <Alert
+            onClose={() => {
+              setShowRearrangeErr(false);
+            }}
+            severity="error"
+            // className='bg-purple rounded-lg text-white'
+            sx={{
+              width: "auto",
+              fontWeight: "700",
+              fontFamily: "inter",
+              fontSize: "22",
+            }}
+          >
+            Cannot rearrange stages while a stage expanded.
+          </Alert>
+        </Snackbar>
+      </div>
+
     </div>
   );
 };

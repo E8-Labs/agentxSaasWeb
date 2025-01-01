@@ -356,9 +356,26 @@ function SheduledCalls() {
                                                         <div key={index}>
                                                             <div className='w-full flex flex-row items-center justify-between mt-10 px-10' key={index}>
                                                                 <div className='w-3/12 flex flex-row gap-2 items-center'>
-                                                                    <div className='h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white'>
-                                                                        {agent.name.slice(0, 1).toUpperCase()}
-                                                                    </div>
+                                                                    {
+                                                                        agent?.agents[0]?.thumb_profile_image ? (
+                                                                            <Image
+                                                                                className='rounded-full'
+                                                                                src={agent?.agents[0].thumb_profile_image}
+                                                                                height={40}
+                                                                                width={40}
+                                                                                style={{
+                                                                                    height: "40px",
+                                                                                    width: "40px",
+                                                                                    resize: "cover"
+                                                                                }}
+                                                                                alt='*'
+                                                                            />
+                                                                        ) : (
+                                                                            <div className='h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white'>
+                                                                                {agent.name.slice(0, 1).toUpperCase()}
+                                                                            </div>
+                                                                        )
+                                                                    }
                                                                     <div style={styles.text2}>{agent.name}</div>
                                                                 </div>
                                                                 <div className='w-2/12 '>

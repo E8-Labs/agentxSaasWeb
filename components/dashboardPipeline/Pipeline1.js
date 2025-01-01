@@ -38,12 +38,18 @@ import parsePhoneNumberFromString from "libphonenumber-js";
 import moment from "moment";
 import LeadDetails from "../dashboard/leads/extras/LeadDetails";
 import NotficationsDrawer from "../notofications/NotficationsDrawer";
+import CallWorthyReviewsPopup from "../dashboard/leads/CallWorthyReviewsPopup";
 // import "./TagsInput.css"; // Import the custom CSS
 // import TagsInput from '../dashboard/leads/TagsInput';
 
 const Pipeline1 = () => {
   const bottomRef = useRef();
   const colorPickerRef = useRef();
+
+  //variale for floating view
+  const [expandSideView, setExpandSideView] = useState(false);
+  const [openCallWorthyPopup, setOpenCallWorthyPopup] = useState(false);
+
 
   const [pipelinePopoverAnchorel, setPipelinePopoverAnchorel] = useState(null);
   const open = Boolean(pipelinePopoverAnchorel);
@@ -110,6 +116,9 @@ const Pipeline1 = () => {
     setAssigntoActionInfoEl(null);
   };
   //dele stage loader
+
+  const [showDelBtn, setShowDelBtn] = useState(false);
+
   const [selectedStage, setSelectedStage] = useState(null);
   const [delStageLoader, setDelStageLoader] = useState(false);
   const [delStageLoader2, setDelStageLoader2] = useState(false);
@@ -186,6 +195,48 @@ const Pipeline1 = () => {
 
   //variable to show and hide the add stage btn
   const [showAddStageBtn, setShowAddStageBtn] = useState(false);
+
+  //variables for getting woorthy call logs
+  const [importantCalls, setImportantCalls] = useState([])
+  const [selectedCall, setSelectedCall] = useState('')
+
+
+  useEffect(() => {
+    getImportantCalls()
+  }, [])
+
+  const getImportantCalls = async () => {
+    try {
+      const data = localStorage.getItem("User")
+      if (data) {
+        const u = JSON.parse(data)
+        let path = Apis.getImportantCalls;
+        console.log("Apipath for getcall", path);
+        console.log("Authtoken for getcall", u.token);
+        const response = await axios.get(path, {
+          headers: {
+            "Authorization": `Bearer ${u.token}`
+          }
+        })
+
+        if (response) {
+          if (response.data.status === true) {
+            console.log('response of get imporatant calls api is', response.data.data)
+            setImportantCalls(response.data.data)
+            setSelectedCall(response.data.data[0])
+          } else {
+            console.log("message of get important calls api is", response.data.message)
+          }
+        }
+      }
+    } catch (e) {
+      console.log('error in get important calls api is', e)
+    }
+  }
+
+
+
+
 
   //code for showing the add stage button according to dirredent conditions
   // useEffect(() => {
@@ -1405,6 +1456,13 @@ const Pipeline1 = () => {
                         aria-describedby={stageId}
                         variant="contained"
                         onClick={(evetn) => {
+                          if (stage.identifier === "new_lead") {
+                            console.log("donotShow del btn")
+                            setShowDelBtn(true);
+                          } else {
+                            setShowDelBtn(false);
+                          }
+                          console.log("Show del btn", stage)
                           handleShowStagePopover(evetn, stage);
                         }}
                         className="outline-none"
@@ -1507,25 +1565,31 @@ const Pipeline1 = () => {
                           </div>
                         </div>
                         <div ref={bottomRef}></div>
-                        <div className="w-full flex flex-row mt-4">
-                          <button
-                            className="text-red flex flex-row items-center gap-4 me-2 outline-none"
-                            style={styles.paragraph}
-                            onClick={() => {
-                              console.log("Selected stage is:", selectedStage);
-                              // setSelectedStage(item);
-                              setShowDelStageModal(true);
-                            }}
-                          >
-                            <Image
-                              src={"/assets/delIcon.png"}
-                              height={18}
-                              width={18}
-                              alt="*"
-                            />
-                            Delete
-                          </button>
-                        </div>
+
+                        {
+                          !showDelBtn && (
+                            <div className="w-full flex flex-row mt-4">
+                              <button
+                                className="text-red flex flex-row items-center gap-4 me-2 outline-none"
+                                style={styles.paragraph}
+                                onClick={() => {
+                                  console.log("Selected stage is:", selectedStage);
+                                  // setSelectedStage(item);
+                                  setShowDelStageModal(true);
+                                }}
+                              >
+                                <Image
+                                  src={"/assets/delIcon.png"}
+                                  height={18}
+                                  width={18}
+                                  alt="*"
+                                />
+                                Delete
+                              </button>
+                            </div>
+                          )
+                        }
+
                       </div>
                     </Popover>
 
@@ -2375,7 +2439,8 @@ const Pipeline1 = () => {
                       height: "50px",
                       borderRadius: "10px",
                       width: "100%",
-                      backgroundColor: !assignNextStage && "#00000060",
+                      backgroundColor: !assignNextStage && "#00000020",
+                      color: !assignNextStage && "#000000",
                       fontWeight: 600,
                       fontSize: "20",
                     }}
@@ -2405,7 +2470,7 @@ const Pipeline1 = () => {
                         handleDeleteStage("del");
                       }}
                     >
-                      Delete without moving
+                      Delete and remove leads from pipeline
                     </button>
                   </div>
                 )}
@@ -3003,6 +3068,110 @@ const Pipeline1 = () => {
           </div>
         </Box>
       </Modal>
+
+
+      {/* Code for side view */}
+
+      {
+        importantCalls?.length > 0 && (
+          <div
+            className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${expandSideView ? 'w-[506px]' : 'w-[100px]'}`} //${expandSideView ? 'w-[32vw]' : 'w-[7vw]'}
+            style={{
+              borderTopLeftRadius: expandSideView ? "0" : '40px',
+              borderBottomLeftRadius: expandSideView ? "0" : '40px',
+              // alignSelf: 'flex-end',
+              position: "absolute",
+              // transform: expandSideView ? "translateX(0)" : "translateX(100%)",
+              bottom: 100,
+              right: 0,
+            }}
+            onClick={() => { }}
+          >
+
+
+            {expandSideView ? (
+              <div className='w-full flex flex-row items-center gap-4  h-20'>
+                <button
+                  className="flex flex-col items-center justify-center gap-1"
+                  onClick={() => { setOpenCallWorthyPopup(true) }}
+                >
+                  <img
+                    src="/svgIcons/fireIcon.png"
+                    style={{ height: 25, width: 25 }}
+                    alt="Fire Icon"
+                  />
+                  <img
+                    src="/svgIcons/threeDots.svg"
+                    style={{ height: 5, width: 15 }}
+                    alt="Three Dots"
+                  />
+                </button>
+                <button
+                  onClick={() => { setOpenCallWorthyPopup(true) }}
+                  className='flex flex-col items-start  truncate'
+                >
+                  <div className="text-[17px] font-[600]">
+                    While you were away
+                  </div>
+                  <div className="text-[15px] font-[500]">
+                    Here are some calls that sounded important.
+                  </div>
+                </button>
+                <div className='flex flex-col items-start ml-[30px]'>
+
+                  <button className="text-purple mt-2"
+                    onClick={() => { setExpandSideView(false) }}
+                  >
+                    <img src='/svgIcons/cross.svg'
+                      style={{ height: 24, width: 24 }}
+                    />
+                  </button>
+
+                  <button className="text-purple mt-2"
+                    onClick={() => { setExpandSideView(false) }}
+                  >
+                    Hide
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className='w-full flex flex-row gap-4 items-center cursor-pointer h-20' onClick={() => setExpandSideView(!expandSideView)}>
+                <div className="flex flex-col items-center justify-center gap-1">
+                  <img
+                    src="/svgIcons/fireIcon.png"
+                    style={{ height: 25, width: 25 }}
+                    alt="Fire Icon"
+                  />
+                  <img
+                    src="/svgIcons/threeDots.svg"
+                    style={{ height: 5, width: 15 }}
+                    alt="Three Dots"
+                  />
+                </div>
+                <img
+                  src="/svgIcons/leftArrowIcon.svg"
+                  style={{ height: 24, width: 24 }}
+                  alt="Three Dots"
+                />
+
+              </div>
+            )
+            }
+          </div>
+        )
+      }
+
+      {/* Code for calll worthy modal */}
+      {
+        openCallWorthyPopup && (
+          <CallWorthyReviewsPopup
+            open={openCallWorthyPopup}
+            close={() => { setOpenCallWorthyPopup(false) }}
+          />
+        )
+      }
+
+
     </div>
   );
 };

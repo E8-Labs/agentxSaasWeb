@@ -11,7 +11,9 @@ const nextConfig = {
           },
           {
             protocol: 'https',
-            hostname: 'randomuser.me',  // Another domain you're using
+            hostname: 'www.blindcircle.com',
+            // port: '444',  // Specify the port here
+            pathname: '/agentxtest/uploads/**',  // Allow specific path
           },
           {
             protocol: 'https',

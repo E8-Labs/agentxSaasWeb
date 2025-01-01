@@ -21,7 +21,8 @@ const PipelineStages = ({
     nextStage,
     handleSelectNextChange,
     selectedPipelineStages,
-    selectedPipelineItem
+    selectedPipelineItem,
+    setShowRearrangeErr
 }) => {
     const [pipelineStages, setPipelineStages] = useState(stages);
     const [delStageLoader, setDelStageLoader] = useState(false);
@@ -199,6 +200,7 @@ const PipelineStages = ({
         console.log("Check 1")
         // if (!destination) return;
         if (!destination || source.index === 0 || destination.index === 0) {
+            setShowRearrangeErr(true);
             console.log("Check 2 then return")
             return;
         }
@@ -208,12 +210,12 @@ const PipelineStages = ({
         //     return;
         // }
 
-        // console.log("Check 3")
+        console.log("Check 3")
         const items = Array.from(pipelineStages);
         const [reorderedItem] = items.splice(source.index, 1);
         items.splice(destination.index, 0, reorderedItem);
 
-        // console.log("Check 4")
+        console.log("Check 4")
         const updatedStages = items.map((stage, index) => ({
             ...stage,
             order: index + 1,
@@ -1057,7 +1059,8 @@ const PipelineStages = ({
                                                                                     style={{
                                                                                         color: "white",
                                                                                         height: "50px", borderRadius: "10px", width: "100%",
-                                                                                        backgroundColor: !assignNextStage && "#00000060",
+                                                                                        backgroundColor: !assignNextStage && "#00000020",
+                                                                                        color: !assignNextStage && "#000000",
                                                                                         fontWeight: 600, fontSize: '20'
                                                                                     }}
                                                                                     onClick={(e) => { handleDeleteStage("del2") }}
@@ -1080,7 +1083,7 @@ const PipelineStages = ({
                                                                                         }}
                                                                                         onClick={(e) => { handleDeleteStage("del") }}
                                                                                     >
-                                                                                        Delete without moving
+                                                                                        Delete and remove leads from pipeline
                                                                                     </button>
                                                                                 </div>
                                                                         }
