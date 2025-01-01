@@ -1479,9 +1479,9 @@ const Userleads = ({
           </div>
         </div>
       </div>
-      <div className="w-[95%] pe-12 mt-6">
+      <div className="w-[95%] pe-12 mt-2">
         {initialLoader ? (
-          <div className="w-full h-screen flex flex-row justify-center">
+          <div className="w-full h-screen flex flex-row justify-center mt-12">
             <CircularProgress size={35} />
           </div>
         ) : (
@@ -1583,7 +1583,7 @@ const Userleads = ({
                 </Modal>
               </div>
             </div>
-            <div className="flex flex-row items-center justify-between w-full mt-10 w-full">
+            <div className="flex flex-row items-center justify-between w-full mt-4 w-full">
               <div className="flex flex-row items-center gap-4 overflow-none flex-shrink-0 w-[90%]">
                 <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded pe-2">
                   <input

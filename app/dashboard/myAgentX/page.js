@@ -34,6 +34,7 @@ import voicesList from "@/components/createagent/Voices";
 import UserCalender from "@/components/dashboard/myagentX/UserCallender";
 import CircularLoader from "@/utilities/CircularLoader";
 import imageCompression from 'browser-image-compression';
+import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 
 function Page() {
   const timerRef = useRef();
@@ -466,13 +467,17 @@ function Page() {
 
   //code for formating the number
   const formatPhoneNumber = (rawNumber) => {
-    const phoneNumber = parsePhoneNumberFromString(
-      rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
-    );
-    // //console.log("Raw number is", rawNumber);
-    return phoneNumber
-      ? phoneNumber.formatInternational()
-      : "Invalid phone number";
+    if (rawNumber) {
+      const phoneNumber = parsePhoneNumberFromString(
+        rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
+      );
+      // //console.log("Raw number is", rawNumber);
+      return phoneNumber
+        ? phoneNumber.formatInternational()
+        : "No phone number";
+    } else {
+      return "No phone number";
+    }
   };
 
   //fucntion for assigning the number
@@ -1531,13 +1536,10 @@ function Page() {
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>My Agents</div>
 
-        <button className="pr-10">
-          <img
-            src="/otherAssets/notificationIcon.png"
-            style={{ height: 24, width: 24 }}
-            alt="notificationIcon"
-          />
-        </button>
+        <div>
+          <NotficationsDrawer />
+        </div>
+
       </div>
 
       <div className="w-9/12 items-center " style={{}}>
@@ -1862,7 +1864,7 @@ function Page() {
                             "CU_address",
                             "CU_status",
                           ];
-                          if (!defaultVariables.includes(match[1]) && match[1]?.length < 15 ) {
+                          if (!defaultVariables.includes(match[1]) && match[1]?.length < 15) {
                             // match[1]?.length < 15
                             if (
                               !keys.includes(match[1]) &&

@@ -652,10 +652,10 @@ const LeadDetails = ({
                                           setShowAllEmails(true);
                                         }}
                                       >
-                                        
+
                                         {selectedLeadsDetails?.emails?.length > 1 ?
                                           `+${selectedLeadsDetails?.emails?.length -
-                                            1 }` : ""}
+                                          1}` : ""}
                                       </button>
                                     </div>
                                   );
@@ -698,8 +698,8 @@ const LeadDetails = ({
                                   }}
                                 >
                                   {selectedLeadsDetails?.emails?.length > 1 ?
-                                          `+${selectedLeadsDetails?.emails?.length -
-                                            1 }` : ""}
+                                    `+${selectedLeadsDetails?.emails?.length -
+                                    1}` : ""}
                                 </button>
                               </div>
                             );
@@ -1255,8 +1255,7 @@ const LeadDetails = ({
                                       <div
                                         style={{
                                           fontWeight: "500",
-                                          fontSize: 13,
-                                          color: "#00000060",
+                                          fontSize: 15,
                                         }}
                                       >
                                         {item.question}
@@ -1265,7 +1264,8 @@ const LeadDetails = ({
                                         className="mt-1"
                                         style={{
                                           fontWeight: "500",
-                                          fontSize: 15,
+                                          fontSize: 13,
+                                          color: "#00000060",
                                         }}
                                       >
                                         {item.answer}

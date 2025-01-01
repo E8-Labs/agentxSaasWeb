@@ -1161,8 +1161,8 @@ const Pipeline1 = () => {
         className="w-full flex flex-row justify-center"
         style={{ borderBottom: "1px solid #15151510" }}
       >
-        <div className="w-[95%]">
-          <div className="flex flex-row items-center justify-between pe-12 mt-4 mb-4">
+        <div className="w-full">
+          <div className="flex flex-row items-center justify-between px-10 mt-4 mb-4">
             <div className="flex flex-row items-center gap-2">
               <span style={{ fontWeight: "700", fontSize: 25 }}>
                 {SelectedPipeline?.title}

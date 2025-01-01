@@ -20,11 +20,9 @@ const AddCardDetails = ({
     //console.log("From Build AI Screen ", fromBuildAiScreen)
     //console.log("From Build AI Screen Selected Plan", selectedPlan)
 
+    const [inviteCode, setInviteCode] = useState("");
 
     const [addCardLoader, setAddCardLoader] = useState(false);
-    const [addNumberErr, setAddNumberErr] = useState(false);
-    const [addDateErr, setAddDateErr] = useState(false);
-    const [cvcErr, setCvcErr] = useState(false);
     const [credentialsErr, setCredentialsErr] = useState(false);
     const [addCardSuccess, setAddCardSuccess] = useState(false);
     const [addCardFailure, setAddCardFailure] = useState(false);
@@ -195,12 +193,22 @@ const AddCardDetails = ({
                 // }
                 const ApiPath = Apis.addCard;
                 console.log("Api path is", ApiPath);
-                const AddCardData = {
-                    source: tokenId,
-                    // modelId: modelId
-                }
-                console.log("Data for card number :", AddCardData);
 
+                let AddCardData = null;
+
+                if (inviteCode) {
+                    AddCardData = {
+                        source: tokenId,
+                        inviteCode: inviteCode
+                    }
+                } else {
+                    AddCardData = {
+                        source: tokenId,
+                    }
+                }
+
+                console.log("Data for card number :", AddCardData);
+                // return
                 try {
                     const LocalData = localStorage.getItem('User');
                     const D = JSON.parse(LocalData);
@@ -425,6 +433,36 @@ const AddCardDetails = ({
                     </div>
                 </div>
             </div>
+
+            {/* Optional input field for agent x invite code */}
+
+            <div
+                className='mt-8'
+                style={{ fontWeight: "400", fontFamily: "inter", fontSize: 13, color: "#4F5B76" }}
+            >
+                {`AgentX Code (optional)`}
+            </div>
+
+            <div className='mt-4'>
+                <input
+                    value={inviteCode}
+                    onChange={(e) => { setInviteCode(e.target.value) }}
+                    className='outline-none focus:ring-0 w-full h-[50px]'
+                    style={{
+                        color: "#000000",
+                        backgroundColor: "#EDEDEDC7", borderRadius: "8px",
+                        border: "0px solid #00000000", fontSize: 15,
+                        fontWeight: "500"
+                    }}
+                    placeholder='Enter AgentX code'
+                />
+                <style jsx>{`
+    input::placeholder {
+      color: #00000050; /* Set placeholder text color to red */
+    }
+  `}</style>
+            </div>
+
             {/* <CardPostalCodeElement id="postal-code" options={elementOptions} /> */}
             <div className='w-full mt-6 flex justify-center'>
                 {

@@ -279,7 +279,7 @@ const Page = () => {
                                 style={{
                                     position: "absolute",
                                     top: 25,
-                                    right: 100
+                                    right: 50
                                 }}
                             >
                                 <NotficationsDrawer />

@@ -6,10 +6,12 @@ import ProgressBar from '@/components/onboarding/ProgressBar';
 import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
 import PricingBox from '../test/PricingBox';
-import { Box, Modal } from '@mui/material';
+import { Box, CircularProgress, Modal } from '@mui/material';
 import AddCardDetails from './addpayment/AddCardDetails';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
+import Apis from '../apis/Apis';
+import axios from 'axios';
 
 
 let stripePublickKey = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production" ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
@@ -26,6 +28,12 @@ const CreatAgent3 = ({ handleContinue }) => {
     const [addPaymentSuccessPopUp, setAddPaymentSuccessPopUp] = useState(false);
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [shouldContinue, setShouldContinue] = useState(true);
+    //variables for 2nd plan subscription
+    const [showSubscribeplan2, setShowSubscribeplan2] = useState(false);
+    const [togglePlan2, setTogglePlan2] = useState(false);
+    const [selectedPlan2, setSelectedPlan2] = useState(null);
+    const [subscribePlanLoader, setSubscribePlanLoader] = useState(false)
+
 
     //code for adding stripe
     const [cardData, getcardData] = useState("");
@@ -36,6 +44,7 @@ const CreatAgent3 = ({ handleContinue }) => {
         }
     }, [togglePlan, agreeTerms])
 
+    //selects 1st plan popup
     const handleTogglePlanClick = (item) => {
         // if (togglePlan) {
         //     setTogglePlan(prevId => (prevId === item.id ? null : item.id));
@@ -61,6 +70,95 @@ const CreatAgent3 = ({ handleContinue }) => {
     const handleToggleTermsClick = () => {
         setAgreeTerms(!agreeTerms)
     }
+
+    //handles seleting the reasurance plan popup
+    const handleTogglePlanClick2 = (item) => {
+        // if (togglePlan) {
+        //     setTogglePlan(prevId => (prevId === item.id ? null : item.id));
+        //     setSelectedPlan(prevId => (prevId === item ? null : item));
+        // } else {
+        //     setSelectedPlan(prevId => (prevId === item ? null : item));
+        //     setAddPaymentPopUp(true);
+        // }
+        // setTogglePlan(prevId => (prevId === item.id ? null : item.id));
+        setTogglePlan2(item.id);
+        setSelectedPlan2(prevId => (prevId === item ? null : item));
+        // setTogglePlan(prevId => (prevId === id ? null : id));
+    }
+
+
+
+    //function to subscribe plan
+    const handleSubScribePlan = async () => {
+        try {
+
+            let planType = null;
+
+            // console.log("Selected plan is:", togglePlan);
+
+            if (togglePlan2 === 1) {
+                planType = "Plan30"
+            } else if (togglePlan2 === 2) {
+                planType = "Plan120"
+            } else if (togglePlan2 === 3) {
+                planType = "Plan360"
+            } else if (togglePlan2 === 4) {
+                planType = "Plan720"
+            }
+
+            console.log("Current plan is", planType)
+
+            setSubscribePlanLoader(false);
+            let AuthToken = null;
+            const localData = localStorage.getItem("User");
+            if (localData) {
+                const LocalDetails = JSON.parse(localData);
+                AuthToken = LocalDetails.token;
+            }
+
+            console.log("Authtoken is", AuthToken);
+
+            const ApiData = {
+                plan: planType
+            }
+
+            console.log("Api data is", ApiData);
+
+            const ApiPath = Apis.subscribePlan;
+            console.log("Apipath is", ApiPath);
+            // return
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of subscribe plan api is", response);
+                if (response.data.status === true) {
+                    // handleClose();
+                    const screenWidth = window.innerWidth; // Get current screen width
+                    const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
+
+                    if (screenWidth <= SM_SCREEN_SIZE) {
+                        console.log("This is a small size screen");
+                        router.push("/createagent/desktop")
+                    } else {
+                        console.log("This is a large size screen");
+                        handleContinue();
+                    }
+                }
+            }
+
+        } catch (error) {
+            console.error("Error occured in api is:", error);
+        } finally {
+            setSubscribePlanLoader(false);
+        }
+    }
+
+
 
     const facilities = [
         {
@@ -200,7 +298,7 @@ const CreatAgent3 = ({ handleContinue }) => {
             // p: 2,
             mx: "auto",
             my: "50vh",
-            transform: "translateY(-55%)",
+            transform: "translateY(-50%)",
             borderRadius: 2,
             border: "none",
             outline: "none",
@@ -577,6 +675,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                 <div className='mt-4 flex flex-row justify-center w-full'>
                                     <Image src={"/assets/successTick.png"} height={85} width={85} alt='*' />
                                 </div>
+
                                 {
                                     selectedPlan?.id > 1 ? (
                                         <div className='text-center mt-4' style={{ fontWeight: "700", fontSize: 24 }}>
@@ -597,17 +696,160 @@ const CreatAgent3 = ({ handleContinue }) => {
                                         const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
 
                                         if (screenWidth <= SM_SCREEN_SIZE) {
-                                            router.push("/createagent/desktop")
+                                            if (selectedPlan?.id === 1) {
+                                                setShowSubscribeplan2(true)
+                                            } else {
+                                                router.push("/createagent/desktop")
+                                            }
                                             console.log("This is a small size screen");
                                         } else {
                                             console.log("This is a large size screen");
-                                            handleContinue();
+                                            setShowSubscribeplan2(true)
+                                            // if (selectedPlan?.id === 1) {
+                                            // } else {
+                                            //     handleContinue();
+                                            // }
                                         }
 
                                     }}
                                 >
                                     Continue
                                 </button>
+
+                                {/* Can be use full to add shadow */}
+                                {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                            </div>
+                        </div>
+                    </Box>
+                </Modal>
+
+
+                {/* Modal 2 to reassure the plan */}
+                <Modal
+                    open={showSubscribeplan2}
+                    closeAfterTransition
+                    BackdropProps={{
+                        timeout: 1000,
+                        sx: {
+                            backgroundColor: "#00000020",
+                            // //backdropFilter: "blur(20px)",
+                        },
+                    }}
+                >
+                    <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
+                        <div className="flex flex-row justify-center w-full">
+                            <div
+                                className="sm:w-7/12 w-full mx-2"
+                                style={{
+                                    backgroundColor: "#ffffff",
+                                    padding: 20,
+                                    borderRadius: "13px",
+                                }}
+                            >
+
+                                <div
+                                    className='mt-6 w-11/12 sm:text-3xl text-xl font-[600]'
+                                    style={{ textAlign: "center" }}>
+                                    Select a plan that fits your needs
+                                </div>
+
+                                <div
+                                    className='w-11/12 sm:text-[29px] text-[24px] font-[400]'
+                                    style={{ textAlign: "center" }}>
+                                    Continue with a plan after your free 30 mins
+                                </div>
+
+                                <div className='w-full flex flex-row items-center justify-center'>
+                                    <div className='hidden md:flex flex flex-row items-center justify-center py-3 gap-4 mt-6 mb-8 px-4' style={{ backgroundColor: "#402FFF20", borderRadius: "50px", width: "fit-content" }}>
+                                        <Image src={"/assets/attachIcon.png"} height={24} width={24} alt='*' />
+                                        <div className='text-purple' style={styles.giftTextStyle}>
+                                            Invest in Your Business Growth - Quick Start, Minimal Cost, Maximum Value.
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                <div className='w-full'>
+                                    {
+                                        plans.map((item, index) => (
+                                            <button key={item.id} className='w-full mt-4' onClick={(e) => handleTogglePlanClick2(item)}>
+                                                <div className='px-4 py-1 pb-4'
+                                                    style={{
+                                                        ...styles.pricingBox,
+                                                        border: item.id === 1 ? '2px solid #7902DF' : item.id === togglePlan2 ? '2px solid #7902DF' : '1px solid #15151520',
+                                                        backgroundColor: item.id === 1 ? '#402fff05' : item.id === togglePlan2 ? "#402FFF05" : ""
+                                                    }}>
+                                                    <div style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}></div>
+                                                    <span style={styles.labelText}>
+                                                        {item.planStatus}
+                                                    </span>
+                                                    <div className='flex flex-row items-start gap-3' style={styles.content}>
+                                                        <div className='mt-1'>
+                                                            {
+                                                                item.id === 1 ?
+                                                                    <Image src={"/assets/checkMark.png"} height={24} width={24} alt='*' /> :
+                                                                    <div>
+                                                                        {
+                                                                            item.id === togglePlan2 ?
+                                                                                <Image src={"/assets/checkMark.png"} height={24} width={24} alt='*' /> :
+                                                                                <Image src={"/assets/unCheck.png"} height={24} width={24} alt='*' />
+                                                                        }
+                                                                    </div>
+                                                            }
+                                                        </div>
+                                                        <div className='w-full'>
+                                                            <div style={{ color: "#151515", fontSize: 20, fontWeight: "600" }}>
+                                                                {item.mints}mins | Approx {item.calls} Calls
+                                                            </div>
+                                                            <div className='flex flex-row items-center justify-between'>
+                                                                <div className='mt-2' style={{ color: "#15151590", fontSize: 12, width: "80%", fontWeight: "600" }}>
+                                                                    {item.details}
+                                                                </div>
+                                                                <div className='flex flex-row items-center'>
+                                                                    <div style={styles.originalPrice}>${item.originalPrice}</div>
+                                                                    <div style={styles.discountedPrice}>${item.discountPrice}</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        ))
+                                    }
+                                </div>
+
+
+                                {
+                                    subscribePlanLoader ?
+                                        <div className='flex flex-row items-center justify-center h-[50px]'>
+                                            <CircularProgress size={30} />
+                                        </div> :
+                                        <button
+                                            className='bg-purple text-white w-full rounded-xl mt-6 mb-6' style={{ ...styles.headingStyle, height: "50px", }}
+                                            onClick={() => {
+
+                                                const screenWidth = window.innerWidth; // Get current screen width
+                                                const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
+
+                                                if (togglePlan2) {
+                                                    handleSubScribePlan()
+                                                } else {
+                                                    if (screenWidth <= SM_SCREEN_SIZE) {
+                                                        console.log("This is a small size screen");
+                                                        router.push("/createagent/desktop")
+                                                    } else {
+                                                        console.log("This is a large size screen");
+                                                        handleContinue();
+                                                    }
+                                                }
+
+                                            }}
+                                        >
+                                            Continue
+                                        </button>
+                                }
+
 
                                 {/* Can be use full to add shadow */}
                                 {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
