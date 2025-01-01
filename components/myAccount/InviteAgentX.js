@@ -265,7 +265,11 @@ function InviteAgentX() {
                         />
                         Code
                     </div>
-                    <h2 style={{ fontSize: '3vh', fontWeight: '700' }}>AgentX12</h2>
+                    <h2 style={{ fontSize: '3vh', fontWeight: '700' }}>
+                        {
+                            userDetails?.plan && userDetails?.isTrial === false ? userDetails?.myInviteCode : "N/A"
+                        }
+                    </h2>
 
                 </div>
             </div>
@@ -274,8 +278,7 @@ function InviteAgentX() {
                 userDetails?.plan && userDetails?.isTrial === true ? (
                     <div className='w-full flex flex-col items-center'>
                         <div
-                            className='w-full flex flex-row justify-center mt-4'
-                        >
+                            className='w-full flex flex-row justify-center mt-4'>
                             <div
                                 className='w-10/12 flex flex-row items-start gap-2'
                                 style={{
