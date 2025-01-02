@@ -308,8 +308,8 @@ const ProfileNav = () => {
 
   return (
     <div>
-      <AgentSelectSnackMessage isVisible={showsuccessSnack} hide={()=>setShowSuccessSnack(false)} message={successSnack} type={SnackbarTypes.Success}/>
-      <AgentSelectSnackMessage isVisible={showerrorSnack} hide={()=>setShowErrorSnack(false)} message={errorSnack} type={SnackbarTypes.Error}/>
+      <AgentSelectSnackMessage isVisible={showsuccessSnack} hide={() => setShowSuccessSnack(false)} message={successSnack} type={SnackbarTypes.Success} />
+      <AgentSelectSnackMessage isVisible={showerrorSnack} hide={() => setShowErrorSnack(false)} message={errorSnack} type={SnackbarTypes.Error} />
       <div className='w-full pt-10 flex flex-col items-center'
         style={{ height: '90vh', overflow: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', }}
       >
@@ -474,10 +474,16 @@ const ProfileNav = () => {
                   <button
                     onClick={() => {
                       localStorage.clear();
+                      // localStorage.removeItem("User");
+                      // localStorage.removeItem("localAgentDetails");
+                      if (typeof document !== "undefined") {
+                        document.cookie = "User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                      }
+                      router.push("/");
                     }}
                     className='text-red bg-[#FF4E4E40] font-[600] text-lg px-4 py-1 rounded-full'
                   >
-                    Logout
+                    Log out
                   </button>
                 </div>
 
