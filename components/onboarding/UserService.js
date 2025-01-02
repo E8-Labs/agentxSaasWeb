@@ -163,10 +163,10 @@ const UserService = ({ handleContinue, handleBack }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
-            <div className='bg-white rounded-2xl flex flex-col justify-between w-full mx-2 md:w-10/12 h-[100%] sm:h-[90%] py-4' style={{ scrollbarWidth: "none" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+            <div className='bg-white sm:rounded-2xl flex flex-col justify-between w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[90%] py-4' style={{ scrollbarWidth: "none" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
             >
 
-                <div className='h-[82svh]'>
+                <div className='h-[84svh] sm:h-[82svh]'>
                     {/* header */}
                     <div className='h-[10%]'>
                         <Header />

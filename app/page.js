@@ -514,12 +514,22 @@ const Page = ({ length = 6, onComplete }) => {
           <div className='flex-shrink-0'>
             Copyrights @ 2024 MyAgentX. All Rights Reserved.
           </div>
-          <div className='flex-shrink-0'>
+          <button
+            className='flex-shrink-0 outline-none'
+            onClick={() => {
+              window.open("https://www.myagentx.com/terms-and-condition", "_blank");
+            }}
+          >
             | Terms of Service
-          </div>
-          <div className='flex-shrink-0'>
+          </button>
+          <button
+            className='flex-shrink-0 outline-none'
+            onClick={() => {
+              window.open("https://www.myagentx.com/terms-and-condition", "_blank");
+            }}
+          >
             | Privacy Policy
-          </div>
+          </button>
         </div>
 
       </div>

@@ -143,6 +143,7 @@ const Page = ({ params }) => {
     return (
         <div style={backgroundImage} className="overflow-y-none flex flex-row justify-center items-center">
             <video
+                // className="hidden sm:block"
                 autoPlay
                 loop
                 muted

@@ -682,12 +682,12 @@ const CreatAgent3 = ({ handleContinue }) => {
                                 }}
                             >
                                 <div className='flex flex-row justify-end'>
-                                    <button onClick={handleClose}>
+                                    {/* <button onClick={handleClose}>
                                         <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
-                                    </button>
+                                    </button> */}
                                 </div>
                                 <div className='mt-4 flex flex-row justify-center w-full'>
-                                    <Image src={"/assets/successTick.png"} height={85} width={85} alt='*' />
+                                    <Image src={"/svgIcons/successMsgIcon.svg"} height={85} width={85} alt='*' />
                                 </div>
 
                                 {
