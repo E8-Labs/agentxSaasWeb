@@ -419,7 +419,7 @@ const BuyerKycs = ({ handleContinue }) => {
                 <div className='h-[80vh]'>
                     {/* header */}
                     <div className='h-[10%]'>
-                        <Header buyerKYC={true} shouldContinue={shouldContinue} />
+                        <Header buyerKYC={true} shouldContinue={shouldContinue} hideIcon={true} />
                     </div>
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full h-[90%]'>

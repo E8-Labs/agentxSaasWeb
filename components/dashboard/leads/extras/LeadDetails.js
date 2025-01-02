@@ -1213,7 +1213,7 @@ const LeadDetails = ({
                       <div>
                         {selectedLeadsDetails?.kycs.length < 1 ? (
                           <div
-                            className="flex flex-col items-center justify-center h-[20vh] w-full"
+                            className="flex flex-col items-center justify-center w-full mt-12"
                             style={{ fontWeight: "500", fontsize: 15 }}
                           >
                             <div className="h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center">
@@ -1292,7 +1292,7 @@ const LeadDetails = ({
                       <div>
                         {noteDetails?.length < 1 ? (
                           <div
-                            className="flex flex-col items-center justify-center h-[20vh] w-full"
+                            className="flex flex-col items-center justify-center w-full mt-12"
                             style={{ fontWeight: "500", fontsize: 15 }}
                           >
                             <div className="h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center">
@@ -1379,7 +1379,7 @@ const LeadDetails = ({
                       <div>
                         {selectedLeadsDetails?.callActivity.length < 1 ? (
                           <div
-                            className="flex flex-col items-center justify-center h-[20vh] w-full"
+                            className="flex flex-col items-center justify-center mt-12 w-full"
                             style={{ fontWeight: "500", fontsize: 15 }}
                           >
                             <div className="h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center">

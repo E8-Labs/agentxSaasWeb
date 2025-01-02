@@ -99,6 +99,9 @@ const Pipeline1 = () => {
   const openaction = Boolean(actionInfoEl);
   const openAssigneAction = Boolean(assigntoActionInfoEl);
 
+  //test code
+  const [showSampleTip, setShowSampleTip] = useState(false)
+
   //code for adding new pipeline
   const [createPipeline, setCreatePipeline] = useState(false);
   const [newPipelineTitle, setNewPipelineTitle] = useState("");
@@ -1210,7 +1213,7 @@ const Pipeline1 = () => {
 
   return (
     <div className="w-full flex flex-col items-start h-screen">
-      <AgentSelectSnackMessage type={SnackbarTypes.Success} isVisible={(SuccessSnack == null || SuccessSnack == false) ? false : true} hide={()=>setSuccessSnack(false)}  message={SuccessSnack}/>
+      <AgentSelectSnackMessage type={SnackbarTypes.Success} isVisible={(SuccessSnack == null || SuccessSnack == false) ? false : true} hide={() => setSuccessSnack(false)} message={SuccessSnack} />
       <div
         className="w-full flex flex-row justify-center"
         style={{ borderBottom: "1px solid #15151510" }}
@@ -1328,7 +1331,7 @@ const Pipeline1 = () => {
                       }}
                     >
                       <Image
-                        src={"/assets/colorDrop.png"}
+                        src={"/svgIcons/arrowBlack.svg"}
                         height={18}
                         width={15}
                         alt="*"
@@ -1910,13 +1913,6 @@ const Pipeline1 = () => {
                       height={20}
                       width={20}
                       alt="*"
-                      style={{
-                        filter:
-                          "invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)",
-                        // filter: isRed
-                        //     ? 'invert(17%) sepia(96%) saturate(7493%) hue-rotate(-5deg) brightness(102%) contrast(115%)' // Red
-                        //     : 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
-                      }}
                       aria-owns={open ? "mouse-over-popover" : undefined}
                       aria-haspopup="true"
                       onMouseEnter={handlePopoverOpen}
@@ -1977,19 +1973,31 @@ const Pipeline1 = () => {
                     }}
                   />
 
-                  <p
-                    className="mt-4"
-                    style={{ fontWeight: "600", fontSize: 15 }}
-                  >
-                    Sample Answers
-                  </p>
 
-                  <p
-                    className="mt-2"
-                    style={{ fontWeight: "500", fontSize: 12 }}
-                  >
-                    What are possible answers leads will give to this question?
-                  </p>
+                  <div className="flex flex-row items-center gap-2 mt-4">
+                    <p style={{ fontWeight: "600", fontSize: 15 }}>
+                      Sample Answers
+                    </p>
+                    {/* <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' /> */}
+                    <Image
+                      src="/assets/infoIcon.png"
+                      height={20}
+                      width={20}
+                      alt="*"
+                      aria-owns={open ? "mouse-over-popover2" : undefined}
+                      aria-haspopup="true"
+                      onMouseEnter={(event) => {
+                        setShowSampleTip(true)
+                        setAssigntoActionInfoEl(event.currentTarget);
+                      }}
+                      onMouseLeave={() => {
+                        handlePopoverClose();
+                        setShowSampleTip(false);
+                      }}
+                    />
+                  </div>
+
+
 
                   <div
                     className="max-h-[30vh] overflow-auto mt-2" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
@@ -2045,13 +2053,6 @@ const Pipeline1 = () => {
                       height={20}
                       width={20}
                       alt="*"
-                      style={{
-                        filter:
-                          "invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)",
-                        // filter: isRed
-                        //     ? 'invert(17%) sepia(96%) saturate(7493%) hue-rotate(-5deg) brightness(102%) contrast(115%)' // Red
-                        //     : 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
-                      }}
                       aria-owns={open ? "mouse-over-popover2" : undefined}
                       aria-haspopup="true"
                       onMouseEnter={(event) => {
@@ -2094,7 +2095,13 @@ const Pipeline1 = () => {
                           alt="*"
                         />
                         <p style={{ fontWeight: "500", fontSize: 12 }}>
-                          Notify a team member when leads move here.
+                          {
+                            showSampleTip ? (
+                              "What are possible answers leads will give to this question?"
+                            ) : (
+                              "Notify a team member when leads move here."
+                            )
+                          }
                         </p>
                       </div>
                     </div>
@@ -2135,7 +2142,7 @@ const Pipeline1 = () => {
                       <button
                         className="mt-4 outline-none"
                         style={{
-                          backgroundColor: "#402FFF",
+                          backgroundColor: "#7902DF",
                           color: "white",
                           height: "50px",
                           borderRadius: "10px",
@@ -2145,7 +2152,7 @@ const Pipeline1 = () => {
                         }}
                         onClick={handleAddCustomStage}
                       >
-                        Add & Close
+                        Add Stage
                       </button>
                     )}
                   </div>
@@ -2154,8 +2161,8 @@ const Pipeline1 = () => {
                     disabled={true}
                     className="mt-4 outline-none"
                     style={{
-                      backgroundColor: "#00000060",
-                      color: "white",
+                      backgroundColor: "#00000020",
+                      color: "black",
                       height: "50px",
                       borderRadius: "10px",
                       width: "100%",

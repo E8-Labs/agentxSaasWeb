@@ -1110,7 +1110,7 @@ const Leads1 = () => {
                 </button>
               </div>
 
-              <div className="mt-8" style={{ height: "50px" }}>
+              {/* <div className="mt-8" style={{ height: "50px" }}>
                 {SelectedFile && (
                   <div className="w-full mt-4 flex flex-row justify-center">
                     <button
@@ -1136,7 +1136,7 @@ const Leads1 = () => {
                     </button>
                   </div>
                 )}
-              </div>
+              </div> */}
 
               {/* Can be use full to add shadow */}
               {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}

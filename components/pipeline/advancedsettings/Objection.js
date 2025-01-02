@@ -387,7 +387,7 @@ const Objection = ({ showTitle, selectedAgentId }) => {
                     </div>
                     <div className='mt-4'>
                       <i style={{ fontWeight: "500", fontsize: 15 }}>
-                        All objections will be shown here
+                        {`You don't have any objections added`}
                       </i>
                     </div>
                   </div>

@@ -396,7 +396,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
                     </div>
                     <div className='mt-4'>
                       <i style={{ fontWeight: "500", fontsize: 15 }}>
-                        All guardrails will be shown here
+                        {`You don't have any guardrails added`}
                       </i>
                     </div>
                   </div>

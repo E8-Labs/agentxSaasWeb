@@ -148,13 +148,13 @@ function AllCalls() {
       };
       filters.push(dateFilter);
     }
-    // if (selectedPipeline) {
-    //   let dateFilter = {
-    //     key: "pipeline",
-    //     values: [selectedPipeline],
-    //   };
-    //   filters.push(dateFilter);
-    // }
+    if (selectedPipeline) {
+      let dateFilter = {
+        key: "pipeline",
+        values: [selectedPipeline],
+      };
+      filters.push(dateFilter);
+    }
     if (selectedStageIds && selectedStageIds.length > 0) {
       let currentSelectedStages = [];
       stagesList.map((stage) => {
@@ -187,18 +187,24 @@ function AllCalls() {
     //   setStagesList(PipelineDetails[0].stages);
     // }
 
-    getPipelines();
 
-    const localCalls = localStorage.getItem("calldetails");
-    if (localCalls) {
-      const localCallData = JSON.parse(localCalls);
-      setCallDetails(localCallData);
-      setFilteredCallDetails(localCallData);
-    } else {
-      getCallLogs();
+    try {
+      console.log("Testing teh")
+      getPipelines();
+      const localCalls = localStorage.getItem("calldetails");
+      if (localCalls) {
+        const localCallData = JSON.parse(localCalls);
+        console.log("Local cal details are", localCallData)
+        setCallDetails(localCallData);
+        setFilteredCallDetails(localCallData);
+      } else {
+        getCallLogs();
+      }
+    } catch (error) {
+      console.error("Error ", error);
+    } finally {
     }
 
-    setInitialLoader(true);
   }, []);
 
   //function for getting pipelines
@@ -226,7 +232,7 @@ function AllCalls() {
 
         if (response.data.status === true) {
           setPipelinesList(response.data.data);
-          setSelectedPipeline(response.data.data[0].title);
+          // setSelectedPipeline(response.data.data[0].title);
           setStagesList(response.data.data[0].stages);
         }
       }
@@ -243,7 +249,8 @@ function AllCalls() {
     console.log("Offset passed is ", offset);
     try {
       setLoading(true);
-
+      setInitialLoader(true);
+      console.log("Check 1 ")
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
@@ -251,7 +258,7 @@ function AllCalls() {
         console.log("Localdata recieved is :--", Data.token);
         AuthToken = Data.token;
       }
-
+      console.log("Check 2")
       let startDate = "";
       let endDate = "";
 
@@ -260,12 +267,12 @@ function AllCalls() {
         endDate = moment(selectedToDate).format("MM-DD-YYYY");
       }
 
-
+      console.log("Check 3")
       const stages = selectedStageIds.join(",");
       console.log("Sages selected are ", stages);
-
+      console.log("Check 4")
       let ApiPath = null;
-
+      console.log("Check 5")
       if (offset == null) {
         offset = filteredCallDetails.length;
       }
@@ -459,6 +466,10 @@ function AllCalls() {
                         );
                         setSelectedStageIds(newStageIds);
                       }
+                      if (filter.key == "pipeline") {
+                        setSelectedPipeline(null)
+                        setSelectedStageIds([])
+                      }
                       setInitialLoader(true);
                       setCallDetails([]);
                       setFilteredCallDetails([]);
@@ -513,16 +524,6 @@ function AllCalls() {
           <CircularProgress size={35} thickness={2} />
         </div>
       ) : (
-        // <InfiniteScroll
-        //     dataLength={filteredCallDetails.length} // Current list length
-        //     next={getCallLogs} // Fetch more data
-        //     hasMore={hasMore} // Whether there's more data to fetch
-        //     loader={<CircularProgress size={35} thickness={2} />}
-        //     endMessage={<div className='text-center mt-4'>No more call logs</div>}
-        // >
-
-        // </InfiniteScroll>
-
         <div
           className="max-h-[67vh] overflow-auto"
           id="scrollableDiv1"
@@ -558,7 +559,7 @@ function AllCalls() {
             }
             style={{ overflow: "unset" }}
           >
-            {filteredCallDetails.length > 0 ? (
+            {filteredCallDetails?.length > 0 ? (
               <div>
                 {filteredCallDetails.map((item) => (
                   <div
@@ -650,6 +651,11 @@ function AllCalls() {
             )}
           </InfiniteScroll>
         </div>
+        //     )
+        //   }
+
+        // </div>
+
       )}
 
       {/* Code for filter modal */}

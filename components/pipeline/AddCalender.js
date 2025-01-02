@@ -323,7 +323,7 @@ const AddCalender = ({ handleContinue }) => {
           <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white', paddingInline: "25px", paddingTop: "25px", paddingBottom: "30px" }}>
             <div style={{ width: "100%", }}>
 
-              <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+              <div className='' style={{ scrollbarWidth: "none" }}>
 
                 <div className='w-full'>
 

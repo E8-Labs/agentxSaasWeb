@@ -220,7 +220,7 @@ function SheduledCalls() {
                 // item.LeadModel?.firstName.toLowerCase().includes(term) ||
                 // item.LeadModel?.lastName.toLowerCase().includes(term) ||
                 // item.LeadModel?.address.toLowerCase().includes(term) ||
-                item.name.toLowerCase().includes(term)
+                item?.agents[0]?.name?.toLowerCase().includes(term)
                 // (item.LeadModel?.phone && agentsList.includes(term))
             );
         });

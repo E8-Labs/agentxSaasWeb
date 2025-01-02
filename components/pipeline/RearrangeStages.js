@@ -7,7 +7,7 @@ import Apis from "../apis/Apis";
 import axios from "axios";
 import ColorPicker from "../dashboardPipeline/ColorPicker";
 import TagsInput from "../dashboard/leads/TagsInput";
-import AgentSelectSnackMessage from "../dashboard/leads/AgentSelectSnackMessage";
+import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
 
 const RearrangeStages = ({
     stages,
@@ -296,17 +296,20 @@ const RearrangeStages = ({
                         {...provided.droppableProps}
                         ref={provided.innerRef}
                         style={{
-                            maxHeight: "100%",
-                            // overflowY: "auto",
+                            height: "100%",
+                            overflowY: "auto",
                             // borderRadius: "8px",
                             // padding: "10px",
                             border: "none",
                             scrollbarWidth: "none",
                             marginTop: 20,
+                            // backgroundColor: "red"
                         }}
                     >
 
-                        <div className="h-[90%] overflow-auto">
+                        <div style={{
+                            height: "60svh", overflow: "auto", scrollbarWidth: "none"
+                        }}>
                             {pipelineStages.map((item, index) => (
                                 <Draggable
                                     key={item.id}
@@ -328,7 +331,7 @@ const RearrangeStages = ({
                                                 backgroundColor: "#fff",
                                                 // boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                                             }}
-                                            className="flex flex-row items-start"
+                                            className="flex flex-row items-start overflow-auto"
                                         >
                                             <div className="w-[5%]">
                                                 <div className="outline-none mt-2">

@@ -17,7 +17,7 @@ const AddBuyerKyc = ({
     OpenBuyerMotivation, OpenBuyerUrgency,
     BuyerNeedData,
     BuyerMotivationData,
-    BuyerUrgencyData, mainAgentId
+    BuyerUrgencyData, mainAgentId, hideTitle
 }) => {
 
     const router = useRouter();
@@ -543,24 +543,26 @@ const AddBuyerKyc = ({
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <AgentSelectSnackMessage isVisible={showErrorSnack === null || showErrorSnack == false ? false : true} hide={()=>setShowErrorSnack(false)} message={showErrorSnack}/>
-            <div className='rounded-lg w-10/12 h-[100%] flex flex-col'> 
+            <AgentSelectSnackMessage isVisible={showErrorSnack === null || showErrorSnack == false ? false : true} hide={() => setShowErrorSnack(false)} message={showErrorSnack} />
+            <div className='rounded-lg w-10/12 h-[100%] flex flex-col'>
                 <div className='h-[90%] py-4' style={{ scrollbarWidth: "none" }}>
                     {/* header */}
                     {/* <Header /> */}
                     {/* <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full'>
-                        <div className='mt-6 w-11/12 md:text-3xl text-lg font-[700]' style={{ textAlign: "center" }}>
+                        <div className='mt-6 w-11/12 md:text-3xl text-lg font-[600]' style={{ textAlign: "center" }}>
                             What would you like to ask buyers?
                         </div>
-                        <button
-                            className='mt-10 underline text-purple'
-                            style={styles.inputStyle}
-                            onClick={handleCloseSellerKyc}
-                        >
-                            {`I don't need questions for buyers`}
-                        </button>
+                        {
+                            !hideTitle && (<button
+                                className='mt-10 underline text-purple'
+                                style={styles.inputStyle}
+                                onClick={handleCloseSellerKyc}
+                            >
+                                {`I don't need questions for buyers`}
+                            </button>)
+                        }
                         <div className='flex flex-row items-center gap-10 mt-10'>
                             {
                                 KYCQuestionType.map((item, index) => (
@@ -794,7 +796,7 @@ const AddBuyerKyc = ({
                                     </div>
 
                                     {/* Error snack bar message */}
-                                   
+
 
                                 </div>
                             </Box>

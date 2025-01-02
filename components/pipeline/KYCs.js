@@ -625,8 +625,8 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
                                 borderRadius: "13px",
                             }}
                         >
-                            <div className='flex flex-row justify-between items-center'>
-                                <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' />
+                            <div className='flex flex-row justify-end items-center'>
+                                {/* <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
                                 <button onClick={() => {
                                     setAddSellerKyc(false);
                                     setOpenSelerMotivation(false);
@@ -929,8 +929,8 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
                                 borderRadius: "13px",
                             }}
                         >
-                            <div className='flex flex-row justify-between items-center'>
-                                <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' />
+                            <div className='flex flex-row justify-end items-center'>
+                                {/* <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
                                 <button onClick={() => {
                                     setAddBuyerKyc(false)
                                     setAddBuyerKyc(false);
@@ -949,6 +949,7 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
                                 BuyerMotivationData={BuyerMotivationData}
                                 BuyerUrgencyData={BuyerUrgencyData}
                                 mainAgentId={mainAgentId}
+                                hideTitle={true}
                             />
 
 

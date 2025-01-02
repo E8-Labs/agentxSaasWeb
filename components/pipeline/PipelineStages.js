@@ -27,6 +27,9 @@ const PipelineStages = ({
     setIsVisibleSnack,
     setSnackType
 }) => {
+
+    const [showSampleTip, setShowSampleTip] = useState(false)
+
     const [pipelineStages, setPipelineStages] = useState(stages);
     const [delStageLoader, setDelStageLoader] = useState(false);
     const [delStageLoader2, setDelStageLoader2] = useState(false);
@@ -456,7 +459,7 @@ const PipelineStages = ({
                                         }}
                                         className="flex flex-row items-start"
                                     >
-                                        <AgentSelectSnackMessage isVisible={successSnack == false || successSnack == null ? false:true} hide={()=>setSuccessSnack(false)} message={successSnack} type={SnackbarTypes.Success}/>
+                                        <AgentSelectSnackMessage isVisible={successSnack == false || successSnack == null ? false : true} hide={() => setSuccessSnack(false)} message={successSnack} type={SnackbarTypes.Success} />
                                         <div className="w-[5%]">
                                             {
                                                 index > 0 && (
@@ -758,6 +761,9 @@ const PipelineStages = ({
                                                                                 },
                                                                             }}
                                                                         >
+                                                                            <MenuItem value="">
+                                                                                Select stage
+                                                                            </MenuItem>
 
                                                                             {stagesList.map(
                                                                                 (dropDownStateItem) => (
@@ -1222,12 +1228,6 @@ const PipelineStages = ({
                                                             height={20}
                                                             width={20}
                                                             alt="*"
-                                                            style={{
-                                                                filter: 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
-                                                                // filter: isRed
-                                                                //     ? 'invert(17%) sepia(96%) saturate(7493%) hue-rotate(-5deg) brightness(102%) contrast(115%)' // Red
-                                                                //     : 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
-                                                            }}
                                                             aria-owns={open ? 'mouse-over-popover' : undefined}
                                                             aria-haspopup="true"
                                                             onMouseEnter={handlePopoverOpen}
@@ -1280,9 +1280,29 @@ const PipelineStages = ({
                                                         onChange={(e) => { setAction(e.target.value) }}
                                                     />
 
-                                                    <p className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                        Sample Answers
-                                                    </p>
+                                                    <div className='flex flex-row items-center gap-2 mt-4'>
+                                                        <p style={{ fontWeight: "600", fontSize: 15 }}>
+                                                            Sample Answers
+                                                        </p>
+                                                        {/* <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' /> */}
+                                                        <Image
+                                                            src="/assets/infoIcon.png"
+                                                            height={20}
+                                                            width={20}
+                                                            alt="*"
+                                                            aria-owns={openAction ? 'mouse-over-popover2' : undefined}
+                                                            aria-haspopup="true"
+                                                            onMouseEnter={(event) => {
+                                                                setShowSampleTip(true);
+                                                                setActionInfoEl2(event.currentTarget)
+                                                            }}
+                                                            onMouseLeave={() => {
+                                                                handlePopoverClose()
+                                                                setShowSampleTip(false);
+
+                                                            }}
+                                                        />
+                                                    </div>
 
                                                     <p className='mt-2' style={{ fontWeight: "500", fontSize: 12 }}>
                                                         What are possible answers leads will give to this question?
@@ -1337,12 +1357,6 @@ const PipelineStages = ({
                                                             height={20}
                                                             width={20}
                                                             alt="*"
-                                                            style={{
-                                                                filter: 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
-                                                                // filter: isRed
-                                                                //     ? 'invert(17%) sepia(96%) saturate(7493%) hue-rotate(-5deg) brightness(102%) contrast(115%)' // Red
-                                                                //     : 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
-                                                            }}
                                                             aria-owns={openAction ? 'mouse-over-popover2' : undefined}
                                                             aria-haspopup="true"
                                                             onMouseEnter={(event) => { setActionInfoEl2(event.currentTarget) }}
@@ -1376,7 +1390,13 @@ const PipelineStages = ({
                                                                 <div className="flex flex-row items-center gap-1">
                                                                     <Image src={"/assets/infoIcon.png"} height={24} width={24} alt="*" />
                                                                     <p style={{ fontWeight: "500", fontSize: 12 }}>
-                                                                        Notify a team member when leads move here.
+                                                                        {
+                                                                            showSampleTip ? (
+                                                                                "What are possible answers leads will give to this question?"
+                                                                            ) : (
+                                                                                "Notify a team member when leads move here."
+                                                                            )
+                                                                        }
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -1452,20 +1472,20 @@ const PipelineStages = ({
                                                         <button
                                                             className='mt-4 outline-none'
                                                             style={{
-                                                                backgroundColor: "#402FFF", color: "white",
+                                                                backgroundColor: "#7902DF", color: "white",
                                                                 height: "50px", borderRadius: "10px", width: "100%",
                                                                 fontWeight: 600, fontSize: '20'
                                                             }}
                                                             onClick={handleAddNewStageTitle}
                                                         >
-                                                            Add & Close
+                                                            Add Stage
                                                         </button>
                                                     ) : (
                                                         <button
                                                             className='mt-4 outline-none'
                                                             disabled={true}
                                                             style={{
-                                                                backgroundColor: "#00000060", color: "white",
+                                                                backgroundColor: "#00000020", color: "black",
                                                                 height: "50px", borderRadius: "10px", width: "100%",
                                                                 fontWeight: 600, fontSize: '20'
                                                             }}
@@ -1483,7 +1503,7 @@ const PipelineStages = ({
                             </Box>
                         </Modal>
 
-                        
+
                     </div>
                 )}
             </Droppable>

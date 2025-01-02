@@ -9,6 +9,7 @@ import { CircularProgress, FormControl, InputLabel, MenuItem, Modal, Select } fr
 import Image from 'next/image'
 import NoCalendarView from './NoCalendarView'
 import timeZones from '@/utilities/Timezones'
+import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage'
 
 const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAgent }) => {
 
@@ -24,6 +25,11 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
     const [previousCalenders, setPreviousCalenders] = useState([]);
     const [showAddNewCalender, setShowAddNewCalender] = useState(false);
 
+    //variables for snack bar
+    const [message, setMessage] = useState(null);
+    const [isVisible, setIsVisible] = useState(false);
+    const [type, setType] = useState(null);
+
 
     const [calendarSelected, setCalendarSelected] = useState(null)
 
@@ -32,16 +38,21 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
     const [selectTimeZone, setSelectTimeZone] = useState("");
 
     // const [timeZones, setTimeZones] = useState([]);
-;
+    ;
 
 
     useEffect(() => {
-        console.log("Calender details passed are", calendarDetails);
-        if (calendarDetails?.calendar) {
-            setSelectCalender(selectedAgent?.calendar?.title);
+        console.log("Calender details passed are", selectedAgent?.calendar?.title);
+        if (selectedAgent?.calendar) {
+            console.log("Selectd agent is", selectedAgent);
+            setSelectCalender(selectedAgent.calendar.title);
         }
         getCalenders();
     }, []);
+
+    useEffect(() => {
+        console.log("Selected calendear is", selectCalender)
+    }, [selectCalender])
 
     // useEffect(() => {
     //   if (calenderTitle && calenderApiKey && eventId && selectTimeZone) {
@@ -52,19 +63,19 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
     // }, [calenderTitle, calenderApiKey, eventId, selectTimeZone]);
 
 
-    function isEnabled() {
-        if (calendarSelected) {
-            console.log("True because calenarSelected")
-            return true
-        }
-        if (calenderTitle && calenderApiKey && eventId && selectTimeZone) {
-            console.log("True because all values are there")
-            return true
-        } else {
-            console.log("false  calenarSelected")
-            return false
-        }
-    }
+    // function isEnabled() {
+    //     if (calendarSelected) {
+    //         console.log("True because calenarSelected")
+    //         return true
+    //     }
+    //     if (calenderTitle && calenderApiKey && eventId && selectTimeZone) {
+    //         console.log("True because all values are there")
+    //         return true
+    //     } else {
+    //         console.log("false  calenarSelected")
+    //         return false
+    //     }
+    // }
 
     //code for the dropdown selection
 
@@ -157,9 +168,12 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
 
             if (response) {
                 console.log("Response of add calender api is:", response);
+                setMessage(response.data.message);
+                setIsVisible(true);
 
                 if (response.data.status === true) {
 
+                    setType(SnackbarTypes.Success);
                     const localAgentsList = localStorage.getItem("localAgentDetails");
 
                     if (localAgentsList) {
@@ -204,6 +218,8 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
                         // agentsListDetails = updatedArray
                     }
 
+                } else if (response.data.status === false) {
+                    setType(SnackbarTypes.Error);
                 }
 
             }
@@ -241,6 +257,15 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
+
+            {
+                isVisible && (
+                    <AgentSelectSnackMessage type={type} message={message} isVisible={isVisible} hide={() => {
+                        setIsVisible(false)
+                    }} />
+                )
+            }
+
             <div className='bg-white rounded-2xl w-full h-[90vh] py-4 flex flex-col'>
 
 
@@ -302,7 +327,8 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
                                                         <button className='w-full text-start'
                                                             onClick={() => {
                                                                 console.log("Selected calender is:", item);
-                                                                setCalendarSelected(item)
+                                                                setCalendarSelected(item);
+                                                                handleAddCalender();
                                                                 // setCalenderTitle(item.title);
                                                                 // setCalenderApiKey(item.apiKey);
                                                                 // setEventId(item.eventId);
@@ -328,7 +354,8 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
                                                     // setCalenderApiKey("");
                                                     // setEventId("");
                                                     // setSelectTimeZone("");
-                                                    setShowAddNewCalender(true);
+                                                    // setShowAddNewCalender(true);
+                                                    handleAddCalender();
                                                 }}
                                             >
                                                 Add New Calender
@@ -337,7 +364,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
                                     </Select>
                                 </FormControl>
                             </div>
-                            <div className='w-full mt-4'>
+                            {/* <div className='w-full mt-4'>
                                 {
                                     calenderLoader ?
                                         <div className='w-full flex flex-row items-center justify-center'>
@@ -355,7 +382,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
                                             Add
                                         </button>
                                 }
-                            </div>
+                            </div> */}
                         </div>
                     ) : (
                         <NoCalendarView
@@ -505,7 +532,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
                                         </FormControl>
                                     </div>
 
-                                    <div className='w-full mt-4'>
+                                    {/* <div className='w-full mt-4'>
                                         {
                                             calenderLoader ?
                                                 <div className='w-full flex flex-row items-center justify-center'>
@@ -524,7 +551,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
                                                     Add
                                                 </button>
                                         }
-                                    </div>
+                                    </div> */}
                                 </div>
 
                             </div>

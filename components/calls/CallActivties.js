@@ -28,6 +28,8 @@ function SheduledCalls() {
     const [selectedLeadsList, setSelectedLeadsList] = useState([]);
     const [filteredSelectedLeadsList, setFilteredSelectedLeadsList] = useState([]);
     const [leadsSearchValue, setLeadsSearchValue] = useState("");
+    //variable for warningpopup
+    const [showConfirmationPopuup, setShowConfirmationPopup] = useState(null);
 
     useEffect(() => {
         getAgents();
@@ -204,13 +206,16 @@ function SheduledCalls() {
             return;
         }
 
+        // console.log("Value is", value);
+
         const filtered = agentsList.filter(item => {
             const term = value.toLowerCase();
+            // console.log("Item to lower case is", term)
             return (
                 // item.LeadModel?.firstName.toLowerCase().includes(term) ||
                 // item.LeadModel?.lastName.toLowerCase().includes(term) ||
                 // item.LeadModel?.address.toLowerCase().includes(term) ||
-                item.name.toLowerCase().includes(term)
+                item?.agents[0]?.name?.toLowerCase().includes(term)
                 // (item.LeadModel?.phone && agentsList.includes(term))
             );
         });
@@ -256,6 +261,7 @@ function SheduledCalls() {
             if (response) {
                 console.log("Response of get agents api is:", response.data);
                 if (response.data.status === true) {
+                    setShowConfirmationPopup(null);
                     let currentStatus = filteredAgentsList.map((item) => {
                         if (item.id === SelectedItem.id) {
                             // Update the status for the matching item
@@ -287,6 +293,18 @@ function SheduledCalls() {
 
     return (
         <div className='w-full items-start'>
+
+            {/* Confirmation popup */}
+            {
+                showConfirmationPopuup && (
+                    <ShowConfirmationPopup
+                        showConfirmationPopuup={showConfirmationPopuup}
+                        setShowConfirmationPopup={setShowConfirmationPopup}
+                        pauseAgent={pauseAgents}
+                        PauseLoader={PauseLoader}
+                    />
+                )
+            }
 
             <div className='flex w-full pl-10 flex-row items-start gap-3'>
                 <div className="flex w-3/12 items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm">
@@ -447,7 +465,9 @@ function SheduledCalls() {
                                                                                             PauseLoader ?
                                                                                                 <CircularProgress size={18} /> :
                                                                                                 <button className='text-start outline-none'
-                                                                                                    onClick={pauseAgents}
+                                                                                                    onClick={() => {
+                                                                                                        setShowConfirmationPopup("pause calls")
+                                                                                                    }}
                                                                                                 >
                                                                                                     Pause Calls
                                                                                                 </button>
@@ -808,3 +828,97 @@ const styles = {
         outline: "none",
     },
 }
+
+
+export const ShowConfirmationPopup = ({
+    showConfirmationPopuup,
+    setShowConfirmationPopup,
+    PauseLoader,
+    pauseAgent
+}) => {
+    return (
+        <div>
+            <Modal
+                open={showConfirmationPopuup}
+                onClose={() => {
+                    setShowConfirmationPopup(null);
+                }}
+                BackdropProps={{
+                    timeout: 100,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        // //backdropFilter: "blur(20px)",
+                    },
+                }}
+            >
+                <Box
+                    className="w-10/12 sm:w-7/12 md:w-5/12 lg:w-4/12 p-8 rounded-[15px]"
+                    sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+                >
+                    <div style={{ width: "100%" }}>
+                        <div
+                            className="max-h-[60vh] overflow-auto"
+                            style={{ scrollbarWidth: "none" }}
+                        >
+                            {/* <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "end", alignItems: "center" }}>
+                <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
+                  <button onClick={() => {
+                    setShowWarningModal(false);
+                  }} className='outline-none'>
+                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                  </button>
+                </div>
+              </div> */}
+
+                            <div className="flex flex-row items-center justify-center gap-2 -mt-1">
+                                <Image
+                                    src={"/assets/warningFill.png"}
+                                    height={18}
+                                    width={18}
+                                    alt="*"
+                                />
+                                <p>
+                                    <i
+                                        className="text-red"
+                                        style={{
+                                            fontSize: 16,
+                                            fontWeight: "600",
+                                        }}
+                                    >
+                                        Are you sure you want to {showConfirmationPopuup}
+                                    </i>
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex flex-row items-center gap-4 mt-6">
+                            <button className="w-4/12" onClick={() => { setShowConfirmationPopup(null) }}>Cancel</button>
+                            <div className="w-8/12">
+                                {PauseLoader ? (
+                                    <div className="flex flex-row iems-center justify-center w-full mt-4">
+                                        <CircularProgress size={25} />
+                                    </div>
+                                ) : (
+                                    <button
+                                        className="outline-none bg-red"
+                                        style={{
+                                            color: "white",
+                                            height: "50px",
+                                            borderRadius: "10px",
+                                            width: "100%",
+                                            fontWeight: 600,
+                                            fontSize: "20",
+                                        }}
+                                        onClick={pauseAgent}
+                                    >
+                                        Yes! {showConfirmationPopuup}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+        </div>
+    )
+}
+
