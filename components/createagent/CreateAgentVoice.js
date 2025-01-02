@@ -215,13 +215,18 @@ const CreateAgentVoice = ({ handleBack }) => {
                                                 </div>
                                                 <div>
                                                     <div
-                                                        className='text-start'
+                                                        className='text-start flex flex-row items-center gap-2'
                                                         style={{
-                                                            fontSize: 14,
-                                                            fontWeight: "bold"
+                                                            fontSize: 12,
+                                                            fontWeight: "500"
                                                         }}
                                                     >
-                                                        {item.name} {item.status && `(${item.status})`}
+                                                        {item.name}
+                                                        {item.status &&
+                                                            <div className='text-start text-white bg-purple rounded-full px-2 w-fit-content'>
+                                                                {item.status}
+                                                            </div>
+                                                        }
                                                     </div>
                                                     <div
                                                         style={{

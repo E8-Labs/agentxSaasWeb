@@ -10,7 +10,7 @@ import { useState } from 'react';
 const Page = () => {
 
 
-    const [index, setIndex] = useState(0)
+    const [index, setIndex] = useState(3)
     const [components, setComponents] = useState([CreateAgent1, CreatAgent3, CreateAgent4, CreateAgentVoice]);
 
     let CurrentComp = components[index]
