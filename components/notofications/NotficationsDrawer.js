@@ -9,8 +9,6 @@ import moment from "moment";
 
 function NotficationsDrawer({ close, }) {
 
-
-
     const [loading, setLoading] = useState(false)
     const [notifications, setNotifications] = useState([])
     const [unread, setUnread] = useState("");
@@ -21,6 +19,7 @@ function NotficationsDrawer({ close, }) {
     useEffect(() => {
         getNotifications()
     }, [])
+
 
     const getNotifications = async () => {
         try {
@@ -82,12 +81,11 @@ function NotficationsDrawer({ close, }) {
 
         } else if (item.type === NotificationTypes.InviteAccepted) {
             return (
-                <div className="flex rounded-full justify-center items-center bg-black text-white text-md" style={{ height: 37, width: 37 }}>
-                    {item.fromUser?.name[0]}
+                <div className="flex rounded-full justify-center items-center bg-black text-white text-md" style={{ height: 37, width: 37,textTransform:'capitalize' }}>
+                    {item.title[0]}
                 </div>
             )
         } else if (item.type === NotificationTypes.Hotlead) {
-            // return "/svgIcons/hotLeadNotIcon.svg"
             return <Image src={"/svgIcons/hotLeadNotIcon.svg"}
                 height={37}
                 width={37}
@@ -95,18 +93,34 @@ function NotficationsDrawer({ close, }) {
             />
         } else if (item.type === NotificationTypes.TotalHotlead) {
             return (
-                <div className="flex rounded-full justify-center items-center bg-black text-white text-md" style={{ height: 37, width: 37 }}>
-                    {item.lead?.name[0]}
+                <div className="flex rounded-full justify-center items-center bg-black text-white text-md" style={{ height: 37, width: 37,textTransform:'capitalize' }}>
+                    {item.title[0]}
                 </div>
             )
         } else if (item.type === NotificationTypes.MeetingBooked) {
             return (
-                <div className="flex rounded-full justify-center items-center bg-black text-white text-md" style={{ height: 37, width: 37 }}>
-                    {item.lead?.name[0].toUpperCase()}
+                <div className="flex rounded-full justify-center items-center bg-black text-white text-md" style={{ height: 37, width: 37,textTransform:'capitalize' }}>
+                    {item.title[0]}
                 </div>
             )
         } else if (item.type === NotificationTypes.PaymentFailed) {
-            return "/svgIcons/urgentNotIcon.svg"
+            return <Image src={"/svgIcons/urgentNotIcon.svg"}
+                height={37}
+                width={37}
+                alt="*"
+            />
+        } else if (item.type === NotificationTypes.CallsMadeByAgent) {
+            return <Image src={"/svgIcons/aiNotIcon.svg"}
+                height={37}
+                width={37}
+                alt="*"
+            />
+        }else if (item.type === NotificationTypes.LeadCalledBack) {
+            return (
+                <div className="flex rounded-full justify-center items-center bg-black text-white text-md" style={{ height: 37, width: 37,textTransform:'capitalize' }}>
+                    {item.title[0]}
+                </div>
+            )
         }
     }
 
@@ -207,3 +221,4 @@ function NotficationsDrawer({ close, }) {
 }
 
 export default NotficationsDrawer;
+
