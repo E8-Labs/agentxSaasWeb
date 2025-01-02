@@ -6,20 +6,30 @@ import Apis from "../apis/Apis";
 import { CircularProgress, Drawer } from "@mui/material";
 import { NotificationTypes } from "@/constants/NotificationTypes";
 import moment from "moment";
+import getProfileDetails from "../apis/GetProfile";
 
 function NotficationsDrawer({ close, }) {
 
     const [loading, setLoading] = useState(false)
     const [notifications, setNotifications] = useState([])
-    const [unread, setUnread] = useState("");
+    const [unread, setUnread] = useState(0);
 
     const [showNotificationDrawer, setShowNotificationDrawer] = useState(false)
 
 
     useEffect(() => {
-        getNotifications()
+        getUserData()
     }, [])
-
+    const getUserData = async () => {
+        // let data = localStorage.getItem("User")
+        // if(data){
+        //     let u = JSON.parse(data)
+        //     console.log('object', object)
+        // }
+        let data = await getProfileDetails()
+        console.log('user unread messages are ', data.data.data.unread)
+        setUnread(data.data.data.unread)
+    }
 
     const getNotifications = async () => {
         try {
@@ -27,6 +37,7 @@ function NotficationsDrawer({ close, }) {
 
             if (user) {
                 let u = JSON.parse(user)
+                console.log('user data from local is', u.user)
                 setLoading(true)
                 const response = await axios.get(Apis.getNotifications, {
                     headers: {
@@ -39,7 +50,10 @@ function NotficationsDrawer({ close, }) {
                     if (response.data.status === true) {
                         console.log('notifications list is', response.data.data)
                         setNotifications(response.data.data.notifications)
-                        setUnread(response.data.data.unread)
+                        u.user.unread = 0
+                        localStorage.setItem("User", JSON.stringify(u));
+                        setUnread(0)
+                        // setUnread(response.data.data.unread)
                     } else {
                         console.log('notification api message is', response.data.message)
                     }
@@ -81,7 +95,7 @@ function NotficationsDrawer({ close, }) {
 
         } else if (item.type === NotificationTypes.InviteAccepted) {
             return (
-                <div className="flex rounded-full justify-center items-center bg-black text-white text-md" style={{ height: 37, width: 37,textTransform:'capitalize' }}>
+                <div className="flex rounded-full justify-center items-center bg-black text-white text-md" style={{ height: 37, width: 37, textTransform: 'capitalize' }}>
                     {item.title[0]}
                 </div>
             )
@@ -93,13 +107,13 @@ function NotficationsDrawer({ close, }) {
             />
         } else if (item.type === NotificationTypes.TotalHotlead) {
             return (
-                <div className="flex rounded-full justify-center items-center bg-black text-white text-md" style={{ height: 37, width: 37,textTransform:'capitalize' }}>
+                <div className="flex rounded-full justify-center items-center bg-black text-white text-md" style={{ height: 37, width: 37, textTransform: 'capitalize' }}>
                     {item.title[0]}
                 </div>
             )
         } else if (item.type === NotificationTypes.MeetingBooked) {
             return (
-                <div className="flex rounded-full justify-center items-center bg-black text-white text-md" style={{ height: 37, width: 37,textTransform:'capitalize' }}>
+                <div className="flex rounded-full justify-center items-center bg-black text-white text-md" style={{ height: 37, width: 37, textTransform: 'capitalize' }}>
                     {item.title[0]}
                 </div>
             )
@@ -115,9 +129,9 @@ function NotficationsDrawer({ close, }) {
                 width={37}
                 alt="*"
             />
-        }else if (item.type === NotificationTypes.LeadCalledBack) {
+        } else if (item.type === NotificationTypes.LeadCalledBack) {
             return (
-                <div className="flex rounded-full justify-center items-center bg-black text-white text-md" style={{ height: 37, width: 37,textTransform:'capitalize' }}>
+                <div className="flex rounded-full justify-center items-center bg-black text-white text-md" style={{ height: 37, width: 37, textTransform: 'capitalize' }}>
                     {item.title[0]}
                 </div>
             )
@@ -128,7 +142,7 @@ function NotficationsDrawer({ close, }) {
     const renderItem = (item, index) => {
 
         return (
-            <div key={index} className="w-full flex flex-row gap-2 items-cneter mt-5">
+            <div key={index} className="w-full flex flex-row gap-2 items-cneter mt-10">
                 {getNotificationImage(item)}
 
                 <div className="flex flex-col gap-1 items-start">
@@ -146,7 +160,10 @@ function NotficationsDrawer({ close, }) {
 
     return (
         <div className="w-full">
-            <button onClick={() => { setShowNotificationDrawer(true) }}>
+            <button onClick={() => {
+                setShowNotificationDrawer(true)
+                getNotifications()
+            }}>
                 <img src='/otherAssets/notificationIcon.png'
                     style={{ height: 24, width: 24 }}
                     alt='notificationIcon'
@@ -161,7 +178,9 @@ function NotficationsDrawer({ close, }) {
                     },
                 }}
                 open={showNotificationDrawer}
-                onClose={() => { setShowNotificationDrawer(false) }}
+                onClose={() => {
+                    setShowNotificationDrawer(false)
+                }}
             >
                 <div className="w-full h-full flex flex-col">
 
@@ -174,9 +193,14 @@ function NotficationsDrawer({ close, }) {
                                     width={24}
                                     alt="Notification Icon"
                                 />
-                                <div className="flex bg-red rounded-full w-[18px] py-[1px] flex-row items-center justify-center text-red font-md text-white" style={{ fontSize: 13, marginTop: -13, alignSelf: 'flex-start', marginLeft: -15 }}>
-                                    {unread || 2}
-                                </div>
+                                {
+                                    unread > 0 && (
+                                        <div className="flex bg-red rounded-full w-[18px] py-[1px] flex-row items-center justify-center text-red font-md text-white" style={{ fontSize: 13, marginTop: -13, alignSelf: 'flex-start', marginLeft: -15 }}>
+                                            {unread}
+                                        </div>
+                                    )
+                                }
+
                             </div>
                             <div style={{ fontSize: 22, fontWeight: "600" }}>
                                 Notifications

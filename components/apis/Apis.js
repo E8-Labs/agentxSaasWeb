@@ -82,6 +82,8 @@ const Apis = {
 
   getImportantCalls: `${BasePath}api/leads/importantCalls`,
 
+  updateProfileApi:`${BasePath}api/user/updateProfile`
+
 };
 
 export default Apis;
