@@ -10,6 +10,7 @@ import Image from 'next/image'
 import NoCalendarView from './NoCalendarView'
 import timeZones from '@/utilities/Timezones'
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage'
+import CircularLoader from '@/utilities/CircularLoader'
 
 const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAgent }) => {
 
@@ -63,19 +64,19 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
     // }, [calenderTitle, calenderApiKey, eventId, selectTimeZone]);
 
 
-    // function isEnabled() {
-    //     if (calendarSelected) {
-    //         console.log("True because calenarSelected")
-    //         return true
-    //     }
-    //     if (calenderTitle && calenderApiKey && eventId && selectTimeZone) {
-    //         console.log("True because all values are there")
-    //         return true
-    //     } else {
-    //         console.log("false  calenarSelected")
-    //         return false
-    //     }
-    // }
+    function isEnabled() {
+        if (calendarSelected) {
+            console.log("True because calenarSelected")
+            return true
+        }
+        if (calenderTitle && calenderApiKey && eventId && selectTimeZone) {
+            console.log("True because all values are there")
+            return true
+        } else {
+            console.log("false  calenarSelected")
+            return false
+        }
+    }
 
     //code for the dropdown selection
 
@@ -121,7 +122,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
     }
 
     //code for calender api
-    const handleAddCalender = async () => {
+    const handleAddCalender = async (calendar) => {
         try {
             setAddCalenderLoader(true);
 
@@ -148,11 +149,11 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
 
             const formData = new FormData();
 
-            formData.append("apiKey", calendarSelected ? calendarSelected.apiKey : calenderApiKey);
-            formData.append("title", calendarSelected ? calendarSelected.title : calenderTitle);
+            formData.append("apiKey", calendar ? calendar.apiKey : calenderApiKey);
+            formData.append("title", calendar ? calendar.title : calenderTitle);
             formData.append("mainAgentId", calendarDetails.id);
-            formData.append("timeZone", calendarSelected ? calendarSelected.timeZone : selectTimeZone)
-            formData.append("eventId", calendarSelected ? calendarSelected.eventId : eventId);
+            formData.append("timeZone", calendar ? calendar.timeZone : selectTimeZone)
+            formData.append("eventId", calendar ? calendar.eventId : eventId);
             formData.append("agentId", selectedAgent.id);
 
             for (let [key, value] of formData.entries()) {
@@ -260,9 +261,19 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
 
             {
                 isVisible && (
-                    <AgentSelectSnackMessage type={type} message={message} isVisible={isVisible} hide={() => {
+                    <AgentSelectSnackMessage type={SnackbarTypes.Success} message={message} isVisible={isVisible} hide={() => {
                         setIsVisible(false)
                     }} />
+                )
+            }
+
+            {
+                calenderLoader && (
+                    <div>
+                        <CircularLoader
+                            globalLoader={calenderLoader}
+                        />
+                    </div>
                 )
             }
 
@@ -328,7 +339,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
                                                             onClick={() => {
                                                                 console.log("Selected calender is:", item);
                                                                 setCalendarSelected(item);
-                                                                handleAddCalender();
+                                                                handleAddCalender(item);
                                                                 // setCalenderTitle(item.title);
                                                                 // setCalenderApiKey(item.apiKey);
                                                                 // setEventId(item.eventId);
@@ -355,7 +366,6 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
                                                     // setEventId("");
                                                     // setSelectTimeZone("");
                                                     // setShowAddNewCalender(true);
-                                                    handleAddCalender();
                                                 }}
                                             >
                                                 Add New Calender
@@ -532,7 +542,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
                                         </FormControl>
                                     </div>
 
-                                    {/* <div className='w-full mt-4'>
+                                    <div className='w-full mt-4'>
                                         {
                                             calenderLoader ?
                                                 <div className='w-full flex flex-row items-center justify-center'>
@@ -551,7 +561,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
                                                     Add
                                                 </button>
                                         }
-                                    </div> */}
+                                    </div>
                                 </div>
 
                             </div>

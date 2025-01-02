@@ -998,17 +998,6 @@ const Pipeline1 = () => {
     }
   };
 
-  //code for tagify library
-  const suggestions = [
-    "apple",
-    "banana",
-    "cucumber",
-    "dewberries",
-    "elderberry",
-    "fig",
-    "grapes",
-    "honeydew",
-  ];
 
   //code to  close tha add new stage
   const handleCloseAddStage = () => {
@@ -1166,6 +1155,48 @@ const Pipeline1 = () => {
       setAddLeadNoteLoader(false);
     }
   };
+
+
+  //function to delete leads
+  const handleDelLead = async () => {
+    try {
+      const leadToDelete = selectedLeadsDetails
+      console.log("Lead to delete is", leadToDelete);
+      console.log("Leads list is", LeadsList);
+      console.log("Pipelines are", PipeLines);
+
+      // const filteredPipelines = PipeLines.map((pipeline) => {
+      //   return(
+      //     pipeline.leads.filter((lead) => {lead.lead.id !== leadToDelete.id})
+      //   )
+      // });
+
+      const filteredLeads = LeadsList.filter((lead) => {
+        lead.id !== leadToDelete.id
+      });
+
+      console.log("Filtered leads are", filteredLeads)
+
+      const filteredPipelines = PipeLines.map((pipeline) => {
+        return {
+          ...pipeline,
+          leads: pipeline.leads.filter((lead) => lead.lead.id !== leadToDelete.id)
+        };
+      });
+
+      console.log("Filtered pipelines are", filteredPipelines)
+      // console.log("Filtered pipelines 12 are", fP)
+      setPipeLines(filteredPipelines);
+      setLeadsList(filteredLeads);
+      setShowDetailsModal(false);
+
+    } catch (error) {
+      console.error("Error occuren in api is", error);
+    } finally {
+      console.log("Api call done");
+    }
+  }
+
 
   const styles = {
     heading: {
@@ -2873,6 +2904,7 @@ const Pipeline1 = () => {
           showDetailsModal={showDetailsModal}
           setShowDetailsModal={setShowDetailsModal}
           isPipeline={true}
+          handleDelLead={handleDelLead}
         />
       )}
 

@@ -460,6 +460,7 @@ const LeadDetails = ({
 
   const handleDeleteLead = async () => {
     try {
+      // handleDelLead();
       setDelLeadLoader(true);
       let AuthToken = null;
 
