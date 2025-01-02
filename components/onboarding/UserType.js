@@ -168,7 +168,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
                                 userType.map((item, index) => (
                                     <div key={item.id} className='flex w-6/12 md:w-4/12 p-2'>
                                         <button
-                                            className='w-full rounded-lg p-2 hover:border-2 hover:border-[#7902DF] border border-[#00000010] transition-all duration-400 ease-in-out transform active:scale-90'
+                                            className='w-full rounded-lg p-2 md:hover:border-2 md:hover:border-[#7902DF] border border-[#00000010] transition-all duration-400 ease-in-out transform active:scale-90'
                                             onClick={(e) => { handleUserType(item) }}
                                             style={{
                                                 border: item.id === SelectUserType ? "2px solid #7902DF" : "",
