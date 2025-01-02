@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import {
   Alert,
   Box,
@@ -39,7 +39,9 @@ import moment from "moment";
 import LeadDetails from "../dashboard/leads/extras/LeadDetails";
 import NotficationsDrawer from "../notofications/NotficationsDrawer";
 import CallWorthyReviewsPopup from "../dashboard/leads/CallWorthyReviewsPopup";
-import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from "../dashboard/leads/AgentSelectSnackMessage";
 // import "./TagsInput.css"; // Import the custom CSS
 // import TagsInput from '../dashboard/leads/TagsInput';
 
@@ -50,7 +52,6 @@ const Pipeline1 = () => {
   //variale for floating view
   const [expandSideView, setExpandSideView] = useState(false);
   const [openCallWorthyPopup, setOpenCallWorthyPopup] = useState(false);
-
 
   const [pipelinePopoverAnchorel, setPipelinePopoverAnchorel] = useState(null);
   const open = Boolean(pipelinePopoverAnchorel);
@@ -100,7 +101,7 @@ const Pipeline1 = () => {
   const openAssigneAction = Boolean(assigntoActionInfoEl);
 
   //test code
-  const [showSampleTip, setShowSampleTip] = useState(false)
+  const [showSampleTip, setShowSampleTip] = useState(false);
 
   //code for adding new pipeline
   const [createPipeline, setCreatePipeline] = useState(false);
@@ -173,7 +174,7 @@ const Pipeline1 = () => {
   //code for the lead details modal
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedLeadsDetails, setSelectedLeadsDetails] = useState(null);
-  const [pipelineId, setPipelineId] = useState("")
+  const [pipelineId, setPipelineId] = useState("");
 
   //code for buttons of details popup
   const [showKYCDetails, setShowKycDetails] = useState(true);
@@ -201,46 +202,47 @@ const Pipeline1 = () => {
   const [showAddStageBtn, setShowAddStageBtn] = useState(false);
 
   //variables for getting woorthy call logs
-  const [importantCalls, setImportantCalls] = useState([])
-  const [selectedCall, setSelectedCall] = useState('')
-
+  const [importantCalls, setImportantCalls] = useState([]);
+  const [selectedCall, setSelectedCall] = useState("");
 
   useEffect(() => {
-    getImportantCalls()
-  }, [])
+    getImportantCalls();
+  }, []);
 
   const getImportantCalls = async () => {
     try {
-      const data = localStorage.getItem("User")
+      const data = localStorage.getItem("User");
       if (data) {
-        const u = JSON.parse(data)
+        const u = JSON.parse(data);
         let path = Apis.getImportantCalls;
         console.log("Apipath for getcall", path);
         console.log("Authtoken for getcall", u.token);
         const response = await axios.get(path, {
           headers: {
-            "Authorization": `Bearer ${u.token}`
-          }
-        })
+            Authorization: `Bearer ${u.token}`,
+          },
+        });
 
         if (response) {
           if (response.data.status === true) {
-            console.log('response of get imporatant calls api is', response.data.data)
-            setImportantCalls(response.data.data)
-            setSelectedCall(response.data.data[0])
+            console.log(
+              "response of get imporatant calls api is",
+              response.data.data
+            );
+            setImportantCalls(response.data.data);
+            setSelectedCall(response.data.data[0]);
           } else {
-            console.log("message of get important calls api is", response.data.message)
+            console.log(
+              "message of get important calls api is",
+              response.data.message
+            );
           }
         }
       }
     } catch (e) {
-      console.log('error in get important calls api is', e)
+      console.log("error in get important calls api is", e);
     }
-  }
-
-
-
-
+  };
 
   //code for showing the add stage button according to dirredent conditions
   // useEffect(() => {
@@ -998,7 +1000,6 @@ const Pipeline1 = () => {
     }
   };
 
-
   //code to  close tha add new stage
   const handleCloseAddStage = () => {
     setAddNewStageModal(false);
@@ -1156,11 +1157,10 @@ const Pipeline1 = () => {
     }
   };
 
-
   //function to delete leads
   const handleDelLead = async () => {
     try {
-      const leadToDelete = selectedLeadsDetails
+      const leadToDelete = selectedLeadsDetails;
       console.log("Lead to delete is", leadToDelete);
       console.log("Leads list is", LeadsList);
       console.log("Pipelines are", PipeLines);
@@ -1172,31 +1172,31 @@ const Pipeline1 = () => {
       // });
 
       const filteredLeads = LeadsList.filter((lead) => {
-        lead.id !== leadToDelete.id
+        lead.id !== leadToDelete.id;
       });
 
-      console.log("Filtered leads are", filteredLeads)
+      console.log("Filtered leads are", filteredLeads);
 
       const filteredPipelines = PipeLines.map((pipeline) => {
         return {
           ...pipeline,
-          leads: pipeline.leads.filter((lead) => lead.lead.id !== leadToDelete.id)
+          leads: pipeline.leads.filter(
+            (lead) => lead.lead.id !== leadToDelete.id
+          ),
         };
       });
 
-      console.log("Filtered pipelines are", filteredPipelines)
+      console.log("Filtered pipelines are", filteredPipelines);
       // console.log("Filtered pipelines 12 are", fP)
       setPipeLines(filteredPipelines);
       setLeadsList(filteredLeads);
       setShowDetailsModal(false);
-
     } catch (error) {
       console.error("Error occuren in api is", error);
     } finally {
       console.log("Api call done");
     }
-  }
-
+  };
 
   const styles = {
     heading: {
@@ -1244,7 +1244,12 @@ const Pipeline1 = () => {
 
   return (
     <div className="w-full flex flex-col items-start h-screen">
-      <AgentSelectSnackMessage type={SnackbarTypes.Success} isVisible={(SuccessSnack == null || SuccessSnack == false) ? false : true} hide={() => setSuccessSnack(false)} message={SuccessSnack} />
+      <AgentSelectSnackMessage
+        type={SnackbarTypes.Success}
+        isVisible={SuccessSnack == null || SuccessSnack == false ? false : true}
+        hide={() => setSuccessSnack(false)}
+        message={SuccessSnack}
+      />
       <div
         className="w-full flex flex-row justify-center"
         style={{ borderBottom: "1px solid #15151510" }}
@@ -1275,12 +1280,12 @@ const Pipeline1 = () => {
                     vertical: "bottom",
                     horizontal: "left",
                   }}
-                // PaperProps={{
-                //     elevation: 0, // This will remove the shadow
-                //     style: {
-                //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
-                //     },
-                // }}
+                  // PaperProps={{
+                  //     elevation: 0, // This will remove the shadow
+                  //     style: {
+                  //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
+                  //     },
+                  // }}
                 >
                   <div className="p-2">
                     {PipeLines.map((item, index) => (
@@ -1315,12 +1320,12 @@ const Pipeline1 = () => {
                   vertical: "bottom",
                   horizontal: "left",
                 }}
-              // PaperProps={{
-              //     elevation: 0, // This will remove the shadow
-              //     style: {
-              //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
-              //     },
-              // }}
+                // PaperProps={{
+                //     elevation: 0, // This will remove the shadow
+                //     style: {
+                //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
+                //     },
+                // }}
               >
                 <div className="p-3">
                   <button
@@ -1494,12 +1499,12 @@ const Pipeline1 = () => {
                         variant="contained"
                         onClick={(evetn) => {
                           if (stage.identifier === "new_lead") {
-                            console.log("donotShow del btn")
+                            console.log("donotShow del btn");
                             setShowDelBtn(true);
                           } else {
                             setShowDelBtn(false);
                           }
-                          console.log("Show del btn", stage)
+                          console.log("Show del btn", stage);
                           handleShowStagePopover(evetn, stage);
                         }}
                         className="outline-none"
@@ -1558,7 +1563,7 @@ const Pipeline1 = () => {
                           <div
                             className="text-black flex flex-row items-center gap-4 me-2 outline-none"
                             style={styles.paragraph}
-                          // onClick={handleDeleteStage}
+                            // onClick={handleDeleteStage}
                           >
                             <button
                               className="flex flex-row gap-2 outline-none"
@@ -1603,141 +1608,139 @@ const Pipeline1 = () => {
                         </div>
                         <div ref={bottomRef}></div>
 
-                        {
-                          !showDelBtn && (
-                            <div className="w-full flex flex-row mt-4">
-                              <button
-                                className="text-red flex flex-row items-center gap-4 me-2 outline-none"
-                                style={styles.paragraph}
-                                onClick={() => {
-                                  console.log("Selected stage is:", selectedStage);
-                                  // setSelectedStage(item);
-                                  setShowDelStageModal(true);
-                                }}
-                              >
-                                <Image
-                                  src={"/assets/delIcon.png"}
-                                  height={18}
-                                  width={18}
-                                  alt="*"
-                                />
-                                Delete
-                              </button>
-                            </div>
-                          )
-                        }
-
+                        {!showDelBtn && (
+                          <div className="w-full flex flex-row mt-4">
+                            <button
+                              className="text-red flex flex-row items-center gap-4 me-2 outline-none"
+                              style={styles.paragraph}
+                              onClick={() => {
+                                console.log(
+                                  "Selected stage is:",
+                                  selectedStage
+                                );
+                                // setSelectedStage(item);
+                                setShowDelStageModal(true);
+                              }}
+                            >
+                              <Image
+                                src={"/assets/delIcon.png"}
+                                height={18}
+                                width={18}
+                                alt="*"
+                              />
+                              Delete
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </Popover>
 
                     {/* Display leads matching this stage */}
                     {LeadsList.filter((lead) => lead.lead.stage === stage.id)
                       .length > 0 && (
-                        <div
-                          className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl"
-                          style={{
-                            scrollbarWidth: "none",
-                            borderWidth: 1,
-                            borderRadius: "12",
-                            borderStyle: "solid",
-                            borderColor: "#00000010",
-                          }}
-                        >
-                          {LeadsList.filter(
-                            (lead) => lead.lead.stage === stage.id
-                          ).map((lead, leadIndex) => (
-                            <div
-                              className="p-3 h-full"
-                              style={{ width: "300px", height: 200 }}
-                              key={leadIndex}
-                            >
-                              <div className="border rounded-xl px-4 py-2 h-full">
-                                <button
-                                  className="flex flex-row items-center gap-3"
-                                  onClick={() => {
-                                    console.log(
-                                      "Selected lead details are:",
-                                      lead
-                                    );
-                                    setShowDetailsModal(true);
-                                    setSelectedLeadsDetails(lead.lead);
-                                    setPipelineId(lead.lead.pipeline.id)
-                                    setNoteDetails(lead.lead.notes);
-                                  }}
+                      <div
+                        className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl"
+                        style={{
+                          scrollbarWidth: "none",
+                          borderWidth: 1,
+                          borderRadius: "12",
+                          borderStyle: "solid",
+                          borderColor: "#00000010",
+                        }}
+                      >
+                        {LeadsList.filter(
+                          (lead) => lead.lead.stage === stage.id
+                        ).map((lead, leadIndex) => (
+                          <div
+                            className="p-3 h-full"
+                            style={{ width: "300px", height: 200 }}
+                            key={leadIndex}
+                          >
+                            <div className="border rounded-xl px-4 py-2 h-full">
+                              <button
+                                className="flex flex-row items-center gap-3"
+                                onClick={() => {
+                                  console.log(
+                                    "Selected lead details are:",
+                                    lead
+                                  );
+                                  setShowDetailsModal(true);
+                                  setSelectedLeadsDetails(lead.lead);
+                                  setPipelineId(lead.lead.pipeline.id);
+                                  setNoteDetails(lead.lead.notes);
+                                }}
+                              >
+                                {/* T is center aligned */}
+                                <div
+                                  className="bg-black text-white rounded-full flex flex-row item-center justify-center"
+                                  style={{ height: "27px", width: "27px" }}
                                 >
-                                  {/* T is center aligned */}
-                                  <div
-                                    className="bg-black text-white rounded-full flex flex-row item-center justify-center"
-                                    style={{ height: "27px", width: "27px" }}
-                                  >
-                                    {lead.lead.firstName.slice(0, 1)}
-                                  </div>
-                                  <div style={styles.paragraph}>
-                                    {lead.lead.firstName}
-                                  </div>
-                                </button>
-                                <div className="flex flex-row items-center justify-between w-full mt-2">
-                                  <div
-                                    className="text-[#00000060]"
-                                    style={styles.agentName}
-                                  >
-                                    Email
-                                  </div>
-                                  <div className="flex flex-row items-center gap-4">
-                                    <Image
-                                      src={"/assets/colorCircle.png"}
-                                      height={24}
-                                      width={24}
-                                      alt="*"
-                                    />
-                                    <div
-                                      className="text-purple underline"
-                                      style={styles.agentName}
-                                    >
-                                      {lead.agent.name}
-                                    </div>
-                                  </div>
+                                  {lead.lead.firstName.slice(0, 1)}
                                 </div>
-
-                                {
-                                  lead?.lead?.booking?.date && (
-                                    <div className="flex flex-row items-center gap-2">
-                                      <Image
-                                        src="/otherAssets/calenderIcon.png"
-                                        height={20}
-                                        width={20}
-                                        alt="*"
-                                        style={{
-                                          filter:
-                                            "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
-                                        }}
-                                      />
-                                      {moment(lead?.lead?.booking?.date).format(
-                                        "MMM dd"
-                                      ) || "-"}
-                                      <Image
-                                        src="/otherAssets/clockIcon.png"
-                                        height={20}
-                                        width={20}
-                                        alt="*"
-                                        style={{
-                                          filter:
-                                            "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
-                                        }}
-                                      />
-                                      {lead?.lead?.booking?.time || "-"}
-                                    </div>
-                                  )
-                                }
-
-                                <div className="w-full flex flex-row items-center justify-between mt-12">
+                                <div style={styles.paragraph}>
+                                  {lead.lead.firstName}
+                                </div>
+                              </button>
+                              <div className="flex flex-row items-center justify-between w-full mt-2">
+                                <div
+                                  className="text-[#00000060]"
+                                  style={styles.agentName}
+                                >
+                                  Email
+                                </div>
+                                <div className="flex flex-row items-center gap-4">
                                   <Image
-                                    src={"/assets/manIcon.png"}
-                                    height={32}
-                                    width={32}
+                                    src={"/assets/colorCircle.png"}
+                                    height={24}
+                                    width={24}
                                     alt="*"
                                   />
-                                  {/* <div className="flex flex-row items-center gap-3">
+                                  <div
+                                    className="text-purple underline"
+                                    style={styles.agentName}
+                                  >
+                                    {lead.agent.name}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {lead?.lead?.booking?.date && (
+                                <div className="flex flex-row items-center gap-2">
+                                  <Image
+                                    src="/otherAssets/calenderIcon.png"
+                                    height={20}
+                                    width={20}
+                                    alt="*"
+                                    style={{
+                                      filter:
+                                        "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
+                                    }}
+                                  />
+                                  {moment(lead?.lead?.booking?.date).format(
+                                    "MMM dd"
+                                  ) || "-"}
+                                  <Image
+                                    src="/otherAssets/clockIcon.png"
+                                    height={20}
+                                    width={20}
+                                    alt="*"
+                                    style={{
+                                      filter:
+                                        "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
+                                    }}
+                                  />
+                                  {lead?.lead?.booking?.time || "-"}
+                                </div>
+                              )}
+
+                              <div className="w-full flex flex-row items-center justify-between mt-12">
+                                <Image
+                                  src={"/assets/manIcon.png"}
+                                  height={32}
+                                  width={32}
+                                  alt="*"
+                                />
+                                {/* <div className="flex flex-row items-center gap-3">
                                                                         <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
                                                                             Tag
                                                                         </div>
@@ -1746,65 +1749,65 @@ const Pipeline1 = () => {
                                                                         </div>
                                                                     </div> */}
 
-                                  {lead.lead.tags.length > 0 ? (
-                                    <div className="flex flex-row items-center gap-1">
-                                      {lead.lead.tags
-                                        .slice(0, 1)
-                                        .map((tagVal, index) => {
-                                          return (
-                                            // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
-                                            //     {tagVal}
-                                            // </div>
+                                {lead.lead.tags.length > 0 ? (
+                                  <div className="flex flex-row items-center gap-1">
+                                    {lead.lead.tags
+                                      .slice(0, 1)
+                                      .map((tagVal, index) => {
+                                        return (
+                                          // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
+                                          //     {tagVal}
+                                          // </div>
+                                          <div
+                                            key={index}
+                                            className="flex flex-row items-center gap-2 bg-[#402FFF07] px-2 py-1 rounded-lg"
+                                          >
                                             <div
-                                              key={index}
-                                              className="flex flex-row items-center gap-2 bg-[#402FFF07] px-2 py-1 rounded-lg"
+                                              className="text-[#402FFF]" //1C55FF10
                                             >
-                                              <div
-                                                className="text-[#402FFF]" //1C55FF10
-                                              >
-                                                {tagVal.length > 2 ? (
-                                                  <div>
-                                                    {tagVal.slice(0, 6)}
-                                                    {"..."}
-                                                  </div>
-                                                ) : (
-                                                  <div>{tagVal}</div>
-                                                )}
-                                              </div>
-                                              {DelTagLoader &&
-                                                tagVal.includes(DelTagLoader) ? (
+                                              {tagVal.length > 2 ? (
                                                 <div>
-                                                  <CircularProgress size={15} />
+                                                  {tagVal.slice(0, 6)}
+                                                  {"..."}
                                                 </div>
                                               ) : (
-                                                <button
-                                                  onClick={() => {
-                                                    handleDelTag(tagVal);
-                                                  }}
-                                                >
-                                                  <X
-                                                    size={15}
-                                                    weight="bold"
-                                                    color="#402fff"
-                                                  />
-                                                </button>
+                                                <div>{tagVal}</div>
                                               )}
                                             </div>
-                                          );
-                                        })}
-                                      {lead.lead.tags.length > 2 && (
-                                        <div>+{lead.lead.tags.length - 2}</div>
-                                      )}
-                                    </div>
-                                  ) : (
-                                    "-"
-                                  )}
-                                </div>
+                                            {DelTagLoader &&
+                                            tagVal.includes(DelTagLoader) ? (
+                                              <div>
+                                                <CircularProgress size={15} />
+                                              </div>
+                                            ) : (
+                                              <button
+                                                onClick={() => {
+                                                  handleDelTag(tagVal);
+                                                }}
+                                              >
+                                                <X
+                                                  size={15}
+                                                  weight="bold"
+                                                  color="#402fff"
+                                                />
+                                              </button>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    {lead.lead.tags.length > 2 && (
+                                      <div>+{lead.lead.tags.length - 2}</div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
                               </div>
                             </div>
-                          ))}
-                        </div>
-                      )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -1938,9 +1941,9 @@ const Pipeline1 = () => {
                 >
                   <div className="flex flex-row items-center gap-2 mt-4">
                     <p style={{ fontWeight: "600", fontSize: 15 }}>Action</p>
-                    {/* <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' /> */}
+                    {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
                     <Image
-                      src="/assets/infoIcon.png"
+                      src="/svgIcons/infoIcon.svg"
                       height={20}
                       width={20}
                       alt="*"
@@ -1977,7 +1980,7 @@ const Pipeline1 = () => {
                       <div className="p-2">
                         <div className="flex flex-row items-center gap-1">
                           <Image
-                            src={"/assets/infoIcon.png"}
+                            src={"/svgIcons/infoIcon.svg"}
                             height={24}
                             width={24}
                             alt="*"
@@ -2004,21 +2007,20 @@ const Pipeline1 = () => {
                     }}
                   />
 
-
                   <div className="flex flex-row items-center gap-2 mt-4">
                     <p style={{ fontWeight: "600", fontSize: 15 }}>
                       Sample Answers
                     </p>
-                    {/* <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' /> */}
+                    {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
                     <Image
-                      src="/assets/infoIcon.png"
+                      src="/svgIcons/infoIcon.svg"
                       height={20}
                       width={20}
                       alt="*"
                       aria-owns={open ? "mouse-over-popover2" : undefined}
                       aria-haspopup="true"
                       onMouseEnter={(event) => {
-                        setShowSampleTip(true)
+                        setShowSampleTip(true);
                         setAssigntoActionInfoEl(event.currentTarget);
                       }}
                       onMouseLeave={() => {
@@ -2027,8 +2029,6 @@ const Pipeline1 = () => {
                       }}
                     />
                   </div>
-
-
 
                   <div
                     className="max-h-[30vh] overflow-auto mt-2" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
@@ -2078,9 +2078,9 @@ const Pipeline1 = () => {
 
                   <div className="flex flex-row items-center gap-2 mt-4">
                     <p style={{ fontWeight: "600", fontSize: 15 }}>Assign to</p>
-                    {/* <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' /> */}
+                    {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
                     <Image
-                      src="/assets/infoIcon.png"
+                      src="/svgIcons/infoIcon.svg"
                       height={20}
                       width={20}
                       alt="*"
@@ -2120,19 +2120,15 @@ const Pipeline1 = () => {
                     <div className="p-2">
                       <div className="flex flex-row items-center gap-1">
                         <Image
-                          src={"/assets/infoIcon.png"}
+                          src={"/svgIcons/infoIcon.svg"}
                           height={24}
                           width={24}
                           alt="*"
                         />
                         <p style={{ fontWeight: "500", fontSize: 12 }}>
-                          {
-                            showSampleTip ? (
-                              "What are possible answers leads will give to this question?"
-                            ) : (
-                              "Notify a team member when leads move here."
-                            )
-                          }
+                          {showSampleTip
+                            ? "What are possible answers leads will give to this question?"
+                            : "Notify a team member when leads move here."}
                         </p>
                       </div>
                     </div>
@@ -2481,7 +2477,7 @@ const Pipeline1 = () => {
                       borderRadius: "10px",
                       width: "100%",
                       backgroundColor: !assignNextStage && "#00000020",
-                      color: !assignNextStage && "#000000",
+                      color: !assignNextStage ? "#000000" : "#fff",
                       fontWeight: 600,
                       fontSize: "20",
                     }}
@@ -3076,109 +3072,115 @@ const Pipeline1 = () => {
         </Box>
       </Modal>
 
-
       {/* Code for side view */}
 
-      {
-        importantCalls?.length > 0 && (
-          <div
-            className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${expandSideView ? 'w-[506px]' : 'w-[100px]'}`} //${expandSideView ? 'w-[32vw]' : 'w-[7vw]'}
-            style={{
-              borderTopLeftRadius: expandSideView ? "0" : '40px',
-              borderBottomLeftRadius: expandSideView ? "0" : '40px',
-              // alignSelf: 'flex-end',
-              position: "absolute",
-              // transform: expandSideView ? "translateX(0)" : "translateX(100%)",
-              bottom: 100,
-              right: 0,
-            }}
-            onClick={() => { }}
-          >
-
-
-            {expandSideView ? (
-              <div className='w-full flex flex-row items-center gap-4  h-20'>
-                <button
-                  className="flex flex-col items-center justify-center gap-1"
-                  onClick={() => { setOpenCallWorthyPopup(true) }}
-                >
-                  <img
-                    src="/svgIcons/fireIcon.png"
-                    style={{ height: 25, width: 25 }}
-                    alt="Fire Icon"
-                  />
-                  <img
-                    src="/svgIcons/threeDots.svg"
-                    style={{ height: 5, width: 15 }}
-                    alt="Three Dots"
-                  />
-                </button>
-                <button
-                  onClick={() => { setOpenCallWorthyPopup(true) }}
-                  className='flex flex-col items-start  truncate'
-                >
-                  <div className="text-[17px] font-[600]">
-                    While you were away
-                  </div>
-                  <div className="text-[15px] font-[500]">
-                    Here are some calls that sounded important.
-                  </div>
-                </button>
-                <div className='flex flex-col items-start ml-[30px]'>
-
-                  <button className="text-purple mt-2"
-                    onClick={() => { setExpandSideView(false) }}
-                  >
-                    <img src='/svgIcons/cross.svg'
-                      style={{ height: 24, width: 24 }}
-                    />
-                  </button>
-
-                  <button className="text-purple mt-2"
-                    onClick={() => { setExpandSideView(false) }}
-                  >
-                    Hide
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className='w-full flex flex-row gap-4 items-center cursor-pointer h-20' onClick={() => setExpandSideView(!expandSideView)}>
-                <div className="flex flex-col items-center justify-center gap-1">
-                  <img
-                    src="/svgIcons/fireIcon.png"
-                    style={{ height: 25, width: 25 }}
-                    alt="Fire Icon"
-                  />
-                  <img
-                    src="/svgIcons/threeDots.svg"
-                    style={{ height: 5, width: 15 }}
-                    alt="Three Dots"
-                  />
-                </div>
+      {importantCalls?.length > 0 && (
+        <div
+          className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${
+            expandSideView ? "w-[506px]" : "w-[100px]"
+          }`} //${expandSideView ? 'w-[32vw]' : 'w-[7vw]'}
+          style={{
+            borderTopLeftRadius: expandSideView ? "0" : "40px",
+            borderBottomLeftRadius: expandSideView ? "0" : "40px",
+            // alignSelf: 'flex-end',
+            position: "absolute",
+            // transform: expandSideView ? "translateX(0)" : "translateX(100%)",
+            bottom: 100,
+            right: 0,
+          }}
+          onClick={() => {}}
+        >
+          {expandSideView ? (
+            <div className="w-full flex flex-row items-center gap-4  h-20">
+              <button
+                className="flex flex-col items-center justify-center gap-1"
+                onClick={() => {
+                  setOpenCallWorthyPopup(true);
+                }}
+              >
                 <img
-                  src="/svgIcons/leftArrowIcon.svg"
-                  style={{ height: 24, width: 24 }}
+                  src="/svgIcons/fireIcon.png"
+                  style={{ height: 25, width: 25 }}
+                  alt="Fire Icon"
+                />
+                <img
+                  src="/svgIcons/threeDots.svg"
+                  style={{ height: 5, width: 15 }}
                   alt="Three Dots"
                 />
+              </button>
+              <button
+                onClick={() => {
+                  setOpenCallWorthyPopup(true);
+                }}
+                className="flex flex-col items-start  truncate"
+              >
+                <div className="text-[17px] font-[600]">
+                  While you were away
+                </div>
+                <div className="text-[15px] font-[500]">
+                  Here are some calls that sounded important.
+                </div>
+              </button>
+              <div className="flex flex-col items-start ml-[30px]">
+                <button
+                  className="text-purple mt-2"
+                  onClick={() => {
+                    setExpandSideView(false);
+                  }}
+                >
+                  <img
+                    src="/svgIcons/cross.svg"
+                    style={{ height: 24, width: 24 }}
+                  />
+                </button>
 
+                <button
+                  className="text-purple mt-2"
+                  onClick={() => {
+                    setExpandSideView(false);
+                  }}
+                >
+                  Hide
+                </button>
               </div>
-            )
-            }
-          </div>
-        )
-      }
+            </div>
+          ) : (
+            <div
+              className="w-full flex flex-row gap-4 items-center cursor-pointer h-20"
+              onClick={() => setExpandSideView(!expandSideView)}
+            >
+              <div className="flex flex-col items-center justify-center gap-1">
+                <img
+                  src="/svgIcons/fireIcon.png"
+                  style={{ height: 25, width: 25 }}
+                  alt="Fire Icon"
+                />
+                <img
+                  src="/svgIcons/threeDots.svg"
+                  style={{ height: 5, width: 15 }}
+                  alt="Three Dots"
+                />
+              </div>
+              <img
+                src="/svgIcons/leftArrowIcon.svg"
+                style={{ height: 24, width: 24 }}
+                alt="Three Dots"
+              />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Code for calll worthy modal */}
-      {
-        openCallWorthyPopup && (
-          <CallWorthyReviewsPopup
-            open={openCallWorthyPopup}
-            close={() => { setOpenCallWorthyPopup(false) }}
-          />
-        )
-      }
-
-
+      {openCallWorthyPopup && (
+        <CallWorthyReviewsPopup
+          open={openCallWorthyPopup}
+          close={() => {
+            setOpenCallWorthyPopup(false);
+          }}
+        />
+      )}
     </div>
   );
 };

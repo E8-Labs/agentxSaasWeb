@@ -10,7 +10,7 @@ const DefaultMessage = null;
 export default function AgentSelectSnackMessage({
   title = null,
   message = DefaultMessage,
-  type= SnackbarTypes.Error,
+  type = SnackbarTypes.Error,
   time = 4000,
   isVisible,
   hide,
@@ -42,18 +42,18 @@ export default function AgentSelectSnackMessage({
   }, [type]);
 
   useEffect(() => {
-    console.log("UseEffect")
+    console.log("UseEffect");
 
     if (isVisible) {
       let timer = setTimeout(() => {
         // setErrorMessage(null);
-        console.log("Timer hit")
+        console.log("Timer hit");
         hide();
       }, time);
       return () => {
-        console.log("Clearing timer")
-        clearTimeout(timer)
-      }
+        console.log("Clearing timer");
+        clearTimeout(timer);
+      };
     }
 
     // if (isVisible) {
@@ -63,18 +63,17 @@ export default function AgentSelectSnackMessage({
     //   }, 4000);
     //   return (() => { clearTimeout(timer) })
     // }
-
   }, [isVisible]);
 
   return (
     isVisible && (
       <div
-        className=" items-center justify-center  w-[33vw]"
+        className=" items-center justify-center  w-[33vw] z-[9999]"
         style={{
           position: "absolute",
           left: "50%",
           translate: "-50%",
-          top: 10
+          top: 10,
           // display: isVisible ? "flex" : "hidden",
         }}
       >

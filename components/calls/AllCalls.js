@@ -403,11 +403,12 @@ function AllCalls() {
   return (
     <div className="w-full items-start">
       <div className="flex w-full pl-10 flex-row items-center gap-3">
-        <div className="flex w-3/12 items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm flex-shrink-0">
+        <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded pe-2">
           <input
+            style={{ fontSize: 15 }}
             type="text"
             placeholder="Search by name, email or phone"
-            className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0 flex-shrink-0"
+            className="flex-grow outline-none font-[500]  border-none focus:outline-none focus:ring-0 flex-shrink-0"
             value={searchValue}
             onChange={(e) => {
               const value = e.target.value;

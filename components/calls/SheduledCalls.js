@@ -226,7 +226,7 @@ function SheduledCalls() {
   return (
     <div className="w-full items-start">
       <div className="flex w-full pl-10 flex-row items-start gap-3">
-        <div className="flex w-3/12 items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm">
+        {/* <div className="flex w-3/12 items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm">
           <input
             type="text"
             placeholder="Search by name, email or phone"
@@ -244,7 +244,7 @@ function SheduledCalls() {
             width={20}
             height={20}
           />
-        </div>
+        </div> */}
 
         {/* <button>
                     <Image src={'/otherAssets/filterBtn.png'}
@@ -407,7 +407,7 @@ function SheduledCalls() {
                                 >
                                   View Details
                                 </button>
-                                <div className="text-red">Delete</div>
+                                {/* <div className="text-red">Delete</div> */}
                               </div>
                             </Popover>
                           </div>

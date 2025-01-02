@@ -291,7 +291,7 @@ function SheduledCalls() {
       )}
 
       <div className="flex w-full pl-10 flex-row items-start gap-3">
-        <div className="flex w-3/12 items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm">
+        {/* <div className="flex w-3/12 items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm">
           <input
             type="text"
             placeholder="Search by name, email or phone"
@@ -309,7 +309,7 @@ function SheduledCalls() {
             width={20}
             height={20}
           />
-        </div>
+        </div> */}
 
         {/* <button>
                     <Image src={'/otherAssets/filterBtn.png'}
@@ -462,24 +462,23 @@ function SheduledCalls() {
                                 className="p-2 flex flex-col gap-2"
                                 style={{ fontWeight: "500", fontSize: 15 }}
                               >
-                                {SelectedItem?.status === "Active" && (
-                                  <div>
-                                    {PauseLoader ? (
-                                      <CircularProgress size={18} />
-                                    ) : (
-                                      <button
-                                        className="text-start outline-none"
-                                        onClick={() => {
-                                          setShowConfirmationPopup(
-                                            "pause calls"
-                                          );
-                                        }}
-                                      >
-                                        Pause Calls
-                                      </button>
-                                    )}
-                                  </div>
-                                )}
+                                <div>
+                                  {PauseLoader ? (
+                                    <CircularProgress size={18} />
+                                  ) : (
+                                    <button
+                                      className="text-start outline-none"
+                                      onClick={() => {
+                                        setShowConfirmationPopup("Pause Calls");
+                                      }}
+                                    >
+                                      {SelectedItem.status == "Paused"
+                                        ? "Run Calls"
+                                        : "Pause Calls"}
+                                    </button>
+                                  )}
+                                </div>
+
                                 <button
                                   className="text-start outline-none"
                                   onClick={() => {
@@ -488,7 +487,7 @@ function SheduledCalls() {
                                 >
                                   View Details
                                 </button>
-                                <div className="text-red">Delete</div>
+                                {/* <div className="text-red">Delete</div> */}
                               </div>
                             </Popover>
                           </div>

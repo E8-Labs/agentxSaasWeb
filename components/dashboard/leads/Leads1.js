@@ -20,11 +20,12 @@ import { useDropzone } from "react-dropzone";
 import * as XLSX from "xlsx";
 import Userleads from "./Userleads";
 import TagsInput from "./TagsInput";
-import AgentSelectSnackMessage, { SnackbarTypes } from "./AgentSelectSnackMessage";
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from "./AgentSelectSnackMessage";
+import { SnackMessageTitles } from "@/components/constants/constants";
 
 const Leads1 = () => {
-
-
   const addColRef = useRef(null);
   const bottomRef = useRef(null);
 
@@ -59,7 +60,14 @@ const Leads1 = () => {
   const [showAddNewSheetModal, setShowAddNewSheetModal] = useState(false);
 
   const [newSheetName, setNewSheetName] = useState("");
-  const [inputs, setInputs] = useState([{ id: 1, value: 'First Name' }, { id: 2, value: 'Last Name' }, { id: 3, value: 'Phone Number' }, { id: 4, value: '' }, { id: 5, value: '' }, { id: 6, value: '' }]);
+  const [inputs, setInputs] = useState([
+    { id: 1, value: "First Name" },
+    { id: 2, value: "Last Name" },
+    { id: 3, value: "Phone Number" },
+    { id: 4, value: "" },
+    { id: 5, value: "" },
+    { id: 6, value: "" },
+  ]);
   const [showaddCreateListLoader, setShowaddCreateListLoader] = useState(false);
 
   //code for adding tags
@@ -70,6 +78,7 @@ const Leads1 = () => {
 
   //warning snack
   const [errSnack, setErrSnack] = useState(null);
+  const [errSnackTitle, setErrSnackTitle] = useState(null);
   const [showerrSnack, setShowErrSnack] = useState(null);
 
   //my custom logic
@@ -181,24 +190,26 @@ const Leads1 = () => {
   useEffect(() => {
     // Scroll to the bottom when inputs change
     if (bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [inputs]);
 
   // Handle change in input field
   const handleInputChange = (id, value) => {
-    setInputs(inputs.map(input => (input.id === id ? { ...input, value } : input)));
+    setInputs(
+      inputs.map((input) => (input.id === id ? { ...input, value } : input))
+    );
   };
 
   // Handle deletion of input field
   const handleDelete = (id) => {
-    setInputs(inputs.filter(input => input.id !== id));
+    setInputs(inputs.filter((input) => input.id !== id));
   };
 
   // Handle adding a new input field
   const handleAddInput = () => {
     const newId = inputs.length ? inputs[inputs.length - 1].id + 1 : 1;
-    setInputs([...inputs, { id: newId, value: '' }]);
+    setInputs([...inputs, { id: newId, value: "" }]);
   };
 
   //function to match column
@@ -237,14 +248,14 @@ const Leads1 = () => {
   //auto focus the add column input field
   useEffect(() => {
     if (showPopUp) {
-      console.log("Should auto focus the field")
+      console.log("Should auto focus the field");
       setTimeout(() => {
         if (addColRef.current) {
           addColRef.current.focus();
         }
       }, 500);
     }
-  }, [showPopUp])
+  }, [showPopUp]);
 
   useEffect(() => {
     try {
@@ -294,7 +305,7 @@ const Leads1 = () => {
     accept: {
       "text/csv": [".csv"],
       "application/vnd.ms-excel": [".xls", ".xlsx"],
-      "text/tab-separated-values": [".tsv"]
+      "text/tab-separated-values": [".tsv"],
     },
   });
 
@@ -395,9 +406,9 @@ const Leads1 = () => {
           console.log("Updated name is default column", UpdatedColumnName);
           let value =
             d.extraColumns[
-            UpdateHeader.dbName
-              ? UpdateHeader.dbName
-              : UpdateHeader.ColumnNameInSheet
+              UpdateHeader.dbName
+                ? UpdateHeader.dbName
+                : UpdateHeader.ColumnNameInSheet
             ];
           delete d.extraColumns[
             UpdateHeader.dbName
@@ -489,12 +500,16 @@ const Leads1 = () => {
     } else {
       console.log("Al credentials not valid");
       if (!hasPhone) {
-        setErrSnack("Phone number is required Can't upload leads without a phone")
-        setShowErrSnack(true)
+        setErrSnack(SnackMessageTitles.ErrorMessagePhoneRequiredLeadImport);
+        setErrSnackTitle(SnackMessageTitles.ErrorTitlePhoneRequiredLeadImport);
+        setShowErrSnack(true);
       }
       if (!hasFullName) {
-        setErrSnack("Name is required. Please define the name to continue")
-        setShowErrSnack(true)
+        setErrSnack(SnackMessageTitles.ErrorMessageFirstNameRequiredLeadImport);
+        setErrSnackTitle(
+          SnackMessageTitles.ErrorTitleFirstNameRequiredLeadImport
+        );
+        setShowErrSnack(true);
       }
     }
   };
@@ -728,7 +743,7 @@ const Leads1 = () => {
         sheetName: sheetName,
         leads: processedData,
         columnMappings: columnMappingsList,
-        tags: tagsValue
+        tags: tagsValue,
       };
 
       const ApiPath = Apis.createLead;
@@ -747,7 +762,7 @@ const Leads1 = () => {
         //////console.log("Response of ad lead api is :", response.data.data);
         if (response.data.status === true) {
           let sheet = response.data.data;
-          // let sheetsList = 
+          // let sheetsList =
           console.log("Response of add lead list api is:", response.data.data);
           setShowUploadLeadModal(false);
           setSelectedFile(null);
@@ -756,7 +771,7 @@ const Leads1 = () => {
           setAddNewLeadModal(false);
           setSetData(true);
           setSuccessSnack(response.data.message);
-          setShowSuccessSnack(true)
+          setShowSuccessSnack(true);
         }
       }
     } catch (error) {
@@ -836,7 +851,6 @@ const Leads1 = () => {
     return ColumnsNotMatched;
   }
 
-
   //code to add new sheet list
   const handleAddSheetNewList = async () => {
     try {
@@ -853,8 +867,8 @@ const Leads1 = () => {
 
       const ApiData = {
         sheetName: newSheetName,
-        columns: inputs.map((columns) => (columns.value))
-      }
+        columns: inputs.map((columns) => columns.value),
+      };
       console.log("Data to send in api is:", ApiData);
 
       const ApiPath = Apis.addSmartList;
@@ -864,9 +878,9 @@ const Leads1 = () => {
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          "Authorization": "Bearer " + AuthToken,
-          "Content-Type": "application/json"
-        }
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
@@ -874,25 +888,42 @@ const Leads1 = () => {
         if (response.data.status === true) {
           // setSheetsList([...SheetsList, response.data.data]);
           setUserLeads(response.data.data);
-          setSetData(true)
+          setSetData(true);
           setAddNewLeadModal(false);
           setShowAddNewSheetModal(false);
-          setInputs([{ id: 1, value: 'First Name' }, { id: 2, value: 'Last Name' }, { id: 3, value: 'Phone Number' }, { id: 4, value: '' }, { id: 5, value: '' }, { id: 6, value: '' }]);
+          setInputs([
+            { id: 1, value: "First Name" },
+            { id: 2, value: "Last Name" },
+            { id: 3, value: "Phone Number" },
+            { id: 4, value: "" },
+            { id: 5, value: "" },
+            { id: 6, value: "" },
+          ]);
           setNewSheetName("");
         }
       }
-
     } catch (error) {
       console.error("Error occured in adding new list api is:", error);
     } finally {
       setShowaddCreateListLoader(false);
     }
-  }
+  };
 
   return (
     <div className="w-full">
-      <AgentSelectSnackMessage isVisible={showSuccessSnack} message={SuccessSnack} hide={()=>setShowSuccessSnack(false)} type={SnackbarTypes.Success} />
-      <AgentSelectSnackMessage isVisible={showerrSnack} message={errSnack} hide={()=>setShowErrSnack(false)} type={SnackbarTypes.Error} />
+      <AgentSelectSnackMessage
+        isVisible={showSuccessSnack}
+        message={SuccessSnack}
+        hide={() => setShowSuccessSnack(false)}
+        type={SnackbarTypes.Success}
+      />
+      <AgentSelectSnackMessage
+        isVisible={showerrSnack}
+        message={errSnack}
+        hide={() => setShowErrSnack(false)}
+        type={SnackbarTypes.Error}
+        title={errSnackTitle}
+      />
       {initialLoader ? (
         <div className="w-full flex flex-row justify-center">
           <CircularProgress size={35} />
@@ -1009,7 +1040,8 @@ const Leads1 = () => {
           },
         }}
       >
-        <Box className="lg:w-6/12 sm:w-9/12 w-10/12"
+        <Box
+          className="lg:w-6/12 sm:w-9/12 w-10/12"
           sx={{
             height: "auto",
             bgcolor: "transparent",
@@ -1065,7 +1097,7 @@ const Leads1 = () => {
                   // width: "430px",
                   margin: "auto",
                   marginTop: "20px",
-                  backgroundColor: "#F4F0F5"
+                  backgroundColor: "#F4F0F5",
                 }}
               >
                 <input {...getInputProps()} />
@@ -1078,7 +1110,7 @@ const Leads1 = () => {
                     alt="Upload Icon"
                     height={30}
                     width={30}
-                  // style={{ marginBottom: "10px" }}
+                    // style={{ marginBottom: "10px" }}
                   />
                 </div>
                 <p style={{ ...styles.subHeadingStyle }}>
@@ -1102,8 +1134,9 @@ const Leads1 = () => {
                         fontWeight: "500",
                         fontSize: 12,
                         height: "32px",
-                        margin: "2px"
-                      }}>
+                        margin: "2px",
+                      }}
+                    >
                       Choose File
                     </div>
                   </div>
@@ -1215,7 +1248,7 @@ const Leads1 = () => {
               <div className="flex flex-row items-center gap-2 mt-8">
                 <span style={styles.subHeadingStyle}>List Name</span>{" "}
                 <Image
-                  src={"/assets/infoIcon.png"}
+                  src={"/svgIcons/infoIcon.svg"}
                   height={18}
                   width={18}
                   alt="*"
@@ -1226,7 +1259,7 @@ const Leads1 = () => {
                 <input
                   className="outline-none rounded-lg p-2 w-full"
                   style={{
-                    borderColor: "#00000020"
+                    borderColor: "#00000020",
                   }}
                   value={sheetName} // Only show the base name in the input.split(".")[0]
                   // onChange={handleSheetNameChange}
@@ -1306,8 +1339,8 @@ const Leads1 = () => {
                             {item.dbName
                               ? processedData[0].extraColumns[item.dbName]
                               : processedData[0].extraColumns[
-                              item.ColumnNameInSheet
-                              ]}
+                                  item.ColumnNameInSheet
+                                ]}
                           </div>
                         )}
                       </div>
@@ -1322,7 +1355,10 @@ const Leads1 = () => {
                               setSelectedItem(index);
                               //////console.log("Selected index is", index);
                               console.log("Item selected is :", item);
-                              console.log("Array selected is :", NewColumnsObtained);
+                              console.log(
+                                "Array selected is :",
+                                NewColumnsObtained
+                              );
                               setUpdateColumnValue(item.columnNameTransformed);
                               handleColumnPopoverClick(event);
                               setUpdateHeader(item);
@@ -1357,10 +1393,7 @@ const Leads1 = () => {
                             },
                           }}
                         >
-                          <div
-                            className="w-[170px]"
-                            style={styles.paragraph}
-                          >
+                          <div className="w-[170px]" style={styles.paragraph}>
                             <div>
                               <div className="flex flex-col text-start">
                                 {GetDefaultColumnsNotMatched(
@@ -1390,24 +1423,27 @@ const Leads1 = () => {
                             </button>
                           </div>
                         </Popover>
-
                       </div>
 
                       {item.UserFacingName ? (
                         <button
                           className="underline text-purple w-1/12 outline-none ps-4"
                           onClick={() => {
-                            setUpdateHeader(item)
+                            setUpdateHeader(item);
                             setShowDelCol(true);
                             // setUpdateHeader(item)
                             // ChangeColumnName(null)
                           }}
                         >
-                          <Image src={"/assets/blackBgCross.png"} height={15} width={15} alt="*" />
+                          <Image
+                            src={"/assets/blackBgCross.png"}
+                            height={15}
+                            width={15}
+                            alt="*"
+                          />
                         </button>
                       ) : (
-                        <div>
-                        </div>
+                        <div></div>
                       )}
 
                       <Modal
@@ -1422,7 +1458,10 @@ const Leads1 = () => {
                           },
                         }}
                       >
-                        <Box className="lg:w-4/12 sm:w-4/12 w-6/12" sx={styles.modalsStyle}>
+                        <Box
+                          className="lg:w-4/12 sm:w-4/12 w-6/12"
+                          sx={styles.modalsStyle}
+                        >
                           <div className="flex flex-row justify-center w-full">
                             <div
                               className="w-full"
@@ -1436,10 +1475,16 @@ const Leads1 = () => {
                                 Are you sure you want to delete this column
                               </div>
                               <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
-                                <button className="w-1/2 font-bold text-xl border border-[#00000020] rounded-xl h-[50px]" onClick={() => { setShowDelCol(false) }}>
+                                <button
+                                  className="w-1/2 font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                                  onClick={() => {
+                                    setShowDelCol(false);
+                                  }}
+                                >
                                   Cancel
                                 </button>
-                                <button className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                                <button
+                                  className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
                                   onClick={() => {
                                     ChangeColumnName(null);
                                     setShowDelCol(false);
@@ -1476,7 +1521,7 @@ const Leads1 = () => {
                   <button
                     className="bg-purple text-white rounded-lg h-[50px] w-4/12"
                     onClick={() => {
-                      validateColumns()
+                      validateColumns();
                     }}
                   >
                     Continue
@@ -1557,12 +1602,18 @@ const Leads1 = () => {
                 className="w-full h-[50px] rounded-xl bg-purple text-white mt-8"
                 style={styles.subHeadingStyle}
                 onClick={() => {
-                  if (NewColumnsObtained?.some((item) => item?.UserFacingName?.toLowerCase() === updateColumnValue?.toLowerCase())) {
+                  if (
+                    NewColumnsObtained?.some(
+                      (item) =>
+                        item?.UserFacingName?.toLowerCase() ===
+                        updateColumnValue?.toLowerCase()
+                    )
+                  ) {
                     console.log("Value matched from the array");
                     // return
                     setWarningModal(true);
                   } else {
-                    console.log("Value donot matches from the array")
+                    console.log("Value donot matches from the array");
                     ChangeColumnName(updateColumnValue);
                   }
                 }}
@@ -1604,7 +1655,12 @@ const Leads1 = () => {
                 Column already exists
               </div>
               <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
-                <button className="w-full bg-purple font-bold text-white text-xl border border-[#00000020] rounded-xl h-[50px]" onClick={() => { setWarningModal(false) }}>
+                <button
+                  className="w-full bg-purple font-bold text-white text-xl border border-[#00000020] rounded-xl h-[50px]"
+                  onClick={() => {
+                    setWarningModal(false);
+                  }}
+                >
                   Cancel
                 </button>
               </div>
@@ -1702,14 +1758,14 @@ const Leads1 = () => {
                 backgroundColor: "#ffffff",
                 padding: 20,
                 borderRadius: "13px",
-                height: "579px"
+                height: "579px",
               }}
             >
               <div className="flex flex-row justify-between">
                 <div
                   style={{
                     fontWeight: "500",
-                    fontSize: 15
+                    fontSize: 15,
                   }}
                 >
                   New List
@@ -1728,9 +1784,7 @@ const Leads1 = () => {
                 </button>
               </div>
 
-              <div
-                className="flex flex-row items-center w-full justify-center mt-12"
-              >
+              <div className="flex flex-row items-center w-full justify-center mt-12">
                 <Image
                   src={"/assets/placeholder.png"}
                   height={140}
@@ -1743,7 +1797,7 @@ const Leads1 = () => {
                 className="text-center sm:font-24 font-16 mt-12"
                 style={{ fontWeight: "600", fontSize: 29 }}
               >
-                How do you want to add  leads?
+                How do you want to add leads?
               </div>
 
               <div className="w-full flex flex-row gap-6 justify-center mt-10 gap-4">
@@ -1780,13 +1834,10 @@ const Leads1 = () => {
                   </button>
                 </div>
               </div>
-
-
             </div>
           </div>
         </Box>
       </Modal>
-
 
       {/* Modal to add custom sheet */}
       <div>
@@ -1800,70 +1851,111 @@ const Leads1 = () => {
             },
           }}
         >
-          <Box className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto rounded-3xl h-[70vh]" sx={{ ...styles.modalsStyle, scrollbarWidth: "none", backgroundColor: "white" }}>
-            <div className="w-full flex flex-col items-center h-full justify-between" style={{ backgroundColor: "white" }}>
-
-              <div className='w-full'>
-                <div className='flex flex-row items-center justify-between w-full mt-4 px-2'>
+          <Box
+            className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto rounded-3xl h-[70vh]"
+            sx={{
+              ...styles.modalsStyle,
+              scrollbarWidth: "none",
+              backgroundColor: "white",
+            }}
+          >
+            <div
+              className="w-full flex flex-col items-center h-full justify-between"
+              style={{ backgroundColor: "white" }}
+            >
+              <div className="w-full">
+                <div className="flex flex-row items-center justify-between w-full mt-4 px-2">
                   <div style={{ fontWeight: "500", fontSize: 15 }}>
                     New SmartList
                   </div>
-                  <button onClick={() => {
-                    setShowAddNewSheetModal(false);
-                    setNewSheetName("");
-                    setInputs([{ id: 1, value: 'First Name' }, { id: 2, value: 'Last Name' }, { id: 3, value: 'Phone Number' }, { id: 4, value: '' }, { id: 5, value: '' }, { id: 6, value: '' }])
-                  }}>
-                    <Image src={"/assets/cross.png"} height={15} width={15} alt='*' />
+                  <button
+                    onClick={() => {
+                      setShowAddNewSheetModal(false);
+                      setNewSheetName("");
+                      setInputs([
+                        { id: 1, value: "First Name" },
+                        { id: 2, value: "Last Name" },
+                        { id: 3, value: "Phone Number" },
+                        { id: 4, value: "" },
+                        { id: 5, value: "" },
+                        { id: 6, value: "" },
+                      ]);
+                    }}
+                  >
+                    <Image
+                      src={"/assets/cross.png"}
+                      height={15}
+                      width={15}
+                      alt="*"
+                    />
                   </button>
                 </div>
 
-                <div className='px-4 w-full'>
-                  <div className='flex flex-row items-center justify-start mt-6 gap-2'>
-                    <span style={styles.paragraph}>
-                      List Name
-                    </span>
-                    <Image src={"/assets/infoIcon.png"} height={15} width={15} alt='*' />
+                <div className="px-4 w-full">
+                  <div className="flex flex-row items-center justify-start mt-6 gap-2">
+                    <span style={styles.paragraph}>List Name</span>
+                    <Image
+                      src={"/svgIcons/infoIcon.svg"}
+                      height={15}
+                      width={15}
+                      alt="*"
+                    />
                   </div>
-                  <div className='mt-4'>
+                  <div className="mt-4">
                     <input
                       value={newSheetName}
-                      onChange={(e) => { setNewSheetName(e.target.value) }}
-                      placeholder='Enter list name' className='outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px]'
+                      onChange={(e) => {
+                        setNewSheetName(e.target.value);
+                      }}
+                      placeholder="Enter list name"
+                      className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px]"
                       style={{
-                        ...styles.paragraph, border: "1px solid #00000020"
+                        ...styles.paragraph,
+                        border: "1px solid #00000020",
                       }}
                     />
                   </div>
-                  <div className='mt-8' style={styles.paragraph}>
+                  <div className="mt-8" style={styles.paragraph}>
                     Create Columns
                   </div>
-                  <div className='max-h-[30vh] overflow-auto mt-2' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                  <div
+                    className="max-h-[30vh] overflow-auto mt-2" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
                     style={{ scrollbarWidth: "none" }}
                   >
                     {inputs.map((input, index) => (
-                      <div key={input.id} className='w-full flex flex-row items-center gap-4 mt-4'>
+                      <div
+                        key={input.id}
+                        className="w-full flex flex-row items-center gap-4 mt-4"
+                      >
                         <input
-                          className='border p-2 rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[53px]'
+                          className="border p-2 rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[53px]"
                           style={{
                             ...styles.paragraph,
-                            width: "95%", borderColor: "#00000020",
+                            width: "95%",
+                            borderColor: "#00000020",
                           }}
                           placeholder={`Column Name`}
                           value={input.value}
                           onChange={(e) => {
                             if (index > 2) {
-                              handleInputChange(input.id, e.target.value)
+                              handleInputChange(input.id, e.target.value);
                             }
                           }}
                         />
                         <div style={{ width: "5%" }}>
-                          {
-                            index > 2 && (
-                              <button className='outline-none border-none' onClick={() => handleDelete(input.id)}>
-                                <Image src={"/assets/blackBgCross.png"} height={20} width={20} alt='*' />
-                              </button>
-                            )
-                          }
+                          {index > 2 && (
+                            <button
+                              className="outline-none border-none"
+                              onClick={() => handleDelete(input.id)}
+                            >
+                              <Image
+                                src={"/assets/blackBgCross.png"}
+                                height={20}
+                                width={20}
+                                alt="*"
+                              />
+                            </button>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -1880,38 +1972,40 @@ const Leads1 = () => {
                                                                 Add New
                                                             </button>
                                                         )
-                                                    */ }
-                    <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={styles.paragraph}>
+                                                    */}
+                    <button
+                      onClick={handleAddInput}
+                      className="mt-4 p-2 outline-none border-none text-purple rounded-lg underline"
+                      style={styles.paragraph}
+                    >
                       New Column
                     </button>
                   </div>
                 </div>
               </div>
 
-              <div className='w-full pb-8'>
-                {
-                  showaddCreateListLoader ?
-                    <div className='flex flex-row items-center justify-center w-full h-[50px]'>
-                      <CircularProgress size={25} />
-                    </div> :
-                    <button
-                      className='bg-purple h-[50px] rounded-xl text-white w-full'
-                      style={{
-                        fontWeight: "600",
-                        fontSize: 16.8
-                      }}
-                      onClick={handleAddSheetNewList}
-                    >
-                      Create List
-                    </button>
-                }
+              <div className="w-full pb-8">
+                {showaddCreateListLoader ? (
+                  <div className="flex flex-row items-center justify-center w-full h-[50px]">
+                    <CircularProgress size={25} />
+                  </div>
+                ) : (
+                  <button
+                    className="bg-purple h-[50px] rounded-xl text-white w-full"
+                    style={{
+                      fontWeight: "600",
+                      fontSize: 16.8,
+                    }}
+                    onClick={handleAddSheetNewList}
+                  >
+                    Create List
+                  </button>
+                )}
               </div>
-
             </div>
           </Box>
         </Modal>
       </div>
-
     </div>
   );
 };

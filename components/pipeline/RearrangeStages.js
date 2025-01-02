@@ -2,360 +2,403 @@ import React, { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import Image from "next/image";
 import { CaretDown, CaretUp, Minus } from "@phosphor-icons/react";
-import { Alert, Box, CircularProgress, Fade, FormControl, MenuItem, Modal, Popover, Select, Snackbar } from "@mui/material";
+import {
+  Alert,
+  Box,
+  CircularProgress,
+  Fade,
+  FormControl,
+  MenuItem,
+  Modal,
+  Popover,
+  Select,
+  Snackbar,
+} from "@mui/material";
 import Apis from "../apis/Apis";
 import axios from "axios";
 import ColorPicker from "../dashboardPipeline/ColorPicker";
 import TagsInput from "../dashboard/leads/TagsInput";
-import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from "../dashboard/leads/AgentSelectSnackMessage";
 
 const RearrangeStages = ({
-    stages,
-    onUpdateOrder,
-    assignedLeads,
-    handleUnAssignNewStage,
-    assignNewStage,
-    handleInputChange,
-    rowsByIndex,
-    removeRow,
-    addRow,
-    nextStage,
-    handleSelectNextChange,
-    selectedPipelineStages,
-    selectedPipelineItem,
-    handleReorderStages,
-    reorderStageLoader
+  stages,
+  onUpdateOrder,
+  assignedLeads,
+  handleUnAssignNewStage,
+  assignNewStage,
+  handleInputChange,
+  rowsByIndex,
+  removeRow,
+  addRow,
+  nextStage,
+  handleSelectNextChange,
+  selectedPipelineStages,
+  selectedPipelineItem,
+  handleReorderStages,
+  reorderStageLoader,
 }) => {
-    const [pipelineStages, setPipelineStages] = useState(stages);
-    const [delStageLoader, setDelStageLoader] = useState(false);
-    const [successSnack, setSuccessSnack] = useState(null);
-    const [showDelStagePopup, setShowDelStagePopup] = useState(null);
-    const [actionInfoEl, setActionInfoEl] = React.useState(null);
-    const [showReorderBtn, setShowReorderBtn] = useState(false);
+  const [pipelineStages, setPipelineStages] = useState(stages);
+  const [delStageLoader, setDelStageLoader] = useState(false);
+  const [successSnack, setSuccessSnack] = useState(null);
+  const [showDelStagePopup, setShowDelStagePopup] = useState(null);
+  const [actionInfoEl, setActionInfoEl] = React.useState(null);
+  const [showReorderBtn, setShowReorderBtn] = useState(false);
 
-    const handlePopoverOpen = (event) => {
-        setActionInfoEl(event.currentTarget);
-    };
+  const handlePopoverOpen = (event) => {
+    setActionInfoEl(event.currentTarget);
+  };
 
-    const handlePopoverClose = () => {
-        setActionInfoEl(null);
-    };
+  const handlePopoverClose = () => {
+    setActionInfoEl(null);
+  };
 
-    const open = Boolean(actionInfoEl);
+  const open = Boolean(actionInfoEl);
 
-    useEffect(() => {
-        setPipelineStages(stages);
-    }, [stages]);
+  useEffect(() => {
+    setPipelineStages(stages);
+  }, [stages]);
 
+  //code for drag and drop stages
+  const handleOnDragEnd = (result) => {
+    const { source, destination } = result;
 
-    //code for drag and drop stages
-    const handleOnDragEnd = (result) => {
-        const { source, destination } = result;
+    // if (!destination) return;
+    if (!destination || source.index === 0 || destination.index === 0) {
+      return;
+    }
 
-        // if (!destination) return;
-        if (!destination || source.index === 0 || destination.index === 0) {
-            return;
+    const items = Array.from(pipelineStages);
+    const [reorderedItem] = items.splice(source.index, 1);
+    items.splice(destination.index, 0, reorderedItem);
+
+    const updatedStages = items.map((stage, index) => ({
+      ...stage,
+      order: index + 1,
+    }));
+
+    if (updatedStages) {
+      setShowReorderBtn(true);
+    }
+
+    setPipelineStages(updatedStages);
+    onUpdateOrder(updatedStages);
+  };
+
+  //code to add new stage
+  const [addNewStageModal, setAddNewStageModal] = useState(false);
+  const [newStageTitle, setNewStageTitle] = useState("");
+  const [tagsValue, setTagsValue] = useState([]);
+  const [stageColor, setStageColor] = useState("#FF4E4E");
+  const [addStageLoader, setAddStageLoader] = useState(false);
+  //code for advance setting modal inside new stages
+  const [showAdvanceSettings, setShowAdvanceSettings] = useState(false);
+  //code for input arrays
+  const [inputs, setInputs] = useState([
+    {
+      id: 1,
+      value: "",
+      placeholder: `Sure, i’d be interested in knowing what my home is worth`,
+    },
+    { id: 2, value: "", placeholder: "Yeah, how much is my home worth today?" },
+    { id: 3, value: "", placeholder: "Yeah, how much is my home worth today?" },
+  ]);
+  const [action, setAction] = useState("");
+
+  //variable to show and hide the add stage btn
+  const [showAddStageBtn, setShowAddStageBtn] = useState(false);
+
+  //code for showing the add stage button according to dirredent conditions
+  useEffect(() => {
+    if (showAdvanceSettings) {
+      if (
+        !newStageTitle ||
+        !action ||
+        inputs.filter((input) => input.value.trim() !== "").length < 3
+      ) {
+        console.log("Shoukd hide ");
+        setShowAddStageBtn(false);
+      } else if (
+        newStageTitle &&
+        action &&
+        inputs.filter((input) => input.value.trim() !== "").length === 3
+      ) {
+        console.log("Show continue to add stage");
+        setShowAddStageBtn(true);
+      }
+    } else if (!showAdvanceSettings) {
+      // if (newStageTitle) {
+      if (newStageTitle) {
+        setShowAddStageBtn(true);
+      } else if (!newStageTitle) {
+        setShowAddStageBtn(false);
+      }
+      // }
+    }
+  }, [showAdvanceSettings, newStageTitle, inputs, action]);
+
+  //code to delete stage
+  const handleDeleteStage = async () => {
+    try {
+      setDelStageLoader(true);
+      console.log("Selected pipeline is:", selectedPipelineItem);
+      const localData = localStorage.getItem("User");
+      let AuthToken = null;
+      if (localData) {
+        const UserDetails = JSON.parse(localData);
+        AuthToken = UserDetails.token;
+        // console.log("Local details are :", UserDetails);
+      }
+
+      console.log("Auth token is :--", AuthToken);
+
+      const ApiData = {
+        pipelineId: selectedPipelineItem.id,
+        stageId: showDelStagePopup.id,
+      };
+
+      console.log("Api dta is:", ApiData);
+      // return
+      const ApiPath = Apis.deleteStage;
+      console.log("Apipath is:", ApiPath);
+
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response) {
+        console.log("response of del stage api is:", response.data);
+        if (response.data.status === true) {
+          setPipelineStages(response.data.data.stages);
+          setSuccessSnack(response.data.message);
+          setShowDelStagePopup(null);
+          // setStageAnchorel(null);
         }
+      }
+    } catch (error) {
+      console.error("Error occured in delstage api is:", error);
+    } finally {
+      setDelStageLoader(false);
+    }
+  };
 
-        const items = Array.from(pipelineStages);
-        const [reorderedItem] = items.splice(source.index, 1);
-        items.splice(destination.index, 0, reorderedItem);
-
-        const updatedStages = items.map((stage, index) => ({
-            ...stage,
-            order: index + 1,
-        }));
-
-        if (updatedStages) {
-            setShowReorderBtn(true);
-        }
-
-        setPipelineStages(updatedStages);
-        onUpdateOrder(updatedStages);
-    };
-
-    //code to add new stage
-    const [addNewStageModal, setAddNewStageModal] = useState(false);
-    const [newStageTitle, setNewStageTitle] = useState("");
-    const [tagsValue, setTagsValue] = useState([]);
-    const [stageColor, setStageColor] = useState("#FF4E4E");
-    const [addStageLoader, setAddStageLoader] = useState(false);
-    //code for advance setting modal inside new stages
-    const [showAdvanceSettings, setShowAdvanceSettings] = useState(false);
-    //code for input arrays
-    const [inputs, setInputs] = useState([
-        { id: 1, value: '', placeholder: `Sure, i’d be interested in knowing what my home is worth` },
-        { id: 2, value: '', placeholder: "Yeah, how much is my home worth today?" },
-        { id: 3, value: '', placeholder: "Yeah, how much is my home worth today?" }
+  //function to clsoe add stage modal
+  const handleCloseAddStage = () => {
+    setAddNewStageModal(false);
+    setNewStageTitle("");
+    setInputs([
+      { id: 1, value: "" },
+      { id: 2, value: "" },
+      { id: 3, value: "" },
     ]);
-    const [action, setAction] = useState("");
+    setAction("");
+  };
 
-    //variable to show and hide the add stage btn
-    const [showAddStageBtn, setShowAddStageBtn] = useState(false);
+  //code for add stage input fields
+  const handleAddStageInputsChanges = (id, value) => {
+    setInputs(
+      inputs.map((input) => (input.id === id ? { ...input, value } : input))
+    );
+  };
 
-    //code for showing the add stage button according to dirredent conditions
-    useEffect(() => {
+  // Handle deletion of input field
+  const handleDelete = (id) => {
+    setInputs(inputs.filter((input) => input.id !== id));
+  };
 
-        if (showAdvanceSettings) {
-            if (!newStageTitle || !action || inputs.filter(input => input.value.trim() !== "").length < 3) {
-                console.log("Shoukd hide ")
-                setShowAddStageBtn(false);
-            }
-            else if (newStageTitle && action && inputs.filter(input => input.value.trim() !== "").length === 3) {
-                console.log("Show continue to add stage")
-                setShowAddStageBtn(true);
-            }
+  // Handle adding a new input field
+  const handleAddInput = () => {
+    const newId = inputs.length ? inputs[inputs.length - 1].id + 1 : 1;
+    setInputs([
+      ...inputs,
+      { id: newId, value: "", placeholder: "Add sample answer" },
+    ]);
+  };
+
+  //code for adding new custom stage
+  const handleAddNewStageTitle = async () => {
+    try {
+      setAddStageLoader(true);
+      const localData = localStorage.getItem("User");
+      let AuthToken = null;
+      if (localData) {
+        const UserDetails = JSON.parse(localData);
+        AuthToken = UserDetails.token;
+        console.log("Local details are :", UserDetails);
+      }
+
+      console.log("Auth token is :--", AuthToken);
+
+      const ApiPath = Apis.addCustomStage;
+      console.log("Api path is:", ApiPath);
+
+      const ApiData = {
+        stageTitle: newStageTitle,
+        color: stageColor,
+        pipelineId: selectedPipelineItem.id,
+        action: action,
+        examples: inputs,
+        tagsValue: tagsValue,
+      };
+
+      console.log("Data sending in api is:", ApiData);
+      // return
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response) {
+        console.log("Response of add stage title :", response);
+        if (response.data.status === true) {
+          setPipelineStages(response.data.data.stages);
+          setAddNewStageModal(false);
+          setNewStageTitle("");
+          setStageColor("");
         }
-        else if (!showAdvanceSettings) {
-            // if (newStageTitle) {
-            if (newStageTitle) {
-                setShowAddStageBtn(true);
-            } else if (!newStageTitle) {
-                setShowAddStageBtn(false);
-            }
-            // }
-        }
-
-    }, [showAdvanceSettings, newStageTitle, inputs, action])
-
-    //code to delete stage
-    const handleDeleteStage = async () => {
-        try {
-            setDelStageLoader(true);
-            console.log("Selected pipeline is:", selectedPipelineItem);
-            const localData = localStorage.getItem("User");
-            let AuthToken = null;
-            if (localData) {
-                const UserDetails = JSON.parse(localData);
-                AuthToken = UserDetails.token;
-                // console.log("Local details are :", UserDetails);
-            }
-
-            console.log("Auth token is :--", AuthToken);
-
-            const ApiData = {
-                pipelineId: selectedPipelineItem.id,
-                stageId: showDelStagePopup.id
-            }
-
-            console.log("Api dta is:", ApiData);
-            // return
-            const ApiPath = Apis.deleteStage;
-            console.log("Apipath is:", ApiPath);
-
-            const response = await axios.post(ApiPath, ApiData, {
-                headers: {
-                    "Authorization": "Bearer " + AuthToken,
-                    "Content-Type": "application/json"
-                }
-            });
-
-            if (response) {
-                console.log("response of del stage api is:", response.data);
-                if (response.data.status === true) {
-                    setPipelineStages(response.data.data.stages);
-                    setSuccessSnack(response.data.message);
-                    setShowDelStagePopup(null);
-                    // setStageAnchorel(null);
-                }
-            }
-
-        } catch (error) {
-            console.error("Error occured in delstage api is:", error);
-        } finally {
-            setDelStageLoader(false);
-        }
+      }
+    } catch (error) {
+      console.error("Error occured inn adding new stage title api is", error);
+    } finally {
+      setAddStageLoader(false);
     }
+  };
 
-    //function to clsoe add stage modal
-    const handleCloseAddStage = () => {
-        setAddNewStageModal(false);
-        setNewStageTitle("");
-        setInputs([{ id: 1, value: '' }, { id: 2, value: '' }, { id: 3, value: '' }]);
-        setAction("");
-    }
+  const styles = {
+    headingStyle: {
+      fontSize: 16,
+      fontWeight: "700",
+    },
+    inputStyle: {
+      fontSize: 15,
+      fontWeight: "500",
+    },
+    dropdownMenu: {
+      fontSize: 15,
+      fontWeight: "500",
+      color: "#00000070",
+    },
+    AddNewKYCQuestionModal: {
+      height: "auto",
+      bgcolor: "transparent",
+      // p: 2,
+      mx: "auto",
+      my: "50vh",
+      transform: "translateY(-55%)",
+      borderRadius: 2,
+      border: "none",
+      outline: "none",
+    },
+    labelStyle: {
+      backgroundColor: "white",
+      fontWeight: "400",
+      fontSize: 10,
+    },
+    modalsStyle: {
+      height: "auto",
+      bgcolor: "transparent",
+      p: 2,
+      mx: "auto",
+      my: "50vh",
+      transform: "translateY(-55%)",
+      borderRadius: 2,
+      border: "none",
+      outline: "none",
+    },
+  };
 
-    //code for add stage input fields
-    const handleAddStageInputsChanges = (id, value) => {
-        setInputs(inputs.map(input => (input.id === id ? { ...input, value } : input)));
-    };
+  return (
+    <DragDropContext onDragEnd={handleOnDragEnd}>
+      <AgentSelectSnackMessage
+        isVisible={successSnack == false || successSnack == null ? false : true}
+        hide={() => setSuccessSnack(false)}
+        message={successSnack}
+        type={SnackbarTypes.Success}
+      />
 
-    // Handle deletion of input field
-    const handleDelete = (id) => {
-        setInputs(inputs.filter(input => input.id !== id));
-    };
-
-    // Handle adding a new input field
-    const handleAddInput = () => {
-        const newId = inputs.length ? inputs[inputs.length - 1].id + 1 : 1;
-        setInputs([...inputs, { id: newId, value: '', placeholder: "Add sample answer" }]);
-    };
-
-    //code for adding new custom stage
-    const handleAddNewStageTitle = async () => {
-        try {
-            setAddStageLoader(true);
-            const localData = localStorage.getItem("User");
-            let AuthToken = null;
-            if (localData) {
-                const UserDetails = JSON.parse(localData);
-                AuthToken = UserDetails.token;
-                console.log("Local details are :", UserDetails);
-            }
-
-            console.log("Auth token is :--", AuthToken);
-
-            const ApiPath = Apis.addCustomStage;
-            console.log("Api path is:", ApiPath);
-
-            const ApiData = {
-                stageTitle: newStageTitle,
-                color: stageColor,
-                pipelineId: selectedPipelineItem.id,
-                action: action,
-                examples: inputs,
-                tagsValue: tagsValue
-            }
-
-            console.log("Data sending in api is:", ApiData);
-            // return
-            const response = await axios.post(ApiPath, ApiData, {
-                headers: {
-                    "Authorization": "Bearer " + AuthToken,
-                    "Content-Type": "application/json"
-                }
-            });
-
-            if (response) {
-                console.log("Response of add stage title :", response);
-                if (response.data.status === true) {
-                    setPipelineStages(response.data.data.stages);
-                    setAddNewStageModal(false);
-                    setNewStageTitle("");
-                    setStageColor("");
-                }
-            }
-
-        } catch (error) {
-            console.error("Error occured inn adding new stage title api is", error);
-        } finally {
-            setAddStageLoader(false);
-        }
-    }
-
-    const styles = {
-        headingStyle: {
-            fontSize: 16,
-            fontWeight: "700",
-        },
-        inputStyle: {
-            fontSize: 15,
-            fontWeight: "500",
-        },
-        dropdownMenu: {
-            fontSize: 15,
-            fontWeight: "500",
-            color: "#00000070",
-        },
-        AddNewKYCQuestionModal: {
-            height: "auto",
-            bgcolor: "transparent",
-            // p: 2,
-            mx: "auto",
-            my: "50vh",
-            transform: "translateY(-55%)",
-            borderRadius: 2,
-            border: "none",
-            outline: "none",
-        },
-        labelStyle: {
-            backgroundColor: "white",
-            fontWeight: "400",
-            fontSize: 10,
-        },
-        modalsStyle: {
-            height: "auto",
-            bgcolor: "transparent",
-            p: 2,
-            mx: "auto",
-            my: "50vh",
-            transform: "translateY(-55%)",
-            borderRadius: 2,
-            border: "none",
-            outline: "none",
-        },
-    };
-
-    return (
-        <DragDropContext onDragEnd={handleOnDragEnd}>
-            <AgentSelectSnackMessage isVisible={successSnack == false || successSnack == null ? false : true} hide={() => setSuccessSnack(false)} message={successSnack} type={SnackbarTypes.Success} />
-
-            <Droppable droppableId="pipelineStages">
-                {(provided) => (
+      <Droppable droppableId="pipelineStages">
+        {(provided) => (
+          <div
+            {...provided.droppableProps}
+            ref={provided.innerRef}
+            style={{
+              height: "100%",
+              overflowY: "auto",
+              // borderRadius: "8px",
+              // padding: "10px",
+              border: "none",
+              scrollbarWidth: "none",
+              marginTop: 20,
+              // backgroundColor: "red"
+            }}
+          >
+            <div
+              style={{
+                height: "60svh",
+                overflow: "auto",
+                scrollbarWidth: "none",
+              }}
+            >
+              {pipelineStages.map((item, index) => (
+                <Draggable
+                  key={item.id}
+                  draggableId={item.id.toString()}
+                  index={index}
+                  isDragDisabled={index === 0}
+                >
+                  {(provided) => (
                     <div
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                        style={{
-                            height: "100%",
-                            overflowY: "auto",
-                            // borderRadius: "8px",
-                            // padding: "10px",
-                            border: "none",
-                            scrollbarWidth: "none",
-                            marginTop: 20,
-                            // backgroundColor: "red"
-                        }}
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      style={{
+                        ...provided.draggableProps.style,
+                        // border: "1px solid red",
+                        borderRadius: "10px",
+                        // padding: "15px",
+                        marginBottom: "10px",
+                        backgroundColor: "#fff",
+                        // boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                      }}
+                      className="flex flex-row items-start overflow-auto"
                     >
-
-                        <div style={{
-                            height: "60svh", overflow: "auto", scrollbarWidth: "none"
-                        }}>
-                            {pipelineStages.map((item, index) => (
-                                <Draggable
-                                    key={item.id}
-                                    draggableId={item.id.toString()}
-                                    index={index}
-                                    isDragDisabled={index === 0}
-                                >
-                                    {(provided) => (
-                                        <div
-                                            ref={provided.innerRef}
-                                            {...provided.draggableProps}
-                                            {...provided.dragHandleProps}
-                                            style={{
-                                                ...provided.draggableProps.style,
-                                                // border: "1px solid red",
-                                                borderRadius: "10px",
-                                                // padding: "15px",
-                                                marginBottom: "10px",
-                                                backgroundColor: "#fff",
-                                                // boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                                            }}
-                                            className="flex flex-row items-start overflow-auto"
-                                        >
-                                            <div className="w-[5%]">
-                                                <div className="outline-none mt-2">
-                                                    {
-                                                        index > 0 && (
-                                                            <Image src={"/assets/list.png"} height={6} width={16} alt="*" />
-                                                        )
-                                                    }
-                                                </div>
-                                            </div>
-                                            <div className="border w-[95%] rounded-xl p-3 px-4">
-                                                <div className="flex flex-row items-center justify-between">
-                                                    <div>
-                                                        <div style={styles.inputStyle}>{item.stageTitle}</div>
-                                                        <div className="mt-3" style={{
-                                                            fontSize: 13,
-                                                            fontWeight: "500",
-                                                            color: "#00000060"
-                                                        }}>
-                                                            {item.description}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {/* <div className="w-full flex flex-row items-center justify-end mt-2">
+                      <div className="w-[5%]">
+                        <div className="outline-none mt-2">
+                          {index > 0 && (
+                            <Image
+                              src={"/assets/list.png"}
+                              height={6}
+                              width={16}
+                              alt="*"
+                            />
+                          )}
+                        </div>
+                      </div>
+                      <div className="border w-[95%] rounded-xl p-3 px-4">
+                        <div className="flex flex-row items-center justify-between">
+                          <div>
+                            <div style={styles.inputStyle}>
+                              {item.stageTitle}
+                            </div>
+                            <div
+                              className="mt-3"
+                              style={{
+                                fontSize: 13,
+                                fontWeight: "500",
+                                color: "#00000060",
+                              }}
+                            >
+                              {item.description}
+                            </div>
+                          </div>
+                        </div>
+                        {/* <div className="w-full flex flex-row items-center justify-end mt-2">
                                                 <button className="flex flex-row items-center gap-1" onClick={() => { setShowDelStagePopup(item) }}>
                                                     <Image src={"/assets/delIcon.png"} height={20} width={18} alt="*"
                                                         style={{
@@ -368,7 +411,7 @@ const RearrangeStages = ({
                                                     </p>
                                                 </button>
                                             </div> */}
-                                                {/* <Modal
+                        {/* <Modal
                                                 open={showDelStagePopup}
                                                 onClose={() => setShowDelStagePopup(null)}
                                                 closeAfterTransition
@@ -441,19 +484,15 @@ const RearrangeStages = ({
                                                     </div>
                                                 </Box>
                                             </Modal> */}
-                                            </div>
-                                        </div>
-                                    )}
-                                </Draggable>
-                            ))}
-                            {provided.placeholder}
-                        </div>
+                      </div>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
 
-
-
-
-
-                        {/* <button
+            {/* <button
                             className="outline-none w-full flex flex-row items-center justify-center h-[50px] mt-4 rounded-lg"
                             style={{
                                 border: "2px dashed #7902DF"
@@ -473,162 +512,241 @@ const RearrangeStages = ({
                             </div>
                         </button> */}
 
-                        {/* Code for add stage modal */}
-                        <Modal
-                            open={addNewStageModal}
-                            onClose={() => { handleCloseAddStage() }}
+            {/* Code for add stage modal */}
+            <Modal
+              open={addNewStageModal}
+              onClose={() => {
+                handleCloseAddStage();
+              }}
+            >
+              <Box
+                className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
+                sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+              >
+                <div style={{ width: "100%" }}>
+                  <div
+                    style={{ scrollbarWidth: "none" }} //className='max-h-[60vh] overflow-auto'
+                  >
+                    <div
+                      style={{
+                        width: "100%",
+                        direction: "row",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      {/* <div style={{ width: "20%" }} /> */}
+                      <div style={{ fontWeight: "700", fontSize: 22 }}>
+                        Add New Stage
+                      </div>
+                      <div
+                        style={{
+                          direction: "row",
+                          display: "flex",
+                          justifyContent: "end",
+                        }}
+                      >
+                        <button
+                          onClick={() => {
+                            handleCloseAddStage();
+                          }}
+                          className="outline-none"
                         >
-                            <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}>
-                                <div style={{ width: "100%", }}>
+                          <Image
+                            src={"/assets/crossIcon.png"}
+                            height={40}
+                            width={40}
+                            alt="*"
+                          />
+                        </button>
+                      </div>
+                    </div>
 
-                                    <div style={{ scrollbarWidth: "none" }} //className='max-h-[60vh] overflow-auto'
-                                    >
-                                        <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                            {/* <div style={{ width: "20%" }} /> */}
-                                            <div style={{ fontWeight: "700", fontSize: 22 }}>
-                                                Add New Stage
-                                            </div>
-                                            <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
-                                                <button onClick={() => { handleCloseAddStage() }} className='outline-none'>
-                                                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
-                                                </button>
-                                            </div>
-                                        </div>
+                    <div>
+                      <div
+                        className="mt-4"
+                        style={{
+                          fontWeight: "600",
+                          fontSize: 12,
+                          paddingBottom: 5,
+                        }}
+                      >
+                        Stage Title*
+                      </div>
+                      <input
+                        value={newStageTitle}
+                        onChange={(e) => {
+                          setNewStageTitle(e.target.value);
+                        }}
+                        placeholder="Enter stage title"
+                        className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
+                        style={{ border: "1px solid #00000020" }}
+                      />
+                      <div
+                        style={{
+                          marginTop: 20,
+                          fontWeight: "600",
+                          fontSize: 12,
+                          paddingBottom: 5,
+                        }}
+                      >
+                        color
+                      </div>
+                      <ColorPicker setStageColor={setStageColor} />
+                    </div>
 
-                                        <div>
-                                            <div className='mt-4' style={{ fontWeight: "600", fontSize: 12, paddingBottom: 5 }}>
-                                                Stage Title*
-                                            </div>
-                                            <input
-                                                value={newStageTitle}
-                                                onChange={(e) => { setNewStageTitle(e.target.value) }}
-                                                placeholder='Enter stage title'
-                                                className='outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]'
-                                                style={{ border: "1px solid #00000020" }}
-                                            />
-                                            <div style={{ marginTop: 20, fontWeight: "600", fontSize: 12, paddingBottom: 5 }}>
-                                                color
-                                            </div>
-                                            <ColorPicker setStageColor={setStageColor} />
-                                        </div>
+                    <div className="text-purple mt-4">
+                      <button
+                        onClick={() => {
+                          setShowAdvanceSettings(!showAdvanceSettings);
+                        }}
+                        className="flex flex-row items-center gap-2 outline-none"
+                      >
+                        <div style={{ fontWeight: "600", fontSize: 15 }}>
+                          Advanced Settings
+                        </div>
+                        {showAdvanceSettings ? (
+                          <CaretUp size={15} weight="bold" />
+                        ) : (
+                          <CaretDown size={15} weight="bold" />
+                        )}
+                      </button>
+                    </div>
 
-                                        <div className='text-purple mt-4'>
-                                            <button onClick={() => { setShowAdvanceSettings(!showAdvanceSettings) }} className='flex flex-row items-center gap-2 outline-none'>
-                                                <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                                    Advanced Settings
-                                                </div>
-                                                {
-                                                    showAdvanceSettings ?
-                                                        <CaretUp size={15} weight='bold' /> :
-                                                        <CaretDown size={15} weight='bold' />
-                                                }
-                                            </button>
-                                        </div>
+                    {showAdvanceSettings && (
+                      <div>
+                        <div className="flex flex-row items-center gap-2 mt-4">
+                          <p style={{ fontWeight: "600", fontSize: 15 }}>
+                            Action
+                          </p>
+                          {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
+                          <Image
+                            src="/svgIcons/infoIcon.svg"
+                            height={20}
+                            width={20}
+                            alt="*"
+                            aria-owns={open ? "mouse-over-popover" : undefined}
+                            aria-haspopup="true"
+                            onMouseEnter={handlePopoverOpen}
+                            onMouseLeave={handlePopoverClose}
+                          />
 
-                                        {
-                                            showAdvanceSettings && (
-                                                <div>
-                                                    <div className='flex flex-row items-center gap-2 mt-4'>
-                                                        <p style={{ fontWeight: "600", fontSize: 15 }}>Action</p>
-                                                        {/* <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' /> */}
-                                                        <Image
-                                                            src="/assets/infoIcon.png"
-                                                            height={20}
-                                                            width={20}
-                                                            alt="*"
-                                                            style={{
-                                                                filter: 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
-                                                                // filter: isRed
-                                                                //     ? 'invert(17%) sepia(96%) saturate(7493%) hue-rotate(-5deg) brightness(102%) contrast(115%)' // Red
-                                                                //     : 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
-                                                            }}
-                                                            aria-owns={open ? 'mouse-over-popover' : undefined}
-                                                            aria-haspopup="true"
-                                                            onMouseEnter={handlePopoverOpen}
-                                                            onMouseLeave={handlePopoverClose}
-                                                        />
+                          <Popover
+                            id="mouse-over-popover"
+                            sx={{
+                              pointerEvents: "none",
+                            }}
+                            open={open}
+                            anchorEl={actionInfoEl}
+                            anchorOrigin={{
+                              vertical: "top",
+                              horizontal: "center",
+                            }}
+                            transformOrigin={{
+                              vertical: "bottom",
+                              horizontal: "left",
+                            }}
+                            PaperProps={{
+                              elevation: 1, // This will remove the shadow
+                              style: {
+                                boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
+                              },
+                            }}
+                            onClose={handlePopoverClose}
+                            disableRestoreFocus
+                          >
+                            <div className="p-2">
+                              <div className="flex flex-row items-center gap-1">
+                                <Image
+                                  src={"/svgIcons/infoIcon.svg"}
+                                  height={24}
+                                  width={24}
+                                  alt="*"
+                                />
+                                <p style={{ fontWeight: "500", fontSize: 12 }}>
+                                  Tip: Tell your AI when to move the leads to
+                                  this stage.
+                                </p>
+                              </div>
+                            </div>
+                          </Popover>
+                        </div>
+                        <input
+                          className="h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
+                          placeholder="Ex: Does the human express interest getting a CMA "
+                          style={{
+                            border: "1px solid #00000020",
+                            fontWeight: "500",
+                            fontSize: 15,
+                          }}
+                          value={action}
+                          onChange={(e) => {
+                            setAction(e.target.value);
+                          }}
+                        />
 
-                                                        <Popover
-                                                            id="mouse-over-popover"
-                                                            sx={{
-                                                                pointerEvents: 'none'
-                                                            }}
-                                                            open={open}
-                                                            anchorEl={actionInfoEl}
-                                                            anchorOrigin={{
-                                                                vertical: 'top',
-                                                                horizontal: 'center',
-                                                            }}
-                                                            transformOrigin={{
-                                                                vertical: 'bottom',
-                                                                horizontal: 'left',
-                                                            }}
-                                                            PaperProps={{
-                                                                elevation: 1, // This will remove the shadow
-                                                                style: {
-                                                                    boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
-                                                                },
-                                                            }}
-                                                            onClose={handlePopoverClose}
-                                                            disableRestoreFocus
-                                                        >
-                                                            <div className="p-2">
-                                                                <div className="flex flex-row items-center gap-1">
-                                                                    <Image src={"/assets/infoIcon.png"} height={24} width={24} alt="*" />
-                                                                    <p style={{ fontWeight: "500", fontSize: 12 }}>
-                                                                        Tip: Tell your AI when to move the leads to this stage.
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                        </Popover>
+                        <p
+                          className="mt-4"
+                          style={{ fontWeight: "600", fontSize: 15 }}
+                        >
+                          Sample Answers
+                        </p>
 
+                        <p
+                          className="mt-2"
+                          style={{ fontWeight: "500", fontSize: 12 }}
+                        >
+                          What are possible answers leads will give to this
+                          question?
+                        </p>
 
-                                                    </div>
-                                                    <input
-                                                        className='h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg'
-                                                        placeholder='Ex: Does the human express interest getting a CMA '
-                                                        style={{
-                                                            border: "1px solid #00000020", fontWeight: "500", fontSize: 15
-                                                        }}
-                                                        value={action}
-                                                        onChange={(e) => { setAction(e.target.value) }}
-                                                    />
-
-                                                    <p className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                        Sample Answers
-                                                    </p>
-
-                                                    <p className='mt-2' style={{ fontWeight: "500", fontSize: 12 }}>
-                                                        What are possible answers leads will give to this question?
-                                                    </p>
-
-                                                    <div className=' mt-2' //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple max-h-[30vh] overflow-auto
-                                                        style={{ scrollbarWidth: "none" }}
-                                                    >
-                                                        {inputs.map((input, index) => (
-                                                            <div key={input.id} className='w-full flex flex-row items-center gap-4 mt-4'>
-                                                                <input
-                                                                    className='border p-2 rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[53px]'
-                                                                    style={{
-                                                                        ...styles.paragraph,
-                                                                        width: "95%", borderColor: "#00000020",
-                                                                    }}
-                                                                    placeholder={input.placeholder}
-                                                                    // placeholder={`
-                                                                    //     ${index === 0 ? "Sure, i would be interested in knowing what my home is worth" : 
-                                                                    //         index === 1 ? "Yeah, how much is my home worth today?" : 
-                                                                    //         `Add sample answer ${index + 1}`
-                                                                    //     }`}
-                                                                    value={input.value}
-                                                                    onChange={(e) => handleAddStageInputsChanges(input.id, e.target.value)}
-                                                                />
-                                                                <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
-                                                                    <Image src={"/assets/blackBgCross.png"} height={20} width={20} alt='*' />
-                                                                </button>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                    {/* <div style={{ height: "50px" }}>
+                        <div
+                          className=" mt-2" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple max-h-[30vh] overflow-auto
+                          style={{ scrollbarWidth: "none" }}
+                        >
+                          {inputs.map((input, index) => (
+                            <div
+                              key={input.id}
+                              className="w-full flex flex-row items-center gap-4 mt-4"
+                            >
+                              <input
+                                className="border p-2 rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[53px]"
+                                style={{
+                                  ...styles.paragraph,
+                                  width: "95%",
+                                  borderColor: "#00000020",
+                                }}
+                                placeholder={input.placeholder}
+                                // placeholder={`
+                                //     ${index === 0 ? "Sure, i would be interested in knowing what my home is worth" :
+                                //         index === 1 ? "Yeah, how much is my home worth today?" :
+                                //         `Add sample answer ${index + 1}`
+                                //     }`}
+                                value={input.value}
+                                onChange={(e) =>
+                                  handleAddStageInputsChanges(
+                                    input.id,
+                                    e.target.value
+                                  )
+                                }
+                              />
+                              <button
+                                className="outline-none border-none"
+                                style={{ width: "5%" }}
+                                onClick={() => handleDelete(input.id)}
+                              >
+                                <Image
+                                  src={"/assets/blackBgCross.png"}
+                                  height={20}
+                                  width={20}
+                                  alt="*"
+                                />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                        {/* <div style={{ height: "50px" }}>
                                                         {
                                                             inputs.length < 3 && (
                                                                 <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
@@ -641,115 +759,110 @@ const RearrangeStages = ({
                                                         }
                                                     </div> */}
 
-                                                    <div className='flex flex-row items-center gap-2 mt-4'>
-                                                        <p style={{ fontWeight: "600", fontSize: 15 }}>
-                                                            Notify a team member when leads move here
-                                                        </p>
-                                                        {/* <Image src={"/assets/infoIcon.png"} height={20} width={20} alt='*' /> */}
-                                                        <Image
-                                                            src="/assets/infoIcon.png"
-                                                            height={20}
-                                                            width={20}
-                                                            alt="*"
-                                                            style={{
-                                                                filter: 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
-                                                                // filter: isRed
-                                                                //     ? 'invert(17%) sepia(96%) saturate(7493%) hue-rotate(-5deg) brightness(102%) contrast(115%)' // Red
-                                                                //     : 'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
-                                                            }}
-                                                            aria-owns={open ? 'mouse-over-popover' : undefined}
-                                                            aria-haspopup="true"
-                                                            onMouseEnter={handlePopoverOpen}
-                                                            onMouseLeave={handlePopoverClose}
-                                                        />
-                                                        <Popover
-                                                            id="mouse-over-popover"
-                                                            sx={{
-                                                                pointerEvents: 'none'
-                                                            }}
-                                                            open={open}
-                                                            anchorEl={actionInfoEl}
-                                                            anchorOrigin={{
-                                                                vertical: 'top',
-                                                                horizontal: 'center',
-                                                            }}
-                                                            transformOrigin={{
-                                                                vertical: 'bottom',
-                                                                horizontal: 'left',
-                                                            }}
-                                                            PaperProps={{
-                                                                elevation: 1, // This will remove the shadow
-                                                                style: {
-                                                                    boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
-                                                                },
-                                                            }}
-                                                            onClose={handlePopoverClose}
-                                                            disableRestoreFocus
-                                                        >
-                                                            <div className="p-2">
-                                                                <div className="flex flex-row items-center gap-1">
-                                                                    <Image src={"/assets/infoIcon.png"} height={24} width={24} alt="*" />
-                                                                    <p style={{ fontWeight: "500", fontSize: 12 }}>
-                                                                        Tip: Tell your AI when to move the leads to this stage.
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                        </Popover>
-                                                    </div>
+                        <div className="flex flex-row items-center gap-2 mt-4">
+                          <p style={{ fontWeight: "600", fontSize: 15 }}>
+                            Notify a team member when leads move here
+                          </p>
+                          {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
+                          <Image
+                            src="/svgIcons/infoIcon.svg"
+                            height={20}
+                            width={20}
+                            alt="*"
+                            aria-owns={open ? "mouse-over-popover" : undefined}
+                            aria-haspopup="true"
+                            onMouseEnter={handlePopoverOpen}
+                            onMouseLeave={handlePopoverClose}
+                          />
+                          <Popover
+                            id="mouse-over-popover"
+                            sx={{
+                              pointerEvents: "none",
+                            }}
+                            open={open}
+                            anchorEl={actionInfoEl}
+                            anchorOrigin={{
+                              vertical: "top",
+                              horizontal: "center",
+                            }}
+                            transformOrigin={{
+                              vertical: "bottom",
+                              horizontal: "left",
+                            }}
+                            PaperProps={{
+                              elevation: 1, // This will remove the shadow
+                              style: {
+                                boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
+                              },
+                            }}
+                            onClose={handlePopoverClose}
+                            disableRestoreFocus
+                          >
+                            <div className="p-2">
+                              <div className="flex flex-row items-center gap-1">
+                                <Image
+                                  src={"/svgIcons/infoIcon.svg"}
+                                  height={24}
+                                  width={24}
+                                  alt="*"
+                                />
+                                <p style={{ fontWeight: "500", fontSize: 12 }}>
+                                  Tip: Tell your AI when to move the leads to
+                                  this stage.
+                                </p>
+                              </div>
+                            </div>
+                          </Popover>
+                        </div>
 
-                                                    <button className='flex flex-row items-center w-full justify-between rounded-lg h-[50px] px-2 mt-1 outline-none'
-                                                        style={{ border: "1px solid #00000020" }}>
-                                                        <div>
-                                                            Select team member
-                                                        </div>
-                                                        <div>
-                                                            <CaretDown size={20} weight='bold' />
-                                                        </div>
-                                                    </button>
+                        <button
+                          className="flex flex-row items-center w-full justify-between rounded-lg h-[50px] px-2 mt-1 outline-none"
+                          style={{ border: "1px solid #00000020" }}
+                        >
+                          <div>Select team member</div>
+                          <div>
+                            <CaretDown size={20} weight="bold" />
+                          </div>
+                        </button>
 
-                                                    <p style={{ fontWeight: "500", fontSize: 15 }}>
-                                                        Tags
-                                                    </p>
+                        <p style={{ fontWeight: "500", fontSize: 15 }}>Tags</p>
 
-                                                    <div className="mt-4">
-                                                        <TagsInput setTags={setTagsValue} />
-                                                    </div>
+                        <div className="mt-4">
+                          <TagsInput setTags={setTagsValue} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
-                                                </div>
-                                            )
-                                        }
-
-                                    </div>
-
-                                    {
-                                        showAddStageBtn ?
-                                            <div className='flex flex-row iems-center justify-center w-full mt-4'>
-                                                <CircularProgress size={25} />
-                                            </div> :
-                                            <button
-                                                className='mt-4 outline-none'
-                                                style={{
-                                                    backgroundColor: "#402FFF", color: "white",
-                                                    height: "50px", borderRadius: "10px", width: "100%",
-                                                    fontWeight: 600, fontSize: '20'
-                                                }}
-                                                onClick={handleAddNewStageTitle}
-                                            >
-                                                Add & Close
-                                            </button>
-                                    }
-
-
-                                </div>
-                            </Box>
-                        </Modal>
-
-                       
+                  {showAddStageBtn ? (
+                    <div className="flex flex-row iems-center justify-center w-full mt-4">
+                      <CircularProgress size={25} />
                     </div>
-                )}
-            </Droppable>
-        </DragDropContext>
-    );
+                  ) : (
+                    <button
+                      className="mt-4 outline-none"
+                      style={{
+                        backgroundColor: "#402FFF",
+                        color: "white",
+                        height: "50px",
+                        borderRadius: "10px",
+                        width: "100%",
+                        fontWeight: 600,
+                        fontSize: "20",
+                      }}
+                      onClick={handleAddNewStageTitle}
+                    >
+                      Add & Close
+                    </button>
+                  )}
+                </div>
+              </Box>
+            </Modal>
+          </div>
+        )}
+      </Droppable>
+    </DragDropContext>
+  );
 };
 
 export default RearrangeStages;
