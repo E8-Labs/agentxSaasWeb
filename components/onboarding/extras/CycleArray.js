@@ -20,8 +20,8 @@ const AgentBox = () => {
                     setIsExiting(false); // Reset the exit state
                     return nextIndex;
                 });
-            }, 1000); // This should match the exit animation duration
-        }, 3000); // Change agent every 3 seconds
+            }, 6000); // This should match the exit animation duration
+        }, 6000); // Change agent every 3 seconds
 
         return () => clearInterval(interval); // Cleanup interval on unmount
     }, []);
@@ -69,7 +69,7 @@ const AgentBox = () => {
         borderRadius: '8px',
         backgroundColor: 'white',
         opacity: 0,
-        animation: 'slideUp 1s forwards', // Animate in when showing
+        animation: 'slideUp 6s forwards', // Animate in when showing
         boxShadow: "0px 4px 15px 0px rgba(0, 0, 0, 0.09)",
         fontWeight: "500",
         fontSize: 15,
@@ -82,7 +82,7 @@ const AgentBox = () => {
 
     const hideBoxStyle = {
         ...agentBoxStyle,
-        animation: 'slideDown 1s forwards', // Animate out when hiding
+        animation: 'slideDown 6s forwards', // Animate out when hiding
     };
 
     return (

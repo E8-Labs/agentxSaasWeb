@@ -40,12 +40,20 @@ const Pipeline1 = ({ handleContinue }) => {
   const [nextStage, setNextStage] = useState({});
   const [selectedNextStage, setSelectedNextStage] = useState({});
 
-  const [showRearrangeErr, setShowRearrangeErr] = useState(false);
+  const [showRearrangeErr, setShowRearrangeErr] = useState(null);
 
   // const [nextStage, setNextStage] = useState([]);
   // const [selectedNextStage, setSelectedNextStage] = useState([]);
 
-  const [reorderSuccessBar, setReorderSuccessBar] = useState(null);
+  const [reorderSuccessBarMessage, setReorderSuccessBarMessage] = useState(null);
+  const [isVisibleSnack, setIsVisibleSnack] = useState(false);
+  const [snackType, setSnackType] = useState(null);
+
+  useEffect(() => {
+    console.log("Snack message is", reorderSuccessBarMessage)
+  }, [reorderSuccessBarMessage])
+
+
   const [reorderLoader, setReorderLoader] = useState(false);
   //code for new Lead calls
   // const [rows, setRows] = useState([]);
@@ -459,8 +467,15 @@ const Pipeline1 = ({ handleContinue }) => {
       if (response) {
         console.log("Response of updated stages is:", response.data);
         if (response.data.status === true) {
-          setReorderSuccessBar(response.data.message);
+          let type = SnackbarTypes.Success
+          setSnackType("Success");
+          setReorderSuccessBarMessage(response.data.message);
+        } else if (response.data.status === false) {
+          let type = SnackbarTypes.Error
+          setSnackType("Error");
+          setReorderSuccessBarMessage(response.data.message);
         }
+        setIsVisibleSnack(true);
       }
     } catch (error) {
       console.error("Error occured in rearrange order api is:", error);
@@ -507,8 +522,16 @@ const Pipeline1 = ({ handleContinue }) => {
       style={{ width: "100%" }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
-      <AgentSelectSnackMessage isVisible={reorderSuccessBar == null || reorderSuccessBar == false?false:true} hide={()=>setReorderSuccessBar(false)} message={reorderSuccessBar} time={SnackbarTypes.Success} />
-      <AgentSelectSnackMessage isVisible={showRearrangeErr == null || reorderSuccessBar == false?false:true} hide={()=>setShowRearrangeErr(false)} message={showRearrangeErr} time={SnackbarTypes.Error} />
+      {/* <AgentSelectSnackMessage isVisible={reorderSuccessBar == null || reorderSuccessBar == false ? false : true} hide={() => setReorderSuccessBar(null)} message={reorderSuccessBar} time={SnackbarTypes.Success} /> */}
+      {
+        isVisibleSnack && (
+          <AgentSelectSnackMessage
+            isVisible={isVisibleSnack === false ? false : true}
+            hide={() => setIsVisibleSnack(false)}
+            message={reorderSuccessBarMessage} type={snackType}
+          />
+        )
+      }
       <div
         className="bg-white rounded-2xl w-10/12 h-[100%] py-4 flex flex-col justify-between" //overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
@@ -690,7 +713,9 @@ const Pipeline1 = ({ handleContinue }) => {
                 handleSelectNextChange={handleSelectNextChange}
                 selectedPipelineStages={selectedPipelineStages}
                 selectedPipelineItem={selectedPipelineItem}
-                setShowRearrangeErr={setShowRearrangeErr}
+                setShowRearrangeErr={setReorderSuccessBarMessage}
+                setIsVisibleSnack={setIsVisibleSnack}
+                setSnackType={setSnackType}
               />
 
               {/* Reorder stage loader modal */}

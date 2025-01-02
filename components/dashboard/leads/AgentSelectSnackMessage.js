@@ -10,12 +10,14 @@ const DefaultMessage = null;
 export default function AgentSelectSnackMessage({
   title = null,
   message = DefaultMessage,
-  type = SnackbarTypes.Error,
+  type= SnackbarTypes.Error,
   time = 4000,
   isVisible,
   hide,
 }) {
   console.log("Visible Snack ", isVisible);
+  // console.log("Type passed is ", type);
+  console.log("Message passed is", message);
   function GetIcon() {
     if (type == SnackbarTypes.Error) {
       return "/assets/salmanassets/danger_conflict.svg";
@@ -34,19 +36,34 @@ export default function AgentSelectSnackMessage({
   // const SelectAgentErrorTimeout = 4000; //change this to change the duration of the snack timer
 
   useEffect(() => {
+    if (type) {
+      console.log("Type passed is ", type);
+    }
+  }, [type]);
+
+  useEffect(() => {
     console.log("UseEffect")
-      if(isVisible){
-        let timer = setTimeout(() => {
-          // setErrorMessage(null);
-          console.log("Timer hit")
-          hide();
-        }, time);
-        return () => {
-          console.log("Clearing timer")
-          clearTimeout(timer )
-        }
+
+    if (isVisible) {
+      let timer = setTimeout(() => {
+        // setErrorMessage(null);
+        console.log("Timer hit")
+        hide();
+      }, time);
+      return () => {
+        console.log("Clearing timer")
+        clearTimeout(timer)
       }
-   
+    }
+
+    // if (isVisible) {
+    //   let timer = setTimeout(() => {
+    //     console.log("Timmer is trigered")
+    //     hide()
+    //   }, 4000);
+    //   return (() => { clearTimeout(timer) })
+    // }
+
   }, [isVisible]);
 
   return (
@@ -57,7 +74,7 @@ export default function AgentSelectSnackMessage({
           position: "absolute",
           left: "50%",
           translate: "-50%",
-          top:10
+          top: 10
           // display: isVisible ? "flex" : "hidden",
         }}
       >

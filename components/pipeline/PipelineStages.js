@@ -23,7 +23,9 @@ const PipelineStages = ({
     handleSelectNextChange,
     selectedPipelineStages,
     selectedPipelineItem,
-    setShowRearrangeErr
+    setShowRearrangeErr,
+    setIsVisibleSnack,
+    setSnackType
 }) => {
     const [pipelineStages, setPipelineStages] = useState(stages);
     const [delStageLoader, setDelStageLoader] = useState(false);
@@ -201,7 +203,9 @@ const PipelineStages = ({
         console.log("Check 1")
         // if (!destination) return;
         if (!destination || source.index === 0 || destination.index === 0) {
-            setShowRearrangeErr(true);
+            setShowRearrangeErr("Cannot rearrange when stage is expanded.");
+            setIsVisibleSnack(true);
+            setSnackType("Error");
             console.log("Check 2 then return")
             return;
         }
