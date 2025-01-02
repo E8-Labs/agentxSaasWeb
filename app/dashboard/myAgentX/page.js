@@ -33,9 +33,12 @@ import PiepelineAdnStage from "@/components/dashboard/myagentX/PiepelineAdnStage
 import voicesList from "@/components/createagent/Voices";
 import UserCalender from "@/components/dashboard/myagentX/UserCallender";
 import CircularLoader from "@/utilities/CircularLoader";
-import imageCompression from 'browser-image-compression';
+import imageCompression from "browser-image-compression";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
-import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import { GetFormattedDateString } from "@/utilities/utility";
 
 function Page() {
   const timerRef = useRef();
@@ -132,7 +135,6 @@ function Page() {
   const [isVisibleSnack, setIsVisibleSnack] = useState(null);
   const [isVisibleSnack2, setIsVisibleSnack2] = useState(null);
 
-
   const [testAIloader, setTestAIloader] = useState(false);
   const [uniqueColumns, setUniqueColumns] = useState([]);
   const [showMoreUniqueColumns, setShowMoreUniqueColumns] = useState(false);
@@ -160,17 +162,12 @@ function Page() {
   const [hoveredIndexStatus, setHoveredIndexStatus] = useState(null);
   const [hoveredIndexAddress, setHoveredIndexAddress] = useState(null);
 
-
-
   //code for image select and drag and drop
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedImage2, setSelectedImage2] = useState(null);
   const [dragging, setDragging] = useState(false);
 
   const [globalLoader, setGlobalLoader] = useState(false);
-
-
-
 
   //code for scroll ofset
   useEffect(() => {
@@ -223,7 +220,6 @@ function Page() {
     }
   }, [greetingTagInput, scriptTagInput, objective]); //scriptTagInput
 
-
   //function for image selection on dashboard
   const handleImageChange = async (event) => {
     const file = event.target.files[0];
@@ -243,19 +239,16 @@ function Page() {
 
         // Compress the image
         const compressedFile = await imageCompression(file, options);
-        console.log("Comptessed is ", compressedFile)
+        console.log("Comptessed is ", compressedFile);
         // Set the compressed image
         setSelectedImage2(compressedFile);
-        updateAgentProfile(compressedFile)
-
+        updateAgentProfile(compressedFile);
       } catch (error) {
         console.error("Error while compressing the image:", error);
       }
     }
 
-
-
-    return (() => clearTimeout(timer));
+    return () => clearTimeout(timer);
   };
 
   const handleDrop = async (event) => {
@@ -263,7 +256,7 @@ function Page() {
     setDragging(false);
     const file = event.dataTransfer.files[0];
 
-    console.log("Selected file is", file)
+    console.log("Selected file is", file);
 
     if (file && file.type.startsWith("image/")) {
       const imageUrl = URL.createObjectURL(file);
@@ -281,11 +274,10 @@ function Page() {
 
         // Compress the image
         const compressedFile = await imageCompression(file, options);
-        console.log("Comptessed is ", compressedFile)
+        console.log("Comptessed is ", compressedFile);
         // Set the compressed image
         setSelectedImage2(compressedFile);
-        updateAgentProfile(compressedFile)
-
+        updateAgentProfile(compressedFile);
       } catch (error) {
         console.error("Error while compressing the image:", error);
       }
@@ -295,8 +287,7 @@ function Page() {
     //   updateAgentProfile()
     // }, 100);
 
-    return (() => clearTimeout(timer));
-
+    return () => clearTimeout(timer);
   };
 
   const handleDragOver = (event) => {
@@ -308,12 +299,9 @@ function Page() {
     setDragging(false);
   };
 
-
-
   //function to update agent profile image
   const updateAgentProfile = async (image) => {
     try {
-
       setGlobalLoader(true);
 
       const LocalData = localStorage.getItem("User");
@@ -323,7 +311,7 @@ function Page() {
       if (LocalData) {
         const userData = JSON.parse(LocalData);
         console.log("Local data recieved is", userData);
-        AuthToken = userData.token
+        AuthToken = userData.token;
       }
 
       const ApiPath = Apis.updateAgentImg;
@@ -334,7 +322,7 @@ function Page() {
       formData.append("agentId", showDrawer.id);
 
       for (let [key, value] of formData.entries()) {
-        console.log(`${key} :- ${value}`)
+        console.log(`${key} :- ${value}`);
       }
 
       console.log("Apipath is", ApiPath);
@@ -342,8 +330,8 @@ function Page() {
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
-          "Authorization": "Bearer " + AuthToken,
-        }
+          Authorization: "Bearer " + AuthToken,
+        },
       });
 
       if (response) {
@@ -367,7 +355,6 @@ function Page() {
             //   return apiItem ? { ...localItem, ...apiItem } : localItem;
             // });
 
-
             const updatedArray = agentsList.map((localItem) => {
               // Check if there's a match with the agent's id
               if (updateAgentData.mainAgentId === localItem.id) {
@@ -375,8 +362,8 @@ function Page() {
                 const updatedSubAgents = localItem.agents.map((subAgent) => {
                   // Check if the sub-agent id matches the updateAgentData.id (or another relevant sub-agent id)
                   return updateAgentData.id === subAgent.id
-                    ? { ...subAgent, ...updateAgentData }  // Update the matching sub-agent
-                    : subAgent;  // Leave the others unchanged
+                    ? { ...subAgent, ...updateAgentData } // Update the matching sub-agent
+                    : subAgent; // Leave the others unchanged
                 });
 
                 console.log("Updated sub agents", updatedSubAgents);
@@ -397,19 +384,16 @@ function Page() {
             setUserAgentsList(updatedArray);
             // agentsListDetails = updatedArray
           }
-
         } else if (response.data.status === false) {
-          console.log("Status is false")
+          console.log("Status is false");
         }
-
       }
-
     } catch (error) {
       console.error("Error occured in api is", error);
     } finally {
       setGlobalLoader(false);
     }
-  }
+  };
 
   //function to open drawer
   const handleShowDrawer = (item) => {
@@ -428,7 +412,7 @@ function Page() {
 
     //console.log("")
     setShowDrawer(item);
-    setSelectedImage(item?.thumb_profile_image)
+    setSelectedImage(item?.thumb_profile_image);
     //console.log("Selected agent is:", item);
     if (item.agentType === "inbound") {
       setShowReassignBtn(true);
@@ -573,7 +557,7 @@ function Page() {
       if (response) {
         console.log("Respose of reassign api is:", response.data.data);
         setShowSuccessSnack(response.data.message);
-        setIsVisibleSnack(true)
+        setIsVisibleSnack(true);
         // AssignNumber()
         // setShowClaimPopup(null);
         setAssignNumber(item.phoneNumber.slice(1));
@@ -589,9 +573,9 @@ function Page() {
           prevAgents.map((agent) =>
             agent.id === response.data.data.agent2.id
               ? {
-                ...agent,
-                phoneNumber: response.data.data.agent2.phoneNumber.slice(1),
-              }
+                  ...agent,
+                  phoneNumber: response.data.data.agent2.phoneNumber.slice(1),
+                }
               : agent
           )
         );
@@ -797,7 +781,7 @@ function Page() {
         console.log("Respons eof update api is", response.data.data);
         if (response.data.status === true) {
           setShowSuccessSnack(response.data.message);
-          setIsVisibleSnack(true)
+          setIsVisibleSnack(true);
 
           const localAgentsList = localStorage.getItem("localAgentDetails");
 
@@ -964,7 +948,7 @@ function Page() {
         //console.log("Response of assign number api is :", response.data)
         if (response.data.status === true) {
           setShowSuccessSnack(response.data.message);
-          setIsVisibleSnack(true)
+          setIsVisibleSnack(true);
           setShowConfirmationModal(null);
           setAgentsContent((prevAgents) =>
             prevAgents.map((agent) =>
@@ -986,7 +970,7 @@ function Page() {
           // localStorage.setItem("claimNumberData", JSON.stringify(calimNoData))
         } else if (response.data.status === false) {
           setShowErrorSnack(response.data.message);
-          setIsVisibleSnack2(true)
+          setIsVisibleSnack2(true);
         }
       }
     } catch (error) {
@@ -1228,7 +1212,7 @@ function Page() {
       if (response) {
         //console.log("Response of test AI api is :", response);
         setShowSuccessSnack(response.data.message);
-        setIsVisibleSnack(true)
+        setIsVisibleSnack(true);
         if (response.data.status === true) {
           setOpenTestAiModal(false);
           setName("");
@@ -1543,18 +1527,25 @@ function Page() {
 
   return (
     <div className="w-full flex flex-col items-center">
-
       {/* Global snack */}
       {/* Success snack bar */}
       <div>
         <AgentSelectSnackMessage
           isVisible={isVisibleSnack}
-          hide={() => { setIsVisibleSnack(false) }}
-          type={SnackbarTypes.Success} message={showSuccessSnack} />
+          hide={() => {
+            setIsVisibleSnack(false);
+          }}
+          type={SnackbarTypes.Success}
+          message={showSuccessSnack}
+        />
       </div>
-       <div>
-      
-        <AgentSelectSnackMessage isVisible={isVisibleSnack2} hide={()=>setIsVisibleSnack2(false)} message={showErrorSnack}  type={SnackbarTypes.Error}/>
+      <div>
+        <AgentSelectSnackMessage
+          isVisible={isVisibleSnack2}
+          hide={() => setIsVisibleSnack2(false)}
+          message={showErrorSnack}
+          type={SnackbarTypes.Error}
+        />
       </div>
 
       <div
@@ -1566,7 +1557,6 @@ function Page() {
         <div>
           <NotficationsDrawer />
         </div>
-
       </div>
 
       <div className="w-9/12 items-center " style={{}}>
@@ -1685,7 +1675,8 @@ function Page() {
                             onMouseLeave={handlePopoverClose}
                             style={{ cursor: "pointer" }}
                           >
-                            {item.agentObjective?.slice(0, 1).toUpperCase()}{item.agentObjective?.slice(1)}
+                            {item.agentObjective?.slice(0, 1).toUpperCase()}
+                            {item.agentObjective?.slice(1)}
                           </div>
                           <div>
                             | {item.agentType?.slice(0, 1).toUpperCase(0)}
@@ -1738,7 +1729,9 @@ function Page() {
                             style: {
                               width: "fit-content",
                               border: "none", // Remove the border
-                              boxShadow: open ? "0px 2px 6px rgba(0, 0, 0, 0.04)" : "0px 0px 0px rgba(0, 0, 0, 0)", // Shadow with 60% opacity
+                              boxShadow: open
+                                ? "0px 2px 6px rgba(0, 0, 0, 0.04)"
+                                : "0px 0px 0px rgba(0, 0, 0, 0)", // Shadow with 60% opacity
                               transition: "box-shadow 0.3s ease-in-out", // Smooth transition for shadow
                             },
                           }}
@@ -1769,13 +1762,15 @@ function Page() {
                                 Address
                               </p>
                               <div style={styles.paragraph}>
-                                {hoveredIndexAddress
-                                  ? (
-                                    <div>
-                                      {hoveredIndexAddress.length > 15 ? (hoveredIndexAddress.slice(0, 15) + "...") : (hoveredIndexAddress)}
-                                    </div>
-                                  )
-                                  : "-"}
+                                {hoveredIndexAddress ? (
+                                  <div>
+                                    {hoveredIndexAddress.length > 15
+                                      ? hoveredIndexAddress.slice(0, 15) + "..."
+                                      : hoveredIndexAddress}
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
                               </div>
                             </div>
                           </div>
@@ -1891,7 +1886,10 @@ function Page() {
                             "CU_address",
                             "CU_status",
                           ];
-                          if (!defaultVariables.includes(match[1]) && match[1]?.length < 15) {
+                          if (
+                            !defaultVariables.includes(match[1]) &&
+                            match[1]?.length < 15
+                          ) {
                             // match[1]?.length < 15
                             if (
                               !keys.includes(match[1]) &&
@@ -2158,7 +2156,7 @@ function Page() {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                // defaultMask={loading ? 'Loading...' : undefined}
+                  // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -2188,8 +2186,9 @@ function Page() {
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                        }`}
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
+                        index === scriptKeys?.length - 1 ? "mb-16" : ""
+                      }`}
                       style={{
                         ...styles.inputStyle,
                         border: "1px solid #00000010",
@@ -2236,10 +2235,7 @@ function Page() {
         </Box>
       </Modal>
 
-
-
       {/* Error snack bar message */}
-     
 
       {/* drawer */}
 
@@ -2264,7 +2260,6 @@ function Page() {
         <div className="flex flex-col w-full">
           <div className="w-full flex flex-row items-center justify-between mb-8">
             <div className="flex flex-row items-center gap-4 mt-8">
-
               {/* <div className="flex items-end">
                 <Image
                   src={"/agentXOrb.gif"}
@@ -2289,18 +2284,21 @@ function Page() {
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
               >
-                <div className='flex flex-row items-end'
-                  style={{
-                    // border: dragging ? "2px dashed #0070f3" : "",
-                  }}
+                <div
+                  className="flex flex-row items-end"
+                  style={
+                    {
+                      // border: dragging ? "2px dashed #0070f3" : "",
+                    }
+                  }
                 >
-
                   {selectedImage ? (
                     <div style={{ marginTop: "", background: "" }}>
-                      <Image src={selectedImage}
+                      <Image
+                        src={selectedImage}
                         height={74}
                         width={74}
-                        alt='profileImage'
+                        alt="profileImage"
                         className="rounded-full"
                         style={{
                           objectFit: "cover",
@@ -2311,19 +2309,20 @@ function Page() {
                       />
                     </div>
                   ) : (
-                    <Image src={'/agentXOrb.gif'}
+                    <Image
+                      src={"/agentXOrb.gif"}
                       height={74}
                       width={74}
-                      alt='profileImage'
+                      alt="profileImage"
                     />
-                  )
-                  }
+                  )}
 
-                  <Image src={'/otherAssets/cameraBtn.png'}
+                  <Image
+                    src={"/otherAssets/cameraBtn.png"}
                     style={{ marginLeft: -25 }}
                     height={36}
                     width={36}
-                    alt='profileImage'
+                    alt="profileImage"
                   />
                 </div>
               </button>
@@ -2338,14 +2337,12 @@ function Page() {
               />
 
               {/* Global Loader */}
-              {
-                globalLoader && (
-                  <CircularLoader
-                    globalLoader={globalLoader}
-                    setGlobalLoader={setGlobalLoader}
-                  />
-                )
-              }
+              {globalLoader && (
+                <CircularLoader
+                  globalLoader={globalLoader}
+                  setGlobalLoader={setGlobalLoader}
+                />
+              )}
 
               <div className="flex flex-col gap-1 items-start ">
                 <div className="flex flex-row gap-2 items-center ">
@@ -2380,7 +2377,7 @@ function Page() {
                     style={{ fontSize: 11, fontWeight: "500", color: "#000" }}
                   >
                     {/* {showDrawer?.createdAt} */}
-                    {moment(showDrawer?.createdAt).format("MMM DD, YYYY")}
+                    {GetFormattedDateString(showDrawer?.createdAt)}
                   </div>
                 </div>
               </div>
@@ -2451,10 +2448,11 @@ function Page() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${activeTab === tab
-                  ? "text-purple border-b-2 border-purple"
-                  : "text-black-500"
-                  }`}
+                className={`${
+                  activeTab === tab
+                    ? "text-purple border-b-2 border-purple"
+                    : "text-black-500"
+                }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >
                 {tab}
@@ -2550,9 +2548,13 @@ function Page() {
                             ); // Placeholder style
                           }
                           // return selected;
-                          const selectedVoice = voicesList.find(voice => voice.voice_id === selected);
+                          const selectedVoice = voicesList.find(
+                            (voice) => voice.voice_id === selected
+                          );
                           return selectedVoice ? (
-                            <div style={{ display: "flex", alignItems: "center" }}>
+                            <div
+                              style={{ display: "flex", alignItems: "center" }}
+                            >
                               <Image
                                 src={selectedVoice.img}
                                 height={40}
@@ -2591,10 +2593,12 @@ function Page() {
                       >
                         {voicesList.slice(0, 10).map((item, index) => {
                           const selectedVoiceName = (id) => {
-                            const voiceName = voicesList.find(voice => voice.voice_id === id);
+                            const voiceName = voicesList.find(
+                              (voice) => voice.voice_id === id
+                            );
 
-                            return voiceName.name
-                          }
+                            return voiceName.name;
+                          };
                           return (
                             <MenuItem value={item?.voice_id} key={index}>
                               <Image
@@ -2602,11 +2606,9 @@ function Page() {
                                 src={item.img} // Deterministic selection
                                 height={40}
                                 width={35}
-                                alt='*'
+                                alt="*"
                               />
-                              <div>
-                                {selectedVoiceName(item.voice_id)}
-                              </div>
+                              <div>{selectedVoiceName(item.voice_id)}</div>
                             </MenuItem>
                           );
                         })}
@@ -2634,7 +2636,6 @@ function Page() {
                     }}
                   >
                     <Box className="w-full">
-
                       <FormControl className="w-full">
                         <Select
                           ref={selectRef}
@@ -2680,9 +2681,14 @@ function Page() {
                                     setShowConfirmationModal(item);
                                     // AssignNumber
                                   } else {
-                                    console.log("Should call assign number api")
-                                    AssignNumber(item.phoneNumber)
-                                    console.log("Updated number is", item.phoneNumber)
+                                    console.log(
+                                      "Should call assign number api"
+                                    );
+                                    AssignNumber(item.phoneNumber);
+                                    console.log(
+                                      "Updated number is",
+                                      item.phoneNumber
+                                    );
                                   }
                                 }}
                               >
@@ -2702,25 +2708,25 @@ function Page() {
                                     <div className="flex flex-row items-center gap-2">
                                       {showDrawer?.name !==
                                         item.claimedBy.name && (
-                                          <div>
-                                            {`(Claimed by {${item.claimedBy.name}})`}
-                                            {reassignLoader === item ? (
-                                              <CircularProgress size={15} />
-                                            ) : (
-                                              <button
-                                                className="text-purple underline"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  setShowConfirmationModal(item);
-                                                  // handleReassignNumber(item)
-                                                  // handleReassignNumber(e.target.value)
-                                                }}
-                                              >
-                                                Reassign
-                                              </button>
-                                            )}
-                                          </div>
-                                        )}
+                                        <div>
+                                          {`(Claimed by {${item.claimedBy.name}})`}
+                                          {reassignLoader === item ? (
+                                            <CircularProgress size={15} />
+                                          ) : (
+                                            <button
+                                              className="text-purple underline"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setShowConfirmationModal(item);
+                                                // handleReassignNumber(item)
+                                                // handleReassignNumber(e.target.value)
+                                              }}
+                                            >
+                                              Reassign
+                                            </button>
+                                          )}
+                                        </div>
+                                      )}
                                     </div>
                                   )}
                                 </div>
@@ -3895,7 +3901,6 @@ function Page() {
           </div>
         </Box>
       </Modal>
-
     </div>
   );
 }

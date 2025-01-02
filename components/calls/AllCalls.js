@@ -19,7 +19,11 @@ import "react-calendar/dist/Calendar.css";
 import parsePhoneNumberFromString from "libphonenumber-js";
 import InfiniteScroll from "react-infinite-scroll-component";
 import LeadDetails from "../dashboard/leads/extras/LeadDetails";
-import { convertUTCToTimezone } from "@/utilities/utility";
+import {
+  convertUTCToTimezone,
+  GetFormattedDateString,
+  GetFormattedTimeString,
+} from "@/utilities/utility";
 
 function AllCalls() {
   const [searchValue, setSearchValue] = useState("");
@@ -72,7 +76,6 @@ function AllCalls() {
   //code for details modal
   const [selectedLeadsDetails, setselectedLeadsDetails] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-
 
   const [selectedPipeline, setSelectedPipeline] = useState("");
   const [selectedStageIds, setSelectedStageIds] = useState([]);
@@ -187,14 +190,13 @@ function AllCalls() {
     //   setStagesList(PipelineDetails[0].stages);
     // }
 
-
     try {
-      console.log("Testing teh")
+      console.log("Testing teh");
       getPipelines();
       const localCalls = localStorage.getItem("calldetails");
       if (localCalls) {
         const localCallData = JSON.parse(localCalls);
-        console.log("Local cal details are", localCallData)
+        console.log("Local cal details are", localCallData);
         setCallDetails(localCallData);
         setFilteredCallDetails(localCallData);
       } else {
@@ -204,7 +206,6 @@ function AllCalls() {
       console.error("Error ", error);
     } finally {
     }
-
   }, []);
 
   //function for getting pipelines
@@ -250,7 +251,7 @@ function AllCalls() {
     try {
       setLoading(true);
       setInitialLoader(true);
-      console.log("Check 1 ")
+      console.log("Check 1 ");
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
@@ -258,7 +259,7 @@ function AllCalls() {
         console.log("Localdata recieved is :--", Data.token);
         AuthToken = Data.token;
       }
-      console.log("Check 2")
+      console.log("Check 2");
       let startDate = "";
       let endDate = "";
 
@@ -267,12 +268,12 @@ function AllCalls() {
         endDate = moment(selectedToDate).format("MM-DD-YYYY");
       }
 
-      console.log("Check 3")
+      console.log("Check 3");
       const stages = selectedStageIds.join(",");
       console.log("Sages selected are ", stages);
-      console.log("Check 4")
+      console.log("Check 4");
       let ApiPath = null;
-      console.log("Check 5")
+      console.log("Check 5");
       if (offset == null) {
         offset = filteredCallDetails.length;
       }
@@ -467,8 +468,8 @@ function AllCalls() {
                         setSelectedStageIds(newStageIds);
                       }
                       if (filter.key == "pipeline") {
-                        setSelectedPipeline(null)
-                        setSelectedStageIds([])
+                        setSelectedPipeline(null);
+                        setSelectedStageIds([]);
                       }
                       setInitialLoader(true);
                       setCallDetails([]);
@@ -607,16 +608,12 @@ function AllCalls() {
                     </div>
                     <div className="w-1/12">
                       <div style={styles.text2}>
-                        {moment(
-                          convertUTCToTimezone(item.createdAt || "")
-                        ).format("MM/DD/YYYY")}
+                        {GetFormattedDateString(item?.createdAt)}
                       </div>
                     </div>
                     <div className="w-1/12">
                       <div style={styles.text2}>
-                        {moment(
-                          convertUTCToTimezone(item.createdAt || "")
-                        ).format("HH:mm:ss A")}
+                        {GetFormattedTimeString(item?.createdAt)}
                       </div>
                     </div>
                     <div className="w-1/12">
@@ -655,7 +652,6 @@ function AllCalls() {
         //   }
 
         // </div>
-
       )}
 
       {/* Code for filter modal */}
@@ -873,16 +869,18 @@ function AllCalls() {
                         onClick={() => {
                           handleSelectStage(item);
                         }}
-                        className={`p-2 border border-[#00000020] ${selectedStageIds.includes(item.id)
-                          ? `bg-purple`
-                          : "bg-transparent"
-                          } px-6
-                                                                ${selectedStageIds.includes(
-                            item.id
-                          )
-                            ? `text-white`
-                            : "text-black"
-                          } rounded-2xl`}
+                        className={`p-2 border border-[#00000020] ${
+                          selectedStageIds.includes(item.id)
+                            ? `bg-purple`
+                            : "bg-transparent"
+                        } px-6
+                                                                ${
+                                                                  selectedStageIds.includes(
+                                                                    item.id
+                                                                  )
+                                                                    ? `text-white`
+                                                                    : "text-black"
+                                                                } rounded-2xl`}
                       >
                         {item.stageTitle}
                       </button>
@@ -915,7 +913,7 @@ function AllCalls() {
                       fontWeight: "600",
                       backgroundColor:
                         (selectedFromDate && selectedToDate) ||
-                          selectedStageIds.length > 0
+                        selectedStageIds.length > 0
                           ? ""
                           : "#00000050",
                     }}

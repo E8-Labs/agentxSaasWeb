@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import Apis from "@/components/apis/Apis";
 import {
   Alert,
@@ -37,17 +37,18 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import LeadDetails from "./extras/LeadDetails";
 import getProfileDetails from "@/components/apis/GetProfile";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
-import AgentSelectSnackMessage, { SnackbarTypes } from "./AgentSelectSnackMessage";
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from "./AgentSelectSnackMessage";
+import { GetFormattedDateString } from "@/utilities/utility";
 
 const Userleads = ({
   handleShowAddLeadModal,
   handleShowUserLeads,
   newListAdded,
-  shouldSet, setSetData
+  shouldSet,
+  setSetData,
 }) => {
-
-
-
   const bottomRef = useRef(null);
 
   //user local data
@@ -177,7 +178,6 @@ const Userleads = ({
   const [selectedPipeline, setSelectedPipeline] = useState("");
 
   const handleChange = (event) => {
-
     const selectedValue = event.target.value;
 
     setSelectedPipeline(event.target.value);
@@ -189,7 +189,6 @@ const Userleads = ({
     console.log("Selected stages", selectedItem.stages);
 
     setStagesList(selectedItem.stages);
-
   };
 
   useEffect(() => {
@@ -207,22 +206,22 @@ const Userleads = ({
   useEffect(() => {
     if (shouldSet === true) {
       ////console.log("Adding the new sheet is:", newListAdded);
-      let sheets = []
+      let sheets = [];
       let found = false;
       SheetsList.map((sheet) => {
         if (sheet.id == newListAdded.id) {
-          console.log("Id of new list is same")
-          found = true
+          console.log("Id of new list is same");
+          found = true;
         }
-        sheets.push(sheet)
-      })
+        sheets.push(sheet);
+      });
       if (!found) {
-        console.log("Id of new list is not same")
-        sheets.push(newListAdded)
+        console.log("Id of new list is not same");
+        sheets.push(newListAdded);
       }
-      setSelectedSheetId(newListAdded.id)// setSelectedSheetId(item.id);
+      setSelectedSheetId(newListAdded.id); // setSelectedSheetId(item.id);
       setSheetsList(sheets);
-      setSetData(false)
+      setSetData(false);
     }
   }, [shouldSet]);
 
@@ -252,7 +251,6 @@ const Userleads = ({
   //code for get profile function
   const getProfile = async () => {
     try {
-
       await getProfileDetails();
 
       const Data = localStorage.getItem("User");
@@ -260,11 +258,10 @@ const Userleads = ({
         const localData = JSON.parse(Data);
         setUserLocalData(localData.user);
       }
-
     } catch (error) {
       console.error("Error occured in api is error", error);
     }
-  }
+  };
 
   //fucntion to read more transcript text
   const handleReadMoreToggle = (item) => {
@@ -744,9 +741,8 @@ const Userleads = ({
             } else {
               setHasMore(true);
             }
-          }
-          else {
-            console.log("False api get leads resposne")
+          } else {
+            console.log("False api get leads resposne");
           }
         }
       }
@@ -1115,9 +1111,7 @@ const Userleads = ({
         case "Name":
           return <div></div>;
         case "Date":
-          return item.createdAt
-            ? moment(item.createdAt).format("MMM DD, YYYY")
-            : "-";
+          return item.createdAt ? GetFormattedDateString(item?.createdAt) : "-";
         case "Phone":
           return "-";
         case "Stage":
@@ -1473,7 +1467,12 @@ const Userleads = ({
 
   return (
     <div className="w-full flex flex-col items-center">
-      <AgentSelectSnackMessage isVisible={showsnackMessage} hide={() => setShowSnackMessage(false)} message={snackMessage} type={SnackbarTypes.Warning} />
+      <AgentSelectSnackMessage
+        isVisible={showsnackMessage}
+        hide={() => setShowSnackMessage(false)}
+        message={snackMessage}
+        type={SnackbarTypes.Warning}
+      />
       <div
         className="flex flex-row items-center justify-between w-full px-10 mt-4 pb-4"
         style={{ borderBottom: "1px solid #15151510" }}
@@ -1491,7 +1490,7 @@ const Userleads = ({
                 setAssignLeadModal(true);
               } else {
                 setSnackMessage("Add payment method to continue");
-                setShowSnackMessage(true)
+                setShowSnackMessage(true);
               }
             }}
             disabled={!toggleClick.length > 0}
@@ -1533,7 +1532,6 @@ const Userleads = ({
                                             Buy Lead
                                         </span>
                                     </div> */}
-
 
                 <Modal
                   open={AssignLeadModal}
@@ -1672,7 +1670,7 @@ const Userleads = ({
                               ////console.log("Stage ids ", stages);
                               ////console.log("Date ", [fromDate, toDate]);
                               ////console.log("Pipeline ", pipeline);
-                              console.log("Stages inheriting from", stages)
+                              console.log("Stages inheriting from", stages);
                               setSelectedStage(stages);
                               setSelectedFromDate(fromDate);
                               setSelectedToDate(toDate);
@@ -1757,8 +1755,8 @@ const Userleads = ({
             <div
               className="flex flex-row items-center mt-8 gap-2"
               style={styles.paragraph}
-            // className="flex flex-row items-center mt-8 gap-2"
-            // style={{ ...styles.paragraph, overflowY: "hidden" }}
+              // className="flex flex-row items-center mt-8 gap-2"
+              // style={{ ...styles.paragraph, overflowY: "hidden" }}
             >
               <div
                 className="flex flex-row items-center gap-2 w-full"
@@ -1789,8 +1787,8 @@ const Userleads = ({
                         color: SelectedSheetId === item.id ? "#7902DF" : "",
                         whiteSpace: "nowrap", // Prevent text wrapping
                       }}
-                    // className='flex flex-row items-center gap-1 px-3'
-                    // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
+                      // className='flex flex-row items-center gap-1 px-3'
+                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
                     >
                       <button
                         style={styles.paragraph}
@@ -1954,20 +1952,23 @@ const Userleads = ({
                             {leadColumns.map((column, index) => {
                               const isMoreColumn = column.title === "More";
                               const isDateColumn = column.title === "Date";
-                              const columnWidth = column.title === "More" ? "200px" : "150px";
+                              const columnWidth =
+                                column.title === "More" ? "200px" : "150px";
                               return (
                                 <th
                                   key={index}
-                                  className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn
-                                    ? "sticky right-0 bg-white"
-                                    : ""
-                                    }`}
+                                  className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${
+                                    isMoreColumn
+                                      ? "sticky right-0 bg-white"
+                                      : ""
+                                  }`}
                                   // style={isMoreColumn ? { zIndex: 1 } : {}}
                                   style={{
                                     whiteSpace: "nowrap",
                                     overflow: "hidden",
                                     textOverflow: "ellipsis",
-                                    zIndex: isMoreColumn === "More" ? 1 : "auto",
+                                    zIndex:
+                                      isMoreColumn === "More" ? 1 : "auto",
                                     maxWidth: columnWidth,
                                   }}
                                 >
@@ -1987,10 +1988,11 @@ const Userleads = ({
                                   // <td key={colIndex} className="border-none px-4 py-2">
                                   <td
                                     key={colIndex}
-                                    className={`border-none px-4 py-2 ${column.title === "More"
-                                      ? "sticky right-0 bg-white"
-                                      : ""
-                                      }`}
+                                    className={`border-none px-4 py-2 ${
+                                      column.title === "More"
+                                        ? "sticky right-0 bg-white"
+                                        : ""
+                                    }`}
                                     style={{
                                       whiteSpace: "nowrap",
                                       // overflow: "hidden",
@@ -2197,9 +2199,9 @@ const Userleads = ({
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -2264,12 +2266,14 @@ const Userleads = ({
                                   onClick={() => {
                                     handleSelectStage(item);
                                   }}
-                                  className={`p-2 border border-[#00000020] ${found >= 0 ? `bg-purple` : "bg-transparent"
-                                    } px-6
-                                                                    ${found >= 0
-                                      ? `text-white`
-                                      : "text-black"
-                                    } rounded-2xl`}
+                                  className={`p-2 border border-[#00000020] ${
+                                    found >= 0 ? `bg-purple` : "bg-transparent"
+                                  } px-6
+                                                                    ${
+                                                                      found >= 0
+                                                                        ? `text-white`
+                                                                        : "text-black"
+                                                                    } rounded-2xl`}
                                 >
                                   {item.stageTitle}
                                 </button>
@@ -2309,7 +2313,7 @@ const Userleads = ({
                             ////console.log("Can continue");
                             // setLeadsList([]);
                             // setFilterLeads([]);
-                            setShowFilterModal(false)
+                            setShowFilterModal(false);
                             setFiltersFromSelection();
 
                             // let filterText = getFilterText();
@@ -2504,7 +2508,14 @@ const Userleads = ({
       </div>
 
       {showDetailsModal && (
-        <div className="overflow-scroll" style={{ backgroundColor: '', height: window.innerHeight * 0.95, width: '100%' }}>
+        <div
+          className="overflow-scroll"
+          style={{
+            backgroundColor: "",
+            height: window.innerHeight * 0.95,
+            width: "100%",
+          }}
+        >
           <LeadDetails
             selectedLead={selectedLeadsDetails?.id}
             pipelineId={selectedLeadsDetails?.stage?.pipelineId}
@@ -2596,11 +2607,7 @@ const Userleads = ({
         </Box>
       </Modal>
 
-
-      <div>
-      </div>
-
-
+      <div></div>
     </div>
   );
 };
