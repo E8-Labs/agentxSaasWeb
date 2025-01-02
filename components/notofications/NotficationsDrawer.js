@@ -22,7 +22,6 @@ function NotficationsDrawer({ close, }) {
         getNotifications()
     }, [])
 
-
     const getNotifications = async () => {
         try {
             const user = localStorage.getItem("User")
@@ -88,17 +87,22 @@ function NotficationsDrawer({ close, }) {
                 </div>
             )
         } else if (item.type === NotificationTypes.Hotlead) {
-            return "/svgIcons/hotLeadNotIcon.svg"
+            // return "/svgIcons/hotLeadNotIcon.svg"
+            return <Image src={"/svgIcons/hotLeadNotIcon.svg"}
+                height={37}
+                width={37}
+                alt="*"
+            />
         } else if (item.type === NotificationTypes.TotalHotlead) {
             return (
                 <div className="flex rounded-full justify-center items-center bg-black text-white text-md" style={{ height: 37, width: 37 }}>
-                    {item.lead?.firstName[0]}
+                    {item.lead?.name[0]}
                 </div>
             )
         } else if (item.type === NotificationTypes.MeetingBooked) {
             return (
                 <div className="flex rounded-full justify-center items-center bg-black text-white text-md" style={{ height: 37, width: 37 }}>
-                    {item.lead?.firstName[0]}
+                    {item.lead?.name[0].toUpperCase()}
                 </div>
             )
         } else if (item.type === NotificationTypes.PaymentFailed) {

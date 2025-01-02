@@ -462,7 +462,7 @@ function BasicInfo() {
               <div style={{ fontSize: 14, fontWeight: '500' }}>
                 {item.subHeading}
               </div>
-              <Image src={selected?.id === item.id ? '/otherAssets/selectedTickBtn.png' : "/otherAssets/unSelectedTickBtn.png"}
+              <Image src={selected?.id === item.id ? '/otherAssets/selectedTickBtn.png' : "/otherAssets/unselectedTickBtn.png"}
                 height={24}
                 width={24}
                 alt='icon'
@@ -500,7 +500,7 @@ function BasicInfo() {
               <div style={{ fontSize: 14, fontWeight: '500' }}>
                 {item.subHeading}
               </div>
-              <Image src={selectedArea?.id === item.id ? '/otherAssets/selectedTickBtn.png' : "/otherAssets/unSelectedTickBtn.png"}
+              <Image src={selectedArea?.id === item.id ? '/otherAssets/selectedTickBtn.png' : "/otherAssets/unselectedTickBtn.png"}
                 height={24}
                 width={24}
                 alt='icon'

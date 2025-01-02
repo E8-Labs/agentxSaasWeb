@@ -152,7 +152,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
                     </div>
 
                     {/* Body */}
-                    <div className='flex flex-col items-center px-4 w-full h-[90%]'>
+                    <div className='flex flex-col items-center px-4 w-full h-[80%]'>
                         <div className='mt-4 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }} onClick={handleContinue}>
                             Which AgentX will you build?
                         </div>
@@ -197,17 +197,18 @@ const UserType = ({ handleContinue, DefaultData }) => {
 
 
                     </div>
+
+                    <div className='h-[10%] w-full'>
+                        <div>
+                            <ProgressBar value={value} />
+                        </div>
+
+                        <div className='mb-4' style={{ height: "40px" }}>
+                            <Footer handleContinue={handleNext} donotShowBack={true} shouldContinue={shouldContinue} />
+                        </div>
+                    </div>
                 </div>
 
-                <div className='h-[10%]'>
-                    <div>
-                        <ProgressBar value={value} />
-                    </div>
-
-                    <div className='mb-4' style={{ height: "40px" }}>
-                        <Footer handleContinue={handleNext} donotShowBack={true} shouldContinue={shouldContinue} />
-                    </div>
-                </div>
 
 
                 {/* Modals code goes here */}

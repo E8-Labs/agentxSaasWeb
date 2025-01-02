@@ -309,13 +309,13 @@ function SheduledCalls() {
                     />
                 </div>
 
-                <button>
+                {/* <button>
                     <Image src={'/otherAssets/filterBtn.png'}
                         height={36}
                         width={36}
                         alt='Search'
                     />
-                </button>
+                </button> */}
             </div>
 
             <div className='w-full flex flex-row justify-between mt-10 px-10'>

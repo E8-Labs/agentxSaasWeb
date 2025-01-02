@@ -1480,6 +1480,39 @@ const Userleads = ({
       >
         <div style={{ fontWeight: "700", fontSize: 25 }}>Leads</div>
         <div className="flex fex-row items-center gap-6">
+          <button
+            style={{
+              backgroundColor: toggleClick.length > 0 ? "#7902DF" : "",
+              color: toggleClick.length > 0 ? "white" : "#000000",
+            }}
+            className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
+            onClick={() => {
+              if (userLocalData.plan) {
+                setAssignLeadModal(true);
+              } else {
+                setSnackMessage("Add payment method to continue");
+                setShowSnackMessage(true)
+              }
+            }}
+            disabled={!toggleClick.length > 0}
+          >
+            {toggleClick.length > 0 ? (
+              <Image
+                src={"/assets/callBtnFocus.png"}
+                height={17}
+                width={17}
+                alt="*"
+              />
+            ) : (
+              <Image
+                src={"/assets/callBtn.png"}
+                height={17}
+                width={17}
+                alt="*"
+              />
+            )}
+            <span style={styles.heading}>Start Calling</span>
+          </button>
           <div className="flex flex-col">
             <NotficationsDrawer />
           </div>
@@ -1500,39 +1533,7 @@ const Userleads = ({
                                             Buy Lead
                                         </span>
                                     </div> */}
-                <button
-                  style={{
-                    backgroundColor: toggleClick.length > 0 ? "#7902DF" : "",
-                    color: toggleClick.length > 0 ? "white" : "#000000",
-                  }}
-                  className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
-                  onClick={() => {
-                    if (userLocalData.plan) {
-                      setAssignLeadModal(true);
-                    } else {
-                      setSnackMessage("Add payment method to continue");
-                      setShowSnackMessage(true)
-                    }
-                  }}
-                  disabled={!toggleClick.length > 0}
-                >
-                  {toggleClick.length > 0 ? (
-                    <Image
-                      src={"/assets/callBtnFocus.png"}
-                      height={17}
-                      width={17}
-                      alt="*"
-                    />
-                  ) : (
-                    <Image
-                      src={"/assets/callBtn.png"}
-                      height={17}
-                      width={17}
-                      alt="*"
-                    />
-                  )}
-                  <span style={styles.heading}>Start Calling</span>
-                </button>
+
 
                 <Modal
                   open={AssignLeadModal}
