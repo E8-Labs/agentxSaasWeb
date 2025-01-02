@@ -1,3 +1,4 @@
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import { Alert, Fade, Snackbar } from '@mui/material';
 import React, { useEffect, useState } from 'react'
 
@@ -12,41 +13,12 @@ const SnackMessages = ({ message, isVisible, setIsVisible, success = true }) => 
         <div>
             {/* Snack for Err Msg */}
             <div>
-                <Snackbar
-                    open={isVisible}
-                    autoHideDuration={3000}
-                    onClose={() => {
-                        setIsVisible(false);
-                    }}
-                    anchorOrigin={{
-                        vertical: "top",
-                        horizontal: "center",
-                    }}
-                    TransitionComponent={Fade}
-                    TransitionProps={{
-                        direction: "center",
-                    }}
-                >
-                    <Alert
-                        onClose={() => {
-                            setIsVisible(false)
-                        }}
-                        severity={success ? "success" : "error"}
-                        // className='bg-purple rounded-lg text-white'
-                        sx={{
-                            width: "auto",
-                            fontWeight: "700",
-                            fontFamily: "inter",
-                            fontSize: "22",
-                        }}
-                    >
-                        {message}
-                    </Alert>
-                </Snackbar>
+           
+                <AgentSelectSnackMessage isVisible={isVisible} hide={() => setIsVisible(false)} message={message} type={success ? SnackbarTypes.Success : SnackbarTypes.Error} />
             </div>
 
             {/* Code for success snack */}
-            
+
         </div>
     )
 }

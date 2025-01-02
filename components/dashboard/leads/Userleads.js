@@ -37,6 +37,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import LeadDetails from "./extras/LeadDetails";
 import getProfileDetails from "@/components/apis/GetProfile";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
+import AgentSelectSnackMessage, { SnackbarTypes } from "./AgentSelectSnackMessage";
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -52,6 +53,7 @@ const Userleads = ({
   //user local data
   const [userLocalData, setUserLocalData] = useState(null);
   const [snackMessage, setSnackMessage] = useState(null);
+  const [showsnackMessage, setShowSnackMessage] = useState(false);
 
   const [initialLoader, setInitialLoader] = useState(false);
   const [SheetsList, setSheetsList] = useState([]);
@@ -1471,6 +1473,7 @@ const Userleads = ({
 
   return (
     <div className="w-full flex flex-col items-center">
+      <AgentSelectSnackMessage isVisible={showsnackMessage} hide={() => setShowSnackMessage(false)} message={snackMessage} type={SnackbarTypes.Warning} />
       <div
         className="flex flex-row items-center justify-between w-full px-10 mt-4 pb-4"
         style={{ borderBottom: "1px solid #15151510" }}
@@ -1508,6 +1511,7 @@ const Userleads = ({
                       setAssignLeadModal(true);
                     } else {
                       setSnackMessage("Add payment method to continue");
+                      setShowSnackMessage(true)
                     }
                   }}
                   disabled={!toggleClick.length > 0}
@@ -2593,37 +2597,6 @@ const Userleads = ({
 
 
       <div>
-        <Snackbar
-          open={snackMessage}
-          autoHideDuration={3000}
-          onClose={() => {
-            setSnackMessage(null);
-          }}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-          TransitionComponent={Fade}
-          TransitionProps={{
-            direction: "center",
-          }}
-        >
-          <Alert
-            onClose={() => {
-              setSnackMessage(null);
-            }}
-            severity="error"
-            // className='bg-purple rounded-lg text-white'
-            sx={{
-              width: "auto",
-              fontWeight: "700",
-              fontFamily: "inter",
-              fontSize: "22",
-            }}
-          >
-            {snackMessage}
-          </Alert>
-        </Snackbar>
       </div>
 
 

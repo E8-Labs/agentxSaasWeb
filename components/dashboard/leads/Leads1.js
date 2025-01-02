@@ -20,6 +20,7 @@ import { useDropzone } from "react-dropzone";
 import * as XLSX from "xlsx";
 import Userleads from "./Userleads";
 import TagsInput from "./TagsInput";
+import AgentSelectSnackMessage, { SnackbarTypes } from "./AgentSelectSnackMessage";
 
 const Leads1 = () => {
 
@@ -45,6 +46,7 @@ const Leads1 = () => {
   //state to setdata when it is true;
   const [setData, setSetData] = useState(false);
   const [SuccessSnack, setSuccessSnack] = useState(null);
+  const [showSuccessSnack, setShowSuccessSnack] = useState(false);
   const [initialLoader, setInitialLoader] = useState(false);
   //File handling
   const [processedData, setProcessedData] = useState([]);
@@ -68,6 +70,7 @@ const Leads1 = () => {
 
   //warning snack
   const [errSnack, setErrSnack] = useState(null);
+  const [showerrSnack, setShowErrSnack] = useState(null);
 
   //my custom logic
   //This variable will contain all columns from the sheet that we will obtain from the sheet or add new
@@ -487,9 +490,11 @@ const Leads1 = () => {
       console.log("Al credentials not valid");
       if (!hasPhone) {
         setErrSnack("Phone number is required Can't upload leads without a phone")
+        setShowErrSnack(true)
       }
       if (!hasFullName) {
         setErrSnack("Name is required. Please define the name to continue")
+        setShowErrSnack(true)
       }
     }
   };
@@ -751,6 +756,7 @@ const Leads1 = () => {
           setAddNewLeadModal(false);
           setSetData(true);
           setSuccessSnack(response.data.message);
+          setShowSuccessSnack(true)
         }
       }
     } catch (error) {
@@ -885,6 +891,8 @@ const Leads1 = () => {
 
   return (
     <div className="w-full">
+      <AgentSelectSnackMessage isVisible={showSuccessSnack} message={SuccessSnack} hide={()=>setShowSuccessSnack(false)} type={SnackbarTypes.Success} />
+      <AgentSelectSnackMessage isVisible={showerrSnack} message={errSnack} hide={()=>setShowErrSnack(false)} type={SnackbarTypes.Error} />
       {initialLoader ? (
         <div className="w-full flex flex-row justify-center">
           <CircularProgress size={35} />
@@ -1902,74 +1910,6 @@ const Leads1 = () => {
             </div>
           </Box>
         </Modal>
-      </div>
-
-      <div>
-        <Snackbar
-          open={SuccessSnack}
-          autoHideDuration={3000}
-          onClose={() => {
-            setSuccessSnack(null);
-          }}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-          TransitionComponent={Fade}
-          TransitionProps={{
-            direction: "center",
-          }}
-        >
-          <Alert
-            onClose={() => {
-              setSuccessSnack(null);
-            }}
-            severity="success"
-            // className='bg-purple rounded-lg text-white'
-            sx={{
-              width: "auto",
-              fontWeight: "700",
-              fontFamily: "inter",
-              fontSize: "22",
-            }}
-          >
-            {SuccessSnack}
-          </Alert>
-        </Snackbar>
-      </div>
-
-      <div>
-        <Snackbar
-          open={errSnack}
-          autoHideDuration={3000}
-          onClose={() => {
-            setErrSnack(null);
-          }}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-          TransitionComponent={Fade}
-          TransitionProps={{
-            direction: "center",
-          }}
-        >
-          <Alert
-            onClose={() => {
-              setErrSnack(null);
-            }}
-            severity="error"
-            // className='bg-purple rounded-lg text-white'
-            sx={{
-              width: "auto",
-              fontWeight: "700",
-              fontFamily: "inter",
-              fontSize: "22",
-            }}
-          >
-            {errSnack}
-          </Alert>
-        </Snackbar>
       </div>
 
     </div>

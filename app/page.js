@@ -12,6 +12,7 @@ import { ArrowRight } from '@phosphor-icons/react/dist/ssr';
 import LoaderAnimation from '@/components/animations/LoaderAnimation';
 import SendVerificationCode from '@/components/onboarding/services/AuthVerification/AuthService';
 import SnackMessages from '@/components/onboarding/services/AuthVerification/SnackMessages';
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 
 const Page = ({ length = 6, onComplete }) => {
 
@@ -164,6 +165,8 @@ const Page = ({ length = 6, onComplete }) => {
     try {
       setSendcodeLoader(true);
       let response = await SendVerificationCode(userPhoneNumber, true);
+      console.log("Number for sending code is", userPhoneNumber)
+      // return
       setResponse(response)
       setIsVisible(true)
       console.log("Response recieved is", response);
@@ -407,7 +410,9 @@ const Page = ({ length = 6, onComplete }) => {
                     disabled={loading} // Disable input if still loading
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && userPhoneNumber && !errorMessage) {
-                        handleVerifyPopup();
+                        if (checkPhoneResponse === false) {
+                          handleVerifyPopup()
+                        }
                         // setShowVerifyPopup(true)
                       }
                     }}
@@ -447,7 +452,9 @@ const Page = ({ length = 6, onComplete }) => {
                     </div> :
                     <button className='text-black bg-transparent border border-[#000000] rounded-full' style={{ fontSize: 16, fontWeight: "600" }}
                       onClick={() => {
-                        handleVerifyPopup()
+                        if (checkPhoneResponse === false) {
+                          handleVerifyPopup()
+                        }
                         // setShowVerifyPopup(true)
                       }}
                     >
@@ -603,7 +610,7 @@ const Page = ({ length = 6, onComplete }) => {
                       width: InnerWidth < 540 ? '40px' : "40px",
                       height: InnerWidth < 540 ? '40px' : "40px",
                       textAlign: 'center',
-                      fontSize:  InnerWidth < 540 ? 15 : 20,
+                      fontSize: InnerWidth < 540 ? 15 : 20,
                       border: '1px solid #ccc',
                       borderRadius: '5px',
                     }}
@@ -641,9 +648,9 @@ const Page = ({ length = 6, onComplete }) => {
         </Box>
       </Modal>
 
-      <SnackMessages message={response.message} isVisible={isVisible} setIsVisible={(visible) => {
-        setIsVisible(visible)
-      }} success={response.status} />
+      <AgentSelectSnackMessage type={SnackbarTypes.Success} message={response.message} isVisible={isVisible} hide={() => {
+        setIsVisible(false)
+      }} />
 
     </div>
   )

@@ -39,6 +39,7 @@ import moment from "moment";
 import LeadDetails from "../dashboard/leads/extras/LeadDetails";
 import NotficationsDrawer from "../notofications/NotficationsDrawer";
 import CallWorthyReviewsPopup from "../dashboard/leads/CallWorthyReviewsPopup";
+import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
 // import "./TagsInput.css"; // Import the custom CSS
 // import TagsInput from '../dashboard/leads/TagsInput';
 
@@ -1209,6 +1210,7 @@ const Pipeline1 = () => {
 
   return (
     <div className="w-full flex flex-col items-start h-screen">
+      <AgentSelectSnackMessage type={SnackbarTypes.Success} isVisible={(SuccessSnack == null || SuccessSnack == false) ? false : true} hide={()=>setSuccessSnack(false)}  message={SuccessSnack}/>
       <div
         className="w-full flex flex-row justify-center"
         style={{ borderBottom: "1px solid #15151510" }}
@@ -2743,41 +2745,6 @@ const Pipeline1 = () => {
           </div>
         </Box>
       </Modal>
-
-      {/* code for showing snack bar */}
-      <div>
-        <Snackbar
-          open={SuccessSnack}
-          autoHideDuration={3000}
-          onClose={() => {
-            setSuccessSnack(null);
-          }}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-          TransitionComponent={Fade}
-          TransitionProps={{
-            direction: "center",
-          }}
-        >
-          <Alert
-            onClose={() => {
-              setSuccessSnack(null);
-            }}
-            // severity="success"
-            // className='bg-purple rounded-lg text-white'
-            sx={{
-              width: "auto",
-              fontWeight: "700",
-              fontFamily: "inter",
-              fontSize: "22",
-            }}
-          >
-            {SuccessSnack}
-          </Alert>
-        </Snackbar>
-      </div>
 
       {/* Code for rearranging stages */}
       <Modal

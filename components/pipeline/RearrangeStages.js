@@ -7,6 +7,7 @@ import Apis from "../apis/Apis";
 import axios from "axios";
 import ColorPicker from "../dashboardPipeline/ColorPicker";
 import TagsInput from "../dashboard/leads/TagsInput";
+import AgentSelectSnackMessage from "../dashboard/leads/AgentSelectSnackMessage";
 
 const RearrangeStages = ({
     stages,
@@ -287,6 +288,8 @@ const RearrangeStages = ({
 
     return (
         <DragDropContext onDragEnd={handleOnDragEnd}>
+            <AgentSelectSnackMessage isVisible={successSnack == false || successSnack == null ? false : true} hide={() => setSuccessSnack(false)} message={successSnack} type={SnackbarTypes.Success} />
+
             <Droppable droppableId="pipelineStages">
                 {(provided) => (
                     <div
@@ -443,7 +446,7 @@ const RearrangeStages = ({
                             {provided.placeholder}
                         </div>
 
-                        
+
 
 
 
@@ -738,39 +741,7 @@ const RearrangeStages = ({
                             </Box>
                         </Modal>
 
-                        <div>
-                            <Snackbar
-                                open={successSnack}
-                                autoHideDuration={3000}
-                                onClose={() => {
-                                    setSuccessSnack(null);
-                                }}
-                                anchorOrigin={{
-                                    vertical: "top",
-                                    horizontal: "center",
-                                }}
-                                TransitionComponent={Fade}
-                                TransitionProps={{
-                                    direction: "center",
-                                }}
-                            >
-                                <Alert
-                                    onClose={() => {
-                                        setSuccessSnack(null);
-                                    }}
-                                    severity="success"
-                                    // className='bg-purple rounded-lg text-white'
-                                    sx={{
-                                        width: "auto",
-                                        fontWeight: "700",
-                                        fontFamily: "inter",
-                                        fontSize: "22",
-                                    }}
-                                >
-                                    {successSnack}
-                                </Alert>
-                            </Snackbar>
-                        </div>
+                       
                     </div>
                 )}
             </Droppable>

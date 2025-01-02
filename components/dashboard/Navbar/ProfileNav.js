@@ -6,6 +6,8 @@ import { Alert, Box, CircularProgress, Fade, Link, Modal, Snackbar } from '@mui/
 import getProfileDetails from '@/components/apis/GetProfile';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
+import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
+
 
 const ProfileNav = () => {
 
@@ -21,7 +23,9 @@ const ProfileNav = () => {
 
   //snack messages variables
   const [successSnack, setSuccessSnack] = useState(null);
+  const [showsuccessSnack, setShowSuccessSnack] = useState(null);
   const [errorSnack, setErrorSnack] = useState(null);
+  const [showerrorSnack, setShowErrorSnack] = useState(null);
 
   const plans = [
     {
@@ -226,9 +230,11 @@ const ProfileNav = () => {
           await getProfileDetails();
           // localStorage.setItem("User", JSON.stringify(localDetails));
           setSuccessSnack(response.data.message);
+          setShowSuccessSnack(true)
           setShowPlansPopup(false);
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
+          setShowErrorSnack(true)
         }
       }
 
@@ -302,6 +308,8 @@ const ProfileNav = () => {
 
   return (
     <div>
+      <AgentSelectSnackMessage isVisible={showsuccessSnack} hide={()=>setShowSuccessSnack(false)} message={successSnack} type={SnackbarTypes.Success}/>
+      <AgentSelectSnackMessage isVisible={showerrorSnack} hide={()=>setShowErrorSnack(false)} message={errorSnack} type={SnackbarTypes.Error}/>
       <div className='w-full pt-10 flex flex-col items-center'
         style={{ height: '90vh', overflow: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', }}
       >
@@ -478,78 +486,6 @@ const ProfileNav = () => {
           </Box>
         </Modal>
       </div>
-
-      <div>
-        <Snackbar
-          open={errorSnack}
-          autoHideDuration={3000}
-          onClose={() => {
-            setErrorSnack(null);
-          }}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-          TransitionComponent={Fade}
-          TransitionProps={{
-            direction: "center",
-          }}
-        >
-          <Alert
-            onClose={() => {
-              setErrorSnack(null);
-            }}
-            severity="error"
-            // className='bg-purple rounded-lg text-white'
-            sx={{
-              width: "auto",
-              fontWeight: "700",
-              fontFamily: "inter",
-              fontSize: "22",
-            }}
-          >
-            {errorSnack}
-          </Alert>
-        </Snackbar>
-      </div>
-
-      {/* Code for success snack */}
-      <div>
-        <Snackbar
-          open={successSnack}
-          autoHideDuration={3000}
-          onClose={() => {
-            setSuccessSnack(null);
-          }}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-          TransitionComponent={Fade}
-          TransitionProps={{
-            direction: "center",
-          }}
-        >
-          <Alert
-            onClose={() => {
-              setSuccessSnack(null);
-            }}
-            severity="success"
-            // className='bg-purple rounded-lg text-white'
-            sx={{
-              width: "auto",
-              fontWeight: "700",
-              fontFamily: "inter",
-              fontSize: "22",
-            }}
-          >
-            {successSnack}
-          </Alert>
-        </Snackbar>
-      </div>
-
-
-
     </div >
   );
 }

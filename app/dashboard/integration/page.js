@@ -7,6 +7,7 @@ import axios from 'axios'
 import Apis from '@/components/apis/Apis'
 import { CaretDown, CaretUp, Copy } from '@phosphor-icons/react'
 import CallWorthyReviewsPopup from '@/components/dashboard/leads/CallWorthyReviewsPopup'
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 
 
 
@@ -153,6 +154,7 @@ function Page() {
 
   return (
     <div className='w-full flex flex-col items-center'>
+      <AgentSelectSnackMessage isVisible={showCopySnak} hide={() => setShowCopySnak(false)} message={"Api key copoed"} type={SnackbarTypes.Success} />
       <div className=' w-full flex flex-row justify-between items-center py-4 px-10'
         style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
       >
@@ -419,27 +421,6 @@ function Page() {
         </div>
 
         <div>
-          <Snackbar
-            open={showCopySnak}
-            autoHideDuration={3000}
-            onClose={() => { setShowCopySnak(false) }}
-
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'center'
-            }}
-            // TransitionComponent={"Fade"}
-            TransitionProps={{
-              direction: 'center'
-            }}
-          >
-            <Alert
-              onClose={() => { setShowCopySnak(false) }}
-              // severity=''
-              sx={{ width: 'auto', fontWeight: '700', fontFamily: 'inter', fontSize: '22' }}>
-              Api key copied
-            </Alert>
-          </Snackbar>
         </div>
       </div>
     </div>

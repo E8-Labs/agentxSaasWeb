@@ -24,6 +24,7 @@ import parsePhoneNumberFromString from "libphonenumber-js";
 import moment from "moment";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import AgentSelectSnackMessage, { SnackbarTypes } from "../AgentSelectSnackMessage";
 
 const LeadDetails = ({
   showDetailsModal,
@@ -78,7 +79,9 @@ const LeadDetails = ({
 
   //code for snakbars
   const [showSuccessSnack, setShowSuccessSnack] = useState(null);
+  const [showSuccessSnack2, setShowSuccessSnack2] = useState(false);
   const [showErrorSnack, setShowErrorSnack] = useState(null);
+  const [showErrorSnack2, setShowErrorSnack2] = useState(false);
 
   //code for delete lead
   const [delLeadLoader, setDelLeadLoader] = useState(false);
@@ -131,8 +134,10 @@ const LeadDetails = ({
         console.log("response of update api is", response.data);
         if (response.data.status === true) {
           setShowSuccessSnack(response.data.message);
+          setShowSuccessSnack2(true)
         } else if (response.data.status === false) {
           setShowErrorSnack(response.data.message);
+          setShowErrorSnack2(true)
         }
       }
     } catch (error) {
@@ -536,6 +541,8 @@ const LeadDetails = ({
           }}
         >
           <div className="w-full flex flex-col items-center h-full">
+            <AgentSelectSnackMessage isVisible={showSuccessSnack2}  hide={()=>setShowSuccessSnack2(false) } message={showSuccessSnack} type={SnackbarTypes.Success} />
+            <AgentSelectSnackMessage isVisible={showErrorSnack2}  hide={()=>setShowErrorSnack2(false) } message={showErrorSnack2} type={SnackbarTypes.Error} />
             {/* <div className='flex flex-row justify-between items-center'>
                             <div style={{ fontWeight: "500", fontSize: 16.9 }}>
                                 Details
@@ -1764,76 +1771,6 @@ const LeadDetails = ({
           </div>
         </Box>
       </Modal>
-
-      {/* Success snack bar */}
-      <div>
-        <Snackbar
-          open={showSuccessSnack}
-          autoHideDuration={3000}
-          onClose={() => {
-            setShowSuccessSnack(null);
-          }}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-          TransitionComponent={Fade}
-          TransitionProps={{
-            direction: "center",
-          }}
-        >
-          <Alert
-            onClose={() => {
-              setShowSuccessSnack(null);
-            }}
-            severity="success"
-            // className='bg-purple rounded-lg text-white'
-            sx={{
-              width: "auto",
-              fontWeight: "700",
-              fontFamily: "inter",
-              fontSize: "22",
-            }}
-          >
-            {showSuccessSnack}
-          </Alert>
-        </Snackbar>
-      </div>
-
-      {/* Error snack bar message */}
-      <div>
-        <Snackbar
-          open={showErrorSnack}
-          autoHideDuration={3000}
-          onClose={() => {
-            setShowErrorSnack(null);
-          }}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-          TransitionComponent={Fade}
-          TransitionProps={{
-            direction: "center",
-          }}
-        >
-          <Alert
-            onClose={() => {
-              setShowErrorSnack(null);
-            }}
-            severity="error"
-            // className='bg-purple rounded-lg text-white'
-            sx={{
-              width: "auto",
-              fontWeight: "700",
-              fontFamily: "inter",
-              fontSize: "22",
-            }}
-          >
-            {showErrorSnack}
-          </Alert>
-        </Snackbar>
-      </div>
     </div>
   );
 };

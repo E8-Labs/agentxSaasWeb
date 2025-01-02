@@ -21,7 +21,7 @@ export default function AgentSelectSnackMessage({
       return "/assets/salmanassets/danger_conflict.svg";
     }
     if (type == SnackbarTypes.Success) {
-      return "/assets/salmanassets/danger_conflict.svg";
+      return "/svgIcons/successMsgIcon.svg";
     }
     if (type == SnackbarTypes.Warning) {
       return "/assets/salmanassets/danger_conflict.svg";
@@ -34,13 +34,20 @@ export default function AgentSelectSnackMessage({
   // const SelectAgentErrorTimeout = 4000; //change this to change the duration of the snack timer
 
   useEffect(() => {
-    if (message) {
-      setTimeout(() => {
-        // setErrorMessage(null);
-        hide();
-      }, time);
-    }
-  }, [message]);
+    console.log("UseEffect")
+      if(isVisible){
+        let timer = setTimeout(() => {
+          // setErrorMessage(null);
+          console.log("Timer hit")
+          hide();
+        }, time);
+        return () => {
+          console.log("Clearing timer")
+          clearTimeout(timer )
+        }
+      }
+   
+  }, [isVisible]);
 
   return (
     isVisible && (
@@ -50,6 +57,7 @@ export default function AgentSelectSnackMessage({
           position: "absolute",
           left: "50%",
           translate: "-50%",
+          top:10
           // display: isVisible ? "flex" : "hidden",
         }}
       >

@@ -1,4 +1,5 @@
 import Apis from '@/components/apis/Apis';
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import { Alert, Box, CircularProgress, Fade, Modal, Popover, Snackbar, TextareaAutosize } from '@mui/material';
 import { CaretDown, CaretUp, DotsThree } from '@phosphor-icons/react';
 import axios from 'axios';
@@ -283,6 +284,9 @@ const Objection = ({ showTitle, selectedAgentId }) => {
 
   return (
     <div>
+      <AgentSelectSnackMessage isVisible={showSuccessSnack == false || showSuccessSnack == null ? false : true} hide={() => setShowSuccessSnack(false)} message={showSuccessSnack} type={SnackbarTypes.Success} />
+      <AgentSelectSnackMessage isVisible={showErrorSnack == false || showErrorSnack == null ? false : true} hide={() => setShowErrorSnack(false)} message={showErrorSnack} type={SnackbarTypes.Error} />
+
 
       {
         showTitle && (
@@ -457,78 +461,6 @@ const Objection = ({ showTitle, selectedAgentId }) => {
           </div>
         </Box>
       </Modal>
-
-      {/* Snack for Err Msg */}
-      <div>
-        <Snackbar
-          open={showErrorSnack}
-          autoHideDuration={3000}
-          onClose={() => {
-            setShowErrorSnack(null);
-          }}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-          TransitionComponent={Fade}
-          TransitionProps={{
-            direction: "center",
-          }}
-        >
-          <Alert
-            onClose={() => {
-              setShowErrorSnack(null);
-            }}
-            severity="error"
-            // className='bg-purple rounded-lg text-white'
-            sx={{
-              width: "auto",
-              fontWeight: "700",
-              fontFamily: "inter",
-              fontSize: "22",
-            }}
-          >
-            {showErrorSnack}
-          </Alert>
-        </Snackbar>
-      </div>
-
-      {/* Code for success snack */}
-      <div>
-        <Snackbar
-          open={showSuccessSnack}
-          autoHideDuration={3000}
-          onClose={() => {
-            setShowSuccessSnack(null);
-          }}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-          TransitionComponent={Fade}
-          TransitionProps={{
-            direction: "center",
-          }}
-        >
-          <Alert
-            onClose={() => {
-              setShowSuccessSnack(null);
-            }}
-            severity="success"
-            // className='bg-purple rounded-lg text-white'
-            sx={{
-              width: "auto",
-              fontWeight: "700",
-              fontFamily: "inter",
-              fontSize: "22",
-            }}
-          >
-            {showSuccessSnack}
-          </Alert>
-        </Snackbar>
-      </div>
-
-
     </div>
   )
 }

@@ -7,6 +7,7 @@ import Apis from "../apis/Apis";
 import axios from "axios";
 import ColorPicker from "../dashboardPipeline/ColorPicker";
 import TagsInput from "../dashboard/leads/TagsInput";
+import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
 
 const PipelineStages = ({
     stages,
@@ -451,6 +452,7 @@ const PipelineStages = ({
                                         }}
                                         className="flex flex-row items-start"
                                     >
+                                        <AgentSelectSnackMessage isVisible={successSnack == false || successSnack == null ? false:true} hide={()=>setSuccessSnack(false)} message={successSnack} type={SnackbarTypes.Success}/>
                                         <div className="w-[5%]">
                                             {
                                                 index > 0 && (
@@ -1477,39 +1479,7 @@ const PipelineStages = ({
                             </Box>
                         </Modal>
 
-                        <div>
-                            <Snackbar
-                                open={successSnack}
-                                autoHideDuration={3000}
-                                onClose={() => {
-                                    setSuccessSnack(null);
-                                }}
-                                anchorOrigin={{
-                                    vertical: "top",
-                                    horizontal: "center",
-                                }}
-                                TransitionComponent={Fade}
-                                TransitionProps={{
-                                    direction: "center",
-                                }}
-                            >
-                                <Alert
-                                    onClose={() => {
-                                        setSuccessSnack(null);
-                                    }}
-                                    severity="success"
-                                    // className='bg-purple rounded-lg text-white'
-                                    sx={{
-                                        width: "auto",
-                                        fontWeight: "700",
-                                        fontFamily: "inter",
-                                        fontSize: "22",
-                                    }}
-                                >
-                                    {successSnack}
-                                </Alert>
-                            </Snackbar>
-                        </div>
+                        
                     </div>
                 )}
             </Droppable>

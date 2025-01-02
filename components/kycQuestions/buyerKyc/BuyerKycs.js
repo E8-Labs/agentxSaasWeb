@@ -10,6 +10,7 @@ import { Box, style } from '@mui/system';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import { KycCategory } from '@/components/constants/constants';
+import AgentSelectSnackMessage from '@/components/dashboard/leads/AgentSelectSnackMessage';
 
 const BuyerKycs = ({ handleContinue }) => {
 
@@ -413,6 +414,7 @@ const BuyerKycs = ({ handleContinue }) => {
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
+            <AgentSelectSnackMessage isVisible={showErrorSnack} hide={() => setShowErrorSnack(false)} message={showErrorSnack} />
             <div className='bg-white rounded-2xl w-10/12 h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple flex flex-col justify-between'>
                 <div className='h-[80vh]'>
                     {/* header */}
@@ -652,39 +654,6 @@ const BuyerKycs = ({ handleContinue }) => {
                                         </div>
 
                                         {/* Error snack bar message */}
-                                        <div>
-                                            <Snackbar
-                                                open={showErrorSnack}
-                                                autoHideDuration={3000}
-                                                onClose={() => {
-                                                    setShowErrorSnack(null);
-                                                }}
-                                                anchorOrigin={{
-                                                    vertical: "top",
-                                                    horizontal: "center",
-                                                }}
-                                                TransitionComponent={Fade}
-                                                TransitionProps={{
-                                                    direction: "center",
-                                                }}
-                                            >
-                                                <Alert
-                                                    onClose={() => {
-                                                        setShowErrorSnack(null);
-                                                    }}
-                                                    severity="error"
-                                                    // className='bg-purple rounded-lg text-white'
-                                                    sx={{
-                                                        width: "auto",
-                                                        fontWeight: "700",
-                                                        fontFamily: "inter",
-                                                        fontSize: "22",
-                                                    }}
-                                                >
-                                                    {showErrorSnack}
-                                                </Alert>
-                                            </Snackbar>
-                                        </div>
 
                                         {/* Can be use full to add shadow */}
                                         {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}

@@ -35,6 +35,7 @@ import UserCalender from "@/components/dashboard/myagentX/UserCallender";
 import CircularLoader from "@/utilities/CircularLoader";
 import imageCompression from 'browser-image-compression';
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
+import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 
 function Page() {
   const timerRef = useRef();
@@ -126,6 +127,12 @@ function Page() {
   const containerRef = useRef(null); // Ref to the scrolling container
   const [showSuccessSnack, setShowSuccessSnack] = useState(null);
   const [showErrorSnack, setShowErrorSnack] = useState(null);
+
+  //for updated snack
+  const [isVisibleSnack, setIsVisibleSnack] = useState(null);
+  const [isVisibleSnack2, setIsVisibleSnack2] = useState(null);
+
+
   const [testAIloader, setTestAIloader] = useState(false);
   const [uniqueColumns, setUniqueColumns] = useState([]);
   const [showMoreUniqueColumns, setShowMoreUniqueColumns] = useState(false);
@@ -566,6 +573,7 @@ function Page() {
       if (response) {
         console.log("Respose of reassign api is:", response.data.data);
         setShowSuccessSnack(response.data.message);
+        setIsVisibleSnack(true)
         // AssignNumber()
         // setShowClaimPopup(null);
         setAssignNumber(item.phoneNumber.slice(1));
@@ -789,6 +797,7 @@ function Page() {
         console.log("Respons eof update api is", response.data.data);
         if (response.data.status === true) {
           setShowSuccessSnack(response.data.message);
+          setIsVisibleSnack(true)
 
           const localAgentsList = localStorage.getItem("localAgentDetails");
 
@@ -895,6 +904,7 @@ function Page() {
           setShowScript(false);
           setSeledtedScriptKYC(false);
           setSeledtedScriptAdvanceSetting(false);
+          setShowDrawer(null);
         }
       }
     } catch (error) {
@@ -954,6 +964,7 @@ function Page() {
         //console.log("Response of assign number api is :", response.data)
         if (response.data.status === true) {
           setShowSuccessSnack(response.data.message);
+          setIsVisibleSnack(true)
           setShowConfirmationModal(null);
           setAgentsContent((prevAgents) =>
             prevAgents.map((agent) =>
@@ -975,6 +986,7 @@ function Page() {
           // localStorage.setItem("claimNumberData", JSON.stringify(calimNoData))
         } else if (response.data.status === false) {
           setShowErrorSnack(response.data.message);
+          setIsVisibleSnack2(true)
         }
       }
     } catch (error) {
@@ -1216,6 +1228,7 @@ function Page() {
       if (response) {
         //console.log("Response of test AI api is :", response);
         setShowSuccessSnack(response.data.message);
+        setIsVisibleSnack(true)
         if (response.data.status === true) {
           setOpenTestAiModal(false);
           setName("");
@@ -1530,6 +1543,20 @@ function Page() {
 
   return (
     <div className="w-full flex flex-col items-center">
+
+      {/* Global snack */}
+      {/* Success snack bar */}
+      <div>
+        <AgentSelectSnackMessage
+          isVisible={isVisibleSnack}
+          hide={() => { setIsVisibleSnack(false) }}
+          type={SnackbarTypes.Success} message={showSuccessSnack} />
+      </div>
+       <div>
+      
+        <AgentSelectSnackMessage isVisible={isVisibleSnack2} hide={()=>setIsVisibleSnack2(false)} message={showErrorSnack}  type={SnackbarTypes.Error}/>
+      </div>
+
       <div
         className="w-full flex flex-row justify-between items-center py-4 px-10"
         style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
@@ -2209,75 +2236,10 @@ function Page() {
         </Box>
       </Modal>
 
-      {/* Success snack bar */}
-      <div>
-        <Snackbar
-          open={showSuccessSnack}
-          autoHideDuration={3000}
-          onClose={() => {
-            setShowSuccessSnack(null);
-          }}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-          TransitionComponent={Fade}
-          TransitionProps={{
-            direction: "center",
-          }}
-        >
-          <Alert
-            onClose={() => {
-              setShowSuccessSnack(null);
-            }}
-            severity="success"
-            // className='bg-purple rounded-lg text-white'
-            sx={{
-              width: "auto",
-              fontWeight: "700",
-              fontFamily: "inter",
-              fontSize: "22",
-            }}
-          >
-            {showSuccessSnack}
-          </Alert>
-        </Snackbar>
-      </div>
+
 
       {/* Error snack bar message */}
-      <div>
-        <Snackbar
-          open={showErrorSnack}
-          autoHideDuration={3000}
-          onClose={() => {
-            setShowErrorSnack(null);
-          }}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-          TransitionComponent={Fade}
-          TransitionProps={{
-            direction: "center",
-          }}
-        >
-          <Alert
-            onClose={() => {
-              setShowErrorSnack(null);
-            }}
-            severity="error"
-            // className='bg-purple rounded-lg text-white'
-            sx={{
-              width: "auto",
-              fontWeight: "700",
-              fontFamily: "inter",
-              fontSize: "22",
-            }}
-          >
-            {showErrorSnack}
-          </Alert>
-        </Snackbar>
-      </div>
+     
 
       {/* drawer */}
 
@@ -2672,7 +2634,7 @@ function Page() {
                     }}
                   >
                     <Box className="w-full">
-                      
+
                       <FormControl className="w-full">
                         <Select
                           ref={selectRef}
@@ -3933,6 +3895,7 @@ function Page() {
           </div>
         </Box>
       </Modal>
+
     </div>
   );
 }

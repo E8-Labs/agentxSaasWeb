@@ -8,6 +8,7 @@ import AddCardDetails from '../createagent/addpayment/AddCardDetails';
 import { loadStripe } from '@stripe/stripe-js';
 import moment from 'moment';
 import getProfileDetails from '../apis/GetProfile';
+import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage';
 
 
 let stripePublickKey = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production" ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
@@ -502,6 +503,8 @@ function Billing() {
                 WebkitOverflowScrolling: 'touch',
             }}
         >
+            <AgentSelectSnackMessage isVisible={errorSnack == null ? false : true} hide={()=>{setErrorSnack(false)} } message={errorSnack} />
+            <AgentSelectSnackMessage isVisible={successSnack == null ? false : true} hide={()=>{setSuccessSnack(false)} } message={setSuccessSnack} type={SnackbarTypes.Success} />
             <div className="w-full flex flex-row items-center justify-between">
                 <div className="flex flex-col">
                     <div
@@ -1181,80 +1184,6 @@ function Billing() {
                     </div>
                 </Box>
             </Modal>
-
-
-
-            <div>
-                <Snackbar
-                    open={errorSnack}
-                    autoHideDuration={3000}
-                    onClose={() => {
-                        setErrorSnack(null);
-                    }}
-                    anchorOrigin={{
-                        vertical: "top",
-                        horizontal: "center",
-                    }}
-                    TransitionComponent={Fade}
-                    TransitionProps={{
-                        direction: "center",
-                    }}
-                >
-                    <Alert
-                        onClose={() => {
-                            setErrorSnack(null);
-                        }}
-                        severity="error"
-                        // className='bg-purple rounded-lg text-white'
-                        sx={{
-                            width: "auto",
-                            fontWeight: "700",
-                            fontFamily: "inter",
-                            fontSize: "22",
-                        }}
-                    >
-                        {errorSnack}
-                    </Alert>
-                </Snackbar>
-            </div>
-
-            {/* Code for success snack */}
-            <div>
-                <Snackbar
-                    open={successSnack}
-                    autoHideDuration={3000}
-                    onClose={() => {
-                        setSuccessSnack(null);
-                    }}
-                    anchorOrigin={{
-                        vertical: "top",
-                        horizontal: "center",
-                    }}
-                    TransitionComponent={Fade}
-                    TransitionProps={{
-                        direction: "center",
-                    }}
-                >
-                    <Alert
-                        onClose={() => {
-                            setSuccessSnack(null);
-                        }}
-                        severity="success"
-                        // className='bg-purple rounded-lg text-white'
-                        sx={{
-                            width: "auto",
-                            fontWeight: "700",
-                            fontFamily: "inter",
-                            fontSize: "22",
-                        }}
-                    >
-                        {successSnack}
-                    </Alert>
-                </Snackbar>
-            </div>
-
-
-
         </div>
     );
 }

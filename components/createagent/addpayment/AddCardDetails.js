@@ -7,6 +7,7 @@ import { toast } from 'react-toastify'
 import axios from 'axios'
 import Image from 'next/image';
 import Apis from '@/components/apis/Apis';
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 // import Apis from '../Apis/Apis';
 
 const AddCardDetails = ({
@@ -347,6 +348,10 @@ const AddCardDetails = ({
 
     return (
         <div style={{ width: '100%' }}>
+            <AgentSelectSnackMessage isVisible={credentialsErr} hide={()=>setCredentialsErr(false)} message={"Add a payment source to continue"}/>
+            <AgentSelectSnackMessage isVisible={addCardFailure} hide={()=>setAddCardFailure(false)} message={addCardErrtxt}/>
+            <AgentSelectSnackMessage isVisible={addCardSuccess} hide={()=>setAddCardSuccess(false)} type={SnackbarTypes.Success} message={"Card added successfully"}/>
+            
             <div className='mt-8'>
                 <div style={{ fontWeight: "400", fontFamily: "inter", fontSize: 13, color: "#4F5B76" }}
                 >
@@ -486,86 +491,6 @@ const AddCardDetails = ({
                             }
                         </div>
                 }
-            </div>
-            <div>
-                <Snackbar
-                    open={credentialsErr}
-                    autoHideDuration={3000}
-                    onClose={() => {
-                        setCredentialsErr(false);
-                        setAddCardLoader(false);
-                    }}
-                    anchorOrigin={{
-                        vertical: 'top',
-                        horizontal: 'center'
-                    }}
-                    TransitionComponent={Fade}
-                    TransitionProps={{
-                        direction: 'center'
-                    }}
-                >
-                    <Alert
-                        onClose={() => {
-                            setCredentialsErr(false);
-                            setAddCardLoader(false);
-                        }} severity="error"
-                        sx={{ width: 'auto', fontWeight: '700', fontFamily: 'inter', fontSize: '22' }}>
-                        Add a payment source to continue
-                    </Alert>
-                </Snackbar>
-            </div>
-            <div>
-                <Snackbar
-                    open={addCardFailure}
-                    // autoHideDuration={3000}
-                    onClose={() => {
-                        setAddCardFailure(false)
-                    }}
-                    anchorOrigin={{
-                        vertical: 'top',
-                        horizontal: 'center'
-                    }}
-                    TransitionComponent={Fade}
-                    TransitionProps={{
-                        direction: 'center'
-                    }}
-                >
-                    <Alert
-                        onClose={() => {
-                            setAddCardFailure(false)
-                        }} severity="error"
-                        sx={{ width: 'auto', fontWeight: '700', fontFamily: 'inter', fontSize: '22' }}>
-                        {/* {addCardDetails} */}
-                        {/* Card not added */}
-                        {addCardErrtxt}
-                    </Alert>
-                </Snackbar>
-            </div>
-            <div>
-                <Snackbar
-                    open={addCardSuccess}
-                    autoHideDuration={3000}
-                    onClose={() => {
-                        setAddCardSuccess(false)
-                    }}
-                    anchorOrigin={{
-                        vertical: 'top',
-                        horizontal: 'center'
-                    }}
-                    TransitionComponent={Fade}
-                    TransitionProps={{
-                        direction: 'center'
-                    }}
-                >
-                    <Alert
-                        onClose={() => {
-                            setAddCardSuccess(false)
-                        }} severity="success"
-                        sx={{ width: 'auto', fontWeight: '700', fontFamily: 'inter', fontSize: '22' }}>
-                        {/* {addCardDetails} */}
-                        Card added successfully
-                    </Alert>
-                </Snackbar>
             </div>
         </div>
     )

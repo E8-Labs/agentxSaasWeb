@@ -21,6 +21,7 @@ import axios from "axios";
 import { CaretDown, Minus, YoutubeLogo } from "@phosphor-icons/react";
 import PipelineStages from "./PipelineStages";
 import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
+import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
 
 const Pipeline1 = ({ handleContinue }) => {
   const router = useRouter();
@@ -506,6 +507,8 @@ const Pipeline1 = ({ handleContinue }) => {
       style={{ width: "100%" }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
+      <AgentSelectSnackMessage isVisible={reorderSuccessBar == null || reorderSuccessBar == false?false:true} hide={()=>setReorderSuccessBar(false)} message={reorderSuccessBar} time={SnackbarTypes.Success} />
+      <AgentSelectSnackMessage isVisible={showRearrangeErr == null || reorderSuccessBar == false?false:true} hide={()=>setShowRearrangeErr(false)} message={showRearrangeErr} time={SnackbarTypes.Error} />
       <div
         className="bg-white rounded-2xl w-10/12 h-[100%] py-4 flex flex-col justify-between" //overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
@@ -739,74 +742,6 @@ const Pipeline1 = ({ handleContinue }) => {
         </div>
       </div>
 
-      {/* code for showing snack bar */}
-      <div>
-        <Snackbar
-          open={reorderSuccessBar}
-          autoHideDuration={3000}
-          onClose={() => {
-            setReorderSuccessBar(null);
-          }}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-          TransitionComponent={Fade}
-          TransitionProps={{
-            direction: "center",
-          }}
-        >
-          <Alert
-            onClose={() => {
-              setReorderSuccessBar(null);
-            }}
-            severity="success"
-            // className='bg-purple rounded-lg text-white'
-            sx={{
-              width: "auto",
-              fontWeight: "700",
-              fontFamily: "inter",
-              fontSize: "22",
-            }}
-          >
-            {reorderSuccessBar}
-          </Alert>
-        </Snackbar>
-      </div>
-
-      <div>
-        <Snackbar
-          open={showRearrangeErr}
-          autoHideDuration={3000}
-          onClose={() => {
-            setShowRearrangeErr(false);
-          }}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-          TransitionComponent={Fade}
-          TransitionProps={{
-            direction: "center",
-          }}
-        >
-          <Alert
-            onClose={() => {
-              setShowRearrangeErr(false);
-            }}
-            severity="error"
-            // className='bg-purple rounded-lg text-white'
-            sx={{
-              width: "auto",
-              fontWeight: "700",
-              fontFamily: "inter",
-              fontSize: "22",
-            }}
-          >
-            Cannot rearrange stages while a stage expanded.
-          </Alert>
-        </Snackbar>
-      </div>
 
     </div>
   );
