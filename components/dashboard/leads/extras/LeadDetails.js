@@ -829,7 +829,7 @@ const LeadDetails = ({
                       </div>
                     </div>
 
-                    <div className="flex flex-row items--center w-full justify-between mt-4">
+                    <div className="flex flex-row items-center w-full justify-between mt-4">
                       <div className="flex flex-row items-center gap-2">
                         <Image
                           src={"/assets/tag.png"}
@@ -842,7 +842,7 @@ const LeadDetails = ({
                       {selectedLeadsDetails?.tags.length > 0 ? (
                         <div
                           className="text-end flex flex-row items-center gap-2"
-                          style={styles.paragraph}
+                          // style={styles.paragraph}
                         >
                           {
                             // selectedLeadsDetails?.tags?.map.slice(0, 1)
@@ -854,9 +854,9 @@ const LeadDetails = ({
                                     key={index}
                                     className="flex flex-row items-center gap-2"
                                   >
-                                    <div className="flex flex-row items-center gap-2 bg-[#402FFF17] px-2 py-1 rounded-lg">
+                                    <div className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg">
                                       <div
-                                        className="text-[#402FFF]" //1C55FF10
+                                        className="text-purple" //1C55FF10
                                       >
                                         {tag}
                                       </div>
@@ -874,7 +874,7 @@ const LeadDetails = ({
                                           <X
                                             size={15}
                                             weight="bold"
-                                            color="#402fff"
+                                            color="#7902DF"
                                           />
                                         </button>
                                       )}
