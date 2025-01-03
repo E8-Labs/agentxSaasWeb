@@ -82,7 +82,11 @@ const Apis = {
 
   getImportantCalls: `${BasePath}api/leads/importantCalls`,
 
-  updateProfileApi:`${BasePath}api/user/updateProfile`
+  updateProfileApi: `${BasePath}api/user/updateProfile`,
+
+  getTeam: `${BasePath}api/team/getTeamMembers`,
+  inviteTeamMember: `${BasePath}api/team/inviteTeamMember`,
+  updateProfileApi:`${BasePath}api/user/updateProfile`,
 
 };
 

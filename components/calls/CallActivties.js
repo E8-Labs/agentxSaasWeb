@@ -911,16 +911,13 @@ export const ShowConfirmationPopup = ({
                   width={18}
                   alt="*"
                 />
-                <p>
-                  <i
-                    className="text-red"
-                    style={{
-                      fontSize: 16,
-                      fontWeight: "600",
-                    }}
-                  >
-                    Are you sure you want to {showConfirmationPopuup}
-                  </i>
+                <p
+                  className="text-black"
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "600",
+                  }}>
+                  Are you sure you want to {showConfirmationPopuup}
                 </p>
               </div>
             </div>

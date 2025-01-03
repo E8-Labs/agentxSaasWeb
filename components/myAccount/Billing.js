@@ -888,7 +888,9 @@ function Billing() {
                   </div>
                 </div>
                 <div className="w-3/12">
-                  <div style={styles.text2}>{item.price.toFixed(2)}$</div>
+                  <div style={styles.text2}>
+                    ${item.price.toFixed(2)}
+                  </div>
                 </div>
                 <div className="w-3/12 items-start">
                   <div
@@ -969,7 +971,7 @@ function Billing() {
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
                   togglePlan={""}
-                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>
@@ -1183,7 +1185,7 @@ function Billing() {
                     outline: "none",
                   }}
                   onClick={handleCancelPlan}
-                  // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
+                // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
                 >
                   Yes. Cancel
                 </button>

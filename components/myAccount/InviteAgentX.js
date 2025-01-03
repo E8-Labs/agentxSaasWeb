@@ -230,7 +230,7 @@ function InviteAgentX() {
             </div>
 
             <div
-                className="w-10/12 p-6 rounded-lg flex flex-row justify-between items-center"
+                className="w-10/12 p-6 rounded-lg flex flex-row items-center"
                 style={{
                     backgroundImage: 'url(/assets/cardBg.png)',
                     backgroundSize: 'cover',
@@ -244,18 +244,18 @@ function InviteAgentX() {
             >
                 {/* Left Section */}
                 <div className="flex flex-col pt-5">
-                    <div style={{ fontSize: "2vh", fontWeight: '700', marginBottom: '10px', width: '25vw' }}>
+                    <div style={{ fontSize: "2vh", fontWeight: '700', marginBottom: '10px', }}>
                         Get 60 minutes when you invite an agent
                     </div>
-                    <p style={{ fontSize: '15px', fontWeight: '400', lineHeight: '1.5', width: '27vw' }}>
-                        You and the agent you invite both get 60 minutes of talk time. The
+                    <p style={{ fontSize: '15px', fontWeight: '400', lineHeight: '1.5', width: '90%' }}>
+                        You and the agent you invite both get 30 minutes of talk time. The
                         more agents you invite, the more you get. Everybody wins. The agents
                         can use this code at checkout.
                     </p>
                 </div>
 
                 {/* Right Section */}
-                <div className="flex flex-col items-start">
+                {/* <div className="flex flex-col items-start">
                     <div
                         className="flex flex-row items-center gap-2"
                         style={{ marginBottom: '10px', fontSize: '14px', fontWeight: '500' }}
@@ -273,7 +273,7 @@ function InviteAgentX() {
                         }
                     </h2>
 
-                </div>
+                </div> */}
             </div>
 
             {
@@ -383,11 +383,36 @@ function InviteAgentX() {
                         }
                     </div>
                 ) : (
-                    <div className='w-full flex flex-row items-center justify-center'>
-                        <Image src={"/otherAssets/inviteAgentXImage.png"}
-                            height={350} width={350} alt='image'
-                            style={{ alignSelf: 'center', marginTop: '3vh' }}
+                    <div style={{ alignSelf: 'center' }} className='w-10/12 flex flex-col justify-center items-center'>
+                        <Image src={"/svgIcons/balloons.svg"}
+                            width={600} height={428} alt='image'
+                            style={{}}
                         />
+
+                        <div className='w-8/12 flex flex-col items-start rounded-lg p-2 bg-purple -mt-20 '>
+                            <div
+                                className="flex flex-row items-center gap-2"
+                                style={{ fontSize: '15px', fontWeight: '600', color: '#fff' }}
+                            >
+                                <img
+                                    src="/otherAssets/tagIcon.png"
+                                    alt="Tag Icon"
+                                    style={{ height: '16px', width: '16px' }}
+                                />
+                                Code
+                            </div>
+                            <div style={{
+                                fontSize: "5svw", color: '#fff', fontWeight: '700', alignSelf: 'center',
+                                background: 'linear-gradient(to top, #ffffff40, #ffffff)',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                color: 'transparent'
+                            }}>
+                                {userDetails?.plan && userDetails?.isTrial === false ? userDetails?.myInviteCode ? userDetails?.myInviteCode : "N/A" : "N/A"}
+                            </div>
+                        </div>
+
+
                     </div>
                 )
             }

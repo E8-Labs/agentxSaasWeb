@@ -75,10 +75,10 @@ function MyPhoneNumber() {
             <div className='w-full flex flex-col items-start gap-4 mt-10'>
                 {
                     loading ? (
-                        <CircularProgress style={{alignSelf:'center'}} size={45} />
+                        <CircularProgress style={{ alignSelf: 'center' }} size={45} />
                     ) :
-                        numbers.map((item) => (
-                            <div key={item.id} className='w-7/12 flex'>
+                        numbers.map((item, index) => (
+                            <div key={index} className='w-7/12 flex'>
                                 {/* <button className='w-full flex'
                             > */}
                                 <div className='w-full border rounded-lg p-4'>

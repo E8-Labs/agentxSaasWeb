@@ -117,7 +117,7 @@ const ProfileNav = () => {
       id: 7,
       name: 'Team',
       href: '/dashboard/team',
-      selected: '/svgIcons/selectedTeamIcon.svg',
+      selected: '/svgIcons/selectedTeam.svg',
       uneselected: '/svgIcons/unSelectedTeamIcon.svg'
     },
     // {

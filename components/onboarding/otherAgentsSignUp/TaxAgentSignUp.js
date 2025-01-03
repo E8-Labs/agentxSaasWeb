@@ -132,7 +132,7 @@ const TaxAgentSignUp = ({ handleContinue, handleTaxAgentBack, length = 6, onComp
         const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`, countryCode.toUpperCase());
         // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
         if (!parsedNumber || !parsedNumber.isValid()) {
-            setErrorMessage('Invalid number');
+            setErrorMessage('Invalid');
         } else {
             setErrorMessage('');
 
@@ -529,8 +529,8 @@ const TaxAgentSignUp = ({ handleContinue, handleTaxAgentBack, length = 6, onComp
                                     }
 
                                     if (!validateEmail(value)) {
-                                        console.log("Invalid email pattern")
-                                        setValidEmail("Invalid email");
+                                        console.log("Invalid pattern")
+                                        setValidEmail("Invalid");
                                     } else {
                                         console.log("No trigered")
                                         if (value) {

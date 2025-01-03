@@ -251,9 +251,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
         if (!parsedNumber || !parsedNumber.isValid()) {
             if (e) {
-                setOfficeErrorMessage('Invalid number');
+                setOfficeErrorMessage('Invalid');
             } else {
-                setErrorMessage('Invalid number');
+                setErrorMessage('Invalid');
             }
         } else {
             setErrorMessage('');

@@ -2,9 +2,12 @@
 
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { TextField, Button, Box } from '@mui/material';
+import { TextField, Button, Box, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import getProfileDetails from '../apis/GetProfile';
+import { UpdateProfile } from '../apis/UpdateProfile';
+import Apis from '../apis/Apis';
+import axios from 'axios';
 
 
 function BasicInfo() {
@@ -16,6 +19,10 @@ function BasicInfo() {
   const [focusedTransaction, setFocusedTransaction] = useState(false);
   const [focusedEmail, setFocusedEmail] = useState(false);
 
+  //my variable
+  const [serviceId, setServiceId] = useState([]);
+  const [servicesData, setServicesData] = useState([]);
+
 
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -24,12 +31,35 @@ function BasicInfo() {
   const [brokerAge, setBrokerAge] = useState("")
   const [phone, setPhone] = useState("")
 
-  const [selected, setSelected] = useState(null)
-  const [selectedArea, setSelectedArea] = useState(null);
+
+  const [isNameChanged, setIsNameChanged] = useState(false)
+  const [isTransactionChanged, setIsTransactionChange] = useState("")
+  const [isFarmChanged, setIsFarmChanged] = useState(false)
+  const [isBrokerageChanged, setIsBrokerageChanged] = useState(false)
+
+  const [agentServices, setAgentServices] = useState([])
+  const [agentAreasOfFocus, setAgentAreasOfFocus] = useState([])
+
+  const [loading, setloading] = useState(false)
+  const [loading2, setloading2] = useState(false)
+  const [loading3, setloading3] = useState(false)
+  const [loading4, setloading4] = useState(false)
+  const [srviceLoader, setServiceLoader] = useState(false)
+  const [areaLoading, setAreaLoading] = useState(false)
+
+  const [selected, setSelected] = useState([])
+  const [selectedArea, setSelectedArea] = useState([]);
 
   //code for image select and drag and drop
   const [selectedImage, setSelectedImage] = useState(null);
   const [dragging, setDragging] = useState(false);
+
+
+
+  const [originalSelectedArea, setOriginalSelectedArea] = useState([]); // To track initial state
+  const [originalSelectedService, setOriginalSelectedService] = useState([]); // To track initial state
+
+
 
   //user details
   const [UserDetails, setUserDetails] = useState(null);
@@ -47,9 +77,45 @@ function BasicInfo() {
       setTransaction(userData?.user?.averageTransactionPerYear);
       setBrokerAge(userData?.user?.brokerage);
       setPhone(userData?.user?.phone);
+
+      // Initialize arrays to hold services and areas of focus
+      const servicesArray = [];
+      const focusAreasArray = [];
+
+      // Pre-populate selected services and areas based on the user profile
+      userData?.user?.services?.forEach(item => {
+        servicesArray.push(item.agentService); // Add the full object or only IDs as needed
+      });
+
+      userData?.user?.focusAreas?.forEach(item => {
+        focusAreasArray.push(item.areaOfFocus); // Add the full object or only IDs as needed
+      });
+
+      setServiceId(servicesArray);
+
+      // Set default selected areas and services
+      // setSelected(servicesArray); // Default select services
+      setSelectedArea(focusAreasArray); // Default select areas of focus
+
+      setOriginalSelectedArea(focusAreasArray); // Save the initial state
+      setOriginalSelectedService(servicesArray)
+
+
     }
+
     getProfile();
   }, []);
+
+  const hasAreaFocusChanged = () => {
+    if (selectedArea.length !== originalSelectedArea.length) return true;
+    return selectedArea.includes((id) => !originalSelectedArea.includes(id));
+  };
+
+  const hasServiceChanged = () => {
+    if (serviceId.length !== originalSelectedService.length) return true;
+    return serviceId.includes((id) => !originalSelectedService.includes(id));
+  };
+
 
   //function to fetch the profile data
   const getProfile = async () => {
@@ -63,15 +129,21 @@ function BasicInfo() {
   }
 
   //function to handle image selection
-  const handleImageChange = (event) => {
+  const handleImageChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(imageUrl);
+      let data = new FormData()
+
+      data.append("profile_image", imageUrl)
     }
+    setloading(true)
+    await UpdateProfile(data)
+    setSelectedImage(imageUrl);
+    setloading(false)
   };
 
-  const handleDrop = (event) => {
+  const handleDrop = async (event) => {
     event.preventDefault();
     setDragging(false);
     const file = event.dataTransfer.files[0];
@@ -89,50 +161,6 @@ function BasicInfo() {
   const handleDragLeave = () => {
     setDragging(false);
   };
-
-  const agentHelps = [
-    {
-      id: 1,
-      heading: 'Qualify Buyers & Sellers',
-      subHeading: 'Determine if the person is a qualified buyer/seller, if pre-qualified, or working with agent.',
-
-    }, {
-      id: 2,
-      heading: 'Follow up and Nurture',
-      subHeading: 'Engage in conversation to build a dialogue with customers.',
-
-    }, {
-      id: 3,
-      heading: 'Property Search & Selection',
-      subHeading: 'Provide access to properties matching the criteria and arrange property viewings.',
-
-    }, {
-      id: 4,
-      heading: 'Financing Assistance',
-      subHeading: 'Assist in providing mortgage financing insights. Provide information on available financing options.',
-
-    }, {
-      id: 5,
-      heading: 'Market Analysis & Advice',
-      subHeading: 'Offer insights into market trends and property values. Provide advice on the local property market.',
-
-    }, {
-      id: 6,
-      heading: 'Property Valuation & Pricing Strategy',
-      subHeading: 'Conduct a Comparative Market Analysis (CMA) to determine the market value.',
-
-    }, {
-      id: 7,
-      heading: 'Customer Service',
-      subHeading: 'Keep clients informed throughout the process. Address questions and concerns promptly.',
-
-    }, {
-      id: 8,
-      heading: 'Closing Assistance',
-      subHeading: 'Ensure all necessary documents and steps are taken to a close the deal in a proper fashion.',
-
-    },
-  ]
 
   const areas = [
     {
@@ -173,6 +201,186 @@ function BasicInfo() {
     },
   ]
 
+  useEffect(() => {
+    getAgentDefaultData()
+  }, [])
+
+
+  const getAgentDefaultData = async () => {
+    try {
+      setServiceLoader(true);
+      let data = localStorage.getItem("User")
+      if (data) {
+        let d = JSON.parse(data)
+        let AgentTypeTitle = d.user.userType
+        console.log('AgentTypeTitle is', AgentTypeTitle)
+
+        const ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`;
+        console.log("Api link is:--", ApiPath);
+        const response = await axios.get(ApiPath, {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (response) {
+          console.log("Response of services api is : -----", response.data);
+          setAgentServices(response.data.data.agentServices);
+          setAgentAreasOfFocus(response.data.data.areaOfFocus)
+        } else {
+          alert(response.data.message)
+        }
+      }
+
+    } catch (error) {
+      setServiceLoader(false)
+      console.error("ERror occured in default data api is :----", error);
+    } finally {
+      setServiceLoader(false);
+    }
+  }
+
+
+  const handleNameSave = async () => {
+    try {
+      setloading(true)
+
+      let data = {
+        name: name
+      }
+      await UpdateProfile(data)
+      setloading(false)
+      setIsNameChanged(false)
+    } catch (e) {
+      console.log('error in updating', e)
+    }
+  }
+
+  const handleFarmSave = async () => {
+    try {
+      setloading2(true)
+
+      let data = {
+        farm: farm
+      }
+      await UpdateProfile(data)
+      setloading2(false)
+      setIsFarmChanged(false)
+    } catch (e) {
+      console.log('error in updating', e)
+    }
+  }
+
+  const handleBrokerAgeSave = async () => {
+    try {
+      setloading3(true)
+
+      let data = {
+        brokerage: brokerAge
+      }
+      await UpdateProfile(data)
+      setloading3(false)
+      setIsBrokerageChanged(false)
+    } catch (e) {
+      console.log('error in updating', e)
+    }
+  }
+
+  const handleTransactionSave = async () => {
+    try {
+      setloading4(true)
+      let data = {
+        averageTransactionPerYear: transaction
+      }
+      await UpdateProfile(data)
+      setloading4(false)
+
+      setIsTransactionChange(false)
+    } catch (e) {
+      console.log('error in updating', e)
+    }
+  }
+
+
+  // const handleServiceSelect = (item) => {
+  // setSelected((prev) => {
+  // const isSelected = prev.some((selectedItem) => selectedItem.id === item.id); // Check if the item is already selected
+
+  // if (isSelected) {
+  // // If already selected, remove the item from the array
+  // return prev.filter((selectedItem) => selectedItem.id !== item.id);
+  // } else {
+  // // If not selected, add the full item to the array
+  // return [...prev, item];
+  // }
+  // });
+  // };
+
+  const handleserviceId = (id) => {
+    // setServiceId(prevId => (prevId === id ? null : id));
+    setServiceId((prevIds) => {
+      if (prevIds.includes(id)) {
+        // Unselect the item if it's already selected
+        return prevIds.filter((prevId) => prevId !== id);
+      } else {
+        // Select the item if it's not already selected
+        return [...prevIds, id];
+      }
+    });
+  }
+
+  const handleAreaSelect = (id) => {
+    setSelectedArea((prevIds) => {
+      if (prevIds.includes(id)) {
+        // Unselect the item if it's already selected
+        return prevIds.filter((prevId) => prevId !== id);
+      } else {
+        // Select the item if it's not already selected
+        return [...prevIds, id];
+      }
+    })
+
+  };
+
+  useEffect(() => {
+    console.log('selected', selected)
+  }, [selected])
+
+
+  const handleAreaChange = async () => {
+    try {
+      setAreaLoading(true)
+      let data = {
+        areaOfFocus: [selectedArea.join()]
+      }
+      console.log('data is', data)
+      // return
+
+      await UpdateProfile(data)
+      setOriginalSelectedArea([...selectedArea]);
+      setAreaLoading(false)
+    } catch (e) {
+      console.log('error in updating', e)
+    }
+  }
+
+  const handleServiceChange = async () => {
+    try {
+      setServiceLoader(true)
+      let data = {
+        agentService: [serviceId.join()]
+      }
+      console.log('data is', data)
+      console.log("Services id is", [serviceId.join()])
+      // return
+
+      await UpdateProfile(data)
+      setOriginalSelectedService([...serviceId]);
+      setServiceLoader(false)
+    } catch (e) {
+      console.log('error in updating', e)
+    }
+  }
 
 
 
@@ -223,6 +431,7 @@ function BasicInfo() {
               <Image src={selectedImage}
                 height={74}
                 width={74}
+                style={{ borderRadius: '50%' }}
                 alt='profileImage'
               />
             </div>
@@ -271,15 +480,22 @@ function BasicInfo() {
           value={name}
           onChange={(event) => {
             setName(event.target.value)
+            setIsNameChanged(true)
           }}
           type="text"
           placeholder="Name"
           style={{ border: '0px solid #7902DF', outline: "none" }}
         />
         {
-          name.length > 0 && (
-            <button style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}>Save</button>
-          )
+          isNameChanged && (
+            loading ? (
+              <CircularProgress size={20} />
+            ) : (
+              <button onClick={async () => { handleNameSave() }}
+                style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}>
+                Save
+              </button>
+            ))
         }
       </div>
 
@@ -301,15 +517,23 @@ function BasicInfo() {
           value={farm}
           onChange={(event) => {
             setFarm(event.target.value)
+            setIsFarmChanged(true)
+
           }}
           type="text"
           placeholder="Farm"
           style={{ border: '0px solid #000000', outline: "none" }}
         />
         {
-          farm.length > 0 && (
-            <button style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}>Save</button>
-          )
+          isFarmChanged && (
+            loading2 ? (
+              <CircularProgress size={20} />
+            ) : (
+              <button onClick={async () => { handleFarmSave() }}
+                style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}>
+                Save
+              </button>
+            ))
         }
       </div>
 
@@ -332,15 +556,23 @@ function BasicInfo() {
           value={brokerAge}
           onChange={(event) => {
             setBrokerAge(event.target.value)
+            setIsBrokerageChanged(true)
           }}
           type="text"
           placeholder="Brokerage"
           style={{ border: '0px solid #000000', outline: "none" }}
         />
         {
-          brokerAge.length > 0 && (
-            <button style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}>Save</button>
-          )
+          isBrokerageChanged && (
+            loading3 ? (
+              <CircularProgress size={20} />
+            ) : (
+              <button onClick={async () => { handleBrokerAgeSave() }}
+                style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}>
+                Save
+              </button>
+            ))
+
         }
       </div>
 
@@ -357,21 +589,31 @@ function BasicInfo() {
         }}
       >
         <input
+          type='number'
           className='w-11/12 outline-none focus:ring-0'
           onFocus={() => setFocusedTransaction(true)}
           onBlur={() => setFocusedTransaction(false)}
           value={transaction}
           onChange={(event) => {
             setTransaction(event.target.value)
+            setIsTransactionChange(true)
           }}
-          type="text"
           placeholder="Value"
           style={{ border: '0px solid #000000', outline: "none" }}
         />
         {
-          transaction.length > 0 && (
-            <button style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}>Save</button>
-          )
+          isTransactionChanged && (
+            loading4 ? (
+              <CircularProgress size={20} />
+            ) : (
+              <button onClick={async () => {
+
+                handleTransactionSave()
+              }}
+                style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}>
+                Save
+              </button>
+            ))
         }
       </div>
 
@@ -379,8 +621,6 @@ function BasicInfo() {
       <div style={{ fontSize: 16, fontWeight: '700', color: '#000', marginTop: "4vh" }}>
         Email address
       </div>
-
-
       <div
         className='flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 outline-none focus:ring-0'
         style={{
@@ -388,9 +628,10 @@ function BasicInfo() {
         }}
       >
         <input
+          readOnly
           className='w-11/12 outline-none focus:ring-0'
-          onFocus={() => setFocusedEmail(true)}
-          onBlur={() => setFocusedEmail(false)}
+          // onFocus={() => setFocusedEmail(true)}
+          // onBlur={() => setFocusedEmail(false)}
           value={email}
           onChange={(event) => {
             setEmail(event.target.value)
@@ -400,69 +641,79 @@ function BasicInfo() {
           style={{ border: '0px solid #000000', outline: "none" }}
         />
         {/* {
-          email.length > 0 && (
-            <button style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}>Save</button>
-          )
-        } */}
+ email.length > 0 && (
+ <button style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}>Save</button>
+ )
+ } */}
       </div>
 
       <div style={{ fontSize: 16, fontWeight: '700', color: '#000', marginTop: "4vh" }}>
         Phone number
       </div>
-
-
       <div
-        className='flex items-center rounded-lg px-3 py-2 w-6/12 mt-5'
-      // style={{
-      //   border: `1px solid ${focusedEmail ? "#8a2be2" : '#00000010'}`, transition: "border-color 0.3s ease",
-      // }}
+        className='flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 outline-none focus:ring-0'
+        style={{
+          border: `1px solid ${focusedEmail ? "#8a2be2" : '#00000010'}`, transition: "border-color 0.3s ease",
+        }}
       >
         <input
-          className='w-11/12'
+          readOnly
+          className='w-11/12 outline-none focus:ring-0'
           // onFocus={() => setFocusedEmail(true)}
           // onBlur={() => setFocusedEmail(false)}
           value={phone}
           onChange={(event) => {
-            setPhone(event.target.value)
+            // setEmail(event.target.value)
           }}
           type="text"
-          placeholder="Phone"
-          style={{ border: 'none', outline: "none" }}
+          placeholder="Email"
+          style={{ border: '0px solid #000000', outline: "none" }}
         />
-        {/* {
-          email.length > 0 && (
-            <button style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}>Save</button>
-          )
-        } */}
+
+
       </div>
 
-      <div style={{ fontSize: 16, fontWeight: '700', color: '#000', marginTop: "4vh", marginBottom: '2vh' }}>
-        What would you like Agentx to help you with
-      </div>
 
+      <div className='w-full flex flex-row items-center justify-between'>
+        <div style={{ fontSize: 16, fontWeight: '700', color: '#000', marginTop: "4vh", marginBottom: '2vh' }}>
+          What would you like Agentx to help you with
+        </div>
+        {
+          serviceId.length > 0 && hasServiceChanged() && (
+            srviceLoader
+              ? (
+                <CircularProgress size={20} />
+              ) : (
+                <button onClick={async () => { handleServiceChange() }}
+                  style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}>
+                  Save
+                </button>
+              ))
+        }
+      </div>
 
       <div className='w-9/12 flex flex-row flex-wrap gap-2'>
         {
-          agentHelps.map((item) => (
-            <div key={item.id} className='w-5/12 p-4 flex flex-col gap-2 items-start rounded-2xl'
+          agentServices.map((item, index) => (
+            <div key={index} className='w-5/12 p-4 flex flex-col gap-2 items-start rounded-2xl'
               style={{
-                borderWidth: 2, borderColor: selected?.id === item.id ? '#7902DF' : '#00000008',
-                backgroundColor: selected?.id === item.id ? '#7902DF05' : 'transparent', cursor: 'pointer'
+                borderWidth: 2, borderColor: serviceId.includes(item.id) ? '#7902DF' : '#00000008',
+                backgroundColor: serviceId.includes(item.id) ? '#7902DF05' : 'transparent', cursor: 'pointer'
               }}
 
               onClick={() => {
-                setSelected(item)
+                handleserviceId(item.id)
               }}
             >
 
               <div style={{ fontSize: 15, fontWeight: '700' }}>
-                {item.heading}
+                {item.title}
               </div>
 
               <div style={{ fontSize: 14, fontWeight: '500' }}>
-                {item.subHeading}
+                {item.description}
               </div>
-              <Image src={selected?.id === item.id ? '/otherAssets/selectedTickBtn.png' : "/otherAssets/unselectedTickBtn.png"}
+              <Image src={serviceId.includes(item.id) ? '/otherAssets/selectedTickBtn.png' : "/otherAssets/unselectedTickBtn.png"}
                 height={24}
                 width={24}
                 alt='icon'
@@ -475,32 +726,48 @@ function BasicInfo() {
 
       </div>
 
-      <div style={{ fontSize: 16, fontWeight: '700', color: '#000', marginTop: "4vh", marginBottom: '2vh' }}>
-        What area of real estate do you focus on?
+      <div className='w-full flex flex-row items-center justify-between'>
+
+        <div style={{ fontSize: 16, fontWeight: '700', color: '#000', marginTop: "4vh", marginBottom: '2vh' }}>
+          What area of real estate do you focus on?
+        </div>
+        {
+          selectedArea.length > 0 && hasAreaFocusChanged() && (
+            areaLoading
+              ? (
+                <CircularProgress size={20} />
+              ) : (
+                <button onClick={async () => { handleAreaChange() }}
+                  style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}>
+                  Save
+                </button>
+              ))
+        }
+
       </div>
 
 
-      <div className='w-9/12 flex flex-row flex-wrap gap-2  '>
+      <div className='w-9/12 flex flex-row flex-wrap gap-2 '>
         {
-          areas.map((item) => (
-            <div key={item.id} className='w-5/12 p-4 flex flex-col justify-betweeen items-start rounded-2xl'
+          agentAreasOfFocus.map((item, index) => (
+            <div key={index} className='w-5/12 p-4 flex flex-col justify-betweeen items-start rounded-2xl'
               style={{
-                borderWidth: 2, borderColor: selectedArea?.id === item.id ? '#7902DF' : '#00000008',
-                backgroundColor: selectedArea?.id === item.id ? '#7902DF05' : 'transparent', cursor: 'pointer'
+                borderWidth: 2, borderColor: selectedArea.includes(item.id) ? '#7902DF' : '#00000008',
+                backgroundColor: selectedArea.includes(item.id) ? '#7902DF05' : 'transparent', cursor: 'pointer'
               }}
               onClick={() => {
-                setSelectedArea(item)
+                handleAreaSelect(item.id)
               }}
             >
 
               <div style={{ fontSize: 15, fontWeight: '700' }}>
-                {item.heading}
+                {item.title}
               </div>
 
               <div style={{ fontSize: 14, fontWeight: '500' }}>
-                {item.subHeading}
+                {item.description}
               </div>
-              <Image src={selectedArea?.id === item.id ? '/otherAssets/selectedTickBtn.png' : "/otherAssets/unselectedTickBtn.png"}
+              <Image src={selectedArea.includes(item.id) ? '/otherAssets/selectedTickBtn.png' : "/otherAssets/unselectedTickBtn.png"}
                 height={24}
                 width={24}
                 alt='icon'
