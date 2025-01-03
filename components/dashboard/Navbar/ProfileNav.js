@@ -348,13 +348,13 @@ const ProfileNav = () => {
       </div>
 
       <div
-        className='w-full flex flex-row items-start justify-center h-[10%]'
+        className='w-full flex flex-row items-start justify-center h-[10%] pt-2'
         style={{
-
+          borderTop: "1px solid #00000010"
         }}>
         <button
           onClick={() => { router.push("/dashboard/myAccount") }}
-          className='w-9/12 border border-[#00000015] rounded-[10px] flex flex-row items-start gap-3 px-4 py-2 truncate outline-none text-start'
+          className='w-11/12  flex flex-row items-start gap-3 px-4 py-2 truncate outline-none text-start'  //border border-[#00000015] rounded-[10px]
           style={{ textOverflow: "ellipsis" }}>
           <div className='h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center'>
             {userDetails?.user?.name.slice(0, 1).toUpperCase()}
@@ -363,7 +363,7 @@ const ProfileNav = () => {
             <div className='truncate' style={{ fontSize: 15, fontWeight: "500", color: "", width: "100px" }}>
               {userDetails?.user?.name}
             </div>
-            <div className='truncate w-[100px]' style={{ fontSize: 15, fontWeight: "500", color: "#15151560", textOverflow: "ellipsis" }}>
+            <div className='truncate w-[120px]' style={{ fontSize: 15, fontWeight: "500", color: "#15151560", textOverflow: "ellipsis" }}>
               {userDetails?.user?.email}
             </div>
           </div>

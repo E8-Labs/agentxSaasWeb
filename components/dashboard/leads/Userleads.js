@@ -54,6 +54,7 @@ const Userleads = ({
   //user local data
   const [userLocalData, setUserLocalData] = useState(null);
   const [snackMessage, setSnackMessage] = useState(null);
+  const [messageType, setMessageType] = useState(null);
   const [showsnackMessage, setShowSnackMessage] = useState(false);
 
   const [initialLoader, setInitialLoader] = useState(false);
@@ -1272,8 +1273,20 @@ const Userleads = ({
   };
 
   //close assign lead modal
-  const handleCloseAssignLeadModal = (status) => {
+  const handleCloseAssignLeadModal = ({ status, showSnack, disSelectLeads }) => {
     setAssignLeadModal(status);
+    console.log("Show the snack status", showSnack)
+    console.log("Disselect leads selected", disSelectLeads)
+    setSnackMessage(showSnack);
+    if (disSelectLeads === true) {
+      setToggleClick([]);
+      setShowSnackMessage(true);
+      setMessageType(SnackbarTypes.Success);
+    } else if (disSelectLeads === false) {
+      setShowSnackMessage(true);
+      setMessageType(SnackbarTypes.Error);
+      // setToggleClick([])
+    }
   };
 
   //code for handle search change
@@ -1471,7 +1484,7 @@ const Userleads = ({
         isVisible={showsnackMessage}
         hide={() => setShowSnackMessage(false)}
         message={snackMessage}
-        type={SnackbarTypes.Warning}
+        type={messageType}
       />
       <div
         className="flex flex-row items-center justify-between w-full px-10 mt-4 pb-4"
@@ -1491,6 +1504,7 @@ const Userleads = ({
               } else {
                 setSnackMessage("Add payment method to continue");
                 setShowSnackMessage(true);
+                setMessageType(SnackbarTypes.Warning)
               }
             }}
             disabled={!toggleClick.length > 0}
@@ -1575,7 +1589,7 @@ const Userleads = ({
                           <AssignLead
                             selectedLead={toggleClick}
                             handleCloseAssignLeadModal={
-                              handleCloseAssignLeadModal
+                              handleCloseAssignLeadModal //(false, showSnack, disSelectLeads)
                             }
                             leadIs={toggleClick}
                           />
@@ -1755,8 +1769,8 @@ const Userleads = ({
             <div
               className="flex flex-row items-center mt-8 gap-2"
               style={styles.paragraph}
-              // className="flex flex-row items-center mt-8 gap-2"
-              // style={{ ...styles.paragraph, overflowY: "hidden" }}
+            // className="flex flex-row items-center mt-8 gap-2"
+            // style={{ ...styles.paragraph, overflowY: "hidden" }}
             >
               <div
                 className="flex flex-row items-center gap-2 w-full"
@@ -1787,8 +1801,8 @@ const Userleads = ({
                         color: SelectedSheetId === item.id ? "#7902DF" : "",
                         whiteSpace: "nowrap", // Prevent text wrapping
                       }}
-                      // className='flex flex-row items-center gap-1 px-3'
-                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
+                    // className='flex flex-row items-center gap-1 px-3'
+                    // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
                     >
                       <button
                         style={styles.paragraph}
@@ -1957,11 +1971,10 @@ const Userleads = ({
                               return (
                                 <th
                                   key={index}
-                                  className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${
-                                    isMoreColumn
-                                      ? "sticky right-0 bg-white"
-                                      : ""
-                                  }`}
+                                  className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn
+                                    ? "sticky right-0 bg-white"
+                                    : ""
+                                    }`}
                                   // style={isMoreColumn ? { zIndex: 1 } : {}}
                                   style={{
                                     whiteSpace: "nowrap",
@@ -1988,11 +2001,10 @@ const Userleads = ({
                                   // <td key={colIndex} className="border-none px-4 py-2">
                                   <td
                                     key={colIndex}
-                                    className={`border-none px-4 py-2 ${
-                                      column.title === "More"
-                                        ? "sticky right-0 bg-white"
-                                        : ""
-                                    }`}
+                                    className={`border-none px-4 py-2 ${column.title === "More"
+                                      ? "sticky right-0 bg-white"
+                                      : ""
+                                      }`}
                                     style={{
                                       whiteSpace: "nowrap",
                                       // overflow: "hidden",
@@ -2199,9 +2211,9 @@ const Userleads = ({
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -2266,14 +2278,12 @@ const Userleads = ({
                                   onClick={() => {
                                     handleSelectStage(item);
                                   }}
-                                  className={`p-2 border border-[#00000020] ${
-                                    found >= 0 ? `bg-purple` : "bg-transparent"
-                                  } px-6
-                                                                    ${
-                                                                      found >= 0
-                                                                        ? `text-white`
-                                                                        : "text-black"
-                                                                    } rounded-2xl`}
+                                  className={`p-2 border border-[#00000020] ${found >= 0 ? `bg-purple` : "bg-transparent"
+                                    } px-6
+                                                                    ${found >= 0
+                                      ? `text-white`
+                                      : "text-black"
+                                    } rounded-2xl`}
                                 >
                                   {item.stageTitle}
                                 </button>

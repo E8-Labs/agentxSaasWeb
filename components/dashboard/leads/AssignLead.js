@@ -34,12 +34,14 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
 
   //new code by salman
   const [errorMessage, setErrorMessage] = useState(null);
+  const [errTitle, setErrTitle] = useState(null);
   const SelectAgentErrorTimeout = 4000; //change this to change the duration of the snack timer
 
   useEffect(() => {
     if (errorMessage) {
       setTimeout(() => {
         setErrorMessage(null);
+        setErrTitle(null);
       }, SelectAgentErrorTimeout);
     }
   }, [errorMessage]);
@@ -208,8 +210,9 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
       } else {
         console.log("Pipeline does not match");
         if (!errorMessage) {
+          setErrTitle("Pipeline Confilict")
           setErrorMessage(
-            "You can’t assign leads to agents to different pipelines"
+            "You can’t assign leads to agents in different pipelines"
           );
         }
         return 2;
@@ -229,6 +232,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
             if (stage.id == selectedStage.id) {
               console.log("Agents in same stage so can not assign");
               if (!errorMessage) {
+                setErrTitle("Conflicting Agents")
                 setErrorMessage(
                   "You can’t assign leads to agents in the same stage"
                 );
@@ -253,7 +257,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
     // });
   };
 
-  const handleAssigLead = async () => {
+  const handleAssignLead = async () => {
     try {
       setLoader(true);
 
@@ -315,9 +319,19 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
       if (response) {
         console.log("Response of api is:", response);
         if (response.data.status === true) {
-          handleCloseAssignLeadModal(false);
+          handleCloseAssignLeadModal({
+            status: false,
+            showSnack: "Lead assigned",
+            disSelectLeads: true
+          });
           setLastStepModal(false);
-          window.location.reload();
+          // window.location.reload();
+        } else if (response.data.status === false) {
+          handleCloseAssignLeadModal({
+            status: true,
+            showSnack: "Error assigning lead",
+            disSelectLeads: false
+          });
         }
       }
     } catch (error) {
@@ -381,7 +395,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
     <div className="w-full">
       <AgentSelectSnackMessage
         message={errorMessage}
-        title={"Conflicting Agents"}
+        title={errTitle}
         isVisible={errorMessage}
         hide={() => {
           //   setIsSnackVisible(false);
@@ -901,11 +915,11 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
               ) : (
                 <div className="w-full">
                   {(NoOfLeadsToSend || customLeadsToSend) &&
-                  (CallNow || CallLater) ? (
+                    (CallNow || CallLater) ? (
                     <button
                       className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {
-                        handleAssigLead();
+                        handleAssignLead();
                         // handleAssigLead()
                       }}
                     >

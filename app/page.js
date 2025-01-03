@@ -207,7 +207,20 @@ const Page = ({ length = 6, onComplete }) => {
         setResponse(result);
         setIsVisible(true);
         if (response.data.status === true) {
-          if (response.data.data.user.userType !== "RealEstateAgent") {
+          // if (response.data.data.user.userRole === "Invitee") {
+          //   document.cookie = `User=${encodeURIComponent(
+          //     JSON.stringify(response.data.data)
+          //   )}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+          //   let w = window.innerWidth
+          //   if (w < 540) {
+          //     console.log("It is mobile view")
+          //     router.push("/createagent/desktop");
+          //   } else if (w > 540) {
+          //     console.log("It is desktop view")
+          //     router.push("/dashboard/leads");
+          //   }
+          // } else 
+          if (response.data.data.user.userType !== "RealEstateAgent" && response.data.data.user.userRole !== "Invitee") {
             console.log("Pushing user to wait list")
 
             const twoHoursFromNow = new Date();

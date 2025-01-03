@@ -8,7 +8,7 @@ export function middleware(request) {
 
     // Retrieve the user data from cookies
 
-    if (request.nextUrl.pathname == "/" || request.nextUrl.pathname == "/onboarding") {
+    if (request.nextUrl.pathname == "/" || request.nextUrl.pathname == "/onboarding" || request.nextUrl.pathname == "/onboarding/WaitList") {
 
     }
     else {

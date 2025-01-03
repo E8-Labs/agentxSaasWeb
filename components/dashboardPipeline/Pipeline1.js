@@ -430,9 +430,11 @@ const Pipeline1 = () => {
 
   //code to delete the tag value
   //code for del tag api
-  const handleDelTag = async (tag) => {
+  const handleDelTag = async (tag, lead) => {
     try {
-      setDelTagLoader(tag);
+      setDelTagLoader(lead.lead.id);
+
+      console.log("Lead selected is", lead);
 
       let AuthToken = null;
 
@@ -445,13 +447,19 @@ const Pipeline1 = () => {
       console.log("Auth token is:", AuthToken);
 
       const ApiData = {
+        leadId: lead.lead.id,
         tag: tag,
       };
 
       const ApiPath = Apis.delLeadTag;
+      console.log("Leads list is", LeadsList);
       console.log("Data sending in api is:", ApiData);
       console.log("Api path is:", ApiPath);
 
+
+
+
+      // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
           Authorization: "Bearer " + AuthToken,
@@ -464,13 +472,14 @@ const Pipeline1 = () => {
         if (response.data.status === true) {
           console.log("Staus is true");
 
-          const updatedTags = LeadsList.lead.tags.filter(
-            (item) => item !== tag
-          );
-          setLeadsList((prevDetails) => ({
-            ...prevDetails,
-            tags: updatedTags,
-          }));
+          // const updatedTags = LeadsList.lead.tags.filter(
+          //   (item) => item !== tag
+          // );
+          // setLeadsList((prevDetails) => ({
+          //   ...prevDetails,
+          //   tags: updatedTags,
+          // }));
+
         }
       }
     } catch (error) {
@@ -1757,7 +1766,7 @@ const Pipeline1 = () => {
 
                                   {lead.lead.tags.length > 0 ? (
                                     <div className="flex flex-row items-center gap-1">
-                                      {lead.lead.tags
+                                      {lead?.lead?.tags
                                         .slice(0, 1)
                                         .map((tagVal, index) => {
                                           return (
@@ -1766,10 +1775,10 @@ const Pipeline1 = () => {
                                             // </div>
                                             <div
                                               key={index}
-                                              className="flex flex-row items-center gap-2 bg-[#402FFF07] px-2 py-1 rounded-lg"
+                                              className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg"
                                             >
                                               <div
-                                                className="text-[#402FFF]" //1C55FF10
+                                                className="text-purple" //1C55FF10
                                               >
                                                 {tagVal.length > 2 ? (
                                                   <div>
@@ -1781,28 +1790,41 @@ const Pipeline1 = () => {
                                                 )}
                                               </div>
                                               {DelTagLoader &&
-                                                tagVal.includes(DelTagLoader) ? (
+                                                lead.lead.id === DelTagLoader ? (
                                                 <div>
                                                   <CircularProgress size={15} />
                                                 </div>
                                               ) : (
                                                 <button
                                                   onClick={() => {
-                                                    handleDelTag(tagVal);
+                                                    console.log("Tag value is", tagVal);
+                                                    handleDelTag(tagVal, lead);
+                                                    let updatedTags = lead.lead.tags.filter((tag) => tag != tagVal) || []
+                                                    lead.lead.tags = updatedTags
+                                                    let newLeadCad = []
+                                                    LeadsList.map((item) => {
+                                                      if (item.id == lead.id) {
+                                                        newLeadCad.push(lead)
+                                                      }
+                                                      else {
+                                                        newLeadCad.push(item)
+                                                      }
+                                                    })
+                                                    setLeadsList(newLeadCad)
                                                   }}
                                                 >
                                                   <X
                                                     size={15}
                                                     weight="bold"
-                                                    color="#402fff"
+                                                    color="#7902DF"
                                                   />
                                                 </button>
                                               )}
                                             </div>
                                           );
                                         })}
-                                      {lead.lead.tags.length > 2 && (
-                                        <div>+{lead.lead.tags.length - 2}</div>
+                                      {lead.lead.tags.length > 1 && (
+                                        <div>+{lead.lead.tags.length - 1}</div>
                                       )}
                                     </div>
                                   ) : (

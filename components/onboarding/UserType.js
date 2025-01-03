@@ -142,17 +142,19 @@ const UserType = ({ handleContinue, DefaultData }) => {
 
 
     return (
-        <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center h-[100svh]">
-            <div className='bg-white sm:rounded-2xl w-full sm:mx-2 sm:w-10/12 h-[100%] sm:h-[90%] py-4 flex flex-col ' style={{ scrollbarWidth: "none" }}>
+        <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
+            <div className='bg-white sm:rounded-2xl flex flex-col justify-between w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[90%] py-4' style={{ scrollbarWidth: "none" }}
+            //className='bg-white sm:rounded-2xl w-full sm:mx-2 sm:w-10/12 h-[100%] sm:h-[90%] py-4 flex flex-col' style={{ scrollbarWidth: "none" }}
+            >
 
-                <div className='flex flex-col items-center h-[95%] sm:h-[82svh]'>
+                <div className='flex flex-col items-center h-[84svh] sm:h-[82svh]'>
                     {/* header */}
                     <div className='w-full h-[10%]' onClick={handleContinue}>
                         <Header />
                     </div>
 
                     {/* Body */}
-                    <div className='flex flex-col items-center px-4 w-full h-[80%]'>
+                    <div className='flex flex-col items-center px-4 w-full h-[90%]'>
                         <div className='mt-4 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }} onClick={handleContinue}>
                             Which AgentX will you build?
                         </div>
@@ -197,15 +199,15 @@ const UserType = ({ handleContinue, DefaultData }) => {
 
 
                     </div>
+                </div>
 
-                    <div className='h-[10%] w-full'>
-                        <div>
-                            <ProgressBar value={value} />
-                        </div>
+                <div className='mb-6 h-[10%] flex flex-col justify-end w-full'>
+                    <div>
+                        <ProgressBar value={value} />
+                    </div>
 
-                        <div className='mb-4' style={{ height: "40px" }}>
-                            <Footer handleContinue={handleNext} donotShowBack={true} shouldContinue={shouldContinue} />
-                        </div>
+                    <div className='mb-4' style={{ height: "35px" }}>
+                        <Footer handleContinue={handleNext} donotShowBack={true} shouldContinue={shouldContinue} />
                     </div>
                 </div>
 

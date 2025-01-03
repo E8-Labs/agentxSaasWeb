@@ -396,6 +396,7 @@ const LeadDetails = ({
   //code for del tag api
   const handleDelTag = async (tag) => {
     try {
+      console.log("Selected lead details are", selectedLeadsDetails)
       setDelTagLoader(tag);
 
       let AuthToken = null;
@@ -410,12 +411,13 @@ const LeadDetails = ({
 
       const ApiData = {
         tag: tag,
+        leadId: selectedLeadsDetails.id
       };
 
       const ApiPath = Apis.delLeadTag;
       console.log("Data sending in api is:", ApiData);
       console.log("Api path is:", ApiPath);
-
+      // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
           Authorization: "Bearer " + AuthToken,
