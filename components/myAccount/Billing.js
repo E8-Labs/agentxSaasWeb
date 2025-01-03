@@ -69,7 +69,7 @@ function Billing() {
     {
       id: 1,
       mints: 30,
-      calls: 25,
+      calls: 250,
       details:
         "Great for trying out AI sales agents.",
       // originalPrice: "45",

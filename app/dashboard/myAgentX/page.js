@@ -556,7 +556,11 @@ function Page() {
 
       if (response) {
         console.log("Respose of reassign api is:", response.data.data);
-        setShowSuccessSnack(response.data.message);
+        if (response.data.status === true) {
+          setShowSuccessSnack("Number assigned to modal");
+        } else if (response.data.status === false) {
+          setShowSuccessSnack(response.data.message);
+        }
         setIsVisibleSnack(true);
         // AssignNumber()
         // setShowClaimPopup(null);
@@ -573,9 +577,9 @@ function Page() {
           prevAgents.map((agent) =>
             agent.id === response.data.data.agent2.id
               ? {
-                  ...agent,
-                  phoneNumber: response.data.data.agent2.phoneNumber.slice(1),
-                }
+                ...agent,
+                phoneNumber: response.data.data.agent2.phoneNumber.slice(1),
+              }
               : agent
           )
         );
@@ -714,8 +718,8 @@ function Page() {
       });
 
       if (response) {
-        console.log("Response of api is :", response.data);
-        //console.log("PArsed data is ", response.data.data);
+        // console.log("Response of api is :", response.data);
+        // console.log("PArsed data is ", response.data.data);
         setPreviousNumber(response.data.data);
       }
     } catch (error) {
@@ -1302,6 +1306,7 @@ function Page() {
   };
 
   useEffect(() => {
+    getCalenders();
     const agentLocalDetails = localStorage.getItem("localAgentDetails");
     if (agentLocalDetails) {
       const agentData = JSON.parse(agentLocalDetails);
@@ -1470,6 +1475,45 @@ function Page() {
     updateAgent(event.target.value);
     setSelectedVoice(event.target.value);
   };
+
+  const [previousCalenders, setPreviousCalenders] = useState([]);
+
+  //function for getitng the calenders list
+  const getCalenders = async () => {
+    try {
+      const localData = localStorage.getItem("User");
+      let AuthToken = null;
+      if (localData) {
+        const UserDetails = JSON.parse(localData);
+        AuthToken = UserDetails.token;
+      }
+
+      console.log("Authtoken is:", AuthToken);
+
+      const ApiPath = Apis.getCalenders;
+
+      console.log("Apipath is:", ApiPath);
+
+      const response = await axios.get(ApiPath, {
+        headers: {
+          "Authorization": "Bearer " + AuthToken,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        console.log("Response of get calender api is:", response);
+        setPreviousCalenders(response.data.data);
+      }
+
+    } catch (error) {
+      console.error("Error occured in the api is ", error);
+    } finally {
+      console.log("Api cal for getting calenders done")
+    }
+  }
+
+
 
   const styles = {
     claimPopup: {
@@ -2156,7 +2200,7 @@ function Page() {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                  // defaultMask={loading ? 'Loading...' : undefined}
+                // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -2181,14 +2225,13 @@ function Page() {
                 {scriptKeys?.map((key, index) => (
                   <div key={index}>
                     <div className="pt-5" style={styles.headingStyle}>
-                      Variable {`{${key}}`}
+                      {key}
                     </div>
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
-                        index === scriptKeys?.length - 1 ? "mb-16" : ""
-                      }`}
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
+                        }`}
                       style={{
                         ...styles.inputStyle,
                         border: "1px solid #00000010",
@@ -2448,11 +2491,10 @@ function Page() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${
-                  activeTab === tab
-                    ? "text-purple border-b-2 border-purple"
-                    : "text-black-500"
-                }`}
+                className={`${activeTab === tab
+                  ? "text-purple border-b-2 border-purple"
+                  : "text-black-500"
+                  }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >
                 {tab}
@@ -2708,25 +2750,25 @@ function Page() {
                                     <div className="flex flex-row items-center gap-2">
                                       {showDrawer?.name !==
                                         item.claimedBy.name && (
-                                        <div>
-                                          {`(Claimed by {${item.claimedBy.name}})`}
-                                          {reassignLoader === item ? (
-                                            <CircularProgress size={15} />
-                                          ) : (
-                                            <button
-                                              className="text-purple underline"
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                setShowConfirmationModal(item);
-                                                // handleReassignNumber(item)
-                                                // handleReassignNumber(e.target.value)
-                                              }}
-                                            >
-                                              Reassign
-                                            </button>
-                                          )}
-                                        </div>
-                                      )}
+                                          <div>
+                                            {`(Claimed by {${item.claimedBy.name}})`}
+                                            {reassignLoader === item ? (
+                                              <CircularProgress size={15} />
+                                            ) : (
+                                              <button
+                                                className="text-purple underline"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  setShowConfirmationModal(item);
+                                                  // handleReassignNumber(item)
+                                                  // handleReassignNumber(e.target.value)
+                                                }}
+                                              >
+                                                Reassign
+                                              </button>
+                                            )}
+                                          </div>
+                                        )}
                                     </div>
                                   )}
                                 </div>
@@ -2835,48 +2877,13 @@ function Page() {
             </div>
           ) : activeTab === "Calender" ? (
             <div>
-              {/* <div className="flex flex-row items-center justify-between">
-                <p style={{ fontSize: 15, fontWeight: "600", color: "#666" }}>
-                  Title
-                </p>
-                <div style={{ fontSize: 16, fontWeight: "500", color: "#000" }}>
-                  {calendarDetails?.calendar?.title ? (
-                    <div>{calendarDetails?.calendar?.title}</div>
-                  ) : (
-                    "-"
-                  )}
-                </div>
-              </div>
-              <div className="flex flex-row items-center justify-between mt-6">
-                <p style={{ fontSize: 15, fontWeight: "600", color: "#666" }}>
-                  Event
-                </p>
-                <div style={{ fontSize: 16, fontWeight: "500", color: "#000" }}>
-                  {calendarDetails?.calendar?.eventId ? (
-                    <div>{calendarDetails?.calendar?.eventId}</div>
-                  ) : (
-                    "-"
-                  )}
-                </div>
-              </div>
-              <div className="flex flex-row items-center justify-between mt-6">
-                <p style={{ fontSize: 15, fontWeight: "600", color: "#666" }}>
-                  Api key
-                </p>
-                <div style={{ fontSize: 16, fontWeight: "500", color: "#000" }}>
-                  {calendarDetails?.calendar?.apiKey ? (
-                    <div>{calendarDetails?.calendar?.apiKey}</div>
-                  ) : (
-                    "-"
-                  )}
-                </div>
-              </div> */}
 
               <UserCalender
                 calendarDetails={calendarDetails}
                 setUserDetails={setUserAgentsList}
                 selectedAgent={showDrawer}
                 mainAgentId={MainAgentId}
+                previousCalenders={previousCalenders}
               />
             </div>
           ) : activeTab === "Pipeline | Stages" ? (
@@ -3197,7 +3204,8 @@ function Page() {
                 <span className="text-purple">
                   ({formatPhoneNumber(showConfirmationModal?.phoneNumber)})
                 </span>{" "}
-                to {`{${showDrawer?.name}}`}.
+                to {showDrawer?.name}.
+                {/* {`{${showDrawer?.name}}`}. */}
               </p>
             </div>
 

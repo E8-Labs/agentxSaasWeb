@@ -156,42 +156,17 @@ const AddCardDetails = ({
         }
 
         const cardNumberElement = elements.getElement(CardNumberElement);
-
+        
         stripeReact.createToken(cardNumberElement).then(async function (tok) {
             if (tok.error) {
+                setAddCardErrtxt(tok.error.message || "Error adding card")
                 setCredentialsErr(true);
-                // if (fromBuildAiScreen) {
-                //     console.log("reached end");
-                //     subscribeLoader(false);
-                // }
-                toast.error(tok.error.code, {
-                    position: "bottom-right",
-                    pauseOnHover: true,
-                    autoClose: 8000,
-                    theme: "dark"
-                });
+                setAddCardLoader(false);
             } else if (tok.token.id) {
 
-                // if (handleSubLoader) {
-                //     handleSubLoader(true);
-                // }
-                // return
                 console.log("Token generating for card number :", tok.token.id)
                 const tokenId = tok.token.id;
                 console.log("card number :");
-                // let modelId = null;
-                // if (localAssistanData) {
-                //     const asistantLocalData = JSON.parse(localAssistanData);
-                //     console.log("Assistant data retrived", asistantLocalData);
-                //     if (fromMYPlansScreen) {
-                //         console.log("Adding new card");
-                //         modelId = null;
-                //     } else {
-                //         modelId = (asistantLocalData.id);
-                //     }
-                // } else {
-                //     modelId = null;
-                // }
                 const ApiPath = Apis.addCard;
                 console.log("Api path is", ApiPath);
 
@@ -264,6 +239,7 @@ const AddCardDetails = ({
                     }
                 } catch (error) {
                     console.error("Error occured in adding user card api is :", error);
+                    setAddCardLoader(false);
                 } finally {
                     setAddCardLoader(false);
                     // if (fromBuildAiScreen) {
@@ -348,7 +324,7 @@ const AddCardDetails = ({
 
     return (
         <div style={{ width: '100%' }}>
-            <AgentSelectSnackMessage isVisible={credentialsErr} hide={()=>setCredentialsErr(false)} message={"Add a payment source to continue"}/>
+            <AgentSelectSnackMessage isVisible={credentialsErr} hide={()=>setCredentialsErr(false)} message={addCardErrtxt}/>
             <AgentSelectSnackMessage isVisible={addCardFailure} hide={()=>setAddCardFailure(false)} message={addCardErrtxt}/>
             <AgentSelectSnackMessage isVisible={addCardSuccess} hide={()=>setAddCardSuccess(false)} type={SnackbarTypes.Success} message={"Card added successfully"}/>
             

@@ -49,6 +49,11 @@ const Pipeline1 = () => {
   const bottomRef = useRef();
   const colorPickerRef = useRef();
 
+
+  //code for showing the reorder stages btn
+  const [showReorderBtn, setShowReorderBtn] = useState(false);
+
+
   //variale for floating view
   const [expandSideView, setExpandSideView] = useState(false);
   const [openCallWorthyPopup, setOpenCallWorthyPopup] = useState(false);
@@ -986,6 +991,7 @@ const Pipeline1 = () => {
         console.log("Response of updated stages is:", response.data);
         if (response.data.status === true) {
           setShowStagesPopup(false);
+          setShowReorderBtn(false);
           handleCloseStagePopover();
           setSuccessSnack(response.data.message);
           setShowRenamePipelinePopup(null);
@@ -1280,12 +1286,12 @@ const Pipeline1 = () => {
                     vertical: "bottom",
                     horizontal: "left",
                   }}
-                  // PaperProps={{
-                  //     elevation: 0, // This will remove the shadow
-                  //     style: {
-                  //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
-                  //     },
-                  // }}
+                // PaperProps={{
+                //     elevation: 0, // This will remove the shadow
+                //     style: {
+                //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
+                //     },
+                // }}
                 >
                   <div className="p-2">
                     {PipeLines.map((item, index) => (
@@ -1320,12 +1326,12 @@ const Pipeline1 = () => {
                   vertical: "bottom",
                   horizontal: "left",
                 }}
-                // PaperProps={{
-                //     elevation: 0, // This will remove the shadow
-                //     style: {
-                //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
-                //     },
-                // }}
+              // PaperProps={{
+              //     elevation: 0, // This will remove the shadow
+              //     style: {
+              //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
+              //     },
+              // }}
               >
                 <div className="p-3">
                   <button
@@ -1563,7 +1569,7 @@ const Pipeline1 = () => {
                           <div
                             className="text-black flex flex-row items-center gap-4 me-2 outline-none"
                             style={styles.paragraph}
-                            // onClick={handleDeleteStage}
+                          // onClick={handleDeleteStage}
                           >
                             <button
                               className="flex flex-row gap-2 outline-none"
@@ -1638,109 +1644,109 @@ const Pipeline1 = () => {
                     {/* Display leads matching this stage */}
                     {LeadsList.filter((lead) => lead.lead.stage === stage.id)
                       .length > 0 && (
-                      <div
-                        className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl"
-                        style={{
-                          scrollbarWidth: "none",
-                          borderWidth: 1,
-                          borderRadius: "12",
-                          borderStyle: "solid",
-                          borderColor: "#00000010",
-                        }}
-                      >
-                        {LeadsList.filter(
-                          (lead) => lead.lead.stage === stage.id
-                        ).map((lead, leadIndex) => (
-                          <div
-                            className="p-3 h-full"
-                            style={{ width: "300px", height: 200 }}
-                            key={leadIndex}
-                          >
-                            <div className="border rounded-xl px-4 py-2 h-full">
-                              <button
-                                className="flex flex-row items-center gap-3"
-                                onClick={() => {
-                                  console.log(
-                                    "Selected lead details are:",
-                                    lead
-                                  );
-                                  setShowDetailsModal(true);
-                                  setSelectedLeadsDetails(lead.lead);
-                                  setPipelineId(lead.lead.pipeline.id);
-                                  setNoteDetails(lead.lead.notes);
-                                }}
-                              >
-                                {/* T is center aligned */}
-                                <div
-                                  className="bg-black text-white rounded-full flex flex-row item-center justify-center"
-                                  style={{ height: "27px", width: "27px" }}
+                        <div
+                          className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl"
+                          style={{
+                            scrollbarWidth: "none",
+                            borderWidth: 1,
+                            borderRadius: "12",
+                            borderStyle: "solid",
+                            borderColor: "#00000010",
+                          }}
+                        >
+                          {LeadsList.filter(
+                            (lead) => lead.lead.stage === stage.id
+                          ).map((lead, leadIndex) => (
+                            <div
+                              className="p-3 h-full"
+                              style={{ width: "300px", height: 200 }}
+                              key={leadIndex}
+                            >
+                              <div className="border rounded-xl px-4 py-2 h-full">
+                                <button
+                                  className="flex flex-row items-center gap-3"
+                                  onClick={() => {
+                                    console.log(
+                                      "Selected lead details are:",
+                                      lead
+                                    );
+                                    setShowDetailsModal(true);
+                                    setSelectedLeadsDetails(lead.lead);
+                                    setPipelineId(lead.lead.pipeline.id);
+                                    setNoteDetails(lead.lead.notes);
+                                  }}
                                 >
-                                  {lead.lead.firstName.slice(0, 1)}
-                                </div>
-                                <div style={styles.paragraph}>
-                                  {lead.lead.firstName}
-                                </div>
-                              </button>
-                              <div className="flex flex-row items-center justify-between w-full mt-2">
-                                <div
-                                  className="text-[#00000060]"
-                                  style={styles.agentName}
-                                >
-                                  Email
-                                </div>
-                                <div className="flex flex-row items-center gap-4">
-                                  <Image
-                                    src={"/assets/colorCircle.png"}
-                                    height={24}
-                                    width={24}
-                                    alt="*"
-                                  />
+                                  {/* T is center aligned */}
                                   <div
-                                    className="text-purple underline"
+                                    className="bg-black text-white rounded-full flex flex-row item-center justify-center"
+                                    style={{ height: "27px", width: "27px" }}
+                                  >
+                                    {lead.lead.firstName.slice(0, 1)}
+                                  </div>
+                                  <div style={styles.paragraph}>
+                                    {lead.lead.firstName}
+                                  </div>
+                                </button>
+                                <div className="flex flex-row items-center justify-between w-full mt-2">
+                                  <div
+                                    className="text-[#00000060]"
                                     style={styles.agentName}
                                   >
-                                    {lead.agent.name}
+                                    Email
+                                  </div>
+                                  <div className="flex flex-row items-center gap-4">
+                                    <Image
+                                      src={"/assets/colorCircle.png"}
+                                      height={24}
+                                      width={24}
+                                      alt="*"
+                                    />
+                                    <div
+                                      className="text-purple underline"
+                                      style={styles.agentName}
+                                    >
+                                      {lead.agent.name}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
 
-                              {lead?.lead?.booking?.date && (
-                                <div className="flex flex-row items-center gap-2">
-                                  <Image
-                                    src="/otherAssets/calenderIcon.png"
-                                    height={20}
-                                    width={20}
-                                    alt="*"
-                                    style={{
-                                      filter:
-                                        "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
-                                    }}
-                                  />
-                                  {moment(lead?.lead?.booking?.date).format(
-                                    "MMM dd"
-                                  ) || "-"}
-                                  <Image
-                                    src="/otherAssets/clockIcon.png"
-                                    height={20}
-                                    width={20}
-                                    alt="*"
-                                    style={{
-                                      filter:
-                                        "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
-                                    }}
-                                  />
-                                  {lead?.lead?.booking?.time || "-"}
-                                </div>
-                              )}
+                                {lead?.lead?.booking?.date && (
+                                  <div className="flex flex-row items-center gap-2">
+                                    <Image
+                                      src="/otherAssets/calenderIcon.png"
+                                      height={20}
+                                      width={20}
+                                      alt="*"
+                                      style={{
+                                        filter:
+                                          "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
+                                      }}
+                                    />
+                                    {moment(lead?.lead?.booking?.date).format(
+                                      "MMM dd"
+                                    ) || "-"}
+                                    <Image
+                                      src="/otherAssets/clockIcon.png"
+                                      height={20}
+                                      width={20}
+                                      alt="*"
+                                      style={{
+                                        filter:
+                                          "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
+                                      }}
+                                    />
+                                    {lead?.lead?.booking?.time || "-"}
+                                  </div>
+                                )}
 
-                              <div className="w-full flex flex-row items-center justify-between mt-12">
-                                <Image
-                                  src={"/assets/manIcon.png"}
-                                  height={32}
-                                  width={32}
-                                  alt="*"
-                                />
-                                {/* <div className="flex flex-row items-center gap-3">
+                                <div className="w-full flex flex-row items-center justify-between mt-12">
+                                  <Image
+                                    src={"/assets/manIcon.png"}
+                                    height={32}
+                                    width={32}
+                                    alt="*"
+                                  />
+                                  {/* <div className="flex flex-row items-center gap-3">
                                                                         <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
                                                                             Tag
                                                                         </div>
@@ -1749,65 +1755,65 @@ const Pipeline1 = () => {
                                                                         </div>
                                                                     </div> */}
 
-                                {lead.lead.tags.length > 0 ? (
-                                  <div className="flex flex-row items-center gap-1">
-                                    {lead.lead.tags
-                                      .slice(0, 1)
-                                      .map((tagVal, index) => {
-                                        return (
-                                          // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
-                                          //     {tagVal}
-                                          // </div>
-                                          <div
-                                            key={index}
-                                            className="flex flex-row items-center gap-2 bg-[#402FFF07] px-2 py-1 rounded-lg"
-                                          >
+                                  {lead.lead.tags.length > 0 ? (
+                                    <div className="flex flex-row items-center gap-1">
+                                      {lead.lead.tags
+                                        .slice(0, 1)
+                                        .map((tagVal, index) => {
+                                          return (
+                                            // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
+                                            //     {tagVal}
+                                            // </div>
                                             <div
-                                              className="text-[#402FFF]" //1C55FF10
+                                              key={index}
+                                              className="flex flex-row items-center gap-2 bg-[#402FFF07] px-2 py-1 rounded-lg"
                                             >
-                                              {tagVal.length > 2 ? (
+                                              <div
+                                                className="text-[#402FFF]" //1C55FF10
+                                              >
+                                                {tagVal.length > 2 ? (
+                                                  <div>
+                                                    {tagVal.slice(0, 6)}
+                                                    {"..."}
+                                                  </div>
+                                                ) : (
+                                                  <div>{tagVal}</div>
+                                                )}
+                                              </div>
+                                              {DelTagLoader &&
+                                                tagVal.includes(DelTagLoader) ? (
                                                 <div>
-                                                  {tagVal.slice(0, 6)}
-                                                  {"..."}
+                                                  <CircularProgress size={15} />
                                                 </div>
                                               ) : (
-                                                <div>{tagVal}</div>
+                                                <button
+                                                  onClick={() => {
+                                                    handleDelTag(tagVal);
+                                                  }}
+                                                >
+                                                  <X
+                                                    size={15}
+                                                    weight="bold"
+                                                    color="#402fff"
+                                                  />
+                                                </button>
                                               )}
                                             </div>
-                                            {DelTagLoader &&
-                                            tagVal.includes(DelTagLoader) ? (
-                                              <div>
-                                                <CircularProgress size={15} />
-                                              </div>
-                                            ) : (
-                                              <button
-                                                onClick={() => {
-                                                  handleDelTag(tagVal);
-                                                }}
-                                              >
-                                                <X
-                                                  size={15}
-                                                  weight="bold"
-                                                  color="#402fff"
-                                                />
-                                              </button>
-                                            )}
-                                          </div>
-                                        );
-                                      })}
-                                    {lead.lead.tags.length > 2 && (
-                                      <div>+{lead.lead.tags.length - 2}</div>
-                                    )}
-                                  </div>
-                                ) : (
-                                  "-"
-                                )}
+                                          );
+                                        })}
+                                      {lead.lead.tags.length > 2 && (
+                                        <div>+{lead.lead.tags.length - 2}</div>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    "-"
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                          ))}
+                        </div>
+                      )}
                   </div>
                 ))}
               </div>
@@ -2785,6 +2791,7 @@ const Pipeline1 = () => {
         open={showStagesPopup}
         onClose={() => {
           setShowStagesPopup(false);
+          setShowReorderBtn(false);
           handleCloseStagePopover();
         }}
         closeAfterTransition
@@ -2828,6 +2835,7 @@ const Pipeline1 = () => {
                   onClick={() => {
                     setShowStagesPopup(false);
                     handleCloseStagePopover();
+                    setShowReorderBtn(false);
                   }}
                 >
                   <Image
@@ -2865,6 +2873,7 @@ const Pipeline1 = () => {
                   selectedPipelineItem={SelectedPipeline}
                   handleReorderStages={handleReorder}
                   reorderStageLoader={reorderStageLoader}
+                  setShowReorderBtn={setShowReorderBtn}
                 />
               </div>
 
@@ -2874,14 +2883,21 @@ const Pipeline1 = () => {
                     <CircularProgress size={25} />
                   </div>
                 ) : (
-                  <button
-                    className="w-full bg-purple text-white mt-6 h-[50px] rounded-xl text-xl font-[500]"
-                    onClick={() => {
-                      handleReorder();
-                    }}
-                  >
-                    Reorder stages & close
-                  </button>
+                  <div>
+                    <button
+                      disabled={!showReorderBtn}
+                      className="w-full bg-purple text-white mt-6 h-[50px] rounded-xl text-xl font-[500]"
+                      onClick={() => {
+                        handleReorder();
+                      }}
+                      style={{
+                        color: !showReorderBtn ? "#000000" : "",
+                        backgroundColor: !showReorderBtn ? "#00000020" : "",
+                      }}
+                    >
+                      Reorder
+                    </button>
+                  </div>
                 )}
               </div>
 
@@ -3076,9 +3092,8 @@ const Pipeline1 = () => {
 
       {importantCalls?.length > 0 && (
         <div
-          className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${
-            expandSideView ? "w-[506px]" : "w-[100px]"
-          }`} //${expandSideView ? 'w-[32vw]' : 'w-[7vw]'}
+          className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${expandSideView ? "w-[506px]" : "w-[100px]"
+            }`} //${expandSideView ? 'w-[32vw]' : 'w-[7vw]'}
           style={{
             borderTopLeftRadius: expandSideView ? "0" : "40px",
             borderBottomLeftRadius: expandSideView ? "0" : "40px",
@@ -3088,7 +3103,7 @@ const Pipeline1 = () => {
             bottom: 100,
             right: 0,
           }}
-          onClick={() => {}}
+          onClick={() => { }}
         >
           {expandSideView ? (
             <div className="w-full flex flex-row items-center gap-4  h-20">

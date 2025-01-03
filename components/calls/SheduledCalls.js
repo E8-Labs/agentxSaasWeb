@@ -339,10 +339,10 @@ function SheduledCalls() {
                                 </button>
                               </div>
                               <div className="w-1/12">
-                                {item.agents[0]?.createdAt ? (
+                                {item?.createdAt ? (
                                   <div style={styles.text2}>
                                     {GetFormattedDateString(
-                                      item.agens[0]?.createdAt
+                                      item?.createdAt
                                     )}
                                   </div>
                                 ) : (

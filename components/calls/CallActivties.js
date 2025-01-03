@@ -283,10 +283,10 @@ function SheduledCalls() {
   const resumeCalls = async () => {
     console.log("Selected agent is:", SelectedItem);
     console.log("Resume call api trigered")
-    return
+    // return
     try {
       setPauseLoader(true);
-      const ApiPath = Apis.pauseAgent;
+      const ApiPath = Apis.resumeCalls;
 
       console.log("Api path is: ", ApiPath);
 
@@ -471,10 +471,10 @@ function SheduledCalls() {
                                   </button>
                                 </div>
                                 <div className="w-1/12">
-                                  {item.agents[0]?.createdAt ? (
+                                  {item?.createdAt ? (
                                     <div style={styles.text2}>
                                       {GetFormattedDateString(
-                                        item.agents[0]?.createdAt
+                                        item?.createdAt
                                       )}
                                     </div>
                                   ) : (

@@ -1097,7 +1097,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                         fontSize: 15,
                                         fontWeight: "500"
                                     }}>
-                                    Please confirm you would like to reassign <span className='text-purple'>({formatPhoneNumber(showConfirmationModal?.phoneNumber)})</span> to {`{${showConfirmationModal?.claimedBy?.name}}`}.
+                                    Please confirm you would like to reassign <span className='text-purple'>({formatPhoneNumber(showConfirmationModal?.phoneNumber)})</span> to {showConfirmationModal?.claimedBy?.name}.
+                                    {/* {`{${showConfirmationModal?.claimedBy?.name}}`}. */}
                                 </p>
 
                             </div>

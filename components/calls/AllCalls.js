@@ -514,7 +514,7 @@ function AllCalls() {
           <div style={styles.text}>Date</div>
         </div>
         <div className="w-1/12">
-          <div style={styles.text}>Time stamp</div>
+          <div style={styles.text}>Time</div>
         </div>
         <div className="w-1/12">
           <div style={styles.text}>More</div>

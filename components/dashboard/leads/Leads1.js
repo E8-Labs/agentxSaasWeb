@@ -406,9 +406,9 @@ const Leads1 = () => {
           console.log("Updated name is default column", UpdatedColumnName);
           let value =
             d.extraColumns[
-              UpdateHeader.dbName
-                ? UpdateHeader.dbName
-                : UpdateHeader.ColumnNameInSheet
+            UpdateHeader.dbName
+              ? UpdateHeader.dbName
+              : UpdateHeader.ColumnNameInSheet
             ];
           delete d.extraColumns[
             UpdateHeader.dbName
@@ -739,6 +739,8 @@ const Leads1 = () => {
       }
       //////console.log("Auth token is :--", AuthToken);
 
+      // const tagsList = tagsValue.map((tag))
+
       const ApiData = {
         sheetName: sheetName,
         leads: processedData,
@@ -747,7 +749,7 @@ const Leads1 = () => {
       };
 
       const ApiPath = Apis.createLead;
-      console.log("Api data is :", ApiData);
+      console.log("Api data is :", JSON.stringify(ApiData));
       // return
       //console.log("Apidata sending in Addlead api is :", ApiData);
       // return;
@@ -762,12 +764,14 @@ const Leads1 = () => {
         //////console.log("Response of ad lead api is :", response.data.data);
         if (response.data.status === true) {
           let sheet = response.data.data;
+          let leads = response.data.leads;
           // let sheetsList =
           console.log("Response of add lead list api is:", response.data.data);
           setShowUploadLeadModal(false);
           setSelectedFile(null);
           localStorage.setItem("userLeads", JSON.stringify(response.data.data));
           setUserLeads(sheet);
+          
           setAddNewLeadModal(false);
           setSetData(true);
           setSuccessSnack(response.data.message);
@@ -1110,7 +1114,7 @@ const Leads1 = () => {
                     alt="Upload Icon"
                     height={30}
                     width={30}
-                    // style={{ marginBottom: "10px" }}
+                  // style={{ marginBottom: "10px" }}
                   />
                 </div>
                 <p style={{ ...styles.subHeadingStyle }}>
@@ -1339,8 +1343,8 @@ const Leads1 = () => {
                             {item.dbName
                               ? processedData[0].extraColumns[item.dbName]
                               : processedData[0].extraColumns[
-                                  item.ColumnNameInSheet
-                                ]}
+                              item.ColumnNameInSheet
+                              ]}
                           </div>
                         )}
                       </div>
@@ -1549,7 +1553,7 @@ const Leads1 = () => {
           },
         }}
       >
-        <Box className="lg:w-6/12 sm:w-9/12 w-10/12" sx={styles.modalsStyle}>
+        <Box className="lg:w-4/12 sm:w-6/12 w-10/12" sx={styles.modalsStyle}>
           <div className="flex flex-row justify-center w-full">
             <div
               className="w-full"
@@ -1575,12 +1579,12 @@ const Leads1 = () => {
               </div>
               <div
                 className="w-full text-center mt-2"
-                style={{ fontSize: 25, fontWeight: "700" }}
+                style={{ fontSize: 22, fontWeight: "600" }}
               >
                 Add Column
               </div>
               <div className="mt-2" style={styles.subHeadingStyle}>
-                Add Column
+                Column Name
               </div>
 
               <input
@@ -1594,13 +1598,18 @@ const Leads1 = () => {
                     setUpdateColumnValue(e.target.value);
                   }
                 }}
-                placeholder="Add column"
+                placeholder="Type here..."
                 style={{ border: "1px solid #00000020" }}
               />
 
               <button
                 className="w-full h-[50px] rounded-xl bg-purple text-white mt-8"
-                style={styles.subHeadingStyle}
+                style={{
+                  ...styles.subHeadingStyle,
+                  backgroundColor: !updateColumnValue ? "#00000020" : "",
+                  color: !updateColumnValue ? "black" : ""
+                }}
+                disabled={!updateColumnValue}
                 onClick={() => {
                   if (
                     NewColumnsObtained?.some(

@@ -204,7 +204,7 @@ const CreatAgent3 = ({ handleContinue }) => {
         {
             id: 1,
             mints: 30,
-            calls: 25,
+            calls: 250,
             details: "Perfect for getting started! Free for the first 30 mins then $45 to continue.",
             originalPrice: "45",
             discountPrice: "0",
@@ -243,7 +243,7 @@ const CreatAgent3 = ({ handleContinue }) => {
         {
             id: 1,
             mints: 30,
-            calls: 25,
+            calls: 250,
             details: "Great for trying out AI sales agents",
             originalPrice: "",
             discountPrice: "45",
@@ -514,7 +514,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                 fontWeight: "600",
                                 fontSize: 17,
                                 position: "absolute",
-                                bottom: 230,
+                                bottom: "7%",
                                 right: "11%",
                                 // backgroundColor: "red"
                             }}

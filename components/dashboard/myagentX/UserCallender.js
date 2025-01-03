@@ -12,7 +12,7 @@ import timeZones from '@/utilities/Timezones'
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage'
 import CircularLoader from '@/utilities/CircularLoader'
 
-const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAgent }) => {
+const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, selectedAgent }) => {
 
     const [calenderLoader, setAddCalenderLoader] = useState(false);
     const [shouldContinue, setshouldContinue] = useState(true);
@@ -23,7 +23,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
 
     const [selectCalender, setSelectCalender] = useState('');
     const [initialLoader, setInitialLoader] = useState(false);
-    const [previousCalenders, setPreviousCalenders] = useState([]);
+    // const [previousCalenders, setPreviousCalenders] = useState([]);
     const [showAddNewCalender, setShowAddNewCalender] = useState(false);
 
     //variables for snack bar
@@ -48,7 +48,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
             console.log("Selectd agent is", selectedAgent);
             setSelectCalender(selectedAgent.calendar.title);
         }
-        getCalenders();
+        // getCalenders();
     }, []);
 
     useEffect(() => {
@@ -87,8 +87,6 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
     //function to get calenders
     const getCalenders = async () => {
         try {
-            setInitialLoader(true);
-
             const localData = localStorage.getItem("User");
             let AuthToken = null;
             if (localData) {
@@ -117,7 +115,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
         } catch (error) {
             console.error("Error occured in the api is ", error);
         } finally {
-            setInitialLoader(false);
+            console.log("Api cal for getting calenders done")
         }
     }
 
@@ -169,12 +167,12 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
 
             if (response) {
                 console.log("Response of add calender api is:", response);
-                setMessage(response.data.message);
                 setIsVisible(true);
-
+                
                 if (response.data.status === true) {
-
+                    
                     setType(SnackbarTypes.Success);
+                    setMessage("Calender added");
                     const localAgentsList = localStorage.getItem("localAgentDetails");
 
                     if (localAgentsList) {
@@ -220,6 +218,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
                     }
 
                 } else if (response.data.status === false) {
+                    setMessage("Calender not added");
                     setType(SnackbarTypes.Error);
                 }
 
@@ -281,7 +280,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
 
 
                 {
-                    selectedAgent?.calendar ? (
+                    selectedAgent?.calendar || previousCalenders.length > 0  ? (
                         <div className='w-full flex flex-col w-full items-center'>
                             <div className='w-full'>
                                 <FormControl sx={{ m: 1 }} className='w-full'>
@@ -411,7 +410,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, mainAgentId, selectedAg
                     <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white', paddingInline: "25px", paddingTop: "25px", paddingBottom: "30px" }}>
                         <div style={{ width: "100%", }}>
 
-                            <div className='max-h-[60vh] overflow-auto' style={{ scrollbarWidth: "none" }}>
+                            <div className='' style={{ scrollbarWidth: "none" }}>
 
                                 <div className='w-full'>
 

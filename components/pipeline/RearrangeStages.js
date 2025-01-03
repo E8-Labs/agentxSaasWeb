@@ -38,13 +38,14 @@ const RearrangeStages = ({
   selectedPipelineItem,
   handleReorderStages,
   reorderStageLoader,
+  setShowReorderBtn
 }) => {
   const [pipelineStages, setPipelineStages] = useState(stages);
   const [delStageLoader, setDelStageLoader] = useState(false);
   const [successSnack, setSuccessSnack] = useState(null);
   const [showDelStagePopup, setShowDelStagePopup] = useState(null);
   const [actionInfoEl, setActionInfoEl] = React.useState(null);
-  const [showReorderBtn, setShowReorderBtn] = useState(false);
+  // const [showReorderBtn, setShowReorderBtn] = useState(false);
 
   const handlePopoverOpen = (event) => {
     setActionInfoEl(event.currentTarget);
