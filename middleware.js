@@ -8,7 +8,7 @@ export function middleware(request) {
         // No redirection needed for these paths
     } else if (request.nextUrl.pathname == "/onboarding/waitlist") {
         // Do not route the user from this specific path
-        return NextResponse.next();
+        return //NextResponse.next();
     } else {
         const userCookie = request.cookies.get("User");
         console.log("User Cookie:", userCookie);

@@ -2671,7 +2671,7 @@ const Pipeline1 = () => {
               <button
                 className="mt-4 outline-none"
                 style={{
-                  backgroundColor: "#402FFF",
+                  backgroundColor: "#7902DF",
                   color: "white",
                   height: "50px",
                   borderRadius: "10px",
@@ -2681,7 +2681,7 @@ const Pipeline1 = () => {
                 }}
                 onClick={handleRenamePipeline}
               >
-                Update & Close
+                Update
               </button>
             )}
           </div>
