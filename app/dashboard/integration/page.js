@@ -18,8 +18,7 @@ function Page() {
   const [keyLoader, setKeyLoader] = useState(false)
   const [genratekeyLoader, setGenrateeyLoader] = useState(false)
   const [genratekeyLoader2, setGenrateeyLoader2] = useState(false)
-  const [showCopySnak, setShowCopySnak] = useState(false)
-
+  const [showCopySnak, setShowCopySnak] = useState(null)
 
   //test 
 
@@ -111,6 +110,7 @@ function Page() {
 
         if (response.data.status) {
           console.log('response of genrate api keys is', response.data.data)
+          setShowCopySnak("Api key generated successfully")
           setMyKeys((prevKeys) => [...prevKeys, response.data.data])
         } else {
           console.log('get genrate api keys api message is', response.data.message)
@@ -152,9 +152,21 @@ function Page() {
   //   }
   // ]
 
+
+  // funtion for mask keys
+
+
+  const maskId = (id) => {
+    const maskedId = id.slice(0, -4).replace(/./g, '*') + id.slice(-4);
+    console.log("length of mask id is", maskedId.length);
+    console.log("length of id is", id);
+    return maskedId;
+  }
+
+
   return (
     <div className='w-full flex flex-col items-center'>
-      <AgentSelectSnackMessage isVisible={showCopySnak} hide={() => setShowCopySnak(false)} message={"Api key copoed"} type={SnackbarTypes.Success} />
+      <AgentSelectSnackMessage isVisible={showCopySnak} hide={() => setShowCopySnak(null)} message={showCopySnak} type={SnackbarTypes.Success} />
       <div className=' w-full flex flex-row justify-between items-center py-4 px-10'
         style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
       >
@@ -260,7 +272,7 @@ function Page() {
             <button className='w-full' onClick={() => { setshowKeysBox(!showKeysBox) }}>
               <div className='flex flex-row items-center justify-between '>
                 <div>
-                  My Api Keys
+                  My Api Key
                 </div>
                 {
                   showKeysBox ?
@@ -274,7 +286,7 @@ function Page() {
             {
               showKeysBox && (
                 <>
-                  {
+                  {/* {
                     myKeys.map((item, index) => {
 
                       const maskId = (id) => {
@@ -304,14 +316,45 @@ function Page() {
                               whiteSpace: 'nowrap', // Prevent wrapping of the text
                             }}
                           >
-                            {/* {item.key} */}
                             {maskId(item.key)}
                           </div>
                           <Copy size={20} color='#7920fd' />
                         </button>
                       )
                     })
+                  } */}
+
+                  
+                  {
+                    myKeys.length > 0 && (
+                      <button className='flex text-start flex-row items-center justify-between w-full mt-5'
+                        onClick={() => {
+                          navigator.clipboard
+                            .writeText(myKeys[myKeys.length - 1].key)
+                            .then(() => setShowCopySnak("Api key copied successfully"))
+                            .catch((err) =>
+                              console.error("Failed to copy API key:", err)
+                            );
+                        }}
+                      >
+                        <div
+                          className='w-[90%] truncate '
+                          style={{
+                            fontFamily: "'Courier New', monospace", // Monospace font
+                            lineHeight: '1.5', // Line height for proper spacing
+                            verticalAlign: 'middle', // Align text vertically
+                            whiteSpace: 'nowrap', // Prevent wrapping of the text
+                          }}
+                        >
+                          {/* {item.key} */}
+                          {maskId(myKeys[myKeys.length - 1].key)}
+                        </div>
+                        <Copy size={20} color='#7920fd' />
+                      </button>
+                    )
                   }
+
+
                   {
                     genratekeyLoader2 ? (
                       <CircularProgress style={{ margin: 10 }} size={20} />
@@ -323,7 +366,7 @@ function Page() {
                         }}
                       >
                         <div style={{ fontSize: 16, fontWeight: '500', color: '#7902df', textDecorationLine: 'underline' }}>
-                          Create New Api Key
+                          {myKeys.length> 0 ? "Refresh":"Genrate New Api Key"}
                         </div>
                       </button>
                     )
