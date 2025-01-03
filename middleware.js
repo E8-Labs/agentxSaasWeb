@@ -6,7 +6,7 @@ export function middleware(request) {
     // Retrieve the user data from cookies
     if (request.nextUrl.pathname == "/" || request.nextUrl.pathname == "/onboarding") {
         // No redirection needed for these paths
-    } else if (request.nextUrl.pathname == "/onboarding/waitlist") {
+    } else if (request.nextUrl.pathname == "/onboarding/WaitList") {
         // Do not route the user from this specific path
         return //NextResponse.next();
     } else {
