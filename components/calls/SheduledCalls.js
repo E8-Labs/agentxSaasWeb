@@ -114,7 +114,7 @@ function SheduledCalls() {
         mainAgent = agentDetails;
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
-      const ApiPath = Apis.getSheduledCallLogs;
+      const ApiPath = `${Apis.getSheduledCallLogs}?scheduled=true`;
       console.log("Api path is: ", ApiPath);
       // return
       const response = await axios.get(ApiPath, {
@@ -285,139 +285,148 @@ function SheduledCalls() {
           </div>
         ) : (
           <div>
-            {filteredAgentsList.map((item, index) => {
-              return (
-                <div key={index}>
-                  {item.agents.map((agent, index) => {
-                    return (
-                      <div key={index}>
-                        <div
-                          className="w-full flex flex-row items-center justify-between mt-10 px-10"
-                          key={index}
-                        >
-                          <div className="w-3/12 flex flex-row gap-4 items-center">
-                            {agent?.agents[0]?.thumb_profile_image ? (
-                              <Image
-                                className="rounded-full"
-                                src={agent?.agents[0].thumb_profile_image}
-                                height={40}
-                                width={40}
-                                style={{
-                                  height: "40px",
-                                  width: "40px",
-                                  resize: "cover",
-                                }}
-                                alt="*"
-                              />
-                            ) : (
-                              <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                {agent.name.slice(0, 1).toUpperCase()}
-                              </div>
-                            )}
-                            <div style={styles.text2}>{agent.name}</div>
-                          </div>
-                          <div className="w-2/12 ">
-                            {agent?.agents[0]?.agentObjective ? (
-                              <div style={styles.text2}>
-                                {agent.agents[0]?.agentObjective}
-                              </div>
-                            ) : (
-                              "-"
-                            )}
-                          </div>
-                          <div className="w-1/12">
-                            <button
-                              style={styles.text2}
-                              className="text-purple underline outline-none"
-                              onClick={() => {
-                                handleShowLeads(agent, item);
-                              }}
+            {filteredAgentsList.length > 0 ? (
+              <div>
+                {filteredAgentsList.map((item, index) => {
+                  return (
+                    <div key={index}>
+                      {item.agents.map((agent, index) => {
+                        return (
+                          <div key={index}>
+                            <div
+                              className="w-full flex flex-row items-center justify-between mt-10 px-10"
+                              key={index}
                             >
-                              {item?.totalLeads}
-                            </button>
-                          </div>
-                          <div className="w-1/12">
-                            {item.agents[0]?.createdAt ? (
-                              <div style={styles.text2}>
-                                {GetFormattedDateString(
-                                  item.agens[0]?.createdAt
+                              <div className="w-3/12 flex flex-row gap-4 items-center">
+                                {agent?.agents[0]?.thumb_profile_image ? (
+                                  <Image
+                                    className="rounded-full"
+                                    src={agent?.agents[0].thumb_profile_image}
+                                    height={40}
+                                    width={40}
+                                    style={{
+                                      height: "40px",
+                                      width: "40px",
+                                      resize: "cover",
+                                    }}
+                                    alt="*"
+                                  />
+                                ) : (
+                                  <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                                    {agent.name.slice(0, 1).toUpperCase()}
+                                  </div>
+                                )}
+                                <div style={styles.text2}>{agent.name}</div>
+                              </div>
+                              <div className="w-2/12 ">
+                                {agent?.agents[0]?.agentObjective ? (
+                                  <div style={styles.text2}>
+                                    {agent.agents[0]?.agentObjective}
+                                  </div>
+                                ) : (
+                                  "-"
                                 )}
                               </div>
-                            ) : (
-                              "-"
-                            )}
-                          </div>
-                          <div className="w-2/12">
-                            {item.startTime ? (
-                              <div style={styles.text2}>
-                                {moment(item.startTime).format(
-                                  "MMM DD,YYYY - hh:mm A"
-                                )}
-                              </div>
-                            ) : (
-                              "-"
-                            )}
-                          </div>
-                          <div className="w-1/12">
-                            <button
-                              aria-describedby={id}
-                              variant="contained"
-                              onClick={(event) => {
-                                handleShowPopup(event, item, agent);
-                              }}
-                            >
-                              <Image
-                                src={"/otherAssets/threeDotsIcon.png"}
-                                height={24}
-                                width={24}
-                                alt="icon"
-                              />
-                            </button>
-                            <Popover
-                              id={id}
-                              open={open}
-                              anchorEl={anchorEl}
-                              onClose={handleClosePopup}
-                              anchorOrigin={{
-                                vertical: "bottom",
-                                horizontal: "right",
-                              }}
-                              transformOrigin={{
-                                vertical: "top",
-                                horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
-                              }}
-                              PaperProps={{
-                                elevation: 0, // This will remove the shadow
-                                style: {
-                                  boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
-                                  borderRadius: "10px",
-                                  width: "120px",
-                                },
-                              }}
-                            >
-                              <div
-                                className="p-2 flex flex-col gap-2"
-                                style={{ fontWeight: "500", fontSize: 15 }}
-                              >
+                              <div className="w-1/12">
                                 <button
-                                  className="text-start outline-none"
+                                  style={styles.text2}
+                                  className="text-purple underline outline-none"
                                   onClick={() => {
-                                    handleShowDetails();
+                                    handleShowLeads(agent, item);
                                   }}
                                 >
-                                  View Details
+                                  {item?.totalLeads}
                                 </button>
-                                {/* <div className="text-red">Delete</div> */}
                               </div>
-                            </Popover>
+                              <div className="w-1/12">
+                                {item.agents[0]?.createdAt ? (
+                                  <div style={styles.text2}>
+                                    {GetFormattedDateString(
+                                      item.agens[0]?.createdAt
+                                    )}
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
+                              </div>
+                              <div className="w-2/12">
+                                {item.startTime ? (
+                                  <div style={styles.text2}>
+                                    {moment(item.startTime).format(
+                                      "MMM DD,YYYY - hh:mm A"
+                                    )}
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
+                              </div>
+                              <div className="w-1/12">
+                                <button
+                                  aria-describedby={id}
+                                  variant="contained"
+                                  onClick={(event) => {
+                                    handleShowPopup(event, item, agent);
+                                  }}
+                                >
+                                  <Image
+                                    src={"/otherAssets/threeDotsIcon.png"}
+                                    height={24}
+                                    width={24}
+                                    alt="icon"
+                                  />
+                                </button>
+                                <Popover
+                                  id={id}
+                                  open={open}
+                                  anchorEl={anchorEl}
+                                  onClose={handleClosePopup}
+                                  anchorOrigin={{
+                                    vertical: "bottom",
+                                    horizontal: "right",
+                                  }}
+                                  transformOrigin={{
+                                    vertical: "top",
+                                    horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+                                  }}
+                                  PaperProps={{
+                                    elevation: 0, // This will remove the shadow
+                                    style: {
+                                      boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
+                                      borderRadius: "10px",
+                                      width: "120px",
+                                    },
+                                  }}
+                                >
+                                  <div
+                                    className="p-2 flex flex-col gap-2"
+                                    style={{ fontWeight: "500", fontSize: 15 }}
+                                  >
+                                    <button
+                                      className="text-start outline-none"
+                                      onClick={() => {
+                                        handleShowDetails();
+                                      }}
+                                    >
+                                      View Details
+                                    </button>
+                                    {/* <div className="text-red">Delete</div> */}
+                                  </div>
+                                </Popover>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              );
-            })}
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div style={{ fontWeight: "600", fontSize: 24, textAlign: "center", marginTop: 20 }}>
+                No Call Sheduled
+              </div>
+            )
+            }
           </div>
         )}
       </div>

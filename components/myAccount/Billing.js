@@ -71,17 +71,17 @@ function Billing() {
       mints: 30,
       calls: 25,
       details:
-        "Perfect for getting started! Free for the first 30 mins then $45 to continue.",
-      originalPrice: "45",
-      discountPrice: "0",
-      planStatus: "Free",
+        "Great for trying out AI sales agents.",
+      // originalPrice: "45",
+      discountPrice: "45",
+      planStatus: "",
       status: "",
     },
     {
       id: 2,
       mints: 120,
       calls: "1k",
-      details: "Approx 1,000 calls. Perfect for community updates.",
+      details: "Perfect for neighborhood updates and engagement.",
       originalPrice: "165",
       discountPrice: "99",
       planStatus: "40%",
@@ -91,7 +91,7 @@ function Billing() {
       id: 3,
       mints: 360,
       calls: "3k",
-      details: "Approx 3,000 calls. Great for 1-2 listing appointments.",
+      details: "Great for 2-3 listing appointments in your territory.",
       originalPrice: "540",
       discountPrice: "370",
       planStatus: "50%",
@@ -101,7 +101,7 @@ function Billing() {
       id: 4,
       mints: 720,
       calls: "10k",
-      details: "Approx 10,000 calls. Perfect for teams ramping up.",
+      details: "Great for teams and reaching new GCI goals.",
       originalPrice: "1200",
       discountPrice: "480",
       planStatus: "60%",
@@ -720,7 +720,7 @@ function Billing() {
                       fontWeight: "600",
                     }}
                   >
-                    {item.mints}mins
+                    {item.mints}mins | Approx {item.calls} Calls
                   </div>
                   {item.status && (
                     <div
@@ -745,7 +745,11 @@ function Billing() {
                   </div>
                   <div className="flex flex-row items-center">
                     <div style={styles.originalPrice}>
-                      ${item.originalPrice}
+                      {item.originalPrice && (
+                        <div>
+                          ${item.originalPrice}
+                        </div>
+                      )}
                     </div>
                     <div style={styles.discountedPrice}>
                       ${item.discountPrice}

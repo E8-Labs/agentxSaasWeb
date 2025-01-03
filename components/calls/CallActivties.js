@@ -31,6 +31,7 @@ function SheduledCalls() {
   const [leadsSearchValue, setLeadsSearchValue] = useState("");
   //variable for warningpopup
   const [showConfirmationPopuup, setShowConfirmationPopup] = useState(null);
+  const [color, setColor] = useState(false);
 
   useEffect(() => {
     getAgents();
@@ -111,8 +112,8 @@ function SheduledCalls() {
         mainAgent = agentDetails;
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
-      const ApiPath = Apis.getSheduledCallLogs;
-      console.log("Api path is: ", ApiPath);
+      const ApiPath = `${Apis.getSheduledCallLogs}?scheduled=false`;
+      console.log("Api path is: ", ApiPath); //scheduled
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -278,6 +279,69 @@ function SheduledCalls() {
     }
   };
 
+  //function to resume calls
+  const resumeCalls = async () => {
+    console.log("Selected agent is:", SelectedItem);
+    console.log("Resume call api trigered")
+    return
+    try {
+      setPauseLoader(true);
+      const ApiPath = Apis.pauseAgent;
+
+      console.log("Api path is: ", ApiPath);
+
+      let AuthToken = null;
+      const localData = localStorage.getItem("User");
+      if (localData) {
+        const Data = JSON.parse(localData);
+        console.log("Localdat recieved is :--", Data);
+        AuthToken = Data.token;
+      }
+
+      console.log("Auth token is:", AuthToken);
+      const ApiData = {
+        // mainAgentId: SelectedItem.id
+        batchId: SelectedItem.id,
+      };
+      console.log("Apidata is", ApiData);
+      // return
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response) {
+        console.log("Response of get agents api is:", response.data);
+        if (response.data.status === true) {
+          setShowConfirmationPopup(null);
+          let currentStatus = filteredAgentsList.map((item) => {
+            if (item.id === SelectedItem.id) {
+              // Update the status for the matching item
+              return {
+                ...item,
+                status: "Active",
+              };
+            }
+            // Return the item unchanged
+            return item;
+          });
+          console.log("Current status is:", currentStatus);
+
+          setFilteredAgentsList(currentStatus);
+          handleClosePopup();
+        }
+        // setFilteredAgentsList(response.data.data);
+        // setAgentsList(response.data.data);
+      }
+    } catch (error) {
+      console.error("Error occured in get Agents api is :", error);
+    } finally {
+      setPauseLoader(false);
+    }
+  };
+
   return (
     <div className="w-full items-start">
       {/* Confirmation popup */}
@@ -286,7 +350,9 @@ function SheduledCalls() {
           showConfirmationPopuup={showConfirmationPopuup}
           setShowConfirmationPopup={setShowConfirmationPopup}
           pauseAgent={pauseAgents}
+          color={color}
           PauseLoader={PauseLoader}
+          resumeCalls={resumeCalls}
         />
       )}
 
@@ -350,154 +416,174 @@ function SheduledCalls() {
           </div>
         ) : (
           <div>
-            {filteredAgentsList.map((item, index) => {
-              return (
-                <div key={index}>
-                  {item.agents.map((agent, index) => {
+            {
+              filteredAgentsList.length > 0 ? (
+                <div>
+                  {filteredAgentsList.map((item, index) => {
                     return (
                       <div key={index}>
-                        <div
-                          className="w-full flex flex-row items-center justify-between mt-10 px-10"
-                          key={index}
-                        >
-                          <div className="w-3/12 flex flex-row gap-4 items-center">
-                            {agent?.agents[0]?.thumb_profile_image ? (
-                              <Image
-                                className="rounded-full"
-                                src={agent?.agents[0].thumb_profile_image}
-                                height={40}
-                                width={40}
-                                style={{
-                                  height: "40px",
-                                  width: "40px",
-                                  resize: "cover",
-                                }}
-                                alt="*"
-                              />
-                            ) : (
-                              <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                {agent.name.slice(0, 1).toUpperCase()}
-                              </div>
-                            )}
-                            <div style={styles.text2}>{agent.name}</div>
-                          </div>
-                          <div className="w-2/12 ">
-                            {agent?.agents[0]?.agentObjective ? (
-                              <div style={styles.text2}>
-                                {agent.agents[0]?.agentObjective}
-                              </div>
-                            ) : (
-                              "-"
-                            )}
-                          </div>
-                          <div className="w-1/12">
-                            <button
-                              style={styles.text2}
-                              className="text-purple underline outline-none"
-                              onClick={() => {
-                                handleShowLeads(agent, item);
-                              }}
-                            >
-                              {item?.totalLeads}
-                            </button>
-                          </div>
-                          <div className="w-1/12">
-                            {item.agents[0]?.createdAt ? (
-                              <div style={styles.text2}>
-                                {GetFormattedDateString(
-                                  item.agens[0]?.createdAt
-                                )}
-                              </div>
-                            ) : (
-                              "-"
-                            )}
-                          </div>
-                          <div className="w-2/12">
-                            {/* {
+                        {item.agents.map((agent, index) => {
+                          return (
+                            <div key={index}>
+                              <div
+                                className="w-full flex flex-row items-center justify-between mt-10 px-10"
+                                key={index}
+                              >
+                                <div className="w-3/12 flex flex-row gap-4 items-center">
+                                  {agent?.agents[0]?.thumb_profile_image ? (
+                                    <Image
+                                      className="rounded-full"
+                                      src={agent?.agents[0].thumb_profile_image}
+                                      height={40}
+                                      width={40}
+                                      style={{
+                                        height: "40px",
+                                        width: "40px",
+                                        resize: "cover",
+                                      }}
+                                      alt="*"
+                                    />
+                                  ) : (
+                                    <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                                      {agent.name.slice(0, 1).toUpperCase()}
+                                    </div>
+                                  )}
+                                  <div style={styles.text2}>{agent.name}</div>
+                                </div>
+                                <div className="w-2/12 ">
+                                  {agent?.agents[0]?.agentObjective ? (
+                                    <div style={styles.text2}>
+                                      {agent.agents[0]?.agentObjective}
+                                    </div>
+                                  ) : (
+                                    "-"
+                                  )}
+                                </div>
+                                <div className="w-1/12">
+                                  <button
+                                    style={styles.text2}
+                                    className="text-purple underline outline-none"
+                                    onClick={() => {
+                                      handleShowLeads(agent, item);
+                                    }}
+                                  >
+                                    {item?.totalLeads}
+                                  </button>
+                                </div>
+                                <div className="w-1/12">
+                                  {item.agents[0]?.createdAt ? (
+                                    <div style={styles.text2}>
+                                      {GetFormattedDateString(
+                                        item.agents[0]?.createdAt
+                                      )}
+                                    </div>
+                                  ) : (
+                                    "-"
+                                  )}
+                                </div>
+                                <div className="w-2/12">
+                                  {/* {
                                                                         item.startTime ?
                                                                             <div style={styles.text2}>
                                                                                 {moment(item.startTime).format("MMM DD,YYYY - hh:mm A")}
                                                                             </div> : "-"
                                                                     } */}
-                            {item.status}
-                          </div>
-                          <div className="w-1/12">
-                            <button
-                              aria-describedby={id}
-                              variant="contained"
-                              onClick={(event) => {
-                                handleShowPopup(event, item, agent);
-                              }}
-                            >
-                              <Image
-                                src={"/otherAssets/threeDotsIcon.png"}
-                                height={24}
-                                width={24}
-                                alt="icon"
-                              />
-                            </button>
-                            <Popover
-                              id={id}
-                              open={open}
-                              anchorEl={anchorEl}
-                              onClose={handleClosePopup}
-                              anchorOrigin={{
-                                vertical: "bottom",
-                                horizontal: "right",
-                              }}
-                              transformOrigin={{
-                                vertical: "top",
-                                horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
-                              }}
-                              PaperProps={{
-                                elevation: 0, // This will remove the shadow
-                                style: {
-                                  boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
-                                  borderRadius: "10px",
-                                  width: "120px",
-                                },
-                              }}
-                            >
-                              <div
-                                className="p-2 flex flex-col gap-2"
-                                style={{ fontWeight: "500", fontSize: 15 }}
-                              >
-                                <div>
-                                  {PauseLoader ? (
-                                    <CircularProgress size={18} />
-                                  ) : (
-                                    <button
-                                      className="text-start outline-none"
-                                      onClick={() => {
-                                        setShowConfirmationPopup("Pause Calls");
-                                      }}
-                                    >
-                                      {SelectedItem.status == "Paused"
-                                        ? "Run Calls"
-                                        : "Pause Calls"}
-                                    </button>
-                                  )}
+                                  {item.status}
                                 </div>
+                                <div className="w-1/12">
+                                  <button
+                                    aria-describedby={id}
+                                    variant="contained"
+                                    onClick={(event) => {
+                                      handleShowPopup(event, item, agent);
+                                    }}
+                                  >
+                                    <Image
+                                      src={"/otherAssets/threeDotsIcon.png"}
+                                      height={24}
+                                      width={24}
+                                      alt="icon"
+                                    />
+                                  </button>
+                                  <Popover
+                                    id={id}
+                                    open={open}
+                                    anchorEl={anchorEl}
+                                    onClose={handleClosePopup}
+                                    anchorOrigin={{
+                                      vertical: "bottom",
+                                      horizontal: "right",
+                                    }}
+                                    transformOrigin={{
+                                      vertical: "top",
+                                      horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+                                    }}
+                                    PaperProps={{
+                                      elevation: 0, // This will remove the shadow
+                                      style: {
+                                        boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
+                                        borderRadius: "10px",
+                                        width: "120px",
+                                      },
+                                    }}
+                                  >
+                                    <div
+                                      className="p-2 flex flex-col gap-2"
+                                      style={{ fontWeight: "500", fontSize: 15 }}
+                                    >
+                                      <div>
+                                        {PauseLoader ? (
+                                          <CircularProgress size={18} />
+                                        ) : (
+                                          <button
+                                            className="text-start outline-none"
+                                            onClick={() => {
 
-                                <button
-                                  className="text-start outline-none"
-                                  onClick={() => {
-                                    handleShowDetails();
-                                  }}
-                                >
-                                  View Details
-                                </button>
-                                {/* <div className="text-red">Delete</div> */}
+                                              if (SelectedItem?.status == "Paused") {
+                                                // console.log("Calls are paused")
+                                                setColor(true);
+                                                setShowConfirmationPopup("Resume Calls")
+                                              } else {
+                                                // console.log("Calls are active")
+                                                setShowConfirmationPopup("Pause Calls")
+                                                setColor(false);
+                                              }
+                                              console.log("Cha")
+                                            }}
+                                          >
+                                            {SelectedItem?.status == "Paused"
+                                              ? "Run Calls"
+                                              : "Pause Calls"}
+                                          </button>
+                                        )}
+                                      </div>
+
+                                      <button
+                                        className="text-start outline-none"
+                                        onClick={() => {
+                                          handleShowDetails();
+                                        }}
+                                      >
+                                        View Details
+                                      </button>
+                                      {/* <div className="text-red">Delete</div> */}
+                                    </div>
+                                  </Popover>
+                                </div>
                               </div>
-                            </Popover>
-                          </div>
-                        </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     );
                   })}
                 </div>
-              );
-            })}
+              ) : (
+                <div style={{ fontWeight: "600", fontSize: 24, textAlign: "center", marginTop: 20 }}>
+                  No Call Activity Found
+                </div>
+              )
+            }
           </div>
         )}
       </div>
@@ -869,11 +955,13 @@ export const ShowConfirmationPopup = ({
   setShowConfirmationPopup,
   PauseLoader,
   pauseAgent,
+  resumeCalls,
+  color
 }) => {
   return (
     <div>
       <Modal
-        open={showConfirmationPopuup}
+        open={showConfirmationPopuup} //showConfirmationPopuup
         onClose={() => {
           setShowConfirmationPopup(null);
         }}
@@ -937,7 +1025,7 @@ export const ShowConfirmationPopup = ({
                   </div>
                 ) : (
                   <button
-                    className="outline-none bg-red"
+                    className={`outline-none ${color ? "bg-purple" : "bg-red"}`}
                     style={{
                       color: "white",
                       height: "50px",
@@ -946,7 +1034,13 @@ export const ShowConfirmationPopup = ({
                       fontWeight: 600,
                       fontSize: "20",
                     }}
-                    onClick={pauseAgent}
+                    onClick={() => {
+                      if (color === true) {
+                        resumeCalls()
+                      } else {
+                        pauseAgent()
+                      }
+                    }}
                   >
                     Yes! {showConfirmationPopuup}
                   </button>

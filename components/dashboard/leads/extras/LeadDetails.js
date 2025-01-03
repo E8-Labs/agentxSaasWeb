@@ -1689,7 +1689,7 @@ const LeadDetails = ({
                       handleAddLeadNotes();
                     }}
                   >
-                    Add & Close
+                    Add
                   </button>
                 )}
               </div>

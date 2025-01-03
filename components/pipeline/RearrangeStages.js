@@ -852,7 +852,7 @@ const RearrangeStages = ({
                       }}
                       onClick={handleAddNewStageTitle}
                     >
-                      Add & Close
+                      Add
                     </button>
                   )}
                 </div>

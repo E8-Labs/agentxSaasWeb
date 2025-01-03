@@ -37,7 +37,7 @@ function InviteAgentX() {
         //     details: "Perfect for getting started! Free for the first 30 mins then $45 to continue.",
         //     originalPrice: "45",
         //     discountPrice: "0",
-        //     planStatus: "Free"
+        //     planStatus: ""
         // },
         {
             id: 2,

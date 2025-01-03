@@ -2197,7 +2197,7 @@ const Pipeline1 = () => {
                       fontSize: "20",
                     }}
                   >
-                    Add & Close
+                    Add
                   </button>
                 )
               }
@@ -2318,7 +2318,7 @@ const Pipeline1 = () => {
                 }}
                 onClick={handleRenameStage}
               >
-                Add & Close
+                Add
               </button>
             )}
           </div>
@@ -3063,7 +3063,7 @@ const Pipeline1 = () => {
                       handleAddLeadNotes();
                     }}
                   >
-                    Add & Close
+                    Add
                   </button>
                 )}
               </div>

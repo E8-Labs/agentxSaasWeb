@@ -296,7 +296,7 @@ function Page() {
                                 + Invite new
                             </button>
                         </div>
-                        <Menu
+                        {/* <Menu
                             id="basic-menu"
                             anchorEl={teamDropdown}
                             open={openTeamDropdown}
@@ -307,7 +307,7 @@ function Page() {
                         >
                             <MenuItem style={styles.itemText} onClick={handleClose}>Noah's Team</MenuItem>
                             <MenuItem style={styles.itemText} onClick={handleClose}>Perick's Team</MenuItem>
-                        </Menu>
+                        </Menu> */}
                         {myTeam.length > 0 ? (
                             <div className='pt-3 flex flex-row flex-wrap gap-6 ' style={{ overflow: 'auto', scrollbarWidth: 'none' }}>
                                 {

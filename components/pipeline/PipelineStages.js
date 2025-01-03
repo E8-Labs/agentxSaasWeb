@@ -976,7 +976,7 @@ const PipelineStages = ({
                                 }}
                                 onClick={handleRenameStage}
                               >
-                                Add & Close
+                                Add
                               </button>
                             )}
                           </div>
@@ -1513,13 +1513,6 @@ const PipelineStages = ({
                           />
                         </div>
 
-                        <p
-                          className="mt-2"
-                          style={{ fontWeight: "500", fontSize: 12 }}
-                        >
-                          What are possible answers leads will give to this
-                          question?
-                        </p>
 
                         <div
                           className=" mt-2" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple max-h-[30vh] overflow-auto
@@ -1723,7 +1716,7 @@ const PipelineStages = ({
                             }}
                             // onClick={handleAddNewStageTitle}
                           >
-                            Add & Close
+                            Add Stage
                           </button>
                         )
                       }

@@ -2598,7 +2598,7 @@ const Userleads = ({
                       handleAddLeadNotes();
                     }}
                   >
-                    Add & Close
+                    Add
                   </button>
                 )}
               </div>

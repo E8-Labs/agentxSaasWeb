@@ -239,6 +239,45 @@ const CreatAgent3 = ({ handleContinue }) => {
         },
     ]
 
+    const plans2 = [
+        {
+            id: 1,
+            mints: 30,
+            calls: 25,
+            details: "Great for trying out AI sales agents",
+            originalPrice: "",
+            discountPrice: "45",
+            planStatus: ""
+        },
+        {
+            id: 2,
+            mints: 120,
+            calls: "1k",
+            details: "Perfect for neighborhood updates and engagement.",
+            originalPrice: "165",
+            discountPrice: "99",
+            planStatus: "40%"
+        },
+        {
+            id: 3,
+            mints: 360,
+            calls: "3k",
+            details: "Great for 2-3 listing appointments in your territory.",
+            originalPrice: "540",
+            discountPrice: "370",
+            planStatus: "50%"
+        },
+        {
+            id: 4,
+            mints: 720,
+            calls: "10k",
+            details: "Great for teams and reaching new GCI goals. ",
+            originalPrice: "1200",
+            discountPrice: "480",
+            planStatus: "60%"
+        },
+    ]
+
     const styles = {
         headingStyle: {
             fontSize: 16,
@@ -786,7 +825,7 @@ const CreatAgent3 = ({ handleContinue }) => {
 
                                 <div className='w-full'>
                                     {
-                                        plans.map((item, index) => (
+                                        plans2.map((item, index) => (
                                             <button key={item.id} className='w-full mt-4' onClick={(e) => handleTogglePlanClick2(item)}>
                                                 <div className='px-4 py-1 pb-4'
                                                     style={{

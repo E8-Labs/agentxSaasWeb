@@ -32,10 +32,10 @@ const ProfileNav = () => {
       id: 1,
       mints: 30,
       calls: 25,
-      details: "Perfect for getting started! Free for the first 30 mins then $45 to continue.",
-      originalPrice: "45",
-      discountPrice: "0",
-      planStatus: "Free"
+      details: "Great for trying out AI sales agents.",
+      originalPrice: "",
+      discountPrice: "45",
+      planStatus: ""
     },
     {
       id: 2,
@@ -433,7 +433,15 @@ const ProfileNav = () => {
                                 {item.details}
                               </div>
                               <div className='flex flex-row items-center'>
-                                <div style={styles.originalPrice}>${item.originalPrice}</div>
+                                <div style={styles.originalPrice}>
+                                  {
+                                    item.originalPrice && (
+                                      <div>
+                                        ${item.originalPrice}
+                                      </div>
+                                    )
+                                  }
+                                </div>
                                 <div style={styles.discountedPrice}>${item.discountPrice}</div>
                               </div>
                             </div>
