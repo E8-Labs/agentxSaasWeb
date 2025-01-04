@@ -502,16 +502,16 @@ function Billing() {
       <AgentSelectSnackMessage
         isVisible={errorSnack == null ? false : true}
         hide={() => {
-          setErrorSnack(false);
+          setErrorSnack(null);
         }}
         message={errorSnack}
       />
       <AgentSelectSnackMessage
         isVisible={successSnack == null ? false : true}
         hide={() => {
-          setSuccessSnack(false);
+          setSuccessSnack(null);
         }}
-        message={setSuccessSnack}
+        message={successSnack}
         type={SnackbarTypes.Success}
       />
       <div className="w-full flex flex-row items-center justify-between">
@@ -693,14 +693,14 @@ function Billing() {
                 <div>
                   {item.id === togglePlan ? (
                     <Image
-                      src={"/assets/checkMark.png"}
+                      src={"/svgIcons/checkMark.svg"}
                       height={24}
                       width={24}
                       alt="*"
                     />
                   ) : (
                     <Image
-                      src={"/assets/unCheck.png"}
+                      src={"/svgIcons/unCheck.svg"}
                       height={24}
                       width={24}
                       alt="*"
@@ -841,7 +841,7 @@ function Billing() {
             )}
           </div>
 
-          {togglePlan === currentPlan && (
+          {/* {togglePlan === currentPlan && (
             <button
               className="text-black  outline-none rounded-xl w-9/12 mt-3"
               style={{
@@ -861,7 +861,31 @@ function Billing() {
             >
               Cancel AgentX
             </button>
-          )}
+          )} */}
+
+          {
+            userLocalData.plan && (
+              <button
+                className="text-black  outline-none rounded-xl w-9/12 mt-3"
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  height: "50px",
+                  textDecorationLine: "underline",
+                  flexShrink: 0,
+                }}
+                onClick={() => {
+                  if (userLocalData?.cancelPlanRedemptions === 0) {
+                    setGiftPopup(true);
+                  } else {
+                    setShowConfirmCancelPlanPopup(true);
+                  }
+                }}
+              >
+                Cancel AgentX
+              </button>
+            )
+          }
         </div>
       )}
 

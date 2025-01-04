@@ -1,7 +1,14 @@
 "use client"
-import AddCalender from '@/components/pipeline/AddCalender';
-import Pipeline1 from '@/components/pipeline/Pipeline1';
-import Pipeline2 from '@/components/pipeline/Pipeline2';
+const AddCalender = dynamic(() =>
+    import("../../components/pipeline/AddCalender.js")
+);
+const Pipeline1 = dynamic(() =>
+    import("../../components/pipeline/Pipeline1.js")
+);
+const Pipeline2 = dynamic(() =>
+    import("../../components/pipeline/Pipeline2.js")
+);
+import dynamic from 'next/dynamic.js';
 import React, { useState } from 'react';
 
 const Page = () => {

@@ -1,9 +1,22 @@
 "use client"
-import CreatAgent3 from '@/components/createagent/CreatAgent3';
-import CreateAgent1 from '@/components/createagent/CreateAgent1';
-import CreateAgent2 from '@/components/createagent/CreateAgent2';
-import CreateAgent4 from '@/components/createagent/CreateAgent4';
-import CreateAgentVoice from '@/components/createagent/CreateAgentVoice';
+
+const CreateAgent1 = dynamic(() =>
+    import("../../components/createagent/CreateAgent1.js")
+);
+const CreateAgent2 = dynamic(() =>
+    import("../../components/createagent/CreateAgent1.js")
+);
+const CreatAgent3 = dynamic(() =>
+    import("../../components/createagent/CreatAgent3.js")
+);
+const CreateAgent4 = dynamic(() =>
+    import("../../components/createagent/CreateAgent4.js")
+);
+const CreateAgentVoice = dynamic(() =>
+    import("../../components/createagent/CreateAgentVoice.js")
+);
+
+import dynamic from 'next/dynamic.js';
 import React, { useEffect } from 'react';
 import { useState } from 'react';
 
@@ -20,7 +33,7 @@ const Page = () => {
         if (localData) {
             const Data = JSON.parse(localData);
             if (Data.user.plan) {
-                setComponents([CreateAgent1, CreatAgent3, CreateAgent4, CreateAgentVoice])
+                setComponents([CreateAgent1, CreateAgent4, CreateAgentVoice])
             } else {
                 setComponents([CreateAgent1, CreatAgent3, CreateAgent4, CreateAgentVoice])
             }

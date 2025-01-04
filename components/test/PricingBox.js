@@ -57,7 +57,7 @@ const PricingBox = () => {
             <div className='flex flex-row items-start gap-1' style={styles.content}>
                 <div className='mt-2'>
                     <div>
-                        <Image src={"/assets/checkMark.png"} height={24} width={24} alt='*' />
+                        <Image src={"/svgIcons/checkMark.svg"} height={24} width={24} alt='*' />
                     </div>
                 </div>
                 <div>

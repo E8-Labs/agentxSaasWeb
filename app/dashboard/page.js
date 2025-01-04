@@ -161,9 +161,15 @@ const Page = () => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
 
-    // Format minutes and seconds as "mins:ss"
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+    // If remaining seconds are zero, return only minutes
+    if (remainingSeconds === 0) {
+      return `${minutes} Min`;
+    }
+
+    // Otherwise, return minutes and seconds
+    return `${minutes} Min ${remainingSeconds.toString().padStart(2, "0")} Sec`;
   }
+
 
   const backgroundImage = {
     backgroundImage: 'url("/otherAssets/bg23.png")',
@@ -240,7 +246,7 @@ const Page = () => {
           <h3 className="mt-4 text-md font-medium">{title}</h3>
 
           {/* Value */}
-          <p className="text-3xl font-bold mt-2">{value}</p>
+          <p className="lg:text-3xl md:text-2xl sm:text-xl text-lg font-bold mt-2">{value}</p>
 
           {/* Subtitle and Rate */}
           {subtitle && (
@@ -449,9 +455,9 @@ const Page = () => {
                           </div>
 
                           <div
-                            // className='lg:text-3xl font-bold text-white'
+                            className='lg:text-4xl md:text-2xl sm:text-xl text-lg font-bold text-white'
                             style={{
-                              fontSize: 40,
+                              // fontSize: 40,
                               fontWeight: "400",
                               color: "#fff",
                             }}
@@ -540,9 +546,16 @@ const Page = () => {
                       title="Booked Meetings"
                       value={statsDetails?.meetingScheduled || "-"}
                       subtitle="Conversion rate"
+                      // rate={
+                      //   statsComparisonDetails?.durationChange
+                      //     ? `${statsComparisonDetails?.durationChange.toFixed(
+                      //       2
+                      //     )}%`
+                      //     : "-"
+                      // }
                       rate={
-                        statsComparisonDetails?.durationChange
-                          ? `${statsComparisonDetails?.durationChange.toFixed(
+                        statsComparisonDetails?.bookingChange
+                          ? `${statsComparisonDetails?.bookingChange.toFixed(
                             2
                           )}%`
                           : "-"
@@ -571,7 +584,7 @@ const Page = () => {
                     <Card
                       icon="/svgIcons/avgDurationIcon.svg"
                       title="Avg Convo Duration"
-                      value={statsDetails?.avDuration || "-"}
+                      value={statsDetails?.formattedAvDuration || "-"}
                       borderSide="border-l-2"
                     />
                   </div>

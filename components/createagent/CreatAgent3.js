@@ -434,8 +434,8 @@ const CreatAgent3 = ({ handleContinue }) => {
                                                     <div>
                                                         {
                                                             item.id === togglePlan ?
-                                                                <Image src={"/assets/checkMark.png"} height={24} width={24} alt='*' /> :
-                                                                <Image src={"/assets/unCheck.png"} height={24} width={24} alt='*' />
+                                                                <Image src={"/svgIcons/checkMark.svg"} height={24} width={24} alt='*' /> :
+                                                                <Image src={"/svgIcons/unCheck.svg"} height={24} width={24} alt='*' />
                                                         }
                                                     </div>
                                                 </div>
@@ -508,7 +508,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                 </button>
                             </div>
                         </div>
-                        
+
                         <div
                             style={{
                                 fontWeight: "600",
@@ -757,11 +757,11 @@ const CreatAgent3 = ({ handleContinue }) => {
                                             console.log("This is a small size screen");
                                         } else {
                                             console.log("This is a large size screen");
-                                            setShowSubscribeplan2(true)
-                                            // if (selectedPlan?.id === 1) {
-                                            // } else {
-                                            //     handleContinue();
-                                            // }
+                                            if (selectedPlan?.id === 1) {
+                                                setShowSubscribeplan2(true)
+                                            } else {
+                                                handleContinue();
+                                            }
                                         }
 
                                     }}
@@ -790,7 +790,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                     }}
                 >
                     <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
-                        <div className="flex flex-row justify-center w-full">
+                        <div className="flex flex-row justify-center w-full h-[95svh]" style={{ overflow: "auto" }}>
                             <div
                                 className="sm:w-7/12 w-full mx-2"
                                 style={{
@@ -807,7 +807,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                 </div>
 
                                 <div
-                                    className='w-11/12 sm:text-[29px] text-[24px] font-[400]'
+                                    className='w-11/12 sm:text-[20px] text-[24px] font-[400]'
                                     style={{ textAlign: "center" }}>
                                     Continue with a plan after your free 30 mins
                                 </div>
@@ -816,7 +816,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                                     <div className='hidden md:flex flex flex-row items-center justify-center py-3 gap-4 mt-6 mb-8 px-4' style={{ backgroundColor: "#402FFF20", borderRadius: "50px", width: "fit-content" }}>
                                         <Image src={"/assets/attachIcon.png"} height={24} width={24} alt='*' />
                                         <div className='text-purple' style={styles.giftTextStyle}>
-                                            Invest in Your Business Growth - Quick Start, Minimal Cost, Maximum Value.
+                                            Invest in Your Business Growth.
                                         </div>
                                     </div>
                                 </div>
@@ -841,17 +841,30 @@ const CreatAgent3 = ({ handleContinue }) => {
                                                         <div className='mt-1'>
                                                             {
                                                                 item.id === 1 ?
-                                                                    <Image src={"/assets/checkMark.png"} height={24} width={24} alt='*' /> :
+                                                                    <Image src={"/svgIcons/checkMark.svg"} height={24} width={24} alt='*' /> :
                                                                     <div>
                                                                         {
                                                                             item.id === togglePlan2 ?
-                                                                                <Image src={"/assets/checkMark.png"} height={24} width={24} alt='*' /> :
-                                                                                <Image src={"/assets/unCheck.png"} height={24} width={24} alt='*' />
+                                                                                <Image src={"/svgIcons/checkMark.svg"} height={24} width={24} alt='*' /> :
+                                                                                <Image src={"/svgIcons/unCheck.svg"} height={24} width={24} alt='*' />
                                                                         }
                                                                     </div>
                                                             }
                                                         </div>
                                                         <div className='w-full'>
+                                                            {
+                                                                item.id === 1 && (
+                                                                    <div
+                                                                        className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
+                                                                        style={{
+                                                                            fontSize: 11.6,
+                                                                            fontWeight: "500",
+                                                                            width: "fit-content",
+                                                                        }}
+                                                                    >
+                                                                        Current Plan
+                                                                    </div>
+                                                                )}
                                                             <div style={{ color: "#151515", fontSize: 20, fontWeight: "600" }}>
                                                                 {item.mints}mins | Approx {item.calls} Calls
                                                             </div>
@@ -860,7 +873,12 @@ const CreatAgent3 = ({ handleContinue }) => {
                                                                     {item.details}
                                                                 </div>
                                                                 <div className='flex flex-row items-center'>
-                                                                    <div style={styles.originalPrice}>${item.originalPrice}</div>
+                                                                    {item.originalPrice && (
+                                                                        <div style={styles.originalPrice}>
+                                                                            ${item.originalPrice}
+                                                                        </div>
+                                                                    )
+                                                                    }
                                                                     <div style={styles.discountedPrice}>${item.discountPrice}</div>
                                                                 </div>
                                                             </div>
@@ -872,6 +890,33 @@ const CreatAgent3 = ({ handleContinue }) => {
                                     }
                                 </div>
 
+                                <div className='flex flex-row items-center gap-4 justify-start w-full mt-6'>
+                                    <button onClick={handleToggleTermsClick}>
+                                        {
+                                            agreeTerms ?
+                                                <div className='bg-purple flex flex-row items-center justify-center rounded' style={{ height: "24px", width: "24px" }}>
+                                                    <Image src={"/assets/whiteTick.png"} height={8} width={10} alt='*' />
+                                                </div> :
+                                                <div className='bg-none border-2 flex flex-row items-center justify-center rounded' style={{ height: "24px", width: "24px" }}>
+                                                </div>
+                                        }
+                                    </button>
+                                    <div
+                                        className='flex flex-row items-center gap-1'
+                                        style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
+                                    >
+                                        I agree to the
+                                        <button
+                                            className='underline'
+                                            onClick={() => {
+                                                window.open("https://www.myagentx.com/terms-and-condition", "_blank");
+                                            }}
+                                        >
+                                            Terms & Conditions.
+                                        </button>
+                                    </div>
+                                </div>
+
 
                                 {
                                     subscribePlanLoader ?
@@ -879,7 +924,12 @@ const CreatAgent3 = ({ handleContinue }) => {
                                             <CircularProgress size={30} />
                                         </div> :
                                         <button
-                                            className='bg-purple text-white w-full rounded-xl mt-6 mb-6' style={{ ...styles.headingStyle, height: "50px", }}
+                                            disabled={!agreeTerms}
+                                            className='bg-purple text-white w-full rounded-xl mt-6 mb-6' style={{
+                                                ...styles.headingStyle, height: "50px",
+                                                backgroundColor: !agreeTerms && "#00000010",
+                                                color: !agreeTerms && "#000000",
+                                            }}
                                             onClick={() => {
 
                                                 const screenWidth = window.innerWidth; // Get current screen width

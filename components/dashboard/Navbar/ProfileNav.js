@@ -421,8 +421,8 @@ const ProfileNav = () => {
                             <div>
                               {
                                 item.id === togglePlan ?
-                                  <Image src={"/assets/checkMark.png"} height={24} width={24} alt='*' /> :
-                                  <Image src={"/assets/unCheck.png"} height={24} width={24} alt='*' />
+                                  <Image src={"/svgIcons/checkMark.svg"} height={24} width={24} alt='*' /> :
+                                  <Image src={"/svgIcons/unCheck.svg"} height={24} width={24} alt='*' />
                               }
                             </div>
                           </div>

@@ -1497,11 +1497,15 @@ const Pipeline1 = () => {
                           className="h-[23px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center text-black"
                           style={{ ...styles.paragraph, fontSize: 14 }}
                         >
-                          {leadCounts[stage.id] ? (
+                          {/* {leadCounts[stage.id] ? (
                             <div>{leadCounts[stage.id]}</div>
                           ) : (
                             "0"
-                          )}
+                          )} */}
+
+                          {LeadsList.filter(
+                            (lead) => lead.lead.stage === stage.id
+                          ).length}
 
                           {/* {leadCounts.map((item) => {
     
