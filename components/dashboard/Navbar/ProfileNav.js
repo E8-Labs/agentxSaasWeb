@@ -155,6 +155,8 @@ const ProfileNav = () => {
 
   const handleOnClick = (e, href) => {
 
+    localStorage.removeItem("openBilling");
+
     if (!userDetails.user.plan) {
       getProfile();
     }

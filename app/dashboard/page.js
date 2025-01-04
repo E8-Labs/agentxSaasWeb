@@ -15,8 +15,12 @@ import {
 import moment, { duration } from "moment";
 import getProfileDetails from "@/components/apis/GetProfile";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
+
+  const router = useRouter();
+
   const [userDetails, setUserDetails] = useState(null);
 
   const [showPlansPopup, setShowPlansPopup] = useState(false);
@@ -467,7 +471,14 @@ const Page = () => {
                         >
                           Scale your business
                         </div>
-                        <button className="flex flex-row items-center gap-2 justify-center bg-white h-[43px] w-[130px] rounded-[15px]">
+                        <button
+                          className="flex flex-row items-center gap-2 justify-center bg-white h-[43px] w-[130px] rounded-[15px]"
+                          onClick={() => {
+                            const openBilling = true;
+                            localStorage.setItem("openBilling", JSON.stringify(openBilling));
+                            router.push("/dashboard/myAccount");
+                          }}
+                        >
                           <Image
                             src={"/svgIcons/king.svg"}
                             height={20}

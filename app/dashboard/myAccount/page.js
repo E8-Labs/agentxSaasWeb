@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import BasicInfo from '@/components/myAccount/BasicInfo'
 import MyPhoneNumber from '@/components/myAccount/MyPhoneNumber'
@@ -49,6 +49,14 @@ function Page() {
 
     const [selectedManu, setSelectedManu] = useState(manuBar[0])
     const [showNotificationDrawer, setShowNotificationDrawer] = useState(false)
+
+    useEffect(() => {
+    const data = localStorage.getItem("openBilling");
+    if(data){
+        const D = JSON.parse(data);
+        setSelectedManu(manuBar[1]);
+    }
+    }, [])
 
     const renderComponent = (selectedMenuId) => {
         switch (selectedMenuId) {

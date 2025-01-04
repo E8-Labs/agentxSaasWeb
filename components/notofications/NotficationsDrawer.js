@@ -9,8 +9,12 @@ import moment from "moment";
 import getProfileDetails from "../apis/GetProfile";
 import { GetFormattedDateString } from "@/utilities/utility";
 import LeadDetails from "../dashboard/leads/extras/LeadDetails";
+import { useRouter } from "next/navigation";
 
 function NotficationsDrawer({ close }) {
+
+  const router = useRouter();
+
   const [loading, setLoading] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unread, setUnread] = useState(0);
@@ -258,6 +262,7 @@ function NotficationsDrawer({ close }) {
             </div>
           </div>
         </div>
+
         {
           item.type === NotificationTypes.Hotlead || item.type === NotificationTypes.MeetingBooked ? (
             <button
@@ -275,7 +280,15 @@ function NotficationsDrawer({ close }) {
           ) : (
             item.type === NotificationTypes.PaymentFailed ? (
 
-              <button>
+              <button
+                className="outline-none"
+                onClick={() => {
+                  const openBilling = true;
+                  localStorage.setItem("openBilling", JSON.stringify(openBilling));
+                  router.push("/dashboard/myAccount");
+                  setShowNotificationDrawer(false);
+                }}
+              >
                 <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
                   Resolve Now
                 </div>
@@ -325,6 +338,14 @@ function NotficationsDrawer({ close }) {
         onClose={() => {
           setShowNotificationDrawer(false);
         }}
+
+        BackdropProps={{
+          // timeout: 1000,
+          sx: {
+            backgroundColor: "#00000020",
+          },
+        }}
+
       >
         <div className="w-full h-full flex flex-col">
           <div className="flex flex-row items-center justify-between p-6">
@@ -366,6 +387,7 @@ function NotficationsDrawer({ close }) {
               />
             </button>
           </div>
+
 
           <div
             style={{ height: 1, width: "100%", background: "#00000010" }}
