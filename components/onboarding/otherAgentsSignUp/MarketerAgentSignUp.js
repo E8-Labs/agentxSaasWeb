@@ -531,7 +531,7 @@ const MarketerAgentSignUp = ({
                 <div>
                   {emailLoader ? (
                     <p style={{ ...styles.errmsg, color: "black" }}>
-                      Checking email ...
+                      Checking ...
                     </p>
                   ) : (
                     <div>
@@ -645,7 +645,7 @@ const MarketerAgentSignUp = ({
                             height: "20px",
                           }}
                         >
-                          Checking phone number ...
+                          Checking ...
                         </p>
                       ) : (
                         <div>

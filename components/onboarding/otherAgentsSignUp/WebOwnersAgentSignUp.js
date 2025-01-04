@@ -526,7 +526,7 @@ const WebOwnersAgentSignUp = ({
                 <div>
                   {emailLoader ? (
                     <p style={{ ...styles.errmsg, color: "black" }}>
-                      Checking email ...
+                      Checking ...
                     </p>
                   ) : (
                     <div>
@@ -640,7 +640,7 @@ const WebOwnersAgentSignUp = ({
                             height: "20px",
                           }}
                         >
-                          Checking phone number ...
+                          Checking ...
                         </p>
                       ) : (
                         <div>

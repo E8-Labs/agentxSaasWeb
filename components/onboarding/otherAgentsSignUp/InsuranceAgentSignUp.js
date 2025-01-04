@@ -1,22 +1,34 @@
-import Body from '@/components/onboarding/Body';
-import Header from '@/components/onboarding/Header';
-import Image from 'next/image';
-import React, { useEffect, useRef, useState } from 'react';
-import ProgressBar from '@/components/onboarding/ProgressBar';
-import { useRouter } from 'next/navigation';
-import Footer from '@/components/onboarding/Footer';
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
-import { parsePhoneNumberFromString } from 'libphonenumber-js';
-import Apis from '@/components/apis/Apis';
-import axios from 'axios';
-import { Alert, Box, CircularProgress, Fade, Modal, Snackbar } from '@mui/material';
-import SnackMessages from '../services/AuthVerification/SnackMessages';
-import SendVerificationCode from '../services/AuthVerification/AuthService';
+import Body from "@/components/onboarding/Body";
+import Header from "@/components/onboarding/Header";
+import Image from "next/image";
+import React, { useEffect, useRef, useState } from "react";
+import ProgressBar from "@/components/onboarding/ProgressBar";
+import { useRouter } from "next/navigation";
+import Footer from "@/components/onboarding/Footer";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
+import Apis from "@/components/apis/Apis";
+import axios from "axios";
+import {
+  Alert,
+  Box,
+  CircularProgress,
+  Fade,
+  Modal,
+  Snackbar,
+} from "@mui/material";
+import SnackMessages from "../services/AuthVerification/SnackMessages";
+import SendVerificationCode from "../services/AuthVerification/AuthService";
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
-const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceBack, length = 6, onComplete }) => {
-
+const InsuranceAgentSignUp = ({
+  handleContinue,
+  handleWaitList,
+  handleInsuranceBack,
+  length = 6,
+  onComplete,
+}) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
 
@@ -35,13 +47,14 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
   const [userTransaction, setUserTransaction] = useState("");
   //phone number input variable
   const [userPhoneNumber, setUserPhoneNumber] = useState("");
-  const [countryCode, setCountryCode] = useState('');
+  const [countryCode, setCountryCode] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const [userData, setUserData] = useState(null);
-  const [phoneVerifiedSuccessSnack, setPhoneVerifiedSuccessSnack] = useState(false);
+  const [phoneVerifiedSuccessSnack, setPhoneVerifiedSuccessSnack] =
+    useState(false);
   //verify code input fields
-  const [VerifyCode, setVerifyCode] = useState(Array(length).fill(''));
+  const [VerifyCode, setVerifyCode] = useState(Array(length).fill(""));
   //check email availability
   const [emailLoader, setEmailLoader] = useState(false);
   const [emailCheckResponse, setEmailCheckResponse] = useState(null);
@@ -56,15 +69,37 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
 
   // Function to get the user's location and set the country code
   useEffect(() => {
-    if (userName && userEmail && userPhoneNumber && userFarm && userBrokage &&
-      emailCheckResponse?.status === true && checkPhoneResponse?.status === true) {
+    if (
+      userName &&
+      userEmail &&
+      userPhoneNumber &&
+      userFarm &&
+      userBrokage &&
+      emailCheckResponse?.status === true &&
+      checkPhoneResponse?.status === true
+    ) {
       setShouldContinue(false);
-    } else if (!userName || !userEmail || !userPhoneNumber ||
-      !userFarm || !userBrokage ||
-      checkPhoneResponse?.status === false || emailCheckResponse?.status === false) {
+    } else if (
+      !userName ||
+      !userEmail ||
+      !userPhoneNumber ||
+      !userFarm ||
+      !userBrokage ||
+      checkPhoneResponse?.status === false ||
+      emailCheckResponse?.status === false
+    ) {
       setShouldContinue(true);
     }
-  }, [userName, userEmail, userPhoneNumber, userFarm, userBrokage, userTransaction, checkPhoneResponse, emailCheckResponse]);
+  }, [
+    userName,
+    userEmail,
+    userPhoneNumber,
+    userFarm,
+    userBrokage,
+    userTransaction,
+    checkPhoneResponse,
+    emailCheckResponse,
+  ]);
 
   //code to focus the verify code input field
   useEffect(() => {
@@ -81,13 +116,12 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
     if (!phone) {
       setErrorMessage("");
     }
-
   };
 
   //code to get user location
 
   const getLocation = () => {
-    console.log("getlocation trigered")
+    console.log("getlocation trigered");
     const registerationDetails = localStorage.getItem("registerDetails");
     // let registerationData = null;
     setLocationLoader(true);
@@ -105,7 +139,9 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
           const { latitude, longitude } = position.coords;
 
           // Fetch country code based on lat and long
-          const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+          const response = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+          );
           const data = await response.json();
 
           // Set the country code based on the geolocation API response
@@ -121,29 +157,32 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
     };
 
     fetchCountry();
-  }
+  };
 
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
     // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
     // parsePhoneNumberFromString(`+${phone}`, countryCode.toUpperCase())
-    const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`, countryCode.toUpperCase());
+    const parsedNumber = parsePhoneNumberFromString(
+      `+${phoneNumber}`,
+      countryCode.toUpperCase()
+    );
     // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
-      setErrorMessage('Invalid');
+      setErrorMessage("Invalid");
     } else {
-      setErrorMessage('');
+      setErrorMessage("");
 
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
 
       // setCheckPhoneResponse(null);
-      console.log("Trigered")
+      console.log("Trigered");
 
       timerRef.current = setTimeout(() => {
         checkPhoneNumber(phoneNumber);
-        console.log('I am hit now');
+        console.log("I am hit now");
       }, 300);
     }
   };
@@ -167,8 +206,8 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
     try {
       setSendcodeLoader(true);
       let response = await SendVerificationCode(userPhoneNumber, true);
-      setResponse(response)
-      setIsVisible(true)
+      setResponse(response);
+      setIsVisible(true);
       console.log("Response recieved is", response);
     } catch (error) {
       console.error("Error occured", error);
@@ -183,16 +222,15 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
     }, 100); // Adjust the delay as needed, 0 should be enough
   };
 
-
   const handleClose = () => {
     setShowVerifyPopup(false);
-  }
+  };
 
   //code for handling verify code changes
 
   const handleVerifyInputChange = (e, index) => {
     const { value } = e.target;
-    if (!/[0-9]/.test(value) && value !== '') return; // Allow only numeric input
+    if (!/[0-9]/.test(value) && value !== "") return; // Allow only numeric input
 
     const newValues = [...VerifyCode];
     newValues[index] = value;
@@ -204,25 +242,27 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
     }
 
     // Trigger onComplete callback if all fields are filled
-    if (newValues.every((num) => num !== '') && onComplete) {
-      onComplete(newValues.join('')); // Convert array to a single string here
+    if (newValues.every((num) => num !== "") && onComplete) {
+      onComplete(newValues.join("")); // Convert array to a single string here
     }
   };
 
   const handleBackspace = (e, index) => {
-    if (e.key === 'Backspace') {
-      if (VerifyCode[index] === '' && index > 0) {
+    if (e.key === "Backspace") {
+      if (VerifyCode[index] === "" && index > 0) {
         verifyInputRef.current[index - 1].focus();
       }
       const newValues = [...VerifyCode];
-      newValues[index] = '';
+      newValues[index] = "";
       setVerifyCode(newValues);
     }
   };
 
   const handlePaste = (e) => {
-    const pastedText = e.clipboardData.getData('text').slice(0, length);
-    const newValues = pastedText.split('').map((char) => (/[0-9]/.test(char) ? char : ''));
+    const pastedText = e.clipboardData.getData("text").slice(0, length);
+    const newValues = pastedText
+      .split("")
+      .map((char) => (/[0-9]/.test(char) ? char : ""));
     setVerifyCode(newValues);
 
     // Set each input's value and move focus to the last filled input
@@ -233,8 +273,8 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
       }
     });
 
-    if (newValues.every((num) => num !== '') && onComplete) {
-      onComplete(newValues.join(''));
+    if (newValues.every((num) => num !== "") && onComplete) {
+      onComplete(newValues.join(""));
     }
   };
 
@@ -243,7 +283,7 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
     console.log("Verify code is :", VerifyCode.join(""));
     setPhoneVerifiedSuccessSnack(true);
     handleRegister();
-  }
+  };
 
   //code for registering user
   const handleRegister = async () => {
@@ -267,7 +307,10 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
       formData.append("userType", formatAgentTypeTitle(agentTitle));
       formData.append("login", false);
       formData.append("verificationCode", VerifyCode.join(""));
-      formData.append("timeZone", Intl.DateTimeFormat().resolvedOptions().timeZone);
+      formData.append(
+        "timeZone",
+        Intl.DateTimeFormat().resolvedOptions().timeZone
+      );
 
       console.log("Data for user registeration is :-----");
       for (let [key, value] of formData.entries()) {
@@ -277,8 +320,8 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
       // return
       const response = await axios.post(ApiPath, formData);
       if (response) {
-        setResponse(response.data)
-        setIsVisible(true)
+        setResponse(response.data);
+        setIsVisible(true);
         console.log("Response of register api is:--", response);
         if (response.data.status === true) {
           // console.log("Status is :---", response.data.status);
@@ -298,16 +341,14 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
           // }
 
           handleWaitList();
-
         }
       }
-
     } catch (error) {
       console.error("Error occured in register api is: ", error);
     } finally {
       setRegisterLoader(false);
     }
-  }
+  };
 
   //format the title
   const formatAgentTypeTitle = (title) => {
@@ -343,15 +384,15 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
       const ApiPath = Apis.CheckEmail;
 
       const ApiData = {
-        email: value
-      }
+        email: value,
+      };
 
       console.log("Api data is :", ApiData);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
@@ -363,13 +404,12 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
           setEmailCheckResponse(response.data);
         }
       }
-
     } catch (error) {
       console.error("Error occured in check email api is :", error);
     } finally {
       setEmailLoader(false);
     }
-  }
+  };
 
   const checkPhoneNumber = async (value) => {
     try {
@@ -377,15 +417,15 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
       const ApiPath = Apis.CheckPhone;
 
       const ApiData = {
-        phone: value
-      }
+        phone: value,
+      };
 
       console.log("Api data is :", ApiData);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
@@ -397,26 +437,27 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
           setCheckPhoneResponse(response.data);
         }
       }
-
     } catch (error) {
       console.error("Error occured in check phone api is :", error);
     } finally {
       setPhoneNumberLoader(false);
     }
-  }
+  };
 
   const styles = {
     headingStyle: {
       fontSize: 16,
-      fontWeight: "600"
+      fontWeight: "600",
     },
     inputStyle: {
       fontSize: 15,
-      fontWeight: "500", borderRadius: "7px"
+      fontWeight: "500",
+      borderRadius: "7px",
     },
     errmsg: {
       fontSize: 12,
-      fontWeight: "500", borderRadius: "7px"
+      fontWeight: "500",
+      borderRadius: "7px",
     },
     verifyPopup: {
       height: "auto",
@@ -429,37 +470,44 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
       border: "none",
       outline: "none",
     },
-  }
+  };
 
   return (
-    <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-      <div className='bg-white rounded-2xl mx-2 w-full md:w-10/12 max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
-        <div className='h-[82svh]'>
+    <div
+      style={{ width: "100%" }}
+      className="overflow-y-hidden flex flex-row justify-center items-center"
+    >
+      <div className="bg-white rounded-2xl mx-2 w-full md:w-10/12 max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+        <div className="h-[82svh]">
           {/* header */}
-          <div className='h-[10%]'>
+          <div className="h-[10%]">
             <Header />
           </div>
           {/* Body */}
-          <div className='flex flex-col items-center px-4 w-full h-[90%]'>
-            <div className='mt-6 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }} onClick={handleContinue}>
+          <div className="flex flex-col items-center px-4 w-full h-[90%]">
+            <div
+              className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
+              style={{ textAlign: "center" }}
+              onClick={handleContinue}
+            >
               Your Contact Information
             </div>
-            <div className='mt-8 w-full md:w-10/12 lg:w-6/12 flex flex-col max-h-[85%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2' style={{ scrollbarWidth: "none" }}>
-
-              <div style={styles.headingStyle}>
-                {`What's your full name`}
-              </div>
+            <div
+              className="mt-8 w-full md:w-10/12 lg:w-6/12 flex flex-col max-h-[85%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2"
+              style={{ scrollbarWidth: "none" }}
+            >
+              <div style={styles.headingStyle}>{`What's your full name`}</div>
               <input
-                placeholder='Name'
-                className='border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0'
+                placeholder="Name"
+                className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userName}
                 onChange={(e) => {
                   const input = e.target.value;
                   const formattedName = input
-                    .split(' ')
+                    .split(" ")
                     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ');
+                    .join(" ");
 
                   // const words = input.split(' ');
                   // const formattedName =
@@ -471,39 +519,49 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
                 }}
               />
 
-              <div className='flex flex-row items-center w-full justify-between mt-6'>
+              <div className="flex flex-row items-center w-full justify-between mt-6">
                 <div style={styles.headingStyle}>
                   {`What's your email address`}
                 </div>
                 <div>
-                  {
-                    emailLoader ?
-                      <p style={{ ...styles.errmsg, color: "black" }}>
-                        Checking email ...
-                      </p> :
-                      <div>
-                        {
-                          emailCheckResponse ?
-                            <p style={{ ...styles.errmsg, color: emailCheckResponse.status === true ? "green" : 'red' }}>
-                              {emailCheckResponse.message.slice(0, 1).toUpperCase() + emailCheckResponse.message.slice(1)}
-                            </p> :
-                            <div />
-                        }
-                      </div>
-                  }
-                  <div style={{ ...styles.errmsg, color: 'red' }}>
+                  {emailLoader ? (
+                    <p style={{ ...styles.errmsg, color: "black" }}>
+                      Checking ...
+                    </p>
+                  ) : (
+                    <div>
+                      {emailCheckResponse ? (
+                        <p
+                          style={{
+                            ...styles.errmsg,
+                            color:
+                              emailCheckResponse.status === true
+                                ? "green"
+                                : "red",
+                          }}
+                        >
+                          {emailCheckResponse.message
+                            .slice(0, 1)
+                            .toUpperCase() +
+                            emailCheckResponse.message.slice(1)}
+                        </p>
+                      ) : (
+                        <div />
+                      )}
+                    </div>
+                  )}
+                  <div style={{ ...styles.errmsg, color: "red" }}>
                     {validEmail}
                   </div>
                 </div>
               </div>
 
               <input
-                placeholder='Email address'
-                className='border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0'
+                placeholder="Email address"
+                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userEmail}
                 onChange={(e) => {
-
                   let value = e.target.value;
                   setUserEmail(value);
 
@@ -524,16 +582,16 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
                   setEmailCheckResponse(null);
 
                   if (!value) {
-                    console.log("Should set the value to null")
+                    console.log("Should set the value to null");
                     setValidEmail("");
-                    return
+                    return;
                   }
 
                   if (!validateEmail(value)) {
-                    console.log("Invalid pattern")
+                    console.log("Invalid pattern");
                     setValidEmail("Invalid");
                   } else {
-                    console.log("No trigered")
+                    console.log("No trigered");
                     if (value) {
                       // Set a new timeout
                       timerRef.current = setTimeout(() => {
@@ -548,39 +606,67 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
                 }}
               />
 
-
-              <div className='flex flex-row items-center justify-between w-full mt-6'>
+              <div className="flex flex-row items-center justify-between w-full mt-6">
                 <div style={styles.headingStyle}>
                   {`What's your phone number`}
                 </div>
                 {/* Display error or success message */}
                 <div>
-                  {
-                    locationLoader && (<p className='text-purple' style={{ ...styles.errmsg, height: '20px' }}>Getting location ...</p>)
-                  }
-                  {
-                    errorMessage ?
-                      <p style={{ ...styles.errmsg, color: errorMessage && 'red', height: '20px' }}>
-                        {errorMessage}
-                      </p> :
-                      <div>
-                        {
-                          phoneNumberLoader ?
-                            <p style={{ ...styles.errmsg, color: "black", height: '20px' }}>
-                              Checking phone number ...
-                            </p> :
-                            <div>
-                              {
-                                checkPhoneResponse ?
-                                  <p style={{ ...styles.errmsg, color: checkPhoneResponse.status === true ? "green" : 'red', height: '20px' }}>
-                                    {checkPhoneResponse.message.slice(0, 1).toUpperCase() + checkPhoneResponse.message.slice(1)}
-                                  </p> :
-                                  <div />
-                              }
-                            </div>
-                        }
-                      </div>
-                  }
+                  {locationLoader && (
+                    <p
+                      className="text-purple"
+                      style={{ ...styles.errmsg, height: "20px" }}
+                    >
+                      Getting location ...
+                    </p>
+                  )}
+                  {errorMessage ? (
+                    <p
+                      style={{
+                        ...styles.errmsg,
+                        color: errorMessage && "red",
+                        height: "20px",
+                      }}
+                    >
+                      {errorMessage}
+                    </p>
+                  ) : (
+                    <div>
+                      {phoneNumberLoader ? (
+                        <p
+                          style={{
+                            ...styles.errmsg,
+                            color: "black",
+                            height: "20px",
+                          }}
+                        >
+                          Checking ...
+                        </p>
+                      ) : (
+                        <div>
+                          {checkPhoneResponse ? (
+                            <p
+                              style={{
+                                ...styles.errmsg,
+                                color:
+                                  checkPhoneResponse.status === true
+                                    ? "green"
+                                    : "red",
+                                height: "20px",
+                              }}
+                            >
+                              {checkPhoneResponse.message
+                                .slice(0, 1)
+                                .toUpperCase() +
+                                checkPhoneResponse.message.slice(1)}
+                            </p>
+                          ) : (
+                            <div />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -591,54 +677,61 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
                   value={userPhoneNumber}
                   onChange={handlePhoneNumberChange}
                   onFocus={getLocation}
-                  placeholder={locationLoader ? "Loading location ..." : "Enter Phone Number"}
+                  placeholder={
+                    locationLoader
+                      ? "Loading location ..."
+                      : "Enter Phone Number"
+                  }
                   disabled={loading} // Disable input if still loading
                   style={{ borderRadius: "7px" }}
                   inputStyle={{
-                    width: '100%',
-                    borderWidth: '0px',
-                    backgroundColor: 'transparent',
-                    paddingLeft: '60px',
+                    width: "100%",
+                    borderWidth: "0px",
+                    backgroundColor: "transparent",
+                    paddingLeft: "60px",
                     paddingTop: "20px",
                     paddingBottom: "20px",
                   }}
                   buttonStyle={{
-                    border: 'none',
-                    backgroundColor: 'transparent',
+                    border: "none",
+                    backgroundColor: "transparent",
                     // display: 'flex',
                     // alignItems: 'center',
                     // justifyContent: 'center',
                   }}
                   dropdownStyle={{
-                    maxHeight: '150px',
-                    overflowY: 'auto'
+                    maxHeight: "150px",
+                    overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                  defaultMask={loading ? 'Loading...' : undefined}
+                  defaultMask={loading ? "Loading..." : undefined}
                 />
               </div>
 
-
-              <div style={styles.headingStyle} className='mt-6'>
+              <div style={styles.headingStyle} className="mt-6">
                 {`Market territory`}
               </div>
               <input
-                placeholder='Ex: San Diego, Los Angeles, New York'
-                className='border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0'
+                placeholder="Ex: San Diego, Los Angeles, New York"
+                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userFarm}
-                onChange={(e) => { setUserFarm(e.target.value) }}
+                onChange={(e) => {
+                  setUserFarm(e.target.value);
+                }}
               />
 
-              <div style={styles.headingStyle} className='mt-6'>
+              <div style={styles.headingStyle} className="mt-6">
                 Agency or Brokerage Name
               </div>
               <input
-                placeholder='Brokerage'
-                className='border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0'
+                placeholder="Brokerage"
+                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userBrokage}
-                onChange={(e) => { setUserBrokage(e.target.value) }}
+                onChange={(e) => {
+                  setUserBrokage(e.target.value);
+                }}
               />
 
               {/* <div style={styles.headingStyle} className='mt-6'>
@@ -664,7 +757,10 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
                   },
                 }}
               >
-                <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.verifyPopup}>
+                <Box
+                  className="lg:w-8/12 sm:w-full w-8/12"
+                  sx={styles.verifyPopup}
+                >
                   <div className="flex flex-row justify-center w-full">
                     <div
                       className="sm:w-7/12 w-full"
@@ -674,22 +770,36 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
                         borderRadius: "13px",
                       }}
                     >
-                      <div className='flex flex-row justify-end'>
+                      <div className="flex flex-row justify-end">
                         <button onClick={handleClose}>
-                          <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                          <Image
+                            src={"/assets/crossIcon.png"}
+                            height={40}
+                            width={40}
+                            alt="*"
+                          />
                         </button>
                       </div>
-                      <div style={{
-                        fontSize: 26,
-                        fontWeight: "700"
-                      }}>
+                      <div
+                        style={{
+                          fontSize: 26,
+                          fontWeight: "700",
+                        }}
+                      >
                         Verify phone number
                       </div>
-                      <div className='mt-8' style={{ ...styles.inputStyle, color: "#00000060" }}>
-                        Enter code that was sent to number ending with *{userPhoneNumber.slice(-4)}.
+                      <div
+                        className="mt-8"
+                        style={{ ...styles.inputStyle, color: "#00000060" }}
+                      >
+                        Enter code that was sent to number ending with *
+                        {userPhoneNumber.slice(-4)}.
                       </div>
                       {/* <VerificationCodeInput /> */}
-                      <div className='mt-8' style={{ display: 'flex', gap: '8px' }}>
+                      <div
+                        className="mt-8"
+                        style={{ display: "flex", gap: "8px" }}
+                      >
                         {Array.from({ length }).map((_, index) => (
                           <input
                             key={index}
@@ -703,74 +813,88 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
                             onKeyDown={(e) => handleBackspace(e, index)}
                             onKeyUp={(e) => {
                               // Check if the Enter key is pressed and all inputs are filled
-                              if (e.key === 'Enter' && VerifyCode.every((value) => value.trim() !== '')) {
+                              if (
+                                e.key === "Enter" &&
+                                VerifyCode.every((value) => value.trim() !== "")
+                              ) {
                                 handleVerifyCode();
                               }
                             }}
                             onPaste={handlePaste}
-                            placeholder='-'
+                            placeholder="-"
                             style={{
-                              width: '40px',
-                              height: '40px',
-                              textAlign: 'center',
-                              fontSize: '20px',
-                              border: '1px solid #ccc',
-                              borderRadius: '5px',
+                              width: "40px",
+                              height: "40px",
+                              textAlign: "center",
+                              fontSize: "20px",
+                              border: "1px solid #ccc",
+                              borderRadius: "5px",
                             }}
-                            className=' focus:outline-none focus:ring-0'
+                            className=" focus:outline-none focus:ring-0"
                           />
                         ))}
                       </div>
-                      <div className='mt-8 flex flex-row items-center gap-2' style={styles.inputStyle}>
+                      <div
+                        className="mt-8 flex flex-row items-center gap-2"
+                        style={styles.inputStyle}
+                      >
                         {`Didn't receive code?`}
-                        {
-                          sendcodeLoader ?
-                            <CircularProgress size={17} /> :
-                            <button
-                              className='outline-none border-none text-purple'
-                              onClick={handleVerifyPopup}>
-                              Resend
-                            </button>
-                        }
-                      </div>
-                      {
-                        registerLoader ?
-                          <div className='flex fex-row items-center justify-center mt-8'>
-                            <CircularProgress size={35} />
-                          </div>
-                          :
+                        {sendcodeLoader ? (
+                          <CircularProgress size={17} />
+                        ) : (
                           <button
-                            className='text-white bg-purple outline-none rounded-xl w-full mt-8'
-                            style={{ height: "50px" }}
-                            onClick={handleVerifyCode}
+                            className="outline-none border-none text-purple"
+                            onClick={handleVerifyPopup}
                           >
-                            Continue
+                            Resend
                           </button>
-                      }
+                        )}
+                      </div>
+                      {registerLoader ? (
+                        <div className="flex fex-row items-center justify-center mt-8">
+                          <CircularProgress size={35} />
+                        </div>
+                      ) : (
+                        <button
+                          className="text-white bg-purple outline-none rounded-xl w-full mt-8"
+                          style={{ height: "50px" }}
+                          onClick={handleVerifyCode}
+                        >
+                          Continue
+                        </button>
+                      )}
                     </div>
                   </div>
                 </Box>
               </Modal>
 
-              <SnackMessages message={response.message} isVisible={isVisible} setIsVisible={(visible) => {
-                setIsVisible(visible)
-              }} success={response.status} />
-
+              <SnackMessages
+                message={response.message}
+                isVisible={isVisible}
+                setIsVisible={(visible) => {
+                  setIsVisible(visible);
+                }}
+                success={response.status}
+              />
             </div>
           </div>
         </div>
 
-        <div className='h-[10%]'>
+        <div className="h-[10%]">
           <div>
             <ProgressBar value={80} />
           </div>
 
-          <Footer handleContinue={handleVerifyPopup} handleBack={handleInsuranceBack} registerLoader={registerLoader} shouldContinue={shouldContinue} />
+          <Footer
+            handleContinue={handleVerifyPopup}
+            handleBack={handleInsuranceBack}
+            registerLoader={registerLoader}
+            shouldContinue={shouldContinue}
+          />
         </div>
-
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default InsuranceAgentSignUp
+export default InsuranceAgentSignUp;

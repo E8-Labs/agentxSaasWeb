@@ -532,7 +532,7 @@ const Page = ({ length = 6, onComplete }) => {
                   <div>
                     {phoneNumberLoader ? (
                       <div className="text-center" style={styles.errmsg}>
-                        Checking Number
+                        Checking
                       </div>
                     ) : (
                       <div

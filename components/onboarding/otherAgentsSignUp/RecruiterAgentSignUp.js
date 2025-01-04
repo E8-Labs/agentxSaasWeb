@@ -525,7 +525,7 @@ const RecruiterAgentSignUp = ({
                 <div>
                   {emailLoader ? (
                     <p style={{ ...styles.errmsg, color: "black" }}>
-                      Checking email ...
+                      Checking ...
                     </p>
                   ) : (
                     <div>
@@ -639,7 +639,7 @@ const RecruiterAgentSignUp = ({
                             height: "20px",
                           }}
                         >
-                          Checking phone number ...
+                          Checking ...
                         </p>
                       ) : (
                         <div>

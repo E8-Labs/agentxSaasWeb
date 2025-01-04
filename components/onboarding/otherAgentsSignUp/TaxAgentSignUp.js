@@ -640,7 +640,7 @@ const TaxAgentSignUp = ({
                             height: "20px",
                           }}
                         >
-                          Checking phone number ...
+                          Checking ...
                         </p>
                       ) : (
                         <div>

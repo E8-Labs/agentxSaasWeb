@@ -557,7 +557,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                 <div>
                   {emailLoader ? (
                     <p style={{ ...styles.errmsg, color: "black" }}>
-                      Checking email ...
+                      Checking ...
                     </p>
                   ) : (
                     <div>
@@ -684,7 +684,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                             height: "20px",
                           }}
                         >
-                          Checking phone number ...
+                          Checking ...
                         </p>
                       ) : (
                         <div>
