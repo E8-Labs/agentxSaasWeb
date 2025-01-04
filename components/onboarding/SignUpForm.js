@@ -887,7 +887,9 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                             autoCorrect="off"
                             spellCheck="false"
                             enterKeyHint="done"
-                            type="text"
+                            // type="text"
+                            type="tel"
+                            inputMode="numeric"
                             maxLength="1"
                             value={VerifyCode[index]}
                             onChange={(e) => handleVerifyInputChange(e, index)}

@@ -694,7 +694,9 @@ const InsuranceAgentSignUp = ({ handleContinue, handleWaitList, handleInsuranceB
                           <input
                             key={index}
                             ref={(el) => (verifyInputRef.current[index] = el)}
-                            type="text"
+                            // type="text"
+                            type="tel"
+                            inputMode="numeric"
                             maxLength="1"
                             value={VerifyCode[index]}
                             onChange={(e) => handleVerifyInputChange(e, index)}

@@ -320,27 +320,54 @@ const Page = ({ length = 6, onComplete }) => {
     }
   };
 
+  // const handlePaste = (e) => {
+  //   const pastedText = e.clipboardData.getData("text").slice(0, 6);
+  //   const newValues = pastedText
+  //     .split("")
+  //     .map((char) => (/[0-9]/.test(char) ? char : ""));
+  //   setVerifyCode(newValues);
+
+  //   // Set each input's value and move focus to the last filled input
+  //   newValues.forEach((char, index) => {
+  //     verifyInputRef.current[index].value = char;
+  //     if (index === newValues.length - 1) {
+  //       verifyInputRef.current[index].focus();
+  //     }
+  //   });
+
+  //   if (newValues.every((num) => num !== "") && onComplete) {
+  //     onComplete(newValues.join(""));
+  //   }
+  // };
+
+  //code for number verification
+
   const handlePaste = (e) => {
-    const pastedText = e.clipboardData.getData("text").slice(0, length);
+    e.preventDefault(); // Prevent default behavior to avoid issues with pasting
+    const pastedText = e.clipboardData.getData("text").slice(0, length); // Get the pasted text and slice to length
     const newValues = pastedText
       .split("")
-      .map((char) => (/[0-9]/.test(char) ? char : ""));
-    setVerifyCode(newValues);
+      .map((char) => (/[0-9]/.test(char) ? char : "")); // Filter non-numeric characters
+
+    setVerifyCode(newValues); // Update the state with the new values
 
     // Set each input's value and move focus to the last filled input
     newValues.forEach((char, index) => {
-      verifyInputRef.current[index].value = char;
-      if (index === newValues.length - 1) {
-        verifyInputRef.current[index].focus();
+      if (verifyInputRef.current[index]) {
+        verifyInputRef.current[index].value = char;
+        // Focus on the last input field that gets filled
+        if (index === newValues.length - 1) {
+          verifyInputRef.current[index].focus();
+        }
       }
     });
 
+    // If all inputs are filled, trigger the onComplete callback
     if (newValues.every((num) => num !== "") && onComplete) {
       onComplete(newValues.join(""));
     }
   };
 
-  //code for number verification
   const handleVerifyCode = () => {
     console.log("Verify code is :", VerifyCode.join(""));
     // setPhoneVerifiedSuccessSnack(true);
