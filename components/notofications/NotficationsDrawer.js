@@ -17,7 +17,6 @@ function NotficationsDrawer({ close }) {
 
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
 
-  const [showLeadsDetailPopup, setShowLeadsDetailPopup] = useState(false);
 
 
   //variables to show the lead details modal
@@ -266,8 +265,7 @@ function NotficationsDrawer({ close }) {
                 console.log("Check 1 clear!!")
                 console.log("Lead details to show are", item);
                 setselectedLeadsDetails(item);
-                // setShowDetailsModal(true);
-                // setShowLeadsDetailPopup(true)
+                setShowDetailsModal(true);
               }}
             >
               <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
@@ -290,7 +288,7 @@ function NotficationsDrawer({ close }) {
         {showDetailsModal && (
           <LeadDetails
             selectedLead={selectedLeadsDetails?.lead?.id}
-            // pipelineId={selectedLeadsDetails?.PipelineStages?.pipelineId}
+            pipelineId={selectedLeadsDetails?.pipelineId}
             showDetailsModal={showDetailsModal}
             setShowDetailsModal={setShowDetailsModal}
             hideDelete={true}
