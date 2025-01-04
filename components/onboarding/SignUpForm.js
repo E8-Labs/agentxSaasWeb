@@ -21,6 +21,7 @@ import {
 import VerificationCodeInput from "../test/VerificationCodeInput";
 import SendVerificationCode from "./services/AuthVerification/AuthService";
 import SnackMessages from "./services/AuthVerification/SnackMessages";
+import { setCookie } from "@/utilities/cookies";
 
 const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
   const verifyInputRef = useRef([]);
@@ -346,9 +347,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
           //check for document undefined issue
 
           if (typeof document !== "undefined") {
-            document.cookie = `User=${encodeURIComponent(
-              JSON.stringify(response.data.data)
-            )}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+            setCookie(response.data.data.user, document);
           }
 
           // handleContinue();
@@ -724,7 +723,9 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                   onChange={handlePhoneNumberChange}
                   onFocus={getLocation}
                   placeholder={
-                    locationLoader ? "Loading location ..." : "Enter Phone Number"
+                    locationLoader
+                      ? "Loading location ..."
+                      : "Enter Phone Number"
                   }
                   disabled={loading} // Disable input if still loading
                   style={{ borderRadius: "7px" }}

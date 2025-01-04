@@ -1,6 +1,12 @@
-const BasePath = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT == "Production" ? "https://www.blindcircle.com/agentx/" : "https://www.blindcircle.com/agentxtest/"
+const BasePath =
+  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== "Production"
+    ? "https://www.blindcircle.com/agentx/"
+    : "https://www.blindcircle.com/agentxtest/";
 
-console.log("Current environment is", process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT);
+console.log(
+  "Current environment is",
+  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT
+);
 
 const Apis = {
   getCalenders: `${BasePath}api/calendar/calendars`,
@@ -80,15 +86,13 @@ const Apis = {
   myApiKeys: `${BasePath}api/user/apiKeys`,
   genrateApiKey: `${BasePath}api/user/generateApiKey`,
 
-
   getImportantCalls: `${BasePath}api/leads/importantCalls`,
 
   updateProfileApi: `${BasePath}api/user/updateProfile`,
 
   getTeam: `${BasePath}api/team/getTeamMembers`,
   inviteTeamMember: `${BasePath}api/team/inviteTeamMember`,
-  updateProfileApi:`${BasePath}api/user/updateProfile`,
-
+  updateProfileApi: `${BasePath}api/user/updateProfile`,
 };
 
 export default Apis;

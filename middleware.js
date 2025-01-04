@@ -1,33 +1,37 @@
 import { NextResponse } from "next/server";
 
 export function middleware(request) {
-    console.log("Running middleware");
+  console.log("Running middleware on path:", request.nextUrl.pathname);
 
-    // Retrieve the user data from cookies
-    if (request.nextUrl.pathname == "/" || request.nextUrl.pathname == "/onboarding") {
-        // No redirection needed for these paths
-    } else if (request.nextUrl.pathname == "/onboarding/WaitList") {
-        // Do not route the user from this specific path
-        return //NextResponse.next();
-    } else {
-        const userCookie = request.cookies.get("User");
-        console.log("User Cookie:", userCookie);
-        if (!userCookie) {
-            // Redirect user to home page if they are not authenticated and not on allowed paths
-            return NextResponse.redirect(new URL("/", request.url));
-        }
-    }
+  // Allow unauthenticated access to specific paths
+  const allowedPaths = ["/", "/onboarding", "/onboarding/WaitList"];
+  if (allowedPaths.includes(request.nextUrl.pathname)) {
+    console.log("Allowed path, skipping middleware:", request.nextUrl.pathname);
+    return NextResponse.next();
+  }
 
-    return NextResponse.next();  // Proceed if no conditions are met
+  // Retrieve the user cookie
+  console.log("All Cookies:", request.cookies);
+  const userCookie = request.cookies.get("User");
+  console.log("User Cookie Value:", userCookie);
+
+  if (!userCookie) {
+    console.log("No User cookie found, redirecting...");
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  // Proceed to the requested page
+  console.log("User authenticated, proceeding...");
+  return NextResponse.next();
 }
 
 export const config = {
-    matcher: [
-        "/createagent/:path*",
-        "/pipeline/:path*",
-        "/sellerkycquestions/:path*",
-        "/buyerkycquestions/:path*",
-        "/dashboard/:path*",
-        "/onboarding/:path*"
-    ]
-}
+  matcher: [
+    "/createagent/:path*",
+    "/pipeline/:path*",
+    "/sellerkycquestions/:path*",
+    "/buyerkycquestions/:path*",
+    "/dashboard/:path*",
+    "/onboarding/:path*",
+  ],
+};

@@ -1,26 +1,27 @@
-"use client"
-import Apis from '@/components/apis/Apis';
-import { Box, CircularProgress, Modal } from '@mui/material';
-import axios from 'axios';
-import Image from 'next/image';
-import React, { useEffect, useRef, useState } from 'react';
+"use client";
+import Apis from "@/components/apis/Apis";
+import { Box, CircularProgress, Modal } from "@mui/material";
+import axios from "axios";
+import Image from "next/image";
+import React, { useEffect, useRef, useState } from "react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { parsePhoneNumberFromString } from 'libphonenumber-js';
-import { useRouter } from 'next/navigation';
-import { ArrowRight } from '@phosphor-icons/react/dist/ssr';
-import LoaderAnimation from '@/components/animations/LoaderAnimation';
-import SendVerificationCode from '@/components/onboarding/services/AuthVerification/AuthService';
-import SnackMessages from '@/components/onboarding/services/AuthVerification/SnackMessages';
-import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
+import { parsePhoneNumberFromString } from "libphonenumber-js";
+import { useRouter } from "next/navigation";
+import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
+import LoaderAnimation from "@/components/animations/LoaderAnimation";
+import SendVerificationCode from "@/components/onboarding/services/AuthVerification/AuthService";
+import SnackMessages from "@/components/onboarding/services/AuthVerification/SnackMessages";
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import { setCookie } from "@/utilities/cookies";
 
 const Page = ({ length = 6, onComplete }) => {
-
-
-  let width = 3760
-  let height = 4684
+  let width = 3760;
+  let height = 4684;
   // let ImageWidth = window.innerWidth / 2.4
-  // let ImageHeight = window.innerHeight - 
+  // let ImageHeight = window.innerHeight -
   // const backgroundImage = {
   //     backgroundImage: 'url("/assets/bg2.png")',
   //     backgroundSize: "cover",
@@ -51,7 +52,7 @@ const Page = ({ length = 6, onComplete }) => {
   const [errorMessage, setErrorMessage] = useState(null);
 
   // const length = 6;
-  const [VerifyCode, setVerifyCode] = useState(Array(length).fill(''));
+  const [VerifyCode, setVerifyCode] = useState(Array(length).fill(""));
   const [showVerifyPopup, setShowVerifyPopup] = useState(false);
 
   //code for detecting the window inner width
@@ -72,9 +73,9 @@ const Page = ({ length = 6, onComplete }) => {
 
   //action detects inner width
   useEffect(() => {
-    console.log("Window inner width is", window.innerWidth)
+    console.log("Window inner width is", window.innerWidth);
     setInnerWidth(window.innerWidth);
-  }, [InnerWidth])
+  }, [InnerWidth]);
 
   const handlePhoneNumberChange = (phone) => {
     setUserPhoneNumber(phone);
@@ -132,19 +133,22 @@ const Page = ({ length = 6, onComplete }) => {
   const validatePhoneNumber = (phoneNumber) => {
     // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
     // parsePhoneNumberFromString(`+${phone}`, countryCode.toUpperCase())
-    const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`, countryCode.toUpperCase());
+    const parsedNumber = parsePhoneNumberFromString(
+      `+${phoneNumber}`,
+      countryCode.toUpperCase()
+    );
     // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
-      setErrorMessage('Invalid');
+      setErrorMessage("Invalid");
     } else {
-      setErrorMessage('');
+      setErrorMessage("");
 
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
 
       // setCheckPhoneResponse(null);
-      console.log("Trigered")
+      console.log("Trigered");
 
       timerRef.current = setTimeout(() => {
         checkPhoneNumber(phoneNumber);
@@ -165,10 +169,10 @@ const Page = ({ length = 6, onComplete }) => {
     try {
       setSendcodeLoader(true);
       let response = await SendVerificationCode(userPhoneNumber, true);
-      console.log("Number for sending code is", userPhoneNumber)
+      console.log("Number for sending code is", userPhoneNumber);
       // return
-      setResponse(response)
-      setIsVisible(true)
+      setResponse(response);
+      setIsVisible(true);
       console.log("Response recieved is", response);
     } catch (error) {
       console.error("Error occured", error);
@@ -191,73 +195,65 @@ const Page = ({ length = 6, onComplete }) => {
       const AipData = {
         phone: userPhoneNumber,
         verificationCode: VerifyCode.join(""),
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-      }
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      };
       console.log("Api data for login api is :", AipData);
 
       const response = await axios.post(ApiPath, AipData, {
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
-        console.log("Response of login api is :", response.data);
-        let result = response.data
+        // console.log(
+        //   "Response of login api is :",
+        //   JSON.stringify(response.data.data)
+        // );
+        let result = response.data;
         setResponse(result);
         setIsVisible(true);
         if (response.data.status === true) {
-          // if (response.data.data.user.userRole === "Invitee") {
-          //   document.cookie = `User=${encodeURIComponent(
-          //     JSON.stringify(response.data.data)
-          //   )}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
-          //   let w = window.innerWidth
-          //   if (w < 540) {
-          //     console.log("It is mobile view")
-          //     router.push("/createagent/desktop");
-          //   } else if (w > 540) {
-          //     console.log("It is desktop view")
-          //     router.push("/dashboard/leads");
-          //   }
-          // } else 
-          if (response.data.data.user.userType !== "RealEstateAgent" && response.data.data.user.userRole !== "Invitee") {
-            console.log("Pushing user to wait list")
+          if (
+            response.data.data.user.userType !== "RealEstateAgent" &&
+            response.data.data.user.userRole !== "Invitee"
+          ) {
+            console.log("Pushing user to wait list");
 
             const twoHoursFromNow = new Date();
             twoHoursFromNow.setTime(twoHoursFromNow.getTime() + 2 * 60 * 1000);
             if (typeof document !== "undefined") {
-              document.cookie = `User=${encodeURIComponent(
-                JSON.stringify(response.data.data)
-              )}; path=/; expires=${twoHoursFromNow.toUTCString()}`;
+              setCookie(response.data.data.user, document, twoHoursFromNow);
               router.push("/onboarding/WaitList");
             }
-
           } else {
+            console.log("Here Else");
             localStorage.setItem("User", JSON.stringify(response.data.data));
             //set cokie on locastorage to run middle ware
             if (typeof document !== "undefined") {
-              document.cookie = `User=${encodeURIComponent(
-                JSON.stringify(response.data.data)
-              )}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
-              let w = window.innerWidth
+              console.log("Here Not undefined");
+
+              setCookie(response.data.data.user, document);
+              let w = window.innerWidth;
               if (w < 540) {
-                console.log("It is mobile view")
+                console.log("It is mobile view");
                 router.push("/createagent/desktop");
               } else if (w > 540) {
-                console.log("It is desktop view")
+                console.log("It is desktop view");
                 router.push("/dashboard/leads");
               }
+            } else {
+              console.log("Here undefined");
             }
           }
         }
       }
-
     } catch (error) {
       console.error("ERror occured in login api is :", error);
     } finally {
-      setLoginLoader(false)
+      setLoginLoader(false);
     }
-  }
+  };
 
   //code to check number
   const checkPhoneNumber = async (value) => {
@@ -266,15 +262,15 @@ const Page = ({ length = 6, onComplete }) => {
       const ApiPath = Apis.CheckPhone;
 
       const ApiData = {
-        phone: value
-      }
+        phone: value,
+      };
 
       console.log("Api data is :", ApiData);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
@@ -282,23 +278,21 @@ const Page = ({ length = 6, onComplete }) => {
         if (response.data.status === true) {
           console.log("Response message is :", response.data.message);
           setCheckPhoneResponse(response.data.status);
-
         } else if (response.data.status === false) {
           setCheckPhoneResponse(response.data.status);
         }
       }
-
     } catch (error) {
       console.error("Error occured in check phone api is :", error);
     } finally {
       setPhoneNumberLoader(false);
     }
-  }
+  };
 
-  //verify code 
+  //verify code
   const handleVerifyInputChange = (e, index) => {
     const { value } = e.target;
-    if (!/[0-9]/.test(value) && value !== '') return; // Allow only numeric input
+    if (!/[0-9]/.test(value) && value !== "") return; // Allow only numeric input
 
     const newValues = [...VerifyCode];
     newValues[index] = value;
@@ -310,25 +304,27 @@ const Page = ({ length = 6, onComplete }) => {
     }
 
     // Trigger onComplete callback if all fields are filled
-    if (newValues.every((num) => num !== '') && onComplete) {
-      onComplete(newValues.join('')); // Convert array to a single string here
+    if (newValues.every((num) => num !== "") && onComplete) {
+      onComplete(newValues.join("")); // Convert array to a single string here
     }
   };
 
   const handleBackspace = (e, index) => {
-    if (e.key === 'Backspace') {
-      if (VerifyCode[index] === '' && index > 0) {
+    if (e.key === "Backspace") {
+      if (VerifyCode[index] === "" && index > 0) {
         verifyInputRef.current[index - 1].focus();
       }
       const newValues = [...VerifyCode];
-      newValues[index] = '';
+      newValues[index] = "";
       setVerifyCode(newValues);
     }
   };
 
   const handlePaste = (e) => {
-    const pastedText = e.clipboardData.getData('text').slice(0, length);
-    const newValues = pastedText.split('').map((char) => (/[0-9]/.test(char) ? char : ''));
+    const pastedText = e.clipboardData.getData("text").slice(0, length);
+    const newValues = pastedText
+      .split("")
+      .map((char) => (/[0-9]/.test(char) ? char : ""));
     setVerifyCode(newValues);
 
     // Set each input's value and move focus to the last filled input
@@ -339,8 +335,8 @@ const Page = ({ length = 6, onComplete }) => {
       }
     });
 
-    if (newValues.every((num) => num !== '') && onComplete) {
-      onComplete(newValues.join(''));
+    if (newValues.every((num) => num !== "") && onComplete) {
+      onComplete(newValues.join(""));
     }
   };
 
@@ -349,7 +345,7 @@ const Page = ({ length = 6, onComplete }) => {
     console.log("Verify code is :", VerifyCode.join(""));
     // setPhoneVerifiedSuccessSnack(true);
     handleLogin();
-  }
+  };
 
   const backgroundImage = {
     backgroundImage: 'url("/assets/bg2.png")',
@@ -358,15 +354,16 @@ const Page = ({ length = 6, onComplete }) => {
     // backgroundPosition: "50% 50%",
     backgroundPosition: "center",
     width: "55svw",
-    height: '90svh',
+    height: "90svh",
     overflow: "hidden",
-    borderRadius: "15px"
+    borderRadius: "15px",
   };
 
   const styles = {
     errmsg: {
       fontSize: 12,
-      fontWeight: "500", borderRadius: "7px"
+      fontWeight: "500",
+      borderRadius: "7px",
     },
     verifyPopup: {
       height: "auto",
@@ -379,11 +376,10 @@ const Page = ({ length = 6, onComplete }) => {
       border: "none",
       outline: "none",
     },
-  }
-
+  };
 
   return (
-    <div className='flex flex-row w-full justify-center h-[100svh]'>
+    <div className="flex flex-row w-full justify-center h-[100svh]">
       {/* <div className='w-6/12 ms-8 flex flex-row justify-center ' style={backgroundImage}>
         <div className='w-11/12'>
           <div className='h-[433px] w-[494px] md:w-[594px] bg-white mt-16'>
@@ -396,35 +392,54 @@ const Page = ({ length = 6, onComplete }) => {
           </div>
         </div>
       </div> */}
-      <div className='w-11/12 flex flex-col items-center h-[90svh] '>
-        <div className='w-full gap-3 h-[10%] flex flex-row items-end'>
-          <Image className='' src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' />
+      <div className="w-11/12 flex flex-col items-center h-[90svh] ">
+        <div className="w-full gap-3 h-[10%] flex flex-row items-end">
+          <Image
+            className=""
+            src="/assets/agentX.png"
+            style={{ height: "29px", width: "122px", resize: "contain" }}
+            height={29}
+            width={122}
+            alt="*"
+          />
           {/* <Image className='hidden md:flex' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain" }} height={69} width={69} alt='*' /> */}
         </div>
-        <div className='w-full h-[80%] flex flex-row items-center justify-center'>
-          <div className='w-full'>
-
-            <div className='flex flex-col w-full items-center gap-4 pb-6'>
-              <Image src={"/svgIcons/signinAvatar.svg"} height={100} width={260} alt='avtr' />
-              <Image src={"/agentXOrb.gif"} height={69} width={69} alt='gif' />
+        <div className="w-full h-[80%] flex flex-row items-center justify-center">
+          <div className="w-full">
+            <div className="flex flex-col w-full items-center gap-4 pb-6">
+              <Image
+                src={"/svgIcons/signinAvatar.svg"}
+                height={100}
+                width={260}
+                alt="avtr"
+              />
+              <Image src={"/agentXOrb.gif"} height={69} width={69} alt="gif" />
             </div>
 
             {/* Code for phone input field */}
-            <div className='flex flex-row items-center justify-center gap-2 w-full'>
-              <div className='flex flex-row items-center gap-2 border rounded-lg w-full sm:w-4/12 justify-between pe-4'>
-                <div className='w-[90%]'>
+            <div className="flex flex-row items-center justify-center gap-2 w-full">
+              <div className="flex flex-row items-center gap-2 border rounded-lg w-full sm:w-4/12 justify-between pe-4">
+                <div className="w-[90%]">
                   <PhoneInput
                     className="outline-none bg-transparent focus:ring-0"
                     country={countryCode} // Default country
                     value={userPhoneNumber}
                     onChange={handlePhoneNumberChange}
                     onFocus={getLocation}
-                    placeholder={locationLoader ? "Loading location ..." : "Enter Phone Number"}
+                    placeholder={
+                      locationLoader
+                        ? "Loading location ..."
+                        : "Enter Phone Number"
+                    }
                     disabled={loading} // Disable input if still loading
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' && userPhoneNumber && !errorMessage) {
+                      if (
+                        e.key === "Enter" &&
+                        userPhoneNumber &&
+                        !errorMessage
+                      ) {
                         if (checkPhoneResponse === false) {
-                          handleVerifyPopup()
+                          handleVerifyPopup();
                         }
                         // setShowVerifyPopup(true)
                       }
@@ -458,93 +473,113 @@ const Page = ({ length = 6, onComplete }) => {
                     defaultMask={locationLoader ? "Loading..." : undefined}
                   />
                 </div>
-                {
-                  loginLoader ?
-                    <div className='flex flex-row justify-center'>
-                      <CircularProgress size={15} />
-                    </div> :
-                    <button className='text-black bg-transparent border border-[#000000] rounded-full' style={{ fontSize: 16, fontWeight: "600" }}
-                      onClick={() => {
-                        if (checkPhoneResponse === false) {
-                          handleVerifyPopup()
-                        }
-                        // setShowVerifyPopup(true)
-                      }}
-                    >
-                      <ArrowRight size={20} weight='bold' />
-                    </button>
-                }
+                {loginLoader ? (
+                  <div className="flex flex-row justify-center">
+                    <CircularProgress size={15} />
+                  </div>
+                ) : (
+                  <button
+                    className="text-black bg-transparent border border-[#000000] rounded-full"
+                    style={{ fontSize: 16, fontWeight: "600" }}
+                    onClick={() => {
+                      if (checkPhoneResponse === false) {
+                        handleVerifyPopup();
+                      }
+                      // setShowVerifyPopup(true)
+                    }}
+                  >
+                    <ArrowRight size={20} weight="bold" />
+                  </button>
+                )}
               </div>
             </div>
 
             {/* Code for error messages */}
-            <div className='flex flex-row items-center w-full justify-center mt-4'>
+            <div className="flex flex-row items-center w-full justify-center mt-4">
               <div>
-                {errorMessage ?
-                  <div className='text-center' style={styles.errmsg}>
+                {errorMessage ? (
+                  <div className="text-center" style={styles.errmsg}>
                     {errorMessage}
-                  </div> :
-                  <div>
-                    {
-                      phoneNumberLoader ?
-                        <div className='text-center' style={styles.errmsg}>
-                          Checking Number
-                        </div> :
-                        <div style={{ ...styles.errmsg, color: checkPhoneResponse?.status === false ? "green" : 'red', height: '20px' }}>
-                          {
-                            checkPhoneResponse && (
-                              <div className='text-center'>
-                                {
-                                  checkPhoneResponse === true ? (
-                                    "No such user"
-                                  ) : (
-                                    ""
-                                  )
-                                }
-                              </div>
-                            )
-                          }
-                        </div>
-                    }
                   </div>
-                }
+                ) : (
+                  <div>
+                    {phoneNumberLoader ? (
+                      <div className="text-center" style={styles.errmsg}>
+                        Checking Number
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          ...styles.errmsg,
+                          color:
+                            checkPhoneResponse?.status === false
+                              ? "green"
+                              : "red",
+                          height: "20px",
+                        }}
+                      >
+                        {checkPhoneResponse && (
+                          <div className="text-center">
+                            {checkPhoneResponse === true ? "No such user" : ""}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className='flex flex-row items-center justify-center gap-1 mt-[40px]' style={{ fontWeight: "500", fontSize: 15 }}>
+            <div
+              className="flex flex-row items-center justify-center gap-1 mt-[40px]"
+              style={{ fontWeight: "500", fontSize: 15 }}
+            >
               <div onClick={() => setShowVerifyPopup(true)}>
                 {`Don't have an account?`}
               </div>
-              <button className='' onClick={() => { router.push("/onboarding") }} style={{ fontWeight: "bold", fontSize: 15 }}>
+              <button
+                className=""
+                onClick={() => {
+                  router.push("/onboarding");
+                }}
+                style={{ fontWeight: "bold", fontSize: 15 }}
+              >
                 Sign Up
               </button>
             </div>
-
           </div>
         </div>
 
-        <div className='mt-6 h-[10%] flex flex-row items-end justify-end w-10/12 gap-2 overflow-auto flex-shrink-0' style={{ fontWeight: "500", fontSize: 11.6 }}>
-          <div className='flex-shrink-0'>
+        <div
+          className="mt-6 h-[10%] flex flex-row items-end justify-end w-10/12 gap-2 overflow-auto flex-shrink-0"
+          style={{ fontWeight: "500", fontSize: 11.6 }}
+        >
+          <div className="flex-shrink-0">
             Copyrights @ 2024 MyAgentX. All Rights Reserved.
           </div>
           <button
-            className='flex-shrink-0 outline-none'
+            className="flex-shrink-0 outline-none"
             onClick={() => {
-              window.open("https://www.myagentx.com/terms-and-condition", "_blank");
+              window.open(
+                "https://www.myagentx.com/terms-and-condition",
+                "_blank"
+              );
             }}
           >
             | Terms of Service
           </button>
           <button
-            className='flex-shrink-0 outline-none'
+            className="flex-shrink-0 outline-none"
             onClick={() => {
-              window.open("https://www.myagentx.com/terms-and-condition", "_blank");
+              window.open(
+                "https://www.myagentx.com/terms-and-condition",
+                "_blank"
+              );
             }}
           >
             | Privacy Policy
           </button>
         </div>
-
       </div>
 
       {/* Modals code goes here */}
@@ -570,20 +605,34 @@ const Page = ({ length = 6, onComplete }) => {
                 borderRadius: "13px",
               }}
             >
-              <div className='flex flex-row justify-end'>
-                <button onClick={() => { setShowVerifyPopup(false) }}>
-                  <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+              <div className="flex flex-row justify-end">
+                <button
+                  onClick={() => {
+                    setShowVerifyPopup(false);
+                  }}
+                >
+                  <Image
+                    src={"/assets/crossIcon.png"}
+                    height={40}
+                    width={40}
+                    alt="*"
+                  />
                 </button>
               </div>
-              <div style={{
-                fontSize: 26,
-                fontWeight: "700"
-              }}
+              <div
+                style={{
+                  fontSize: 26,
+                  fontWeight: "700",
+                }}
               >
                 Verify phone number
               </div>
-              <div className='mt-8' style={{ ...styles.inputStyle, color: "#00000060" }}>
-                Enter code that was sent to number ending with *{userPhoneNumber.slice(-4)}.
+              <div
+                className="mt-8"
+                style={{ ...styles.inputStyle, color: "#00000060" }}
+              >
+                Enter code that was sent to number ending with *
+                {userPhoneNumber.slice(-4)}.
               </div>
               {/* <VerificationCodeInput /> */}
               {/* <div className='mt-8' style={{ display: 'flex', gap: '8px' }}>
@@ -609,9 +658,13 @@ const Page = ({ length = 6, onComplete }) => {
                   />
                 ))}
               </div> */}
-              <div className='mt-8 w-ful flex flex-row items-center gap-2 overflow-auto' style={{ display: 'flex', gap: '8px' }}>
+              <div
+                className="mt-8 w-ful flex flex-row items-center gap-2 overflow-auto"
+                style={{ display: "flex", gap: "8px" }}
+              >
                 {Array.from({ length }).map((_, index) => (
-                  <input className=' focus:outline-none focus:ring-0'
+                  <input
+                    className=" focus:outline-none focus:ring-0"
                     key={index}
                     ref={(el) => (verifyInputRef.current[index] = el)}
                     type="tel"
@@ -623,60 +676,70 @@ const Page = ({ length = 6, onComplete }) => {
                     onKeyDown={(e) => handleBackspace(e, index)}
                     onKeyUp={(e) => {
                       // Check if the Enter key is pressed and all inputs are filled
-                      if (e.key === 'Enter' && VerifyCode.every((value) => value.trim() !== '')) {
+                      if (
+                        e.key === "Enter" &&
+                        VerifyCode.every((value) => value.trim() !== "")
+                      ) {
                         handleVerifyCode();
                       }
                     }}
                     onPaste={handlePaste}
-                    placeholder='-'
+                    placeholder="-"
                     style={{
-                      width: InnerWidth < 540 ? '40px' : "40px",
-                      height: InnerWidth < 540 ? '40px' : "40px",
-                      textAlign: 'center',
+                      width: InnerWidth < 540 ? "40px" : "40px",
+                      height: InnerWidth < 540 ? "40px" : "40px",
+                      textAlign: "center",
                       fontSize: InnerWidth < 540 ? 15 : 20,
-                      border: '1px solid #ccc',
-                      borderRadius: '5px',
+                      border: "1px solid #ccc",
+                      borderRadius: "5px",
                     }}
                   />
                 ))}
               </div>
-              <div className='mt-8 flex flex-row items-center gap-1' style={styles.inputStyle}>
+              <div
+                className="mt-8 flex flex-row items-center gap-1"
+                style={styles.inputStyle}
+              >
                 {`Didn't receive code?`}
-                {
-                  sendcodeLoader ?
-                    <CircularProgress size={17} /> :
-                    <button
-                      className='outline-none border-none text-purple'
-                      onClick={handleVerifyPopup}>
-                      Resend
-                    </button>
-                }
-              </div>
-              {
-                loginLoader ?
-                  <div className='flex fex-row items-center justify-center mt-8'>
-                    <LoaderAnimation loaderModal={loginLoader} />
-                  </div>
-                  :
+                {sendcodeLoader ? (
+                  <CircularProgress size={17} />
+                ) : (
                   <button
-                    className='text-white bg-purple outline-none rounded-xl w-full mt-8'
-                    style={{ height: "50px" }}
-                    onClick={handleVerifyCode}
+                    className="outline-none border-none text-purple"
+                    onClick={handleVerifyPopup}
                   >
-                    Continue
+                    Resend
                   </button>
-              }
+                )}
+              </div>
+              {loginLoader ? (
+                <div className="flex fex-row items-center justify-center mt-8">
+                  <LoaderAnimation loaderModal={loginLoader} />
+                </div>
+              ) : (
+                <button
+                  className="text-white bg-purple outline-none rounded-xl w-full mt-8"
+                  style={{ height: "50px" }}
+                  onClick={handleVerifyCode}
+                >
+                  Continue
+                </button>
+              )}
             </div>
           </div>
         </Box>
       </Modal>
 
-      <AgentSelectSnackMessage type={SnackbarTypes.Success} message={response.message} isVisible={isVisible} hide={() => {
-        setIsVisible(false)
-      }} />
-
+      <AgentSelectSnackMessage
+        type={SnackbarTypes.Success}
+        message={response.message}
+        isVisible={isVisible}
+        hide={() => {
+          setIsVisible(false);
+        }}
+      />
     </div>
-  )
-}
+  );
+};
 
-export default Page
+export default Page;
