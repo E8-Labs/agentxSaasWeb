@@ -255,13 +255,32 @@ const Page = () => {
 
   return (
     <div className="w-full flex flex-col items-start justify-screen h-screen overflow-auto">
-      <div style={backgroundImage}></div>
+      {/* <div style={backgroundImage}></div> */}
       {initialLoader ? (
         <div className="flex flex-row items-center w-full justify-center h-[100%]">
           <CircularProgress size={45} />
         </div>
       ) : (
-        <div className="flex flex-col -mt-[20%] items-center w-full h-[100%]">
+        <div className="flex flex-col mt-12 items-center w-full h-[100%]">
+          <video
+            // className="hidden sm:block"
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              zIndex: -9999, // Ensure the video stays behind content
+            }}
+          >
+            <source src="/banerVideo.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
           <div className="w-9/12 flex flex-col items-center h-[100%]">
             {/* <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
                                 Good to have you back, <span className='text-[#00000090]'>{userDetails?.name}</span>
@@ -480,8 +499,8 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.callsGt10Change
                           ? `${statsComparisonDetails?.callsGt10Change.toFixed(
-                              2
-                            )}%`
+                            2
+                          )}%`
                           : "-"
                       }
                       borderSide="border-b-2"
@@ -496,12 +515,12 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.hotLeadsChange
                           ? `${statsComparisonDetails?.hotLeadsChange.toFixed(
-                              2
-                            )}%`
+                            2
+                          )}%`
                           : "-"
                       }
                       borderSide="border-l-2 border-b-2"
-                      recomendation={true}
+                      recomendation={false}
                     />
 
                     {/* Card: Booked Meetings */}
@@ -513,12 +532,12 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.durationChange
                           ? `${statsComparisonDetails?.durationChange.toFixed(
-                              2
-                            )}%`
+                            2
+                          )}%`
                           : "-"
                       }
                       borderSide="border-l-2 border-b-2"
-                      recomendation={true}
+                      recomendation={false}
                     />
 
                     {/* Card: Voicemails */}
@@ -596,9 +615,7 @@ const Page = () => {
                           marginTop: "1vh",
                         }}
                       >
-                        Lorem ipsum dolor sit amet consectetur. Odio in congue a
-                        magna in. Et placerat est in imperdiet odio facilisis
-                        donec
+                        {`Learn tips and tricks to enhance your AI, perfect your script, and master best practices in our weekly live webinar. Don’t miss out on actionable insights to boost your success!`}
                       </div>
                     </div>
 
@@ -650,9 +667,7 @@ const Page = () => {
                           marginTop: "1vh",
                         }}
                       >
-                        Lorem ipsum dolor sit amet consectetur. Odio in congue a
-                        magna in. Et placerat est in imperdiet odio facilisis
-                        donec
+                        Schedule a personalized one-on-one consultation for just $99/hour. Get expert guidance to refine your AI, customize your script, and achieve your goals with tailored advice!
                       </div>
                     </div>
                   </div>

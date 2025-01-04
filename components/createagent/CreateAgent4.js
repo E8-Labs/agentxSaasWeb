@@ -940,7 +940,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                         onChange={handleOfficeNumberChange}
                                         // onFocus={getLocation}
                                         // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
-                                        placeholder={"Enter Number"}
+                                        placeholder={"Enter Phone Number"}
                                         // disabled={loading} // Disable input if still loading
                                         style={{ borderRadius: "7px" }}
                                         inputStyle={{
@@ -984,7 +984,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                     onChange={handleCallBackNumberChange}
                                     // onFocus={getLocation}
                                     // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
-                                    placeholder={"Enter Number"}
+                                    placeholder={"Enter Phone Number"}
                                     // disabled={loading} // Disable input if still loading
                                     style={{ borderRadius: "7px" }}
                                     inputStyle={{

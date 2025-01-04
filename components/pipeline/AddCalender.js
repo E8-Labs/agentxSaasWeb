@@ -202,7 +202,7 @@ const AddCalender = ({ handleContinue }) => {
 
             <div>
               <div style={{ fontWeight: "700", fontSize: 38, textAlign: "center" }}
-                // onClick={() => { handleAddCalender() }}
+              // onClick={() => { handleAddCalender() }}
               >
                 Add a Calendar
               </div>
@@ -260,9 +260,18 @@ const AddCalender = ({ handleContinue }) => {
                       previousCalenders.map((item, index) => {
                         return (
                           <MenuItem
-                            className='w-full'
+                            className='w-full hover:bg-purple hover:text-white'
                             value={item.title}
                             key={index}
+                            selected={selectCalender === item.title} // Apply "selected" to match the selected value
+                            sx={{
+                              backgroundColor: selectCalender === item.title ? 'purple' : 'transparent', // Set background for selected item
+                              color: selectCalender === item.title ? 'white' : 'inherit', // Change text color for selected item
+                              "&.Mui-selected": {
+                                backgroundColor: '#7902DF', // Override background for selected item
+                                color: 'white', // Change text color for selected item
+                              },
+                            }}
                           >
                             <button className='w-full text-start'
                               onClick={() => {
@@ -280,25 +289,6 @@ const AddCalender = ({ handleContinue }) => {
                         )
                       })
                     }
-                    <MenuItem
-                      className='w-full'
-                      value="Custom Calender"
-                    >
-                      <button
-                        className='text-purple underline w-full text-start'
-                        onClick={() => {
-                          console.log("Show show the modal");
-                          setCalendarSelected(null)
-                          // setCalenderTitle("");
-                          // setCalenderApiKey("");
-                          // setEventId("");
-                          // setSelectTimeZone("");
-                          setShowAddNewCalender(true);
-                        }}
-                      >
-                        Add New Calender
-                      </button>
-                    </MenuItem>
                   </Select>
                 </FormControl>
               </div>

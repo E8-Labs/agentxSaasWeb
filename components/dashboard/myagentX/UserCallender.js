@@ -168,9 +168,9 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
             if (response) {
                 console.log("Response of add calender api is:", response);
                 setIsVisible(true);
-                
+
                 if (response.data.status === true) {
-                    
+
                     setType(SnackbarTypes.Success);
                     setMessage("Calender added");
                     const localAgentsList = localStorage.getItem("localAgentDetails");
@@ -280,7 +280,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
 
 
                 {
-                    selectedAgent?.calendar || previousCalenders.length > 0  ? (
+                    selectedAgent?.calendar || previousCalenders.length > 0 ? (
                         <div className='w-full flex flex-col w-full items-center'>
                             <div className='w-full'>
                                 <FormControl sx={{ m: 1 }} className='w-full'>
@@ -330,9 +330,18 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
                                             previousCalenders.map((item, index) => {
                                                 return (
                                                     <MenuItem
-                                                        className='w-full'
+                                                        className='w-full hover:bg-purple hover:text-white'
                                                         value={item.title}
                                                         key={index}
+                                                        selected={selectCalender === item.title} // Apply "selected" to match the selected value
+                                                        sx={{
+                                                            backgroundColor: selectCalender === item.title ? 'purple' : 'transparent', // Set background for selected item
+                                                            color: selectCalender === item.title ? 'white' : 'inherit', // Change text color for selected item
+                                                            "&.Mui-selected": {
+                                                                backgroundColor: '#7902DF', // Override background for selected item
+                                                                color: 'white', // Change text color for selected item
+                                                            },
+                                                        }}
                                                     >
                                                         <button className='w-full text-start'
                                                             onClick={() => {

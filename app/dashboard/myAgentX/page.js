@@ -1770,13 +1770,13 @@ function Page() {
                             horizontal: "center",
                           }}
                           PaperProps={{
-                            style: {
+                            sx: {
                               width: "fit-content",
                               border: "none", // Remove the border
-                              boxShadow: open
-                                ? "0px 2px 6px rgba(0, 0, 0, 0.04)"
-                                : "0px 0px 0px rgba(0, 0, 0, 0)", // Shadow with 60% opacity
-                              transition: "box-shadow 0.3s ease-in-out", // Smooth transition for shadow
+                              // boxShadow: open
+                                // ? "0px 2px 6px rgba(0, 0, 0, 0.04)"
+                                // : "0px 0px 0px rgba(0, 0, 0, 0)", // Shadow with 60% opacity
+                              // transition: "box-shadow 0.3s ease-in-out", // Smooth transition for shadow
                             },
                           }}
                           onClose={handlePopoverClose}

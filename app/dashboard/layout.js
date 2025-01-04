@@ -7,13 +7,13 @@ export default function DashboardLayout({ children }) {
         // <html lang="en">
         //     <body className="antialiased">
         <div className="flex flex-row w-full">
-            <div className="h-screen w-2/12" style={{ borderRight: "1px solid #00000010" }}>
+            <div className="h-screen w-2/12" style={{ borderRight: "1px solid #00000010", backgroundColor: "white" }}>
                 <ProfileNav />
             </div>
             <div className="w-10/12">
-            <div>
-                {/* <NoPlanPopup /> */}
-            </div>
+                <div>
+                    {/* <NoPlanPopup /> */}
+                </div>
                 {children}
             </div>
         </div>

@@ -11,17 +11,17 @@ const Page = () => {
 
 
     const [index, setIndex] = useState(0)
-    const [components, setComponents ] = useState([CreateAgent1, CreatAgent3, CreateAgent4, CreateAgentVoice]);
+    const [components, setComponents] = useState([CreateAgent1, CreatAgent3, CreateAgent4, CreateAgentVoice]);
 
     let CurrentComp = components[index]
 
     useEffect(() => {
         const localData = localStorage.getItem("User");
-        if(localData){
+        if (localData) {
             const Data = JSON.parse(localData);
-            if(Data.user.plan){
-                setComponents([CreateAgent1, CreateAgent4, CreateAgentVoice])
-            }else{
+            if (Data.user.plan) {
+                setComponents([CreateAgent1, CreatAgent3, CreateAgent4, CreateAgentVoice])
+            } else {
                 setComponents([CreateAgent1, CreatAgent3, CreateAgent4, CreateAgentVoice])
             }
         }

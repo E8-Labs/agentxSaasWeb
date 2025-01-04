@@ -724,7 +724,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                   onChange={handlePhoneNumberChange}
                   onFocus={getLocation}
                   placeholder={
-                    locationLoader ? "Loading location ..." : "Enter Number"
+                    locationLoader ? "Loading location ..." : "Enter Phone Number"
                   }
                   disabled={loading} // Disable input if still loading
                   style={{ borderRadius: "7px" }}

@@ -590,7 +590,7 @@ const TaxAgentSignUp = ({ handleContinue, handleTaxAgentBack, length = 6, onComp
                                     value={userPhoneNumber}
                                     onChange={handlePhoneNumberChange}
                                     onFocus={getLocation}
-                                    placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                                    placeholder={locationLoader ? "Loading location ..." : "Enter Phone Number"}
                                     disabled={loading} // Disable input if still loading
                                     style={{ borderRadius: "7px" }}
                                     inputStyle={{

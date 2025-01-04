@@ -419,7 +419,7 @@ const Page = ({ length = 6, onComplete }) => {
                     value={userPhoneNumber}
                     onChange={handlePhoneNumberChange}
                     onFocus={getLocation}
-                    placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                    placeholder={locationLoader ? "Loading location ..." : "Enter Phone Number"}
                     disabled={loading} // Disable input if still loading
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && userPhoneNumber && !errorMessage) {

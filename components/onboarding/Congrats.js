@@ -19,7 +19,7 @@ const Congrats = () => {
                     <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' />
                 </div>
                 {/* Body */}
-                <div className='flex flex-col items-center px-4 w-full'>
+                <div className='flex flex-col items-center justify-center px-4 w-full h-[85%]'>
                     {/* <Lottie
                         animationData={require("/public/congratsanimation.json")}
                         lottieRef={lottieRef}
@@ -35,21 +35,18 @@ const Congrats = () => {
                         }}
                     /> */}
 
-                    <div className='mt-6 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }}>
-                        Congrats!
-                    </div>
-                    <div className='mt-8 gap-4 flex flex-col max-h-[50vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
+                    <div className='mt-8 gap-4 flex flex-col overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                         {/* <Image src={"/assets/congrats.png"} style={{ height: "318px", width: "466px", resize: "contain" }} height={318} width={466} alt='*' /> */}
                         <Image src={"/agentXOrb.gif"} style={{ height: "280px", width: "300px", resize: "" }} height={280} width={300} alt='*' />
+                    </div>
+                    <div className='mt-6 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }}>
+                        Congrats!
                     </div>
                     <div className='mt-8 text-[#15151580]' style={{ fontWeight: "600", fontSize: 15 }}>
                         Your account is created!
                     </div>
-                    <div className='mt-2 text-[#151515]' style={{ fontWeight: "600", fontSize: 16 }}>
-                        {`Let's build your AI AgentX`}
-                    </div>
                     <button className='rounded-xl text-white bg-purple mt-8' style={{ fontWeight: "700", fontSize: "16", height: "50px", width: "191px" }} onClick={handleNext}>
-                        Build  AI AgentX
+                        Build  AI Agent
                     </button>
                 </div>
 

@@ -3,18 +3,26 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import axios from "axios";
 import Apis from "../apis/Apis";
-import { CircularProgress, Drawer } from "@mui/material";
+import { CircularProgress, Drawer, Modal } from "@mui/material";
 import { NotificationTypes } from "@/constants/NotificationTypes";
 import moment from "moment";
 import getProfileDetails from "../apis/GetProfile";
 import { GetFormattedDateString } from "@/utilities/utility";
+import LeadDetails from "../dashboard/leads/extras/LeadDetails";
 
 function NotficationsDrawer({ close }) {
   const [loading, setLoading] = useState(false);
-  const [notifications, setNotifications] = useState([]);
+  // const [notifications, setNotifications] = useState([]);
   const [unread, setUnread] = useState(0);
 
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
+
+  const [showLeadsDetailPopup, setShowLeadsDetailPopup] = useState(false);
+
+
+  //variables to show the lead details modal
+  const [selectedLeadsDetails, setselectedLeadsDetails] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   useEffect(() => {
     getUserData();
@@ -63,31 +71,99 @@ function NotficationsDrawer({ close }) {
       console.log("error in get notifications is ", e);
     }
   };
-  // const notifications = [
-  //     {
-  //         id: 1,
-  //         not: '30 mins added for using {Agent Code}',
-  //         time: 'Oct 19  — 1:32 PM'
-  //     }, {
-  //         id: 2,
-  //         not: '30 mins added for using {Agent Code}',
-  //         time: 'Oct 19  — 1:32 PM'
-  //     }, {
-  //         id: 3,
-  //         not: '30 mins added for using {Agent Code}',
-  //         time: 'Oct 19  — 1:32 PM'
-  //     }, {
-  //         id: 4,
-  //         not: '30 mins added for using {Agent Code}',
-  //         time: 'Oct 19  — 1:32 PM'
-  //     },
-  // ]
+  const notifications = [
+    {
+      id: 1,
+      title: "Noah is a hotlead",
+      type: "Hotlead",
+      fromUserId: "None",
+      userId: 10,
+      leadId: 40341,
+      agentId: "None",
+      codeRedeemed: "None",
+      isSeen: true,
+      createdAt: "2024-12-31T15:50:26.000Z",
+      updatedAt: "2025-01-03T14:15:55.000Z",
+      lead: "None",
+      agent: "None",
+      fromUser: "None"
+    },
+    {
+      id: 121,
+      title: "Salman booked a meeting 🗓️",
+      type: "MeetingBooked",
+      fromUserId: null,
+      userId: 10,
+      leadId: 12,
+      agentId: 202,
+      codeRedeemed: null,
+      isSeen: true,
+      createdAt: "2025-01-03T09:54:15.000Z",
+      updatedAt: "2025-01-03T14:15:55.000Z",
+      lead: {
+        id: 12,
+        firstName: "Salman",
+        lastName: "Majid",
+        address: "123 Elm St",
+        email: "salman@gmail.com",
+        phone: "923058191078",
+        status: "active",
+        sheetId: 2,
+        extraColumns: "{\"roof_type\":\"Asphalt Shingle\",\"monthly_energy_bill\":2500,\"notes\":null}",
+        columnMappings: "",
+        userId: 10,
+        stage: null,
+        createdAt: "2024-11-24T20:50:12.000Z",
+        updatedAt: "2024-11-24T20:50:12.000Z"
+      },
+      agent: {
+        id: 202,
+        name: "test",
+        agentRole: "test",
+        mainAgentId: 203,
+        userId: 10,
+        agentType: "outbound",
+        agentObjectiveId: 3,
+        agentObjective: "Community update",
+        agentObjectiveDescription: "Provide local homeowners with relevant updates on a property like just listed, just sold, in escrow or something else. ",
+        status: "Just sold",
+        address: "300 14th Street, San Diego, CA, USA",
+        prompt: null,
+        modelId: "1735842271879x907888399150540200",
+        phoneNumber: "+18054579527",
+        phoneSid: "",
+        phoneStatus: "active",
+        phoneNumberPrice: "2",
+        phonePurchasedAt: null,
+        callbackNumber: "+18054579527",
+        liveTransferNumber: "",
+        liveTransfer: false,
+        liveTransferActionId: null,
+        voiceId: "5T8AzGjpnC5cQCfJofdO",
+        full_profile_image: "",
+        thumb_profile_image: "",
+        createdAt: "2025-01-02T18:24:33.000Z",
+        updatedAt: "2025-01-02T18:54:05.000Z"
+      },
+      fromUser: null
+    }
+
+  ]
 
   const getNotificationImage = (item) => {
     if (item.type === NotificationTypes.RedeemedAgentXCode) {
       return (
         <Image
           src={"/svgIcons/minsNotIcon.svg"}
+          height={37}
+          width={37}
+          alt="*"
+        />
+      );
+    } else if (item.type === NotificationTypes.NoCallsIn3Days) {
+      return (
+        <Image
+          src={"/svgIcons/callsNotIcon.svg"}
           height={37}
           width={37}
           alt="*"
@@ -158,16 +234,69 @@ function NotficationsDrawer({ close }) {
     return (
       <div
         key={index}
-        className="w-full flex flex-row gap-2 items-cneter mt-10"
+        className="w-full flex flex-row justify-between items-cneter mt-10"
       >
         {getNotificationImage(item)}
 
-        <div className="flex flex-col gap-1 items-start">
-          <div style={{ fontSize: 15, fontWeight: "500" }}>{item.title}</div>
-          <div style={{ fontSize: 13, fontWeight: "500", color: "#00000060" }}>
-            {GetFormattedDateString(item?.createdAt, true)}
+        <div className={` ${item.type === NotificationTypes.NoCallsIn3Days ? "w-10/12" : "w-7/12"}`}>
+          <div className="flex flex-col gap-1 items-start">
+            <div className="flex flex-row items-center gap-2">
+              <div className=" flex" style={{ fontSize: 15, fontWeight: "500" }}>{item.title}</div>
+              {
+                item.type === NotificationTypes.NoCallsIn3Days && (
+                  <button>
+                    <div style={{ fontSize: 15, fontWeight: "500", color: "#7902DF", textDecorationLine: 'underline' }}>
+                      Need help?
+                    </div>
+                  </button>
+                )
+
+              }
+
+            </div>
+            <div style={{ fontSize: 13, fontWeight: "500", color: "#00000060" }}>
+              {GetFormattedDateString(item?.createdAt, true)}
+            </div>
           </div>
         </div>
+        {
+          item.type === NotificationTypes.Hotlead || item.type === NotificationTypes.MeetingBooked ? (
+            <button
+              onClick={() => {
+                console.log("Check 1 clear!!")
+                console.log("Lead details to show are", item);
+                setselectedLeadsDetails(item);
+                setShowDetailsModal(true);
+                // setShowLeadsDetailPopup(true)
+              }}
+            >
+              <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
+                View Now
+              </div>
+            </button>
+          ) : (
+            item.type === NotificationTypes.PaymentFailed ? (
+
+              <button>
+                <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
+                  Resolve Now
+                </div>
+              </button>
+            ) : (
+              <div className="w-3/12"></div>
+            ))
+        }
+
+        {showDetailsModal && (
+          <LeadDetails
+            selectedLead={selectedLeadsDetails?.lead?.id}
+            // pipelineId={selectedLeadsDetails?.PipelineStages?.pipelineId}
+            showDetailsModal={showDetailsModal}
+            setShowDetailsModal={setShowDetailsModal}
+            hideDelete={true}
+          />
+        )}
+
       </div>
     );
   };
@@ -177,7 +306,7 @@ function NotficationsDrawer({ close }) {
       <button
         onClick={() => {
           setShowNotificationDrawer(true);
-          getNotifications();
+          // getNotifications();
         }}
       >
         <img
@@ -244,7 +373,7 @@ function NotficationsDrawer({ close }) {
             style={{ height: 1, width: "100%", background: "#00000010" }}
           ></div>
 
-          <div className="flex flex-col justify-center px-6">
+          <div className="flex flex-col px-6 overflow-y-auto" style={{ height: '90vh', paddingBottom: 100 }}>
             {loading ? (
               <div className="flex w-full items-center flex-col mt-10">
                 <CircularProgress size={35} />
