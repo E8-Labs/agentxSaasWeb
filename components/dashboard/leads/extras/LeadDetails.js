@@ -37,6 +37,7 @@ const LeadDetails = ({
   handleDelLead,
   hideDelete,
   isPipeline = false,
+  noBackDrop = false
 }) => {
   console.log("Pipeline id passed is", pipelineId);
   console.log("Lead details are ", selectedLead);
@@ -531,7 +532,7 @@ const LeadDetails = ({
         closeAfterTransition
         BackdropProps={{
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: noBackDrop ? "#00000000" : "#00000020",
             // //backdropFilter: "blur(5px)",
           },
         }}

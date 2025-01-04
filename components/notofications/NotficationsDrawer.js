@@ -305,6 +305,7 @@ function NotficationsDrawer({ close }) {
             showDetailsModal={showDetailsModal}
             setShowDetailsModal={setShowDetailsModal}
             hideDelete={true}
+            noBackDrop={true}
           />
         )}
 
