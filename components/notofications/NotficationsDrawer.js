@@ -266,7 +266,7 @@ function NotficationsDrawer({ close }) {
                 console.log("Check 1 clear!!")
                 console.log("Lead details to show are", item);
                 setselectedLeadsDetails(item);
-                setShowDetailsModal(true);
+                // setShowDetailsModal(true);
                 // setShowLeadsDetailPopup(true)
               }}
             >
@@ -393,3 +393,22 @@ function NotficationsDrawer({ close }) {
 }
 
 export default NotficationsDrawer;
+
+
+
+
+
+
+
+
+export const notLeadDetails = () => {
+  return (
+    <div>
+      Hamza
+    </div>
+  )
+}
+
+
+
+
