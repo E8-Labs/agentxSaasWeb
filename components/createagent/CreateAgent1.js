@@ -46,6 +46,9 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
 
+  //shows the modal for small screens only
+  const [showAddressPickerModal, setShowAddressPickerModal] = useState(false);
+
   useEffect(() => {
     setAddress(address?.label);
   }, [addressSelected]);
@@ -315,7 +318,10 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       <div
         key={item.place_id}
         className="prediction-item"
-        onClick={() => handleSelectAddress(item.place_id, item.description)}
+        onClick={() => {
+          handleSelectAddress(item.place_id, item.description);
+          setShowAddressPickerModal(false);
+        }}
         style={{
           cursor: "pointer",
           padding: "8px",
@@ -379,7 +385,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
       <div
-        className=" rounded-2xl w-full lg:w-10/12 h-[90vh] flex flex-col items-center"
+        className=" sm:rounded-2xl w-full lg:w-10/12 h-[90vh] flex flex-col items-center"
         style={{ scrollbarWidth: "none", backgroundColor: "#ffffff" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
         <div className="w-full h-[77vh]">
@@ -754,8 +760,11 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 <div style={styles.headingStyle} className="mt-4">
                   {`What's the address`}
                 </div>
-
-                <div className="mt-1 pb-4" style={{ zIndex: 15 }}>
+                {/* Visible for large screen */}
+                <div
+                  className="hidden sm:flex mt-1 pb-4"
+                  style={{ zIndex: 15 }}
+                >
                   <div>
                     <input
                       className="w-full h-[50px] rounded-lg outline-none focus:ring-0"
@@ -771,6 +780,36 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                     {isPlacePredictionsLoading && <p>Loading...</p>}
                     {showDropdown &&
                       placePredictions.map((item) => renderItem(item))}
+                  </div>
+                </div>
+
+                {/* Visible for small screens */}
+                <div
+                  className="sm:hidden mt-1 pb-4 mb-12"
+                  style={{ zIndex: 15 }}
+                >
+                  <div
+                    className="w-full"
+                    onClick={() => {
+                      setShowAddressPickerModal(true);
+                    }}
+                  >
+                    <input
+                      className="w-full h-[50px] rounded-lg outline-none focus:ring-0"
+                      style={{
+                        border: "1px solid #00000020",
+                        cursor: "pointer",
+                      }}
+                      placeholder="Type here ..."
+                      value={addressValue}
+                      readOnly={true}
+                      // disabled={true}
+                      // onChange={(evt) => {
+                      //   setAddressValue(evt.target.value); // Update input field value
+                      //   // getPlacePredictions({ input: evt.target.value });
+                      //   // setShowDropdown(true); // Show dropdown on input
+                      // }}
+                    />
                   </div>
                 </div>
               </div>
@@ -797,6 +836,73 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       </Modal>
 
       <LoaderAnimation loaderModal={loaderModal} />
+
+      {/* Modal for address picker */}
+      <Modal
+        open={showAddressPickerModal}
+        onClose={() => setShowAddressPickerModal(false)}
+        closeAfterTransition
+        BackdropProps={{
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(5px)",
+          },
+        }}
+      >
+        <Box className="w-full" sx={styles.modalsStyle}>
+          <div
+            className="w-full h-[70vh] bg-white p-6 overflow-auto"
+            style={{
+              scrollbarWidth: "none",
+            }}
+          >
+            <div className="flex flex-row items-center justify-between">
+              <div>Address</div>
+              <div>
+                <button
+                  className="outline-none"
+                  onClose={() => setShowAddressPickerModal(false)}
+                >
+                  <Image
+                    src={"/assets/blackBgCross.png"}
+                    height={24}
+                    width={24}
+                    alt="*"
+                  />
+                </button>
+              </div>
+            </div>
+            <div className="sm:hidden mt-1 pb-4 mb-12" style={{ zIndex: 15 }}>
+              <div>
+                <input
+                  className="w-full h-[50px] rounded-lg outline-none focus:ring-0"
+                  style={{
+                    border: "1px solid #00000020",
+                    cursor: "pointer",
+                  }}
+                  placeholder="Type here ..."
+                  value={addressValue}
+                  // readOnly={true}
+                  // disabled={true}
+                  // onFocus={() => {
+                  //   setShowAddressPickerModal(true);
+                  // }}
+                  onChange={(evt) => {
+                    setAddressValue(evt.target.value); // Update input field value
+                    getPlacePredictions({ input: evt.target.value });
+                    setShowDropdown(true); // Show dropdown on input
+                  }}
+                />
+                {isPlacePredictionsLoading && <p>Loading...</p>}
+                {showDropdown &&
+                  placePredictions.map((item) => renderItem(item))}
+              </div>
+            </div>
+
+            <button></button>
+          </div>
+        </Box>
+      </Modal>
 
       {/* <Modal
                 open={loaderModal}

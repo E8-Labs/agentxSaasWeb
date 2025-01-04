@@ -371,7 +371,7 @@ const Page = ({ length = 6, onComplete }) => {
       // p: 2,
       mx: "auto",
       my: "50vh",
-      transform: "translateY(-55%)",
+      transform: "translateY(-50%)",
       borderRadius: 2,
       border: "none",
       outline: "none",
@@ -592,10 +592,12 @@ const Page = ({ length = 6, onComplete }) => {
           sx: {
             backgroundColor: "#00000020",
             // //backdropFilter: "blur(20px)",
+            padding: 0,
+            margin: 0,
           },
         }}
       >
-        <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.verifyPopup}>
+        <Box className="lg:w-8/12 sm:w-10/12 w-10/12" sx={styles.verifyPopup}>
           <div className="flex flex-row justify-center w-full">
             <div
               className="sm:w-7/12 w-full"
