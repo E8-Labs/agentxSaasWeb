@@ -561,93 +561,103 @@ function Billing() {
             <CircularProgress size={35} />
           </div>
         ) : (
-          <div
-            className="w-full flex flex-row gap-4"
-            style={{
-              overflowX: "auto",
-              overflowY: "hidden",
-              display: "flex",
-              scrollbarWidth: "none",
-              WebkitOverflowScrolling: "touch",
-              height: "",
-              marginTop: 20,
-              // border:'2px solid red'
-              scrollbarWidth: "none",
-              overflowY: "hidden",
-              height: "", // Ensures the height is always fixed
-              flexShrink: 0,
-            }}
-          >
-            {cards.map((item) => (
-              <div className="flex-shrink-0 w-5/12" key={item.id}>
-                <button
-                  className="w-full outline-none"
-                  onClick={() => setSelectedCard(item)}
+          <div className="w-full">
+            {
+              cards.length > 0 ? (
+                <div
+                  className="w-full flex flex-row gap-4"
+                  style={{
+                    overflowX: "auto",
+                    overflowY: "hidden",
+                    display: "flex",
+                    scrollbarWidth: "none",
+                    WebkitOverflowScrolling: "touch",
+                    height: "",
+                    marginTop: 20,
+                    // border:'2px solid red'
+                    scrollbarWidth: "none",
+                    overflowY: "hidden",
+                    height: "", // Ensures the height is always fixed
+                    flexShrink: 0,
+                  }}
                 >
-                  <div
-                    className={`flex items-center justify-between w-full p-4 border rounded-lg `}
-                    style={{
-                      backgroundColor:
-                        selectedCard?.id === item.id
-                          ? "#4011FA05"
-                          : "transparent",
-                      borderColor:
-                        selectedCard?.id === item.id ? "#7902DF" : "#15151510",
-                    }}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={`w-5 h-5 rounded-full border border-[#2548FD] flex items-center justify-center`}
-                        style={{
-                          borderWidth: selectedCard?.id === item.id ? 3 : 1,
-                        }}
-                      ></div>
-                      {/* Card Details */}
-                      <div className="flex flex-col">
-                        <div className="flex flex-row items-center gap-3">
-                          <div
-                            style={{
-                              fontSize: "16px",
-                              fontWeight: "700",
-                              color: "#000",
-                            }}
-                          >
-                            ****{item.last4}
-                          </div>
-                          {item.isDefault && (
-                            <div
-                              className="flex px-2 py-1 rounded-full bg-purple text-white text-[10]"
-                              style={{ fontSize: 11, fontWeight: "500" }}
-                            >
-                              Default
-                            </div>
-                          )}
-                        </div>
+                  {cards.map((item) => (
+                    <div className="flex-shrink-0 w-5/12" key={item.id}>
+                      <button
+                        className="w-full outline-none"
+                        onClick={() => setSelectedCard(item)}
+                      >
                         <div
+                          className={`flex items-center justify-between w-full p-4 border rounded-lg `}
                           style={{
-                            fontSize: "14px",
-                            fontWeight: "500",
-                            color: "#909090",
+                            backgroundColor:
+                              selectedCard?.id === item.id
+                                ? "#4011FA05"
+                                : "transparent",
+                            borderColor:
+                              selectedCard?.id === item.id ? "#7902DF" : "#15151510",
                           }}
                         >
-                          {item.brand}
-                        </div>
-                      </div>
-                    </div>
+                          <div className="flex items-center gap-4">
+                            <div
+                              className={`w-5 h-5 rounded-full border border-[#2548FD] flex items-center justify-center`}
+                              style={{
+                                borderWidth: selectedCard?.id === item.id ? 3 : 1,
+                              }}
+                            ></div>
+                            {/* Card Details */}
+                            <div className="flex flex-col">
+                              <div className="flex flex-row items-center gap-3">
+                                <div
+                                  style={{
+                                    fontSize: "16px",
+                                    fontWeight: "700",
+                                    color: "#000",
+                                  }}
+                                >
+                                  ****{item.last4}
+                                </div>
+                                {item.isDefault && (
+                                  <div
+                                    className="flex px-2 py-1 rounded-full bg-purple text-white text-[10]"
+                                    style={{ fontSize: 11, fontWeight: "500" }}
+                                  >
+                                    Default
+                                  </div>
+                                )}
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: "14px",
+                                  fontWeight: "500",
+                                  color: "#909090",
+                                }}
+                              >
+                                {item.brand}
+                              </div>
+                            </div>
+                          </div>
 
-                    {/* Card Logo */}
-                    <div>
-                      <Image
-                        src="/otherAssets/cardLogo.png"
-                        alt="Card Logo"
-                        width={32}
-                        height={32}
-                      />
+                          {/* Card Logo */}
+                          <div>
+                            <Image
+                              src="/otherAssets/cardLogo.png"
+                              alt="Card Logo"
+                              width={32}
+                              height={32}
+                            />
+                          </div>
+                        </div>
+                      </button>
                     </div>
-                  </div>
-                </button>
-              </div>
-            ))}
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center mt-12" style={{ fontSize: 18, fontWeight: "600" }}>
+                  No payment source added
+                </div>
+              )
+            }
           </div>
         )}
       </div>
