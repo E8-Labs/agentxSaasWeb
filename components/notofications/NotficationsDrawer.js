@@ -12,7 +12,7 @@ import LeadDetails from "../dashboard/leads/extras/LeadDetails";
 
 function NotficationsDrawer({ close }) {
   const [loading, setLoading] = useState(false);
-  // const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [unread, setUnread] = useState(0);
 
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
@@ -71,84 +71,84 @@ function NotficationsDrawer({ close }) {
       console.log("error in get notifications is ", e);
     }
   };
-  const notifications = [
-    {
-      id: 1,
-      title: "Noah is a hotlead",
-      type: "Hotlead",
-      fromUserId: "None",
-      userId: 10,
-      leadId: 40341,
-      agentId: "None",
-      codeRedeemed: "None",
-      isSeen: true,
-      createdAt: "2024-12-31T15:50:26.000Z",
-      updatedAt: "2025-01-03T14:15:55.000Z",
-      lead: "None",
-      agent: "None",
-      fromUser: "None"
-    },
-    {
-      id: 121,
-      title: "Salman booked a meeting 🗓️",
-      type: "MeetingBooked",
-      fromUserId: null,
-      userId: 10,
-      leadId: 12,
-      agentId: 202,
-      codeRedeemed: null,
-      isSeen: true,
-      createdAt: "2025-01-03T09:54:15.000Z",
-      updatedAt: "2025-01-03T14:15:55.000Z",
-      lead: {
-        id: 12,
-        firstName: "Salman",
-        lastName: "Majid",
-        address: "123 Elm St",
-        email: "salman@gmail.com",
-        phone: "923058191078",
-        status: "active",
-        sheetId: 2,
-        extraColumns: "{\"roof_type\":\"Asphalt Shingle\",\"monthly_energy_bill\":2500,\"notes\":null}",
-        columnMappings: "",
-        userId: 10,
-        stage: null,
-        createdAt: "2024-11-24T20:50:12.000Z",
-        updatedAt: "2024-11-24T20:50:12.000Z"
-      },
-      agent: {
-        id: 202,
-        name: "test",
-        agentRole: "test",
-        mainAgentId: 203,
-        userId: 10,
-        agentType: "outbound",
-        agentObjectiveId: 3,
-        agentObjective: "Community update",
-        agentObjectiveDescription: "Provide local homeowners with relevant updates on a property like just listed, just sold, in escrow or something else. ",
-        status: "Just sold",
-        address: "300 14th Street, San Diego, CA, USA",
-        prompt: null,
-        modelId: "1735842271879x907888399150540200",
-        phoneNumber: "+18054579527",
-        phoneSid: "",
-        phoneStatus: "active",
-        phoneNumberPrice: "2",
-        phonePurchasedAt: null,
-        callbackNumber: "+18054579527",
-        liveTransferNumber: "",
-        liveTransfer: false,
-        liveTransferActionId: null,
-        voiceId: "5T8AzGjpnC5cQCfJofdO",
-        full_profile_image: "",
-        thumb_profile_image: "",
-        createdAt: "2025-01-02T18:24:33.000Z",
-        updatedAt: "2025-01-02T18:54:05.000Z"
-      },
-      fromUser: null
-    }
+  // const notifications = [
+  //   {
+  //     id: 1,
+  //     title: "Noah is a hotlead",
+  //     type: "Hotlead",
+  //     fromUserId: "None",
+  //     userId: 10,
+  //     leadId: 40341,
+  //     agentId: "None",
+  //     codeRedeemed: "None",
+  //     isSeen: true,
+  //     createdAt: "2024-12-31T15:50:26.000Z",
+  //     updatedAt: "2025-01-03T14:15:55.000Z",
+  //     lead: "None",
+  //     agent: "None",
+  //     fromUser: "None"
+  //   },
+  //   {
+  //     id: 121,
+  //     title: "Salman booked a meeting 🗓️",
+  //     type: "MeetingBooked",
+  //     fromUserId: null,
+  //     userId: 10,
+  //     leadId: 12,
+  //     agentId: 202,
+  //     codeRedeemed: null,
+  //     isSeen: true,
+  //     createdAt: "2025-01-03T09:54:15.000Z",
+  //     updatedAt: "2025-01-03T14:15:55.000Z",
+  //     lead: {
+  //       id: 12,
+  //       firstName: "Salman",
+  //       lastName: "Majid",
+  //       address: "123 Elm St",
+  //       email: "salman@gmail.com",
+  //       phone: "923058191078",
+  //       status: "active",
+  //       sheetId: 2,
+  //       extraColumns: "{\"roof_type\":\"Asphalt Shingle\",\"monthly_energy_bill\":2500,\"notes\":null}",
+  //       columnMappings: "",
+  //       userId: 10,
+  //       stage: null,
+  //       createdAt: "2024-11-24T20:50:12.000Z",
+  //       updatedAt: "2024-11-24T20:50:12.000Z"
+  //     },
+  //     agent: {
+  //       id: 202,
+  //       name: "test",
+  //       agentRole: "test",
+  //       mainAgentId: 203,
+  //       userId: 10,
+  //       agentType: "outbound",
+  //       agentObjectiveId: 3,
+  //       agentObjective: "Community update",
+  //       agentObjectiveDescription: "Provide local homeowners with relevant updates on a property like just listed, just sold, in escrow or something else. ",
+  //       status: "Just sold",
+  //       address: "300 14th Street, San Diego, CA, USA",
+  //       prompt: null,
+  //       modelId: "1735842271879x907888399150540200",
+  //       phoneNumber: "+18054579527",
+  //       phoneSid: "",
+  //       phoneStatus: "active",
+  //       phoneNumberPrice: "2",
+  //       phonePurchasedAt: null,
+  //       callbackNumber: "+18054579527",
+  //       liveTransferNumber: "",
+  //       liveTransfer: false,
+  //       liveTransferActionId: null,
+  //       voiceId: "5T8AzGjpnC5cQCfJofdO",
+  //       full_profile_image: "",
+  //       thumb_profile_image: "",
+  //       createdAt: "2025-01-02T18:24:33.000Z",
+  //       updatedAt: "2025-01-02T18:54:05.000Z"
+  //     },
+  //     fromUser: null
+  //   }
 
-  ]
+  // ]
 
   const getNotificationImage = (item) => {
     if (item.type === NotificationTypes.RedeemedAgentXCode) {
@@ -306,7 +306,7 @@ function NotficationsDrawer({ close }) {
       <button
         onClick={() => {
           setShowNotificationDrawer(true);
-          // getNotifications();
+          getNotifications();
         }}
       >
         <img
