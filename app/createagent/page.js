@@ -24,7 +24,7 @@ const Page = () => {
   const [index, setIndex] = useState(0);
   const [components, setComponents] = useState([
     CreateAgent1,
-    // CreatAgent3,
+    CreatAgent3,
     CreateAgent4,
     CreateAgentVoice,
   ]);
@@ -38,7 +38,7 @@ const Page = () => {
       if (Data.user.plan) {
         setComponents([
           CreateAgent1,
-          CreatAgent3,
+          // CreatAgent3,
           CreateAgent4,
           CreateAgentVoice,
         ]);
