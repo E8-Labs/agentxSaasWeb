@@ -976,17 +976,66 @@ function Page() {
 
       if (response) {
         //console.log("Response of assign number api is :", response.data)
+        console.log("Response of update number api is", response.data)
         if (response.data.status === true) {
           setShowSuccessSnack(response.data.message);
           setIsVisibleSnack(true);
           setShowConfirmationModal(null);
-          setAgentsContent((prevAgents) =>
-            prevAgents.map((agent) =>
-              agent.id === showDrawer.id
-                ? { ...agent, phoneNumber: phoneNumber }
-                : agent
-            )
-          );
+          // setAgentsContent((prevAgents) =>
+          //   prevAgents.map((agent) =>
+          //     agent.id === showDrawer.id
+          //       ? { ...agent, phoneNumber: phoneNumber }
+          //       : agent
+          //   )
+          // );
+
+          const localAgentsList = localStorage.getItem("localAgentDetails");
+
+          if (localAgentsList) {
+            const agentsList = JSON.parse(localAgentsList);
+            // agentsListDetails = agentsList;
+
+            const updateAgentData = showDrawer;
+
+
+            console.log("Agents list is", agentsList);
+
+            // const updatedArray = agentsList.map((localItem) => {
+            //   const apiItem =
+            //     updateAgentData.id === localItem.id ? updateAgentData : null;
+
+            //   return apiItem ? { ...localItem, ...apiItem } : localItem;
+            // });
+
+            const updatedArray = agentsList.map((localItem) => {
+
+              if (updateAgentData.mainAgentId === localItem.id) {
+
+                const updatedSubAgents = localItem.agents.map((subAgent) => {
+
+                  return updateAgentData.id === subAgent.id
+                    ? { ...subAgent, phoneNumber: phoneNumber }
+                    : subAgent;
+                });
+
+                console.log("Updated sub agents", updatedSubAgents);
+
+                return { ...localItem, agents: updatedSubAgents };
+              }
+
+              return localItem;
+            });
+
+            console.log("Updated agents list array is", updatedArray);
+            localStorage.setItem(
+              "localAgentDetails",
+              JSON.stringify(updatedArray)
+            );
+            setUserAgentsList(updatedArray);
+            // agentsListDetails = updatedArray
+          }
+
+
           // setShowDrawer(null);
           //phoneNumber
           // handleContinue();
