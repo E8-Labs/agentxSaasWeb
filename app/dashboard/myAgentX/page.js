@@ -764,12 +764,12 @@ function Page() {
         formData.append("mainAgentId", MainAgentId);
       }
 
-      if (SelectedVoice) {
+      if (vocieId) {
         formData.append("voiceId", vocieId);
       }
 
       if (showDrawer) {
-        formData.append("mainAgentId", MainAgentId);
+        formData.append("mainAgentId", showDrawer.mainAgentId);
       }
 
       for (let [key, value] of formData.entries()) {
@@ -785,8 +785,8 @@ function Page() {
       if (response) {
         //console.log("Response of update api is :--", response.data);
         console.log("Respons eof update api is", response.data.data);
+        setShowSuccessSnack(response.data.message);
         if (response.data.status === true) {
-          setShowSuccessSnack(response.data.message);
           setIsVisibleSnack(true);
 
           const localAgentsList = localStorage.getItem("localAgentDetails");
@@ -894,7 +894,7 @@ function Page() {
           setShowScript(false);
           setSeledtedScriptKYC(false);
           setSeledtedScriptAdvanceSetting(false);
-          setShowDrawer(null);
+          // setShowDrawer(null);
         }
       }
     } catch (error) {
@@ -965,7 +965,7 @@ function Page() {
                 : agent
             )
           );
-          setShowDrawer(null);
+          // setShowDrawer(null);
           //phoneNumber
           // handleContinue();
           // alert("Phone number assigned")
@@ -1778,9 +1778,9 @@ function Page() {
                             sx: {
                               width: "fit-content",
                               border: "none", // Remove the border
-                              // boxShadow: open
-                              // ? "0px 2px 6px rgba(0, 0, 0, 0.04)"
-                              // : "0px 0px 0px rgba(0, 0, 0, 0)", // Shadow with 60% opacity
+                              boxShadow: open
+                              ? "0px 2px 6px rgba(0, 0, 0, 0.01)"
+                              : "0px 0px 0px rgba(0, 0, 0, 0)",
                               // transition: "box-shadow 0.3s ease-in-out", // Smooth transition for shadow
                             },
                           }}
@@ -2647,7 +2647,11 @@ function Page() {
                             return voiceName.name;
                           };
                           return (
-                            <MenuItem value={item?.voice_id} key={index}>
+                            <MenuItem
+                             value={item?.voice_id} 
+                             key={index}
+                             disabled={SelectedVoice === item.voice_id}
+                             >
                               <Image
                                 // src={avatarImages[index % avatarImages.length]} // Deterministic selection
                                 src={item.img} // Deterministic selection
@@ -2720,6 +2724,7 @@ function Page() {
                               style={styles.dropdownMenu}
                               value={item.phoneNumber.slice(1)}
                               className="flex flex-row items-center gap-2"
+                              disabled={assignNumber === item.phoneNumber}
                             >
                               <div
                                 onClick={(e) => {
