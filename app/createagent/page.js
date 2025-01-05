@@ -1,5 +1,8 @@
 "use client";
 
+import dynamic from "next/dynamic.js";
+import { useEffect, useState } from "react";
+
 const CreateAgent1 = dynamic(() =>
   import("../../components/createagent/CreateAgent1.js")
 );
@@ -16,9 +19,17 @@ const CreateAgentVoice = dynamic(() =>
   import("../../components/createagent/CreateAgentVoice.js")
 );
 
-import dynamic from "next/dynamic.js";
-import React, { useEffect } from "react";
-import { useState } from "react";
+const BuildAgentName = dynamic(() =>
+  import("../../components/createagent/mobileCreateAgent/BuildAgentName.js")
+);
+const BuildAgentObjective = dynamic(() =>
+  import("../../components/createagent/mobileCreateAgent/BuildAgentObjective.js")
+);
+const BuildAgentTask = dynamic(() =>
+  import("../../components/createagent/mobileCreateAgent/BuildAgentTask.js")
+);
+
+
 
 const Page = () => {
   const [index, setIndex] = useState(0);
@@ -33,22 +44,45 @@ const Page = () => {
 
   useEffect(() => {
     const localData = localStorage.getItem("User");
+    let windowSize = window.innerWidth;
     if (localData) {
       const Data = JSON.parse(localData);
       if (Data.user.plan) {
-        setComponents([
-          CreateAgent1,
-          // CreatAgent3,
-          CreateAgent4,
-          CreateAgentVoice,
-        ]);
+        if (windowSize < 640) {
+          setComponents([
+            BuildAgentName,
+            BuildAgentTask,
+            BuildAgentObjective,
+            // CreatAgent3,
+            CreateAgent4,
+            CreateAgentVoice,
+          ]);
+        } else {
+          setComponents([
+            CreateAgent1,
+            // CreatAgent3,
+            CreateAgent4,
+            CreateAgentVoice,
+          ]);
+        }
       } else {
-        setComponents([
-          CreateAgent1,
-          CreatAgent3,
-          CreateAgent4,
-          CreateAgentVoice,
-        ]);
+        if (windowSize < 640) {
+          setComponents([
+            BuildAgentName,
+            BuildAgentTask,
+            BuildAgentObjective,
+            CreatAgent3,
+            CreateAgent4,
+            CreateAgentVoice,
+          ]);
+        } else {
+          setComponents([
+            CreateAgent1,
+            CreatAgent3,
+            CreateAgent4,
+            CreateAgentVoice,
+          ]);
+        }
       }
     }
   }, []);
@@ -68,6 +102,23 @@ const Page = () => {
     console.log("Component indexchanged ", index);
     setIndex(index + 2);
   };
+
+  //function to get the agent Details
+  const [AgentDetails, setAgentDetails] = useState({
+    name: "",
+    agentRole: "",
+    agentType: ""
+  });
+
+  const getAgentDetails = (agentName, agentRole, agentType) => {
+    console.log("I am hit")
+    console.log(`"Agent Name is": ${agentName} ----- "Agent Role is" ${agentRole} ------ "Agent Type is" ${agentType}`);
+    setAgentDetails({
+      name: agentName,
+      agentRole: agentRole,
+      agentType: agentType
+    });
+  }
 
   const backgroundImage = {
     // backgroundImage: 'url("/assets/background.png")',
@@ -106,6 +157,8 @@ const Page = () => {
         handleContinue={handleContinue}
         handleBack={handleBack}
         handleSkipAddPayment={handleSkipAddPayment}
+        getAgentDetails={getAgentDetails}
+        AgentDetails={AgentDetails}
       />
     </div>
   );

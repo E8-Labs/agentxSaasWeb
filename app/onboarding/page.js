@@ -15,6 +15,8 @@ import WebOwnersAgentSignUp from '@/components/onboarding/otherAgentsSignUp/WebO
 import RecruiterAgentSignUp from '@/components/onboarding/otherAgentsSignUp/RecruiterAgentSignUp';
 import TaxAgentSignUp from '@/components/onboarding/otherAgentsSignUp/TaxAgentSignUp';
 import { useRouter } from 'next/navigation';
+import OtherDetails from '@/components/onboarding/mobileUI/OtherDetails';
+import BasicDetails from '@/components/onboarding/mobileUI/BasicDetails';
 
 
 const Page = ({ params }) => {
@@ -22,14 +24,61 @@ const Page = ({ params }) => {
     const router = useRouter();
     const [index, setIndex] = useState(0);
 
-    let components = [
+    const [components, setComponents] = useState([
         UserType, UserService,
-        FocusArea, SignUpForm, Congrats,
-        SalesDevAgent, SolarRepAgentSignUp,
-        InsuranceAgentSignUp, MarketerAgentSignUp,
-        WebOwnersAgentSignUp, RecruiterAgentSignUp,
-        TaxAgentSignUp
-    ]
+        FocusArea,
+        BasicDetails,
+        OtherDetails
+        // UserType, UserService,
+        // FocusArea, SignUpForm, Congrats,
+        // SalesDevAgent, SolarRepAgentSignUp,
+        // InsuranceAgentSignUp, MarketerAgentSignUp,
+        // WebOwnersAgentSignUp, RecruiterAgentSignUp,
+        // TaxAgentSignUp
+    ]);
+
+    //variables store userDetails
+    const [userDetails, setUserDetails] = useState({
+        name: "",
+        email: "",
+        phone: "",
+    });
+
+    //function stores the agentDetails
+    const handleDetails = (userName, userEmail, userPhoneNumber) => {
+        console.log(`Agent name is`)
+        setUserDetails({
+            name: userName,
+            email: userEmail,
+            phone: userPhoneNumber
+        })
+    }
+
+    useEffect(() => {
+        let screenWidth = window.innerWidth;
+        if (screenWidth < 640) {
+            setComponents([
+                UserType, UserService,
+                FocusArea,
+                BasicDetails,
+                OtherDetails
+                // SignUpForm, Congrats,
+                // SalesDevAgent, SolarRepAgentSignUp,
+                // InsuranceAgentSignUp, MarketerAgentSignUp,
+                // WebOwnersAgentSignUp, RecruiterAgentSignUp,
+                // TaxAgentSignUp
+            ]);
+        } else {
+            setComponents([
+                UserType, UserService,
+                FocusArea, SignUpForm, Congrats,
+                SalesDevAgent, SolarRepAgentSignUp,
+                InsuranceAgentSignUp, MarketerAgentSignUp,
+                WebOwnersAgentSignUp, RecruiterAgentSignUp,
+                TaxAgentSignUp
+            ]);
+        }
+    }, [])
 
     let CurrentComp = components[index]
 
@@ -125,7 +174,7 @@ const Page = ({ params }) => {
     //move other agent to wait list
     const handleWaitList = () => {
         router.push("/onboarding/WaitList")
-    }
+    };
 
     const backgroundImage = {
         // backgroundImage: 'url("/assets/background.png")',
@@ -180,6 +229,9 @@ const Page = ({ params }) => {
                 handleTaxAgentBack={handleTaxAgentBack}
                 //move other agents to wait list
                 handleWaitList={handleWaitList}
+                handleDetails={handleDetails}
+                userDetails={userDetails}
+
             />
         </div>
     )

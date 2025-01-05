@@ -349,7 +349,42 @@ const FocusArea = ({
                         <ProgressBar value={60} />
                     </div>
 
-                    <Footer handleContinue={handleNext} handleBack={handleBack} shouldContinue={shouldContinue} />
+                    <Footer
+                        handleContinue={() => {
+                            let windowWidth = window.innerWidth;
+                            if (windowWidth < 640) {
+                                const data = localStorage.getItem("registerDetails");
+
+                                if (data) {
+                                    const LocalDetails = JSON.parse(data);
+                                    console.log("Local details are", LocalDetails);
+                                    let agentType = LocalDetails.userTypeTitle;
+
+                                    let details = LocalDetails;
+                                    // details.focusAreaId = focusArea;
+
+                                    if (Array.isArray(focusArea)) {
+                                        // Append otherType only if it has a value
+                                        details.focusAreaId = otherType.trim()
+                                            ? [...focusArea, otherType]
+                                            : [...focusArea];
+                                    } else {
+                                        // Initialize focusAreaId with otherType only if it has a value
+                                        details.focusAreaId = otherType.trim()
+                                            ? [otherType]
+                                            : [];
+                                    }
+
+                                    console.log("Updated details are", details);
+
+                                    // return
+                                    localStorage.setItem("registerDetails", JSON.stringify(details));
+                                }
+                                handleContinue()
+                            } else {
+                                handleNext();
+                            }
+                        }} handleBack={handleBack} shouldContinue={shouldContinue} />
                 </div>
 
             </div>

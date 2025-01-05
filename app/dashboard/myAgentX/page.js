@@ -390,6 +390,7 @@ function Page() {
       }
     } catch (error) {
       console.error("Error occured in api is", error);
+      setGlobalLoader(false);
     } finally {
       setGlobalLoader(false);
     }
@@ -733,6 +734,7 @@ function Page() {
   const updateAgent = async (vocieId) => {
     try {
       setUpdateAgentLoader(true);
+      setGlobalLoader(true);
       // getAgents()
       let AuthToken = null;
       const localData = localStorage.getItem("User");
@@ -897,9 +899,11 @@ function Page() {
       }
     } catch (error) {
       console.error("Error occured in api is", error);
+      setGlobalLoader(false);
     } finally {
       //console.log("Api call completed");
       setUpdateAgentLoader(false);
+      setGlobalLoader(false);
     }
   };
 
@@ -912,7 +916,7 @@ function Page() {
 
   const AssignNumber = async (phoneNumber) => {
     try {
-      setAssignLoader(true);
+      setGlobalLoader(true);
       let AuthToken = null;
       const LocalData = localStorage.getItem("User");
 
@@ -979,9 +983,10 @@ function Page() {
       }
     } catch (error) {
       console.error("Error occured in api is:", error);
+      setGlobalLoader(false);
     } finally {
       //console.log("Assign Number Api call completed");
-      setAssignLoader(false);
+      setGlobalLoader(false);
     }
   };
 
@@ -1774,8 +1779,8 @@ function Page() {
                               width: "fit-content",
                               border: "none", // Remove the border
                               // boxShadow: open
-                                // ? "0px 2px 6px rgba(0, 0, 0, 0.04)"
-                                // : "0px 0px 0px rgba(0, 0, 0, 0)", // Shadow with 60% opacity
+                              // ? "0px 2px 6px rgba(0, 0, 0, 0.04)"
+                              // : "0px 0px 0px rgba(0, 0, 0, 0)", // Shadow with 60% opacity
                               // transition: "box-shadow 0.3s ease-in-out", // Smooth transition for shadow
                             },
                           }}
