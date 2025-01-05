@@ -543,7 +543,6 @@ const Pipeline1 = ({ handleContinue }) => {
             <div
               className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
               style={{ textAlign: "center" }}
-              onClick={handleContinue} //() => {router.push("/testfile")}
             >
               Pipeline and Stages
             </div>

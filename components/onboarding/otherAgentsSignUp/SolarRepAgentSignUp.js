@@ -541,7 +541,6 @@ const SolarRepAgentSignUp = ({
             <div
               className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: "center" }}
-              onClick={handleContinue}
             >
               Your Contact Information
             </div>

@@ -361,7 +361,6 @@ const CreatAgent3 = ({ handleContinue }) => {
             <div
               className="mt-6 w-11/12 sm:text-3xl text-xl font-[600]"
               style={{ textAlign: "center" }}
-              onClick={handleContinue}
             >
               Your first 30 minutes are on us!
             </div>

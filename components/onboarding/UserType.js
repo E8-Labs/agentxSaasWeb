@@ -149,13 +149,13 @@ const UserType = ({ handleContinue, DefaultData }) => {
 
                 <div className='flex flex-col items-center h-[84svh] sm:h-[82svh]'>
                     {/* header */}
-                    <div className='w-full h-[10%]' onClick={handleContinue}>
+                    <div className='w-full h-[10%]'>
                         <Header />
                     </div>
 
                     {/* Body */}
                     <div className='flex flex-col items-center px-4 w-full h-[90%]'>
-                        <div className='mt-4 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }} onClick={handleContinue}>
+                        <div className='mt-4 w-11/12 md:text-4xl text-lg font-[600]' style={{ textAlign: "center" }}>
                             Which AgentX will you build?
                         </div>
 
