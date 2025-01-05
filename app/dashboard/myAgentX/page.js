@@ -72,6 +72,7 @@ function Page() {
   const [openCalimNumDropDown, setOpenCalimNumDropDown] = useState(false);
   const [showGlobalBtn, setShowGlobalBtn] = useState(true);
   const [showReassignBtn, setShowReassignBtn] = useState(false);
+  const [showReassignBtnWidth, setShowReassignBtnWidth] = useState(false);
   const [reassignLoader, setReassignLoader] = useState(null);
   const [showClaimPopup, setShowClaimPopup] = useState(false);
   const [findeNumberLoader, setFindeNumberLoader] = useState(false);
@@ -219,6 +220,21 @@ function Page() {
       setShowObjectionsSaveBtn(false);
     }
   }, [greetingTagInput, scriptTagInput, objective]); //scriptTagInput
+
+  //function for numbers width
+
+  const numberDropDownWidth = (agName) => {
+    // if (showDrawer?.agentType === "outbound") {
+    //   return "100%"
+    // }else{
+    //   if(showDrawer?.name == agName || !agName){
+    //     return "100%"
+    //   }
+    // }
+    if (showDrawer?.agentType === "outbound" || showDrawer?.name === agName || !agName) {
+      return "100%";
+    }
+  }
 
   //function for image selection on dashboard
   const handleImageChange = async (event) => {
@@ -418,6 +434,9 @@ function Page() {
     if (item.agentType === "inbound") {
       setShowReassignBtn(true);
       setShowGlobalBtn(false);
+      // if(item.claimedBy.name !== showDrawer.name){
+      //   setShowReassignBtnWidth(true)
+      // }
     } else if (item.agentType === "outbound") {
       setShowReassignBtn(false);
     }
@@ -719,7 +738,7 @@ function Page() {
       });
 
       if (response) {
-        // console.log("Response of api is :", response.data);
+        console.log("Response of numbers api is :", response.data);
         // console.log("PArsed data is ", response.data.data);
         setPreviousNumber(response.data.data);
       }
@@ -916,6 +935,9 @@ function Page() {
 
   const AssignNumber = async (phoneNumber) => {
     try {
+
+      console.log("Updated number is", phoneNumber)
+
       setGlobalLoader(true);
       let AuthToken = null;
       const LocalData = localStorage.getItem("User");
@@ -941,7 +963,7 @@ function Page() {
       const ApiPath = Apis.asignPhoneNumber;
 
       for (let [key, value] of formData.entries()) {
-        //console.log(`${key} ${value}`)
+        console.log(`${key} ${value}`)
       }
 
       // return
@@ -983,6 +1005,8 @@ function Page() {
       }
     } catch (error) {
       console.error("Error occured in api is:", error);
+      setShowErrorSnack(response.data.message);
+      setIsVisibleSnack2(true);
       setGlobalLoader(false);
     } finally {
       //console.log("Assign Number Api call completed");
@@ -1779,8 +1803,8 @@ function Page() {
                               width: "fit-content",
                               border: "none", // Remove the border
                               boxShadow: open
-                              ? "0px 2px 6px rgba(0, 0, 0, 0.01)"
-                              : "0px 0px 0px rgba(0, 0, 0, 0)",
+                                ? "0px 2px 6px rgba(0, 0, 0, 0.01)"
+                                : "0px 0px 0px rgba(0, 0, 0, 0)",
                               // transition: "box-shadow 0.3s ease-in-out", // Smooth transition for shadow
                             },
                           }}
@@ -2648,10 +2672,10 @@ function Page() {
                           };
                           return (
                             <MenuItem
-                             value={item?.voice_id} 
-                             key={index}
-                             disabled={SelectedVoice === item.voice_id}
-                             >
+                              value={item?.voice_id}
+                              key={index}
+                              disabled={SelectedVoice === item.voice_id}
+                            >
                               <Image
                                 // src={avatarImages[index % avatarImages.length]} // Deterministic selection
                                 src={item.img} // Deterministic selection
@@ -2701,6 +2725,8 @@ function Page() {
                             let value = e.target.value;
                             setAssignNumber(value);
                             setOpenCalimNumDropDown(false);
+
+                            // if (showReassignBtn && item?.claimedBy){}
                           }}
                           renderValue={(selected) => {
                             if (selected === "") {
@@ -2731,8 +2757,10 @@ function Page() {
                                   if (showReassignBtn && item?.claimedBy) {
                                     e.stopPropagation();
                                     setShowConfirmationModal(item);
+                                    console.log("Hit release number api")
                                     // AssignNumber
                                   } else {
+                                    console.log("Hit reassign number api")
                                     console.log(
                                       "Should call assign number api"
                                     );
@@ -2743,6 +2771,11 @@ function Page() {
                                     );
                                   }
                                 }}
+
+                                style={{
+                                  width: numberDropDownWidth(item?.claimedBy?.name),
+                                }}
+
                               >
                                 {item.phoneNumber}
                               </div>
