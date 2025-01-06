@@ -7,6 +7,9 @@ import getProfileDetails from '@/components/apis/GetProfile';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
+import { requestToken } from '@/components/firbase';
+import { initializeApp } from 'firebase/app';
+import { UpdateProfile } from '@/components/apis/UpdateProfile';
 
 
 const ProfileNav = () => {
@@ -66,6 +69,16 @@ const ProfileNav = () => {
     },
   ]
 
+  //useeffect that redirect the user back to the main screen for mobile view
+  useEffect(() => {
+    let windowWidth = window.innerWidth;
+    if (windowWidth < 640) {
+      router.push("/createagent/desktop")
+    } else {
+      return
+    }
+  }, []);
+
   useEffect(() => {
     getProfile();
     const data = localStorage.getItem("User");
@@ -73,7 +86,54 @@ const ProfileNav = () => {
       const LocalData = JSON.parse(data);
       setUserDetails(LocalData);
     }
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register('/firebase-messaging-sw.js')
+        .then((registration) => {
+          console.log('Service Worker registered with scope:', registration.scope);
+
+          // Firebase automatically uses this service worker for messaging
+        })
+        .catch((error) => {
+          console.error('Service Worker registration failed:', error);
+        });
+    }
+  }, []);
+
+
+  //function to get the notification permissione
+  const requestNotificationPermission = () => {
+    // setShowNotificationLoader(true);
+    console.log("Check 1 clear")
+    console.log('Requesting permission...');
+    Notification.requestPermission().then((permission) => {
+      if (permission === 'granted') {
+        console.log('Notification permission granted.');
+        requestToken((FCMToken) => {
+          if (FCMToken) {
+            console.log("Token for fcm is", FCMToken);
+            const apidata = {
+              fcm_token: FCMToken
+            }
+            console.log("Token sending in api is", apidata);
+            // UpdateProfile()
+          } else {
+            alert('FCM token not generated!!!');
+          }
+        });
+      } else {
+        router.push('/tristan.ai');
+      }
+    }).catch((error) => {
+      console.error("Error occured in api is", error);
+    }).finally(() => {
+      // setShowNotificationLoader(false);
+    });
+  }
+
 
   const links = [
     {
@@ -347,6 +407,13 @@ const ProfileNav = () => {
             ))
           }
         </div>
+
+        {/* <div>
+          <button onClick={requestNotificationPermission}>
+            Req Not
+          </button>
+        </div> */}
+
       </div>
 
       <div

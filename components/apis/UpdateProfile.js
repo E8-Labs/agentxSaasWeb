@@ -10,6 +10,8 @@ export const UpdateProfile = async (apidata) => {
             let u = JSON.parse(data)
             let path = Apis.updateProfileApi;
             console.log("Authtoken is", u.token);
+            console.log("Api Data passsed is", apidata)
+            // return
             const response = await axios.post(path, apidata, {
                 headers: {
                     'Authorization': 'Bearer ' + u.token,
