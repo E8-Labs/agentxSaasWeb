@@ -34,6 +34,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const [officeNumber, setOfficeNumber] = useState("");
   const [showClaimPopup, setShowClaimPopup] = useState(false);
   const [previousNumber, setPreviousNumber] = useState([]);
+  //agent details variable
+  const [AgentData, setAgentData] = useState(null)
   //show reassign btn or not
   const [showConfirmationModal, setShowConfirmationModal] = useState(null);
   const [showReassignBtn, setShowReassignBtn] = useState(false);
@@ -79,11 +81,13 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     if (localAgentsData) {
       const agetnDetails = JSON.parse(localAgentsData);
       console.log("Created agent details are :", agetnDetails);
+      setAgentData(agetnDetails.agents[0]);
       if (agetnDetails.agents.length === 2) {
         setShowReassignBtn(false);
       } else if (agetnDetails.agents[0].agentType === "inbound") {
         setShowReassignBtn(true);
         setShowGlobalBtn(false);
+
       }
     }
   }, []);
@@ -556,7 +560,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     >
       <div
         className="bg-white sm:rounded-2xl w-full sm:w-10/12 h-[90vh] py-4 flex flex-col justify-between"
-        // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+      // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
         <div>
           {/* header */}
@@ -633,7 +637,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                             <div>
                               {item.claimedBy && (
                                 <div
-                                  className="flex flex-row items-center gap-2"
+                                  className="flex flex-row items-center "
                                   onClick={(e) => {
                                     if (item?.claimedBy) {
                                       e.stopPropagation();
@@ -641,9 +645,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                     }
                                   }}
                                 >
-                                  {`(Claimed by {${item.claimedBy.name}})`}
+                                  (<div className="text-[#00000070] me-1">Claimed by</div> {item.claimedBy.name})
                                   {reassignLoader?.claimedBy?.id ===
-                                  item.claimedBy.id ? (
+                                    item.claimedBy.id ? (
                                     <CircularProgress size={15} />
                                   ) : (
                                     <button
@@ -843,7 +847,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                             </div>
                                             <div>
                                               {index ==
-                                              selectedPurchasedIndex ? (
+                                                selectedPurchasedIndex ? (
                                                 <Image
                                                   src={"/assets/charmTick.png"}
                                                   height={35}
@@ -1061,7 +1065,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       overflowY: "auto",
                     }}
                     countryCodeEditable={true}
-                    // defaultMask={locationLoader ? "Loading..." : undefined}
+                  // defaultMask={locationLoader ? "Loading..." : undefined}
                   />
 
                   <div
@@ -1109,7 +1113,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                  // defaultMask={locationLoader ? "Loading..." : undefined}
+                // defaultMask={locationLoader ? "Loading..." : undefined}
                 />
                 <div style={{ fontWeight: "500", fontSize: 11, color: "red" }}>
                   {errorMessage}
@@ -1232,7 +1236,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                   <span className="text-purple">
                     ({formatPhoneNumber(showConfirmationModal?.phoneNumber)})
                   </span>{" "}
-                  to {showConfirmationModal?.claimedBy?.name}.
+                  to {AgentData?.name}
+                  {/* {showConfirmationModal?.claimedBy?.name}. */}
                   {/* {`{${showConfirmationModal?.claimedBy?.name}}`}. */}
                 </p>
               </div>

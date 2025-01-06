@@ -312,12 +312,42 @@ const Pipeline1 = ({ handleContinue }) => {
     const pipelineID = selectedPipelineItem.id;
     const cadence = allData;
 
-    const cadenceData = {
-      pipelineID: selectedPipelineItem.id,
-      cadenceDetails: cadence,
-    };
+    let cadenceData = null
 
-    console.log("Cadence data storing on local storage is :", cadenceData);
+    //getting local agent data then sending the cadence accordingly
+    const agentDetails = localStorage.getItem("agentDetails");
+    if (agentDetails) {
+      const agentData = JSON.parse(agentDetails);
+      console.log("Recieved from local storage are :--", agentData);
+      if (agentData.agents.length > 1) {
+        console.log("2 agents");
+        cadenceData = {
+          pipelineID: selectedPipelineItem.id,
+          cadenceDetails: cadence,
+        };
+      } else {
+        cadenceData =
+        {
+          "pipelineID": selectedPipelineItem?.id,
+          "cadenceDetails":
+            [
+              {
+                "stage": selectedPipelineItem?.stages[0]?.id, //oldStages[0]?.id,
+                "calls": [
+                  {
+                    "id": 0,
+                    "waitTimeDays": 3650,
+                    "waitTimeHours": 0,
+                    "waitTimeMinutes": 0
+                  }]
+              }]
+        }
+      }
+    }
+
+    console.log("Cadence data for agent", cadenceData);
+
+    console.log("Cadence data storing on local storage is :", JSON.stringify(cadenceData));
 
     localStorage.setItem("AddCadenceDetails", JSON.stringify(cadenceData));
 
