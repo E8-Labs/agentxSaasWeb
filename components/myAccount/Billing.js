@@ -293,6 +293,12 @@ function Billing() {
         const LocalDetails = JSON.parse(localData);
         localDetails = LocalDetails;
         AuthToken = LocalDetails.token;
+        if (localDetails?.cards?.length > 0) {
+          console.log("Already have cards");
+        } else {
+          setErrorSnack("No payment source added");
+          return
+        }
       }
 
       console.log("Authtoken is", AuthToken);
@@ -337,7 +343,7 @@ function Billing() {
             setCurrentPlan(planType);
           }
           // localStorage.setItem("User", JSON.stringify(localDetails));
-          setSuccessSnack(response.data.message);
+          setSuccessSnack("Your plan was successfully upgraded");
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
         }
@@ -427,6 +433,9 @@ function Billing() {
           setTogglePlan(null);
           setCurrentPlan(null);
           setShowConfirmCancelPlanPopup2(true);
+          setSuccessSnack("Your plan was successfully downgraded");
+        } else if (response.data.status === false) {
+          setErrorSnack(response.data.message);
         }
       }
     } catch (error) {

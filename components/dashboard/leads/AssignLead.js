@@ -14,6 +14,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs"; // Import Day.js
+import { getAgentImage } from "@/utilities/agentUtilities";
 
 const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
   const [initialLoader, setInitialLoader] = useState(false);
@@ -502,14 +503,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
               >
                 <div className="flex flex-row items-center justify-between pt-2">
                   <div className="flex flex-row items-center gap-2">
-                    <div className="h-[60px] w-[60px] bg-gray-100 rounded-full flex flex-row items-center justify-center">
-                      <Image
-                        src={"/assets/avatar1.png"}
-                        height={42}
-                        width={42}
-                        alt="*"
-                      />
-                    </div>
+                    {getAgentImage(item)}
                     <span style={styles.heading}>
                       {item.name.slice(0, 1).toUpperCase()}
                       {item.name.slice(1)}

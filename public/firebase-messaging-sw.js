@@ -31,3 +31,40 @@ messaging.onBackgroundMessage((payload) => {
     };
     self.registration.showNotification(notificationTitle, notificationOptions);
 });
+
+
+//test code for psuh notifications when web is open
+
+self.addEventListener('push', (event) => {
+    console.log('[firebase-messaging-sw.js] Push event triggered', event);
+
+    if (event.data) {
+        const payload = event.data.json();
+
+        const notificationTitle = payload.notification.title;
+        const notificationOptions = {
+            body: payload.notification.body,
+            icon: './agentX.png',
+        };
+
+        // Show the notification
+        event.waitUntil(
+            self.registration.showNotification(notificationTitle, notificationOptions)
+        );
+    }
+});
+
+// Handle notification click
+self.addEventListener('notificationclick', (event) => {
+    console.log('[firebase-messaging-sw.js] Notification click Received.');
+
+    event.notification.close(); // Close the notification
+
+    // Open the URL specified in the notification (if provided)
+    if (event.notification.data) {
+        event.waitUntil(
+            clients.openWindow(event.notification.data)
+        );
+    }
+});
+

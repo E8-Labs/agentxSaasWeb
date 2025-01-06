@@ -438,7 +438,7 @@ const Objection = ({ showTitle, selectedAgentId }) => {
               onChange={(event) => { setAddObjTitle(event.target.value) }}
             />
             <div style={{ ...styles.title, marginTop: 10 }}>
-              Description
+              Response
             </div>
             <TextareaAutosize
               maxRows={5}

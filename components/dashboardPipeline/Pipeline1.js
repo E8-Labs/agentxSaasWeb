@@ -1705,7 +1705,7 @@ const Pipeline1 = () => {
                                     className="text-[#00000060]"
                                     style={styles.agentName}
                                   >
-                                    Email
+                                    {lead?.lead?.email?.slice(0, 10) + "..." || ""}
                                   </div>
                                   <div className="flex flex-row items-center gap-4">
                                     <Image

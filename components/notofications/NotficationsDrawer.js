@@ -321,12 +321,29 @@ function NotficationsDrawer({ close }) {
           getNotifications();
         }}
       >
-        <img
-          src="/otherAssets/notificationIcon.png"
-          style={{ height: 24, width: 24 }}
-          alt="notificationIcon"
-        />
+        <div className="flex flex-row ">
+          <Image
+            src="/svgIcons/notificationIcon.svg"
+            height={24}
+            width={24}
+            alt="Notification Icon"
+          />
+          {unread > 0 && (
+            <div
+              className="flex bg-red rounded-full w-[18px] py-[1px] flex-row items-center justify-center text-red font-md text-white"
+              style={{
+                fontSize: 13,
+                marginTop: -13,
+                alignSelf: "flex-start",
+                marginLeft: -15,
+              }}
+            >
+              {unread}
+            </div>
+          )}
+        </div>
       </button>
+
       <Drawer
         anchor="right"
         sx={{
@@ -360,16 +377,19 @@ function NotficationsDrawer({ close }) {
                 />
                 {unread > 0 && (
                   <div
-                    className="flex bg-red rounded-full w-[18px] py-[1px] flex-row items-center justify-center text-red font-md text-white"
+                    className="flex bg-red-500 rounded-full w-5 h-5 items-center justify-center text-white font-medium"
                     style={{
-                      fontSize: 13,
-                      marginTop: -13,
+                      fontSize: "12px", // Ensure font-size is smaller to fit within the circle
+                      marginTop: "-13px", // Adjust position as needed
                       alignSelf: "flex-start",
-                      marginLeft: -15,
+                      marginLeft: "-15px",
+                      lineHeight: "1", // Prevent extra spacing inside the circle
                     }}
                   >
                     {unread}
                   </div>
+
+
                 )}
               </div>
               <div style={{ fontSize: 22, fontWeight: "600" }}>
@@ -429,7 +449,3 @@ export const notLeadDetails = () => {
     </div>
   )
 }
-
-
-
-
