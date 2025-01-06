@@ -38,7 +38,7 @@ const RearrangeStages = ({
   selectedPipelineItem,
   handleReorderStages,
   reorderStageLoader,
-  setShowReorderBtn
+  setShowReorderBtn,
 }) => {
   const [pipelineStages, setPipelineStages] = useState(stages);
   const [delStageLoader, setDelStageLoader] = useState(false);
