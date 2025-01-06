@@ -197,6 +197,12 @@ const ProfileNav = () => {
 
       console.log("Data recieved from get profile api", response);
 
+      const userlocalData = localStorage.getItem('User');
+      if (userlocalData) {
+        const response = JSON.parse(userlocalData);
+        console.log("User FCM token is", response.user.fcm_token)
+      }
+
       let Data = response?.data?.data
 
       if (response) {
