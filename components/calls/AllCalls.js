@@ -28,29 +28,6 @@ import {
 function AllCalls() {
   const [searchValue, setSearchValue] = useState("");
 
-  // const callDetails = [
-  //   {
-  //     id: 1, name: "Rayna Passaquindici Arcand", email: 'arslan@gmail.com', date: 'jul 19,2024', duration: '3:43',
-  //     stage: 'New Lead', status: 'voicemail', time: "12:12 pm", phone: '00000001212'
-  //   },
-  //   {
-  //     id: 2, name: "Gretchen Workman", email: 'arslan@gmail.com', date: 'jul 19,2024', duration: '3:43',
-  //     stage: 'New Lead', status: 'voicemail', time: "12:12 pm", phone: '00000001212'
-  //   },
-  //   {
-  //     id: 3, name: "Zain Baptista", email: 'arslan@gmail.com', date: 'jul 19,2024', duration: '3:43',
-  //     stage: 'New Lead', status: 'voicemail', time: "12:12 pm", phone: '00000001212'
-  //   },
-  //   {
-  //     id: 4, name: "Jordyn Korsgaard", email: 'arslan@gmail.com', date: 'jul 19,2024', duration: '3:43',
-  //     stage: 'New Lead', status: 'voicemail', time: "12:12 pm", phone: '00000001212'
-  //   },
-  //   {
-  //     id: 5, name: "Lincoln Stanton", email: 'arslan@gmail.com', date: 'jul 19,2024', duration: '3:43',
-  //     stage: 'New Lead', status: 'voicemail', time: "12:12 pm", phone: '00000001212'
-  //   },
-  // ];
-
   const [callDetails, setCallDetails] = useState([]);
   const [filteredCallDetails, setFilteredCallDetails] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
@@ -527,7 +504,7 @@ function AllCalls() {
         </div>
       ) : (
         <div
-          className="max-h-[67vh] overflow-auto"
+          className="max-h-[67svh] overflow-auto"
           id="scrollableDiv1"
           style={{ scrollbarWidth: "none" }}
         >

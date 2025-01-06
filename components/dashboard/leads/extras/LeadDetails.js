@@ -532,7 +532,7 @@ const LeadDetails = ({
         closeAfterTransition
         BackdropProps={{
           sx: {
-            backgroundColor: noBackDrop ? "#00000010" : "#00000020",
+            backgroundColor: noBackDrop ? "#00000002" : "#00000020",
             // //backdropFilter: "blur(5px)",
           },
         }}

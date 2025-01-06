@@ -5,6 +5,7 @@ import axios from "axios";
 import { Box, CircularProgress, Modal, Popover } from "@mui/material";
 import moment from "moment";
 import { GetFormattedDateString } from "@/utilities/utility";
+import { getAgentsListImage } from "@/utilities/agentUtilities";
 
 function SheduledCalls() {
   const [searchValue, setSearchValue] = useState("");
@@ -343,7 +344,7 @@ function SheduledCalls() {
   };
 
   return (
-    <div className="w-full items-start">
+    <div className="w-full items-start overflow-hidden">
       {/* Confirmation popup */}
       {showConfirmationPopuup && (
         <ShowConfirmationPopup
@@ -356,7 +357,7 @@ function SheduledCalls() {
         />
       )}
 
-      <div className="flex w-full pl-10 flex-row items-start gap-3">
+      <div className="flex w-full pl-10 flex-row items-start gap-3 overflow-hidden">
         {/* <div className="flex w-3/12 items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm">
           <input
             type="text"
@@ -415,10 +416,10 @@ function SheduledCalls() {
             <CircularProgress size={35} />
           </div>
         ) : (
-          <div>
+          <div style={{ scrollbarWidth: "none" }}>
             {
               filteredAgentsList.length > 0 ? (
-                <div>
+                <div className="overflow-auto max-h-[67svh]">
                   {filteredAgentsList.map((item, index) => {
                     return (
                       <div key={index}>
@@ -430,7 +431,7 @@ function SheduledCalls() {
                                 key={index}
                               >
                                 <div className="w-3/12 flex flex-row gap-4 items-center">
-                                  {agent?.agents[0]?.thumb_profile_image ? (
+                                  {/* {agent?.agents[0]?.thumb_profile_image ? (
                                     <Image
                                       className="rounded-full"
                                       src={agent?.agents[0].thumb_profile_image}
@@ -447,7 +448,12 @@ function SheduledCalls() {
                                     <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
                                       {agent.name.slice(0, 1).toUpperCase()}
                                     </div>
-                                  )}
+                                  )} */}
+
+                                  <div>
+                                    {getAgentsListImage(agent?.agents[0])}
+                                  </div>
+
                                   <div style={styles.text2}>{agent.name}</div>
                                 </div>
                                 <div className="w-2/12 ">
@@ -694,11 +700,11 @@ function SheduledCalls() {
                                 style={{ fontSize: 15, fontWeight: "500" }}
                               >
                                 <div className="w-3/12 flex flex-row items-center gap-2 truncate">
-                                  <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                                  <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white flex-shrink-0">
                                     {item?.firstName.slice(0, 1).toUpperCase()}
                                   </div>
-                                  <div className="truncate">
-                                    <div>
+                                  <div>
+                                    <div className="truncate w-[100px]">
                                       {item?.firstName} {item?.lastName}
                                     </div>
                                     {/* <div style={{ fontSize: 11, fontWeight: "500", color: "#00000060" }}>

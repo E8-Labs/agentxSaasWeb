@@ -66,21 +66,4 @@ function Page() {
   )
 }
 
-export default Page
-
-
-const styles = {
-  text: {
-    fontSize: 12,
-    color: '#00000090'
-  },
-  text2: {
-    textAlignLast: 'left',
-    fontSize: 15,
-    color: '#000000',
-    fontWeight: 500,
-    whiteSpace: 'nowrap',  // Prevent text from wrapping
-    overflow: 'hidden',    // Hide overflow text
-    textOverflow: 'ellipsis'  // Add ellipsis for overflow text
-  }
-}
+export default Page;

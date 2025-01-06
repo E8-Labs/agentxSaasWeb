@@ -13,12 +13,16 @@ export const getAgentImage = (item) => {
         // Check for thumb_profile_image
         if (subAgent.thumb_profile_image) {
             return (
-                <div className="h-[60px] w-[60px] bg-gray-100 rounded-full flex flex-row items-center justify-center">
+                <div className="bg-gray-100 rounded-full flex flex-row items-center justify-center">
                     < Image
                         src={subAgent.thumb_profile_image}
                         height={42}
                         width={42}
                         alt="*"
+                        className="rounded-full"
+                        style={{
+                            margin: "18px"
+                        }}
                     />
                 </div>
             )
@@ -31,12 +35,16 @@ export const getAgentImage = (item) => {
             );
             if (selectedVoice && selectedVoice.img) {
                 return (
-                    <div className="h-[60px] w-[60px] bg-gray-100 rounded-full flex flex-row items-center justify-center">
+                    <div className="bg-gray-100 rounded-full flex flex-row items-center justify-center">
                         < Image
                             src={selectedVoice.img}
                             height={42}
                             width={42}
                             alt="*"
+                            className="rounded-full"
+                            style={{
+                                margin: "5px"
+                            }}
                         />
                     </div>
                 )
@@ -46,12 +54,16 @@ export const getAgentImage = (item) => {
 
     // Fallback image
     return (
-        <div className="h-[60px] w-[60px] rounded-full flex flex-row items-center justify-center">
+        <div className="rounded-full flex flex-row items-center justify-center">
             < Image
                 src="/agentXOrb.gif"
                 height={42}
                 width={42}
+                className="rounded-full"
                 alt="*"
+                style={{
+                    margin: "18px"
+                }}
             />
         </div>
     )
@@ -67,12 +79,19 @@ export const getAgentsListImage = (subAgent) => {
 
     if (subAgent.thumb_profile_image) {
         return (
-            <div className="h-[60px] w-[60px] bg-gray-100 rounded-full flex flex-row items-center justify-center">
-                < Image
+            <div className="bg-gray-100 rounded-full flex flex-row items-center justify-center">
+                <Image
                     src={subAgent.thumb_profile_image}
                     height={42}
                     width={42}
                     alt="*"
+                    className="rounded-full"
+                    style={{
+                        height: "42px",
+                        width: "42px",
+                        objectFit: "cover",
+                        margin: "8px"
+                    }}
                 />
             </div>
         )
@@ -85,12 +104,16 @@ export const getAgentsListImage = (subAgent) => {
         );
         if (selectedVoice && selectedVoice.img) {
             return (
-                <div className="h-[60px] w-[60px] bg-gray-100 rounded-full flex flex-row items-center justify-center">
+                <div className="bg-gray-100 rounded-full flex flex-row items-center justify-center">
                     < Image
                         src={selectedVoice.img}
                         height={42}
                         width={42}
                         alt="*"
+                        className="rounded-full"
+                        style={{
+                            margin: "5px"
+                        }}
                     />
                 </div>
             )
