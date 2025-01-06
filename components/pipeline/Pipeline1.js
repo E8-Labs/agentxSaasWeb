@@ -25,6 +25,7 @@ import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/Agent
 
 const Pipeline1 = ({ handleContinue }) => {
   const router = useRouter();
+
   const [shouldContinue, setShouldContinue] = useState(true);
   const [toggleClick, setToggleClick] = useState(false);
   const [selectedPipelineItem, setSelectedPipelineItem] = useState(null);

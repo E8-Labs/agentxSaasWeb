@@ -32,7 +32,7 @@ function Page() {
       </div>
 
       <div className=" w-full flex mt-10  gap-8 pb-2 mb-4 pl-10">
-        {["All Calls", "Call Activities", "Sheduled"].map((tab) => (
+        {["All Calls", "Call Activities", "Scheduled"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -52,7 +52,7 @@ function Page() {
           activeTab === "All Calls" ? (
             <AllCalls />
           ) : (
-            activeTab === "Sheduled" ? (
+            activeTab === "Scheduled" ? (
               <SheduledCalls />
             ) : (
               <CallActivities />

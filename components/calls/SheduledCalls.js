@@ -125,7 +125,7 @@ function SheduledCalls() {
       });
 
       if (response) {
-        console.log("Response of get sheduled api is:", response.data.data);
+        console.log("Response of get Scheduled api is:", response.data.data);
 
         setFilteredAgentsList(response.data.data);
         setCallDetails(response.data.data);
@@ -269,7 +269,7 @@ function SheduledCalls() {
           <div style={styles.text}>Date created</div>
         </div>
         <div className="w-2/12">
-          <div style={styles.text}>Sheduled on</div>
+          <div style={styles.text}>Scheduled on</div>
         </div>
         <div className="w-1/12">
           <div style={styles.text} onClick={handleShowDetails}>
@@ -423,7 +423,7 @@ function SheduledCalls() {
               </div>
             ) : (
               <div style={{ fontWeight: "600", fontSize: 24, textAlign: "center", marginTop: 20 }}>
-                No Call Sheduled
+                No Call Scheduled
               </div>
             )
             }

@@ -42,6 +42,9 @@ const PipelineStages = ({
 }) => {
   const [showSampleTip, setShowSampleTip] = useState(false);
 
+  //VIP variable for checking if agent is only inbound
+  const [isInboundAgent, setIsInboundAgent] = useState(false);
+
   const [pipelineStages, setPipelineStages] = useState(stages);
   const [delStageLoader, setDelStageLoader] = useState(false);
   const [delStageLoader2, setDelStageLoader2] = useState(false);
@@ -146,6 +149,25 @@ const PipelineStages = ({
 
   const open = Boolean(actionInfoEl);
   const openAction = Boolean(actionInfoEl2);
+
+  //gets recent agent details
+  useEffect(() => {
+    const agentDetails = localStorage.getItem("agentDetails");
+    if (agentDetails) {
+      const agentData = JSON.parse(agentDetails);
+      console.log("Current Agent Details Recieved Are :--", agentData);
+      if (agentData.agents?.length > 1) {
+        console.log("Two agents")
+        setIsInboundAgent(false);
+      } else {
+        if (agentData.agents[0]?.agentType === "inbound") {
+          setIsInboundAgent(true);
+        } else {
+          setIsInboundAgent(false);
+        }
+      }
+    }
+  }, [])
 
   useEffect(() => {
     console.log("Stagesrecieved are :", stages);
@@ -524,44 +546,80 @@ const PipelineStages = ({
                             </button>
                           )}
                         </div>
-                        <div>
-                          {assignedLeads[index] ? (
-                            <div>
+
+                        {isInboundAgent ? (
+                          <div>
+                            {index > 0 && (
+                              <div className="w-full flex flex-row items-center justify-end mt-2">
+                                <button
+                                  className="flex flex-row items-center gap-1"
+                                  onClick={() => {
+                                    setShowDelStagePopup(item);
+                                  }}
+                                >
+                                  <Image
+                                    src={"/assets/delIcon.png"}
+                                    height={20}
+                                    width={18}
+                                    alt="*"
+                                    style={{
+                                      filter:
+                                        "invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)",
+                                      opacity: 0.5,
+                                    }}
+                                  />
+                                  <p
+                                    className="text-[#15151580]"
+                                    style={{ fontWeight: "500", fontSize: 14 }}
+                                  >
+                                    Delete
+                                  </p>
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div>
+                            {assignedLeads[index] ? (
+                              <div>
+                                <button
+                                  className="bg-[#00000020] flex flex-row items-center justify-center gap-1"
+                                  style={{
+                                    ...styles.inputStyle,
+                                    borderRadius: "55px",
+                                    height: "40px",
+                                    width: "104px",
+                                  }}
+                                  onClick={() => handleUnAssignNewStage(index)}
+                                >
+                                  <Minus size={18} weight="regular" />
+                                  <div>Unassign</div>
+                                </button>
+                              </div>
+                            ) : (
                               <button
-                                className="bg-[#00000020] flex flex-row items-center justify-center gap-1"
+                                className="bg-purple text-white flex flex-row items-center justify-center gap-2"
                                 style={{
                                   ...styles.inputStyle,
                                   borderRadius: "55px",
-                                  height: "40px",
+                                  height: "38px",
                                   width: "104px",
                                 }}
-                                onClick={() => handleUnAssignNewStage(index)}
+                                onClick={() => assignNewStage(index)}
                               >
-                                <Minus size={18} weight="regular" />
-                                <div>Unassign</div>
+                                <Image
+                                  src={"/assets/addIcon.png"}
+                                  height={16}
+                                  width={16}
+                                  alt="*"
+                                />
+                                <div>Assign</div>
                               </button>
-                            </div>
-                          ) : (
-                            <button
-                              className="bg-purple text-white flex flex-row items-center justify-center gap-2"
-                              style={{
-                                ...styles.inputStyle,
-                                borderRadius: "55px",
-                                height: "38px",
-                                width: "104px",
-                              }}
-                              onClick={() => assignNewStage(index)}
-                            >
-                              <Image
-                                src={"/assets/addIcon.png"}
-                                height={16}
-                                width={16}
-                                alt="*"
-                              />
-                              <div>Assign</div>
-                            </button>
-                          )}
-                        </div>
+                            )}
+                          </div>
+                        )
+                        }
+
                       </div>
                       <div>
                         {assignedLeads[index] && (
@@ -826,7 +884,7 @@ const PipelineStages = ({
                         )}
                       </div>
 
-                      {index > 0 && (
+                      {index > 0 && !isInboundAgent && (
                         <div className="w-full flex flex-row items-center justify-end mt-2">
                           <button
                             className="flex flex-row items-center gap-1"
@@ -1144,13 +1202,13 @@ const PipelineStages = ({
                                             border: "1px solid #00000020", // Same border on hover
                                           },
                                           "& .MuiOutlinedInput-notchedOutline":
-                                            {
-                                              border: "none", // Remove the default outline
-                                            },
+                                          {
+                                            border: "none", // Remove the default outline
+                                          },
                                           "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                            {
-                                              border: "none", // Remove outline on focus
-                                            },
+                                          {
+                                            border: "none", // Remove outline on focus
+                                          },
                                           "&.MuiSelect-select": {
                                             py: 0, // Optional padding adjustments
                                           },
@@ -1714,7 +1772,7 @@ const PipelineStages = ({
                               fontWeight: 600,
                               fontSize: "20",
                             }}
-                            // onClick={handleAddNewStageTitle}
+                          // onClick={handleAddNewStageTitle}
                           >
                             Add Stage
                           </button>
