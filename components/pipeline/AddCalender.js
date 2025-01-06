@@ -289,6 +289,25 @@ const AddCalender = ({ handleContinue }) => {
                         )
                       })
                     }
+                    <MenuItem
+                      className='w-full'
+                      value="Custom Calender"
+                    >
+                      <button
+                        className='text-purple underline w-full text-start'
+                        onClick={() => {
+                          console.log("Show show the modal");
+                          setCalendarSelected(null)
+                          // setCalenderTitle("");
+                          // setCalenderApiKey("");
+                          // setEventId("");
+                          // setSelectTimeZone("");
+                          setShowAddNewCalender(true);
+                        }}
+                      >
+                        Add New Calender
+                      </button>
+                    </MenuItem>
                   </Select>
                 </FormControl>
               </div>

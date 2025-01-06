@@ -39,6 +39,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
+import { getAgentsListImage } from "@/utilities/agentUtilities";
 
 function Page() {
   const timerRef = useRef();
@@ -1552,6 +1553,15 @@ function Page() {
   const handleChangeVoice = (event) => {
     updateAgent(event.target.value);
     setSelectedVoice(event.target.value);
+    const selectedVoice = voicesList.find(
+      (voice) => voice.voice_id === event.target.value
+    );
+    if (showDrawer.thumb_profile_image) {
+      return
+    } else {
+      setSelectedImage(selectedVoice.img);
+      updateAgentProfile(selectedVoice.img);
+    }
   };
 
   const [previousCalenders, setPreviousCalenders] = useState([]);
@@ -1722,20 +1732,21 @@ function Page() {
                           />
                         </div>
                       ) : (
-                        <Image
-                          className="hidden md:flex"
-                          src={item?.thumb_profile_image || "/agentXOrb.gif"}
-                          style={{
-                            height: "69px",
-                            width: "69px",
-                            objectFit: "cover",
-                            resize: "cover",
-                            borderRadius: "50%",
-                          }}
-                          height={69}
-                          width={69}
-                          alt="*"
-                        />
+                        // <Image
+                        //   className="hidden md:flex"
+                        //   src={item?.thumb_profile_image || "/agentXOrb.gif"}
+                        //   style={{
+                        //     height: "69px",
+                        //     width: "69px",
+                        //     objectFit: "cover",
+                        //     resize: "cover",
+                        //     borderRadius: "50%",
+                        //   }}
+                        //   height={69}
+                        //   width={69}
+                        //   alt="*"
+                        // />
+                        getAgentsListImage(item)
                       )}
 
                       <input
@@ -1746,7 +1757,7 @@ function Page() {
                         style={{ display: "none" }}
                       />
 
-                      <button
+                      {/* <button
                         style={{ marginLeft: -30 }}
                         onClick={() => {
                           handleSelectProfileImg(index);
@@ -1758,7 +1769,7 @@ function Page() {
                           width={36}
                           alt="profile"
                         />
-                      </button>
+                      </button> */}
                     </div>
 
                     <div className="flex flex-col gap-1">

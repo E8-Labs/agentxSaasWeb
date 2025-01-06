@@ -29,6 +29,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
     //variables for snack bar
     const [message, setMessage] = useState(null);
     const [isVisible, setIsVisible] = useState(false);
+    const [isVisible2, setIsVisible2] = useState(false);
     const [type, setType] = useState(null);
 
 
@@ -147,12 +148,21 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
 
             const formData = new FormData();
 
-            formData.append("apiKey", calendar ? calendar.apiKey : calenderApiKey);
-            formData.append("title", calendar ? calendar.title : calenderTitle);
+            // formData.append("apiKey", calendar ? calendar.apiKey : calenderApiKey); //|| calenderApiKey
+            // formData.append("title", calendar ? calendar.title : calenderTitle); //|| calenderTitle
+            // formData.append("mainAgentId", calendarDetails.id);
+            // formData.append("timeZone", calendar ? calendar.timeZone : selectTimeZone) //|| selectTimeZone
+            // formData.append("eventId", calendar ? calendar.eventId : eventId); //|| eventId
+            // formData.append("agentId", selectedAgent.id);
+
+
+            formData.append("apiKey", calendar.apiKey || calenderApiKey); //|| calenderApiKey
+            formData.append("title", calendar.title || calenderTitle); //|| calenderTitle
             formData.append("mainAgentId", calendarDetails.id);
-            formData.append("timeZone", calendar ? calendar.timeZone : selectTimeZone)
-            formData.append("eventId", calendar ? calendar.eventId : eventId);
+            formData.append("timeZone", calendar.timeZone || selectTimeZone) //|| selectTimeZone
+            formData.append("eventId", calendar.eventId || eventId); //|| eventId
             formData.append("agentId", selectedAgent.id);
+
 
             for (let [key, value] of formData.entries()) {
                 console.log(`${key}: ${value}`);
@@ -167,8 +177,11 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
 
             if (response) {
                 console.log("Response of add calender api is:", response);
-                setIsVisible(true);
-
+                if (calendar) {
+                    setIsVisible2(true);
+                } else {
+                    setIsVisible(true);
+                }
                 if (response.data.status === true) {
 
                     setType(SnackbarTypes.Success);
@@ -259,9 +272,9 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
         <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
 
             {
-                isVisible && (
-                    <AgentSelectSnackMessage type={SnackbarTypes.Success} message={message} isVisible={isVisible} hide={() => {
-                        setIsVisible(false)
+                isVisible2 && (
+                    <AgentSelectSnackMessage type={type} message={message} isVisible={isVisible2} hide={() => {
+                        setIsVisible2(false)
                     }} />
                 )
             }
@@ -323,9 +336,6 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
                                             },
                                         }}
                                     >
-                                        {/* <MenuItem value="">
-                      <em>None</em>
-                    </MenuItem> */}
                                         {
                                             previousCalenders.map((item, index) => {
                                                 return (
@@ -418,6 +428,14 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
                 >
                     <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white', paddingInline: "25px", paddingTop: "25px", paddingBottom: "30px" }}>
                         <div style={{ width: "100%", }}>
+
+                            {
+                                isVisible && (
+                                    <AgentSelectSnackMessage type={type} message={message} isVisible={isVisible} hide={() => {
+                                        setIsVisible(false)
+                                    }} />
+                                )
+                            }
 
                             <div className='' style={{ scrollbarWidth: "none" }}>
 
