@@ -319,20 +319,14 @@ const Pipeline1 = ({ handleContinue }) => {
     if (agentDetails) {
       const agentData = JSON.parse(agentDetails);
       console.log("Recieved from local storage are :--", agentData);
-      if (agentData.agents.length > 1) {
-        console.log("2 agents");
-        cadenceData = {
-          pipelineID: selectedPipelineItem.id,
-          cadenceDetails: cadence,
-        };
-      } else {
+      if (agentData.agents.length === 1 && agentData.agents[0].agentType === "inbound") {
         cadenceData =
         {
           "pipelineID": selectedPipelineItem?.id,
           "cadenceDetails":
             [
               {
-                "stage": selectedPipelineItem?.stages[0]?.id, //oldStages[0]?.id,
+                "stage": selectedPipelineItem?.stages[0]?.id,
                 "calls": [
                   {
                     "id": 0,
@@ -342,6 +336,12 @@ const Pipeline1 = ({ handleContinue }) => {
                   }]
               }]
         }
+      } else {
+        console.log("Might be outbound agent");
+        cadenceData = {
+          pipelineID: selectedPipelineItem.id,
+          cadenceDetails: cadence,
+        };
       }
     }
 
