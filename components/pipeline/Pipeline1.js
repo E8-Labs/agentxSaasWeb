@@ -60,6 +60,15 @@ const Pipeline1 = ({ handleContinue }) => {
   // const [rows, setRows] = useState([]);
   // const [assignedNewLEad, setAssignedNewLead] = useState(false);
   useEffect(() => {
+    const localAgentData = localStorage.getItem("agentDetails");
+    if (localAgentData) {
+      const Data = JSON.parse(localAgentData);
+      if (Data.agents.length === 1 && Data.agents[0].agentType == "inbound") {
+        return
+      } else {
+        console.log("Check 1 clear to go");
+      }
+    }
     const localCadences = localStorage.getItem("AddCadenceDetails");
     if (localCadences) {
       const localCadenceDetails = JSON.parse(localCadences);
