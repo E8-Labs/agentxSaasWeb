@@ -578,7 +578,7 @@ const Page = ({ length = 6, onComplete }) => {
         </div>
 
         <div
-          className="mt-6 h-[10%] flex flex-row items-end justify-end w-10/12 gap-2 overflow-auto flex-shrink-0 hidden flex:sm"
+          className="mt-6 h-[10%] flex flex-row items-end justify-end w-10/12 gap-2 overflow-auto flex-shrink-0 hidden sm:flex"
           style={{ fontWeight: "500", fontSize: 11.6 }}
         >
           <div className="flex-shrink-0">
@@ -608,35 +608,37 @@ const Page = ({ length = 6, onComplete }) => {
           </button>
         </div>
 
-        <div
-          className="mt-6 h-[10%] flex flex-col items-center justify-end w-10/12 gap-2 overflow-auto flex-shrink-0"
-          style={{ fontWeight: "500", fontSize: 11.6 }}
-        >
+        <div className="h-[10%] w-full flex flex-col items-center justify-center sm:hidden">
+          <div
+            className="mt-6 flex flex-row items-center justify-end gap-2 overflow-auto flex-shrink-0"
+            style={{ fontWeight: "500", fontSize: 11.6 }}
+          >
+            <button
+              className="flex-shrink-0 outline-none"
+              onClick={() => {
+                window.open(
+                  "https://www.myagentx.com/terms-and-condition",
+                  "_blank"
+                );
+              }}
+            >
+              Terms of Service
+            </button>
+            <button
+              className="flex-shrink-0 outline-none"
+              onClick={() => {
+                window.open(
+                  "https://www.myagentx.com/terms-and-condition",
+                  "_blank"
+                );
+              }}
+            >
+              | Privacy Policy
+            </button>
+          </div>
           <div className="flex-shrink-0">
             Copyrights @ 2024 MyAgentX. All Rights Reserved.
           </div>
-          <button
-            className="flex-shrink-0 outline-none"
-            onClick={() => {
-              window.open(
-                "https://www.myagentx.com/terms-and-condition",
-                "_blank"
-              );
-            }}
-          >
-            | Terms of Service
-          </button>
-          <button
-            className="flex-shrink-0 outline-none"
-            onClick={() => {
-              window.open(
-                "https://www.myagentx.com/terms-and-condition",
-                "_blank"
-              );
-            }}
-          >
-            | Privacy Policy
-          </button>
         </div>
 
       </div>
