@@ -1721,11 +1721,11 @@ const Pipeline1 = () => {
                                 </div>
 
                                 {lead?.lead?.booking?.date && (
-                                  <div className="flex flex-row items-center gap-2" style={{ fontWeight: "500", fontsize: 13 }}>
+                                  <div className="flex flex-row items-center gap-2" style={{ fontWeight: "500", fontsize: 13, color: "#15151560" }}>
                                     <Image
                                       src="/svgIcons/calendar.svg"
-                                      height={12}
-                                      width={12}
+                                      height={16}
+                                      width={16}
                                       alt="*"
                                     />
                                     {moment(lead?.lead?.booking?.date).format(
@@ -1733,8 +1733,8 @@ const Pipeline1 = () => {
                                     ) || "-"}
                                     <Image
                                       src="/svgIcons/clock.svg"
-                                      height={13}
-                                      width={13}
+                                      height={16}
+                                      width={16}
                                       alt="*"
                                     />
                                     {moment(lead?.lead?.booking?.time, "HH:mm").format("HH:mm") || "-"}
