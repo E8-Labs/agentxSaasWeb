@@ -141,7 +141,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                 </button>
               </div>
 
-              <div className="overflow-auto w-4/12 h-[90%]" style={{ scrollbarWidth: "none" }}>
+              <div className="overflow-auto h-[100%]" style={{ scrollbarWidth: "none" }}>
                 {initialLoader ? (
                   <div className="w-full flex flex-row items-center justify-center mt-12">
                     <CircularProgress size={35} thickness={2} />
@@ -150,7 +150,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                   <div className="w-full">
                     {importantCalls?.length > 0 ? (
                       <div className="w-full flex flex-row items-start justify-between">
-                        <div className="w-full px-3 flex flex-col">
+                        <div className="w-4/12 px-3 flex flex-col">
                           {importantCalls?.map((item, index) => ( //.slice.reverse
                             <button
                               key={index}
