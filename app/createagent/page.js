@@ -32,7 +32,7 @@ const BuildAgentTask = dynamic(() =>
 
 
 const Page = () => {
-  const [index, setIndex] = useState(1);
+  const [index, setIndex] = useState(0);
   const [components, setComponents] = useState([
     CreateAgent1,
     CreatAgent3,

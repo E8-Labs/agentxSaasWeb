@@ -332,7 +332,7 @@ const Page = () => {
                     <div
                       style={{ fontSize: screenHeight < 640 ? 35 : screenHeight < 800 ? 50 : 75, fontWeight: "700", color: "#000" }}
                     >
-                      {statsDetails?.totalCalls || screenWidth}
+                      {statsDetails?.totalCalls || "-"}
                     </div>
                   </div>
                   <div className="w-8/12 flex flex-col items-end gap-2">
