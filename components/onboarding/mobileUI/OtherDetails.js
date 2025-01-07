@@ -127,11 +127,11 @@ const OtherDetails = ({ handleContinue, handleBack, length = 6, onComplete, user
             }
         } else if (userData?.userTypeTitle === "Solar Rep") {
             if (
-                userFarm && userBrokage
+                userFarm && userBrokage && userTransaction
             ) {
                 setShouldContinue(false);
             } else if (
-                !userFarm || !userBrokage
+                !userFarm || !userBrokage || !userTransaction
             ) {
                 setShouldContinue(true);
             }
@@ -161,27 +161,19 @@ const OtherDetails = ({ handleContinue, handleBack, length = 6, onComplete, user
             if (
                 userFarm &&
                 userBrokage &&
-                userTransaction &&
-                emailCheckResponse?.status === true &&
-                checkPhoneResponse?.status === true
+                userTransaction
             ) {
                 setShouldContinue(false);
             } else if (
                 !userFarm ||
                 !userBrokage ||
                 !userTransaction ||
-                userTransaction ||
-                checkPhoneResponse?.status === false ||
-                emailCheckResponse?.status === false
+                userTransaction
             ) {
                 setShouldContinue(true);
             }
         }
-
     }, [
-        userName,
-        userEmail,
-        userPhoneNumber,
         userFarm,
         userBrokage,
         userTransaction,
@@ -295,7 +287,7 @@ const OtherDetails = ({ handleContinue, handleBack, length = 6, onComplete, user
         // let response = await SendVerificationCode(userPhoneNumber, true);
         try {
             setSendcodeLoader(true);
-            let response = await SendVerificationCode(userPhoneNumber, true);
+            let response = await SendVerificationCode(userDetails.phone, true);
             setResponse(response);
             setIsVisible(true);
             console.log("Response recieved is", response);
@@ -390,7 +382,7 @@ const OtherDetails = ({ handleContinue, handleBack, length = 6, onComplete, user
             const formData = new FormData();
             formData.append("name", userDetails.name);
             formData.append("email", userDetails.email);
-            formData.append("phone", userDetails.email);
+            formData.append("phone", userDetails.phone);
 
             if (userFarm) {
                 formData.append("farm", userFarm);

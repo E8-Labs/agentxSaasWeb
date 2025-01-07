@@ -22,7 +22,7 @@ import BasicDetails from '@/components/onboarding/mobileUI/BasicDetails';
 const Page = ({ params }) => {
 
     const router = useRouter();
-    const [index, setIndex] = useState(4);
+    const [index, setIndex] = useState(0);
 
     const [components, setComponents] = useState([
         UserType, UserService,
