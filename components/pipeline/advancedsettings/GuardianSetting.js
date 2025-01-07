@@ -447,7 +447,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
               onChange={(event) => { setAddObjTitle(event.target.value) }}
             />
             <div style={{ ...styles.title, marginTop: 10 }}>
-              Response
+              Description
             </div>
             <TextareaAutosize
               maxRows={5}

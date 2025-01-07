@@ -2412,7 +2412,12 @@ function Page() {
 
               <button
                 // className='mt-8'
-                onClick={() => document.getElementById("fileInput").click()}
+                onClick={() => {
+                  if (typeof document === "undefined") {
+                    document.getElementById("fileInput").click()
+                  }
+                }
+                }
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}

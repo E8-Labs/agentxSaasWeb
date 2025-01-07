@@ -22,7 +22,7 @@ import BasicDetails from '@/components/onboarding/mobileUI/BasicDetails';
 const Page = ({ params }) => {
 
     const router = useRouter();
-    const [index, setIndex] = useState(0);
+    const [index, setIndex] = useState(4);
 
     const [components, setComponents] = useState([
         UserType, UserService,
@@ -61,8 +61,7 @@ const Page = ({ params }) => {
                 UserType, UserService,
                 FocusArea,
                 BasicDetails,
-                OtherDetails
-                // SignUpForm, Congrats,
+                OtherDetails, Congrats,
                 // SalesDevAgent, SolarRepAgentSignUp,
                 // InsuranceAgentSignUp, MarketerAgentSignUp,
                 // WebOwnersAgentSignUp, RecruiterAgentSignUp,

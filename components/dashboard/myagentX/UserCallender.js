@@ -340,16 +340,16 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
                                             previousCalenders.map((item, index) => {
                                                 return (
                                                     <MenuItem
-                                                        className='w-full hover:bg-purple hover:text-white'
+                                                        className='w-full hover:bg-purple10 hover:text-black'
                                                         value={item.title}
                                                         key={index}
                                                         selected={selectCalender === item.title} // Apply "selected" to match the selected value
                                                         sx={{
-                                                            backgroundColor: selectCalender === item.title ? 'purple' : 'transparent', // Set background for selected item
-                                                            color: selectCalender === item.title ? 'white' : 'inherit', // Change text color for selected item
+                                                            backgroundColor: selectCalender === item.title ? '#7902DF10' : 'transparent', // Set background for selected item
+                                                            // color: selectCalender === item.title ? 'white' : 'inherit', // Change text color for selected item
                                                             "&.Mui-selected": {
-                                                                backgroundColor: '#7902DF', // Override background for selected item
-                                                                color: 'white', // Change text color for selected item
+                                                                backgroundColor: '#7902DF10', // Override background for selected item
+                                                                // color: 'white', // Change text color for selected item
                                                             },
                                                         }}
                                                     >

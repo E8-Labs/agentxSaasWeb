@@ -28,9 +28,10 @@ const AgentBox = () => {
 
     // Keyframe animations
     useEffect(() => {
-        const styleSheet = document.createElement('style');
-        styleSheet.type = 'text/css';
-        styleSheet.innerHTML = `
+        if (typeof document !== "undefined") {
+            const styleSheet = document.createElement('style');
+            styleSheet.type = 'text/css';
+            styleSheet.innerHTML = `
             @keyframes slideUp {
                 0% {
                     transform: translateY(50px);
@@ -52,11 +53,12 @@ const AgentBox = () => {
                 }
             }
         `;
-        document.head.appendChild(styleSheet);
+            document.head.appendChild(styleSheet);
 
-        return () => {
-            document.head.removeChild(styleSheet); // Cleanup
-        };
+            return () => {
+                document.head.removeChild(styleSheet); // Cleanup
+            };
+        }
     }, []);
 
     // Agent box styles for showing and hiding

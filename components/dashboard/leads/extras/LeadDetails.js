@@ -8,6 +8,7 @@ import {
   InputLabel,
   MenuItem,
   Modal,
+  Popover,
   Select,
   Snackbar,
   TextareaAutosize,
@@ -90,6 +91,12 @@ const LeadDetails = ({
   //code for delete lead
   const [delLeadLoader, setDelLeadLoader] = useState(false);
 
+  //variable for popover
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  //variables storing tammember data
+  const [myTeam, setMyTeam] = useState([]);
+
   useEffect(() => {
     getLeadDetails(selectedLead);
     if (pipelineId) {
@@ -97,6 +104,41 @@ const LeadDetails = ({
       getStagesList(selectedLead);
     }
   }, []);
+
+  //code for getting teammebers
+  const getMyteam = async () => {
+    try {
+      setGetTeamLoader(true);
+      const data = localStorage.getItem("User");
+
+      if (data) {
+        let u = JSON.parse(data);
+
+        let path = Apis.getTeam;
+
+        const response = await axios.get(path, {
+          headers: {
+            Authorization: "Bearer " + u.token,
+          },
+        });
+
+        if (response) {
+          setGetTeamLoader(false);
+
+          if (response.data.status === true) {
+            console.log("get team api response is", response.data.data);
+            setMyTeam(response.data.data);
+          } else {
+            console.log("get team api message is", response.data.message);
+          }
+        }
+      }
+    } catch (e) {
+      setGetTeamLoader(false);
+
+      console.log("error in get team api is", e);
+    }
+  };
 
   //function to handle stages dropdown selection
   const handleStageChange = (event) => {
@@ -150,6 +192,20 @@ const LeadDetails = ({
       console.log("Update api done");
     }
   };
+
+  //code for popover
+
+  const handleShowPopup = (event) => {
+    setAnchorEl(event.currentTarget);
+    // console.log("Selected item details are ", item);
+  };
+
+  const handleClosePopup = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popover" : undefined;
 
   //function to get the lead detils
   const getLeadDetails = async (selectedLead) => {
@@ -673,11 +729,10 @@ const LeadDetails = ({
                                         }}
                                       >
                                         {selectedLeadsDetails?.emails?.length >
-                                        1
-                                          ? `+${
-                                              selectedLeadsDetails?.emails
-                                                ?.length - 1
-                                            }`
+                                          1
+                                          ? `+${selectedLeadsDetails?.emails
+                                            ?.length - 1
+                                          }`
                                           : ""}
                                       </button>
                                     </div>
@@ -721,9 +776,8 @@ const LeadDetails = ({
                                   }}
                                 >
                                   {selectedLeadsDetails?.emails?.length > 1
-                                    ? `+${
-                                        selectedLeadsDetails?.emails?.length - 1
-                                      }`
+                                    ? `+${selectedLeadsDetails?.emails?.length - 1
+                                    }`
                                     : ""}
                                 </button>
                               </div>
@@ -845,7 +899,7 @@ const LeadDetails = ({
                       {selectedLeadsDetails?.tags.length > 0 ? (
                         <div
                           className="text-end flex flex-row items-center gap-2"
-                          // style={styles.paragraph}
+                        // style={styles.paragraph}
                         >
                           {
                             // selectedLeadsDetails?.tags?.map.slice(0, 1)
@@ -864,7 +918,7 @@ const LeadDetails = ({
                                         {tag}
                                       </div>
                                       {DelTagLoader &&
-                                      tag.includes(DelTagLoader) ? (
+                                        tag.includes(DelTagLoader) ? (
                                         <div>
                                           <CircularProgress size={15} />
                                         </div>
@@ -970,9 +1024,9 @@ const LeadDetails = ({
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "& .MuiSelect-select": {
                                 padding: "0 24px 0 8px", // Add padding to create space for the icon
                                 lineHeight: 1, // Align with font size
@@ -1037,14 +1091,54 @@ const LeadDetails = ({
                         />
                         <div style={styles.subHeading}>Assign</div>
                       </div>
-                      <div className="text-end" style={styles.paragraph}>
+                      <button
+                        className="text-end outline-none"
+                        style={styles.paragraph}
+                        aria-describedby={id}
+                        variant="contained"
+                        onClick={(event) => {
+                          handleShowPopup(event);
+                        }}
+                      >
                         <Image
                           src={"/assets/manIcon.png"}
                           height={30}
                           width={30}
                           alt="man"
                         />
-                      </div>
+                      </button>
+                      <Popover
+                        id={id}
+                        open={open}
+                        anchorEl={anchorEl}
+                        onClose={handleClosePopup}
+                        anchorOrigin={{
+                          vertical: "bottom",
+                          horizontal: "right",
+                        }}
+                        transformOrigin={{
+                          vertical: "top",
+                          horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+                        }}
+                        PaperProps={{
+                          elevation: 0, // This will remove the shadow
+                          style: {
+                            boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
+                            borderRadius: "10px",
+                            width: "120px",
+                          },
+                        }}
+                      >
+                        <div
+                          className="p-2 flex flex-col gap-2"
+                          style={{ fontWeight: "500", fontSize: 15 }}
+                        >
+                          <button>
+                            Teammember
+                          </button>
+                          {/* <div className="text-red">Delete</div> */}
+                        </div>
+                      </Popover>
                     </div>
 
                     {selectedLeadsDetails?.booking && (
@@ -1066,8 +1160,8 @@ const LeadDetails = ({
                           {/* {selectedLeadsDetails?.phone} */}
                           {selectedLeadsDetails?.booking
                             ? selectedLeadsDetails.booking.date +
-                              " - " +
-                              selectedLeadsDetails.booking.time
+                            " - " +
+                            selectedLeadsDetails.booking.time
                             : "-"}
                         </div>
                       </div>
@@ -1504,103 +1598,103 @@ const LeadDetails = ({
                                           {isExpandedActivity.includes(
                                             item.id
                                           ) && (
-                                            <div
-                                              className="mt-6"
-                                              style={{
-                                                border: "1px solid #00000020",
-                                                borderRadius: "10px",
-                                                padding: 10,
-                                                paddingInline: 15,
-                                              }}
-                                            >
                                               <div
-                                                className="mt-4"
+                                                className="mt-6"
                                                 style={{
-                                                  fontWeight: "500",
-                                                  fontSize: 12,
-                                                  color: "#00000070",
+                                                  border: "1px solid #00000020",
+                                                  borderRadius: "10px",
+                                                  padding: 10,
+                                                  paddingInline: 15,
                                                 }}
                                               >
-                                                Transcript
-                                              </div>
-                                              <div className="flex flex-row items-center justify-between mt-4">
                                                 <div
+                                                  className="mt-4"
                                                   style={{
                                                     fontWeight: "500",
-                                                    fontSize: 15,
+                                                    fontSize: 12,
+                                                    color: "#00000070",
                                                   }}
                                                 >
-                                                  {moment(
-                                                    item?.duration * 1000
-                                                  ).format("mm:ss")}{" "}
+                                                  Transcript
                                                 </div>
-                                                <button
-                                                  onClick={() => {
-                                                    if (item?.recordingUrl) {
-                                                      setShowAudioPlay(
-                                                        item?.recordingUrl
-                                                      );
-                                                    } else {
-                                                      setShowNoAudioPlay(true);
-                                                    }
-                                                    // window.open(item.recordingUrl, "_blank")
-                                                  }}
-                                                >
-                                                  <Image
-                                                    src={"/assets/play.png"}
-                                                    height={35}
-                                                    width={35}
-                                                    alt="*"
-                                                  />
-                                                </button>
-                                              </div>
-                                              {item.transcript ? (
-                                                <div className="w-full">
+                                                <div className="flex flex-row items-center justify-between mt-4">
                                                   <div
-                                                    className="mt-4"
                                                     style={{
-                                                      fontWeight: "600",
+                                                      fontWeight: "500",
                                                       fontSize: 15,
                                                     }}
                                                   >
-                                                    {/* {item.transcript} */}
-                                                    {isExpanded.includes(
-                                                      item.id
-                                                    )
-                                                      ? `${item.transcript}`
-                                                      : `${initialText}...`}
+                                                    {moment(
+                                                      item?.duration * 1000
+                                                    ).format("mm:ss")}{" "}
                                                   </div>
                                                   <button
+                                                    onClick={() => {
+                                                      if (item?.recordingUrl) {
+                                                        setShowAudioPlay(
+                                                          item?.recordingUrl
+                                                        );
+                                                      } else {
+                                                        setShowNoAudioPlay(true);
+                                                      }
+                                                      // window.open(item.recordingUrl, "_blank")
+                                                    }}
+                                                  >
+                                                    <Image
+                                                      src={"/assets/play.png"}
+                                                      height={35}
+                                                      width={35}
+                                                      alt="*"
+                                                    />
+                                                  </button>
+                                                </div>
+                                                {item.transcript ? (
+                                                  <div className="w-full">
+                                                    <div
+                                                      className="mt-4"
+                                                      style={{
+                                                        fontWeight: "600",
+                                                        fontSize: 15,
+                                                      }}
+                                                    >
+                                                      {/* {item.transcript} */}
+                                                      {isExpanded.includes(
+                                                        item.id
+                                                      )
+                                                        ? `${item.transcript}`
+                                                        : `${initialText}...`}
+                                                    </div>
+                                                    <button
+                                                      style={{
+                                                        fontWeight: "600",
+                                                        fontSize: 15,
+                                                      }}
+                                                      onClick={() => {
+                                                        handleReadMoreToggle(
+                                                          item
+                                                        );
+                                                      }}
+                                                      className="mt-2 text-black underline"
+                                                    >
+                                                      {isExpanded.includes(
+                                                        item.id
+                                                      )
+                                                        ? "Read Less"
+                                                        : "Read more"}
+                                                    </button>
+                                                  </div>
+                                                ) : (
+                                                  <div
                                                     style={{
                                                       fontWeight: "600",
                                                       fontSize: 15,
                                                     }}
-                                                    onClick={() => {
-                                                      handleReadMoreToggle(
-                                                        item
-                                                      );
-                                                    }}
-                                                    className="mt-2 text-black underline"
                                                   >
-                                                    {isExpanded.includes(
-                                                      item.id
-                                                    )
-                                                      ? "Read Less"
-                                                      : "Read more"}
-                                                  </button>
-                                                </div>
-                                              ) : (
-                                                <div
-                                                  style={{
-                                                    fontWeight: "600",
-                                                    fontSize: 15,
-                                                  }}
-                                                >
-                                                  No transcript
-                                                </div>
-                                              )}
-                                            </div>
-                                          )}
+                                                    No transcript
+                                                  </div>
+                                                )}
+                                              </div>
+                                            )}
                                         </div>
                                       </div>
                                     </div>

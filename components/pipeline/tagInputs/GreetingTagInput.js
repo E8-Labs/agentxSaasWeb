@@ -96,8 +96,10 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
 
         mirrorDiv.textContent = textBeforeCursor;
         mirrorDiv.style.width = `${input.clientWidth}px`;
-
-        const spanMarker = document.createElement("span");
+        let spanMarker = null;
+        if (typeof document !== "undefined") {
+            spanMarker = document.createElement("span");
+        }
         spanMarker.textContent = "|";
         mirrorDiv.appendChild(spanMarker);
 
