@@ -1861,9 +1861,10 @@ function Page() {
                           PaperProps={{
                             sx: {
                               width: "fit-content",
-                              border: "none", // Remove the border
+                              border: "none",
+                              // border: "1px solid #15151520",
                               boxShadow: open
-                                ? "0px 2px 6px rgba(0, 0, 0, 0.01)"
+                                ? "0px 2px 6px rgba(0, 0, 0, 0)"
                                 : "0px 0px 0px rgba(0, 0, 0, 0)",
                               // transition: "box-shadow 0.3s ease-in-out", // Smooth transition for shadow
                             },
@@ -2065,7 +2066,7 @@ function Page() {
                           "-"
                         )
                       }
-                      icon="/assets/selectedCallIcon.png"
+                      icon="/svgIcons/selectedCallIcon.svg"
                       bgColor="bg-blue-100"
                       iconColor="text-blue-500"
                     />
@@ -2078,7 +2079,7 @@ function Page() {
                           "-"
                         )
                       }
-                      icon="/otherAssets/convosIcon2.png"
+                      icon="/svgIcons/convosIcon2.svg"
                       bgColor="bg-purple-100"
                       iconColor="text-purple-500"
                     />
@@ -2526,7 +2527,7 @@ function Page() {
                   "-"
                 )
               }
-              icon="/assets/selectedCallIcon.png"
+              icon="/svgIcons/selectedCallIcon.svg"
               bgColor="bg-blue-100"
               iconColor="text-blue-500"
             />
@@ -2539,7 +2540,7 @@ function Page() {
                   "-"
                 )
               }
-              icon="/otherAssets/convosIcon2.png"
+              icon="/svgIcons/convosIcon2.svg"
               bgColor="bg-purple-100"
               iconColor="text-purple-500"
             />

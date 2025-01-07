@@ -21,6 +21,10 @@ const Page = () => {
 
   const router = useRouter();
 
+  //variable stores screenWidth
+  const [screenWidth, setScreenWidth] = useState(null);
+  const [screenHeight, setScreenHeight] = useState(null);
+
   const [userDetails, setUserDetails] = useState(null);
 
   const [showPlansPopup, setShowPlansPopup] = useState(false);
@@ -40,6 +44,13 @@ const Page = () => {
   //variables for popover
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+
+  useEffect(() => {
+    let screnW = window.innerWidth;
+    let screnH = window.innerHeight;
+    setScreenWidth(screnW);
+    setScreenHeight(screnH);
+  }, [])
 
   useEffect(() => {
     console.log("Stats details ar", statsDetails);
@@ -203,9 +214,9 @@ const Page = () => {
           {/* Icon */}
 
           <div className="flex flex-row w-full items-center justify-between">
-            <div className="w-12 h-12 flex flex-row items-center justify-center rounded-full bg-gray-100">
-              <Image src={icon} alt={title} width={30} height={30} />
-            </div>
+            {/* <div className="w-12 h-12 flex flex-row items-center justify-center rounded-full bg-gray-100"> */}
+            <Image src={icon} alt={title} width={50} height={50} />
+            {/* </div> */}
 
             {recomendation && (
               <div className="flex flex-row items-center gap-2">
@@ -319,9 +330,9 @@ const Page = () => {
                       Total calls made
                     </div>
                     <div
-                      style={{ fontSize: 75, fontWeight: "700", color: "#000" }}
+                      style={{ fontSize: screenHeight < 640 ? 35 : screenHeight < 800 ? 50 : 75, fontWeight: "700", color: "#000" }}
                     >
-                      {statsDetails?.totalCalls || "-"}
+                      {statsDetails?.totalCalls || screenWidth}
                     </div>
                   </div>
                   <div className="w-8/12 flex flex-col items-end gap-2">

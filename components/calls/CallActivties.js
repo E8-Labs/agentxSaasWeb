@@ -548,10 +548,10 @@ function SheduledCalls() {
                                               if (SelectedItem?.status == "Paused") {
                                                 // console.log("Calls are paused")
                                                 setColor(true);
-                                                setShowConfirmationPopup("Resume Calls")
+                                                setShowConfirmationPopup("resume Calls")
                                               } else {
                                                 // console.log("Calls are active")
-                                                setShowConfirmationPopup("Pause Calls")
+                                                setShowConfirmationPopup("pause Calls")
                                                 setColor(false);
                                               }
                                               console.log("Cha")
@@ -703,14 +703,15 @@ function SheduledCalls() {
                                   <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white flex-shrink-0">
                                     {item?.firstName.slice(0, 1).toUpperCase()}
                                   </div>
-                                  <div>
-                                    <div className="truncate w-[100px]">
-                                      {item?.firstName} {item?.lastName}
-                                    </div>
-                                    {/* <div style={{ fontSize: 11, fontWeight: "500", color: "#00000060" }}>
+                                  <div className="truncate" style={{
+                                    width: "100px",
+                                    textOverflow: "ellipsis"
+                                  }}>
+                                    {item?.firstName} {item?.lastName}
+                                  </div>
+                                  {/* <div style={{ fontSize: 11, fontWeight: "500", color: "#00000060" }}>
                                                                                         {item?.email}
                                                                                     </div> */}
-                                  </div>
                                 </div>
                                 <div className="w-2/12 truncate">
                                   {item?.phone}
@@ -872,11 +873,11 @@ function SheduledCalls() {
                                 style={{ fontSize: 15, fontWeight: "500" }}
                               >
                                 <div className="w-3/12 flex flex-row items-center gap-2 truncate">
-                                  <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                                  <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white flex-shrink-0">
                                     {item?.firstName?.slice(0, 1).toUpperCase()}
                                   </div>
-                                  <div className="truncate">
-                                    <div>
+                                  <div>
+                                    <div className="truncate w-[100px]">
                                       {item?.firstName} {item?.lastName}
                                     </div>
                                     {/* <div style={{ fontSize: 11, fontWeight: "500", color: "#00000060" }}>
@@ -1048,7 +1049,7 @@ export const ShowConfirmationPopup = ({
                       }
                     }}
                   >
-                    Yes! {showConfirmationPopuup}
+                    Yes! {showConfirmationPopuup[0].toUpperCase()}{showConfirmationPopuup.slice(1)}
                   </button>
                 )}
               </div>

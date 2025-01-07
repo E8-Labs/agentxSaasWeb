@@ -701,11 +701,11 @@ function SheduledCalls() {
                                 style={{ fontSize: 15, fontWeight: "500" }}
                               >
                                 <div className="w-3/12 flex flex-row items-center gap-2 truncate">
-                                  <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                                  <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white flex-shrink-0">
                                     {item?.firstName?.slice(0, 1).toUpperCase()}
                                   </div>
                                   <div className="truncate">
-                                    <div>
+                                    <div className="truncate w-[100px]">
                                       {item?.firstName} {item?.lastName}
                                     </div>
                                     {/* <div style={{ fontSize: 11, fontWeight: "500", color: "#00000060" }}>

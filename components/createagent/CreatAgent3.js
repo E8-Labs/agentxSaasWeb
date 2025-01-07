@@ -32,8 +32,8 @@ const CreatAgent3 = ({ handleContinue }) => {
   const [shouldContinue, setShouldContinue] = useState(true);
   //variables for 2nd plan subscription
   const [showSubscribeplan2, setShowSubscribeplan2] = useState(false);
-  const [togglePlan2, setTogglePlan2] = useState(false);
-  const [selectedPlan2, setSelectedPlan2] = useState(null);
+  const [togglePlan2, setTogglePlan2] = useState(1);
+  const [selectedPlan2, setSelectedPlan2] = useState(1);
   const [subscribePlanLoader, setSubscribePlanLoader] = useState(false);
 
   //code for adding stripe
@@ -106,7 +106,7 @@ const CreatAgent3 = ({ handleContinue }) => {
 
       console.log("Current plan is", planType);
 
-      setSubscribePlanLoader(false);
+      setSubscribePlanLoader(true);
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
@@ -150,6 +150,7 @@ const CreatAgent3 = ({ handleContinue }) => {
       }
     } catch (error) {
       console.error("Error occured in api is:", error);
+      setSubscribePlanLoader(false);
     } finally {
       setSubscribePlanLoader(false);
     }
@@ -825,7 +826,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                     setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp}
                     handleClose={handleClose}
                     togglePlan={togglePlan}
-                    // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>
 
@@ -932,7 +933,7 @@ const CreatAgent3 = ({ handleContinue }) => {
 
         {/* Modal 2 to reassure the plan */}
         <Modal
-          open={showSubscribeplan2}
+          open={showSubscribeplan2} //showSubscribeplan2
           closeAfterTransition
           BackdropProps={{
             timeout: 1000,
@@ -1002,15 +1003,17 @@ const CreatAgent3 = ({ handleContinue }) => {
                         style={{
                           ...styles.pricingBox,
                           border:
-                            item.id === 1
-                              ? "2px solid #7902DF"
-                              : item.id === togglePlan2
+                            // item.id === 1
+                            //   ? "2px solid #7902DF"
+                            //   : 
+                            item.id === togglePlan2
                               ? "2px solid #7902DF"
                               : "1px solid #15151520",
                           backgroundColor:
-                            item.id === 1
-                              ? "#402fff05"
-                              : item.id === togglePlan2
+                            // item.id === 1
+                            //   ? "#402fff05"
+                            //   :
+                            item.id === togglePlan2
                               ? "#402FFF05"
                               : "",
                         }}
@@ -1027,7 +1030,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                           style={styles.content}
                         >
                           <div className="mt-1">
-                            {item.id === 1 ? (
+                            {/* {item.id === 1 ? (
                               <Image
                                 src={"/svgIcons/checkMark.svg"}
                                 height={24}
@@ -1052,7 +1055,24 @@ const CreatAgent3 = ({ handleContinue }) => {
                                   />
                                 )}
                               </div>
-                            )}
+                            )} */}
+                            <div>
+                              {item.id === togglePlan2 ? (
+                                <Image
+                                  src={"/svgIcons/checkMark.svg"}
+                                  height={24}
+                                  width={24}
+                                  alt="*"
+                                />
+                              ) : (
+                                <Image
+                                  src={"/svgIcons/unCheck.svg"}
+                                  height={24}
+                                  width={24}
+                                  alt="*"
+                                />
+                              )}
+                            </div>
                           </div>
                           <div className="w-full">
                             {item.id === 1 && (
@@ -1156,28 +1176,21 @@ const CreatAgent3 = ({ handleContinue }) => {
                   </div>
                 ) : (
                   <button
-                    disabled={!agreeTerms}
+                    disabled={!agreeTerms || !togglePlan2}
                     className="bg-purple text-white w-full rounded-xl mt-6 mb-6"
                     style={{
                       ...styles.headingStyle,
                       height: "50px",
-                      backgroundColor: !agreeTerms && "#00000010",
-                      color: !agreeTerms && "#000000",
+                      backgroundColor: agreeTerms && togglePlan2 ? "#7902DF" : "#00000010",
+                      color: agreeTerms && togglePlan2 ? "white" : "#000000",
                     }}
                     onClick={() => {
-                      const screenWidth = window.innerWidth; // Get current screen width
-                      const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
 
-                      if (togglePlan2) {
-                        handleSubScribePlan();
+
+                      if (togglePlan2 === 1) {
+                        handleContinue();
                       } else {
-                        if (screenWidth <= SM_SCREEN_SIZE) {
-                          console.log("This is a small size screen");
-                          router.push("/createagent/desktop");
-                        } else {
-                          console.log("This is a large size screen");
-                          handleContinue();
-                        }
+                        handleSubScribePlan();
                       }
                     }}
                   >

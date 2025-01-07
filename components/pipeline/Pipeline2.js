@@ -603,7 +603,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                         <div className='mt-8 w-7/12 gap-4 flex flex-col'>
                             <div className='bg-[#00000012] p-4'>
                                 <div style={styles.inputStyle} className='flex flex-row items-center gap-2'>
-                                    <Image src={"/assets/lightBulb.png"} alt='*' height={24} width={24} />  Editing Tips
+                                    <Image src={"/svgIcons/lightBulb.svg"} alt='*' height={24} width={24} />  Editing Tips
                                 </div>
                                 <div style={styles.inputStyle} className='flex flex-row flex-wrap gap-2'>
                                     <div>

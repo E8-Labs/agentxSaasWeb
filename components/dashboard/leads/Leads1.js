@@ -1945,8 +1945,8 @@ const Leads1 = () => {
                           }}
                           placeholder={`Column Name`}
                           value={input.value}
-                          readOnly={index < 2}
-                          disabled={index < 2}
+                          readOnly={index < 3}
+                          disabled={index < 3}
                           onChange={(e) => {
                             if (index > 2) {
                               handleInputChange(input.id, e.target.value);

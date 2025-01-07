@@ -120,7 +120,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       title: "Call absentee owners",
       details:
         "Reach out to property owners who may not live in the property to discuss potential selling or investment opportunities.",
-      focusIcn: "/objectiveIcons/obj1FC.png",
+      focusIcn: "/svgIcons/obj1F.svg",
       unFocusIcon: "/objectiveIcons/obj1UF.png",
     },
     {
@@ -129,7 +129,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       title: "Circle prospecting",
       details:
         "Call homeowners in a specific farm to inform them about recent property activities, and gauge their interest in selling or buying.",
-      focusIcn: "/objectiveIcons/obj2FC.png",
+      focusIcn: "/svgIcons/obj2F.svg",
       unFocusIcon: "/objectiveIcons/obj2UF.png",
     },
     {
@@ -138,7 +138,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       title: "Community update",
       details:
         "Provide local homeowners with relevant updates on a property like just listed, just sold, in escrow or something else. ",
-      focusIcn: "/objectiveIcons/obj3FC.png",
+      focusIcn: "/svgIcons/obj3F.svg",
       unFocusIcon: "/objectiveIcons/obj3UF.png",
     },
     {
@@ -147,7 +147,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       title: "Lead reactivation",
       details:
         "Reconnect with past leads who previously expressed interest but did not convert, to reignite their interest in your services.",
-      focusIcn: "/objectiveIcons/obj4FC.png",
+      focusIcn: "/svgIcons/obj4F.svg",
       unFocusIcon: "/objectiveIcons/obj4UF.png",
     },
     {
@@ -156,8 +156,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       title: "Agent Recruiting",
       details:
         "Identify, engage, and attract potential real estate agents to expand your team with top talent. Recruit new agents to your team.",
-      focusIcn: "/objectiveIcons/obj5FC.png",
-      unFocusIcon: "/objectiveIcons/obj5UF.png",
+      focusIcn: "/svgIcons/obj5RAF.svg",
+      unFocusIcon: "/svgIcons/obj5RAU.svg",
     },
     {
       id: 6,
@@ -165,15 +165,15 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       title: "Expired Listing",
       details:
         "Connect with homeowners whose listings have expired to understand their needs and offer solutions. Help relist their property and guide them toward a successful sale.",
-      focusIcn: "/objectiveIcons/obj5FC.png",
-      unFocusIcon: "/objectiveIcons/obj5UF.png",
+      focusIcn: "/svgIcons/obj5F.svg",
+      unFocusIcon: "/svgIcons/obj6ELU.svg",
     },
     {
       id: 100,
       icon: "",
       title: "others",
       details: "",
-      focusIcn: "/objectiveIcons/obj6FC.png",
+      focusIcn: "/svgIcons/obj6F.svg",
       unFocusIcon: "/objectiveIcons/obj6UF.png",
     },
   ];
@@ -483,7 +483,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 >
                   {OutBoundCalls ? (
                     <Image
-                      src={"/assets/callOutFocus.png"}
+                      src={"/svgIcons/callOutFocus.svg"}
                       height={24}
                       width={24}
                       alt="*"
@@ -517,7 +517,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 >
                   {InBoundCalls ? (
                     <Image
-                      src={"/assets/callInFocus.png"}
+                      src={"/svgIcons/callInFocus.svg"}
                       height={24}
                       width={24}
                       alt="*"
@@ -764,7 +764,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                   className="hidden sm:flex mt-1 pb-4"
                   style={{ zIndex: 15 }}
                 >
-                  <div>
+                  <div className="w-full">
                     <input
                       className="w-full h-[50px] rounded-lg outline-none focus:ring-0"
                       style={{ border: "1px solid #00000020" }}
@@ -802,12 +802,12 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                       placeholder="Type here ..."
                       value={addressValue}
                       readOnly={true}
-                      // disabled={true}
-                      // onChange={(evt) => {
-                      //   setAddressValue(evt.target.value); // Update input field value
-                      //   // getPlacePredictions({ input: evt.target.value });
-                      //   // setShowDropdown(true); // Show dropdown on input
-                      // }}
+                    // disabled={true}
+                    // onChange={(evt) => {
+                    //   setAddressValue(evt.target.value); // Update input field value
+                    //   // getPlacePredictions({ input: evt.target.value });
+                    //   // setShowDropdown(true); // Show dropdown on input
+                    // }}
                     />
                   </div>
                 </div>

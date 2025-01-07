@@ -593,7 +593,7 @@ const Page = ({ length = 6, onComplete }) => {
               );
             }}
           >
-            | Terms of Service
+            | Terms & Conditions
           </button>
           <button
             className="flex-shrink-0 outline-none"
@@ -622,7 +622,7 @@ const Page = ({ length = 6, onComplete }) => {
                 );
               }}
             >
-              Terms of Service
+              Terms & Conditions
             </button>
             <button
               className="flex-shrink-0 outline-none"
@@ -636,7 +636,10 @@ const Page = ({ length = 6, onComplete }) => {
               | Privacy Policy
             </button>
           </div>
-          <div className="flex-shrink-0">
+          <div
+            className="flex-shrink-0 text-center"
+            style={{ fontWeight: "500", fontSize: 11.6 }}
+          >
             Copyrights @ 2024 MyAgentX. All Rights Reserved.
           </div>
         </div>
