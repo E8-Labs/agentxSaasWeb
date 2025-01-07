@@ -127,11 +127,11 @@ const OtherDetails = ({ handleContinue, handleBack, length = 6, onComplete, user
             }
         } else if (userData?.userTypeTitle === "Solar Rep") {
             if (
-                userFarm && userBrokage && userTransaction
+                userFarm && userBrokage && userTransaction && projectSize && ClientType
             ) {
                 setShouldContinue(false);
             } else if (
-                !userFarm || !userBrokage || !userTransaction
+                !userFarm || !userBrokage || !userTransaction || !projectSize || !ClientType
             ) {
                 setShouldContinue(true);
             }
@@ -179,7 +179,9 @@ const OtherDetails = ({ handleContinue, handleBack, length = 6, onComplete, user
         userTransaction,
         checkPhoneResponse,
         emailCheckResponse,
-        service, companyName
+        service, companyName,
+        projectSize,
+        ClientType
     ]);
 
     //code to focus the verify code input field
