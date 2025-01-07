@@ -1145,23 +1145,24 @@ const LeadDetails = ({
                       <div className="flex flex-row items--center w-full justify-between mt-4">
                         <div className="flex flex-row items-center gap-2">
                           <Image
-                            src="/otherAssets/calenderIcon.png"
-                            height={20}
-                            width={20}
+                            src="/svgIcons/calendar.svg"
+                            height={14}
+                            width={14}
                             alt="*"
-                            style={{
-                              filter:
-                                "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
-                            }}
                           />
                           <div style={styles.subHeading}>Appointment</div>
                         </div>
-                        <div className="text-end" style={styles.paragraph}>
+                        <div className="text-end"
+                          style={{
+                            fontsize: 13,
+                            fontWeight: "500",
+                            // color: "#15151560"
+                          }}>
                           {/* {selectedLeadsDetails?.phone} */}
                           {selectedLeadsDetails?.booking
-                            ? selectedLeadsDetails.booking.date +
+                            ? moment(selectedLeadsDetails.booking.date).format("MM/DD/YYYY") +
                             " - " +
-                            selectedLeadsDetails.booking.time
+                            moment(selectedLeadsDetails.booking.time, "HH:mm").format("HH:mm")
                             : "-"}
                         </div>
                       </div>

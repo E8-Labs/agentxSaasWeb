@@ -496,7 +496,7 @@ function NotficationsDrawer({ close }) {
                 marginLeft: -15,
               }}
             >
-              {unread < 100 ? unread : "99+"}+
+              {unread < 100 ? unread : "99+"}
             </div>
           )}
         </div>
