@@ -1779,7 +1779,7 @@ const Pipeline1 = () => {
                                                     {"..."}
                                                   </div>
                                                 ) : (
-                                                  <div>{tagVal}</div>
+                                                  <div style={{ fontsize: 13 }}>{tagVal}</div>
                                                 )}
                                               </div>
                                               {DelTagLoader &&

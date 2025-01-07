@@ -97,6 +97,9 @@ const LeadDetails = ({
   //variables storing tammember data
   const [myTeam, setMyTeam] = useState([]);
 
+  //variable for showing modal
+  const [extraTagsModal, setExtraTagsModal] = useState(false);
+
   useEffect(() => {
     getLeadDetails(selectedLead);
     if (pipelineId) {
@@ -786,6 +789,7 @@ const LeadDetails = ({
                       </div>
                     )}
 
+                    {/* Modal for All Emails */}
                     <Modal
                       open={showAllEmails}
                       onClose={() => setShowAllEmails(null)}
@@ -842,6 +846,91 @@ const LeadDetails = ({
                               <button
                                 onClick={() => {
                                   setShowAllEmails(false);
+                                }}
+                                className="h-[50px] rounded-xl bg-purple text-white w-full"
+                              >
+                                Close
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </Box>
+                    </Modal>
+
+                    {/* Modal for All Tags */}
+                    <Modal
+                      open={extraTagsModal}
+                      onClose={() => setExtraTagsModal(false)}
+                      closeAfterTransition
+                      BackdropProps={{
+                        timeout: 1000,
+                        sx: {
+                          backgroundColor: "#00000020",
+                          // //backdropFilter: "blur(20px)",
+                        },
+                      }}
+                    >
+                      <Box
+                        className="lg:w-3/12 sm:w-full w-4/12"
+                        sx={styles.modalsStyle}
+                      >
+                        <div className="flex flex-row justify-center w-full">
+                          <div
+                            className="sm:w-full w-full"
+                            style={{
+                              backgroundColor: "#ffffff",
+                              padding: 20,
+                              borderRadius: "13px",
+                            }}
+                          >
+                            <div style={{
+                              fontsize: 15,
+                              fontWeight: "600"
+                            }}>
+                              Other Tags
+                            </div>
+                            <div className="flex flex-row items-center gap-4 flex-wrap mt-2">
+                              {
+                                selectedLeadsDetails?.tags.map((tag, index) => {
+                                  return (
+                                    <div
+                                      key={index}
+                                      className="flex flex-row items-center gap-2"
+                                    >
+                                      <div className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg">
+                                        <div
+                                          className="text-purple" //1C55FF10
+                                        >
+                                          {tag}
+                                        </div>
+                                        {DelTagLoader &&
+                                          tag.includes(DelTagLoader) ? (
+                                          <div>
+                                            <CircularProgress size={15} />
+                                          </div>
+                                        ) : (
+                                          <button
+                                            onClick={() => {
+                                              handleDelTag(tag);
+                                            }}
+                                          >
+                                            <X
+                                              size={15}
+                                              weight="bold"
+                                              color="#7902DF"
+                                            />
+                                          </button>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })
+                              }
+                            </div>
+                            <div className="mt-4">
+                              <button
+                                onClick={() => {
+                                  setExtraTagsModal(false);
                                 }}
                                 className="h-[50px] rounded-xl bg-purple text-white w-full"
                               >
@@ -940,13 +1029,18 @@ const LeadDetails = ({
                                 );
                               })
                           }
-                          <div>
+                          <button
+                            className="outline-none"
+                            onClick={() => {
+                              console.log("tags are", selectedLeadsDetails?.tags);
+                              setExtraTagsModal(true);
+                            }}>
                             {selectedLeadsDetails?.tags.length > 2 && (
                               <div>
                                 +{selectedLeadsDetails?.tags.length - 2}
                               </div>
                             )}
-                          </div>
+                          </button>
                         </div>
                       ) : (
                         "-"
