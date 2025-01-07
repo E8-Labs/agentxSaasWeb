@@ -32,7 +32,7 @@ const BuildAgentTask = dynamic(() =>
 
 
 const Page = () => {
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(1);
   const [components, setComponents] = useState([
     CreateAgent1,
     CreatAgent3,
@@ -75,6 +75,7 @@ const Page = () => {
             CreateAgent4,
             CreateAgentVoice,
           ]);
+          // setIndex(3)
         } else {
           setComponents([
             CreateAgent1,

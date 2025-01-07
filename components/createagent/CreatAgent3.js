@@ -336,7 +336,7 @@ const CreatAgent3 = ({ handleContinue }) => {
       // p: 2,
       mx: "auto",
       my: "50vh",
-      transform: "translateY(-50%)",
+      transform: "translateY(-55%)",
       borderRadius: 2,
       border: "none",
       outline: "none",
@@ -370,7 +370,7 @@ const CreatAgent3 = ({ handleContinue }) => {
             </div>
 
             <div
-              className="h-[70%] overflow-none sm:overflow-auto w-full flex flex-col items-center"
+              className="sm:h-[70%] overflow-none sm:overflow-auto w-full flex flex-col items-center"
               style={{ scrollbarWidth: "none" }}
             >
               {/* For mobile view */}
@@ -605,7 +605,7 @@ const CreatAgent3 = ({ handleContinue }) => {
               </div>
             </div>
 
-            <div className="flex flex-row items-center gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6">
+            <div className="flex flex-row items-center gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6 pb-4">
               <button onClick={handleToggleTermsClick}>
                 {agreeTerms ? (
                   <div
@@ -770,54 +770,6 @@ const CreatAgent3 = ({ handleContinue }) => {
                   </div>
                 )}
 
-                {/* <div className='mt-4 text-[#4F5B76]' style={styles.giftTextStyle}>
-                                    Card number
-                                </div>
-                                <input className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0' style={styles.cardStyles} placeholder='1212 1212 1212 1212' maxLength={16}
-                                    onInput={(e) => {
-                                        e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
-                                    }} />
-
-                                <div className='flex flex-row gap-2 mt-4'>
-                                    <div className='w-6/12'>
-                                        <div className='text-[#4F5B76]' style={styles.giftTextStyle}>
-                                            Expiry
-                                        </div>
-                                        <input
-                                            className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0' style={styles.cardStyles} placeholder='MM / YY' maxLength={6}
-                                            onInput={(e) => {
-                                                e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
-                                            }} />
-                                    </div>
-                                    <div className='w-6/12'>
-                                        <div className='text-[#4F5B76]' style={styles.giftTextStyle}>
-                                            Card number
-                                        </div>
-                                        <input className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0' style={styles.cardStyles} placeholder='CVC' maxLength={3}
-                                            onInput={(e) => {
-                                                e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
-                                            }} />
-                                    </div>
-                                </div>
-
-                                <div className='mt-4 text-[#4F5B76]' style={styles.giftTextStyle}>
-                                    Postal Code
-                                </div>
-                                <input className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0' style={styles.cardStyles} placeholder='48530' maxLength={5}
-                                    onInput={(e) => {
-                                        e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
-                                    }} />
-
-                                <div className='mt-4 text-[#4F5B76]' style={styles.giftTextStyle}>
-                                    AgentX Code (optional)
-                                </div>
-                                <input className='outline-none border rounded-lg w-full p-2 mt-2 focus:outline-none focus:ring-0'
-                                    style={styles.cardStyles} placeholder='Enter the code here' maxLength={16}
-                                    onInput={(e) => {
-                                        e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
-                                    }}
-                                /> */}
-
                 <Elements stripe={stripePromise}>
                   <AddCardDetails
                     //selectedPlan={selectedPlan}
@@ -829,17 +781,6 @@ const CreatAgent3 = ({ handleContinue }) => {
                   // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>
-
-                {/* <button className='bg-purple text-white w-full rounded-xl mt-12' style={{ ...styles.headingStyle, height: "50px" }}
-                                    onClick={() => {
-                                        
-                                        setAddPaymentSuccessPopUp(true);
-                                    }}>
-                                    Continue
-                                </button> */}
-
-                {/* Can be use full to add shadow */}
-                {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
               </div>
             </div>
           </Box>
@@ -943,17 +884,19 @@ const CreatAgent3 = ({ handleContinue }) => {
             },
           }}
         >
-          <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
+          <Box className="lg:w-8/12 sm:w-full flex flex-row justify-center w-full" sx={styles.paymentModal}>
             <div
-              className="flex flex-row justify-center w-full h-[95svh]"
-              style={{ overflow: "auto" }}
+              className="flex flex-col items-center justify-start w-[95%] h-[95svh] bg-white"
+              style={{
+                overflow: "auto",
+                borderRadius: "13px",
+              }}
             >
               <div
-                className="sm:w-7/12 w-full mx-2"
+                className="sm:w-7/12 w-full h-[100%] overflow-auto"
                 style={{
                   backgroundColor: "#ffffff",
                   padding: 20,
-                  borderRadius: "13px",
                 }}
               >
                 <div
@@ -1126,7 +1069,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                   ))}
                 </div>
 
-                <div className="flex flex-row items-center gap-4 justify-start w-full mt-6">
+                <div className="flex flex-row items-center gap-4 justify-start w-full mt-6 mb-12">
                   <button onClick={handleToggleTermsClick}>
                     {agreeTerms ? (
                       <div
@@ -1170,37 +1113,42 @@ const CreatAgent3 = ({ handleContinue }) => {
                   </div>
                 </div>
 
-                {subscribePlanLoader ? (
-                  <div className="flex flex-row items-center justify-center h-[50px]">
-                    <CircularProgress size={30} />
-                  </div>
-                ) : (
-                  <button
-                    disabled={!agreeTerms || !togglePlan2}
-                    className="bg-purple text-white w-full rounded-xl mt-6 mb-6"
-                    style={{
-                      ...styles.headingStyle,
-                      height: "50px",
-                      backgroundColor: agreeTerms && togglePlan2 ? "#7902DF" : "#00000010",
-                      color: agreeTerms && togglePlan2 ? "white" : "#000000",
-                    }}
-                    onClick={() => {
-
-
-                      if (togglePlan2 === 1) {
-                        handleContinue();
-                      } else {
-                        handleSubScribePlan();
-                      }
-                    }}
-                  >
-                    Continue
-                  </button>
-                )}
-
                 {/* Can be use full to add shadow */}
                 {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
               </div>
+
+              {subscribePlanLoader ? (
+                <div className="flex flex-row items-center justify-center h-[50px]">
+                  <CircularProgress size={30} />
+                </div>
+              ) : (
+                <button
+                  disabled={!agreeTerms || !togglePlan2}
+                  className="bg-purple text-white w-full rounded-xl"
+                  style={{
+                    ...styles.headingStyle,
+                    height: "50px",
+                    backgroundColor: agreeTerms && togglePlan2 ? "#7902DF" : "#00000010",
+                    color: agreeTerms && togglePlan2 ? "white" : "#000000",
+                    flexShrink: 0,
+                    position: "absolute",
+                    bottom: 5,
+                    width: "90%"
+                  }}
+                  onClick={() => {
+
+
+                    if (togglePlan2 === 1) {
+                      handleContinue();
+                    } else {
+                      handleSubScribePlan();
+                    }
+                  }}
+                >
+                  Continue
+                </button>
+              )}
+
             </div>
           </Box>
         </Modal>
