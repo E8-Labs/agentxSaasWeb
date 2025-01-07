@@ -141,7 +141,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                 </button>
               </div>
 
-              <div className="overflow-auto h-[100%]" style={{ scrollbarWidth: "none" }}>
+              <div className="overflow-auto h-[100%] pb-12" style={{ scrollbarWidth: "none" }}>
                 {initialLoader ? (
                   <div className="w-full flex flex-row items-center justify-center mt-12">
                     <CircularProgress size={35} thickness={2} />
