@@ -296,7 +296,7 @@ function Billing() {
         if (localDetails?.cards?.length > 0) {
           console.log("Already have cards");
         } else {
-          setErrorSnack("No payment source added");
+          setErrorSnack("No payment method added");
           return
         }
       }
@@ -662,8 +662,8 @@ function Billing() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center mt-12" style={{ fontSize: 18, fontWeight: "600" }}>
-                  No payment source added
+                <div className="text-start mt-12" style={{ fontSize: 18, fontWeight: "600" }}>
+                  No payment method added
                 </div>
               )
             }
@@ -1001,7 +1001,15 @@ function Billing() {
                 borderRadius: "13px",
               }}
             >
-              <div className="flex flex-row justify-end">
+              <div className="flex flex-row justify-between items-center">
+                <div
+                  style={{
+                    fontSize: 18,
+                    fontWeight: "600"
+                  }}
+                >
+                  Add new card
+                </div>
                 <button onClick={() => setAddPaymentPopup(false)}>
                   <Image
                     src={"/assets/crossIcon.png"}

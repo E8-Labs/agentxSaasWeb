@@ -273,7 +273,7 @@ function NotficationsDrawer({ close }) {
           onClick={() => {
             console.log("Check 1 clear!!")
             console.log("Lead details to show are", item);
-            setShowNotificationDrawer(false)
+            // setShowNotificationDrawer(false)
             setselectedLeadsDetails(item);
             setShowDetailsModal(true);
           }}

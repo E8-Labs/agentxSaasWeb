@@ -883,11 +883,27 @@ const LeadDetails = ({
                               borderRadius: "13px",
                             }}
                           >
-                            <div style={{
-                              fontsize: 15,
-                              fontWeight: "600"
-                            }}>
-                              Other Tags
+                            <div className="w-full flex items-center justify-between">
+                              <div style={{
+                                fontsize: 15,
+                                fontWeight: "600"
+                              }}>
+                                Other Tags
+                              </div>
+                              <div>
+                                <button
+                                  onClick={() => {
+                                    setExtraTagsModal(false);
+                                  }}
+                                >
+                                  <Image
+                                    src={"/assets/blackBgCross.png"}
+                                    height={20}
+                                    width={20}
+                                    alt="*"
+                                  />
+                                </button>
+                              </div>
                             </div>
                             <div className="flex flex-row items-center gap-4 flex-wrap mt-2">
                               {
@@ -926,16 +942,6 @@ const LeadDetails = ({
                                   );
                                 })
                               }
-                            </div>
-                            <div className="mt-4">
-                              <button
-                                onClick={() => {
-                                  setExtraTagsModal(false);
-                                }}
-                                className="h-[50px] rounded-xl bg-purple text-white w-full"
-                              >
-                                Close
-                              </button>
                             </div>
                           </div>
                         </div>
@@ -1036,7 +1042,7 @@ const LeadDetails = ({
                               setExtraTagsModal(true);
                             }}>
                             {selectedLeadsDetails?.tags.length > 2 && (
-                              <div>
+                              <div className="text-purple underline">
                                 +{selectedLeadsDetails?.tags.length - 2}
                               </div>
                             )}
