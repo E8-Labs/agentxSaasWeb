@@ -11,6 +11,17 @@ import { requestToken } from '@/components/firbase';
 import { initializeApp } from 'firebase/app';
 import { UpdateProfile } from '@/components/apis/UpdateProfile';
 
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+import AddCardDetails from '@/components/createagent/addpayment/AddCardDetails';
+
+let stripePublickKey =
+  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+    ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
+    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
+const stripePromise = loadStripe(stripePublickKey);
+
+
 
 const ProfileNav = () => {
 
@@ -29,6 +40,9 @@ const ProfileNav = () => {
   const [showsuccessSnack, setShowSuccessSnack] = useState(null);
   const [errorSnack, setErrorSnack] = useState(null);
   const [showerrorSnack, setShowErrorSnack] = useState(null);
+
+
+  const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
 
   const plans = [
     {
@@ -241,9 +255,58 @@ const ProfileNav = () => {
     setSelectedPlan(prevId => (prevId === item ? null : item));
   }
 
+  //functiion to get cards list
+  const getCardsList = async () => {
+    try {
+      setSubscribePlanLoader(true);
+
+      const localData = localStorage.getItem("User");
+
+      let AuthToken = null;
+
+      if (localData) {
+        const Data = JSON.parse(localData);
+        AuthToken = Data.token;
+      }
+
+      console.log("Authtoken is", AuthToken);
+
+      //Talabat road
+
+      const ApiPath = Apis.getCardsList;
+
+      console.log("apipath for get cards list", ApiPath);
+
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: `Bearer ${AuthToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response) {
+        console.log("Response of get cards api is", response.data);
+        if (response.data.status === true) {
+          if(response.data.data.length === 0){
+            setAddPaymentPopup(true);
+          }
+        }
+      }
+    } catch (error) {
+      console.log("Error occured", error);
+    } finally {
+      console.log("Get cards done");
+      // setGetCardLoader(false);
+    }
+  };
+
   const handleSubscribePlan = async () => {
     try {
 
+      let cards = []
+
+      cards = getCardsList();
+// return
       let planType = null;
 
       // console.log("Selected plan is:", togglePlan);
@@ -273,7 +336,8 @@ const ProfileNav = () => {
       console.log("Authtoken is", AuthToken);
 
       const ApiData = {
-        plan: planType
+        plan: planType,
+        payNow:true
       }
 
       console.log("Api data is", ApiData);
@@ -312,6 +376,15 @@ const ProfileNav = () => {
       setSubscribePlanLoader(false);
     }
   }
+
+  const handleClose = (data) => {
+    console.log("Add card details are", data);
+    if (data.status === true) {
+      let newCard = data.data;
+      setAddPaymentPopup(false);
+      // setCards([newCard, ...cards]);
+    }
+  };
 
 
   const styles = {
@@ -447,6 +520,7 @@ const ProfileNav = () => {
 
 
       <div>
+        {/* Subscribe Plan modal */}
         <Modal
           open={showPlansPopup}
           // open={true}
@@ -483,7 +557,7 @@ const ProfileNav = () => {
                         style={{
                           ...styles.pricingBox,
                           border: item.id === togglePlan ? '2px solid #7902DF' : '1px solid #15151520',
-                          backgroundColor: item.id === togglePlan ? "#402FFF05" : ""
+                          backgroundColor: item.id === togglePlan ? "#402FFF10" : ""
                         }}>
                         <div style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}></div>
                         <span style={styles.labelText}>
@@ -570,6 +644,62 @@ const ProfileNav = () => {
                   </button>
                 </div>
 
+              </div>
+            </div>
+          </Box>
+        </Modal>
+
+        {/* Add Payment Modal */}
+        <Modal
+          open={addPaymentPopUp} //addPaymentPopUp
+          // open={true}
+          closeAfterTransition
+          BackdropProps={{
+            timeout: 100,
+            sx: {
+              backgroundColor: "#00000020",
+              // //backdropFilter: "blur(20px)",
+            },
+          }}
+        >
+          <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
+            <div className="flex flex-row justify-center w-full">
+              <div
+                className="sm:w-7/12 w-full"
+                style={{
+                  backgroundColor: "#ffffff",
+                  padding: 20,
+                  borderRadius: "13px",
+                }}
+              >
+                <div className="flex flex-row justify-between items-center">
+                  <div
+                    style={{
+                      fontSize: 18,
+                      fontWeight: "600"
+                    }}
+                  >
+                    Add new card
+                  </div>
+                  <button onClick={() => setAddPaymentPopup(false)}>
+                    <Image
+                      src={"/assets/crossIcon.png"}
+                      height={40}
+                      width={40}
+                      alt="*"
+                    />
+                  </button>
+                </div>
+                <Elements stripe={stripePromise}>
+                  <AddCardDetails
+                    //selectedPlan={selectedPlan}
+                    stop={stop}
+                    // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
+                    handleClose={handleClose}
+                    togglePlan={""}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  />
+                </Elements>
               </div>
             </div>
           </Box>

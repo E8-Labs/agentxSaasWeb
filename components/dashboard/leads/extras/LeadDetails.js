@@ -523,8 +523,10 @@ const LeadDetails = ({
 
   const handleDeleteLead = async () => {
     try {
-      // handleDelLead();
+      handleDelLead(selectedLeadsDetails);
+      // return
       setDelLeadLoader(true);
+
       let AuthToken = null;
 
       const userData = localStorage.getItem("User");

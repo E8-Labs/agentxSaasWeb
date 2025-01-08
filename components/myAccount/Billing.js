@@ -305,6 +305,7 @@ function Billing() {
 
       const ApiData = {
         plan: planType,
+        payNow: true
       };
 
       console.log("Api data is", ApiData);
@@ -499,6 +500,24 @@ function Billing() {
     }
   };
 
+
+  //function to get card brand image
+
+
+  const getCardImage = (item) => {
+    if (item.brand === 'visa') {
+      return '/svgIcons/Visa.svg'
+    } else if (item.brand === 'Mastercard') {
+      return '/svgIcons/mastercard.svg'
+    } else if (item.brand === 'amex') {
+      return '/svgIcons/Amex.svg'
+    } else if (item.brand === 'discover') {
+      return '/svgIcons/Discover.svg'
+    } else if (item.brand === 'dinersClub') {
+      return '/svgIcons/DinersClub.svg'
+    }
+  }
+
   return (
     <div
       className="w-full flex flex-col items-start px-8 py-2 h-screen overflow-y-auto"
@@ -597,7 +616,7 @@ function Billing() {
                         onClick={() => setSelectedCard(item)}
                       >
                         <div
-                          className={`flex items-center justify-between w-full p-4 border rounded-lg `}
+                          className={`flex items-start justify-between w-full p-4 border rounded-lg `}
                           style={{
                             backgroundColor:
                               selectedCard?.id === item.id
@@ -615,7 +634,7 @@ function Billing() {
                               }}
                             ></div>
                             {/* Card Details */}
-                            <div className="flex flex-col">
+                            <div className="flex flex-col items-start">
                               <div className="flex flex-row items-center gap-3">
                                 <div
                                   style={{
@@ -642,7 +661,7 @@ function Billing() {
                                   color: "#909090",
                                 }}
                               >
-                                {item.brand}
+                                {item.brand} Card
                               </div>
                             </div>
                           </div>
@@ -650,10 +669,10 @@ function Billing() {
                           {/* Card Logo */}
                           <div>
                             <Image
-                              src="/otherAssets/cardLogo.png"
+                              src={getCardImage(item)}
                               alt="Card Logo"
-                              width={32}
-                              height={32}
+                              width={50}
+                              height={50}
                             />
                           </div>
                         </div>
@@ -887,6 +906,9 @@ function Billing() {
                   onClick={() => {
                     if (userLocalData?.cancelPlanRedemptions === 0) {
                       setGiftPopup(true);
+                    } else if (userLocalData?.isTrail === true) {
+                      setShowConfirmCancelPlanPopup(true);
+                      (true);
                     } else {
                       setShowConfirmCancelPlanPopup(true);
                     }

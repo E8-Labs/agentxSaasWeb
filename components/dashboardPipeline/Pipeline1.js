@@ -812,6 +812,7 @@ const Pipeline1 = () => {
   };
 
   //code to delete pipeline
+  
   const handleDeletePipeline = async () => {
     try {
       setDeletePipelineLoader(true);
@@ -1173,6 +1174,7 @@ const Pipeline1 = () => {
       console.log("Lead to delete is", leadToDelete);
       console.log("Leads list is", LeadsList);
       console.log("Pipelines are", PipeLines);
+      // return
 
       // const filteredPipelines = PipeLines.map((pipeline) => {
       //   return(

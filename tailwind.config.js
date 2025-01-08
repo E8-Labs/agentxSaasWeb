@@ -15,29 +15,29 @@ module.exports = {
         green: "#01CB76",
         red: "#FF4E4E",
         purple2: "#1C55FF",
-        lightBlue: "#402fff10"
+        lightBlue: "#402fff10",
+        brdColor: "#15151510",
       },
       scrollbar: {
-        width: '15px', // Customize scrollbar width
+        width: "15px", // Customize scrollbar width
         colors: {
-          thumb: '#7902DF', // Scrollbar thumb (the draggable part)
-          track: 'transparent', // Scrollbar track (background)
+          thumb: "#7902DF", // Scrollbar thumb (the draggable part)
+          track: "transparent", // Scrollbar track (background)
         },
-      }
+      },
     },
   },
   plugins: [
-    require('tailwind-scrollbar')({ nocompatible: true }), //scrollbar plugin
-    require('@tailwindcss/aspect-ratio'),
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
-    require('tailwind-scrollbar'),
+    require("tailwind-scrollbar")({ nocompatible: true }), //scrollbar plugin
+    require("@tailwindcss/aspect-ratio"),
+    require("@tailwindcss/forms"),
+    require("@tailwindcss/typography"),
+    require("tailwind-scrollbar"),
   ],
   variants: {
-    scrollbar: ['rounded'], // Enable variants for scrollbar
+    scrollbar: ["rounded"], // Enable variants for scrollbar
   },
 };
-
 
 // module.exports = {
 //   content: ['./pages/*/.{js,ts,jsx,tsx}', './components/*/.{js,ts,jsx,tsx}', './app/*/.{js,ts,jsx,tsx}'],
