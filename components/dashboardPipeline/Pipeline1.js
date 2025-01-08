@@ -1545,7 +1545,7 @@ const Pipeline1 = () => {
                       PaperProps={{
                         elevation: 0, // This will remove the shadow
                         style: {
-                          boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.02)",
+                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.08)",
                           borderRadius: "12px",
                         },
                       }}
