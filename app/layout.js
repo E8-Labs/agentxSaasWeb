@@ -26,6 +26,12 @@ export const metadata = {
         height: 630,
         alt: "Thumbnail Alt Text",
       },
+      {
+        url: "https://ai.myagentx.com/assets/colorCircle.png",
+        width: 276,
+        height: 276,
+        alt: "Thumbnail Alt Text",
+      },
     ],
     type: "website",
   },
