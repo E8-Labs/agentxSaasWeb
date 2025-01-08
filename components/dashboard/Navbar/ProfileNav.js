@@ -596,14 +596,43 @@ const ProfileNav = () => {
                 className="sm:w-7/12 w-full"
                 style={{
                   backgroundColor: "#ffffff",
-                  padding: 20,
+                  paddingInline: 50,
+                  paddingTop: 50,
+                  paddingBottom: 50,
                   borderRadius: "13px",
                 }}
               >
                 <div className="flex justify-center items-center">
-                  <Typography className="text-[18px] font-semibold">
+                  <Typography className="text-[22px] font-semibold">
                     You’ll need to select a plan to continue
                   </Typography>
+                </div>
+
+                <div className="flex flex-row items-center justify-center ">
+                  <div
+                    className="hidden md:flex flex flex-row items-center justify-center py-3 gap-4 mt-6 mb-8 px-4"
+                    style={{
+                      backgroundColor: "#402FFF10",
+                      borderRadius: "50px",
+                      width: "fit-content",
+                    }}
+                  >
+                    <Image
+                      src={"/assets/gift.png"}
+                      height={24}
+                      width={24}
+                      alt="*"
+                    />
+                    <div
+                      className="text-purple"
+                      style={{
+                        fontSize: 14,
+                        fontWeight: "500",
+                      }}
+                    >
+                      Enjoy these discounted rates
+                    </div>
+                  </div>
                 </div>
 
                 {/* <div className='flex flex-row justify-end'>
@@ -630,6 +659,14 @@ const ProfileNav = () => {
                           item.id === togglePlan ? "#402FFF10" : "",
                       }}
                     >
+                      {index == 0 && (
+                        <Image
+                          style={{ position: "absolute", right: 60, top: -17 }}
+                          width={40}
+                          height={40}
+                          src={"/assets/giftRibbon.png"}
+                        />
+                      )}
                       <div
                         style={{
                           ...styles.triangleLabel,
