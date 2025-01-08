@@ -4,6 +4,7 @@ import Apis from "@/components/apis/Apis";
 import { Box, CircularProgress, Modal } from "@mui/material";
 import axios from "axios";
 import Image from "next/image";
+import Head from "next/head";
 // import { useRouter } from "next/router";
 import React, { useEffect, useRef, useState } from "react";
 import PhoneInput from "react-phone-input-2";
@@ -408,8 +409,33 @@ const Page = ({ length = 6, onComplete }) => {
   };
 
   return (
-    <div className="flex flex-row w-full justify-center h-[100svh]">
-      {/* <div className='w-6/12 ms-8 flex flex-row justify-center ' style={backgroundImage}>
+    <>
+      <Head>
+        <title>MyAgentX</title>
+        <meta
+          name="description"
+          content="Design and create custom AI agents with ease."
+        />
+        <meta property="og:title" content="Create Your AI Agent - MyAgentX" />
+        <meta
+          property="og:description"
+          content="Design and create custom AI agents with ease."
+        />
+        <meta
+          property="og:image"
+          content="https://ai.myagentx.com/thumbOrb.png"
+        />
+        <meta property="og:url" content="https://ai.myagentx.com" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+          name="twitter:image"
+          content="https://ai.myagentx.com/thumbOrb.png"
+        />
+      </Head>
+
+      <div className="flex flex-row w-full justify-center h-[100svh]">
+        {/* <div className='w-6/12 ms-8 flex flex-row justify-center ' style={backgroundImage}>
         <div className='w-11/12'>
           <div className='h-[433px] w-[494px] md:w-[594px] bg-white mt-16'>
           </div>
@@ -421,200 +447,178 @@ const Page = ({ length = 6, onComplete }) => {
           </div>
         </div>
       </div> */}
-      <div className="w-11/12 flex flex-col items-center h-[90svh] ">
-        <div className="w-full gap-3 h-[10%] flex flex-row items-end">
-          <Image
-            className=""
-            src="/assets/agentX.png"
-            style={{ height: "29px", width: "122px", resize: "contain" }}
-            height={29}
-            width={122}
-            alt="*"
-          />
-          {/* <Image className='hidden md:flex' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain" }} height={69} width={69} alt='*' /> */}
-        </div>
-        <div className="w-full h-[80%] flex flex-row items-center justify-center">
-          <div className="w-full">
-            <div className="flex flex-col w-full items-center gap-4 pb-6">
-              <Image
-                src={"/assets/signinAvatar.png"}
-                height={100}
-                width={260}
-                alt="avtr"
-              />
-              <Image src={"/agentXOrb.gif"} height={69} width={69} alt="gif" />
-            </div>
+        <div className="w-11/12 flex flex-col items-center h-[90svh] ">
+          <div className="w-full gap-3 h-[10%] flex flex-row items-end">
+            <Image
+              className=""
+              src="/assets/agentX.png"
+              style={{ height: "29px", width: "122px", resize: "contain" }}
+              height={29}
+              width={122}
+              alt="*"
+            />
+            {/* <Image className='hidden md:flex' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain" }} height={69} width={69} alt='*' /> */}
+          </div>
+          <div className="w-full h-[80%] flex flex-row items-center justify-center">
+            <div className="w-full">
+              <div className="flex flex-col w-full items-center gap-4 pb-6">
+                <Image
+                  src={"/assets/signinAvatar.png"}
+                  height={100}
+                  width={260}
+                  alt="avtr"
+                />
+                <Image
+                  src={"/agentXOrb.gif"}
+                  height={69}
+                  width={69}
+                  alt="gif"
+                />
+              </div>
 
-            {/* Code for phone input field */}
-            <div className="flex flex-row items-center justify-center gap-2 w-full">
-              <div className="flex flex-row items-center gap-2 border rounded-lg w-full sm:w-4/12 justify-between pe-4">
-                <div className="w-[90%]">
-                  <PhoneInput
-                    className="outline-none bg-transparent focus:ring-0"
-                    country={countryCode} // Default country
-                    value={userPhoneNumber}
-                    onChange={handlePhoneNumberChange}
-                    onFocus={getLocation}
-                    placeholder={
-                      locationLoader
-                        ? "Loading location ..."
-                        : "Enter Phone Number"
-                    }
-                    disabled={loading} // Disable input if still loading
-                    onKeyDown={(e) => {
-                      if (
-                        e.key === "Enter" &&
-                        userPhoneNumber &&
-                        !errorMessage
-                      ) {
+              {/* Code for phone input field */}
+              <div className="flex flex-row items-center justify-center gap-2 w-full">
+                <div className="flex flex-row items-center gap-2 border rounded-lg w-full sm:w-4/12 justify-between pe-4">
+                  <div className="w-[90%]">
+                    <PhoneInput
+                      className="outline-none bg-transparent focus:ring-0"
+                      country={countryCode} // Default country
+                      value={userPhoneNumber}
+                      onChange={handlePhoneNumberChange}
+                      onFocus={getLocation}
+                      placeholder={
+                        locationLoader
+                          ? "Loading location ..."
+                          : "Enter Phone Number"
+                      }
+                      disabled={loading} // Disable input if still loading
+                      onKeyDown={(e) => {
+                        if (
+                          e.key === "Enter" &&
+                          userPhoneNumber &&
+                          !errorMessage
+                        ) {
+                          if (checkPhoneResponse === false) {
+                            handleVerifyPopup();
+                          }
+                          // setShowVerifyPopup(true)
+                        }
+                      }}
+                      style={{
+                        borderRadius: "7px",
+                        outline: "none", // Ensure no outline on wrapper
+                        boxShadow: "none", // Remove any shadow
+                      }}
+                      inputStyle={{
+                        width: "100%",
+                        borderWidth: "0px",
+                        backgroundColor: "transparent",
+                        paddingLeft: "60px",
+                        paddingTop: "12px",
+                        paddingBottom: "12px",
+                        height: "50px",
+                        outline: "none", // Remove outline on input
+                        boxShadow: "none", // Remove shadow as well
+                      }}
+                      buttonStyle={{
+                        border: "none",
+                        backgroundColor: "transparent",
+                        outline: "none", // Ensure no outline on button
+                      }}
+                      dropdownStyle={{
+                        maxHeight: "150px",
+                        overflowY: "auto",
+                      }}
+                      countryCodeEditable={true}
+                      defaultMask={locationLoader ? "Loading..." : undefined}
+                    />
+                  </div>
+                  {loginLoader ? (
+                    <div className="flex flex-row justify-center">
+                      <CircularProgress size={15} />
+                    </div>
+                  ) : (
+                    <button
+                      className="text-black bg-transparent border border-[#000000] rounded-full"
+                      style={{ fontSize: 16, fontWeight: "600" }}
+                      onClick={() => {
                         if (checkPhoneResponse === false) {
                           handleVerifyPopup();
                         }
                         // setShowVerifyPopup(true)
-                      }
-                    }}
-                    style={{
-                      borderRadius: "7px",
-                      outline: "none", // Ensure no outline on wrapper
-                      boxShadow: "none", // Remove any shadow
-                    }}
-                    inputStyle={{
-                      width: "100%",
-                      borderWidth: "0px",
-                      backgroundColor: "transparent",
-                      paddingLeft: "60px",
-                      paddingTop: "12px",
-                      paddingBottom: "12px",
-                      height: "50px",
-                      outline: "none", // Remove outline on input
-                      boxShadow: "none", // Remove shadow as well
-                    }}
-                    buttonStyle={{
-                      border: "none",
-                      backgroundColor: "transparent",
-                      outline: "none", // Ensure no outline on button
-                    }}
-                    dropdownStyle={{
-                      maxHeight: "150px",
-                      overflowY: "auto",
-                    }}
-                    countryCodeEditable={true}
-                    defaultMask={locationLoader ? "Loading..." : undefined}
-                  />
+                      }}
+                    >
+                      <ArrowRight size={20} weight="bold" />
+                    </button>
+                  )}
                 </div>
-                {loginLoader ? (
-                  <div className="flex flex-row justify-center">
-                    <CircularProgress size={15} />
-                  </div>
-                ) : (
-                  <button
-                    className="text-black bg-transparent border border-[#000000] rounded-full"
-                    style={{ fontSize: 16, fontWeight: "600" }}
-                    onClick={() => {
-                      if (checkPhoneResponse === false) {
-                        handleVerifyPopup();
-                      }
-                      // setShowVerifyPopup(true)
-                    }}
-                  >
-                    <ArrowRight size={20} weight="bold" />
-                  </button>
-                )}
               </div>
-            </div>
 
-            {/* Code for error messages */}
-            <div className="flex flex-row items-center w-full justify-center mt-4">
-              <div>
-                {errorMessage ? (
-                  <div className="text-center" style={styles.errmsg}>
-                    {errorMessage}
-                  </div>
-                ) : (
-                  <div>
-                    {phoneNumberLoader ? (
-                      <div className="text-center" style={styles.errmsg}>
-                        Checking
-                      </div>
-                    ) : (
-                      <div
-                        style={{
-                          ...styles.errmsg,
-                          color:
-                            checkPhoneResponse?.status === false
-                              ? "green"
-                              : "red",
-                          height: "20px",
-                        }}
-                      >
-                        {checkPhoneResponse && (
-                          <div className="text-center">
-                            {checkPhoneResponse === true ? "No such user" : ""}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
+              {/* Code for error messages */}
+              <div className="flex flex-row items-center w-full justify-center mt-4">
+                <div>
+                  {errorMessage ? (
+                    <div className="text-center" style={styles.errmsg}>
+                      {errorMessage}
+                    </div>
+                  ) : (
+                    <div>
+                      {phoneNumberLoader ? (
+                        <div className="text-center" style={styles.errmsg}>
+                          Checking
+                        </div>
+                      ) : (
+                        <div
+                          style={{
+                            ...styles.errmsg,
+                            color:
+                              checkPhoneResponse?.status === false
+                                ? "green"
+                                : "red",
+                            height: "20px",
+                          }}
+                        >
+                          {checkPhoneResponse && (
+                            <div className="text-center">
+                              {checkPhoneResponse === true
+                                ? "No such user"
+                                : ""}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
 
-            <div
-              className="flex flex-row items-center justify-center gap-1 mt-[40px]"
-              style={{ fontWeight: "500", fontSize: 15 }}
-            >
-              <div onClick={() => setShowVerifyPopup(true)}>
-                {`Don't have an account?`}
-              </div>
-              <button
-                className=""
-                onClick={() => {
-                  router.push("/onboarding");
-                }}
-                style={{ fontWeight: "bold", fontSize: 15 }}
+              <div
+                className="flex flex-row items-center justify-center gap-1 mt-[40px]"
+                style={{ fontWeight: "500", fontSize: 15 }}
               >
-                Sign Up
-              </button>
+                <div onClick={() => setShowVerifyPopup(true)}>
+                  {`Don't have an account?`}
+                </div>
+                <button
+                  className=""
+                  onClick={() => {
+                    router.push("/onboarding");
+                  }}
+                  style={{ fontWeight: "bold", fontSize: 15 }}
+                >
+                  Sign Up
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div
-          className="mt-6 h-[10%] flex flex-row items-end justify-end w-10/12 gap-2 overflow-auto flex-shrink-0 hidden sm:flex"
-          style={{ fontWeight: "500", fontSize: 11.6 }}
-        >
-          <div className="flex-shrink-0">
-            Copyrights @ 2024 MyAgentX. All Rights Reserved.
-          </div>
-          <button
-            className="flex-shrink-0 outline-none"
-            onClick={() => {
-              window.open(
-                "https://www.myagentx.com/terms-and-condition",
-                "_blank"
-              );
-            }}
-          >
-            | Terms & Conditions
-          </button>
-          <button
-            className="flex-shrink-0 outline-none"
-            onClick={() => {
-              window.open(
-                "https://www.myagentx.com/terms-and-condition",
-                "_blank"
-              );
-            }}
-          >
-            | Privacy Policy
-          </button>
-        </div>
-
-        <div className="h-[10%] w-full flex flex-col items-center justify-center sm:hidden">
           <div
-            className="mt-6 flex flex-row items-center justify-end gap-2 overflow-auto flex-shrink-0"
+            className="mt-6 h-[10%] flex flex-row items-end justify-end w-10/12 gap-2 overflow-auto flex-shrink-0 hidden sm:flex"
             style={{ fontWeight: "500", fontSize: 11.6 }}
           >
+            <div className="flex-shrink-0">
+              Copyrights @ 2024 MyAgentX. All Rights Reserved.
+            </div>
             <button
               className="flex-shrink-0 outline-none"
               onClick={() => {
@@ -624,7 +628,7 @@ const Page = ({ length = 6, onComplete }) => {
                 );
               }}
             >
-              Terms & Conditions
+              | Terms & Conditions
             </button>
             <button
               className="flex-shrink-0 outline-none"
@@ -638,71 +642,100 @@ const Page = ({ length = 6, onComplete }) => {
               | Privacy Policy
             </button>
           </div>
-          <div
-            className="flex-shrink-0 text-center"
-            style={{ fontWeight: "500", fontSize: 11.6 }}
-          >
-            Copyrights @ 2024 MyAgentX. All Rights Reserved.
-          </div>
-        </div>
-      </div>
 
-      {/* Modals code goes here */}
-      <Modal
-        open={showVerifyPopup}
-        // onClose={() => setAddKYCQuestion(false)}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 1000,
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(20px)",
-            padding: 0,
-            margin: 0,
-          },
-        }}
-      >
-        <Box className="lg:w-8/12 sm:w-10/12 w-10/12" sx={styles.verifyPopup}>
-          <div className="flex flex-row justify-center w-full">
+          <div className="h-[10%] w-full flex flex-col items-center justify-center sm:hidden">
             <div
-              className="sm:w-7/12 w-full"
-              style={{
-                backgroundColor: "#ffffff",
-                padding: 20,
-                borderRadius: "13px",
-              }}
+              className="mt-6 flex flex-row items-center justify-end gap-2 overflow-auto flex-shrink-0"
+              style={{ fontWeight: "500", fontSize: 11.6 }}
             >
-              <div className="flex flex-row justify-end">
-                <button
-                  onClick={() => {
-                    setShowVerifyPopup(false);
-                  }}
-                >
-                  <Image
-                    src={"/assets/crossIcon.png"}
-                    height={40}
-                    width={40}
-                    alt="*"
-                  />
-                </button>
-              </div>
-              <div
-                style={{
-                  fontSize: 26,
-                  fontWeight: "700",
+              <button
+                className="flex-shrink-0 outline-none"
+                onClick={() => {
+                  window.open(
+                    "https://www.myagentx.com/terms-and-condition",
+                    "_blank"
+                  );
                 }}
               >
-                Verify phone number
-              </div>
-              <div
-                className="mt-8"
-                style={{ ...styles.inputStyle, color: "#00000060" }}
+                Terms & Conditions
+              </button>
+              <button
+                className="flex-shrink-0 outline-none"
+                onClick={() => {
+                  window.open(
+                    "https://www.myagentx.com/terms-and-condition",
+                    "_blank"
+                  );
+                }}
               >
-                Enter code that was sent to number ending with *
-                {userPhoneNumber.slice(-4)}.
-              </div>
-              {/* <VerificationCodeInput /> */}
-              {/* <div className='mt-8' style={{ display: 'flex', gap: '8px' }}>
+                | Privacy Policy
+              </button>
+            </div>
+            <div
+              className="flex-shrink-0 text-center"
+              style={{ fontWeight: "500", fontSize: 11.6 }}
+            >
+              Copyrights @ 2024 MyAgentX. All Rights Reserved.
+            </div>
+          </div>
+        </div>
+
+        {/* Modals code goes here */}
+        <Modal
+          open={showVerifyPopup}
+          // onClose={() => setAddKYCQuestion(false)}
+          closeAfterTransition
+          BackdropProps={{
+            timeout: 1000,
+            sx: {
+              backgroundColor: "#00000020",
+              // //backdropFilter: "blur(20px)",
+              padding: 0,
+              margin: 0,
+            },
+          }}
+        >
+          <Box className="lg:w-8/12 sm:w-10/12 w-10/12" sx={styles.verifyPopup}>
+            <div className="flex flex-row justify-center w-full">
+              <div
+                className="sm:w-7/12 w-full"
+                style={{
+                  backgroundColor: "#ffffff",
+                  padding: 20,
+                  borderRadius: "13px",
+                }}
+              >
+                <div className="flex flex-row justify-end">
+                  <button
+                    onClick={() => {
+                      setShowVerifyPopup(false);
+                    }}
+                  >
+                    <Image
+                      src={"/assets/crossIcon.png"}
+                      height={40}
+                      width={40}
+                      alt="*"
+                    />
+                  </button>
+                </div>
+                <div
+                  style={{
+                    fontSize: 26,
+                    fontWeight: "700",
+                  }}
+                >
+                  Verify phone number
+                </div>
+                <div
+                  className="mt-8"
+                  style={{ ...styles.inputStyle, color: "#00000060" }}
+                >
+                  Enter code that was sent to number ending with *
+                  {userPhoneNumber.slice(-4)}.
+                </div>
+                {/* <VerificationCodeInput /> */}
+                {/* <div className='mt-8' style={{ display: 'flex', gap: '8px' }}>
                 {Array.from({ length }).map((_, index) => (
                   <input
                     key={index}
@@ -725,87 +758,88 @@ const Page = ({ length = 6, onComplete }) => {
                   />
                 ))}
               </div> */}
-              <div
-                className="mt-8 w-ful flex flex-row items-center gap-2 overflow-auto"
-                style={{ display: "flex", gap: "8px" }}
-              >
-                {Array.from({ length }).map((_, index) => (
-                  <input
-                    className=" focus:outline-none focus:ring-0"
-                    key={index}
-                    ref={(el) => (verifyInputRef.current[index] = el)}
-                    type="tel"
-                    inputMode="numeric"
-                    // type="tel"
-                    maxLength="1"
-                    value={VerifyCode[index]}
-                    onChange={(e) => handleVerifyInputChange(e, index)}
-                    onKeyDown={(e) => handleBackspace(e, index)}
-                    onKeyUp={(e) => {
-                      // Check if the Enter key is pressed and all inputs are filled
-                      if (
-                        e.key === "Enter" &&
-                        VerifyCode.every((value) => value.trim() !== "")
-                      ) {
-                        handleVerifyCode();
-                      }
-                    }}
-                    onPaste={handlePaste}
-                    placeholder="-"
-                    style={{
-                      width: InnerWidth < 540 ? "40px" : "40px",
-                      height: InnerWidth < 540 ? "40px" : "40px",
-                      textAlign: "center",
-                      fontSize: InnerWidth < 540 ? 15 : 20,
-                      border: "1px solid #ccc",
-                      borderRadius: "5px",
-                    }}
-                  />
-                ))}
-              </div>
-              <div
-                className="mt-8 flex flex-row items-center gap-1"
-                style={styles.inputStyle}
-              >
-                {`Didn't receive code?`}
-                {sendcodeLoader ? (
-                  <CircularProgress size={17} />
+                <div
+                  className="mt-8 w-ful flex flex-row items-center gap-2 overflow-auto"
+                  style={{ display: "flex", gap: "8px" }}
+                >
+                  {Array.from({ length }).map((_, index) => (
+                    <input
+                      className=" focus:outline-none focus:ring-0"
+                      key={index}
+                      ref={(el) => (verifyInputRef.current[index] = el)}
+                      type="tel"
+                      inputMode="numeric"
+                      // type="tel"
+                      maxLength="1"
+                      value={VerifyCode[index]}
+                      onChange={(e) => handleVerifyInputChange(e, index)}
+                      onKeyDown={(e) => handleBackspace(e, index)}
+                      onKeyUp={(e) => {
+                        // Check if the Enter key is pressed and all inputs are filled
+                        if (
+                          e.key === "Enter" &&
+                          VerifyCode.every((value) => value.trim() !== "")
+                        ) {
+                          handleVerifyCode();
+                        }
+                      }}
+                      onPaste={handlePaste}
+                      placeholder="-"
+                      style={{
+                        width: InnerWidth < 540 ? "40px" : "40px",
+                        height: InnerWidth < 540 ? "40px" : "40px",
+                        textAlign: "center",
+                        fontSize: InnerWidth < 540 ? 15 : 20,
+                        border: "1px solid #ccc",
+                        borderRadius: "5px",
+                      }}
+                    />
+                  ))}
+                </div>
+                <div
+                  className="mt-8 flex flex-row items-center gap-1"
+                  style={styles.inputStyle}
+                >
+                  {`Didn't receive code?`}
+                  {sendcodeLoader ? (
+                    <CircularProgress size={17} />
+                  ) : (
+                    <button
+                      className="outline-none border-none text-purple"
+                      onClick={handleVerifyPopup}
+                    >
+                      Resend
+                    </button>
+                  )}
+                </div>
+                {loginLoader ? (
+                  <div className="flex fex-row items-center justify-center mt-8">
+                    <LoaderAnimation loaderModal={loginLoader} />
+                  </div>
                 ) : (
                   <button
-                    className="outline-none border-none text-purple"
-                    onClick={handleVerifyPopup}
+                    className="text-white bg-purple outline-none rounded-xl w-full mt-8"
+                    style={{ height: "50px" }}
+                    onClick={handleVerifyCode}
                   >
-                    Resend
+                    Continue
                   </button>
                 )}
               </div>
-              {loginLoader ? (
-                <div className="flex fex-row items-center justify-center mt-8">
-                  <LoaderAnimation loaderModal={loginLoader} />
-                </div>
-              ) : (
-                <button
-                  className="text-white bg-purple outline-none rounded-xl w-full mt-8"
-                  style={{ height: "50px" }}
-                  onClick={handleVerifyCode}
-                >
-                  Continue
-                </button>
-              )}
             </div>
-          </div>
-        </Box>
-      </Modal>
+          </Box>
+        </Modal>
 
-      <AgentSelectSnackMessage
-        type={SnackbarTypes.Success}
-        message={response.message}
-        isVisible={isVisible}
-        hide={() => {
-          setIsVisible(false);
-        }}
-      />
-    </div>
+        <AgentSelectSnackMessage
+          type={SnackbarTypes.Success}
+          message={response.message}
+          isVisible={isVisible}
+          hide={() => {
+            setIsVisible(false);
+          }}
+        />
+      </div>
+    </>
   );
 };
 
