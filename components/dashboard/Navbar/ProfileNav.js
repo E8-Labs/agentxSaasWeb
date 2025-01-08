@@ -693,7 +693,7 @@ const ProfileNav = () => {
                 <Elements stripe={stripePromise}>
                   <AddCardDetails
                     //selectedPlan={selectedPlan}
-                    stop={stop}
+                    // stop={stop}
                     // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                     handleClose={handleClose}
                     togglePlan={""}
