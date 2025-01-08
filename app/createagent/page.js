@@ -23,13 +23,13 @@ const BuildAgentName = dynamic(() =>
   import("../../components/createagent/mobileCreateAgent/BuildAgentName.js")
 );
 const BuildAgentObjective = dynamic(() =>
-  import("../../components/createagent/mobileCreateAgent/BuildAgentObjective.js")
+  import(
+    "../../components/createagent/mobileCreateAgent/BuildAgentObjective.js"
+  )
 );
 const BuildAgentTask = dynamic(() =>
   import("../../components/createagent/mobileCreateAgent/BuildAgentTask.js")
 );
-
-
 
 const Page = () => {
   const [index, setIndex] = useState(0);
@@ -109,18 +109,20 @@ const Page = () => {
   const [AgentDetails, setAgentDetails] = useState({
     name: "",
     agentRole: "",
-    agentType: ""
+    agentType: "",
   });
 
   const getAgentDetails = (agentName, agentRole, agentType) => {
-    console.log("I am hit")
-    console.log(`"Agent Name is": ${agentName} ----- "Agent Role is" ${agentRole} ------ "Agent Type is" ${agentType}`);
+    console.log("I am hit");
+    console.log(
+      `"Agent Name is": ${agentName} ----- "Agent Role is" ${agentRole} ------ "Agent Type is" ${agentType}`
+    );
     setAgentDetails({
       name: agentName,
       agentRole: agentRole,
-      agentType: agentType
+      agentType: agentType,
     });
-  }
+  };
 
   const backgroundImage = {
     // backgroundImage: 'url("/assets/background.png")',

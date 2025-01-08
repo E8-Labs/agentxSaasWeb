@@ -22,6 +22,7 @@ import VerificationCodeInput from "../test/VerificationCodeInput";
 import SendVerificationCode from "./services/AuthVerification/AuthService";
 import SnackMessages from "./services/AuthVerification/SnackMessages";
 import { setCookie } from "@/utilities/cookies";
+import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
 
 const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
   const verifyInputRef = useRef([]);
@@ -304,9 +305,13 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
       let agentTitle = userData.userTypeTitle;
       // formatAgentTypeTitle(agentTitle);
       // console.log("AgentTitle", formatAgentTypeTitle(agentTitle));
-
-      const ApiPath = Apis.register;
       const formData = new FormData();
+      const ApiPath = Apis.register;
+      let campainee = GetCampaigneeNameIfAvailable(window);
+      if (campainee) {
+        formData.append("campaignee", campainee);
+      }
+
       formData.append("name", userName);
       formData.append("email", userEmail);
       formData.append("phone", userPhoneNumber);

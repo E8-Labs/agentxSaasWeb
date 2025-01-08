@@ -295,9 +295,13 @@ const TaxAgentSignUp = ({
       let agentTitle = userData.userTypeTitle;
       // formatAgentTypeTitle(agentTitle);
       // console.log("AgentTitle", formatAgentTypeTitle(agentTitle));
-
-      const ApiPath = Apis.register;
       const formData = new FormData();
+      const ApiPath = Apis.register;
+      let campainee = GetCampaigneeNameIfAvailable(window);
+      if (campainee) {
+        formData.append("campaignee", campainee);
+      }
+      // const formData = new FormData();
       formData.append("name", userName);
       formData.append("email", userEmail);
       formData.append("phone", userPhoneNumber);
