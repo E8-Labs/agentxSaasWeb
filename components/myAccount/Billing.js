@@ -293,7 +293,7 @@ function Billing() {
         const LocalDetails = JSON.parse(localData);
         localDetails = LocalDetails;
         AuthToken = LocalDetails.token;
-        if (localDetails?.cards?.length > 0) {
+        if (localDetails?.user?.cards?.length > 0) {
           console.log("Already have cards");
         } else {
           setErrorSnack("No payment method added");
@@ -609,9 +609,9 @@ function Billing() {
                         >
                           <div className="flex items-center gap-4">
                             <div
-                              className={`w-5 h-5 rounded-full border border-[#2548FD] flex items-center justify-center`}
+                              className={`w-5 h-5 rounded-full border border-[#7902DF] flex items-center justify-center`} //border-[#2548FD]
                               style={{
-                                borderWidth: selectedCard?.id === item.id ? 3 : 1,
+                                borderWidth: selectedCard?.id === item.id || item.isDefault === true ? 3 : 1,
                               }}
                             ></div>
                             {/* Card Details */}
@@ -872,29 +872,32 @@ function Billing() {
             </button>
           )} */}
 
-          {
-            userLocalData.plan && (
-              <button
-                className="text-black  outline-none rounded-xl w-9/12 mt-3"
-                style={{
-                  fontSize: 16,
-                  fontWeight: "700",
-                  height: "50px",
-                  textDecorationLine: "underline",
-                  flexShrink: 0,
-                }}
-                onClick={() => {
-                  if (userLocalData?.cancelPlanRedemptions === 0) {
-                    setGiftPopup(true);
-                  } else {
-                    setShowConfirmCancelPlanPopup(true);
-                  }
-                }}
-              >
-                Cancel AgentX
-              </button>
-            )
-          }
+          <div className="w-9/12 flex flex-row items-center justify-center">
+            {
+              userLocalData.plan && (
+                <button
+                  className="text-black  outline-none rounded-xl w-fit-content mt-3"
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "700",
+                    height: "50px",
+                    textDecorationLine: "underline",
+                    flexShrink: 0,
+                  }}
+                  onClick={() => {
+                    if (userLocalData?.cancelPlanRedemptions === 0) {
+                      setGiftPopup(true);
+                    } else {
+                      setShowConfirmCancelPlanPopup(true);
+                    }
+                  }}
+                >
+                  Cancel AgentX
+                </button>
+              )
+            }
+          </div>
+
         </div>
       )}
 

@@ -64,6 +64,7 @@ const Page = () => {
             CreateAgent4,
             CreateAgentVoice,
           ]);
+          // setIndex(2)
         }
       } else {
         if (windowSize < 640) {

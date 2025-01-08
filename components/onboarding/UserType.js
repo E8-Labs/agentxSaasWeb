@@ -18,6 +18,9 @@ const UserType = ({ handleContinue, DefaultData }) => {
     const [ShowModal, setShowModal] = useState(false);
     const [shouldContinue, setShouldContinue] = useState(true);
 
+    //variable stores height
+    const [screenHeight, setScreenHeight] = useState(null);
+
     useEffect(() => {
         if (SelectUserType) {
             setShouldContinue(false)
@@ -27,6 +30,8 @@ const UserType = ({ handleContinue, DefaultData }) => {
     }, [SelectUserType])
 
     useEffect(() => {
+        let windowHeight = window.innerHeight;
+        setScreenHeight(windowHeight);
         const localData = localStorage.getItem("registerDetails");
         if (localData) {
             const localDetails = JSON.parse(localData);
@@ -147,7 +152,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
             //className='bg-white sm:rounded-2xl w-full sm:mx-2 sm:w-10/12 h-[100%] sm:h-[90%] py-4 flex flex-col' style={{ scrollbarWidth: "none" }}
             >
 
-                <div className='flex flex-col items-center h-[84svh] sm:h-[82svh]'>
+                <div className={`flex flex-col items-center h-[84svh] ${screenHeight < 840 ? "sm:h-[80svh]" : "sm:h-[80svh]"}`}>
                     {/* header */}
                     <div className='w-full h-[10%]'>
                         <Header />

@@ -435,7 +435,7 @@ const Page = ({ length = 6, onComplete }) => {
           <div className="w-full">
             <div className="flex flex-col w-full items-center gap-4 pb-6">
               <Image
-                src={"/svgIcons/signinAvatar.svg"}
+                src={"/assets/signinAvatar.png"}
                 height={100}
                 width={260}
                 alt="avtr"
