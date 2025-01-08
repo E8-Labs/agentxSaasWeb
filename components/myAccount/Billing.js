@@ -611,7 +611,7 @@ function Billing() {
                             <div
                               className={`w-5 h-5 rounded-full border border-[#7902DF] flex items-center justify-center`} //border-[#2548FD]
                               style={{
-                                borderWidth: selectedCard?.id === item.id || item.isDefault === true ? 3 : 1,
+                                borderWidth: selectedCard?.id === item.id ? 3 : 1,
                               }}
                             ></div>
                             {/* Card Details */}
@@ -1105,21 +1105,55 @@ function Billing() {
                   style={styles.gitTextStyle}
                 >
                   <Image
-                    src={"/assets/gift.png"}
+                    src={"/svgIcons/gift.svg"}
                     height={22}
                     width={22}
                     alt="*"
                   />
                   Enjoy your next calls on us
                 </div>
-                <div className="w-full flex flex-row justify-center mt-8">
-                  <Image
+                <div className="w-full flex flex-row justify-center items-center mt-8">
+
+                  <div style={{ position: "relative" }}>
+                    <Image
+                      src={"/svgIcons/giftIcon.svg"}
+                      height={81}
+                      width={81}
+                      alt="*"
+                      className="-mb-28 ms-4"
+                      style={{
+                        zIndex: 9999,
+                        position: "relative",
+                      }}
+                    />
+                    <div className="text-purple"
+                      style={{
+                        fontSize: 200,
+                        fontWeight: "400",
+                        zIndex: 0,
+                        position: "relative",
+                      }}
+                    >
+                      30
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      fontSize: 40,
+                      fontWeight: "700"
+                    }}
+                  >
+                    Mins
+                  </div>
+
+                  {/* <Image
                     className=""
                     src={"/assets/30.svg"}
                     height={350}
                     width={280}
                     alt="*"
-                  />
+                  /> */}
                 </div>
                 {redeemLoader ? (
                   <div className="h-[50px] w-full flex flex-row items-center justify-center">

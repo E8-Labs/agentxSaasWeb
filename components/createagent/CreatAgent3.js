@@ -441,7 +441,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                 }}
               >
                 <Image
-                  src={"/assets/attachIcon.png"}
+                  src={"/svgIcons/attachIcon.svg"}
                   height={24}
                   width={24}
                   alt="*"
@@ -461,7 +461,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                 }}
               >
                 <Image
-                  src={"/assets/gift.png"}
+                  src={"/svgIcons/gift.svg"}
                   height={24}
                   width={24}
                   alt="*"
@@ -923,7 +923,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                     }}
                   >
                     <Image
-                      src={"/assets/attachIcon.png"}
+                      src={"/svgIcons/attachIcon.svg"}
                       height={24}
                       width={24}
                       alt="*"

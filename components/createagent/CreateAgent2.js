@@ -40,7 +40,7 @@ const CreateAgent2 = ({ handleContinue, handleBack }) => {
                         Your first 30 minutes are on us!
                     </div>
                     <div className='flex flex-row items-center gap-2 text-purple mt-6' style={styles.gitTextStyle}>
-                        <Image src={"/assets/gift.png"} height={22} width={22} alt='*' />
+                        <Image src={"/svgIcons/gift.svg"} height={22} width={22} alt='*' />
                         Enjoy your next calls on us
                     </div>
                     <Image className='' src={"/assets/30.png"} height={350} width={280} alt='*' />
