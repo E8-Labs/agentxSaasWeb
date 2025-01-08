@@ -410,7 +410,7 @@ const Page = ({ length = 6, onComplete }) => {
 
   return (
     <>
-      <Head>
+      {/* <Head>
         <title>MyAgentX</title>
         <meta
           name="description"
@@ -432,7 +432,7 @@ const Page = ({ length = 6, onComplete }) => {
           name="twitter:image"
           content="https://ai.myagentx.com/thumbOrb.png"
         />
-      </Head>
+      </Head> */}
 
       <div className="flex flex-row w-full justify-center h-[100svh]">
         {/* <div className='w-6/12 ms-8 flex flex-row justify-center ' style={backgroundImage}>
