@@ -433,10 +433,12 @@ function NotficationsDrawer({ close }) {
                       let userData = localStorage.getItem("User");
                       if (userData) {
                         const D = JSON.parse(userData);
-                        if (D.campaignee.officeHoursUrl) {
-                          window.open("_blank", D.campaignee.officeHoursUrl);
+                        console.log("Response", D.user.campaignee.officeHoursUrl)
+                        if (D.user.campaignee.officeHoursUrl) {
+                          let campaigneeLink = D.user.campaignee.officeHoursUrl;
+                          window.open(campaigneeLink, "_blank");
                         } else {
-                          window.open("_blank", "https://www.youtube.com/watch?v=PITeLcdfDF8");
+                          window.open("https://www.youtube.com/watch?v=PITeLcdfDF8", "_blank");
                         }
                       }
                     }}
