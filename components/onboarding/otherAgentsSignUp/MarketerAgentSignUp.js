@@ -20,6 +20,7 @@ import {
 } from "@mui/material";
 import SnackMessages from "../services/AuthVerification/SnackMessages";
 import SendVerificationCode from "../services/AuthVerification/AuthService";
+import { getLocalLocation } from "../services/apisServices/ApiService";
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
 const MarketerAgentSignUp = ({
@@ -70,6 +71,12 @@ const MarketerAgentSignUp = ({
   //code for additionals
   const [customerService, setCustomerService] = useState("");
   const [company, setCompany] = useState("");
+  
+  //get location
+  useEffect(() => {
+    let loc = getLocalLocation();
+    setCountryCode(loc);
+  }, [])
 
   // Function to get the user's location and set the country code
   useEffect(() => {
@@ -121,46 +128,6 @@ const MarketerAgentSignUp = ({
     }
   };
 
-  //code to get user location
-
-  const getLocation = () => {
-    console.log("getlocation trigered");
-    const registerationDetails = localStorage.getItem("registerDetails");
-    // let registerationData = null;
-    setLocationLoader(true);
-    if (registerationDetails) {
-      const registerationData = JSON.parse(registerationDetails);
-      console.log("User registeration data is :--", registerationData);
-      setUserData(registerationData);
-    } else {
-      // alert("Add details to continue");
-    }
-    const fetchCountry = async () => {
-      try {
-        // Get user's geolocation
-        navigator.geolocation.getCurrentPosition(async (position) => {
-          const { latitude, longitude } = position.coords;
-
-          // Fetch country code based on lat and long
-          const response = await fetch(
-            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
-          );
-          const data = await response.json();
-
-          // Set the country code based on the geolocation API response
-          setCountryCode(data.countryCode.toLowerCase());
-          setLoading(false);
-        });
-      } catch (error) {
-        console.error("Error fetching location:", error);
-        setLoading(true); // Stop loading if there’s an error
-      } finally {
-        setLocationLoader(false);
-      }
-    };
-
-    fetchCountry();
-  };
 
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
@@ -685,7 +652,6 @@ const MarketerAgentSignUp = ({
                   country={countryCode} // Set the default country
                   value={userPhoneNumber}
                   onChange={handlePhoneNumberChange}
-                  onFocus={getLocation}
                   placeholder={
                     locationLoader
                       ? "Loading location ..."

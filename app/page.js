@@ -19,6 +19,7 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { setCookie } from "@/utilities/cookies";
 import { Constants } from "@/constants/Constants";
+import { getLocalLocation, getLocation } from "@/components/onboarding/services/apisServices/ApiService";
 
 const Page = ({ length = 6, onComplete }) => {
   let width = 3760;
@@ -60,20 +61,97 @@ const Page = ({ length = 6, onComplete }) => {
   }, [params]);
 
   useEffect(() => {
+    console.log("Country code is", countryCode);
+  }, [countryCode])
+
+  useEffect(() => {
     const localData = localStorage.getItem("User");
     if (localData) {
       console.log("user login details are :", localData);
       router.push("/dashboard");
     }
 
-    getLocation();
+    const localLoc = localStorage.getItem("userLocation");
+    if (!localLoc) {
+      getLocation();
+      getLocation2();
+    } else if (localLoc) {
+      // const L = JSON.parse(localLoc);
+      // setCountryCode(L.location);
+      let Data = getLocalLocation();
+      setCountryCode(Data);
+    }
 
-    // const localAgentData = localStorage.getItem("agentDetails");
-    // if (localAgentData) {
-    //   console.log("user agent details are :", localAgentData);
-    //   // router.push("/dashboard");
-    // }
   }, []);
+
+  //get location
+  const getLocation2 = () => {
+    // setLocationLoader(true);
+
+    // Check if geolocation is available in the browser
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+
+          try {
+            console.log("Api Loc Check 1")
+            // Fetch country code based on latitude and longitude
+            const response = await fetch(
+              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+            );
+            console.log("Api Loc Check 2")
+            const data = await response.json();
+            console.log("Api Loc Check 3")
+
+            // Set the country code if the API returns it
+            const locationData = {
+              location: data.countryCode.toLowerCase()
+            }
+            setCountryCode(data.countryCode.toLowerCase())
+            console.log("Api Loc Check 4")
+            if (data && data.countryCode) {
+              localStorage.setItem("userLocation", JSON.stringify(locationData));
+              console.log("Api Loc Check 5")
+            } else {
+              console.error("Unable to fetch country code.");
+            }
+          } catch (error) {
+            console.error("Error fetching geolocation data:", error);
+          } finally {
+          }
+        },
+        (error) => {
+          console.error("Geolocation error:", error.message);
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
+  };
+
+  useEffect(() => {
+    console.log("Check 1111");
+
+    const timer = setTimeout(() => {
+      const loc = localStorage.getItem("userLocation");
+
+      if (loc) {
+        console.log("Check 1 clear");
+        const L = JSON.parse(loc);
+        console.log("Check 2 clear");
+        console.log("Location received from local storage is", L);
+        console.log("Check 3 clear");
+        setCountryCode(L.location);
+        console.log("Check 4 clear");
+      }
+
+      console.log("Stopped to load data");
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, []);
+
 
   //action detects inner width
   useEffect(() => {
@@ -92,46 +170,7 @@ const Page = ({ length = 6, onComplete }) => {
     }
   };
 
-  const getLocation = () => {
-    // setLocationLoader(true);
 
-    // Check if geolocation is available in the browser
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-
-          try {
-            setLoading();
-            // Fetch country code based on latitude and longitude
-            const response = await fetch(
-              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
-            );
-            const data = await response.json();
-
-            // Set the country code if the API returns it
-            if (data && data.countryCode) {
-              setCountryCode(data.countryCode.toLowerCase());
-            } else {
-              console.error("Unable to fetch country code.");
-            }
-          } catch (error) {
-            console.error("Error fetching geolocation data:", error);
-          } finally {
-            setLoading(false);
-            setLocationLoader(false);
-          }
-        },
-        (error) => {
-          console.error("Geolocation error:", error.message);
-          setLocationLoader(false);
-        }
-      );
-    } else {
-      console.error("Geolocation is not supported by this browser.");
-      setLocationLoader(false);
-    }
-  };
 
   //number validation
   const validatePhoneNumber = (phoneNumber) => {
@@ -456,7 +495,6 @@ const Page = ({ length = 6, onComplete }) => {
                     country={countryCode} // Default country
                     value={userPhoneNumber}
                     onChange={handlePhoneNumberChange}
-                    // onFocus={getLocation}
                     placeholder={
                       locationLoader
                         ? "Loading location ..."

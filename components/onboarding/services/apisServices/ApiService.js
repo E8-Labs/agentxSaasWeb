@@ -71,3 +71,67 @@ export const checkPhoneNumber = async (value) => {
     } finally {
     }
 };
+
+//function to get location
+export const getLocation = () => {
+    // setLocationLoader(true);
+
+    // Check if geolocation is available in the browser
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const { latitude, longitude } = position.coords;
+
+                try {
+                    console.log("Api Loc Check 1")
+                    // Fetch country code based on latitude and longitude
+                    const response = await fetch(
+                        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+                    );
+                    console.log("Api Loc Check 2")
+                    const data = await response.json();
+                    console.log("Api Loc Check 3")
+                    
+                    // Set the country code if the API returns it
+                    const locationData = {
+                        location: data.countryCode.toLowerCase()
+                    }
+                    console.log("Api Loc Check 4")
+                    if (data && data.countryCode) {
+                        localStorage.setItem("userLocation", JSON.stringify(locationData));
+                        console.log("Api Loc Check 5")
+                        getLocalLocation();
+                        console.log("Api Loc Check 6")
+                    } else {
+                        console.error("Unable to fetch country code.");
+                    }
+                } catch (error) {
+                    console.error("Error fetching geolocation data:", error);
+                } finally {
+                }
+            },
+            (error) => {
+                console.error("Geolocation error:", error.message);
+            }
+        );
+    } else {
+        console.error("Geolocation is not supported by this browser.");
+    }
+};
+
+export const getLocalLocation = () => {
+    console.log("LCheck 1")
+    const loc = localStorage.getItem("userLocation");
+    console.log("LCheck 2")
+
+    if (loc) {
+        const L = JSON.parse(loc);
+        if (L) {
+            console.log("LCheck 3")
+        }
+        return L?.location
+    }else if(!loc){
+        return "us"
+    }
+
+}

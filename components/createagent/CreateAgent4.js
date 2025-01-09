@@ -59,6 +59,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
   useEffect(() => {
     const localData = localStorage.getItem("claimNumberData");
+
+    let loc = getLocalLocation();
+    setCountryCode(loc);
+
     if (localData) {
       const claimNumberDetails = JSON.parse(localData);
 
@@ -1043,7 +1047,6 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     country={countryCode} // Default country
                     value={officeNumber}
                     onChange={handleOfficeNumberChange}
-                    // onFocus={getLocation}
                     // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
                     placeholder={"Enter Phone Number"}
                     // disabled={loading} // Disable input if still loading
@@ -1091,7 +1094,6 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                   country={countryCode} // Default country
                   value={callBackNumber}
                   onChange={handleCallBackNumberChange}
-                  // onFocus={getLocation}
                   // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
                   placeholder={"Enter Phone Number"}
                   // disabled={loading} // Disable input if still loading

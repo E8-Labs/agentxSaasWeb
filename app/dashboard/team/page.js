@@ -14,7 +14,7 @@ import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
-import { checkPhoneNumber } from "@/components/onboarding/services/apisServices/ApiService";
+import { checkPhoneNumber, getLocalLocation } from "@/components/onboarding/services/apisServices/ApiService";
 
 function Page() {
   const timerRef = useRef(null);
@@ -93,6 +93,8 @@ function Page() {
   ];
 
   useEffect(() => {
+    let loc = getLocalLocation();
+    setCountryCode(loc);
     getMyteam();
   }, []);
 
@@ -652,7 +654,6 @@ function Page() {
                       country="us" // Default country
                       value={phone}
                       onChange={handlePhoneNumberChange}
-                      // onFocus={getLocation}
                       // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
                       placeholder={"Type here"}
                       // disabled={loading}

@@ -20,6 +20,7 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { setCookie } from "@/utilities/cookies";
 import { Constants } from "@/constants/Constants";
+import { getLocalLocation } from "@/components/onboarding/services/apisServices/ApiService";
 
 const Page = ({ length = 6, onComplete }) => {
   let width = 3760;
@@ -60,14 +61,15 @@ const Page = ({ length = 6, onComplete }) => {
     }
   }, [params]);
 
-  useEffect(() => {
+  useEffect(async() => {
     const localData = localStorage.getItem("User");
     if (localData) {
       console.log("user login details are :", localData);
       router.push("/dashboard");
     }
 
-    getLocation();
+    let loc = await getLocalLocation();
+    setCountryCode(loc);
 
     // const localAgentData = localStorage.getItem("agentDetails");
     // if (localAgentData) {
@@ -93,46 +95,6 @@ const Page = ({ length = 6, onComplete }) => {
     }
   };
 
-  const getLocation = () => {
-    setLocationLoader(true);
-
-    // Check if geolocation is available in the browser
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-
-          try {
-            setLoading();
-            // Fetch country code based on latitude and longitude
-            const response = await fetch(
-              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
-            );
-            const data = await response.json();
-
-            // Set the country code if the API returns it
-            if (data && data.countryCode) {
-              setCountryCode(data.countryCode.toLowerCase());
-            } else {
-              console.error("Unable to fetch country code.");
-            }
-          } catch (error) {
-            console.error("Error fetching geolocation data:", error);
-          } finally {
-            setLoading(false);
-            setLocationLoader(false);
-          }
-        },
-        (error) => {
-          console.error("Geolocation error:", error.message);
-          setLocationLoader(false);
-        }
-      );
-    } else {
-      console.error("Geolocation is not supported by this browser.");
-      setLocationLoader(false);
-    }
-  };
 
   //number validation
   const validatePhoneNumber = (phoneNumber) => {
@@ -487,7 +449,6 @@ const Page = ({ length = 6, onComplete }) => {
                       country={countryCode} // Default country
                       value={userPhoneNumber}
                       onChange={handlePhoneNumberChange}
-                      // onFocus={getLocation}
                       placeholder={
                         locationLoader
                           ? "Loading location ..."

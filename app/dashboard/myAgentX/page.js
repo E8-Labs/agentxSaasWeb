@@ -40,6 +40,7 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
+import { getLocalLocation } from "@/components/onboarding/services/apisServices/ApiService";
 
 function Page() {
   const timerRef = useRef();
@@ -175,7 +176,9 @@ function Page() {
   useEffect(() => {
     getUniquesColumn();
     getAvailabePhoneNumbers();
-    getLocation();
+    let loc = getLocalLocation();
+    console.log("Location getting is", loc)
+    setCountryCode(loc);
     //////console.log("Setting scroll offset")
     const handleScroll = () => {
       //console.log("Div scrolled", containerRef.current.scrollTop)
@@ -1323,44 +1326,44 @@ function Page() {
 
   //code to get user location
 
-  const getLocation = () => {
-    //console.log("getlocation trigered")
-    const registerationDetails = localStorage.getItem("registerDetails");
-    // let registerationData = null;
-    setLocationLoader(true);
-    if (registerationDetails) {
-      const registerationData = JSON.parse(registerationDetails);
-      //console.log("User registeration data is :--", registerationData);
-      // setUserData(registerationData);
-    } else {
-      // alert("Add details to continue");
-    }
-    const fetchCountry = async () => {
-      try {
-        // Get user's geolocation
-        navigator.geolocation.getCurrentPosition(async (position) => {
-          const { latitude, longitude } = position.coords;
+  // const getLocation = () => {
+  //   //console.log("getlocation trigered")
+  //   const registerationDetails = localStorage.getItem("registerDetails");
+  //   // let registerationData = null;
+  //   setLocationLoader(true);
+  //   if (registerationDetails) {
+  //     const registerationData = JSON.parse(registerationDetails);
+  //     //console.log("User registeration data is :--", registerationData);
+  //     // setUserData(registerationData);
+  //   } else {
+  //     // alert("Add details to continue");
+  //   }
+  //   const fetchCountry = async () => {
+  //     try {
+  //       // Get user's geolocation
+  //       navigator.geolocation.getCurrentPosition(async (position) => {
+  //         const { latitude, longitude } = position.coords;
 
-          // Fetch country code based on lat and long
-          const response = await fetch(
-            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
-          );
-          const data = await response.json();
+  //         // Fetch country code based on lat and long
+  //         const response = await fetch(
+  //           `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+  //         );
+  //         const data = await response.json();
 
-          // Set the country code based on the geolocation API response
-          setCountryCode(data.countryCode.toLowerCase());
-          // setLoading(false);
-        });
-      } catch (error) {
-        console.error("Error fetching location:", error);
-        setLoading(true); // Stop loading if there’s an error
-      } finally {
-        setLocationLoader(false);
-      }
-    };
+  //         // Set the country code based on the geolocation API response
+  //         setCountryCode(data.countryCode.toLowerCase());
+  //         // setLoading(false);
+  //       });
+  //     } catch (error) {
+  //       console.error("Error fetching location:", error);
+  //       setLoading(true); // Stop loading if there’s an error
+  //     } finally {
+  //       setLocationLoader(false);
+  //     }
+  //   };
 
-    fetchCountry();
-  };
+  //   fetchCountry();
+  // };
 
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
@@ -2265,7 +2268,6 @@ function Page() {
                   country={countryCode} // Set the default country
                   value={phone}
                   onChange={handlePhoneNumberChange}
-                  // onFocus={getLocation}
                   placeholder={
                     locationLoader ? "Loading location ..." : "Enter Number"
                   }
