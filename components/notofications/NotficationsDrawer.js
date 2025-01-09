@@ -536,7 +536,6 @@ function NotficationsDrawer({ close }) {
             backgroundColor: "#00000020",
           },
         }}
-
       >
         <div className="w-full h-full flex flex-col">
           <div className="flex flex-row items-center justify-between p-6">
