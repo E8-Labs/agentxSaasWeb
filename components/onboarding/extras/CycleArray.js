@@ -21,7 +21,7 @@ const AgentBox = () => {
           return nextIndex;
         });
       }, 100); // Short delay for removing the current capsule
-    }, 4000); // Change agent every 4 seconds
+    }, 10000); // Change agent every 4 seconds
 
     return () => clearInterval(interval); // Cleanup interval on unmount
   }, []);

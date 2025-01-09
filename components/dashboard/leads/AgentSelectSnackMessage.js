@@ -68,7 +68,7 @@ export default function AgentSelectSnackMessage({
   return (
     isVisible && (
       <div
-        className=" items-center justify-center  w-[33vw] z-[9999]"
+        className=" items-center justify-center  w-fit-content z-[9999]"
         style={{
           position: "absolute",
           left: "50%",
@@ -88,9 +88,20 @@ export default function AgentSelectSnackMessage({
           {/* Text Section */}
           <div>
             {title && (
-              <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+              <h3
+                className="text-lg font-semibold text-gray-900"
+              >
+                {title}
+              </h3>
             )}
-            <p className="text-sm text-gray-600">{message || DefaultMessage}</p>
+            <p
+              className={`${!title ? "text-lg" : "text-sm"} text-gray-600`}
+              style={{
+                fontWeight: !title ? "700" : "500"
+              }}
+            >
+              {message || DefaultMessage}
+            </p>
           </div>
         </div>
       </div>

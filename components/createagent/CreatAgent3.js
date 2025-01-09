@@ -447,7 +447,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                   alt="*"
                 />
                 <div className="text-purple" style={styles.giftTextStyle}>
-                  Invest in Your Business Growth - Quick Start, Minimal Cost,
+                  Invest In Your Business Growth - Quick Start, Minimal Cost,
                   Maximum Value.
                 </div>
               </div>
@@ -651,7 +651,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                 fontWeight: "600",
                 fontSize: 17,
                 position: "absolute",
-                bottom: "7%",
+                bottom: "2%",
                 right: "11%",
                 // backgroundColor: "red"
               }}
@@ -665,7 +665,7 @@ const CreatAgent3 = ({ handleContinue }) => {
               <div className="w-full flex-col items-center flex">
                 {selectedPlan?.id > 1 ? (
                   <button
-                    className="bg-purple w-11/12 md:w-6/12 rounded-lg text-white h-[50px]"
+                    className="bg-purple w-11/12 md:w-5/12 rounded-lg text-white h-[50px]"
                     style={{
                       fontSize: 16,
                       fontWeight: "600",
@@ -680,7 +680,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                   </button>
                 ) : (
                   <button
-                    className="bg-purple w-11/12 md:w-6/12 rounded-lg text-white h-[50px]"
+                    className="bg-purple w-11/12 md:w-5/12 rounded-lg text-white h-[50px]"
                     style={{
                       fontSize: 16,
                       fontWeight: "600",
@@ -929,7 +929,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                       alt="*"
                     />
                     <div className="text-purple" style={styles.giftTextStyle}>
-                      Invest in Your Business Growth.
+                      Invest In Your Business Growth.
                     </div>
                   </div>
                 </div>
