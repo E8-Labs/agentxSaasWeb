@@ -2573,7 +2573,7 @@ const Userleads = ({
         >
           <LeadDetails
             selectedLead={selectedLeadsDetails?.id}
-            pipelineId={selectedLeadsDetails?.pipeline.id}
+            pipelineId={selectedLeadsDetails?.pipeline?.id}
             showDetailsModal={showDetailsModal}
             setShowDetailsModal={setShowDetailsModal}
             handleDelLead={handleDeleteLead}

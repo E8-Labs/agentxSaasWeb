@@ -280,7 +280,7 @@ function Page() {
         console.log("Response of check number api is", response)
         // setErrorMessage(null)
         if (response.data.status === false) {
-          setErrorMessage("Phone already taken");
+          setErrorMessage("Taken");
         }
       } catch (error) {
         console.error("Error occured in api is", error);

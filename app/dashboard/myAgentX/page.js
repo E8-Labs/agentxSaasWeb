@@ -175,6 +175,7 @@ function Page() {
   useEffect(() => {
     getUniquesColumn();
     getAvailabePhoneNumbers();
+    getLocation();
     //////console.log("Setting scroll offset")
     const handleScroll = () => {
       //console.log("Div scrolled", containerRef.current.scrollTop)
@@ -2264,7 +2265,7 @@ function Page() {
                   country={countryCode} // Set the default country
                   value={phone}
                   onChange={handlePhoneNumberChange}
-                  onFocus={getLocation}
+                  // onFocus={getLocation}
                   placeholder={
                     locationLoader ? "Loading location ..." : "Enter Number"
                   }

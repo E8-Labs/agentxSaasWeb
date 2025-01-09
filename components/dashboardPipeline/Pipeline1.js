@@ -1851,6 +1851,7 @@ const Pipeline1 = () => {
                                     lead.lead.teamsAssigned.length > 0 ? (
                                       <LeadTeamsAssignedList
                                         users={lead?.lead?.teamsAssigned}
+                                        maxVisibleUsers={1}
                                       />
                                     ) : (
                                       <Image

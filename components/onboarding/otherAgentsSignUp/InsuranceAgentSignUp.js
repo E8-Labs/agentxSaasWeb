@@ -67,6 +67,11 @@ const InsuranceAgentSignUp = ({
   const [locationLoader, setLocationLoader] = useState(false);
   const [shouldContinue, setShouldContinue] = useState(true);
 
+  //load useer location
+  useEffect(() => {
+    getLocation();
+  }, [])
+
   // Function to get the user's location and set the country code
   useEffect(() => {
     if (
@@ -680,7 +685,7 @@ const InsuranceAgentSignUp = ({
                   country={countryCode} // Set the default country
                   value={userPhoneNumber}
                   onChange={handlePhoneNumberChange}
-                  onFocus={getLocation}
+                  // onFocus={getLocation}
                   placeholder={
                     locationLoader
                       ? "Loading location ..."

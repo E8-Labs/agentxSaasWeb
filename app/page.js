@@ -66,6 +66,8 @@ const Page = ({ length = 6, onComplete }) => {
       router.push("/dashboard");
     }
 
+    getLocation();
+
     // const localAgentData = localStorage.getItem("agentDetails");
     // if (localAgentData) {
     //   console.log("user agent details are :", localAgentData);
@@ -91,7 +93,7 @@ const Page = ({ length = 6, onComplete }) => {
   };
 
   const getLocation = () => {
-    setLocationLoader(true);
+    // setLocationLoader(true);
 
     // Check if geolocation is available in the browser
     if (navigator.geolocation) {
@@ -454,7 +456,7 @@ const Page = ({ length = 6, onComplete }) => {
                     country={countryCode} // Default country
                     value={userPhoneNumber}
                     onChange={handlePhoneNumberChange}
-                    onFocus={getLocation}
+                    // onFocus={getLocation}
                     placeholder={
                       locationLoader
                         ? "Loading location ..."

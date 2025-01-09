@@ -447,7 +447,7 @@ const AddCalender = ({ handleContinue }) => {
                   <div>
                     <input
                       className="w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1"
-                      placeholder="Calender name"
+                      placeholder="Type here"
                       style={styles.inputStyles}
                       value={calenderTitle}
                       onChange={(e) => {
@@ -469,7 +469,7 @@ const AddCalender = ({ handleContinue }) => {
                   <div>
                     <input
                       className="w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1"
-                      placeholder="Enter api key"
+                      placeholder="Type here"
                       style={styles.inputStyles}
                       value={calenderApiKey}
                       onChange={(e) => {
@@ -491,7 +491,7 @@ const AddCalender = ({ handleContinue }) => {
                   <div>
                     <input
                       className="w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1"
-                      placeholder="Enter event id"
+                      placeholder="Type here"
                       style={styles.inputStyles}
                       value={eventId}
                       onChange={(e) => {

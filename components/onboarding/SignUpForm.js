@@ -67,6 +67,11 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
   //congrats popup for small size screens
   const [congratsPopup, setCongratsPopup] = useState(false);
 
+  //load the user location
+  useEffect(() => {
+    getLocation();
+  }, [])
+
   //focus 1st field automaticallly
   useEffect(() => {
     // Focus the first input field on component load
@@ -725,7 +730,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                   country={countryCode} // Set the default country
                   value={userPhoneNumber}
                   onChange={handlePhoneNumberChange}
-                  onFocus={getLocation}
+                  // onFocus={getLocation}
                   placeholder={
                     locationLoader
                       ? "Loading location ..."

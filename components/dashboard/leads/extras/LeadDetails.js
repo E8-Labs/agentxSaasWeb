@@ -47,6 +47,7 @@ const LeadDetails = ({
   leadStageUpdated,
   leadAssignedTeam
 }) => {
+
   console.log("Pipeline id passed is", pipelineId);
   console.log("Lead details are ", selectedLead);
 
@@ -628,6 +629,7 @@ const LeadDetails = ({
       <Modal
         open={showDetailsModal}
         closeAfterTransition
+        onClose={() => { setShowDetailsModal(false) }}
         BackdropProps={{
           sx: {
             backgroundColor: noBackDrop ? "#00000002" : "#00000020",

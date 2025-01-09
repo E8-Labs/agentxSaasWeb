@@ -82,6 +82,7 @@ const BasicDetails = ({
     }
     // Focus the first input field on component load
     inputsFields.current[0]?.focus();
+    getLocation();
   }, []);
 
   // Function to get the user's location and set the country code
@@ -722,7 +723,7 @@ const BasicDetails = ({
                   country={countryCode} // Set the default country
                   value={userPhoneNumber}
                   onChange={handlePhoneNumberChange}
-                  onFocus={getLocation}
+                  // onFocus={getLocation}
                   placeholder={
                     locationLoader
                       ? "Loading location ..."

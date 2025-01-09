@@ -336,7 +336,7 @@ const CreatAgent3 = ({ handleContinue }) => {
       // p: 2,
       mx: "auto",
       my: "50vh",
-      transform: "translateY(-55%)",
+      transform: "translateY(-50%)",
       borderRadius: 2,
       border: "none",
       outline: "none",
@@ -665,7 +665,7 @@ const CreatAgent3 = ({ handleContinue }) => {
               <div className="w-full flex-col items-center flex">
                 {selectedPlan?.id > 1 ? (
                   <button
-                    className="bg-purple w-11/12 md:w-5/12 rounded-lg text-white h-[50px]"
+                    className="bg-purple w-11/12 md:w-6/12 rounded-lg text-white h-[50px]"
                     style={{
                       fontSize: 16,
                       fontWeight: "600",
@@ -680,7 +680,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                   </button>
                 ) : (
                   <button
-                    className="bg-purple w-11/12 md:w-5/12 rounded-lg text-white h-[50px]"
+                    className="bg-purple w-11/12 md:w-6/12 rounded-lg text-white h-[50px]"
                     style={{
                       fontSize: 16,
                       fontWeight: "600",
@@ -886,14 +886,14 @@ const CreatAgent3 = ({ handleContinue }) => {
         >
           <Box className="lg:w-8/12 sm:w-full flex flex-row justify-center w-full" sx={styles.paymentModal}>
             <div
-              className="flex flex-col items-center justify-start w-[95%] h-[95svh] bg-white"
+              className="flex flex-col items-center justify-start w-[95%] sm:w-7/12 h-[95svh] bg-white"
               style={{
                 overflow: "auto",
                 borderRadius: "13px",
               }}
             >
               <div
-                className="sm:w-7/12 w-full h-[100%] overflow-auto"
+                className="w-full h-[100%] overflow-auto"
                 style={{
                   backgroundColor: "#ffffff",
                   padding: 20,
@@ -1124,7 +1124,7 @@ const CreatAgent3 = ({ handleContinue }) => {
               ) : (
                 <button
                   disabled={!agreeTerms || !togglePlan2}
-                  className="bg-purple text-white w-full rounded-xl"
+                  className="bg-purple text-white sm:w-7/12 w-[90%] rounded-xl"
                   style={{
                     ...styles.headingStyle,
                     height: "50px",
@@ -1133,7 +1133,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                     flexShrink: 0,
                     position: "absolute",
                     bottom: 5,
-                    width: "90%"
+                    // width: "90%"
                   }}
                   onClick={() => {
 

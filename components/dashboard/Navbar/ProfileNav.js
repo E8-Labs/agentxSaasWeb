@@ -233,12 +233,16 @@ const ProfileNav = () => {
       }
 
       let Data = response?.data?.data;
+      // Data.totalSecondsAvailable  = 100
+      
+      console.log("Available seconds are", Data?.totalSecondsAvailable)
 
       if (response) {
-        if (Data?.plan && Data?.plan?.status === "active") {
-          setShowPlansPopup(false);
-        } else {
+        if (Data?.totalSecondsAvailable <= 120 || (Data?.plan == null) ||  (Data?.plan && Data?.plan?.status !== "active")) {
           setShowPlansPopup(true);
+          
+        } else {
+          setShowPlansPopup(false);
         }
       }
     } catch (error) {
@@ -604,7 +608,7 @@ const ProfileNav = () => {
               >
                 <div className="flex justify-center items-center">
                   <Typography className="text-[22px] font-semibold">
-                    You’ll need to select a plan to continue
+                    {`You’ll need to select a plan to continue`}
                   </Typography>
                 </div>
 
@@ -665,6 +669,7 @@ const ProfileNav = () => {
                           width={40}
                           height={40}
                           src={"/assets/giftRibbon.png"}
+                          alt="*"
                         />
                       )}
                       <div
@@ -705,7 +710,8 @@ const ProfileNav = () => {
                               fontWeight: "600",
                             }}
                           >
-                            {item.mints}mins | Approx {item.calls} Calls
+                            {item.mints} mins
+                            {/*  | Approx {item.calls} Calls */}
                           </div>
                           <div className="flex flex-row items-center justify-between">
                             <div
@@ -830,7 +836,7 @@ const ProfileNav = () => {
                     // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                     handleClose={handleClose}
                     togglePlan={""}
-                    // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>
               </div>

@@ -67,6 +67,8 @@ const Page = ({ length = 6, onComplete }) => {
       router.push("/dashboard");
     }
 
+    getLocation();
+
     // const localAgentData = localStorage.getItem("agentDetails");
     // if (localAgentData) {
     //   console.log("user agent details are :", localAgentData);
@@ -485,7 +487,7 @@ const Page = ({ length = 6, onComplete }) => {
                       country={countryCode} // Default country
                       value={userPhoneNumber}
                       onChange={handlePhoneNumberChange}
-                      onFocus={getLocation}
+                      // onFocus={getLocation}
                       placeholder={
                         locationLoader
                           ? "Loading location ..."

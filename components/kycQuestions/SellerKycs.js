@@ -545,7 +545,7 @@ const SellerKycs = ({ handleContinue }) => {
                 position: "absolute",
                 left: "50%",
                 translate: "-50%",
-                left: "17%",
+                left: "14%",
                 top: "20%",
               }}
             >
