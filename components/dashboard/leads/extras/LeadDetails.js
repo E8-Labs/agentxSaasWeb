@@ -30,6 +30,7 @@ import AgentSelectSnackMessage, {
 } from "../AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
 import LeadTeamsAssignedList from "../LeadTeamsAssignedList";
+import SelectStageDropdown from "../StageSelectDropdown";
 
 const LeadDetails = ({
   showDetailsModal,
@@ -40,6 +41,7 @@ const LeadDetails = ({
   hideDelete,
   isPipeline = false,
   noBackDrop = false,
+  leadStageUpdated,
 }) => {
   console.log("Pipeline id passed is", pipelineId);
   console.log("Lead details are ", selectedLead);
@@ -154,7 +156,7 @@ const LeadDetails = ({
   //function to update stage
   const updateLeadStage = async (stage) => {
     try {
-      console.log("I am trigered");
+      console.log("I am trigered", selectedLead);
       let AuthToken = null;
 
       const localDetails = localStorage.getItem("User");
@@ -185,6 +187,7 @@ const LeadDetails = ({
         if (response.data.status === true) {
           setShowSuccessSnack(response.data.message);
           setShowSuccessSnack2(true);
+          leadStageUpdated(stage);
         } else if (response.data.status === false) {
           setShowErrorSnack(response.data.message);
           setShowErrorSnack2(true);
@@ -524,8 +527,8 @@ const LeadDetails = ({
 
   const handleDeleteLead = async () => {
     try {
-      handleDelLead(selectedLeadsDetails);
-      // return
+      // handleDelLead(selectedLeadsDetails);
+      // return;
       setDelLeadLoader(true);
 
       let AuthToken = null;
@@ -1107,7 +1110,7 @@ const LeadDetails = ({
                           }}
                         ></div>
                         {/* {selectedLeadsDetails?.stage?.stageTitle || "-"} */}
-                        <FormControl size="fit-content">
+                        {/* <FormControl size="fit-content">
                           <Select
                             value={selectedStage}
                             onChange={handleStageChange}
@@ -1186,7 +1189,14 @@ const LeadDetails = ({
                               </MenuItem>
                             )}
                           </Select>
-                        </FormControl>
+                        </FormControl> */}
+
+                        <SelectStageDropdown
+                          selectedStage={selectedStage}
+                          handleStageChange={handleStageChange}
+                          stagesList={stagesList}
+                          updateLeadStage={updateLeadStage}
+                        />
                       </div>
                     </div>
 
