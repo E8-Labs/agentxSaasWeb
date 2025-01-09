@@ -669,7 +669,7 @@ function Billing() {
                           {/* Card Logo */}
                           <div>
                             <Image
-                              src={getCardImage(item)}
+                              src={getCardImage(item) || "/svgIcons/Visa.svg"}
                               alt="Card Logo"
                               width={50}
                               height={50}
@@ -1169,13 +1169,6 @@ function Billing() {
                     Mins
                   </div>
 
-                  {/* <Image
-                    className=""
-                    src={"/assets/30.svg"}
-                    height={350}
-                    width={280}
-                    alt="*"
-                  /> */}
                 </div>
                 {redeemLoader ? (
                   <div className="h-[50px] w-full flex flex-row items-center justify-center">
@@ -1311,7 +1304,7 @@ function Billing() {
 
       {/* del pln last step */}
       <Modal
-        open={showConfirmCancelPlanPopup2} //addPaymentPopUp
+        open={addPaymentPopUp} //addPaymentPopUp
         // open={true}
         closeAfterTransition
         BackdropProps={{
@@ -1336,7 +1329,15 @@ function Billing() {
                 // height: "394px"
               }}
             >
-              <div className="flex flex-row justify-end">
+              <div className="flex flex-row justify-between items-center">
+                <div
+                style={{
+                  fontSize: 16.8,
+                  fontWeight: "500"
+                }}
+                >
+                  Cancel Plan
+                </div>
                 <button onClick={() => setShowConfirmCancelPlanPopup2(false)}>
                   <Image
                     src={"/assets/crossIcon.png"}
@@ -1347,11 +1348,21 @@ function Billing() {
                 </button>
               </div>
 
+              <div className="flex flex-row items-center justify-center">
+                <Image
+                  src={"/svgIcons/warning2.svg"}
+                  height={49}
+                  width={49}
+                  alt="*"
+                />
+              </div>
+
               <div
                 style={{
                   fontWeight: "600",
                   fontSize: 22,
                   textAlign: "center",
+                  marginTop: 10
                 }}
               >
                 AgentX Successfully Canceled

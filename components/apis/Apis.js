@@ -93,6 +93,7 @@ const Apis = {
   getTeam: `${BasePath}api/team/getTeamMembers`,
   inviteTeamMember: `${BasePath}api/team/inviteTeamMember`,
   updateProfileApi: `${BasePath}api/user/updateProfile`,
+  AssignLeadToTeam: `${BasePath}api/team/assignLeadToTeam`
 };
 
 export default Apis;

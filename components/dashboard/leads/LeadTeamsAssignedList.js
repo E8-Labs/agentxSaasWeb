@@ -16,9 +16,9 @@ const UserAssignedTeamView = ({ user }) => {
 
 //   export default UserView;
 
-const LeadTeamsAssignedList = ({ users }) => {
+const LeadTeamsAssignedList = ({ users, maxVisibleUsers = 2 }) => {
   // Calculate the overflow count
-  const maxVisibleUsers = 2;
+  // const maxVisibleUsers = 2;
   const overflowCount = users.length - maxVisibleUsers;
 
   return (

@@ -14,6 +14,7 @@ import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
+import { checkPhoneNumber } from "@/components/onboarding/services/apisServices/ApiService";
 
 function Page() {
   const timerRef = useRef(null);
@@ -44,6 +45,7 @@ function Page() {
 
   //variables for phone number err messages and checking
   const [errorMessage, setErrorMessage] = useState(null);
+  const [checkPhoneLoader, setCheckPhoneLoader] = useState(null);
   const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
   const [countryCode, setCountryCode] = useState(""); // Default country
 
@@ -247,17 +249,18 @@ function Page() {
   //phone input change
   const handlePhoneNumberChange = (phone) => {
     setPhone(phone);
+    setErrorMessage(null);
     validatePhoneNumber(phone);
     setCheckPhoneResponse(null);
 
     if (!phone) {
-      setErrorMessage("");
+      setErrorMessage(null);
       setCheckPhoneResponse(null);
     }
   };
 
   //number validation
-  const validatePhoneNumber = (phoneNumber) => {
+  const validatePhoneNumber = async (phoneNumber) => {
     // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
     // parsePhoneNumberFromString(`+${phone}`, countryCode.toUpperCase())
     const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
@@ -269,6 +272,21 @@ function Page() {
 
       if (timerRef.current) {
         clearTimeout(timerRef.current);
+      }
+
+      try {
+        setCheckPhoneLoader("Checking...");
+        let response = await checkPhoneNumber(phoneNumber);
+        console.log("Response of check number api is", response)
+        // setErrorMessage(null)
+        if (response.data.status === false) {
+          setErrorMessage("Phone already taken");
+        }
+      } catch (error) {
+        console.error("Error occured in api is", error);
+        setCheckPhoneLoader(null);
+      } finally {
+        setCheckPhoneLoader(null);
       }
 
       // setCheckPhoneResponse(null);
@@ -318,7 +336,7 @@ function Page() {
             <CircularProgress size={40} />
           </div>
         ) : (
-          <div className="w-11/12 flex flex-col items-center">
+          <div className="w-11/12 flex flex-col items-start">
             <div className="w-full flex flex-row items-center justify-end">
               <button
                 className="rounded-lg text-white bg-purple mt-8"
@@ -666,7 +684,7 @@ function Page() {
                         overflowY: "auto",
                       }}
                       countryCodeEditable={true}
-                      // defaultMask={locationLoader ? "Loading..." : undefined}
+                    // defaultMask={locationLoader ? "Loading..." : undefined}
                     />
                   </div>
                 </div>
@@ -677,10 +695,20 @@ function Page() {
                 <div>
                   {errorMessage && (
                     <div
-                      className="text-end"
-                      style={{ ...styles.errmsg, color: "red" }}
+                      className={`text-end text-red`}
+                      style={{ ...styles.errmsg, }}
                     >
                       {errorMessage}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  {checkPhoneLoader && (
+                    <div
+                      className={`text-end text-red`}
+                      style={{ ...styles.errmsg, }}
+                    >
+                      {checkPhoneLoader}
                     </div>
                   )}
                 </div>
@@ -695,7 +723,7 @@ function Page() {
                   style={{
                     marginTop: 20,
                     backgroundColor:
-                      !name || !email || !phone ? "#00000020" : "",
+                      !name || !email || !phone || errorMessage || emailCheckResponse.status === true ? "#00000020" : "",
                   }}
                   className="w-full flex bg-purple p-3 rounded-lg items-center justify-center"
                   onClick={() => {
@@ -706,13 +734,13 @@ function Page() {
                     };
                     inviteTeamMember(data);
                   }}
-                  disabled={!name || !email || !phone}
+                  disabled={!name || !email || !phone || errorMessage || emailCheckResponse.status === true}
                 >
                   <div
                     style={{
                       fontSize: 16,
                       fontWeight: "500",
-                      color: !name || !email || !phone ? "#000000" : "#ffffff",
+                      color: !name || !email || !phone || errorMessage || emailCheckResponse.status === true ? "#000000" : "#ffffff",
                     }}
                   >
                     Send Invite

@@ -416,28 +416,41 @@ function NotficationsDrawer({ close }) {
 
         <div className={` ${item.type === NotificationTypes.NoCallsIn3Days ? "w-10/12" : "w-7/12"}`}>
           <div className="flex flex-col gap-1 items-start">
-            <div className="flex flex-row items-center gap-2">
 
-              <div className=" flex" style={{ fontSize: 16, fontWeight: "600" }}>
+            <div className="flex flex-col w-full gap-1">
+              <div className="flex flex-wrap items-center" style={{ fontSize: 16, fontWeight: "600" }}>
                 {item.title}
-              </div>
-              {
-                item.type === NotificationTypes.NoCallsIn3Days && (
-                  <button onClick={() => {
-                    window.open(
-                      "https://www.youtube.com/watch?v=Un9BDFqlB94",
-                      "_blank"
-                    )
-                  }}>
-                    <div style={{ fontSize: 15, fontWeight: "500", color: "#7902DF", textDecorationLine: 'underline' }}>
-                      Need help?
-                    </div>
+                {item.type === NotificationTypes.NoCallsIn3Days && (
+                  <button
+                    style={{
+                      fontSize: 15,
+                      fontWeight: "500",
+                      color: "#7902DF",
+                      textDecorationLine: "underline",
+                      marginLeft: "8px", // Add some spacing between the title and button
+                    }}
+                    onClick={() => {
+                      let userData = localStorage.getItem("User");
+                      if (userData) {
+                        const D = JSON.parse(userData);
+                        if (D.campaignee.officeHoursUrl) {
+                          window.open("_blank", D.campaignee.officeHoursUrl);
+                        } else {
+                          window.open("_blank", "https://www.youtube.com/watch?v=PITeLcdfDF8");
+                        }
+                      }
+                    }}
+                  >
+                    Need help?
                   </button>
-                )
-
-              }
-
+                )}
+              </div>
+              <div style={{ fontSize: 12, color: "#666" }}>
+                {item.date} {/* Optional: Adjust how you render the date */}
+              </div>
             </div>
+
+
             {
               item.body && (
                 <div className=" flex flex col gap-2" style={{ fontSize: 15, fontWeight: "500" }}>

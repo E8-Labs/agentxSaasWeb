@@ -31,6 +31,9 @@ import AgentSelectSnackMessage, {
 import { GetFormattedDateString } from "@/utilities/utility";
 import LeadTeamsAssignedList from "../LeadTeamsAssignedList";
 import SelectStageDropdown from "../StageSelectDropdown";
+import { AssignTeamMember } from "@/components/onboarding/services/apisServices/ApiService";
+import CircularLoader from "@/utilities/CircularLoader";
+
 
 const LeadDetails = ({
   showDetailsModal,
@@ -42,6 +45,7 @@ const LeadDetails = ({
   isPipeline = false,
   noBackDrop = false,
   leadStageUpdated,
+  leadAssignedTeam
 }) => {
   console.log("Pipeline id passed is", pipelineId);
   console.log("Lead details are ", selectedLead);
@@ -53,6 +57,7 @@ const LeadDetails = ({
   const [selectedLeadsDetails, setSelectedLeadsDetails] = useState(null);
   const [leadColumns, setLeadColumns] = useState([]);
 
+  const [globalLoader, setGlobalLoader] = useState(false);
   //code for emailPopup
   const [showAllEmails, setShowAllEmails] = useState(false);
 
@@ -103,12 +108,16 @@ const LeadDetails = ({
   //variable for showing modal
   const [extraTagsModal, setExtraTagsModal] = useState(false);
 
+  //variable for gtteam loader
+  const [getTeamLoader, setGetTeamLoader] = useState(false);
+
   useEffect(() => {
     getLeadDetails(selectedLead);
     if (pipelineId) {
       console.log("Get stages api called", pipelineId);
       getStagesList(selectedLead);
     }
+    getMyteam();
   }, []);
 
   //code for getting teammebers
@@ -145,6 +154,30 @@ const LeadDetails = ({
       console.log("error in get team api is", e);
     }
   };
+
+  //function to assign lead to the team
+  const handleAssignLeadToTeammember = async (item) => {
+    try {
+      console.log("Check 1 clear", item);
+      setGlobalLoader(true);
+      let response = await AssignTeamMember(selectedLeadsDetails.id, item.id);
+      if (response.data.status === true) {
+        setSelectedLeadsDetails((prevData) => {
+          return {
+            ...prevData,
+            teamsAssigned: [...prevData.teamsAssigned, item],
+          };
+        });
+        leadAssignedTeam(item, selectedLeadsDetails)
+      }
+      console.log("Response of api is", response);
+    } catch (error) {
+      console.error("Error occured is", error);
+    } finally {
+      setGlobalLoader(false);
+      handleClosePopup();
+    }
+  }
 
   //function to handle stages dropdown selection
   const handleStageChange = (event) => {
@@ -738,11 +771,10 @@ const LeadDetails = ({
                                         }}
                                       >
                                         {selectedLeadsDetails?.emails?.length >
-                                        1
-                                          ? `+${
-                                              selectedLeadsDetails?.emails
-                                                ?.length - 1
-                                            }`
+                                          1
+                                          ? `+${selectedLeadsDetails?.emails
+                                            ?.length - 1
+                                          }`
                                           : ""}
                                       </button>
                                     </div>
@@ -786,9 +818,8 @@ const LeadDetails = ({
                                   }}
                                 >
                                   {selectedLeadsDetails?.emails?.length > 1
-                                    ? `+${
-                                        selectedLeadsDetails?.emails?.length - 1
-                                      }`
+                                    ? `+${selectedLeadsDetails?.emails?.length - 1
+                                    }`
                                     : ""}
                                 </button>
                               </div>
@@ -929,7 +960,7 @@ const LeadDetails = ({
                                         {tag}
                                       </div>
                                       {DelTagLoader &&
-                                      tag.includes(DelTagLoader) ? (
+                                        tag.includes(DelTagLoader) ? (
                                         <div>
                                           <CircularProgress size={15} />
                                         </div>
@@ -1002,7 +1033,7 @@ const LeadDetails = ({
                       {selectedLeadsDetails?.tags.length > 0 ? (
                         <div
                           className="text-end flex flex-row items-center gap-2"
-                          // style={styles.paragraph}
+                        // style={styles.paragraph}
                         >
                           {
                             // selectedLeadsDetails?.tags?.map.slice(0, 1)
@@ -1021,7 +1052,7 @@ const LeadDetails = ({
                                         {tag}
                                       </div>
                                       {DelTagLoader &&
-                                      tag.includes(DelTagLoader) ? (
+                                        tag.includes(DelTagLoader) ? (
                                         <div>
                                           <CircularProgress size={15} />
                                         </div>
@@ -1251,19 +1282,37 @@ const LeadDetails = ({
                         PaperProps={{
                           elevation: 0, // This will remove the shadow
                           style: {
-                            boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
                             borderRadius: "10px",
                             width: "120px",
                           },
                         }}
                       >
-                        <div
-                          className="p-2 flex flex-col gap-2"
-                          style={{ fontWeight: "500", fontSize: 15 }}
-                        >
-                          <button>Teammember</button>
-                          {/* <div className="text-red">Delete</div> */}
-                        </div>
+                        {
+                          myTeam.length > 0 ? (
+                            <div>
+                              {
+                                myTeam.map((item, index) => {
+                                  return (
+                                    <div
+                                      key={index}
+                                      className="p-2 flex flex-col gap-2"
+                                      style={{ fontWeight: "500", fontSize: 15 }}
+                                    >
+                                      <button
+                                        onClick={() => { handleAssignLeadToTeammember(item) }}
+                                      >
+                                        {item.name}
+                                      </button>
+                                    </div>
+                                  )
+                                })
+                              }
+                            </div>
+                          ) : (
+                            "No Team"
+                          )
+                        }
                       </Popover>
                     </div>
 
@@ -1289,13 +1338,13 @@ const LeadDetails = ({
                           {/* {selectedLeadsDetails?.phone} */}
                           {selectedLeadsDetails?.booking
                             ? moment(selectedLeadsDetails.booking.date).format(
-                                "MM/DD/YYYY"
-                              ) +
-                              " - " +
-                              moment(
-                                selectedLeadsDetails.booking.time,
-                                "HH:mm"
-                              ).format("HH:mm")
+                              "MM/DD/YYYY"
+                            ) +
+                            " - " +
+                            moment(
+                              selectedLeadsDetails.booking.time,
+                              "HH:mm"
+                            ).format("HH:mm")
                             : "-"}
                         </div>
                       </div>
@@ -1732,103 +1781,103 @@ const LeadDetails = ({
                                           {isExpandedActivity.includes(
                                             item.id
                                           ) && (
-                                            <div
-                                              className="mt-6"
-                                              style={{
-                                                border: "1px solid #00000020",
-                                                borderRadius: "10px",
-                                                padding: 10,
-                                                paddingInline: 15,
-                                              }}
-                                            >
                                               <div
-                                                className="mt-4"
+                                                className="mt-6"
                                                 style={{
-                                                  fontWeight: "500",
-                                                  fontSize: 12,
-                                                  color: "#00000070",
+                                                  border: "1px solid #00000020",
+                                                  borderRadius: "10px",
+                                                  padding: 10,
+                                                  paddingInline: 15,
                                                 }}
                                               >
-                                                Transcript
-                                              </div>
-                                              <div className="flex flex-row items-center justify-between mt-4">
                                                 <div
+                                                  className="mt-4"
                                                   style={{
                                                     fontWeight: "500",
-                                                    fontSize: 15,
+                                                    fontSize: 12,
+                                                    color: "#00000070",
                                                   }}
                                                 >
-                                                  {moment(
-                                                    item?.duration * 1000
-                                                  ).format("mm:ss")}{" "}
+                                                  Transcript
                                                 </div>
-                                                <button
-                                                  onClick={() => {
-                                                    if (item?.recordingUrl) {
-                                                      setShowAudioPlay(
-                                                        item?.recordingUrl
-                                                      );
-                                                    } else {
-                                                      setShowNoAudioPlay(true);
-                                                    }
-                                                    // window.open(item.recordingUrl, "_blank")
-                                                  }}
-                                                >
-                                                  <Image
-                                                    src={"/assets/play.png"}
-                                                    height={35}
-                                                    width={35}
-                                                    alt="*"
-                                                  />
-                                                </button>
-                                              </div>
-                                              {item.transcript ? (
-                                                <div className="w-full">
+                                                <div className="flex flex-row items-center justify-between mt-4">
                                                   <div
-                                                    className="mt-4"
                                                     style={{
-                                                      fontWeight: "600",
+                                                      fontWeight: "500",
                                                       fontSize: 15,
                                                     }}
                                                   >
-                                                    {/* {item.transcript} */}
-                                                    {isExpanded.includes(
-                                                      item.id
-                                                    )
-                                                      ? `${item.transcript}`
-                                                      : `${initialText}...`}
+                                                    {moment(
+                                                      item?.duration * 1000
+                                                    ).format("mm:ss")}{" "}
                                                   </div>
                                                   <button
+                                                    onClick={() => {
+                                                      if (item?.recordingUrl) {
+                                                        setShowAudioPlay(
+                                                          item?.recordingUrl
+                                                        );
+                                                      } else {
+                                                        setShowNoAudioPlay(true);
+                                                      }
+                                                      // window.open(item.recordingUrl, "_blank")
+                                                    }}
+                                                  >
+                                                    <Image
+                                                      src={"/assets/play.png"}
+                                                      height={35}
+                                                      width={35}
+                                                      alt="*"
+                                                    />
+                                                  </button>
+                                                </div>
+                                                {item.transcript ? (
+                                                  <div className="w-full">
+                                                    <div
+                                                      className="mt-4"
+                                                      style={{
+                                                        fontWeight: "600",
+                                                        fontSize: 15,
+                                                      }}
+                                                    >
+                                                      {/* {item.transcript} */}
+                                                      {isExpanded.includes(
+                                                        item.id
+                                                      )
+                                                        ? `${item.transcript}`
+                                                        : `${initialText}...`}
+                                                    </div>
+                                                    <button
+                                                      style={{
+                                                        fontWeight: "600",
+                                                        fontSize: 15,
+                                                      }}
+                                                      onClick={() => {
+                                                        handleReadMoreToggle(
+                                                          item
+                                                        );
+                                                      }}
+                                                      className="mt-2 text-black underline"
+                                                    >
+                                                      {isExpanded.includes(
+                                                        item.id
+                                                      )
+                                                        ? "Read Less"
+                                                        : "Read more"}
+                                                    </button>
+                                                  </div>
+                                                ) : (
+                                                  <div
                                                     style={{
                                                       fontWeight: "600",
                                                       fontSize: 15,
                                                     }}
-                                                    onClick={() => {
-                                                      handleReadMoreToggle(
-                                                        item
-                                                      );
-                                                    }}
-                                                    className="mt-2 text-black underline"
                                                   >
-                                                    {isExpanded.includes(
-                                                      item.id
-                                                    )
-                                                      ? "Read Less"
-                                                      : "Read more"}
-                                                  </button>
-                                                </div>
-                                              ) : (
-                                                <div
-                                                  style={{
-                                                    fontWeight: "600",
-                                                    fontSize: 15,
-                                                  }}
-                                                >
-                                                  No transcript
-                                                </div>
-                                              )}
-                                            </div>
-                                          )}
+                                                    No transcript
+                                                  </div>
+                                                )}
+                                              </div>
+                                            )}
                                         </div>
                                       </div>
                                     </div>
@@ -2014,6 +2063,12 @@ const LeadDetails = ({
           </div>
         </Box>
       </Modal>
+
+      {/* Global Loader */}
+      <CircularLoader
+        globalLoader={globalLoader}
+      />
+
     </div>
   );
 };
