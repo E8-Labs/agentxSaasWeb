@@ -619,18 +619,18 @@ function Billing() {
                           className={`flex items-start justify-between w-full p-4 border rounded-lg `}
                           style={{
                             backgroundColor:
-                              selectedCard?.id === item.id
+                              item.isDefault || selectedCard?.id === item.id
                                 ? "#4011FA05"
                                 : "transparent",
                             borderColor:
-                              selectedCard?.id === item.id ? "#7902DF" : "#15151510",
+                              item.isDefault || selectedCard?.id === item.id ? "#7902DF" : "#15151510",
                           }}
                         >
                           <div className="flex items-center gap-4">
                             <div
                               className={`w-5 h-5 rounded-full border border-[#7902DF] flex items-center justify-center`} //border-[#2548FD]
                               style={{
-                                borderWidth: selectedCard?.id === item.id ? 3 : 1,
+                                borderWidth: item.isDefault || selectedCard?.id === item.id ? 3 : 1,
                               }}
                             ></div>
                             {/* Card Details */}
@@ -1331,10 +1331,10 @@ function Billing() {
             >
               <div className="flex flex-row justify-between items-center">
                 <div
-                style={{
-                  fontSize: 16.8,
-                  fontWeight: "500"
-                }}
+                  style={{
+                    fontSize: 16.8,
+                    fontWeight: "500"
+                  }}
                 >
                   Cancel Plan
                 </div>

@@ -1035,7 +1035,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               {showOfficeNumberInput ? (
                 <div className="w-full">
                   <div className="mt-4" style={styles.dropdownMenu}>
-                    Enter Number
+                    Enter your cell or office number
                   </div>
 
                   <PhoneInput
