@@ -851,15 +851,59 @@ const RearrangeStages = ({
                           </Popover>
                         </div>
 
-                        <button
-                          className="flex flex-row items-center w-full justify-between rounded-lg h-[50px] px-2 mt-1 outline-none"
-                          style={{ border: "1px solid #00000020" }}
-                        >
-                          <div>Select team member</div>
-                          <div>
-                            <CaretDown size={20} weight="bold" />
-                          </div>
-                        </button>
+                        <div className="mt-2">
+                          <FormControl fullWidth>
+                            <Select
+                              id="demo-simple-select"
+                              value={assignToMember || ""} // Default to empty string when no value is selected
+                              onChange={handleAssignTeamMember}
+                              displayEmpty // Enables placeholder
+                              renderValue={(selected) => {
+                                if (!selected) {
+                                  return (
+                                    <div style={{ color: "#aaa" }}>Select team member</div>
+                                  ); // Placeholder style
+                                }
+                                return selected;
+                              }}
+                              sx={{
+                                border: "1px solid #00000020", // Default border
+                                "&:hover": {
+                                  border: "1px solid #00000020", // Same border on hover
+                                },
+                                "& .MuiOutlinedInput-notchedOutline": {
+                                  border: "none", // Remove the default outline
+                                },
+                                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                  border: "none", // Remove outline on focus
+                                },
+                                "&.MuiSelect-select": {
+                                  py: 0, // Optional padding adjustments
+                                },
+                              }}
+                              MenuProps={{
+                                PaperProps: {
+                                  style: {
+                                    maxHeight: "30vh", // Limit dropdown height
+                                    overflow: "auto", // Enable scrolling in dropdown
+                                    scrollbarWidth: "none",
+                                  },
+                                },
+                              }}
+                            >
+                              {myTeamList.map((item, index) => {
+                                return (
+                                  <MenuItem
+                                    key={index}
+                                    value={item.name}
+                                  >
+                                    {item.name}
+                                  </MenuItem>
+                                );
+                              })}
+                            </Select>
+                          </FormControl>
+                        </div>
 
                         <p style={{ fontWeight: "500", fontSize: 15 }}>Tags</p>
 

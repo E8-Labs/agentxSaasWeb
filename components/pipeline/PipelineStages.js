@@ -1662,60 +1662,21 @@ const PipelineStages = ({
                           <p style={{ fontWeight: "600", fontSize: 15 }}>
                             Assign to
                           </p>
-
-                          <div className="mt-2">
-                            <FormControl fullWidth>
-                              <Select
-                                id="demo-simple-select"
-                                value={assignToMember || ""} // Default to empty string when no value is selected
-                                onChange={handleAssignTeamMember}
-                                displayEmpty // Enables placeholder
-                                renderValue={(selected) => {
-                                  if (!selected) {
-                                    return (
-                                      <div style={{ color: "#aaa" }}>Select team member</div>
-                                    ); // Placeholder style
-                                  }
-                                  return selected;
-                                }}
-                                sx={{
-                                  border: "1px solid #00000020", // Default border
-                                  "&:hover": {
-                                    border: "1px solid #00000020", // Same border on hover
-                                  },
-                                  "& .MuiOutlinedInput-notchedOutline": {
-                                    border: "none", // Remove the default outline
-                                  },
-                                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                    border: "none", // Remove outline on focus
-                                  },
-                                  "&.MuiSelect-select": {
-                                    py: 0, // Optional padding adjustments
-                                  },
-                                }}
-                                MenuProps={{
-                                  PaperProps: {
-                                    style: {
-                                      maxHeight: "30vh", // Limit dropdown height
-                                      overflow: "auto", // Enable scrolling in dropdown
-                                      scrollbarWidth: "none",
-                                    },
-                                  },
-                                }}
-                              >
-                                {myTeamList.map((item, index) => {
-                                  return (
-                                    <MenuItem
-                                      key={index}
-                                      value={item.name}
-                                    >
-                                      {item.name}
-                                    </MenuItem>
-                                  );
-                                })}
-                              </Select>
-                            </FormControl>
-                          </div>
+                          {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
+                          <Image
+                            src="/svgIcons/infoIcon.svg"
+                            height={20}
+                            width={20}
+                            alt="*"
+                            aria-owns={
+                              openAction ? "mouse-over-popover2" : undefined
+                            }
+                            aria-haspopup="true"
+                            onMouseEnter={(event) => {
+                              setActionInfoEl2(event.currentTarget);
+                            }}
+                            onMouseLeave={handlePopoverClose}
+                          />
 
                           <Popover
                             id="mouse-over-popover2"
@@ -1759,51 +1720,61 @@ const PipelineStages = ({
                           </Popover>
                         </div>
 
-                        {/* <Popover
-                                                        id="mouse-over-popover"
-                                                        sx={{
-                                                            pointerEvents: 'none'
-                                                        }}
-                                                        open={open}
-                                                        anchorEl={actionInfoEl}
-                                                        anchorOrigin={{
-                                                            vertical: 'top',
-                                                            horizontal: 'center',
-                                                        }}
-                                                        transformOrigin={{
-                                                            vertical: 'bottom',
-                                                            horizontal: 'left',
-                                                        }}
-                                                        PaperProps={{
-                                                            elevation: 1, // This will remove the shadow
-                                                            style: {
-                                                                boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
-                                                            },
-                                                        }}
-                                                        onClose={handlePopoverClose}
-                                                        disableRestoreFocus
-                                                    >
-                                                        <div className="p-2">
-                                                            <div className="flex flex-row items-center gap-1">
-                                                                <Image src={"/svgIcons/infoIcon.svg"} height={24} width={24} alt="*" />
-                                                                <p style={{ fontWeight: "500", fontSize: 12 }}>
-                                                                    Tip: Tell your AI when to move the leads to this stage.
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    </Popover> */}
+                        <div className="mt-2">
+                          <FormControl fullWidth>
+                            <Select
+                              id="demo-simple-select"
+                              value={assignToMember || ""} // Default to empty string when no value is selected
+                              onChange={handleAssignTeamMember}
+                              displayEmpty // Enables placeholder
+                              renderValue={(selected) => {
+                                if (!selected) {
+                                  return (
+                                    <div style={{ color: "#aaa" }}>Select team member</div>
+                                  ); // Placeholder style
+                                }
+                                return selected;
+                              }}
+                              sx={{
+                                border: "1px solid #00000020", // Default border
+                                "&:hover": {
+                                  border: "1px solid #00000020", // Same border on hover
+                                },
+                                "& .MuiOutlinedInput-notchedOutline": {
+                                  border: "none", // Remove the default outline
+                                },
+                                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                  border: "none", // Remove outline on focus
+                                },
+                                "&.MuiSelect-select": {
+                                  py: 0, // Optional padding adjustments
+                                },
+                              }}
+                              MenuProps={{
+                                PaperProps: {
+                                  style: {
+                                    maxHeight: "30vh", // Limit dropdown height
+                                    overflow: "auto", // Enable scrolling in dropdown
+                                    scrollbarWidth: "none",
+                                  },
+                                },
+                              }}
+                            >
+                              {myTeamList.map((item, index) => {
+                                return (
+                                  <MenuItem
+                                    key={index}
+                                    value={item.name}
+                                  >
+                                    {item.name}
+                                  </MenuItem>
+                                );
+                              })}
+                            </Select>
+                          </FormControl>
+                        </div>
 
-                        <button
-                          className="flex flex-row items-center w-full justify-between rounded-lg h-[50px] px-2 mt-1 outline-none"
-                          style={{ border: "1px solid #00000020" }}
-                        >
-                          <div>Select team member</div>
-                          <div>
-                            <CaretDown size={20} weight="bold" />
-                          </div>
-                        </button>
-
-                        <p style={{ fontWeight: "500", fontSize: 15 }}>Tags</p>
+                        <p className="mt-2" style={{ fontWeight: "500", fontSize: 15 }}>Tags</p>
 
                         <div className="mt-4">
                           <TagsInput setTags={setTagsValue} />
