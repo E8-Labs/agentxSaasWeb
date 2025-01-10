@@ -68,7 +68,7 @@ export default function AgentSelectSnackMessage({
   return (
     isVisible && (
       <div
-        className=" items-center justify-center  w-auto z-[9999]"
+        className="flex items-center justify-center  w-full z-[9999]"
         style={{
           position: "absolute",
           left: "50%",
@@ -78,7 +78,7 @@ export default function AgentSelectSnackMessage({
         }}
       >
 
-        <div className="flex items-center space-x-4 p-2 bg-white  rounded-md shadow-md">
+        <div className="flex items-center space-x-4 p-2 bg-white  rounded-md shadow-md" style={{ width: "fit-content" }}>
           {/* Icon Section */}
           <div className="flex-shrink-0">
             <div className="w-10 h-10 flex items-center justify-center bg-red-100 rounded-full">
@@ -87,7 +87,7 @@ export default function AgentSelectSnackMessage({
           </div>
 
           {/* Text Section */}
-          <div>
+          <div style={{ width: "fit-content" }}>
             {/* {title && ( */}
             <h3
               className="text-lg font-semibold text-gray-900"

@@ -412,6 +412,7 @@ function NotficationsDrawer({ close }) {
         key={index}
         className="w-full flex flex-row justify-between items-start mt-10"
       >
+
         {getNotificationImage(item)}
 
         <div className={` ${item.type === NotificationTypes.NoCallsIn3Days ? "w-10/12" : "w-7/12"}`}>

@@ -294,7 +294,7 @@ const Page = () => {
               top: 0,
               left: 0,
               width: '100%',
-              height: '40%',
+              height: '20%',
               objectFit: 'cover',
               zIndex: -9999, // Ensure the video stays behind content
             }}
@@ -315,7 +315,7 @@ const Page = () => {
             >
               <NotficationsDrawer />
             </div>
-            <div className="h-[95%] w-11/12 flex flex-row justify-center bg-white">
+            <div className="h-[95%] w-11/12 flex flex-row justify-center bg-white rounded-xl">
               <div className="w-11/12 h-[100%]">
                 <div className="w-full flex flex-row items-center justify-between h-[30%]">
                   <div className="w-2/12 flex flex-col gap-1">
