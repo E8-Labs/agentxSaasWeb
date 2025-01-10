@@ -20,11 +20,15 @@ import "react-phone-input-2/lib/style.css";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import PhoneInput from "react-phone-input-2";
 import { getLocalLocation } from "../onboarding/services/apisServices/ApiService";
+import VideoCard from "./VideoCard";
+import IntroVideoModal from "./IntroVideoModal";
 
 const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const timerRef = useRef(null);
   const router = useRouter();
   const selectRef = useRef(null);
+  //variable for video card
+  const [introVideoModal, setIntroVideoModal] = useState(false);
   const [toggleClick, setToggleClick] = useState(false);
   const [selectNumber, setSelectNumber] = useState("");
   const [openCalimNumDropDown, setOpenCalimNumDropDown] = useState(false);
@@ -568,6 +572,30 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
         <div>
+          {/* Video Card */}
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              translate: "-50%",
+              left: "14%",
+              top: "20%",
+            }}
+          >
+            <VideoCard
+              horizontal={false}
+              playVideo={() => {
+                setIntroVideoModal(true);
+              }}
+              title="Learn about getting started"
+            />
+          </div>
+          <IntroVideoModal
+            open={introVideoModal}
+            onClose={() => setIntroVideoModal(false)}
+            videoTitle="Learn more about assigning leads"
+            videoUrl="https://drive.google.com/file/d/1Z6klkeEzGRFM-iSLM-EmSsoSLbBL57pt/view?usp=share_link"
+          />
           {/* header */}
           <Header />
           {/* Body */}
@@ -1292,7 +1320,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
           </Box>
         </Modal>
       </div>
-    </div>
+    </div >
   );
 };
 

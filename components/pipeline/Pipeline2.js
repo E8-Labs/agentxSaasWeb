@@ -622,7 +622,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                             open={introVideoModal}
                             onClose={() => setIntroVideoModal(false)}
                             videoTitle="Learn about creating a script"
-                            videoUrl="https://www.youtube.com/embed/Dy9DM5u_GVg"
+                            videoUrl="https://drive.google.com/file/d/1dB9krET4BIxaeOhZ6mZt0S8-DKQbWiAn/view?usp=share_link"
                         />
 
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>

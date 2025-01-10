@@ -61,15 +61,14 @@ const Page = ({ length = 6, onComplete }) => {
     }
   }, [params]);
 
-  useEffect(async() => {
+  useEffect(() => {
     const localData = localStorage.getItem("User");
     if (localData) {
       console.log("user login details are :", localData);
       router.push("/dashboard");
     }
 
-    let loc = await getLocalLocation();
-    setCountryCode(loc);
+    getUserLocation();
 
     // const localAgentData = localStorage.getItem("agentDetails");
     // if (localAgentData) {
@@ -95,6 +94,15 @@ const Page = ({ length = 6, onComplete }) => {
     }
   };
 
+  //function get location
+  const getUserLocation = async () => {
+    try {
+      let loc = await getLocalLocation();
+      setCountryCode(loc);
+    } catch (error) {
+      console.error("Error occured in get location", error);
+    }
+  }
 
   //number validation
   const validatePhoneNumber = (phoneNumber) => {
@@ -580,7 +588,7 @@ const Page = ({ length = 6, onComplete }) => {
             style={{ fontWeight: "500", fontSize: 11.6 }}
           >
             <div className="flex-shrink-0">
-              Copyrights @ 2024 MyAgentX. All Rights Reserved.
+              Copyrights @ 2025 MyAgentX. All Rights Reserved.
             </div>
             <button
               className="flex-shrink-0 outline-none"
@@ -638,7 +646,7 @@ const Page = ({ length = 6, onComplete }) => {
               className="flex-shrink-0 text-center"
               style={{ fontWeight: "500", fontSize: 11.6 }}
             >
-              Copyrights @ 2024 MyAgentX. All Rights Reserved.
+              Copyrights @ 2025 MyAgentX. All Rights Reserved.
             </div>
           </div>
         </div>

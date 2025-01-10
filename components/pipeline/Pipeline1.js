@@ -661,7 +661,7 @@ const Pipeline1 = ({ handleContinue }) => {
                 open={introVideoModal}
                 onClose={() => setIntroVideoModal(false)}
                 videoTitle="Learn more about assigning leads"
-                videoUrl="https://www.youtube.com/embed/Dy9DM5u_GVg"
+                videoUrl="https://drive.google.com/file/d/1dB9krET4BIxaeOhZ6mZt0S8-DKQbWiAn/view?usp=share_link"
               />
 
               <div className="mt-4" style={styles.headingStyle}>

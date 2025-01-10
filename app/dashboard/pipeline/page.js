@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
 // import Leads1 from "@/components/dashboard/leads/Leads1";
@@ -37,12 +37,14 @@ const Page = ({ params }) => {
   };
 
   return (
-    <div
-      style={backgroundImage}
-      className="overflow-y-none flex flex-row justify-center items-center"
-    >
-      <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
-    </div>
+    <Suspense>
+      <div
+        style={backgroundImage}
+        className="overflow-y-none flex flex-row justify-center items-center"
+      >
+        <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
+      </div>
+    </Suspense>
   );
 };
 

@@ -13,6 +13,8 @@ import LoaderAnimation from "../animations/LoaderAnimation";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import GoogleAdddressPicker from "../test/GoogleAdddressPicker";
 import usePlacesService from "react-google-autocomplete/lib/usePlacesAutocompleteService";
+import VideoCard from "./VideoCard";
+import IntroVideoModal from "./IntroVideoModal";
 
 const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   const addressKey = process.env.NEXT_PUBLIC_AddressPickerApiKey;
@@ -31,6 +33,11 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   const [agentRole, setAgentRole] = useState("");
 
   const [showModal, setShowModal] = useState(false);
+
+  //variable for video card
+  const [introVideoModal, setIntroVideoModal] = useState(false);
+
+
   //other status
   const [showSomtthingElse, setShowSomtthingElse] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(null);
@@ -389,6 +396,32 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
         style={{ scrollbarWidth: "none", backgroundColor: "#ffffff" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
         <div className="w-full h-[77vh]">
+
+          {/* Video card */}
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              translate: "-50%",
+              left: "14%",
+              top: "20%",
+            }}
+          >
+            <VideoCard
+              horizontal={false}
+              playVideo={() => {
+                setIntroVideoModal(true);
+              }}
+              title="Learn about getting started"
+            />
+          </div>
+          <IntroVideoModal
+            open={introVideoModal}
+            onClose={() => setIntroVideoModal(false)}
+            videoTitle="Learn more about assigning leads"
+            videoUrl="https://drive.google.com/file/d/14syvjh2r3jd8E5KtHrikZgOcPtBA8UaU/view?usp=share_link"
+          />
+
           {/* header */}
           <div className="h-[10%]">
             <Header />

@@ -45,12 +45,13 @@ import AgentSelectSnackMessage, {
 import LeadTeamsAssignedList from "../dashboard/leads/LeadTeamsAssignedList";
 import { getTeamsList } from "../onboarding/services/apisServices/ApiService";
 import { Constants } from "@/constants/Constants";
-// import "./TagsInput.css"; // Import the custom CSS
-// import TagsInput from '../dashboard/leads/TagsInput';
+import { useRouter, useSearchParams } from "next/navigation";
 
 const Pipeline1 = () => {
   const bottomRef = useRef();
   const colorPickerRef = useRef();
+  let searchParams = useSearchParams();
+  const router = useRouter();
 
   //code for showing the reorder stages btn
   const [showReorderBtn, setShowReorderBtn] = useState(false);
@@ -77,6 +78,7 @@ const Pipeline1 = () => {
   const [initialLoader, setInitialLoader] = useState(false);
 
   const [SelectedPipeline, setSelectedPipeline] = useState(null);
+  let selectedPipelineIndex = useRef(0);
   const [PipeLines, setPipeLines] = useState([]);
   const [StagesList, setStagesList] = useState([]);
   const [oldStages, setOldStages] = useState([]);
@@ -231,20 +233,38 @@ const Pipeline1 = () => {
 
   useEffect(() => {
     getImportantCalls();
-    getMyTeam()
+    getMyTeam();
+    const pipelineIndex = searchParams.get("pipeline"); // Get the value of 'tab'
+    let number = Number(pipelineIndex) || 0;
+    console.log("Pipeline index is ", number);
+    selectedPipelineIndex = number;
+    if (!pipelineIndex) {
+      setParamsInSearchBar(number);
+    }
   }, []);
+
+  const setParamsInSearchBar = (index = 0) => {
+    // Create a new URLSearchParams object to modify
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("pipeline", index); // Set or update the 'tab' parameter
+
+    // Push the updated URL
+    router.push(`/dashboard/pipeline?${params.toString()}`);
+
+    console.log("Rerendering tab with selected tab: ", index);
+  };
 
   const getMyTeam = async () => {
     try {
       let response = await getTeamsList();
       if (response) {
         console.log("Response recieved is", response);
-        setMyTeamList(response)
+        setMyTeamList(response);
       }
     } catch (error) {
       console.error("Error occured in api is", error);
     }
-  }
+  };
 
   useEffect(() => {
     console.log("Selected Lead Details changed", selectedLeadsDetails);
@@ -413,6 +433,9 @@ const Pipeline1 = () => {
           setSuccessSnack(response.data.message);
           setCreatePipeline(false);
           handlePipelineClosePopover();
+
+          selectedPipelineIndex = PipeLines.length;
+          setParamsInSearchBar(selectedPipelineIndex);
         }
       }
     } catch (error) {
@@ -431,10 +454,29 @@ const Pipeline1 = () => {
 
       setPipeLines(jsonData);
       if (jsonData.length > 0) {
-        setSelectedPipeline(jsonData[0]);
-        setStagesList(jsonData[0].stages);
-        setOldStages(jsonData[0].stages);
-        setLeadsList(jsonData[0].leads);
+        let index = 0;
+        if (selectedPipelineIndex < jsonData.length) {
+          index = selectedPipelineIndex;
+        } else if (jsonData > 0) {
+          index = 0;
+        } else {
+          index = -1;
+        }
+
+        console.log("Pipeline Index selected is ", selectedPipelineIndex);
+
+        if (index != -1) {
+          setPipeLines(jsonData);
+          setSelectedPipeline(jsonData[index]);
+          setStagesList(jsonData[index].stages);
+          setOldStages(jsonData[index].stages);
+          setLeadsList(jsonData[index].leads);
+          console.log("Leads lis is :", jsonData[index].leads);
+        }
+        // setSelectedPipeline(jsonData[selectedPipelineIndex]);
+        // setStagesList(jsonData[selectedPipelineIndex].stages);
+        // setOldStages(jsonData[selectedPipelineIndex].stages);
+        // setLeadsList(jsonData[selectedPipelineIndex].leads);
       }
       dataFound = true;
     }
@@ -473,12 +515,23 @@ const Pipeline1 = () => {
           Constants.LocalStoragePipelines,
           JSON.stringify(response.data.data)
         );
-        setPipeLines(response.data.data);
-        setSelectedPipeline(response.data.data[0]);
-        setStagesList(response.data.data[0].stages);
-        setOldStages(response.data.data[0].stages);
-        setLeadsList(response.data.data[0].leads);
-        console.log("Leads lis is :", response.data.data[0].leads);
+        let index = 0;
+        if (selectedPipelineIndex < response.data.data.length) {
+          index = selectedPipelineIndex;
+        } else if (response.data.data.length > 0) {
+          index = 0;
+        } else {
+          index = -1;
+        }
+
+        if (index != -1) {
+          setPipeLines(response.data.data);
+          setSelectedPipeline(response.data.data[index]);
+          setStagesList(response.data.data[index].stages);
+          setOldStages(response.data.data[index].stages);
+          setLeadsList(response.data.data[index].leads);
+          console.log("Leads lis is :", response.data.data[index].leads);
+        }
       }
     } catch (error) {
       console.error("Error occured in api is:", error);
@@ -574,13 +627,15 @@ const Pipeline1 = () => {
   };
 
   //code to seect other pipeline
-  const handleSelectOtherPipeline = (item) => {
+  const handleSelectOtherPipeline = (item, index) => {
     console.log("Other pipeline selected is :", item);
     setSelectedPipeline(item);
     setSelectedPipeline(item);
     setStagesList(item.stages);
     setLeadsList(item.leads);
     handleCloseOtherPipeline();
+    selectedPipelineIndex = index;
+    setParamsInSearchBar(index);
   };
 
   //code for adding new custom stage
@@ -622,7 +677,7 @@ const Pipeline1 = () => {
         examples: inputs,
         // mainAgentId: mainAgent.id,
         tags: tagsValue,
-        teams: assignLeadToMember
+        teams: assignLeadToMember,
       };
       console.log("Data sending in api is:", ApiData);
 
@@ -1023,7 +1078,6 @@ const Pipeline1 = () => {
   //code to rearrange stages list
   const handleReorder = async () => {
     try {
-
       setReorderStageLoader(true);
       const updateStages = StagesList.map((stage, index) => ({
         id: stage.id,
@@ -1066,7 +1120,6 @@ const Pipeline1 = () => {
           handlePipelineClosePopover();
         }
       }
-
     } catch (error) {
       console.error("Error occured in rearrange order api is:", error);
     } finally {
@@ -1289,19 +1342,18 @@ const Pipeline1 = () => {
     const updatedLeadsList = LeadsList.map((item) =>
       item.leadId === lead.id
         ? {
-          ...item,
-          lead: {
-            ...item.lead,
-            teamsAssigned: [...item.lead.teamsAssigned, team],
-          },
-        }
+            ...item,
+            lead: {
+              ...item.lead,
+              teamsAssigned: [...item.lead.teamsAssigned, team],
+            },
+          }
         : item
     );
 
     console.log("Updated leads list", updatedLeadsList);
 
     setLeadsList(updatedLeadsList);
-
   }
   //function to delete leads
   const handleDelLead = async () => {
@@ -1444,12 +1496,12 @@ const Pipeline1 = () => {
                     vertical: "bottom",
                     horizontal: "left",
                   }}
-                // PaperProps={{
-                //     elevation: 0, // This will remove the shadow
-                //     style: {
-                //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
-                //     },
-                // }}
+                  // PaperProps={{
+                  //     elevation: 0, // This will remove the shadow
+                  //     style: {
+                  //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
+                  //     },
+                  // }}
                 >
                   <div className="p-2">
                     {PipeLines.map((item, index) => (
@@ -1457,7 +1509,7 @@ const Pipeline1 = () => {
                         <button
                           className="outline-none"
                           onClick={() => {
-                            handleSelectOtherPipeline(item);
+                            handleSelectOtherPipeline(item, index);
                           }}
                         >
                           {item.title}
@@ -1484,12 +1536,12 @@ const Pipeline1 = () => {
                   vertical: "bottom",
                   horizontal: "left",
                 }}
-              // PaperProps={{
-              //     elevation: 0, // This will remove the shadow
-              //     style: {
-              //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
-              //     },
-              // }}
+                // PaperProps={{
+                //     elevation: 0, // This will remove the shadow
+                //     style: {
+                //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
+                //     },
+                // }}
               >
                 <div className="p-3">
                   <button
@@ -1543,7 +1595,7 @@ const Pipeline1 = () => {
                     {/* {
                                                     delStageLoader ?
                                                         <CircularProgress size={20} /> :
-                                                        
+                                                       
                                                 } */}
                     <button
                       className="text-black flex flex-row items-center gap-4 me-2 outline-none"
@@ -1660,7 +1712,7 @@ const Pipeline1 = () => {
                           }
 
                           {/* {leadCounts.map((item) => {
-    
+   
                                                 })} */}
                         </div>
                       </div>
@@ -1729,12 +1781,12 @@ const Pipeline1 = () => {
                           {/* {
                                                         delStageLoader ?
                                                             <CircularProgress size={20} /> :
-                                                            
+                                                           
                                                     } */}
                           <div
                             className="text-black flex flex-row items-center gap-4 me-2 outline-none"
                             style={styles.paragraph}
-                          // onClick={handleDeleteStage}
+                            // onClick={handleDeleteStage}
                           >
                             <button
                               className="flex flex-row gap-2 outline-none"
@@ -1809,121 +1861,119 @@ const Pipeline1 = () => {
                     {/* Display leads matching this stage */}
                     {LeadsList.filter((lead) => lead.lead.stage === stage.id)
                       .length > 0 && (
-                        <div
-                          className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl"
-                          style={{
-                            scrollbarWidth: "none",
-                            borderWidth: 1,
-                            borderRadius: "12",
-                            borderStyle: "solid",
-                            borderColor: "#00000010",
-                          }}
-                        >
-                          {LeadsList.filter(
-                            (lead) => lead.lead.stage === stage.id
-                          ).map((lead, leadIndex) => (
-                            <div
-                              className="p-3 h-full"
-                              style={{ width: "300px", height: 200 }}
-                              key={leadIndex}
-                            >
-                              <div className="border rounded-xl px-4 py-2 h-full">
-                                <button
-                                  className="flex flex-row items-center gap-3"
-                                  onClick={() => {
-                                    console.log(
-                                      "Selected lead details are:",
-                                      lead
-                                    );
-                                    setShowDetailsModal(true);
-                                    setSelectedLeadsDetails(lead.lead);
-                                    setPipelineId(lead.lead.pipeline.id);
-                                    setNoteDetails(lead.lead.notes);
-                                  }}
+                      <div
+                        className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl"
+                        style={{
+                          scrollbarWidth: "none",
+                          borderWidth: 1,
+                          borderRadius: "12",
+                          borderStyle: "solid",
+                          borderColor: "#00000010",
+                        }}
+                      >
+                        {LeadsList.filter(
+                          (lead) => lead.lead.stage === stage.id
+                        ).map((lead, leadIndex) => (
+                          <div
+                            className="p-3 h-full"
+                            style={{ width: "300px", height: 200 }}
+                            key={leadIndex}
+                          >
+                            <div className="border rounded-xl px-4 py-2 h-full">
+                              <button
+                                className="flex flex-row items-center gap-3"
+                                onClick={() => {
+                                  console.log(
+                                    "Selected lead details are:",
+                                    lead
+                                  );
+                                  setShowDetailsModal(true);
+                                  setSelectedLeadsDetails(lead.lead);
+                                  setPipelineId(lead.lead.pipeline.id);
+                                  setNoteDetails(lead.lead.notes);
+                                }}
+                              >
+                                {/* T is center aligned */}
+                                <div
+                                  className="bg-black text-white rounded-full flex flex-row item-center justify-center"
+                                  style={{ height: "27px", width: "27px" }}
                                 >
-                                  {/* T is center aligned */}
+                                  {lead.lead.firstName.slice(0, 1)}
+                                </div>
+                                <div style={styles.paragraph}>
+                                  {lead.lead.firstName}
+                                </div>
+                              </button>
+                              <div className="flex flex-row items-center justify-between w-full mt-2">
+                                <div
+                                  className="text-[#00000060]"
+                                  style={styles.agentName}
+                                >
+                                  {lead?.lead?.email?.slice(0, 10) + "..." ||
+                                    ""}
+                                </div>
+                                <div className="flex flex-row items-center gap-4">
+                                  <Image
+                                    src={"/assets/colorCircle.png"}
+                                    height={24}
+                                    width={24}
+                                    alt="*"
+                                  />
                                   <div
-                                    className="bg-black text-white rounded-full flex flex-row item-center justify-center"
-                                    style={{ height: "27px", width: "27px" }}
-                                  >
-                                    {lead.lead.firstName.slice(0, 1)}
-                                  </div>
-                                  <div style={styles.paragraph}>
-                                    {lead.lead.firstName}
-                                  </div>
-                                </button>
-                                <div className="flex flex-row items-center justify-between w-full mt-2">
-                                  <div
-                                    className="text-[#00000060]"
+                                    className="text-purple underline"
                                     style={styles.agentName}
                                   >
-                                    {lead?.lead?.email?.slice(0, 10) + "..." ||
-                                      ""}
-                                  </div>
-                                  <div className="flex flex-row items-center gap-4">
-                                    <Image
-                                      src={"/assets/colorCircle.png"}
-                                      height={24}
-                                      width={24}
-                                      alt="*"
-                                    />
-                                    <div
-                                      className="text-purple underline"
-                                      style={styles.agentName}
-                                    >
-                                      {lead.agent.name}
-                                    </div>
+                                    {lead.agent.name}
                                   </div>
                                 </div>
+                              </div>
 
-                                {lead?.lead?.booking?.date && (
-                                  <div
-                                    className="flex flex-row items-center gap-2"
-                                    style={{
-                                      fontWeight: "500",
-                                      fontsize: 13,
-                                      color: "#15151560",
-                                    }}
-                                  >
-                                    <Image
-                                      src="/svgIcons/calendar.svg"
-                                      height={16}
-                                      width={16}
-                                      alt="*"
-                                    />
-                                    {moment(lead?.lead?.booking?.date).format(
-                                      "MMM D"
-                                    ) || "-"}
-                                    <Image
-                                      src="/svgIcons/clock.svg"
-                                      height={16}
-                                      width={16}
-                                      alt="*"
-                                    />
-                                    {moment(
-                                      lead?.lead?.booking?.time,
-                                      "HH:mm"
-                                    ).format("HH:mm") || "-"}
-                                  </div>
+                              {lead?.lead?.booking?.date && (
+                                <div
+                                  className="flex flex-row items-center gap-2"
+                                  style={{
+                                    fontWeight: "500",
+                                    fontsize: 13,
+                                    color: "#15151560",
+                                  }}
+                                >
+                                  <Image
+                                    src="/svgIcons/calendar.svg"
+                                    height={16}
+                                    width={16}
+                                    alt="*"
+                                  />
+                                  {moment(lead?.lead?.booking?.date).format(
+                                    "MMM D"
+                                  ) || "-"}
+                                  <Image
+                                    src="/svgIcons/clock.svg"
+                                    height={16}
+                                    width={16}
+                                    alt="*"
+                                  />
+                                  {moment(
+                                    lead?.lead?.booking?.time,
+                                    "HH:mm"
+                                  ).format("HH:mm") || "-"}
+                                </div>
+                              )}
+
+                              <div className="w-full flex flex-row items-center justify-between mt-12">
+                                {lead.lead.teamsAssigned.length > 0 ? (
+                                  <LeadTeamsAssignedList
+                                    users={lead?.lead?.teamsAssigned}
+                                    maxVisibleUsers={1}
+                                  />
+                                ) : (
+                                  <Image
+                                    src={"/assets/manIcon.png"}
+                                    height={32}
+                                    width={32}
+                                    alt="*"
+                                  />
                                 )}
-
-                                <div className="w-full flex flex-row items-center justify-between mt-12">
-                                  {
-                                    lead.lead.teamsAssigned.length > 0 ? (
-                                      <LeadTeamsAssignedList
-                                        users={lead?.lead?.teamsAssigned}
-                                        maxVisibleUsers={1}
-                                      />
-                                    ) : (
-                                      <Image
-                                        src={"/assets/manIcon.png"}
-                                        height={32}
-                                        width={32}
-                                        alt="*"
-                                      />
-                                    )
-                                  }
-                                  {/* <div className="flex flex-row items-center gap-3">
+                                {/* <div className="flex flex-row items-center gap-3">
                                                                         <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
                                                                             Tag
                                                                         </div>
@@ -1932,85 +1982,85 @@ const Pipeline1 = () => {
                                                                         </div>
                                                                     </div> */}
 
-                                  {lead.lead.tags.length > 0 ? (
-                                    <div className="flex flex-row items-center gap-1">
-                                      {lead?.lead?.tags
-                                        .slice(0, 1)
-                                        .map((tagVal, index) => {
-                                          return (
-                                            // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
-                                            //     {tagVal}
-                                            // </div>
+                                {lead.lead.tags.length > 0 ? (
+                                  <div className="flex flex-row items-center gap-1">
+                                    {lead?.lead?.tags
+                                      .slice(0, 1)
+                                      .map((tagVal, index) => {
+                                        return (
+                                          // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
+                                          //     {tagVal}
+                                          // </div>
+                                          <div
+                                            key={index}
+                                            className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg"
+                                          >
                                             <div
-                                              key={index}
-                                              className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg"
+                                              className="text-purple" //1C55FF10
                                             >
-                                              <div
-                                                className="text-purple" //1C55FF10
-                                              >
-                                                {tagVal.length > 2 ? (
-                                                  <div>
-                                                    {tagVal.slice(0, 6)}
-                                                    {"..."}
-                                                  </div>
-                                                ) : (
-                                                  <div style={{ fontsize: 13 }}>
-                                                    {tagVal}
-                                                  </div>
-                                                )}
-                                              </div>
-                                              {DelTagLoader &&
-                                                lead.lead.id === DelTagLoader ? (
+                                              {tagVal.length > 2 ? (
                                                 <div>
-                                                  <CircularProgress size={15} />
+                                                  {tagVal.slice(0, 6)}
+                                                  {"..."}
                                                 </div>
                                               ) : (
-                                                <button
-                                                  onClick={() => {
-                                                    console.log(
-                                                      "Tag value is",
-                                                      tagVal
-                                                    );
-                                                    handleDelTag(tagVal, lead);
-                                                    let updatedTags =
-                                                      lead.lead.tags.filter(
-                                                        (tag) => tag != tagVal
-                                                      ) || [];
-                                                    lead.lead.tags = updatedTags;
-                                                    let newLeadCad = [];
-                                                    LeadsList.map((item) => {
-                                                      if (item.id == lead.id) {
-                                                        newLeadCad.push(lead);
-                                                      } else {
-                                                        newLeadCad.push(item);
-                                                      }
-                                                    });
-                                                    setLeadsList(newLeadCad);
-                                                  }}
-                                                >
-                                                  <X
-                                                    size={15}
-                                                    weight="bold"
-                                                    color="#7902DF"
-                                                  />
-                                                </button>
+                                                <div style={{ fontsize: 13 }}>
+                                                  {tagVal}
+                                                </div>
                                               )}
                                             </div>
-                                          );
-                                        })}
-                                      {lead.lead.tags.length > 1 && (
-                                        <div>+{lead.lead.tags.length - 1}</div>
-                                      )}
-                                    </div>
-                                  ) : (
-                                    "-"
-                                  )}
-                                </div>
+                                            {DelTagLoader &&
+                                            lead.lead.id === DelTagLoader ? (
+                                              <div>
+                                                <CircularProgress size={15} />
+                                              </div>
+                                            ) : (
+                                              <button
+                                                onClick={() => {
+                                                  console.log(
+                                                    "Tag value is",
+                                                    tagVal
+                                                  );
+                                                  handleDelTag(tagVal, lead);
+                                                  let updatedTags =
+                                                    lead.lead.tags.filter(
+                                                      (tag) => tag != tagVal
+                                                    ) || [];
+                                                  lead.lead.tags = updatedTags;
+                                                  let newLeadCad = [];
+                                                  LeadsList.map((item) => {
+                                                    if (item.id == lead.id) {
+                                                      newLeadCad.push(lead);
+                                                    } else {
+                                                      newLeadCad.push(item);
+                                                    }
+                                                  });
+                                                  setLeadsList(newLeadCad);
+                                                }}
+                                              >
+                                                <X
+                                                  size={15}
+                                                  weight="bold"
+                                                  color="#7902DF"
+                                                />
+                                              </button>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    {lead.lead.tags.length > 1 && (
+                                      <div>+{lead.lead.tags.length - 1}</div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
                               </div>
                             </div>
-                          ))}
-                        </div>
-                      )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -2357,7 +2407,9 @@ const Pipeline1 = () => {
                         renderValue={(selected) => {
                           if (!selected) {
                             return (
-                              <div style={{ color: "#aaa" }}>Select team member</div>
+                              <div style={{ color: "#aaa" }}>
+                                Select team member
+                              </div>
                             ); // Placeholder style
                           }
                           return selected;
@@ -2389,10 +2441,7 @@ const Pipeline1 = () => {
                       >
                         {myTeamList.map((item, index) => {
                           return (
-                            <MenuItem
-                              key={index}
-                              value={item.name}
-                            >
+                            <MenuItem key={index} value={item.name}>
                               {item.name}
                             </MenuItem>
                           );
@@ -2401,7 +2450,12 @@ const Pipeline1 = () => {
                     </FormControl>
                   </div>
 
-                  <p className="mt-2" style={{ fontWeight: "500", fontSize: 15 }}>Tags</p>
+                  <p
+                    className="mt-2"
+                    style={{ fontWeight: "500", fontSize: 15 }}
+                  >
+                    Tags
+                  </p>
 
                   <div
                     className="h-[45px] p-2 rounded-lg  items-center gap-2"
@@ -3345,8 +3399,9 @@ const Pipeline1 = () => {
 
       {importantCalls?.length > 0 && (
         <div
-          className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${expandSideView ? "w-[506px]" : "w-[100px]"
-            }`} //${expandSideView ? 'w-[32vw]' : 'w-[7vw]'}
+          className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${
+            expandSideView ? "w-[506px]" : "w-[100px]"
+          }`} //${expandSideView ? 'w-[32vw]' : 'w-[7vw]'}
           style={{
             borderTopLeftRadius: expandSideView ? "0" : "40px",
             borderBottomLeftRadius: expandSideView ? "0" : "40px",
@@ -3356,7 +3411,7 @@ const Pipeline1 = () => {
             bottom: 100,
             right: 0,
           }}
-          onClick={() => { }}
+          onClick={() => {}}
         >
           {expandSideView ? (
             <div className="w-full flex flex-row items-center gap-4  h-20">

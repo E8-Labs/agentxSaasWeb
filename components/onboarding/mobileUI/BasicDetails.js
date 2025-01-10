@@ -37,6 +37,7 @@ const BasicDetails = ({
   const timerRef = useRef(null);
 
   let inputsFields = useRef([]);
+  const phoneInputRef = useRef(null);
 
   const router = useRouter();
   const [userName, setUserName] = useState("");
@@ -95,9 +96,9 @@ const BasicDetails = ({
   useEffect(() => {
     handleDetails(userName, userEmail, userPhoneNumber);
 
-    if (userName && userEmail && userPhoneNumber) {
+    if (userName && userEmail && userPhoneNumber && emailCheckResponse?.status === true && !errorMessage && checkPhoneResponse?.status === true) {
       setShouldContinue(false);
-    } else if (!userName || !userEmail || !userPhoneNumber) {
+    } else if (!userName || !userEmail || !userPhoneNumber || emailCheckResponse?.status === false || errorMessage || checkPhoneResponse?.status === false) {
       setShouldContinue(true);
     }
   }, [
@@ -109,6 +110,7 @@ const BasicDetails = ({
     userTransaction,
     checkPhoneResponse,
     emailCheckResponse,
+    errorMessage
   ]);
 
   //code to focus the verify code input field
@@ -609,16 +611,26 @@ const BasicDetails = ({
                   }
                 }}
                 onKeyDown={(e) => {
-                  // const timer = setTimeout(() => {
-                  //   if (e.key === "Enter" || e.key === "Done") {
-                  //     inputsFields.current[2]?.focus(); // Move to the second input
-                  //   }
-                  // }, [300]);
-                  // clearTimeout(timer);
-                  if (e.key === "Enter" || e.key === "Done") {
-                    inputsFields.current[2]?.focus(); // Move to the second input
+                  if (e.key === "Enter") {
+                    // Focus on PhoneInput field when Enter is pressed
+                    // if (phoneInputRef.current) {
+                    //   const inputElement = phoneInputRef.current.querySelector("input"); // Native input element
+                    //   if (inputElement) {
+                    //     inputElement.focus();
+                    //   }
+                    // }
+
+                    const timer = setTimeout(() => {
+                      // Scroll into view before focusing
+                      phoneInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      phoneInputRef.current.focus({ preventScroll: true });
+                      console.log('Focus set after scroll');
+                    }, 200); // Slight delay to ensure component is rendered
+                    return () => clearTimeout(timer);
+
                   }
                 }}
+
               />
 
               <div className="flex flex-row items-center justify-between w-full mt-6">
@@ -687,10 +699,7 @@ const BasicDetails = ({
 
               <div style={{ marginTop: "8px" }}>
                 <PhoneInput
-                  // ref={(el) => (inputsFields.current[2] = el)}
-                  getInputRef={(el) => {
-                    inputsFields.current[2] = el; // Save reference to the internal input
-                  }}
+                  // ref={phoneInputRef}
                   className="border outline-none bg-white"
                   country={countryCode} // Set the default country
                   value={userPhoneNumber}
@@ -702,6 +711,10 @@ const BasicDetails = ({
                   }
                   disabled={loading} // Disable input if still loading
                   style={{ borderRadius: "7px" }}
+                  inputProps={{
+                    ref: phoneInputRef,
+                    // enterKeyHint: "Done",
+                  }}
                   inputStyle={{
                     width: "100%",
                     borderWidth: "0px",
@@ -723,11 +736,13 @@ const BasicDetails = ({
                   }}
                   countryCodeEditable={true}
                   defaultMask={loading ? "Loading..." : undefined}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === "Done") {
-                      inputsFields.current[3]?.focus(); // Move to the second input
-                    }
-                  }}
+                // onKeyDown={(e) => {
+                //   if (e.key === "Enter" || e.key === "Done") {
+                //     // inputsFields.current[3]?.focus(); // Move to the second input
+                //     console.log("Phonenumber key down pressed")
+                //     handleContinue();
+                //   }
+                // }}
                 />
               </div>
 

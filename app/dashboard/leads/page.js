@@ -1,12 +1,11 @@
-"use client"
-import React, { useEffect, useState } from 'react';
-import Apis from '@/components/apis/Apis';
-import axios from 'axios';
-import Leads1 from '@/components/dashboard/leads/Leads1';
-import getProfileDetails from '@/components/apis/GetProfile';
+"use client";
+import React, { Suspense, useEffect, useState } from "react";
+import Apis from "@/components/apis/Apis";
+import axios from "axios";
+import Leads1 from "@/components/dashboard/leads/Leads1";
+import getProfileDetails from "@/components/apis/GetProfile";
 
 const Page = ({ params }) => {
-
     const [index, setIndex] = useState(0);
 
     let components = [Leads1];
@@ -16,8 +15,8 @@ const Page = ({ params }) => {
     const [showPlansPopup, setShowPlansPopup] = useState(false);
 
     useEffect(() => {
-        getProfile()
-    }, [])
+        getProfile();
+    }, []);
 
     // Function to proceed to the next step
     const handleContinue = () => {
@@ -33,7 +32,6 @@ const Page = ({ params }) => {
     //function to get user profile details
     const getProfile = async () => {
         try {
-
             let response = await getProfileDetails();
 
             console.log("Data recieved from get profile api", response);
@@ -43,11 +41,10 @@ const Page = ({ params }) => {
                     setShowPlansPopup(true);
                 }
             }
-
         } catch (error) {
             console.error("Error occured in api is error", error);
         }
-    }
+    };
 
     const backgroundImage = {
         // backgroundImage: 'url("/assets/background.png")',
@@ -59,13 +56,16 @@ const Page = ({ params }) => {
         overflow: "hidden",
     };
 
-
-
     return (
-        <div style={backgroundImage} className="overflow-y-none flex flex-row justify-center items-center">
-            <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
-        </div>
-    )
-}
+        <Suspense>
+            <div
+                style={backgroundImage}
+                className="overflow-y-none flex flex-row justify-center items-center"
+            >
+                <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
+            </div>
+        </Suspense>
+    );
+};
 
-export default Page
+export default Page;

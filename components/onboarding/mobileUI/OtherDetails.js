@@ -294,6 +294,12 @@ const OtherDetails = ({
   const handleVerifyPopup = async () => {
     // let response = await SendVerificationCode(userPhoneNumber, true);
     try {
+      setShowVerifyPopup(true);
+      setTimeout(() => {
+        if (verifyInputRef.current[0]) {
+          verifyInputRef.current[0].focus();
+        }
+      }, 100);
       setSendcodeLoader(true);
       let response = await SendVerificationCode(userDetails.phone, true);
       setResponse(response);
@@ -306,12 +312,7 @@ const OtherDetails = ({
     }
     // setResponse(response)
     // setIsVisible(true)
-    setShowVerifyPopup(true);
-    setTimeout(() => {
-      if (verifyInputRef.current[0]) {
-        verifyInputRef.current[0].focus();
-      }
-    }, 100); // Adjust the delay as needed, 0 should be enough
+
   };
 
   const handleClose = () => {
@@ -674,7 +675,7 @@ const OtherDetails = ({
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === "Done") {
-                          inputsFields.current[5]?.focus(); // Move to the second input
+                          handleVerifyPopup();
                         }
                       }}
                     />
@@ -864,7 +865,7 @@ const OtherDetails = ({
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === "Done") {
-                          // inputsFields.current[5]?.focus(); // Move to the second input
+                          handleVerifyPopup();
                         }
                       }}
                     />
@@ -882,6 +883,11 @@ const OtherDetails = ({
                       value={websiteUrl}
                       onChange={(e) => {
                         setWebsiteUrl(e.target.value);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === "Done") {
+                          handleVerifyPopup();
+                        }
                       }}
                     />
                   </div>
@@ -906,7 +912,7 @@ const OtherDetails = ({
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === "Done") {
-                          inputsFields.current[1]?.focus(); // Move to the second input
+                          handleVerifyPopup();
                         }
                       }}
                     />
@@ -974,6 +980,11 @@ const OtherDetails = ({
                       value={userTransaction}
                       onChange={(e) => {
                         setUserTransaction(e.target.value);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === "Done") {
+                          handleVerifyPopup();
+                        }
                       }}
                     />
                   </div>

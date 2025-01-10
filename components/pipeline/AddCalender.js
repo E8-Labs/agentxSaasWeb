@@ -395,7 +395,7 @@ const AddCalender = ({ handleContinue }) => {
           open={introVideoModal}
           onClose={() => setIntroVideoModal(false)}
           videoTitle="Learn more about assigning leads"
-          videoUrl="https://www.youtube.com/embed/Dy9DM5u_GVg"
+          videoUrl="https://drive.google.com/file/d/1tXG1yC7u3yKWqhZ8HBtdJUmBx0KCWzRV/view?usp=share_link"
         />
         {/* Modal to add custom calender */}
 

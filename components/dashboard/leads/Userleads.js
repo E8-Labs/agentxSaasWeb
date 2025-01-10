@@ -41,6 +41,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "./AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -50,6 +51,11 @@ const Userleads = ({
   setSetData,
 }) => {
   const bottomRef = useRef(null);
+
+  //Sheet Caching related
+  let sheetIndexSelected = useRef(0);
+  let searchParams = useSearchParams();
+  const router = useRouter();
 
   //user local data
   const [userLocalData, setUserLocalData] = useState(null);
@@ -81,13 +87,13 @@ const Userleads = ({
     //console.log("Filtered Leads changed", FilterLeads.length);
   }, [FilterLeads]);
   /*
-  
-  [ 
+ 
+  [
     {
         key: date,
         values: ["date or value"]
     },
-    
+   
     {
         key: stage,
         values: ["stageId"]
@@ -101,7 +107,7 @@ const Userleads = ({
         values: ["status"]
     }
   ]
-  
+ 
   */
 
   const [LeadsInSheet, setLeadsInSheet] = useState({});
@@ -248,6 +254,50 @@ const Userleads = ({
     handleFilterLeads(0, filterText);
     setShowNoLeadsLabel(false);
   }, [filtersSelected, SelectedSheetId]);
+
+  //Caching & refresh logic
+  useEffect(() => {
+    const sheet = searchParams.get("sheet"); // Get the value of 'tab'
+    let number = Number(sheet) || 0;
+    console.log("Tab value is ", number);
+    sheetIndexSelected = number;
+    if (!sheet) {
+      setParamsInSearchBar(1);
+    }
+  }, []);
+  const setParamsInSearchBar = (index = 1) => {
+    // Create a new URLSearchParams object to modify
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("sheet", index); // Set or update the 'tab' parameter
+
+    // Push the updated URL
+    router.push(`/dashboard/leads?${params.toString()}`);
+
+    console.log("Rerendering tab with selected tab: ", index);
+  };
+
+  function SetSheetsToLocalStorage(data) {
+    localStorage.setItem("sheets", JSON.stringify(data));
+  }
+
+  function GetAndSetDataFromLocalStorage() {
+    let d = localStorage.getItem("sheets");
+    if (d) {
+      console.log("Sheets cached");
+      let data = JSON.parse(d);
+      let ind = 0;
+      if (sheetIndexSelected < data.length) {
+        ind = sheetIndexSelected;
+      }
+      setSheetsList(data);
+      setCurrentSheet(data[ind]);
+      setSelectedSheetId(data[ind].id);
+      return true; //
+    } else {
+      console.log("Sheets not in cache");
+      return false;
+    }
+  }
 
   //code for get profile function
   const getProfile = async () => {
@@ -1131,7 +1181,9 @@ const Userleads = ({
   //code for getting the sheets
   const getSheets = async () => {
     try {
-      setInitialLoader(true);
+      let alreadyCached = GetAndSetDataFromLocalStorage();
+      // return;
+      setInitialLoader(!alreadyCached);
       const localData = localStorage.getItem("User");
       let AuthToken = null;
       if (localData) {
@@ -1159,10 +1211,15 @@ const Userleads = ({
         } else {
           handleShowUserLeads("leads exist");
           setSheetsList(response.data.data);
-
-          if (response.data.data.length > 0) {
-            setCurrentSheet(response.data.data[0]);
-            setSelectedSheetId(response.data.data[0].id);
+          let sheets = response.data.data;
+          SetSheetsToLocalStorage(sheets);
+          if (sheets.length > 0) {
+            let ind = 0;
+            if (sheetIndexSelected < sheets.length) {
+              ind = sheetIndexSelected;
+            }
+            setCurrentSheet(response.data.data[ind]);
+            setSelectedSheetId(response.data.data[ind].id);
           }
 
           //   getLeads(response.data.data[0], 0);
@@ -1464,7 +1521,7 @@ const Userleads = ({
       if (values.length > 0) {
         string = moment(values[0]).format("MMM Do") + "";
         if (values.length > 1) {
-          string = `${string} - 
+          string = `${string} -
             ${moment(values[1]).format("MMM Do")}`;
         }
         return string;
@@ -1810,8 +1867,8 @@ const Userleads = ({
             <div
               className="flex flex-row items-center mt-8 gap-2"
               style={styles.paragraph}
-              // className="flex flex-row items-center mt-8 gap-2"
-              // style={{ ...styles.paragraph, overflowY: "hidden" }}
+            // className="flex flex-row items-center mt-8 gap-2"
+            // style={{ ...styles.paragraph, overflowY: "hidden" }}
             >
               <div
                 className="flex flex-row items-center gap-2 w-full"
@@ -1842,8 +1899,8 @@ const Userleads = ({
                         color: SelectedSheetId === item.id ? "#7902DF" : "",
                         whiteSpace: "nowrap", // Prevent text wrapping
                       }}
-                      // className='flex flex-row items-center gap-1 px-3'
-                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
+                    // className='flex flex-row items-center gap-1 px-3'
+                    // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
                     >
                       <button
                         style={styles.paragraph}
@@ -2012,11 +2069,10 @@ const Userleads = ({
                               return (
                                 <th
                                   key={index}
-                                  className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${
-                                    isMoreColumn
+                                  className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn
                                       ? "sticky right-0 bg-white"
                                       : ""
-                                  }`}
+                                    }`}
                                   // style={isMoreColumn ? { zIndex: 1 } : {}}
                                   style={{
                                     whiteSpace: "nowrap",
@@ -2043,11 +2099,10 @@ const Userleads = ({
                                   // <td key={colIndex} className="border-none px-4 py-2">
                                   <td
                                     key={colIndex}
-                                    className={`border-none px-4 py-2 ${
-                                      column.title === "More"
+                                    className={`border-none px-4 py-2 ${column.title === "More"
                                         ? "sticky right-0 bg-white"
                                         : ""
-                                    }`}
+                                      }`}
                                     style={{
                                       whiteSpace: "nowrap",
                                       // overflow: "hidden",
@@ -2254,9 +2309,9 @@ const Userleads = ({
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -2321,14 +2376,12 @@ const Userleads = ({
                                   onClick={() => {
                                     handleSelectStage(item);
                                   }}
-                                  className={`p-2 border border-[#00000020] ${
-                                    found >= 0 ? `bg-purple` : "bg-transparent"
-                                  } px-6
-                                                                    ${
-                                                                      found >= 0
-                                                                        ? `text-white`
-                                                                        : "text-black"
-                                                                    } rounded-2xl`}
+                                  className={`p-2 border border-[#00000020] ${found >= 0 ? `bg-purple` : "bg-transparent"
+                                    } px-6
+                                                                    ${found >= 0
+                                      ? `text-white`
+                                      : "text-black"
+                                    } rounded-2xl`}
                                 >
                                   {item.stageTitle}
                                 </button>

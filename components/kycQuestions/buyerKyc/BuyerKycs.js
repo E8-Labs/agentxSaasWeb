@@ -504,7 +504,7 @@ const BuyerKycs = ({ handleContinue }) => {
                             open={introVideoModal}
                             onClose={() => setIntroVideoModal(false)}
                             videoTitle="Learn more about assigning leads"
-                            videoUrl="https://www.youtube.com/embed/Dy9DM5u_GVg"
+                            videoUrl="https://drive.google.com/file/d/1mjcZ9-OIKBv44-eeOa2TrippR5h0RfSs/view?usp=share_link"
                         />
                         <div
                             className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"

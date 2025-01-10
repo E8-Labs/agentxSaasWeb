@@ -24,6 +24,8 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "./AgentSelectSnackMessage";
 import { SnackMessageTitles } from "@/components/constants/constants";
+import IntroVideoModal from "@/components/createagent/IntroVideoModal";
+import VideoCard from "@/components/createagent/VideoCard";
 
 const Leads1 = () => {
   const addColRef = useRef(null);
@@ -771,7 +773,7 @@ const Leads1 = () => {
           setSelectedFile(null);
           localStorage.setItem("userLeads", JSON.stringify(response.data.data));
           setUserLeads(sheet);
-          
+
           setAddNewLeadModal(false);
           setSetData(true);
           setSuccessSnack(response.data.message);
@@ -1004,32 +1006,26 @@ const Leads1 = () => {
                   transform: "translateX(-50%)",
                 }}
               >
-                <button
-                  className="flex flex-row items-center gap-2"
-                  onClick={() => {
+                <VideoCard
+                  horizontal={false}
+                  playVideo={() => {
                     setIntroVideoModal(true);
                   }}
-                >
-                  <Image
-                    src={"/assets/youtubeplay.png"}
-                    height={93}
-                    width={127}
-                    alt="*"
-                  />
-                  <div>
-                    <div style={styles.subHeadingStyle}>
-                      Learn how to add leads to your pipeline
-                    </div>
-                    <div style={styles.subHeadingStyle} className="text-start">
-                      2 mins
-                    </div>
-                  </div>
-                </button>
+                  title="Learn how to add leads to your pipeline"
+                />
               </div>
+              <IntroVideoModal
+                open={introVideoModal}
+                onClose={() => setIntroVideoModal(false)}
+                videoTitle="Learn more about assigning leads"
+                videoUrl="https://drive.google.com/file/d/1CoE17XW9eU7P2D9GfB3fOwutjlBv599z/view?usp=share_link"
+              />
             </div>
+            // </div>
           )}
         </div>
-      )}
+      )
+      }
 
       {/* Modal to add lead */}
       <Modal
@@ -1607,7 +1603,7 @@ const Leads1 = () => {
                 style={{
                   ...styles.subHeadingStyle,
                   backgroundColor: !updateColumnValue ? "#00000020" : "",
-                  color: !updateColumnValue ? "black" : ""
+                  color: !updateColumnValue ? "black" : "",
                 }}
                 disabled={!updateColumnValue}
                 onClick={() => {
@@ -2017,7 +2013,7 @@ const Leads1 = () => {
           </Box>
         </Modal>
       </div>
-    </div>
+    </div >
   );
 };
 
