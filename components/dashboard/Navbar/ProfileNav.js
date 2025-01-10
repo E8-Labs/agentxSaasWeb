@@ -253,12 +253,12 @@ const ProfileNav = () => {
   const handleOnClick = (e, href) => {
     localStorage.removeItem("openBilling");
 
-    if (!userDetails.user.plan) {
-      getProfile();
-    }
+    // if (!userDetails.user.plan) {
+    //   getProfile();
+    // }
 
-    e.preventDefault();
-    router.push(href);
+    // e.preventDefault();
+    // router.push(href);
   };
 
   //function to subsscribe plan
@@ -500,7 +500,7 @@ const ProfileNav = () => {
               <Link
                 sx={{ cursor: "pointer", textDecoration: "none" }}
                 href={item.href}
-              // onClick={(e) => handleOnClick(e, item.href)}
+                onClick={(e) => handleOnClick(e, item.href)}
               >
                 <div
                   className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
@@ -553,7 +553,7 @@ const ProfileNav = () => {
           }}
         >
           <div
-           className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
+            className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
             {userDetails?.user?.name.slice(0, 1).toUpperCase()}
           </div>
           <div>

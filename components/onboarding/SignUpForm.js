@@ -945,14 +945,14 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                       }}
                     >
                       <div className="flex flex-row justify-end">
-                        <button>
+                        {/* <button>
                           <Image
                             src={"/assets/crossIcon.png"}
                             height={40}
                             width={40}
                             alt="*"
                           />
-                        </button>
+                        </button> */}
                       </div>
                       <div
                         style={{

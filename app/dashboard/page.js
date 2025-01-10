@@ -492,8 +492,8 @@ const Page = () => {
                           className="flex flex-row items-center gap-2 justify-center bg-white h-[43px] w-[130px] rounded-[15px]"
                           onClick={() => {
                             const openBilling = true;
-                            localStorage.setItem("openBilling", JSON.stringify(openBilling));
-                            router.push("/dashboard/myAccount");
+                            // localStorage.setItem("openBilling", JSON.stringify(openBilling));
+                            router.push("/dashboard/myAccount?tab=2");
                           }}
                         >
                           <Image

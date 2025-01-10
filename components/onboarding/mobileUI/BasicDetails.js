@@ -23,6 +23,7 @@ import SendVerificationCode from "../services/AuthVerification/AuthService";
 import SnackMessages from "../services/AuthVerification/SnackMessages";
 import { setCookie } from "@/utilities/cookies";
 import { getLocalLocation } from "../services/apisServices/ApiService";
+import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
 
 const BasicDetails = ({
   handleContinue,
@@ -76,15 +77,18 @@ const BasicDetails = ({
 
   //focus 1st field automaticallly
   useEffect(() => {
+    // Focus the first input field on component load
+    inputsFields.current[0]?.focus();
+    let loc = getLocalLocation();
+    if (!userDetails) {
+      setCountryCode(loc);
+    }
+
     if (userDetails) {
       setUserName(userDetails.name);
       setUserEmail(userDetails.email);
       setUserPhoneNumber(userDetails.phone);
     }
-    // Focus the first input field on component load
-    inputsFields.current[0]?.focus();
-    let loc = getLocalLocation();
-    setCountryCode(loc);
   }, []);
 
   // Function to get the user's location and set the country code

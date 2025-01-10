@@ -20,6 +20,8 @@ const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
 
     let windowWidth = window.innerWidth;
 
+    const agentRoleInput = useRef(null);
+
     const router = useRouter();
     const bottomRef = useRef();
     const [loaderModal, setLoaderModal] = useState(false);
@@ -76,7 +78,7 @@ const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
     //auto move to the bottom
     useEffect(() => {
 
-        if(windowWidth < 640){
+        if (windowWidth < 640) {
             setAgentName(AgentDetails.name);
             setAgentRole(AgentDetails.agentRole);
         }
@@ -479,6 +481,11 @@ const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
                                 onChange={(e) => {
                                     setAgentName(e.target.value);
                                 }}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === "Done") {
+                                        agentRoleInput.current?.focus(); // Move to the second input
+                                    }
+                                }}
                             />
 
 
@@ -487,6 +494,7 @@ const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
                                 {`What's this agent's role?`}
                             </div>
                             <input
+                                ref={agentRoleInput}
                                 autoComplete="off"
                                 autoCorrect="off"
                                 spellCheck="false"

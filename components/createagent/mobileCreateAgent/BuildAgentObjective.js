@@ -390,7 +390,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
                             Get started with your AI agent
                         </button>
                         <div
-                            className="mt-2 w-full md:w-10/12 lg:w-6/12 gap-4 flex flex-col max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2"
+                            className="mt-4 w-full md:w-10/12 lg:w-6/12 gap-4 flex flex-col max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2"
                             style={{ scrollbarWidth: "none" }}
                         >
 

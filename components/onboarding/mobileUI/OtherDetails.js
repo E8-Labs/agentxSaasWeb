@@ -22,6 +22,7 @@ import VerificationCodeInput from "@/components/test/VerificationCodeInput";
 import SendVerificationCode from "../services/AuthVerification/AuthService";
 import SnackMessages from "../services/AuthVerification/SnackMessages";
 import { setCookie } from "@/utilities/cookies";
+import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
 
 const OtherDetails = ({
   handleContinue,
@@ -630,13 +631,13 @@ const OtherDetails = ({
                 // userData.agentTitle = "Real Estate Agent" ? (
                 //     "RealEstateAgent") :
                 userData?.userTypeTitle === "Sales Dev Rep" ||
-                userData?.userTypeTitle === "Marketer" ? (
+                  userData?.userTypeTitle === "Marketer" ? (
                   <div className="w-full">
                     <div style={styles.headingStyle} className="mt-6">
                       Where do you primarily operate or serve customers
                     </div>
                     <input
-                      ref={(el) => (inputsFields.current[3] = el)}
+                      ref={(el) => (inputsFields.current[0] = el)}
                       autoComplete="off"
                       autoCorrect="off"
                       spellCheck="false"
@@ -650,7 +651,7 @@ const OtherDetails = ({
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === "Done") {
-                          inputsFields.current[4]?.focus(); // Move to the second input
+                          inputsFields.current[1]?.focus(); // Move to the second input
                         }
                       }}
                     />
@@ -659,7 +660,7 @@ const OtherDetails = ({
                       Company
                     </div>
                     <input
-                      ref={(el) => (inputsFields.current[4] = el)}
+                      ref={(el) => (inputsFields.current[1] = el)}
                       autoComplete="off"
                       autoCorrect="off"
                       spellCheck="false"
@@ -684,7 +685,7 @@ const OtherDetails = ({
                       {`What’s your market territory`}
                     </div>
                     <input
-                      ref={(el) => (inputsFields.current[3] = el)}
+                      ref={(el) => (inputsFields.current[0] = el)}
                       autoComplete="off"
                       autoCorrect="off"
                       spellCheck="false"
@@ -698,7 +699,7 @@ const OtherDetails = ({
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === "Done") {
-                          inputsFields.current[4]?.focus(); // Move to the second input
+                          inputsFields.current[1]?.focus(); // Move to the second input
                         }
                       }}
                     />
@@ -707,7 +708,7 @@ const OtherDetails = ({
                       Your brokerage
                     </div>
                     <input
-                      ref={(el) => (inputsFields.current[4] = el)}
+                      ref={(el) => (inputsFields.current[1] = el)}
                       autoComplete="off"
                       autoCorrect="off"
                       spellCheck="false"
@@ -721,7 +722,7 @@ const OtherDetails = ({
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === "Done") {
-                          inputsFields.current[5]?.focus(); // Move to the second input
+                          inputsFields.current[2]?.focus(); // Move to the second input
                         }
                       }}
                     />
@@ -730,7 +731,7 @@ const OtherDetails = ({
                       Average transaction volume per year
                     </div>
                     <input
-                      ref={(el) => (inputsFields.current[5] = el)}
+                      ref={(el) => (inputsFields.current[2] = el)}
                       autoComplete="off"
                       autoCorrect="off"
                       spellCheck="false"
@@ -744,7 +745,7 @@ const OtherDetails = ({
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === "Done") {
-                          inputsFields.current[6]?.focus(); // Move to the second input
+                          inputsFields.current[3]?.focus(); // Move to the second input
                         }
                       }}
                     />
@@ -756,13 +757,18 @@ const OtherDetails = ({
                       autoCorrect="off"
                       spellCheck="false"
                       enterKeyHint="done"
-                      ref={(el) => (inputsFields.current[6] = el)}
+                      ref={(el) => (inputsFields.current[3] = el)}
                       placeholder="Type here"
                       className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
                       style={{ ...styles.inputStyle, marginTop: "8px" }}
                       value={installationVolume}
                       onChange={(e) => {
                         setInstallationVolume(e.target.value);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === "Done") {
+                          inputsFields.current[4]?.focus(); // Move to the second input
+                        }
                       }}
                     />
 
@@ -772,6 +778,7 @@ const OtherDetails = ({
                     <input
                       placeholder="Type here"
                       className="w-full border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                      ref={(el) => (inputsFields.current[4] = el)}
                       style={{ ...styles.inputStyle, marginTop: "8px" }}
                       value={projectSize}
                       onChange={(e) => {
@@ -820,7 +827,7 @@ const OtherDetails = ({
                       Market Teritory
                     </div>
                     <input
-                      ref={(el) => (inputsFields.current[3] = el)}
+                      ref={(el) => (inputsFields.current[0] = el)}
                       autoComplete="off"
                       autoCorrect="off"
                       spellCheck="false"
@@ -834,7 +841,7 @@ const OtherDetails = ({
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === "Done") {
-                          inputsFields.current[4]?.focus(); // Move to the second input
+                          inputsFields.current[1]?.focus(); // Move to the second input
                         }
                       }}
                     />
@@ -843,7 +850,7 @@ const OtherDetails = ({
                       Agency or Brokerage Name
                     </div>
                     <input
-                      ref={(el) => (inputsFields.current[4] = el)}
+                      ref={(el) => (inputsFields.current[1] = el)}
                       autoComplete="off"
                       autoCorrect="off"
                       spellCheck="false"
@@ -857,7 +864,7 @@ const OtherDetails = ({
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === "Done") {
-                          inputsFields.current[5]?.focus(); // Move to the second input
+                          // inputsFields.current[5]?.focus(); // Move to the second input
                         }
                       }}
                     />
@@ -868,6 +875,7 @@ const OtherDetails = ({
                       Website (URL)
                     </div>
                     <input
+                      ref={(el) => (inputsFields.current[0] = el)}
                       placeholder="URL"
                       className="border border-[#00000010] w-full rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0"
                       style={{ ...styles.inputStyle, marginTop: "8px" }}
@@ -884,7 +892,7 @@ const OtherDetails = ({
                       Where do you primarily operate or serve customers
                     </div>
                     <input
-                      ref={(el) => (inputsFields.current[3] = el)}
+                      ref={(el) => (inputsFields.current[0] = el)}
                       autoComplete="off"
                       autoCorrect="off"
                       spellCheck="false"
@@ -898,7 +906,7 @@ const OtherDetails = ({
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === "Done") {
-                          inputsFields.current[4]?.focus(); // Move to the second input
+                          inputsFields.current[1]?.focus(); // Move to the second input
                         }
                       }}
                     />
@@ -909,7 +917,7 @@ const OtherDetails = ({
                       {`What’s your market territory`}
                     </div>
                     <input
-                      ref={(el) => (inputsFields.current[3] = el)}
+                      ref={(el) => (inputsFields.current[0] = el)}
                       autoComplete="off"
                       autoCorrect="off"
                       spellCheck="false"
@@ -923,7 +931,7 @@ const OtherDetails = ({
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === "Done") {
-                          inputsFields.current[4]?.focus(); // Move to the second input
+                          inputsFields.current[1]?.focus(); // Move to the second input
                         }
                       }}
                     />
@@ -932,7 +940,7 @@ const OtherDetails = ({
                       Your brokerage
                     </div>
                     <input
-                      ref={(el) => (inputsFields.current[4] = el)}
+                      ref={(el) => (inputsFields.current[1] = el)}
                       autoComplete="off"
                       autoCorrect="off"
                       spellCheck="false"
@@ -946,7 +954,7 @@ const OtherDetails = ({
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === "Done") {
-                          inputsFields.current[5]?.focus(); // Move to the second input
+                          inputsFields.current[2]?.focus(); // Move to the second input
                         }
                       }}
                     />
@@ -955,7 +963,7 @@ const OtherDetails = ({
                       Average transaction volume per year
                     </div>
                     <input
-                      ref={(el) => (inputsFields.current[5] = el)}
+                      ref={(el) => (inputsFields.current[2] = el)}
                       autoComplete="off"
                       autoCorrect="off"
                       spellCheck="false"
@@ -1021,8 +1029,8 @@ const OtherDetails = ({
                         className="mt-8"
                         style={{ ...styles.inputStyle, color: "#00000060" }}
                       >
-                        Enter code that was sent to number ending with *
-                        {userPhoneNumber.slice(-4)}.
+                        Enter code that was sent to number ending with ***
+                        {userDetails?.phone.slice(-4)}.
                       </div>
                       {/* <VerificationCodeInput /> */}
                       <div
@@ -1125,26 +1133,17 @@ const OtherDetails = ({
                       }}
                     >
                       <div className="flex flex-row justify-end">
-                        <button>
+                        {/* <button>
                           <Image
                             src={"/assets/crossIcon.png"}
                             height={40}
                             width={40}
                             alt="*"
                           />
-                        </button>
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 26,
-                          fontWeight: "700",
-                          textAlign: "center",
-                        }}
-                      >
-                        Congrats
+                        </button> */}
                       </div>
 
-                      <div className="w-full mt-8 flex flex-row justify-center">
+                      <div className="w-full mt-2 flex flex-row justify-center">
                         <Image
                           className=""
                           src="/agentXOrb.gif"
@@ -1161,6 +1160,17 @@ const OtherDetails = ({
 
                       <div
                         style={{
+                          fontSize: 26,
+                          fontWeight: "700",
+                          textAlign: "center",
+                          marginTop: 20
+                        }}
+                      >
+                        Congrats!
+                      </div>
+
+                      <div
+                        style={{
                           fontSize: 15,
                           fontWeight: "600",
                           textAlign: "center",
@@ -1171,7 +1181,7 @@ const OtherDetails = ({
                         Your account is created!
                       </div>
 
-                      <div
+                      {/* <div
                         style={{
                           fontSize: 17,
                           fontWeight: "700",
@@ -1181,7 +1191,7 @@ const OtherDetails = ({
                         }}
                       >
                         {`Let’s build your AI AgentX`}
-                      </div>
+                      </div> */}
 
                       {registerLoader ? (
                         <div className="flex fex-row items-center justify-center mt-8">

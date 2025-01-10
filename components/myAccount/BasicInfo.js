@@ -419,8 +419,7 @@ function BasicInfo() {
           if (typeof document !== "undefined") {
             document.getElementById("fileInput").click()
           }
-        }
-        }
+        }}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}

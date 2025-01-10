@@ -304,8 +304,8 @@ function NotficationsDrawer({ close }) {
           className="outline-none"
           onClick={() => {
             const openBilling = true;
-            localStorage.setItem("openBilling", JSON.stringify(openBilling));
-            router.push("/dashboard/myAccount");
+            // localStorage.setItem("openBilling", JSON.stringify(openBilling));
+            router.push("/dashboard/myAccount?tab=2");
             setShowNotificationDrawer(false);
           }}
         >
@@ -360,8 +360,8 @@ function NotficationsDrawer({ close }) {
           className="outline-none"
           onClick={() => {
             const openBilling = true;
-            localStorage.setItem("openBilling", JSON.stringify(openBilling));
-            router.push("/dashboard/myAccount");
+            // localStorage.setItem("openBilling", JSON.stringify(openBilling));
+            router.push("/dashboard/myAccount?tab=2");
             setShowNotificationDrawer(false);
           }}
         >
@@ -389,8 +389,8 @@ function NotficationsDrawer({ close }) {
           className="outline-none"
           onClick={() => {
             const openBilling = true;
-            localStorage.setItem("openBilling", JSON.stringify(openBilling));
-            router.push("/dashboard/myAccount");
+            // localStorage.setItem("openBilling", JSON.stringify(openBilling));
+            router.push("/dashboard/myAccount?tab=2");
             setShowNotificationDrawer(false);
           }}
         >
