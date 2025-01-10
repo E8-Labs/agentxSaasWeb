@@ -650,7 +650,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                     }
                                   }}
                                 >
-                                  (<div className="text-[#00000070] me-1">Claimed by</div> {item.claimedBy.name})
+                                  <div className="text-[#00000070] me-1">(Claimed by {item.claimedBy.name})</div>
                                   {reassignLoader?.claimedBy?.id ===
                                     item.claimedBy.id ? (
                                     <CircularProgress size={15} />

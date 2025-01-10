@@ -30,6 +30,8 @@ const Page = ({ length = 6, onComplete }) => {
   const router = useRouter();
   const params = useParams();
   const [isVisible, setIsVisible] = useState(false);
+  const [snackMessage, setSnackMessage] = useState("");
+  const [msgType, setMsgType] = useState(null);
   let [response, setResponse] = useState({});
   const [countryCode, setCountryCode] = useState(""); // Default country
   const [userPhoneNumber, setUserPhoneNumber] = useState("");
@@ -214,11 +216,22 @@ const Page = ({ length = 6, onComplete }) => {
       let response = await SendVerificationCode(userPhoneNumber, true);
       console.log("Number for sending code is", userPhoneNumber);
       // return
-      setResponse(response);
+      // setResponse(response);
       setIsVisible(true);
       console.log("Response recieved is", response);
+
+      if (response.status === true) {
+        setMsgType(SnackbarTypes.Success);
+        setSnackMessage("Code sent")
+      } else if (response.status === false) {
+        setSnackMessage(response.message);
+        setMsgType(SnackbarTypes.Error);
+      }
+
     } catch (error) {
       console.error("Error occured", error);
+      setSnackMessage("Login failed");
+      setMsgType(SnackbarTypes.Error);
     } finally {
       setSendcodeLoader(false);
     }
@@ -249,13 +262,19 @@ const Page = ({ length = 6, onComplete }) => {
       });
 
       if (response) {
-        // console.log(
-        //   "Response of login api is :",
-        //   JSON.stringify(response.data.data)
-        // );
-        let result = response.data;
-        setResponse(result);
+
+        let screenWidth = window.innerWidth;
+
+        if (screenWidth < 640) {
+          setMsgType(SnackbarTypes.Warning);
+          setSnackMessage("Access your AI on Desktop");
+        } else {
+          setMsgType(SnackbarTypes.Success);
+          setSnackMessage(response.data.message);
+        }
+
         setIsVisible(true);
+
         if (response.data.status === true) {
           if (
             response.data.data.user.userType !== "RealEstateAgent" &&
@@ -838,11 +857,13 @@ const Page = ({ length = 6, onComplete }) => {
       </Modal>
 
       <AgentSelectSnackMessage
-        type={SnackbarTypes.Success}
-        message={response.message}
+        message={snackMessage}
+        type={msgType}
         isVisible={isVisible}
         hide={() => {
           setIsVisible(false);
+          setSnackMessage("");
+          setMsgType(null);
         }}
       />
     </div>

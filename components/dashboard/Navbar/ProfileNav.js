@@ -234,13 +234,13 @@ const ProfileNav = () => {
 
       let Data = response?.data?.data;
       // Data.totalSecondsAvailable  = 100
-      
+
       console.log("Available seconds are", Data?.totalSecondsAvailable)
 
       if (response) {
-        if (Data?.totalSecondsAvailable <= 120 || (Data?.plan == null) ||  (Data?.plan && Data?.plan?.status !== "active")) {
+        if (Data?.totalSecondsAvailable <= 120 || (Data?.plan == null) || (Data?.plan && Data?.plan?.status !== "active")) {
           setShowPlansPopup(true);
-          
+
         } else {
           setShowPlansPopup(false);
         }
@@ -499,7 +499,8 @@ const ProfileNav = () => {
             <div key={item.id} className="w-9/12 flex flex-col gap-3 ">
               <Link
                 sx={{ cursor: "pointer", textDecoration: "none" }}
-                onClick={(e) => handleOnClick(e, item.href)}
+                href={item.href}
+              // onClick={(e) => handleOnClick(e, item.href)}
               >
                 <div
                   className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
@@ -544,9 +545,7 @@ const ProfileNav = () => {
         }}
       >
         <button
-          onClick={() => {
-            router.push("/dashboard/myAccount");
-          }}
+          href={"/dashboard/myAccount"}
           className="w-11/12  flex flex-row items-start gap-3 px-4 py-2 truncate outline-none text-start" //border border-[#00000015] rounded-[10px]
           style={{ textOverflow: "ellipsis" }}
         >

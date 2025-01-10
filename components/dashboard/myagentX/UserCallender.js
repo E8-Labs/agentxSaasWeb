@@ -272,20 +272,20 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
         <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
 
             {
-                isVisible2 && (
-                    <AgentSelectSnackMessage type={type} message={message} isVisible={isVisible2} hide={() => {
-                        setIsVisible2(false)
-                    }} />
-                )
-            }
-
-            {
                 calenderLoader && (
                     <div>
                         <CircularLoader
                             globalLoader={calenderLoader}
                         />
                     </div>
+                )
+            }
+
+            {
+                isVisible && (
+                    <AgentSelectSnackMessage type={type} message={message} isVisible={isVisible} hide={() => {
+                        setIsVisible(false)
+                    }} />
                 )
             }
 
@@ -430,9 +430,9 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
                         <div style={{ width: "100%", }}>
 
                             {
-                                isVisible && (
-                                    <AgentSelectSnackMessage type={type} message={message} isVisible={isVisible} hide={() => {
-                                        setIsVisible(false)
+                                isVisible2 && (
+                                    <AgentSelectSnackMessage type={type} message={message} isVisible={isVisible2} hide={() => {
+                                        setIsVisible2(false)
                                     }} />
                                 )
                             }
