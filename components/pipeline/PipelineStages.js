@@ -395,7 +395,7 @@ const PipelineStages = ({
         pipelineId: selectedPipelineItem.id,
         action: action,
         examples: inputs,
-        tagsValue: tagsValue,
+        tags: tagsValue,
       };
 
       console.log("Data sending in api is:", ApiData);
