@@ -34,7 +34,7 @@ const voicesList = [
     Dialect: "Thoughtful, Inspirational, Empathetic | British",
   },
   {
-    voice_id: "5T8AzGjpnC5cQCfJofdO", //"7oWqznej0zTv1hLyDxYb",
+    voice_id: "PFIFGOLGFTh5WCxNE7aV", //"7oWqznej0zTv1hLyDxYb",
     name: "Zane",
     preview: "/voicesList/Zane.m4a",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/dET7jF0sHOQ3QYYh1ATa/a294e51a-c27b-4389-ae11-8bbaa8eda1f7.mp3",

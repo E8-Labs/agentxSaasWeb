@@ -44,6 +44,7 @@ import AgentSelectSnackMessage, {
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import LeadTeamsAssignedList from "../dashboard/leads/LeadTeamsAssignedList";
 import { getTeamsList } from "../onboarding/services/apisServices/ApiService";
+import { Constants } from "@/constants/Constants";
 // import "./TagsInput.css"; // Import the custom CSS
 // import TagsInput from '../dashboard/leads/TagsInput';
 
@@ -422,9 +423,31 @@ const Pipeline1 = () => {
   };
 
   //code for get pipeline
+  function GetPipelinesCached() {
+    let dataFound = false;
+    let data = localStorage.getItem(Constants.LocalStoragePipelines);
+    if (data) {
+      let jsonData = JSON.parse(data);
+
+      setPipeLines(jsonData);
+      if (jsonData.length > 0) {
+        setSelectedPipeline(jsonData[0]);
+        setStagesList(jsonData[0].stages);
+        setOldStages(jsonData[0].stages);
+        setLeadsList(jsonData[0].leads);
+      }
+      dataFound = true;
+    }
+    return dataFound;
+  }
+
+  //code for get pipeline
   const getPipelines = async () => {
     try {
-      setInitialLoader(true);
+      let data = GetPipelinesCached();
+      if (!data) {
+        setInitialLoader(true);
+      }
       const localData = localStorage.getItem("User");
       let AuthToken = null;
       if (localData) {
@@ -445,7 +468,11 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        console.log("Response of getpipeline api is :", response.data.data[0].leads[0].lead.teamsAssigned);
+        console.log("Response of getpipeline api is :", response.data.data);
+        localStorage.setItem(
+          Constants.LocalStoragePipelines,
+          JSON.stringify(response.data.data)
+        );
         setPipeLines(response.data.data);
         setSelectedPipeline(response.data.data[0]);
         setStagesList(response.data.data[0].stages);

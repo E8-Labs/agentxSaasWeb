@@ -154,13 +154,28 @@ function NotficationsDrawer({ close }) {
 
   // ]
 
+  //function to get support
+  const getSupport = () => {
+    let userData = localStorage.getItem("User");
+    if (userData) {
+      const D = JSON.parse(userData);
+      console.log("Response", D.user.campaignee.officeHoursUrl)
+      if (D.user.campaignee.officeHoursUrl) {
+        let campaigneeLink = D.user.campaignee.officeHoursUrl;
+        window.open(campaigneeLink, "_blank");
+      } else {
+        window.open("https://api.leadconnectorhq.com/widget/booking/SMTp2AfgjdTcjLOIUBkR", "_blank");
+      }
+    }
+  }
+
   const getNotificationImage = (item) => {
     if (item.type === NotificationTypes.RedeemedAgentXCode) {
       return (
         <Image
           src={"/svgIcons/minsNotIcon.svg"}
-          height={37}
-          width={37}
+          height={22}
+          width={22}
           alt="*"
         />
       );
@@ -185,6 +200,7 @@ function NotficationsDrawer({ close }) {
     } else if (item.type === NotificationTypes.Hotlead) {
       return (
         <Image
+        style={{backgroundColor: 'red'}}
           src={"/svgIcons/hotLeadNotIcon.svg"}
           height={37}
           width={37}
@@ -213,14 +229,14 @@ function NotficationsDrawer({ close }) {
       return (
         <Image
           src={"/svgIcons/urgentNotIcon.svg"}
-          height={37}
-          width={37}
+          height={22}
+          width={22}
           alt="*"
         />
       );
     } else if (item.type === NotificationTypes.CallsMadeByAgent) {
       return (
-        <Image src={"/svgIcons/aiNotIcon.svg"} height={37} width={37} alt="*" />
+        <Image src={"/svgIcons/aiNotIcon.svg"} height={22} width={22} alt="*" />
       );
     } else if (item.type === NotificationTypes.LeadCalledBack) {
       return (
@@ -233,35 +249,35 @@ function NotficationsDrawer({ close }) {
       );
     } else if (item.type === NotificationTypes.Trial30MinTicking) {
       return (
-        <Image src={"/svgIcons/Trial30MinTickingNotIcon.svg"} height={37} width={37} alt="*" />
+        <Image src={"/svgIcons/Trial30MinTickingNotIcon.svg"} height={22} width={22} alt="*" />
       );
     } else if (item.type === NotificationTypes.X3MoreLikeyToWin) {
       return (
-        <Image src={"/svgIcons/3xMoreLikeyToWinNotIcon.svg"} height={37} width={37} alt="*" />
+        <Image src={"/svgIcons/3xMoreLikeyToWinNotIcon.svg"} height={22} width={22} alt="*" />
       );
     } else if (item.type === NotificationTypes.NeedHand || item.type === NotificationTypes.NeedHelpDontMissOut) {
       return (
-        <Image src={"/svgIcons/NeedHandNotIcon.svg"} height={37} width={37} alt="*" />
+        <Image src={"/svgIcons/NeedHandNotIcon.svg"} height={22} width={22} alt="*" />
       );
     } else if (item.type === NotificationTypes.TrialReminder) {
       return (
-        <Image src={"/svgIcons/TrialReminderNotIcon.svg"} height={37} width={37} alt="*" />
+        <Image style={{backgroundColor: 'red'}} src={"/svgIcons/TrialReminderNotIcon.svg"} height={22} width={22} alt="*" />
       );
     } else if (item.type === NotificationTypes.LastChanceToAct) {
       return (
-        <Image src={"/svgIcons/LastChanceToActNotIcon.svg"} height={37} width={37} alt="*" />
+        <Image src={"/svgIcons/LastChanceToActNotIcon.svg"} height={22} width={22} alt="*" />
       );
     } else if (item.type === NotificationTypes.LastDayToMakeItCount) {
       return (
-        <Image src={"/svgIcons/LastDayToMakeItCountNotIcon.svg"} height={37} width={37} alt="*" />
+        <Image src={"/svgIcons/LastDayToMakeItCountNotIcon.svg"} height={22} width={22} alt="*" />
       );
     } else if (item.type === NotificationTypes.TrialTime2MinLeft) {
       return (
-        <Image src={"/svgIcons/TrialTime2MinLeftNotIcon.svg"} height={37} width={37} alt="*" />
+        <Image src={"/svgIcons/TrialTime2MinLeftNotIcon.svg"} height={22} width={22} alt="*" />
       );
     } else if (item.type === NotificationTypes.PlanRenewed) {
       return (
-        <Image src={"/svgIcons/PlanRenewedNotIcon.svg"} height={37} width={37} alt="*" />
+        <Image src={"/svgIcons/PlanRenewedNotIcon.svg"} height={22} width={22} alt="*" />
       );
     }
   };
@@ -305,10 +321,7 @@ function NotficationsDrawer({ close }) {
         <button
           className="outline-none"
           onClick={() => {
-            const openBilling = true;
-            localStorage.setItem("openBilling", JSON.stringify(openBilling));
-            router.push("/dashboard/myAccount");
-            setShowNotificationDrawer(false);
+            router.push("/dashboard/leads")
           }}
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
@@ -321,10 +334,7 @@ function NotficationsDrawer({ close }) {
         <button
           className="outline-none"
           onClick={() => {
-            const openBilling = true;
-            localStorage.setItem("openBilling", JSON.stringify(openBilling));
-            router.push("/dashboard/myAccount");
-            setShowNotificationDrawer(false);
+            router.push("/dashboard/leads")
           }}
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
@@ -337,10 +347,7 @@ function NotficationsDrawer({ close }) {
         <button
           className="outline-none"
           onClick={() => {
-            const openBilling = true;
-            localStorage.setItem("openBilling", JSON.stringify(openBilling));
-            router.push("/dashboard/myAccount");
-            setShowNotificationDrawer(false);
+            getSupport();
           }}
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
@@ -360,7 +367,7 @@ function NotficationsDrawer({ close }) {
           }}
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
-            Give Live Support
+            Get Live Support
           </div>
         </button>
       )
@@ -369,14 +376,11 @@ function NotficationsDrawer({ close }) {
         <button
           className="outline-none"
           onClick={() => {
-            const openBilling = true;
-            localStorage.setItem("openBilling", JSON.stringify(openBilling));
-            router.push("/dashboard/myAccount");
-            setShowNotificationDrawer(false);
+            getSupport();
           }}
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
-            Give Live Help
+            Get Live Help
           </div>
         </button>
       )
@@ -415,7 +419,9 @@ function NotficationsDrawer({ close }) {
 
         {getNotificationImage(item)}
 
-        <div className={` ${item.type === NotificationTypes.NoCallsIn3Days ? "w-10/12" : "w-7/12"}`}>
+        <div
+          className={`w-7/12`}
+        >
           <div className="flex flex-col gap-1 items-start">
 
             <div className="flex flex-col w-full gap-1">
@@ -431,17 +437,7 @@ function NotficationsDrawer({ close }) {
                       marginLeft: "8px", // Add some spacing between the title and button
                     }}
                     onClick={() => {
-                      let userData = localStorage.getItem("User");
-                      if (userData) {
-                        const D = JSON.parse(userData);
-                        console.log("Response", D.user.campaignee.officeHoursUrl)
-                        if (D.user.campaignee.officeHoursUrl) {
-                          let campaigneeLink = D.user.campaignee.officeHoursUrl;
-                          window.open(campaigneeLink, "_blank");
-                        } else {
-                          window.open("https://www.youtube.com/watch?v=PITeLcdfDF8", "_blank");
-                        }
-                      }
+                      getSupport()
                     }}
                   >
                     Need help?
@@ -498,8 +494,8 @@ function NotficationsDrawer({ close }) {
         <div className="flex flex-row ">
           <Image
             src="/svgIcons/notificationIcon.svg"
-            height={24}
-            width={24}
+            height={22}
+            width={22}
             alt="Notification Icon"
           />
           {unread > 0 && (
@@ -544,8 +540,8 @@ function NotficationsDrawer({ close }) {
               <div className="flex flex-row ">
                 <Image
                   src="/svgIcons/notificationIcon.svg"
-                  height={24}
-                  width={24}
+                  height={22}
+                  width={22}
                   alt="Notification Icon"
                 />
                 {unread > 0 && (
