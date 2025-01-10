@@ -232,7 +232,7 @@ function InviteAgentX() {
             <div
                 className="w-10/12 p-6 rounded-lg flex flex-row items-center"
                 style={{
-                    backgroundImage: 'url(/assets/cardBg.png)',
+                    backgroundImage: 'url(/svgIcons/cardBg.svg)',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
@@ -242,7 +242,6 @@ function InviteAgentX() {
                     // boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', 
                 }}
             >
-                {/* Left Section */}
                 <div className="flex flex-col pt-5">
                     <div style={{ fontSize: "2vh", fontWeight: '700', marginBottom: '10px', }}>
                         Get 60 minutes when you invite an agent
@@ -253,27 +252,6 @@ function InviteAgentX() {
                         can use this code at checkout.
                     </p>
                 </div>
-
-                {/* Right Section */}
-                {/* <div className="flex flex-col items-start">
-                    <div
-                        className="flex flex-row items-center gap-2"
-                        style={{ marginBottom: '10px', fontSize: '14px', fontWeight: '500' }}
-                    >
-                        <img
-                            src="/otherAssets/tagIcon.png"
-                            alt="Tag Icon"
-                            style={{ height: '16px', width: '16px' }}
-                        />
-                        Code
-                    </div>
-                    <h2 style={{ fontSize: '3vh', fontWeight: '700' }}>
-                        {
-                            userDetails?.plan && userDetails?.isTrial === false ? userDetails?.myInviteCode : "N/A"
-                        }
-                    </h2>
-
-                </div> */}
             </div>
 
             {

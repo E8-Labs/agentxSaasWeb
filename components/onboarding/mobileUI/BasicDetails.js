@@ -80,7 +80,7 @@ const BasicDetails = ({
     // Focus the first input field on component load
     inputsFields.current[0]?.focus();
     let loc = getLocalLocation();
-    if (!userDetails) {
+    if (!userDetails.phone) {
       setCountryCode(loc);
     }
 
@@ -609,12 +609,15 @@ const BasicDetails = ({
                   }
                 }}
                 onKeyDown={(e) => {
-                  const timer = setTimeout(() => {
-                    if (e.key === "Enter" || e.key === "Done") {
-                      inputsFields.current[2]?.focus(); // Move to the second input
-                    }
-                  }, [300]);
-                  clearTimeout(timer);
+                  // const timer = setTimeout(() => {
+                  //   if (e.key === "Enter" || e.key === "Done") {
+                  //     inputsFields.current[2]?.focus(); // Move to the second input
+                  //   }
+                  // }, [300]);
+                  // clearTimeout(timer);
+                  if (e.key === "Enter" || e.key === "Done") {
+                    inputsFields.current[2]?.focus(); // Move to the second input
+                  }
                 }}
               />
 
@@ -684,7 +687,10 @@ const BasicDetails = ({
 
               <div style={{ marginTop: "8px" }}>
                 <PhoneInput
-                  ref={(el) => (inputsFields.current[2] = el)}
+                  // ref={(el) => (inputsFields.current[2] = el)}
+                  getInputRef={(el) => {
+                    inputsFields.current[2] = el; // Save reference to the internal input
+                  }}
                   className="border outline-none bg-white"
                   country={countryCode} // Set the default country
                   value={userPhoneNumber}
