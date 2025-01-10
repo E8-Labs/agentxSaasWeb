@@ -429,7 +429,7 @@ const BuildAgentTask = ({ handleContinue, AgentDetails, getAgentDetails, handleB
                             className="mt-4 w-11/12 md:text-4xl text-lg font-[700]"
                             style={{ textAlign: "center" }}
                         >
-                            Get started with your AI agent AGT
+                            Get started with your AI agent
                         </button>
                         <div
                             className="mt- w-full md:w-10/12 lg:w-6/12 gap-4 flex flex-col max-h-[80%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2"
@@ -451,14 +451,14 @@ const BuildAgentTask = ({ handleContinue, AgentDetails, getAgentDetails, handleB
                                 >
                                     {OutBoundCalls ? (
                                         <Image
-                                            src={"/assets/callOutFocus.png"}
+                                            src={"/svgIcons/callOutFocus.svg"}
                                             height={24}
                                             width={24}
                                             alt="*"
                                         />
                                     ) : (
                                         <Image
-                                            src={"/assets/callOut.png"}
+                                            src={"/svgIcons/callOut.svg"}
                                             height={24}
                                             width={24}
                                             alt="*"
@@ -485,7 +485,7 @@ const BuildAgentTask = ({ handleContinue, AgentDetails, getAgentDetails, handleB
                                 >
                                     {InBoundCalls ? (
                                         <Image
-                                            src={"/assets/callInFocus.png"}
+                                            src={"/svgIcons/callInFocus.svg"}
                                             height={24}
                                             width={24}
                                             alt="*"

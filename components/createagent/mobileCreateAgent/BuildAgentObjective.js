@@ -115,7 +115,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
             title: "Call absentee owners",
             details:
                 "Reach out to property owners who may not live in the property to discuss potential selling or investment opportunities.",
-            focusIcn: "/objectiveIcons/obj1FC.png",
+            focusIcn: "/svgIcons/obj1F.svg",
             unFocusIcon: "/objectiveIcons/obj1UF.png",
         },
         {
@@ -124,7 +124,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
             title: "Circle prospecting",
             details:
                 "Call homeowners in a specific farm to inform them about recent property activities, and gauge their interest in selling or buying.",
-            focusIcn: "/objectiveIcons/obj2FC.png",
+            focusIcn: "/svgIcons/obj2F.svg",
             unFocusIcon: "/objectiveIcons/obj2UF.png",
         },
         {
@@ -133,7 +133,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
             title: "Community update",
             details:
                 "Provide local homeowners with relevant updates on a property like just listed, just sold, in escrow or something else. ",
-            focusIcn: "/objectiveIcons/obj3FC.png",
+            focusIcn: "/svgIcons/obj3F.svg",
             unFocusIcon: "/objectiveIcons/obj3UF.png",
         },
         {
@@ -142,7 +142,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
             title: "Lead reactivation",
             details:
                 "Reconnect with past leads who previously expressed interest but did not convert, to reignite their interest in your services.",
-            focusIcn: "/objectiveIcons/obj4FC.png",
+            focusIcn: "/svgIcons/obj4F.svg",
             unFocusIcon: "/objectiveIcons/obj4UF.png",
         },
         {
@@ -151,7 +151,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
             title: "Agent Recruiting",
             details:
                 "Identify, engage, and attract potential real estate agents to expand your team with top talent. Recruit new agents to your team.",
-            focusIcn: "/objectiveIcons/obj5FC.png",
+            focusIcn: "/svgIcons/obj5RAF.svg",
             unFocusIcon: "/objectiveIcons/obj5UF.png",
         },
         {
@@ -160,7 +160,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
             title: "Expired Listing",
             details:
                 "Connect with homeowners whose listings have expired to understand their needs and offer solutions. Help relist their property and guide them toward a successful sale.",
-            focusIcn: "/objectiveIcons/obj5FC.png",
+            focusIcn: "/svgIcons/obj5F.svg",
             unFocusIcon: "/objectiveIcons/obj5UF.png",
         },
         {
@@ -168,7 +168,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
             icon: "",
             title: "others",
             details: "",
-            focusIcn: "/objectiveIcons/obj6FC.png",
+            focusIcn: "/svgIcons/obj6F.svg",
             unFocusIcon: "/objectiveIcons/obj6UF.png",
         },
     ];
