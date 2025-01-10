@@ -702,7 +702,7 @@ const Pipeline1 = () => {
         handleCloseStagePopover();
       }
     } catch (error) {
-      console.log("Error occured in rename api is:", error);
+      console.log("Error occured in rename stage api is:", error);
     } finally {
       setRenameStageLoader(false);
     }
@@ -753,7 +753,7 @@ const Pipeline1 = () => {
         handlePipelineClosePopover();
       }
     } catch (error) {
-      console.log("Error occured in rename api is:", error);
+      console.log("Error occured in rename pipeline api is:", error);
     } finally {
       setRenamePipelineLoader(false);
     }
@@ -780,7 +780,7 @@ const Pipeline1 = () => {
 
       const formData = new FormData();
       // formData.append("stageTitle", renameStage);
-      formData.append("stageId", selectedStage.id);
+      formData.append("stageId", selectedStage?.id);
       formData.append("color", stageColorUpdate);
 
       // console.log("data sending in api si:", ApiData);
@@ -807,7 +807,7 @@ const Pipeline1 = () => {
         // handleCloseStagePopover();
       }
     } catch (error) {
-      console.log("Error occured in rename api is:", error);
+      console.log("Error occured in update color api is:", error);
     } finally {
       setRenameStageLoader(false);
     }
@@ -865,7 +865,7 @@ const Pipeline1 = () => {
         }
       }
     } catch (error) {
-      console.log("Error occured in rename api is:", error);
+      console.log("Error occured in delete pipeline api is:", error);
     } finally {
       setDeletePipelineLoader(false);
     }

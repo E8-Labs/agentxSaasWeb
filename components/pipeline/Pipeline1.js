@@ -22,6 +22,8 @@ import { CaretDown, Minus, YoutubeLogo } from "@phosphor-icons/react";
 import PipelineStages from "./PipelineStages";
 import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
+import IntroVideoModal from "../createagent/IntroVideoModal";
+import VideoCard from "../createagent/VideoCard";
 
 const Pipeline1 = ({ handleContinue }) => {
   const router = useRouter();
@@ -636,6 +638,31 @@ const Pipeline1 = ({ handleContinue }) => {
                   </div>
                 </div>
               )}
+
+              {/* Code for side video */}
+              <div
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  translate: "-50%",
+                  left: "14%",
+                  top: "20%",
+                }}
+              >
+                <VideoCard
+                  horizontal={false}
+                  playVideo={() => {
+                    setIntroVideoModal(true);
+                  }}
+                  title="Learn about pipeline and stages"
+                />
+              </div>
+              <IntroVideoModal
+                open={introVideoModal}
+                onClose={() => setIntroVideoModal(false)}
+                videoTitle="Learn more about assigning leads"
+                videoUrl="https://www.youtube.com/embed/Dy9DM5u_GVg"
+              />
 
               <div className="mt-4" style={styles.headingStyle}>
                 Assign this agent to a stage

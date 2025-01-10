@@ -36,7 +36,7 @@ const getProfileDetails = async () => {
         }
 
     } catch (error) {
-        console.error("Error occured in api is error", error);
+        console.error("Error occured in get profile api is error", error);
     }
 }
 

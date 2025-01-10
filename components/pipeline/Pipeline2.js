@@ -21,6 +21,8 @@ import { PromptTagInput } from './tagInputs/PromptTagInput';
 import { GreetingTagInput } from './tagInputs/GreetingTagInput';
 import ReactMentions from '../test/ReactMentions';
 import DraftMentions from '../test/DraftMentions';
+import IntroVideoModal from '../createagent/IntroVideoModal';
+import VideoCard from '../createagent/VideoCard';
 
 const Pipeline2 = ({ handleContinue, handleBack }) => {
     const containerRef = useRef(null); // Ref to the scrolling container
@@ -597,6 +599,32 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                     <Header />
                     {/* Body */}
                     <div ref={containerRef} className='flex flex-col items-center px-4 w-full overflow-auto h-[68vh]' style={{ scrollbarWidth: "none" }}>
+
+                        {/* Code for side video */}
+                        <div
+                            style={{
+                                position: "absolute",
+                                left: "50%",
+                                translate: "-50%",
+                                left: "14%",
+                                top: "20%",
+                            }}
+                        >
+                            <VideoCard
+                                horizontal={false}
+                                playVideo={() => {
+                                    setIntroVideoModal(true);
+                                }}
+                                title="Learn about pipeline and stages"
+                            />
+                        </div>
+                        <IntroVideoModal
+                            open={introVideoModal}
+                            onClose={() => setIntroVideoModal(false)}
+                            videoTitle="Learn about creating a script"
+                            videoUrl="https://www.youtube.com/embed/Dy9DM5u_GVg"
+                        />
+
                         <div className='mt-6 w-11/12 md:text-4xl text-lg font-[700]' style={{ textAlign: "center" }}>
                             {`Create a Script`}
                         </div>

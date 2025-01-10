@@ -554,6 +554,7 @@ const SellerKycs = ({ handleContinue }) => {
                 playVideo={() => {
                   setIntroVideoModal(true);
                 }}
+                title="Learn about asking questions (KYC)"
               />
             </div>
             <IntroVideoModal

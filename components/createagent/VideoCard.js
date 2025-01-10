@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-const VideoCard = ({ playVideo, horizontal = true }) => {
+const VideoCard = ({ playVideo, horizontal = true, title }) => {
   return (
     <div
       className={`flex  ${horizontal ? "flex-row items-center" : "flex-col items-start"
@@ -43,7 +43,8 @@ const VideoCard = ({ playVideo, horizontal = true }) => {
       {/* Content Section */}
       <div className={`flex flex-col items-start  justify-left`}>
         <h3 className="text-lg font-medium text-gray-800">
-          Learn how to add calendar
+          {/* Learn how to add calendar */}
+          {title}
         </h3>
       </div>
     </div>

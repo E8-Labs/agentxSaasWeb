@@ -351,31 +351,18 @@ const AddCalender = ({ handleContinue }) => {
                       No Calendar added
                     </div>
 
-                    <div style={{ fontSize: 12, fontWeight: '300', color: '#000',width: 140, textAlign: 'center' }}>
+                    <div style={{ fontSize: 12, fontWeight: '300', color: '#000', width: 140, textAlign: 'center' }}>
                       please add a calendar. to lorem ipsum dor miset
                     </div>
 
                     <button className="flex items-center justify-center h-[50px] w-[200px] text-white rounded-xl bg-purple" onClick={() => setShowAddNewCalender(true)}>
-                        + Add Calender
+                      + Add Calender
                     </button>
                   </div>
                 )}
             </div>
           </div>
-          <div
-            style={{
-              position: "absolute",
-              left: "50%",
-              translate: "-50%",
-              bottom: "15%",
-            }}
-          >
-            <VideoCard
-              playVideo={() => {
-                setIntroVideoModal(true);
-              }}
-            />
-          </div>
+
           <div className="h-[13%]">
             <ProgressBar value={33} />
             <Footer
@@ -387,6 +374,23 @@ const AddCalender = ({ handleContinue }) => {
           </div>
         </div>
         {/* Modal for video */}
+        <div
+          style={{
+            position: "absolute",
+            left: "50%",
+            translate: "-50%",
+            left: "14%",
+            top: "20%",
+          }}
+        >
+          <VideoCard
+            horizontal={false}
+            playVideo={() => {
+              setIntroVideoModal(true);
+            }}
+            title="Learn how to add a calendar"
+          />
+        </div>
         <IntroVideoModal
           open={introVideoModal}
           onClose={() => setIntroVideoModal(false)}
