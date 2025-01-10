@@ -91,7 +91,7 @@ export const getLocation = () => {
                     console.log("Api Loc Check 2")
                     const data = await response.json();
                     console.log("Api Loc Check 3")
-                    
+
                     // Set the country code if the API returns it
                     const locationData = {
                         location: data.countryCode.toLowerCase()
@@ -130,8 +130,44 @@ export const getLocalLocation = () => {
             console.log("LCheck 3")
         }
         return L?.location
-    }else if(!loc){
+    } else if (!loc) {
         return "us"
     }
 
+}
+
+//function to get the teamsList
+export const getTeamsList = async () => {
+    try {
+
+        const data = localStorage.getItem("User");
+
+        if (data) {
+            let u = JSON.parse(data);
+
+            let path = Apis.getTeam;
+
+            const response = await axios.get(path, {
+                headers: {
+                    Authorization: "Bearer " + u.token,
+                },
+            });
+
+            if (response) {
+
+                if (response.data.status === true) {
+                    console.log("get team api response is", response.data.data);
+                    return response.data.data;
+                } else {
+                    console.log("get team api message is", response.data.message);
+                    // return response.data.data
+                }
+
+            }
+        }
+    } catch (error) {
+        console.error("Error occured in api is", error);
+    } finally {
+        console.log("Get teams list done");
+    }
 }

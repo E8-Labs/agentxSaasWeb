@@ -110,6 +110,15 @@ const RearrangeStages = ({
   //variable to show and hide the add stage btn
   const [showAddStageBtn, setShowAddStageBtn] = useState(false);
 
+  //get my teams list
+  const [myTeamList, setMyTeamList] = useState([]);
+  const [assignToMember, setAssignToMember] = useState("");
+  const [assignLeadToMember, setAssignLeadToMember] = useState([]);
+
+  useEffect(() => {
+    getMyTeam();
+  }, [])
+
   //code for showing the add stage button according to dirredent conditions
   useEffect(() => {
     if (showAdvanceSettings) {
@@ -186,6 +195,32 @@ const RearrangeStages = ({
       setDelStageLoader(false);
     }
   };
+
+  //selec teammeber
+  //new teammeber
+  const handleAssignTeamMember = (event) => {
+    let value = event.target.value;
+    // console.log("Value to set is :", value);
+    setAssignToMember(event.target.value);
+
+    const selectedItem = myTeamList.find((item) => item.name === value);
+    setAssignToMember(selectedItem.name);
+    setAssignLeadToMember([...assignLeadToMember, selectedItem.id]);
+
+    console.log("Selected inext stage is:", selectedItem);
+  };
+
+  const getMyTeam = async () => {
+    try {
+      let response = await getTeamsList();
+      if (response) {
+        console.log("Response recieved is", response);
+        setMyTeamList(response)
+      }
+    } catch (error) {
+      console.error("Error occured in api is", error);
+    }
+  }
 
   //function to clsoe add stage modal
   const handleCloseAddStage = () => {

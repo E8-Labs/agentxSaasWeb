@@ -21,6 +21,7 @@ import TagsInput from "../dashboard/leads/TagsInput";
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../dashboard/leads/AgentSelectSnackMessage";
+import { getTeamsList } from "../onboarding/services/apisServices/ApiService";
 
 const PipelineStages = ({
   stages,
@@ -90,6 +91,15 @@ const PipelineStages = ({
   //variable to show and hide the add stage btn
   const [showAddStageBtn, setShowAddStageBtn] = useState(false);
 
+  //get my teams list
+  const [myTeamList, setMyTeamList] = useState([]);
+  const [assignToMember, setAssignToMember] = useState("");
+  const [assignLeadToMember, setAssignLeadToMember] = useState([]);
+
+  useEffect(() => {
+    getMyTeam();
+  }, [])
+
   //ading stages data
   useEffect(() => {
     if (selectedPipelineStages) {
@@ -140,6 +150,32 @@ const PipelineStages = ({
 
   const handlePopoverOpen = (event) => {
     setActionInfoEl(event.currentTarget);
+  };
+
+  //get my team
+  const getMyTeam = async () => {
+    try {
+      let response = await getTeamsList();
+      if (response) {
+        console.log("Response recieved is", response);
+        setMyTeamList(response)
+      }
+    } catch (error) {
+      console.error("Error occured in api is", error);
+    }
+  }
+
+  //new teammeber
+  const handleAssignTeamMember = (event) => {
+    let value = event.target.value;
+    // console.log("Value to set is :", value);
+    setAssignToMember(event.target.value);
+
+    const selectedItem = myTeamList.find((item) => item.name === value);
+    setAssignToMember(selectedItem.name);
+    setAssignLeadToMember([...assignLeadToMember, selectedItem.id]);
+
+    console.log("Selected inext stage is:", selectedItem);
   };
 
   const handlePopoverClose = () => {
@@ -396,6 +432,7 @@ const PipelineStages = ({
         action: action,
         examples: inputs,
         tags: tagsValue,
+        teams: assignLeadToMember
       };
 
       console.log("Data sending in api is:", ApiData);
@@ -1625,21 +1662,61 @@ const PipelineStages = ({
                           <p style={{ fontWeight: "600", fontSize: 15 }}>
                             Assign to
                           </p>
-                          {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
-                          <Image
-                            src="/svgIcons/infoIcon.svg"
-                            height={20}
-                            width={20}
-                            alt="*"
-                            aria-owns={
-                              openAction ? "mouse-over-popover2" : undefined
-                            }
-                            aria-haspopup="true"
-                            onMouseEnter={(event) => {
-                              setActionInfoEl2(event.currentTarget);
-                            }}
-                            onMouseLeave={handlePopoverClose}
-                          />
+
+                          <div className="mt-2">
+                            <FormControl fullWidth>
+                              <Select
+                                id="demo-simple-select"
+                                value={assignToMember || ""} // Default to empty string when no value is selected
+                                onChange={handleAssignTeamMember}
+                                displayEmpty // Enables placeholder
+                                renderValue={(selected) => {
+                                  if (!selected) {
+                                    return (
+                                      <div style={{ color: "#aaa" }}>Select team member</div>
+                                    ); // Placeholder style
+                                  }
+                                  return selected;
+                                }}
+                                sx={{
+                                  border: "1px solid #00000020", // Default border
+                                  "&:hover": {
+                                    border: "1px solid #00000020", // Same border on hover
+                                  },
+                                  "& .MuiOutlinedInput-notchedOutline": {
+                                    border: "none", // Remove the default outline
+                                  },
+                                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                    border: "none", // Remove outline on focus
+                                  },
+                                  "&.MuiSelect-select": {
+                                    py: 0, // Optional padding adjustments
+                                  },
+                                }}
+                                MenuProps={{
+                                  PaperProps: {
+                                    style: {
+                                      maxHeight: "30vh", // Limit dropdown height
+                                      overflow: "auto", // Enable scrolling in dropdown
+                                      scrollbarWidth: "none",
+                                    },
+                                  },
+                                }}
+                              >
+                                {myTeamList.map((item, index) => {
+                                  return (
+                                    <MenuItem
+                                      key={index}
+                                      value={item.name}
+                                    >
+                                      {item.name}
+                                    </MenuItem>
+                                  );
+                                })}
+                              </Select>
+                            </FormControl>
+                          </div>
+
                           <Popover
                             id="mouse-over-popover2"
                             sx={{

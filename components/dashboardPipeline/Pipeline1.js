@@ -43,6 +43,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import LeadTeamsAssignedList from "../dashboard/leads/LeadTeamsAssignedList";
+import { getTeamsList } from "../onboarding/services/apisServices/ApiService";
 // import "./TagsInput.css"; // Import the custom CSS
 // import TagsInput from '../dashboard/leads/TagsInput';
 
@@ -136,6 +137,11 @@ const Pipeline1 = () => {
   const [assignNextStage, setAssignNextStage] = useState("");
   const [assignNextStageId, setAssignNextStageId] = useState("");
 
+  //get my teams list
+  const [myTeamList, setMyTeamList] = useState([]);
+  const [assignToMember, setAssignToMember] = useState("");
+  const [assignLeadToMember, setAssignLeadToMember] = useState([]);
+
   const handleChangeNextStage = (event) => {
     let value = event.target.value;
     // console.log("Value to set is :", value);
@@ -146,6 +152,20 @@ const Pipeline1 = () => {
 
     console.log("Selected inext stage is:", selectedItem);
   };
+
+  //new teammeber
+  const handleAssignTeamMember = (event) => {
+    let value = event.target.value;
+    // console.log("Value to set is :", value);
+    setAssignToMember(event.target.value);
+
+    const selectedItem = myTeamList.find((item) => item.name === value);
+    setAssignToMember(selectedItem.name);
+    setAssignLeadToMember([...assignLeadToMember, selectedItem.id]);
+
+    console.log("Selected inext stage is:", selectedItem);
+  };
+
   //renaame the stage
   const [showRenamePopup, setShowRenamePopup] = useState(false);
   const [renameStage, setRenameStage] = useState("");
@@ -210,7 +230,20 @@ const Pipeline1 = () => {
 
   useEffect(() => {
     getImportantCalls();
+    getMyTeam()
   }, []);
+
+  const getMyTeam = async () => {
+    try {
+      let response = await getTeamsList();
+      if (response) {
+        console.log("Response recieved is", response);
+        setMyTeamList(response)
+      }
+    } catch (error) {
+      console.error("Error occured in api is", error);
+    }
+  }
 
   useEffect(() => {
     console.log("Selected Lead Details changed", selectedLeadsDetails);
@@ -562,6 +595,7 @@ const Pipeline1 = () => {
         examples: inputs,
         // mainAgentId: mainAgent.id,
         tags: tagsValue,
+        teams: assignLeadToMember
       };
       console.log("Data sending in api is:", ApiData);
 
@@ -2276,7 +2310,7 @@ const Pipeline1 = () => {
                     </div>
                   </Popover>
 
-                  <button
+                  {/* <button
                     className="flex flex-row items-center w-full justify-between rounded-lg h-[50px] px-2 mt-1 outline-none"
                     style={{ border: "1px solid #00000020" }}
                   >
@@ -2284,9 +2318,63 @@ const Pipeline1 = () => {
                     <div>
                       <CaretDown size={20} weight="bold" />
                     </div>
-                  </button>
+                  </button> */}
 
-                  <p style={{ fontWeight: "500", fontSize: 15 }}>Tags</p>
+                  <div className="mt-2">
+                    <FormControl fullWidth>
+                      <Select
+                        id="demo-simple-select"
+                        value={assignToMember || ""} // Default to empty string when no value is selected
+                        onChange={handleAssignTeamMember}
+                        displayEmpty // Enables placeholder
+                        renderValue={(selected) => {
+                          if (!selected) {
+                            return (
+                              <div style={{ color: "#aaa" }}>Select team member</div>
+                            ); // Placeholder style
+                          }
+                          return selected;
+                        }}
+                        sx={{
+                          border: "1px solid #00000020", // Default border
+                          "&:hover": {
+                            border: "1px solid #00000020", // Same border on hover
+                          },
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            border: "none", // Remove the default outline
+                          },
+                          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                            border: "none", // Remove outline on focus
+                          },
+                          "&.MuiSelect-select": {
+                            py: 0, // Optional padding adjustments
+                          },
+                        }}
+                        MenuProps={{
+                          PaperProps: {
+                            style: {
+                              maxHeight: "30vh", // Limit dropdown height
+                              overflow: "auto", // Enable scrolling in dropdown
+                              scrollbarWidth: "none",
+                            },
+                          },
+                        }}
+                      >
+                        {myTeamList.map((item, index) => {
+                          return (
+                            <MenuItem
+                              key={index}
+                              value={item.name}
+                            >
+                              {item.name}
+                            </MenuItem>
+                          );
+                        })}
+                      </Select>
+                    </FormControl>
+                  </div>
+
+                  <p className="mt-2" style={{ fontWeight: "500", fontSize: 15 }}>Tags</p>
 
                   <div
                     className="h-[45px] p-2 rounded-lg  items-center gap-2"
