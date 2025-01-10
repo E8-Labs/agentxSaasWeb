@@ -436,7 +436,7 @@ const BuildAgentTask = ({ handleContinue, AgentDetails, getAgentDetails, handleB
                             style={{ scrollbarWidth: "none" }}
                         >
 
-                            <div className="mt-2" style={styles.headingStyle}>
+                            <div className="mt-4" style={styles.headingStyle}>
                                 {`What's this agent's task?`}
                             </div>
 

@@ -101,7 +101,7 @@ export default function AgentSelectSnackMessage({
                 fontWeight: !title ? "600" : "500"
               }}
             >
-              {message}
+              {title && message}
             </p>
           </div>
         </div>
