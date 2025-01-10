@@ -200,7 +200,6 @@ function NotficationsDrawer({ close }) {
     } else if (item.type === NotificationTypes.Hotlead) {
       return (
         <Image
-        style={{backgroundColor: 'red'}}
           src={"/svgIcons/hotLeadNotIcon.svg"}
           height={37}
           width={37}
@@ -236,7 +235,7 @@ function NotficationsDrawer({ close }) {
       );
     } else if (item.type === NotificationTypes.CallsMadeByAgent) {
       return (
-        <Image src={"/svgIcons/aiNotIcon.svg"} height={22} width={22} alt="*" />
+        <Image src={"/svgIcons/aiNotIcon.svg"} height={25} width={25} alt="*" />
       );
     } else if (item.type === NotificationTypes.LeadCalledBack) {
       return (
@@ -261,7 +260,7 @@ function NotficationsDrawer({ close }) {
       );
     } else if (item.type === NotificationTypes.TrialReminder) {
       return (
-        <Image style={{backgroundColor: 'red'}} src={"/svgIcons/TrialReminderNotIcon.svg"} height={22} width={22} alt="*" />
+        <Image src={"/svgIcons/TrialReminderNotIcon.svg"} height={22} width={22} alt="*" />
       );
     } else if (item.type === NotificationTypes.LastChanceToAct) {
       return (
