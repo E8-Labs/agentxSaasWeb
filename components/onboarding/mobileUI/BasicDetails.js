@@ -24,6 +24,7 @@ import SnackMessages from "../services/AuthVerification/SnackMessages";
 import { setCookie } from "@/utilities/cookies";
 import { getLocalLocation } from "../services/apisServices/ApiService";
 import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
+import { PersistanceKeys } from "@/constants/Constants";
 
 const BasicDetails = ({
   handleContinue,
@@ -76,6 +77,13 @@ const BasicDetails = ({
   //congrats popup for small size screens
   const [congratsPopup, setCongratsPopup] = useState(false);
 
+  useEffect(() => {
+    let storedData = localStorage.getItem(PersistanceKeys.RegisterDetails);
+    if (storedData) {
+      let data = JSON.parse(storedData);
+      setUserData(data);
+    }
+  }, []);
   //focus 1st field automaticallly
   useEffect(() => {
     // Focus the first input field on component load
@@ -96,9 +104,23 @@ const BasicDetails = ({
   useEffect(() => {
     handleDetails(userName, userEmail, userPhoneNumber);
 
-    if (userName && userEmail && userPhoneNumber && emailCheckResponse?.status === true && !errorMessage && checkPhoneResponse?.status === true) {
+    if (
+      userName &&
+      userEmail &&
+      userPhoneNumber &&
+      emailCheckResponse?.status === true &&
+      !errorMessage &&
+      checkPhoneResponse?.status === true
+    ) {
       setShouldContinue(false);
-    } else if (!userName || !userEmail || !userPhoneNumber || emailCheckResponse?.status === false || errorMessage || checkPhoneResponse?.status === false) {
+    } else if (
+      !userName ||
+      !userEmail ||
+      !userPhoneNumber ||
+      emailCheckResponse?.status === false ||
+      errorMessage ||
+      checkPhoneResponse?.status === false
+    ) {
       setShouldContinue(true);
     }
   }, [
@@ -110,7 +132,7 @@ const BasicDetails = ({
     userTransaction,
     checkPhoneResponse,
     emailCheckResponse,
-    errorMessage
+    errorMessage,
   ]);
 
   //code to focus the verify code input field
@@ -129,7 +151,6 @@ const BasicDetails = ({
       setErrorMessage("");
     }
   };
-
 
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
@@ -307,7 +328,7 @@ const BasicDetails = ({
         setIsVisible(true);
         if (response.data.status === true) {
           console.log("Status is :---", response.data.status);
-          localStorage.removeItem("registerDetails");
+          localStorage.removeItem(PersistanceKeys.RegisterDetails);
           localStorage.setItem("User", JSON.stringify(response.data.data));
           //set cokie on locastorage to run middle ware
           // document.cookie = `User=${encodeURIComponent(
@@ -622,15 +643,16 @@ const BasicDetails = ({
 
                     const timer = setTimeout(() => {
                       // Scroll into view before focusing
-                      phoneInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      phoneInputRef.current.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                      });
                       phoneInputRef.current.focus({ preventScroll: true });
-                      console.log('Focus set after scroll');
+                      console.log("Focus set after scroll");
                     }, 200); // Slight delay to ensure component is rendered
                     return () => clearTimeout(timer);
-
                   }
                 }}
-
               />
 
               <div className="flex flex-row items-center justify-between w-full mt-6">
@@ -736,13 +758,13 @@ const BasicDetails = ({
                   }}
                   countryCodeEditable={true}
                   defaultMask={loading ? "Loading..." : undefined}
-                // onKeyDown={(e) => {
-                //   if (e.key === "Enter" || e.key === "Done") {
-                //     // inputsFields.current[3]?.focus(); // Move to the second input
-                //     console.log("Phonenumber key down pressed")
-                //     handleContinue();
-                //   }
-                // }}
+                  // onKeyDown={(e) => {
+                  //   if (e.key === "Enter" || e.key === "Done") {
+                  //     // inputsFields.current[3]?.focus(); // Move to the second input
+                  //     console.log("Phonenumber key down pressed")
+                  //     handleContinue();
+                  //   }
+                  // }}
                 />
               </div>
 

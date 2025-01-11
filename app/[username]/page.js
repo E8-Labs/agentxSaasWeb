@@ -19,7 +19,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { setCookie } from "@/utilities/cookies";
-import { Constants } from "@/constants/Constants";
+import { PersistanceKeys } from "@/constants/Constants";
 import { getLocalLocation } from "@/components/onboarding/services/apisServices/ApiService";
 
 const Page = ({ length = 6, onComplete }) => {
@@ -54,7 +54,10 @@ const Page = ({ length = 6, onComplete }) => {
     if (params && params.username) {
       console.log("Username is ", params.username);
       if (typeof window != "undefined") {
-        localStorage.setItem(Constants.LocalStorageCampaignee, params.username);
+        localStorage.setItem(
+          PersistanceKeys.LocalStorageCampaignee,
+          params.username
+        );
       }
     } else {
       // router.replace("/login");
@@ -102,7 +105,7 @@ const Page = ({ length = 6, onComplete }) => {
     } catch (error) {
       console.error("Error occured in get location", error);
     }
-  }
+  };
 
   //number validation
   const validatePhoneNumber = (phoneNumber) => {

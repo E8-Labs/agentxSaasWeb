@@ -18,8 +18,11 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { setCookie } from "@/utilities/cookies";
-import { Constants } from "@/constants/Constants";
-import { getLocalLocation, getLocation } from "@/components/onboarding/services/apisServices/ApiService";
+import { PersistanceKeys } from "@/constants/Constants";
+import {
+  getLocalLocation,
+  getLocation,
+} from "@/components/onboarding/services/apisServices/ApiService";
 
 const Page = ({ length = 6, onComplete }) => {
   let width = 3760;
@@ -55,7 +58,10 @@ const Page = ({ length = 6, onComplete }) => {
     if (params && params.username) {
       console.log("Username is ", params.username);
       if (typeof window != "undefined") {
-        localStorage.setItem(Constants.LocalStorageCampaignee, params.username);
+        localStorage.setItem(
+          PersistanceKeys.LocalStorageCampaignee,
+          params.username
+        );
       }
     } else {
       // router.replace("/login");
@@ -64,7 +70,7 @@ const Page = ({ length = 6, onComplete }) => {
 
   useEffect(() => {
     console.log("Country code is", countryCode);
-  }, [countryCode])
+  }, [countryCode]);
 
   useEffect(() => {
     const localData = localStorage.getItem("User");
@@ -83,7 +89,6 @@ const Page = ({ length = 6, onComplete }) => {
       let Data = getLocalLocation();
       setCountryCode(Data);
     }
-
   }, []);
 
   //get location
@@ -97,24 +102,27 @@ const Page = ({ length = 6, onComplete }) => {
           const { latitude, longitude } = position.coords;
 
           try {
-            console.log("Api Loc Check 1")
+            console.log("Api Loc Check 1");
             // Fetch country code based on latitude and longitude
             const response = await fetch(
               `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
             );
-            console.log("Api Loc Check 2")
+            console.log("Api Loc Check 2");
             const data = await response.json();
-            console.log("Api Loc Check 3")
+            console.log("Api Loc Check 3");
 
             // Set the country code if the API returns it
             const locationData = {
-              location: data.countryCode.toLowerCase()
-            }
-            setCountryCode(data.countryCode.toLowerCase())
-            console.log("Api Loc Check 4")
+              location: data.countryCode.toLowerCase(),
+            };
+            setCountryCode(data.countryCode.toLowerCase());
+            console.log("Api Loc Check 4");
             if (data && data.countryCode) {
-              localStorage.setItem("userLocation", JSON.stringify(locationData));
-              console.log("Api Loc Check 5")
+              localStorage.setItem(
+                "userLocation",
+                JSON.stringify(locationData)
+              );
+              console.log("Api Loc Check 5");
             } else {
               console.error("Unable to fetch country code.");
             }
@@ -154,7 +162,6 @@ const Page = ({ length = 6, onComplete }) => {
     return () => clearTimeout(timer);
   }, []);
 
-
   //action detects inner width
   useEffect(() => {
     console.log("Window inner width is", window.innerWidth);
@@ -171,8 +178,6 @@ const Page = ({ length = 6, onComplete }) => {
       setCheckPhoneResponse(null);
     }
   };
-
-
 
   //number validation
   const validatePhoneNumber = (phoneNumber) => {
@@ -222,12 +227,11 @@ const Page = ({ length = 6, onComplete }) => {
 
       if (response.status === true) {
         setMsgType(SnackbarTypes.Success);
-        setSnackMessage("Code sent")
+        setSnackMessage("Code sent");
       } else if (response.status === false) {
         setSnackMessage(response.message);
         setMsgType(SnackbarTypes.Error);
       }
-
     } catch (error) {
       console.error("Error occured", error);
       setSnackMessage("Login failed");
@@ -262,7 +266,6 @@ const Page = ({ length = 6, onComplete }) => {
       });
 
       if (response) {
-
         let screenWidth = window.innerWidth;
 
         if (screenWidth < 640) {

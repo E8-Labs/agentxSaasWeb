@@ -24,6 +24,7 @@ import SnackMessages from "./services/AuthVerification/SnackMessages";
 import { setCookie } from "@/utilities/cookies";
 import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
 import { getLocalLocation } from "./services/apisServices/ApiService";
+import { PersistanceKeys } from "@/constants/Constants";
 
 const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
   const verifyInputRef = useRef([]);
@@ -72,7 +73,12 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
   useEffect(() => {
     let loc = getLocalLocation();
     setCountryCode(loc);
-  }, [])
+    let storedData = localStorage.getItem(PersistanceKeys.RegisterDetails);
+    if (storedData) {
+      let data = JSON.parse(storedData);
+      setUserData(data);
+    }
+  }, []);
 
   //focus 1st field automaticallly
   useEffect(() => {
@@ -133,7 +139,6 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
       setErrorMessage("");
     }
   };
-
 
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
@@ -309,7 +314,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
         setIsVisible(true);
         if (response.data.status === true) {
           console.log("Status is :---", response.data.status);
-          localStorage.removeItem("registerDetails");
+          localStorage.removeItem(PersistanceKeys.RegisterDetails);
           localStorage.setItem("User", JSON.stringify(response.data.data));
           //set cokie on locastorage to run middle ware
           // document.cookie = `User=${encodeURIComponent(

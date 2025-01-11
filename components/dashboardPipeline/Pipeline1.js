@@ -44,7 +44,7 @@ import AgentSelectSnackMessage, {
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import LeadTeamsAssignedList from "../dashboard/leads/LeadTeamsAssignedList";
 import { getTeamsList } from "../onboarding/services/apisServices/ApiService";
-import { Constants } from "@/constants/Constants";
+import { PersistanceKeys } from "@/constants/Constants";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const Pipeline1 = () => {
@@ -448,7 +448,7 @@ const Pipeline1 = () => {
   //code for get pipeline
   function GetPipelinesCached() {
     let dataFound = false;
-    let data = localStorage.getItem(Constants.LocalStoragePipelines);
+    let data = localStorage.getItem(PersistanceKeys.LocalStoragePipelines);
     if (data) {
       let jsonData = JSON.parse(data);
 
@@ -512,7 +512,7 @@ const Pipeline1 = () => {
       if (response) {
         console.log("Response of getpipeline api is :", response.data.data);
         localStorage.setItem(
-          Constants.LocalStoragePipelines,
+          PersistanceKeys.LocalStoragePipelines,
           JSON.stringify(response.data.data)
         );
         let index = 0;

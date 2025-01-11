@@ -21,6 +21,7 @@ import {
 import SnackMessages from "../services/AuthVerification/SnackMessages";
 import { getLocalLocation } from "../services/apisServices/ApiService";
 import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
+import { PersistanceKeys } from "@/constants/Constants";
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
 const RecruiterAgentSignUp = ({
@@ -75,7 +76,15 @@ const RecruiterAgentSignUp = ({
   useEffect(() => {
     let loc = getLocalLocation();
     setCountryCode(loc);
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    let storedData = localStorage.getItem(PersistanceKeys.RegisterDetails);
+    if (storedData) {
+      let data = JSON.parse(storedData);
+      setUserData(data);
+    }
+  }, []);
 
   // Function to get the user's location and set the country code
   useEffect(() => {
@@ -123,7 +132,6 @@ const RecruiterAgentSignUp = ({
       setErrorMessage("");
     }
   };
-
 
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
@@ -294,7 +302,7 @@ const RecruiterAgentSignUp = ({
         console.log("Response of register api is:--", response);
         if (response.data.status === true) {
           console.log("Status is :---", response.data.status);
-          localStorage.removeItem("registerDetails");
+          localStorage.removeItem(PersistanceKeys.RegisterDetails);
           // localStorage.setItem("User", JSON.stringify(response.data.data));
           //set cokie on locastorage to run middle ware
           // document.cookie = `User=${encodeURIComponent(

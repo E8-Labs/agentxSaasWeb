@@ -22,6 +22,7 @@ import SnackMessages from "../services/AuthVerification/SnackMessages";
 import SendVerificationCode from "../services/AuthVerification/AuthService";
 import { getLocalLocation } from "../services/apisServices/ApiService";
 import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
+import { PersistanceKeys } from "@/constants/Constants";
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
 const MarketerAgentSignUp = ({
@@ -72,12 +73,12 @@ const MarketerAgentSignUp = ({
   //code for additionals
   const [customerService, setCustomerService] = useState("");
   const [company, setCompany] = useState("");
-  
+
   //get location
   useEffect(() => {
     let loc = getLocalLocation();
     setCountryCode(loc);
-  }, [])
+  }, []);
 
   // Function to get the user's location and set the country code
   useEffect(() => {
@@ -112,6 +113,14 @@ const MarketerAgentSignUp = ({
     emailCheckResponse,
   ]);
 
+  useEffect(() => {
+    let storedData = localStorage.getItem(PersistanceKeys.RegisterDetails);
+    if (storedData) {
+      let data = JSON.parse(storedData);
+      setUserData(data);
+    }
+  }, []);
+
   //code to focus the verify code input field
   useEffect(() => {
     if (showVerifyPopup && verifyInputRef.current[0]) {
@@ -128,7 +137,6 @@ const MarketerAgentSignUp = ({
       setErrorMessage("");
     }
   };
-
 
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
@@ -303,7 +311,7 @@ const MarketerAgentSignUp = ({
         console.log("Response of register api is:--", response);
         if (response.data.status === true) {
           console.log("Status is :---", response.data.status);
-          localStorage.removeItem("registerDetails");
+          localStorage.removeItem(PersistanceKeys.RegisterDetails);
           // localStorage.setItem("User", JSON.stringify(response.data.data));
           //set cokie on locastorage to run middle ware
           // document.cookie = `User=${encodeURIComponent(

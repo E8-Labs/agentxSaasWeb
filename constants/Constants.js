@@ -1,4 +1,5 @@
-export const Constants = {
+export const PersistanceKeys = {
   LocalStorageCampaignee: "CampaigneeSaved",
-  LocalStoragePipelines: "LocalStoragePipelines"
+  LocalStoragePipelines: "LocalStoragePipelines",
+  RegisterDetails: "registerDetails",
 };

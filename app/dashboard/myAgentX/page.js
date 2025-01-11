@@ -177,7 +177,7 @@ function Page() {
     getUniquesColumn();
     getAvailabePhoneNumbers();
     let loc = getLocalLocation();
-    console.log("Location getting is", loc)
+    console.log("Location getting is", loc);
     setCountryCode(loc);
     //////console.log("Setting scroll offset")
     const handleScroll = () => {
@@ -236,10 +236,14 @@ function Page() {
     //     return "100%"
     //   }
     // }
-    if (showDrawer?.agentType === "outbound" || showDrawer?.name === agName || !agName) {
+    if (
+      showDrawer?.agentType === "outbound" ||
+      showDrawer?.name === agName ||
+      !agName
+    ) {
       return "100%";
     }
-  }
+  };
 
   //function for image selection on dashboard
   const handleImageChange = async (event) => {
@@ -602,9 +606,9 @@ function Page() {
           prevAgents.map((agent) =>
             agent.id === response.data.data.agent2.id
               ? {
-                ...agent,
-                phoneNumber: response.data.data.agent2.phoneNumber.slice(1),
-              }
+                  ...agent,
+                  phoneNumber: response.data.data.agent2.phoneNumber.slice(1),
+                }
               : agent
           )
         );
@@ -940,8 +944,7 @@ function Page() {
 
   const AssignNumber = async (phoneNumber) => {
     try {
-
-      console.log("Updated number is", phoneNumber)
+      console.log("Updated number is", phoneNumber);
 
       setGlobalLoader(true);
       let AuthToken = null;
@@ -968,7 +971,7 @@ function Page() {
       const ApiPath = Apis.asignPhoneNumber;
 
       for (let [key, value] of formData.entries()) {
-        console.log(`${key} ${value}`)
+        console.log(`${key} ${value}`);
       }
 
       // return
@@ -981,7 +984,7 @@ function Page() {
 
       if (response) {
         //console.log("Response of assign number api is :", response.data)
-        console.log("Response of update number api is", response.data)
+        console.log("Response of update number api is", response.data);
         if (response.data.status === true) {
           setShowSuccessSnack(response.data.message);
           setIsVisibleSnack(true);
@@ -1002,7 +1005,6 @@ function Page() {
 
             const updateAgentData = showDrawer;
 
-
             console.log("Agents list is", agentsList);
 
             // const updatedArray = agentsList.map((localItem) => {
@@ -1013,11 +1015,8 @@ function Page() {
             // });
 
             const updatedArray = agentsList.map((localItem) => {
-
               if (updateAgentData.mainAgentId === localItem.id) {
-
                 const updatedSubAgents = localItem.agents.map((subAgent) => {
-
                   return updateAgentData.id === subAgent.id
                     ? { ...subAgent, phoneNumber: phoneNumber }
                     : subAgent;
@@ -1039,7 +1038,6 @@ function Page() {
             setUserAgentsList(updatedArray);
             // agentsListDetails = updatedArray
           }
-
 
           // setShowDrawer(null);
           //phoneNumber
@@ -1328,7 +1326,7 @@ function Page() {
 
   // const getLocation = () => {
   //   //console.log("getlocation trigered")
-  //   const registerationDetails = localStorage.getItem("registerDetails");
+  //   const registerationDetails = localStorage.getItem(PersistanceKeys.RegisterDetails);
   //   // let registerationData = null;
   //   setLocationLoader(true);
   //   if (registerationDetails) {
@@ -1561,7 +1559,7 @@ function Page() {
       (voice) => voice.voice_id === event.target.value
     );
     if (showDrawer.thumb_profile_image) {
-      return
+      return;
     } else {
       setSelectedImage(selectedVoice.img);
       updateAgentProfile(selectedVoice.img);
@@ -1588,24 +1586,21 @@ function Page() {
 
       const response = await axios.get(ApiPath, {
         headers: {
-          "Authorization": "Bearer " + AuthToken,
-          "Content-Type": "application/json"
-        }
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
         console.log("Response of get calender api is:", response);
         setPreviousCalenders(response.data.data);
       }
-
     } catch (error) {
       console.error("Error occured in the api is ", error);
     } finally {
-      console.log("Api cal for getting calenders done")
+      console.log("Api cal for getting calenders done");
     }
-  }
-
-
+  };
 
   const styles = {
     claimPopup: {
@@ -2293,7 +2288,7 @@ function Page() {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                // defaultMask={loading ? 'Loading...' : undefined}
+                  // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -2323,8 +2318,9 @@ function Page() {
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                        }`}
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
+                        index === scriptKeys?.length - 1 ? "mb-16" : ""
+                      }`}
                       style={{
                         ...styles.inputStyle,
                         border: "1px solid #00000010",
@@ -2417,10 +2413,9 @@ function Page() {
                 // className='mt-8'
                 onClick={() => {
                   if (typeof document === "undefined") {
-                    document.getElementById("fileInput").click()
+                    document.getElementById("fileInput").click();
                   }
-                }
-                }
+                }}
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
@@ -2589,10 +2584,11 @@ function Page() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${activeTab === tab
-                  ? "text-purple border-b-2 border-purple"
-                  : "text-black-500"
-                  }`}
+                className={`${
+                  activeTab === tab
+                    ? "text-purple border-b-2 border-purple"
+                    : "text-black-500"
+                }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >
                 {tab}
@@ -2826,10 +2822,10 @@ function Page() {
                                   if (showReassignBtn && item?.claimedBy) {
                                     e.stopPropagation();
                                     setShowConfirmationModal(item);
-                                    console.log("Hit release number api")
+                                    console.log("Hit release number api");
                                     // AssignNumber
                                   } else {
-                                    console.log("Hit reassign number api")
+                                    console.log("Hit reassign number api");
                                     console.log(
                                       "Should call assign number api"
                                     );
@@ -2840,11 +2836,11 @@ function Page() {
                                     );
                                   }
                                 }}
-
                                 style={{
-                                  width: numberDropDownWidth(item?.claimedBy?.name),
+                                  width: numberDropDownWidth(
+                                    item?.claimedBy?.name
+                                  ),
                                 }}
-
                               >
                                 {item.phoneNumber}
                               </div>
@@ -2862,25 +2858,25 @@ function Page() {
                                     <div className="flex flex-row items-center gap-2">
                                       {showDrawer?.name !==
                                         item.claimedBy.name && (
-                                          <div>
-                                            {`(Claimed by {${item.claimedBy.name}})`}
-                                            {reassignLoader === item ? (
-                                              <CircularProgress size={15} />
-                                            ) : (
-                                              <button
-                                                className="text-purple underline"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  setShowConfirmationModal(item);
-                                                  // handleReassignNumber(item)
-                                                  // handleReassignNumber(e.target.value)
-                                                }}
-                                              >
-                                                Reassign
-                                              </button>
-                                            )}
-                                          </div>
-                                        )}
+                                        <div>
+                                          {`(Claimed by {${item.claimedBy.name}})`}
+                                          {reassignLoader === item ? (
+                                            <CircularProgress size={15} />
+                                          ) : (
+                                            <button
+                                              className="text-purple underline"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setShowConfirmationModal(item);
+                                                // handleReassignNumber(item)
+                                                // handleReassignNumber(e.target.value)
+                                              }}
+                                            >
+                                              Reassign
+                                            </button>
+                                          )}
+                                        </div>
+                                      )}
                                     </div>
                                   )}
                                 </div>
@@ -2989,7 +2985,6 @@ function Page() {
             </div>
           ) : activeTab === "Calender" ? (
             <div>
-
               <UserCalender
                 calendarDetails={calendarDetails}
                 setUserDetails={setUserAgentsList}
@@ -3316,8 +3311,7 @@ function Page() {
                 <span className="text-purple">
                   ({formatPhoneNumber(showConfirmationModal?.phoneNumber)})
                 </span>{" "}
-                to {showDrawer?.name}.
-                {/* {`{${showDrawer?.name}}`}. */}
+                to {showDrawer?.name}.{/* {`{${showDrawer?.name}}`}. */}
               </p>
             </div>
 

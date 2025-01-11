@@ -23,6 +23,7 @@ import SendVerificationCode from "../services/AuthVerification/AuthService";
 import SnackMessages from "../services/AuthVerification/SnackMessages";
 import { setCookie } from "@/utilities/cookies";
 import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
+import { PersistanceKeys } from "@/constants/Constants";
 
 const OtherDetails = ({
   handleContinue,
@@ -103,10 +104,19 @@ const OtherDetails = ({
     },
   ];
 
+  useEffect(() => {
+    let storedData = localStorage.getItem(PersistanceKeys.RegisterDetails);
+    if (storedData) {
+      let data = JSON.parse(storedData);
+      setUserData(data);
+    }
+  }, []);
   //focus 1st field automaticallly
   useEffect(() => {
     // Focus the first input field on component load
-    const registerationDetails = localStorage.getItem("registerDetails");
+    const registerationDetails = localStorage.getItem(
+      PersistanceKeys.RegisterDetails
+    );
     inputsFields.current[0]?.focus();
     if (registerationDetails) {
       const registerationData = JSON.parse(registerationDetails);
@@ -312,7 +322,6 @@ const OtherDetails = ({
     }
     // setResponse(response)
     // setIsVisible(true)
-
   };
 
   const handleClose = () => {
@@ -447,7 +456,7 @@ const OtherDetails = ({
         setIsVisible(true);
         if (response.data.status === true) {
           console.log("Status is :---", response.data.status);
-          localStorage.removeItem("registerDetails");
+          localStorage.removeItem(PersistanceKeys.RegisterDetails);
           localStorage.setItem("User", JSON.stringify(response.data.data));
           //set cokie on locastorage to run middle ware
           // document.cookie = `User=${encodeURIComponent(
@@ -632,7 +641,7 @@ const OtherDetails = ({
                 // userData.agentTitle = "Real Estate Agent" ? (
                 //     "RealEstateAgent") :
                 userData?.userTypeTitle === "Sales Dev Rep" ||
-                  userData?.userTypeTitle === "Marketer" ? (
+                userData?.userTypeTitle === "Marketer" ? (
                   <div className="w-full">
                     <div style={styles.headingStyle} className="mt-6">
                       Where do you primarily operate or serve customers
@@ -1174,7 +1183,7 @@ const OtherDetails = ({
                           fontSize: 26,
                           fontWeight: "700",
                           textAlign: "center",
-                          marginTop: 20
+                          marginTop: 20,
                         }}
                       >
                         Congrats!

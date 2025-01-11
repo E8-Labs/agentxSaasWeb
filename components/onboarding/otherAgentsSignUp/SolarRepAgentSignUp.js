@@ -22,6 +22,7 @@ import SendVerificationCode from "../services/AuthVerification/AuthService";
 import SnackMessages from "../services/AuthVerification/SnackMessages";
 import { getLocalLocation } from "../services/apisServices/ApiService";
 import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
+import { PersistanceKeys } from "@/constants/Constants";
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
 const SolarRepAgentSignUp = ({
@@ -97,7 +98,7 @@ const SolarRepAgentSignUp = ({
   useEffect(() => {
     let loc = getLocalLocation();
     setCountryCode(loc);
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (
@@ -143,6 +144,14 @@ const SolarRepAgentSignUp = ({
     projectSize,
     ClientType,
   ]);
+
+  useEffect(() => {
+    let storedData = localStorage.getItem(PersistanceKeys.RegisterDetails);
+    if (storedData) {
+      let data = JSON.parse(storedData);
+      setUserData(data);
+    }
+  }, []);
 
   //code to focus the verify code input field
   useEffect(() => {
@@ -349,7 +358,7 @@ const SolarRepAgentSignUp = ({
         console.log("Response of register api is:--", response);
         if (response.data.status === true) {
           console.log("Status is :---", response.data.status);
-          localStorage.removeItem("registerDetails");
+          localStorage.removeItem(PersistanceKeys.RegisterDetails);
           // localStorage.setItem("User", JSON.stringify(response.data.data));
           //set cokie on locastorage to run middle ware
           // document.cookie = `User=${encodeURIComponent(
