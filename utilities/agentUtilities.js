@@ -79,7 +79,7 @@ export const getAgentsListImage = (subAgent) => {
 
     if (subAgent.thumb_profile_image) {
         return (
-            <div className="bg-gray-100 rounded-full flex flex-row items-center justify-center">
+            <div className="bg-gray-100 rounded-full h-[43px]  flex flex-row items-center justify-center">
                 <Image
                     src={subAgent.thumb_profile_image}
                     height={42}
@@ -90,7 +90,7 @@ export const getAgentsListImage = (subAgent) => {
                         height: "42px",
                         width: "42px",
                         objectFit: "cover",
-                        margin: "8px"
+                        // margin: "8px"
                     }}
                 />
             </div>
@@ -104,7 +104,7 @@ export const getAgentsListImage = (subAgent) => {
         );
         if (selectedVoice && selectedVoice.img) {
             return (
-                <div className="bg-gray-100 rounded-full flex flex-row items-center justify-center">
+                <div className="bg-gray-100 rounded-full h-[43px] flex flex-row items-center justify-center">
                     < Image
                         src={selectedVoice.img}
                         height={42}
@@ -112,7 +112,7 @@ export const getAgentsListImage = (subAgent) => {
                         alt="*"
                         className="rounded-full"
                         style={{
-                            margin: "5px"
+                            // margin: "5px"
                         }}
                     />
                 </div>

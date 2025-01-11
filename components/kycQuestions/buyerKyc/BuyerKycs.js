@@ -488,7 +488,7 @@ const BuyerKycs = ({ handleContinue }) => {
                                 position: "absolute",
                                 left: "50%",
                                 translate: "-50%",
-                                left: "17%",
+                                left: "20%",
                                 top: "20%",
                             }}
                         >
@@ -507,7 +507,7 @@ const BuyerKycs = ({ handleContinue }) => {
                             videoUrl="https://drive.google.com/file/d/1mjcZ9-OIKBv44-eeOa2TrippR5h0RfSs/view?usp=share_link"
                         />
                         <div
-                            className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
+                            className="mt-6 w-5/12 md:w-full md:text-2xl lg:text-2xl xl:text-4xl text-lg font-[700]"
                             style={{ textAlign: "center" }}
                         >
                             What would you like to ask buyers?
@@ -560,7 +560,7 @@ const BuyerKycs = ({ handleContinue }) => {
 
                         {toggleClick === 1 ? (
                             <div
-                                className="mt-8 w-10/12 md:w-6/12 max-h-[85%] overflow-auto"
+                                className="mt-8 w-10/12 md:w-5/12 lg:6/12 max-h-[85%] overflow-auto"
                                 style={{ scrollbarWidth: "none" }}
                             >
                                 {needKYCQuestions.map((item, index) => (

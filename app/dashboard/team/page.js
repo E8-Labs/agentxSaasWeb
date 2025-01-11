@@ -724,7 +724,7 @@ function Page() {
                   style={{
                     marginTop: 20,
                     backgroundColor:
-                      !name || !email || !phone || errorMessage || emailCheckResponse.status === true ? "#00000020" : "",
+                      !name || !email || !phone || errorMessage || emailCheckResponse.status !== true ? "#00000020" : "",
                   }}
                   className="w-full flex bg-purple p-3 rounded-lg items-center justify-center"
                   onClick={() => {
@@ -735,13 +735,13 @@ function Page() {
                     };
                     inviteTeamMember(data);
                   }}
-                  disabled={!name || !email || !phone || errorMessage || emailCheckResponse.status === true}
+                  disabled={!name || !email || !phone || errorMessage || emailCheckResponse.status !== true}
                 >
                   <div
                     style={{
                       fontSize: 16,
                       fontWeight: "500",
-                      color: !name || !email || !phone || errorMessage || emailCheckResponse.status === true ? "#000000" : "#ffffff",
+                      color: !name || !email || !phone || errorMessage || emailCheckResponse.status !== true ? "#000000" : "#ffffff",
                     }}
                   >
                     Send Invite

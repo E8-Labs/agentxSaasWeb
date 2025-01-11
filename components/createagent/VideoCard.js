@@ -4,14 +4,14 @@ const VideoCard = ({ playVideo, horizontal = true, title }) => {
   return (
     <div
       className={`flex  ${horizontal ? "flex-row items-center" : "flex-col items-start"
-        }  space-x-4 p-4 bg-white rounded-lg border border-brdColor max-w-md cursor-pointer `}
+        } p-4 bg-white rounded-lg border border-brdColor max-w-md cursor-pointer `}
       onClick={() => {
         playVideo();
       }}
     >
       {/* Video Thumbnail */}
       <div className="w-full flex flex-row items-end gap-2">
-        <div className="relative w-24 h-24 flex-shrink-0">
+        <div className="relative w-[6vw] h-[10vh] flex-shrink-0">
           <Image
             src="/assets/youtubeplay.png" // Replace with your image path
             alt="Video thumbnail"
@@ -37,7 +37,6 @@ const VideoCard = ({ playVideo, horizontal = true, title }) => {
           </div>
         </div>
 
-        <p className="text-sm text-gray-600">2mins</p>
       </div>
 
       {/* Content Section */}
@@ -46,6 +45,9 @@ const VideoCard = ({ playVideo, horizontal = true, title }) => {
           {/* Learn how to add calendar */}
           {title}
         </h3>
+        <div className="flex px-2 py-1 mt-2 flex-col justify-center items-center rounded-full border border-brdColor">
+          <p className="text-sm text-gray-600">2mins</p>
+        </div>
       </div>
     </div>
   );

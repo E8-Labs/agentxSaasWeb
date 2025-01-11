@@ -99,7 +99,7 @@ const UserService = ({ handleContinue, handleBack }) => {
     switch (title) {
       case "Real Estate Agent":
         return "RealEstateAgent";
-      case "Sales Dev Rep":
+      case "Sales Dev Agent":
         return "SalesDevRep";
       case "Solar Rep":
         return "SolarRep";
@@ -107,7 +107,7 @@ const UserService = ({ handleContinue, handleBack }) => {
         return "InsuranceAgent";
       case "Marketer":
         return "MarketerAgent";
-      case "Website Owners":
+      case "Website Agent":
         return "WebsiteAgent";
       case "Recuiter Agent":
         return "RecruiterAgent";

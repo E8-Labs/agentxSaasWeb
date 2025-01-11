@@ -306,39 +306,50 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
   //function for address picker
 
-  const handleSelectAddress = (placeId, description) => {
-    // Set the input field to the selected place's description
-    setAddressValue(description);
-    setShowDropdown(false); // Hide dropdown on selection
+ // Function for address picker with restrictions
+const handleSelectAddress = (placeId, description) => {
+  setAddressValue(description);
+  setShowDropdown(false); // Hide dropdown on selection
 
-    // Fetch place details if required
-    if (placesService) {
-      placesService.getDetails({ placeId }, (details) => {
-        setSelectedPlace(details);
-        console.log("Selected Place Details:", details);
-      });
-    }
-  };
+  // Fetch place details if required
+  if (placesService) {
+    placesService.getDetails({ placeId }, (details) => {
+      setSelectedPlace(details);
+      console.log("Selected Place Details:", details);
+    });
+  }
+};
 
-  const renderItem = (item) => {
-    return (
-      <div
-        key={item.place_id}
-        className="prediction-item"
-        onClick={() => {
-          handleSelectAddress(item.place_id, item.description);
-          setShowAddressPickerModal(false);
-        }}
-        style={{
-          cursor: "pointer",
-          padding: "8px",
-          borderBottom: "1px solid #ddd",
-        }}
-      >
-        {item.description}
-      </div>
-    );
-  };
+// Function to fetch predictions with restrictions
+const handleInputChange = (evt) => {
+  const input = evt.target.value;
+  setAddressValue(input);
+
+  // Fetch predictions only for US and Canada
+  getPlacePredictions({
+    input,
+    componentRestrictions: { country: ["us", "ca"] },
+  });
+};
+
+// Render predictions
+const renderItem = (item) => (
+  <div
+    key={item.place_id}
+    className="prediction-item"
+    onClick={() => {
+      handleSelectAddress(item.place_id, item.description);
+      setShowAddressPickerModal(false);
+    }}
+    style={{
+      cursor: "pointer",
+      padding: "8px",
+      borderBottom: "1px solid #ddd",
+    }}
+  >
+    {item.description}
+  </div>
+);
 
   const status = [
     {
@@ -401,9 +412,9 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           <div
             style={{
               position: "absolute",
-              left: "50%",
+              left: "18%",
               translate: "-50%",
-              left: "14%",
+              // left: "14%",
               top: "20%",
             }}
           >
@@ -804,8 +815,13 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                       placeholder="Type here ..."
                       value={addressValue}
                       onChange={(evt) => {
-                        setAddressValue(evt.target.value); // Update input field value
-                        getPlacePredictions({ input: evt.target.value });
+                        let input = evt.target.value;
+                        setAddressValue(input); // Update input field value
+                        getPlacePredictions({
+                          input,
+                          componentRestrictions: { country: ["us", "ca"] },
+                        });
+                        // getPlacePredictions({ input: evt.target.value });
                         setShowDropdown(true); // Show dropdown on input
                       }}
                     />

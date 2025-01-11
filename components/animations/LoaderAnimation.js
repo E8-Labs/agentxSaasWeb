@@ -63,9 +63,9 @@ const LoaderAnimation = ({ loaderModal }) => {
                                 Your agent is building..
                             </div>
 
-                            <div className='text-center mt-6 pb-8' style={{ fontWeight: "400", fontSize: 15 }}>
+                            {/* <div className='text-center mt-6 pb-8' style={{ fontWeight: "400", fontSize: 15 }}>
                                 Loading ...
-                            </div>
+                            </div> */}
 
                             {/* Can be use full to add shadow
                             <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}

@@ -576,9 +576,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
           <div
             style={{
               position: "absolute",
-              left: "50%",
+              // left: "50%",
               translate: "-50%",
-              left: "14%",
+              left: "18%",
               top: "20%",
             }}
           >
@@ -587,7 +587,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               playVideo={() => {
                 setIntroVideoModal(true);
               }}
-              title="Learn about getting started"
+              title="Learn about phone numbers"
             />
           </div>
           <IntroVideoModal

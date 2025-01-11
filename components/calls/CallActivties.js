@@ -744,7 +744,7 @@ function SheduledCalls() {
                                     </div>
                                   )}
                                 </div>
-                                <div className="w-2/12 truncate">Scheduled</div>
+                                <div className="w-2/12 truncate">{item.status}</div>
                               </div>
                             </div>
                           );

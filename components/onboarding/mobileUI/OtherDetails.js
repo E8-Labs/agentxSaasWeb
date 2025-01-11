@@ -130,7 +130,7 @@ const OtherDetails = ({
   // Function to get the user's location and set the country code
   useEffect(() => {
     if (
-      userData?.userTypeTitle === "Sales Dev Rep" ||
+      userData?.userTypeTitle === "Sales Dev Agent" ||
       userData?.userTypeTitle === "Marketer"
     ) {
       if (service && companyName) {
@@ -162,7 +162,7 @@ const OtherDetails = ({
       } else if (!userFarm || !userBrokage) {
         setShouldContinue(true);
       }
-    } else if (userData?.userTypeTitle === "Website Owners") {
+    } else if (userData?.userTypeTitle === "Website Agent") {
       if (websiteUrl) {
         setShouldContinue(false);
       } else if (!websiteUrl) {
@@ -495,7 +495,7 @@ const OtherDetails = ({
     switch (title) {
       case "Real Estate Agent":
         return "RealEstateAgent";
-      case "Sales Dev Rep":
+      case "Sales Dev Agent":
         return "SalesDevRep";
       case "Solar Rep":
         return "SolarRep";
@@ -503,7 +503,7 @@ const OtherDetails = ({
         return "InsuranceAgent";
       case "Marketer":
         return "MarketerAgent";
-      case "Website Owners":
+      case "Website Agent":
         return "WebsiteAgent";
       case "Recuiter Agent":
         return "RecruiterAgent";
@@ -640,7 +640,7 @@ const OtherDetails = ({
               {
                 // userData.agentTitle = "Real Estate Agent" ? (
                 //     "RealEstateAgent") :
-                userData?.userTypeTitle === "Sales Dev Rep" ||
+                userData?.userTypeTitle === "Sales Dev Agent" ||
                 userData?.userTypeTitle === "Marketer" ? (
                   <div className="w-full">
                     <div style={styles.headingStyle} className="mt-6">
@@ -879,7 +879,7 @@ const OtherDetails = ({
                       }}
                     />
                   </div>
-                ) : userData?.userTypeTitle === "Website Owners" ? (
+                ) : userData?.userTypeTitle === "Website Agent" ? (
                   <div className="w-full">
                     <div style={styles.headingStyle} className="mt-6">
                       Website (URL)

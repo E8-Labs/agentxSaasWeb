@@ -353,7 +353,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
     switch (title) {
       case "Real Estate Agent":
         return "RealEstateAgent";
-      case "Sales Dev Rep":
+      case "Sales Dev Agent":
         return "SalesDevRep";
       case "Solar Rep":
         return "SolarRep";
@@ -361,7 +361,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
         return "InsuranceAgent";
       case "Marketer":
         return "MarketerAgent";
-      case "Website Owners":
+      case "Website Agent":
         return "WebsiteAgent";
       case "Recuiter Agent":
         return "RecruiterAgent";

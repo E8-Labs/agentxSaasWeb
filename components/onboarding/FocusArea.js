@@ -109,7 +109,7 @@ const FocusArea = ({
     switch (title) {
       case "Real Estate Agent":
         return "RealEstateAgent";
-      case "Sales Dev Rep":
+      case "Sales Dev Agent":
         return "SalesDevRep";
       case "Solar Rep":
         return "SolarRep";
@@ -117,7 +117,7 @@ const FocusArea = ({
         return "InsuranceAgent";
       case "Marketer":
         return "MarketerAgent";
-      case "Website Owners":
+      case "Website Agent":
         return "WebsiteAgent";
       case "Recuiter Agent":
         return "RecruiterAgent";
@@ -177,7 +177,7 @@ const FocusArea = ({
       if (agentType === "Real Estate Agent") {
         handleContinue();
         console.log("Selected agent type is");
-      } else if (agentType === "Sales Dev Rep") {
+      } else if (agentType === "Sales Dev Agent") {
         handleSalesAgentContinue();
         console.log("Selected agent type is");
       } else if (agentType === "Solar Rep") {
@@ -189,7 +189,7 @@ const FocusArea = ({
       } else if (agentType === "Marketer") {
         handleMarketerAgentContinue();
         console.log("Selected agent type is");
-      } else if (agentType === "Website Owners") {
+      } else if (agentType === "Website Agent") {
         handleWebsiteAgentContinue();
         console.log("Selected agent type is");
       } else if (agentType === "Recuiter Agent") {

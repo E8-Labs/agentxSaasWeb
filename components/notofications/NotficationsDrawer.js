@@ -443,9 +443,6 @@ function NotficationsDrawer({ close }) {
                   </button>
                 )}
               </div>
-              <div style={{ fontSize: 12, color: "#666" }}>
-                {item.date} {/* Optional: Adjust how you render the date */}
-              </div>
             </div>
 
 

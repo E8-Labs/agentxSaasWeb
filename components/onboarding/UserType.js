@@ -89,7 +89,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
     },
     {
       id: 2,
-      title: "Sales Dev Rep",
+      title: "Sales Dev Agent",
       icon: "/usertype/avt2.png",
       areaOfFocusTitle: "What area of sales do you focus on?",
     },
@@ -113,7 +113,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
     },
     {
       id: 6,
-      title: "Website Owners",
+      title: "Website Agent",
       icon: "/usertype/avt7.png",
       areaOfFocusTitle: "How would you use AgentX?",
     },
