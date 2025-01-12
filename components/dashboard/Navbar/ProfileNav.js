@@ -60,6 +60,7 @@ const ProfileNav = () => {
       originalPrice: "",
       discountPrice: "45",
       planStatus: "",
+      status: "",
     },
     {
       id: 2,
@@ -69,6 +70,7 @@ const ProfileNav = () => {
       originalPrice: "165",
       discountPrice: "99",
       planStatus: "40%",
+      status: "",
     },
     {
       id: 3,
@@ -78,6 +80,7 @@ const ProfileNav = () => {
       originalPrice: "540",
       discountPrice: "370",
       planStatus: "50%",
+      status: "Popular",
     },
     {
       id: 4,
@@ -87,6 +90,7 @@ const ProfileNav = () => {
       originalPrice: "1200",
       discountPrice: "480",
       planStatus: "60%",
+      status: "Best Value",
     },
   ];
 
@@ -713,8 +717,17 @@ const ProfileNav = () => {
                               fontSize: 20,
                               fontWeight: "600",
                             }}
+                            className="flex flex-row items-center gap-2"
                           >
                             {item.mints} mins
+                            {item.status && (
+                              <div
+                                className="flex px-2 py-1 bg-purple rounded-full text-white"
+                                style={{ fontSize: 11.6, fontWeight: "500" }}
+                              >
+                                {item.status}
+                              </div>
+                            )}
                             {/*  | Approx {item.calls} Calls */}
                           </div>
                           <div className="flex flex-row items-center justify-between">

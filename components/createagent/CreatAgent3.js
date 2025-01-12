@@ -205,6 +205,7 @@ const CreatAgent3 = ({ handleContinue }) => {
       originalPrice: "45",
       discountPrice: "0",
       planStatus: "Free",
+      status: "",
     },
     {
       id: 2,
@@ -214,6 +215,7 @@ const CreatAgent3 = ({ handleContinue }) => {
       originalPrice: "165",
       discountPrice: "99",
       planStatus: "40%",
+      status: "",
     },
     {
       id: 3,
@@ -223,6 +225,7 @@ const CreatAgent3 = ({ handleContinue }) => {
       originalPrice: "540",
       discountPrice: "370",
       planStatus: "50%",
+      status: "Popular",
     },
     {
       id: 4,
@@ -232,6 +235,7 @@ const CreatAgent3 = ({ handleContinue }) => {
       originalPrice: "1200",
       discountPrice: "480",
       planStatus: "60%",
+      status: "Best Value",
     },
   ];
 
@@ -244,6 +248,7 @@ const CreatAgent3 = ({ handleContinue }) => {
       originalPrice: "",
       discountPrice: "45",
       planStatus: "",
+      status: "",
     },
     {
       id: 2,
@@ -253,6 +258,7 @@ const CreatAgent3 = ({ handleContinue }) => {
       originalPrice: "165",
       discountPrice: "99",
       planStatus: "40%",
+      status: "",
     },
     {
       id: 3,
@@ -262,6 +268,7 @@ const CreatAgent3 = ({ handleContinue }) => {
       originalPrice: "540",
       discountPrice: "370",
       planStatus: "50%",
+      status: "Popular",
     },
     {
       id: 4,
@@ -271,6 +278,7 @@ const CreatAgent3 = ({ handleContinue }) => {
       originalPrice: "1200",
       discountPrice: "480",
       planStatus: "60%",
+      status: "Best Value",
     },
   ];
 
@@ -526,8 +534,17 @@ const CreatAgent3 = ({ handleContinue }) => {
                             fontSize: 20,
                             fontWeight: "600",
                           }}
+                          className="flex flex-row items-center gap-2"
                         >
                           {item.mints}mins | Approx {item.calls} Calls
+                          {item.status && (
+                            <div
+                              className="flex px-2 py-1 bg-purple rounded-full text-white"
+                              style={{ fontSize: 11.6, fontWeight: "500" }}
+                            >
+                              {item.status}
+                            </div>
+                          )}
                         </div>
                         <div className="flex flex-row items-center justify-between">
                           <div
@@ -751,7 +768,9 @@ const CreatAgent3 = ({ handleContinue }) => {
                 <div className="text-center mt-2 text-[18px] font-[700] md:text-[24px] md:font-[700]">
                   {selectedPlan?.id > 1
                     ? "Select a plan that fits your needs"
-                    : "Start for Free. Then Pay as you go!"}
+                    : "Add your payment method."
+                    // Start for Free. Then Pay as you go!
+                  }
                 </div>
 
                 {selectedPlan?.id > 1 ? (
@@ -903,7 +922,11 @@ const CreatAgent3 = ({ handleContinue }) => {
                   className="mt-6 w-11/12 sm:text-3xl text-xl font-[600]"
                   style={{ textAlign: "center" }}
                 >
-                  Select a plan that fits your needs
+                  {selectedPlan?.id > 1
+                    ? "Select a plan that fits your needs"
+                    : "Add your payment method."
+                    // Start for Free. Then Pay as you go!
+                  }
                 </div>
 
                 <div
@@ -1036,8 +1059,19 @@ const CreatAgent3 = ({ handleContinue }) => {
                                 fontSize: 20,
                                 fontWeight: "600",
                               }}
+                              className="flex flex-row items-center gap-1"
                             >
-                              {item.mints}mins | Approx {item.calls} Calls
+                              {item.mints}mins | Approx {item.calls}
+                              {item.status && (
+                                <div
+                                  className="flex px-2 py-1 bg-purple rounded-full text-white"
+                                  style={{ fontSize: 11.6, fontWeight: "500" }}
+                                >
+                                  {item.status}
+                                </div>
+                              )}
+
+
                             </div>
                             <div className="flex flex-row items-center justify-between">
                               <div

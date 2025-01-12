@@ -30,15 +30,16 @@ function InviteAgentX() {
     }, []);
 
     const plans = [
-        // {
-        //     id: 1,
-        //     mints: 30,
-        //     calls: 25,
-        //     details: "Perfect for getting started! Free for the first 30 mins then $45 to continue.",
-        //     originalPrice: "45",
-        //     discountPrice: "0",
-        //     planStatus: ""
-        // },
+        {
+            id: 1,
+            mints: 30,
+            calls: 25,
+            details: "Great for trying out AI sales agents.",
+            originalPrice: "",
+            discountPrice: "45",
+            planStatus: "",
+            status: "",
+        },
         {
             id: 2,
             mints: 120,
@@ -46,7 +47,8 @@ function InviteAgentX() {
             details: "Perfect for neighborhood updates and engagement.",
             originalPrice: "165",
             discountPrice: "99",
-            planStatus: "40%"
+            planStatus: "40%",
+            status: "",
         },
         {
             id: 3,
@@ -55,7 +57,8 @@ function InviteAgentX() {
             details: "Great for 2-3 listing appointments in your territory.",
             originalPrice: "540",
             discountPrice: "370",
-            planStatus: "50%"
+            planStatus: "50%",
+            status: "Popular",
         },
         {
             id: 4,
@@ -64,7 +67,8 @@ function InviteAgentX() {
             details: "Great for teams and reaching new GCI goals. ",
             originalPrice: "1200",
             discountPrice: "480",
-            planStatus: "60%"
+            planStatus: "60%",
+            status: "Best Value",
         },
     ]
 
@@ -320,15 +324,27 @@ function InviteAgentX() {
                                                 </div>
                                             </div>
                                             <div className='w-full'>
-                                                <div style={{ color: "#151515", fontSize: 20, fontWeight: "600" }}>
+                                                <div
+                                                    className="flex flex-row items-center gap-2"
+                                                    style={{ color: "#151515", fontSize: 20, fontWeight: "600" }}>
                                                     {item.mints}mins | Approx {item.calls} Calls
+                                                    {item.status && (
+                                                        <div
+                                                            className="flex px-2 py-1 bg-purple rounded-full text-white"
+                                                            style={{ fontSize: 11.6, fontWeight: "500" }}
+                                                        >
+                                                            {item.status}
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 <div className='flex flex-row items-center justify-between'>
                                                     <div className='mt-2' style={{ color: "#15151590", fontSize: 12, width: "80%", fontWeight: "600" }}>
                                                         {item.details}
                                                     </div>
                                                     <div className='flex flex-row items-center'>
-                                                        <div style={styles.originalPrice}>${item.originalPrice}</div>
+                                                        {item.originalPrice && (
+                                                            <div style={styles.originalPrice}>${item.originalPrice}</div>
+                                                        )}
                                                         <div style={styles.discountedPrice}>${item.discountPrice}</div>
                                                     </div>
                                                 </div>

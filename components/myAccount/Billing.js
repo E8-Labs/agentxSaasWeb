@@ -1312,7 +1312,7 @@ function Billing() {
 
       {/* del pln last step */}
       <Modal
-        open={addPaymentPopUp} //addPaymentPopUp
+        open={showConfirmCancelPlanPopup2} //showConfirmCancelPlanPopup2
         // open={true}
         closeAfterTransition
         BackdropProps={{

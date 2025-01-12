@@ -159,11 +159,12 @@ function NotficationsDrawer({ close }) {
     let userData = localStorage.getItem("User");
     if (userData) {
       const D = JSON.parse(userData);
-      console.log("Response", D.user.campaignee.officeHoursUrl)
-      if (D.user.campaignee.officeHoursUrl) {
+      if(D?.user?.campaignee && D?.user?.campaignee?.officeHoursUrl){
+        console.log("Response", D.user.campaignee.officeHoursUrl)
         let campaigneeLink = D.user.campaignee.officeHoursUrl;
         window.open(campaigneeLink, "_blank");
-      } else {
+      }
+      else{
         window.open("https://api.leadconnectorhq.com/widget/booking/SMTp2AfgjdTcjLOIUBkR", "_blank");
       }
     }
