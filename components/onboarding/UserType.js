@@ -84,48 +84,56 @@ const UserType = ({ handleContinue, DefaultData }) => {
     {
       id: 1,
       title: "Real Estate Agent",
+      agentType: "Real Estate Agent",
       icon: "/usertype/avt1.png",
       areaOfFocusTitle: "What area of real state do you focus on?",
     },
     {
       id: 2,
       title: "Sales Dev Agent",
+      agentType: "Sales Dev Agent",
       icon: "/usertype/avt2.png",
       areaOfFocusTitle: "What area of sales do you focus on?",
     },
     {
       id: 3,
-      title: "Solar Rep",
+      title: "Solar Agent",
+      agentType: "Solar Agent",
       icon: "/usertype/avt3.png",
       areaOfFocusTitle: "What area of solar do you focus on?",
     },
     {
       id: 4,
       title: "Insurance Agent",
+      agentType: "Insurance Agent",
       icon: "/usertype/avt4.png",
       areaOfFocusTitle: "What area of insurance do you focus on?",
     },
     {
       id: 5,
       title: "Marketer",
+      agentType: "Marketer Agent",
       icon: "/usertype/avt5.png",
       areaOfFocusTitle: "What area of marketing do you focus on?",
     },
     {
       id: 6,
       title: "Website Agent",
-      icon: "/usertype/avt7.png",
+      agentType: "Website Agent",
+      icon: "/agentXOrb.gif", //"/usertype/avt7.png",
       areaOfFocusTitle: "How would you use AgentX?",
     },
     {
       id: 7,
       title: "Recuiter Agent",
+      agentType: "Recuiter Agent",
       icon: "/usertype/avt8.png",
       areaOfFocusTitle: "What industries do you specialize in?",
     },
     {
       id: 8,
       title: "Tax Agent",
+      agentType: "Tax Agent",
       icon: "/usertype/avt9.png",
       areaOfFocusTitle: "What type of clients do you primarily serve?",
     },
@@ -214,7 +222,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
                       <img
                         src={item.icon}
                         style={{
-                          width: "100%",
+                          width: item.id === 6 ? "50%" : "100%",
                           transform: "scale(1.1)",
                           resize: "contain",
                         }}
@@ -228,7 +236,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
                         fontSize: 17,
                       }}
                     >
-                      {item.title}
+                      {item.agentType}
                     </div>
                   </button>
                 </div>

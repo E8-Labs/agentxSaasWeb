@@ -8,7 +8,7 @@ const PurchaseNumberSuccess = ({ handleContinue, selectedNumber }) => {
     useEffect(() => {
         console.log("I am hit now")
         const Data = localStorage.getItem("numberPurchased");
-        if(Data){
+        if (Data) {
             const localData = JSON.parse(Data);
             setPurchaseNumber(localData);
             console.log("Purchased number details are : --", localData);
@@ -64,7 +64,13 @@ const PurchaseNumberSuccess = ({ handleContinue, selectedNumber }) => {
                 <div style={styles.details}>$2.00/Mo</div>
             </div>
 
-            <button className='w-full bg-purple rounded-xl h-[50px] mt-8' style={{ ...styles.heading, color: "white" }} onClick={handleContinue}>
+            <button
+                className='w-full bg-purple rounded-xl h-[50px] mt-8'
+                style={{ ...styles.heading, color: "white" }}
+                onClick={() => {
+                    handleContinue();
+                }}
+            >
                 Continue
             </button>
 

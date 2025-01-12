@@ -15,6 +15,7 @@ import GoogleAdddressPicker from "../test/GoogleAdddressPicker";
 import usePlacesService from "react-google-autocomplete/lib/usePlacesAutocompleteService";
 import VideoCard from "./VideoCard";
 import IntroVideoModal from "./IntroVideoModal";
+import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
 
 const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   const addressKey = process.env.NEXT_PUBLIC_AddressPickerApiKey;
@@ -37,6 +38,10 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   //variable for video card
   const [introVideoModal, setIntroVideoModal] = useState(false);
 
+  //sbakc message when agent builded
+  const [snackMessage, setSnackMessage] = useState("");
+  const [isVisible, setIsVisible] = useState(false);
+  const [msgType, setMsgType] = useState(null);
 
   //other status
   const [showSomtthingElse, setShowSomtthingElse] = useState(false);
@@ -261,8 +266,11 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
       if (response) {
         console.log("Response of build agent api  is :---", response.data);
+        setIsVisible(true);
         if (response.data.status === true) {
           console.log("Status of build agent is :", response.data.status);
+          setSnackMessage("Agent created successfully.");
+          setMsgType(SnackbarTypes.Success);
           localStorage.setItem(
             "agentDetails",
             JSON.stringify(response.data.data)
@@ -274,6 +282,9 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           //     console.log("Should not skip")
           // }
           handleContinue();
+        } else if (response.data.status === false) {
+          setSnackMessage("Agent creation failed!");
+          setMsgType(SnackbarTypes.Error);
         }
       }
     } catch (error) {
@@ -306,50 +317,50 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
   //function for address picker
 
- // Function for address picker with restrictions
-const handleSelectAddress = (placeId, description) => {
-  setAddressValue(description);
-  setShowDropdown(false); // Hide dropdown on selection
+  // Function for address picker with restrictions
+  const handleSelectAddress = (placeId, description) => {
+    setAddressValue(description);
+    setShowDropdown(false); // Hide dropdown on selection
 
-  // Fetch place details if required
-  if (placesService) {
-    placesService.getDetails({ placeId }, (details) => {
-      setSelectedPlace(details);
-      console.log("Selected Place Details:", details);
+    // Fetch place details if required
+    if (placesService) {
+      placesService.getDetails({ placeId }, (details) => {
+        setSelectedPlace(details);
+        console.log("Selected Place Details:", details);
+      });
+    }
+  };
+
+  // Function to fetch predictions with restrictions
+  const handleInputChange = (evt) => {
+    const input = evt.target.value;
+    setAddressValue(input);
+
+    // Fetch predictions only for US and Canada
+    getPlacePredictions({
+      input,
+      componentRestrictions: { country: ["us", "ca"] },
     });
-  }
-};
+  };
 
-// Function to fetch predictions with restrictions
-const handleInputChange = (evt) => {
-  const input = evt.target.value;
-  setAddressValue(input);
-
-  // Fetch predictions only for US and Canada
-  getPlacePredictions({
-    input,
-    componentRestrictions: { country: ["us", "ca"] },
-  });
-};
-
-// Render predictions
-const renderItem = (item) => (
-  <div
-    key={item.place_id}
-    className="prediction-item"
-    onClick={() => {
-      handleSelectAddress(item.place_id, item.description);
-      setShowAddressPickerModal(false);
-    }}
-    style={{
-      cursor: "pointer",
-      padding: "8px",
-      borderBottom: "1px solid #ddd",
-    }}
-  >
-    {item.description}
-  </div>
-);
+  // Render predictions
+  const renderItem = (item) => (
+    <div
+      key={item.place_id}
+      className="prediction-item"
+      onClick={() => {
+        handleSelectAddress(item.place_id, item.description);
+        setShowAddressPickerModal(false);
+      }}
+      style={{
+        cursor: "pointer",
+        padding: "8px",
+        borderBottom: "1px solid #ddd",
+      }}
+    >
+      {item.description}
+    </div>
+  );
 
   const status = [
     {
@@ -403,29 +414,25 @@ const renderItem = (item) => (
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
       <div
-        className=" sm:rounded-2xl w-full lg:w-10/12 h-[90vh] flex flex-col items-center"
+        className=" sm:rounded-2xl w-full md:w-10/12 h-[90vh] flex flex-col items-center"
         style={{ scrollbarWidth: "none", backgroundColor: "#ffffff" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
+
+        <AgentSelectSnackMessage
+          message={snackMessage}
+          type={msgType}
+          isVisible={isVisible}
+          hide={() => {
+            setIsVisible(false);
+            setSnackMessage("");
+            setMsgType(null);
+          }}
+        />
+
         <div className="w-full h-[77vh]">
 
           {/* Video card */}
-          <div
-            style={{
-              position: "absolute",
-              left: "18%",
-              translate: "-50%",
-              // left: "14%",
-              top: "20%",
-            }}
-          >
-            <VideoCard
-              horizontal={false}
-              playVideo={() => {
-                setIntroVideoModal(true);
-              }}
-              title="Learn about getting started"
-            />
-          </div>
+
           <IntroVideoModal
             open={introVideoModal}
             onClose={() => setIntroVideoModal(false)}
@@ -438,6 +445,25 @@ const renderItem = (item) => (
             <Header />
           </div>
           {/* Body */}
+          <div
+            className="-ml-4 lg:flex hidden lg:w-2/12 xl:w-3/12"
+            style={{
+              position: "absolute",
+              // left: "18%",
+              // translate: "-50%",
+              // left: "14%",
+              top: "20%",
+              // backgroundColor: "red"
+            }}
+          >
+            <VideoCard
+              horizontal={false}
+              playVideo={() => {
+                setIntroVideoModal(true);
+              }}
+              title="Learn about getting started"
+            />
+          </div>
           <div className="flex flex-col items-center px-4 w-full h-[90%]">
             <button
               className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"

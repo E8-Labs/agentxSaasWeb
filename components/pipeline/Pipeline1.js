@@ -581,6 +581,35 @@ const Pipeline1 = ({ handleContinue }) => {
           {/* header */}
           <Header />
           {/* Body */}
+
+          {/* Code for side video */}
+          <IntroVideoModal
+            open={introVideoModal}
+            onClose={() => setIntroVideoModal(false)}
+            videoTitle="Learn more about assigning leads"
+            videoUrl="https://drive.google.com/file/d/1dB9krET4BIxaeOhZ6mZt0S8-DKQbWiAn/view?usp=share_link"
+          />
+
+          <div
+            className="-ml-4 lg:flex hidden lg:w-2/12 xl:w-3/12"
+            style={{
+              position: "absolute",
+              // left: "18%",
+              // translate: "-50%",
+              // left: "14%",
+              top: "20%",
+              // backgroundColor: "red"
+            }}
+          >
+            <VideoCard
+              horizontal={false}
+              playVideo={() => {
+                setIntroVideoModal(true);
+              }}
+              title="Learn about pipeline and stages"
+            />
+          </div>
+
           <div className="flex flex-col items-center px-4 w-full">
             <div
               className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
@@ -638,31 +667,6 @@ const Pipeline1 = ({ handleContinue }) => {
                   </div>
                 </div>
               )}
-
-              {/* Code for side video */}
-              <div
-                style={{
-                  position: "absolute",
-                  left: "50%",
-                  translate: "-50%",
-                  left: "14%",
-                  top: "20%",
-                }}
-              >
-                <VideoCard
-                  horizontal={false}
-                  playVideo={() => {
-                    setIntroVideoModal(true);
-                  }}
-                  title="Learn about pipeline and stages"
-                />
-              </div>
-              <IntroVideoModal
-                open={introVideoModal}
-                onClose={() => setIntroVideoModal(false)}
-                videoTitle="Learn more about assigning leads"
-                videoUrl="https://drive.google.com/file/d/1dB9krET4BIxaeOhZ6mZt0S8-DKQbWiAn/view?usp=share_link"
-              />
 
               <div className="mt-4" style={styles.headingStyle}>
                 Assign this agent to a stage

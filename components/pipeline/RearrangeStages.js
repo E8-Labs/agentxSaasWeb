@@ -112,6 +112,7 @@ const RearrangeStages = ({
 
   //get my teams list
   const [myTeamList, setMyTeamList] = useState([]);
+  const [myTeamAdmin, setMyTeamAdmin] = useState(null);
   const [assignToMember, setAssignToMember] = useState("");
   const [assignLeadToMember, setAssignLeadToMember] = useState([]);
 
@@ -204,8 +205,8 @@ const RearrangeStages = ({
     setAssignToMember(event.target.value);
 
     const selectedItem = myTeamList.find((item) => item.name === value);
-    setAssignToMember(selectedItem.name);
-    setAssignLeadToMember([...assignLeadToMember, selectedItem.id]);
+    setAssignToMember(selectedItem.name || myTeamAdmin.name);
+    setAssignLeadToMember([...assignLeadToMember, selectedItem.id || myTeamAdmin.id]);
 
     console.log("Selected inext stage is:", selectedItem);
   };
@@ -215,7 +216,8 @@ const RearrangeStages = ({
       let response = await getTeamsList();
       if (response) {
         console.log("Response recieved is", response);
-        setMyTeamList(response)
+        setMyTeamList(response.data);
+        setMyTeamAdmin(response.admin);
       }
     } catch (error) {
       console.error("Error occured in api is", error);
@@ -891,12 +893,27 @@ const RearrangeStages = ({
                                 },
                               }}
                             >
+                              <MenuItem
+                                value={myTeamAdmin.name}
+                              >
+                                <div className="w-full flex flex-row items-center gap-2">
+                                  <div>
+                                    {myTeamAdmin.name}
+                                  </div>
+                                  <div
+                                    className="bg-purple text-white text-sm px-2 rounded-full"
+                                  >
+                                    Admin
+                                  </div>
+                                </div>
+                              </MenuItem>
                               {myTeamList.map((item, index) => {
                                 return (
                                   <MenuItem
                                     key={index}
                                     value={item.name}
                                   >
+                                    {getAgentsListImage(item.invitedUser)}
                                     {item.name}
                                   </MenuItem>
                                 );

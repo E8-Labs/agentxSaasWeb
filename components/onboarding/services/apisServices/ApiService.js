@@ -156,8 +156,8 @@ export const getTeamsList = async () => {
             if (response) {
 
                 if (response.data.status === true) {
-                    console.log("get team api response is", response.data.data);
-                    return response.data.data;
+                    console.log("get team api response is", response.data);
+                    return response.data;
                 } else {
                     console.log("get team api message is", response.data.message);
                     // return response.data.data

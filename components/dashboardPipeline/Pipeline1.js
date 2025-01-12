@@ -47,6 +47,7 @@ import LeadTeamsAssignedList from "../dashboard/leads/LeadTeamsAssignedList";
 import { getTeamsList } from "../onboarding/services/apisServices/ApiService";
 import { PersistanceKeys } from "@/constants/Constants";
 import { useRouter, useSearchParams } from "next/navigation";
+import { GetFormattedDateString } from "@/utilities/utility";
 
 const Pipeline1 = () => {
   const bottomRef = useRef();
@@ -143,6 +144,7 @@ const Pipeline1 = () => {
 
   //get my teams list
   const [myTeamList, setMyTeamList] = useState([]);
+  const [myTeamAdmin, setMyTeamAdmin] = useState(null);
   const [assignToMember, setAssignToMember] = useState("");
   const [assignLeadToMember, setAssignLeadToMember] = useState([]);
 
@@ -164,8 +166,9 @@ const Pipeline1 = () => {
     setAssignToMember(event.target.value);
 
     const selectedItem = myTeamList.find((item) => item.name === value);
-    setAssignToMember(selectedItem.name);
-    setAssignLeadToMember([...assignLeadToMember, selectedItem.id]);
+
+    setAssignToMember(selectedItem.invitingUser.name || myTeamAdmin.name);
+    setAssignLeadToMember([...assignLeadToMember, selectedItem.id || myTeamAdmin.id]);
 
     console.log("Selected inext stage is:", selectedItem);
   };
@@ -260,7 +263,8 @@ const Pipeline1 = () => {
       let response = await getTeamsList();
       if (response) {
         console.log("Response recieved is", response);
-        setMyTeamList(response);
+        setMyTeamList(response.data);
+        setMyTeamAdmin(response.admin)
       }
     } catch (error) {
       console.error("Error occured in api is", error);
@@ -1934,19 +1938,21 @@ const Pipeline1 = () => {
                                       width={16}
                                       alt="*"
                                     />
-                                    {moment(lead?.lead?.booking?.date).format(
+                                    {/* {moment(lead?.lead?.booking?.date).format(
                                       "MMM D"
-                                    ) || "-"}
+                                    ) || "-"} */}
+                                    {GetFormattedDateString(lead?.lead?.booking?.date, true, "MMM DD")}
                                     <Image
                                       src="/svgIcons/clock.svg"
                                       height={16}
                                       width={16}
                                       alt="*"
                                     />
-                                    {moment(
+                                    {lead?.lead?.booking?.time}
+                                    {/* {moment(
                                       lead?.lead?.booking?.time,
                                       "HH:mm"
-                                    ).format("HH:mm") || "-"}
+                                    ).format("HH:mm") || "-"} */}
                                   </div>
                                 )}
 
@@ -2430,10 +2436,25 @@ const Pipeline1 = () => {
                           },
                         }}
                       >
+                        <MenuItem
+                          value={myTeamAdmin?.name}
+                        >
+                          <div className="w-full flex flex-row items-center gap-2">
+                            <div>
+                              {myTeamAdmin.name}
+                            </div>
+                            <div
+                              className="bg-purple text-white text-sm px-2 rounded-full"
+                            >
+                              Admin
+                            </div>
+                          </div>
+                        </MenuItem>
                         {myTeamList.map((item, index) => {
                           return (
                             <MenuItem key={index} value={item.name}>
-                              {item.name}
+                              {getAgentsListImage(item.invitedUser)}
+                              {item.invitingUser.name}
                             </MenuItem>
                           );
                         })}

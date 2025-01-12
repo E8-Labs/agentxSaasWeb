@@ -142,7 +142,7 @@ const LeadDetails = ({
           setGetTeamLoader(false);
 
           if (response.data.status === true) {
-            console.log("get team api response is", response.data.data);
+            console.log("get team api response is", response.data);
             setMyTeam(response.data.data);
           } else {
             console.log("get team api message is", response.data.message);

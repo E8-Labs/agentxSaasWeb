@@ -598,26 +598,28 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                     {/* header */}
                     <Header />
                     {/* Body */}
+                    {/* Code for side video */}
+                    <div
+                        className="-ml-4 lg:flex hidden lg:w-2/12 xl:w-3/12"
+                        style={{
+                            position: "absolute",
+                            // left: "18%",
+                            // translate: "-50%",
+                            // left: "14%",
+                            top: "20%",
+                            // backgroundColor: "red"
+                        }}
+                    >
+                        <VideoCard
+                            horizontal={false}
+                            playVideo={() => {
+                                setIntroVideoModal(true);
+                            }}
+                            title="Learn about creating a script"
+                        />
+                    </div>
                     <div ref={containerRef} className='flex flex-col items-center px-4 w-full overflow-auto h-[68vh]' style={{ scrollbarWidth: "none" }}>
 
-                        {/* Code for side video */}
-                        <div
-                            style={{
-                                position: "absolute",
-                                left: "50%",
-                                translate: "-50%",
-                                left: "14%",
-                                top: "20%",
-                            }}
-                        >
-                            <VideoCard
-                                horizontal={false}
-                                playVideo={() => {
-                                    setIntroVideoModal(true);
-                                }}
-                                title="Learn about pipeline and stages"
-                            />
-                        </div>
                         <IntroVideoModal
                             open={introVideoModal}
                             onClose={() => setIntroVideoModal(false)}

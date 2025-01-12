@@ -120,42 +120,6 @@ export const getAgentsListImage = (subAgent) => {
         }
     }
 
-    // Iterate through subagents to find the first valid profile image or voice ID
-    // for (const subAgent of subagents) {
-    //     // Check for thumb_profile_image
-    //     if (subAgent.thumb_profile_image) {
-    //         return (
-    //             <div className="h-[60px] w-[60px] bg-gray-100 rounded-full flex flex-row items-center justify-center">
-    //                 < Image
-    //                     src={subAgent.thumb_profile_image}
-    //                     height={42}
-    //                     width={42}
-    //                     alt="*"
-    //                 />
-    //             </div>
-    //         )
-    //     }
-
-    //     // Check for voiceId and map it to an image
-    //     if (subAgent.voiceId) {
-    //         const selectedVoice = voicesList.find(
-    //             (voice) => voice.voice_id === subAgent.voiceId
-    //         );
-    //         if (selectedVoice && selectedVoice.img) {
-    //             return (
-    //                 <div className="h-[60px] w-[60px] bg-gray-100 rounded-full flex flex-row items-center justify-center">
-    //                     < Image
-    //                         src={selectedVoice.img}
-    //                         height={42}
-    //                         width={42}
-    //                         alt="*"
-    //                     />
-    //                 </div>
-    //             )
-    //         }
-    //     }
-    // }
-
     // Fallback image
     return (
         <div className="h-[60px] w-[60px] rounded-full flex flex-row items-center justify-center">

@@ -22,6 +22,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import { getTeamsList } from "../onboarding/services/apisServices/ApiService";
+import { getAgentsListImage } from "@/utilities/agentUtilities";
 
 const PipelineStages = ({
   stages,
@@ -93,6 +94,7 @@ const PipelineStages = ({
 
   //get my teams list
   const [myTeamList, setMyTeamList] = useState([]);
+  const [myTeamAdmin, setMyTeamAdmin] = useState([]);
   const [assignToMember, setAssignToMember] = useState("");
   const [assignLeadToMember, setAssignLeadToMember] = useState([]);
 
@@ -158,7 +160,8 @@ const PipelineStages = ({
       let response = await getTeamsList();
       if (response) {
         console.log("Response recieved is", response);
-        setMyTeamList(response)
+        setMyTeamList(response.data)
+        setMyTeamAdmin(response.admin)
       }
     } catch (error) {
       console.error("Error occured in api is", error);
@@ -172,8 +175,8 @@ const PipelineStages = ({
     setAssignToMember(event.target.value);
 
     const selectedItem = myTeamList.find((item) => item.name === value);
-    setAssignToMember(selectedItem.name);
-    setAssignLeadToMember([...assignLeadToMember, selectedItem.id]);
+    setAssignToMember(selectedItem.invitedUser.name || myTeamAdmin.name);
+    setAssignLeadToMember([...assignLeadToMember, selectedItem.id || myTeamAdmin.id]);
 
     console.log("Selected inext stage is:", selectedItem);
   };
@@ -1760,13 +1763,35 @@ const PipelineStages = ({
                                 },
                               }}
                             >
+                              <MenuItem
+                                value={myTeamAdmin.name}
+                              >
+                                <div className="w-full flex flex-row items-center gap-2">
+                                  <div>
+                                    {myTeamAdmin.name}
+                                  </div>
+                                  <div
+                                    className="bg-purple text-white text-sm px-2 rounded-full"
+                                  >
+                                    Admin
+                                  </div>
+                                </div>
+                              </MenuItem>
                               {myTeamList.map((item, index) => {
                                 return (
                                   <MenuItem
+                                    className="flex flex-row items-center gap-2"
                                     key={index}
                                     value={item.name}
                                   >
-                                    {item.name}
+                                    {/* <Image
+                                      src={item.invitedUser.full_profile_image || "/agentXOrb.gif"}
+                                      width={35}
+                                      height={35}
+                                      alt="*"
+                                    /> */}
+                                    {getAgentsListImage(item.invitedUser)}
+                                    {item.invitedUser.name}
                                   </MenuItem>
                                 );
                               })}

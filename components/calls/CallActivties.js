@@ -140,7 +140,7 @@ function SheduledCalls() {
   //code to show call log details popup
 
   const handleShowDetails = () => {
-    // console.log("Details of item are:", SelectedItem)
+    console.log("Details of item are:", SelectedItem)
     // const AgentId = filteredAgentsList.map((item) => item.id);
     // console.log("Agent id is:", AgentId);
     console.log("selected agent is:", SelectedAgent);
@@ -161,10 +161,10 @@ function SheduledCalls() {
       return lead;
     });
 
-    console.log("Matching lead with the past call", matchingPastCallsLeads);
+    console.log("Matching lead with the past call", SelectedItem.pastCalls);
 
-    setSheduledCalllogs(matchingPastCallsLeads);
-    setFilteredSheduledCalllogs(matchingPastCallsLeads);
+    setSheduledCalllogs(SelectedItem.pastCalls);
+    setFilteredSheduledCalllogs(SelectedItem.pastCalls);
     setShowDetailsModal(true);
   };
 
@@ -404,7 +404,7 @@ function SheduledCalls() {
           <div style={styles.text}>Call Status</div>
         </div>
         <div className="w-1/12">
-          <div style={styles.text} onClick={handleShowDetails}>
+          <div style={styles.text}>
             Action
           </div>
         </div>
@@ -701,38 +701,43 @@ function SheduledCalls() {
                               >
                                 <div className="w-3/12 flex flex-row items-center gap-2 truncate">
                                   <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white flex-shrink-0">
-                                    {item?.firstName.slice(0, 1).toUpperCase()}
+                                    {item?.LeadModel.firstName.slice(0, 1).toUpperCase()}
                                   </div>
                                   <div className="truncate" style={{
                                     width: "100px",
                                     textOverflow: "ellipsis"
                                   }}>
-                                    {item?.firstName} {item?.lastName}
+                                    {item?.LeadModel.firstName} {item?.LeadModel.lastName}
                                   </div>
                                   {/* <div style={{ fontSize: 11, fontWeight: "500", color: "#00000060" }}>
                                                                                         {item?.email}
                                                                                     </div> */}
                                 </div>
                                 <div className="w-2/12 truncate">
-                                  {item?.phone}
+                                  {item?.LeadModel.phone}
                                 </div>
                                 <div className="w-3/12 truncate">
-                                  {item?.address}
+                                  {item?.LeadModel.address || "-"}
                                 </div>
                                 <div className="w-2/12 truncate flex flex-row items-center gap-2">
-                                  <div className="flex flex-row gap-2">
-                                    {item.tags.slice(0, 2).map((tag, index) => {
-                                      return (
-                                        <div
-                                          key={index}
-                                          className="bg-[#1C55FF10] text-[#1C55FF] p-2 rounded"
-                                        >
-                                          {tag}
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                  {item.tags.length > 2 && (
+                                  {item?.tags?.length > 0 ? (
+                                    <div className="flex flex-row gap-2">
+                                      {item?.tags?.slice(0, 2).map((tag, index) => {
+                                        return (
+                                          <div
+                                            key={index}
+                                            className="bg-[#1C55FF10] text-[#1C55FF] p-2 rounded"
+                                          >
+                                            {tag}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  ) : (
+                                    "-"
+                                  )
+                                  }
+                                  {item?.tags?.length > 2 && (
                                     <div
                                       key={index}
                                       style={{
@@ -744,7 +749,9 @@ function SheduledCalls() {
                                     </div>
                                   )}
                                 </div>
-                                <div className="w-2/12 truncate">{item.status}</div>
+                                <div className="w-2/12 truncate">
+                                  {item?.status}
+                                </div>
                               </div>
                             </div>
                           );

@@ -6,6 +6,7 @@ import MenuItem from '@mui/material/MenuItem';
 import axios from 'axios';
 import Apis from '../apis/Apis';
 import { CircularProgress } from '@mui/material';
+import ClaimNumber from '../dashboard/myagentX/ClaimNumber';
 
 function MyPhoneNumber() {
 
@@ -14,11 +15,20 @@ function MyPhoneNumber() {
     const [numbers, setNumbers] = useState([])
     const [loading, setLoading] = useState(false)
 
+    //variables for add new number popup
+    const [showClaimPopup, setShowClaimPopup] = useState(false);
+
 
     useEffect(() => {
         getPhoneNumbers()
-    }, [])
+    }, []);
 
+    //function to close cllaim no popup
+    const handleCloseClaimPopup = () => {
+        setShowClaimPopup(false);
+    };
+
+    //function get phonenumbers
     const getPhoneNumbers = async () => {
         const data = localStorage.getItem("User")
         if (data) {
@@ -64,128 +74,150 @@ function MyPhoneNumber() {
                     </div>
                 </div>
 
-                <button className=''>
+                <button
+                    className='outline-none'
+                    onClick={() => {
+                        setShowClaimPopup(true);
+                    }}
+                >
                     <div style={{ fontSize: 15, fontWeight: '500', color: '#7902DF', textDecorationLine: 'underline' }}>
                         Add New Number
                     </div>
                 </button>
             </div>
 
+            {/* Modal for add new number */}
+            {
+                showClaimPopup && (
+                    <ClaimNumber
+                        showClaimPopup={showClaimPopup}
+                        handleCloseClaimPopup={handleCloseClaimPopup}
+                        // setOpenCalimNumDropDown={setOpenCalimNumDropDown}
+                        // setSelectNumber={setSelectNumber}
+                        setPreviousNumber={setNumbers}
+                        previousNumber={numbers}
+                    />
+                )
+            }
 
             <div className='w-full flex flex-col items-start gap-4 mt-10'>
                 {
                     loading ? (
                         <CircularProgress style={{ alignSelf: 'center' }} size={45} />
                     ) :
-                        numbers.map((item, index) => (
-                            <div key={index} className='w-7/12 flex'>
-                                {/* <button className='w-full flex'
+                        numbers
+                            .slice()
+                            .reverse()
+                            .map
+                            ((item, index) => (
+                                <div key={index} className='w-7/12 flex'>
+                                    {/* <button className='w-full flex'
                             > */}
-                                <div className='w-full border rounded-lg p-4'>
-                                    <div className='w-full flex flex-row items-center justify-between'>
+                                    <div className='w-full border rounded-lg p-4'>
+                                        <div className='w-full flex flex-row items-center justify-between'>
 
-                                        <div className="flex flex-col items-start gap-4">
-                                            <div className='flex flex-row items-center gap-2'>
-                                                <div className='' style={{ fontSize: 16, fontWeight: '700' }}>
-                                                    {item.phoneNumber}
+                                            <div className="flex flex-col items-start gap-4">
+                                                <div className='flex flex-row items-center gap-2'>
+                                                    <div className='' style={{ fontSize: 16, fontWeight: '700' }}>
+                                                        {item.phoneNumber}
+                                                    </div>
+
+                                                    <div style={{ fontSize: 11, fontWeight: '500' }}>
+                                                        {item.claimedBy?.agentType}
+                                                    </div>
                                                 </div>
 
-                                                <div style={{ fontSize: 11, fontWeight: '500' }}>
-                                                    {item.claimedBy?.agentType}
+                                                <div style={{ fontSize: 13, fontWeight: '500' }}>
+                                                    Assigned Agents
                                                 </div>
                                             </div>
 
-                                            <div style={{ fontSize: 13, fontWeight: '500' }}>
-                                                Assigned Agents
+                                            <div className='flex flex-col items-end gap-2'>
+                                                <button id='more-menu'
+                                                    onClick={(event) => {
+                                                        setOpenMoreDropdown(true);
+                                                        setMoreDropdown(event.currentTarget);
+                                                    }}>
+                                                    <Image src={"/otherAssets/threeDotsIcon.png"}
+                                                        height={24}
+                                                        width={24}
+                                                        alt='more'
+                                                    />
+                                                </button>
+
+                                                {/* <button> */}
+                                                <div style={{ fontSize: 15, fontWeight: '700', color: '#7902DF' }}>
+                                                    {`{Ann's ai}`}
+                                                </div>
+                                                {/* </button> */}
                                             </div>
+
+
                                         </div>
-
-                                        <div className='flex flex-col items-end gap-2'>
-                                            <button id='more-menu'
-                                                onClick={(event) => {
-                                                    setOpenMoreDropdown(true);
-                                                    setMoreDropdown(event.currentTarget);
-                                                }}>
-                                                <Image src={"/otherAssets/threeDotsIcon.png"}
-                                                    height={24}
-                                                    width={24}
-                                                    alt='more'
-                                                />
-                                            </button>
-
-                                            {/* <button> */}
-                                            <div style={{ fontSize: 15, fontWeight: '700', color: '#7902DF' }}>
-                                                {`{Ann's ai}`}
-                                            </div>
-                                            {/* </button> */}
-                                        </div>
-
-
                                     </div>
-                                </div>
-                                {/* </button> */}
+                                    {/* </button> */}
 
-                                <Menu
-                                    id="more-menu"
-                                    anchorEl={moreDropdown}
-                                    open={openMoreDropdown}
-                                    onClose={handleMoreClose}
-                                    MenuListProps={{
-                                        'aria-labelledby': 'basic-button',
-                                    }}
-                                    anchorOrigin={{
-                                        vertical: 'bottom',
-                                        horizontal: 'right',
-                                    }}
-                                    transformOrigin={{
-                                        vertical: 'top',
-                                        horizontal: 'right',
-                                    }}
-                                >
-                                    <MenuItem
-                                        sx={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 1,
-                                            fontSize: 15,
-                                            fontWeight: '500',
-                                            color: 'black',
-                                            padding: '10px 20px',
+                                    <Menu
+                                        id="more-menu"
+                                        anchorEl={moreDropdown}
+                                        open={openMoreDropdown}
+                                        onClose={handleMoreClose}
+                                        MenuListProps={{
+                                            'aria-labelledby': 'basic-button',
                                         }}
-                                        onClick={handleMoreClose}
-                                    >
-                                        <Image
-                                            src="/otherAssets/editIcon.png"
-                                            alt="Edit"
-                                            width={24}
-                                            height={24}
-                                        />
-                                        Edit
-                                    </MenuItem>
-                                    <MenuItem
-                                        sx={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 1,
-                                            fontSize: 15,
-                                            fontWeight: '500',
-                                            color: 'red',
-                                            padding: '10px 20px',
-                                            width: '13vw'
+                                        anchorOrigin={{
+                                            vertical: 'bottom',
+                                            horizontal: 'right',
                                         }}
-                                        onClick={handleMoreClose}
+                                        transformOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'right',
+                                        }}
                                     >
-                                        <Image
-                                            src="/otherAssets/deleteIcon.png"
-                                            alt="Delete"
-                                            width={24}
-                                            height={24}
-                                        />
-                                        Delete
-                                    </MenuItem>
-                                </Menu>
-                            </div>
-                        ))
+                                        <MenuItem
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 1,
+                                                fontSize: 15,
+                                                fontWeight: '500',
+                                                color: 'black',
+                                                padding: '10px 20px',
+                                            }}
+                                            onClick={handleMoreClose}
+                                        >
+                                            <Image
+                                                src="/otherAssets/editIcon.png"
+                                                alt="Edit"
+                                                width={24}
+                                                height={24}
+                                            />
+                                            Edit
+                                        </MenuItem>
+                                        <MenuItem
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 1,
+                                                fontSize: 15,
+                                                fontWeight: '500',
+                                                color: 'red',
+                                                padding: '10px 20px',
+                                                width: '13vw'
+                                            }}
+                                            onClick={handleMoreClose}
+                                        >
+                                            <Image
+                                                src="/otherAssets/deleteIcon.png"
+                                                alt="Delete"
+                                                width={24}
+                                                height={24}
+                                            />
+                                            Delete
+                                        </MenuItem>
+                                    </Menu>
+                                </div>
+                            ))
                 }
 
 

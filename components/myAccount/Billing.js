@@ -152,14 +152,18 @@ function Billing() {
         } else if (togglePlan === "Plan720") {
           planType = 4;
         }
+        setUserLocalData(response?.data?.data);
         setTogglePlan(planType);
         setCurrentPlan(planType);
-        setUserLocalData(response?.data?.data);
       }
     } catch (error) {
       console.error("Error in getprofile api is", error);
     }
   };
+
+  useEffect(() => {
+    console.log("User local data is", userLocalData)
+  }, [userLocalData])
 
   //function to close the add card popup
   const handleClose = (data) => {
@@ -904,14 +908,17 @@ function Billing() {
                     flexShrink: 0,
                   }}
                   onClick={() => {
-                    if (userLocalData?.cancelPlanRedemptions === 0) {
+                    if (userLocalData?.isTrial === false && userLocalData?.cancelPlanRedemptions === 0) {
+                      console.log("Show gift pop")
                       setGiftPopup(true);
-                    } else if (userLocalData?.isTrail === true) {
-                      setShowConfirmCancelPlanPopup(true);
-                      (true);
-                    } else {
+                    }
+                    else // if (userLocalData?.isTrial === true && userLocalData?.cancelPlanRedemptions !== 0) 
+                    {
+                      console.log("Show confirmation pop")
                       setShowConfirmCancelPlanPopup(true);
                     }
+                    // console.log("Show satus", userLocalData?.isTrial)
+                    // console.log("Show redemptions", userLocalData?.cancelPlanRedemptions)
                   }}
                 >
                   Cancel AgentX
@@ -921,7 +928,8 @@ function Billing() {
           </div>
 
         </div>
-      )}
+      )
+      }
 
       <div style={{ fontSize: 16, fontWeight: "700", marginTop: 40 }}>
         My Billing History
@@ -1420,7 +1428,7 @@ function Billing() {
           </div>
         </Box>
       </Modal>
-    </div>
+    </div >
   );
 }
 

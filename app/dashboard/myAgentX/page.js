@@ -41,6 +41,7 @@ import AgentSelectSnackMessage, {
 import { GetFormattedDateString } from "@/utilities/utility";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
 import { getLocalLocation } from "@/components/onboarding/services/apisServices/ApiService";
+import ClaimNumber from "@/components/dashboard/myagentX/ClaimNumber";
 
 function Page() {
   const timerRef = useRef();
@@ -171,6 +172,13 @@ function Page() {
   const [dragging, setDragging] = useState(false);
 
   const [globalLoader, setGlobalLoader] = useState(false);
+
+  //call get numbers list api
+  useEffect(() => {
+    if (showDrawer === null) {
+      getAvailabePhoneNumbers();
+    }
+  }, [showDrawer])
 
   //code for scroll ofset
   useEffect(() => {
@@ -602,27 +610,54 @@ function Page() {
 
         //you will get 2 agents from api then 1 wo agnt 2 jis ko assign karwana hy agnt 1 jis ko null karna hy
 
-        setAgentsContent((prevAgents) =>
-          prevAgents.map((agent) =>
-            agent.id === response.data.data.agent2.id
-              ? {
-                  ...agent,
-                  phoneNumber: response.data.data.agent2.phoneNumber.slice(1),
-                }
-              : agent
-          )
-        );
+        // setAgentsContent((prevAgents) =>
+        //   prevAgents.map((agent) =>
+        //     agent.id === response.data.data.agent2.id
+        //       ? {
+        //         ...agent,
+        //         phoneNumber: response.data.data.agent2.phoneNumber.slice(1),
+        //       }
+        //       : agent
+        //   )
+        // );
 
-        setAgentsContent((prevAgents) =>
-          prevAgents.map((agent) =>
-            agent.id === response.data.data.agent1.id
-              ? { ...agent, phoneNumber: response.data.data.agent1.phoneNumber }
-              : agent
-          )
-        );
+        // setAgentsContent((prevAgents) =>
+        //   prevAgents.map((agent) =>
+        //     agent.id === response.data.data.agent1.id
+        //       ? { ...agent, phoneNumber: response.data.data.agent1.phoneNumber }
+        //       : agent
+        //   )
+        // );
+
+        // Update the agent's phone number and ensure no other agents have the same phone number
+        setAgentsContent((prevAgents) => {
+          const newPhoneNumber1 = response.data.data.agent1.phoneNumber;
+          const newPhoneNumber2 = response.data.data.agent2.phoneNumber.slice(1);
+
+          return prevAgents.map((agent) => {
+            if (agent.id === response.data.data.agent1.id) {
+              // Update agent1's phone number
+              return { ...agent, phoneNumber: newPhoneNumber1 };
+            }
+
+            if (agent.id === response.data.data.agent2.id) {
+              // Update agent2's phone number
+              return { ...agent, phoneNumber: newPhoneNumber2 };
+            }
+
+            // If the phone number matches either of the new phone numbers, set it to null
+            if (agent.phoneNumber === newPhoneNumber1) { // || agent.phoneNumber === newPhoneNumber2
+              return { ...agent, phoneNumber: null };
+            }
+
+            // Otherwise, return the agent unchanged
+            return agent;
+          });
+        });
+
 
         setShowConfirmationModal(null);
-        setShowDrawer(null);
+        // setShowDrawer(null);
 
         //code to close the dropdown
         if (selectRef.current) {
@@ -2288,7 +2323,7 @@ function Page() {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                  // defaultMask={loading ? 'Loading...' : undefined}
+                // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -2318,9 +2353,8 @@ function Page() {
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
-                        index === scriptKeys?.length - 1 ? "mb-16" : ""
-                      }`}
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
+                        }`}
                       style={{
                         ...styles.inputStyle,
                         border: "1px solid #00000010",
@@ -2584,11 +2618,10 @@ function Page() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${
-                  activeTab === tab
-                    ? "text-purple border-b-2 border-purple"
-                    : "text-black-500"
-                }`}
+                className={`${activeTab === tab
+                  ? "text-purple border-b-2 border-purple"
+                  : "text-black-500"
+                  }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >
                 {tab}
@@ -2858,25 +2891,25 @@ function Page() {
                                     <div className="flex flex-row items-center gap-2">
                                       {showDrawer?.name !==
                                         item.claimedBy.name && (
-                                        <div>
-                                          {`(Claimed by {${item.claimedBy.name}})`}
-                                          {reassignLoader === item ? (
-                                            <CircularProgress size={15} />
-                                          ) : (
-                                            <button
-                                              className="text-purple underline"
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                setShowConfirmationModal(item);
-                                                // handleReassignNumber(item)
-                                                // handleReassignNumber(e.target.value)
-                                              }}
-                                            >
-                                              Reassign
-                                            </button>
-                                          )}
-                                        </div>
-                                      )}
+                                          <div>
+                                            {`(Claimed by {${item.claimedBy.name}})`}
+                                            {reassignLoader === item ? (
+                                              <CircularProgress size={15} />
+                                            ) : (
+                                              <button
+                                                className="text-purple underline"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  setShowConfirmationModal(item);
+                                                  // handleReassignNumber(item)
+                                                  // handleReassignNumber(e.target.value)
+                                                }}
+                                              >
+                                                Reassign
+                                              </button>
+                                            )}
+                                          </div>
+                                        )}
                                     </div>
                                   )}
                                 </div>
@@ -3818,7 +3851,7 @@ function Page() {
       </Modal>
 
       {/* Code for Purchase and find number popup */}
-      <Modal
+      {/* <Modal
         open={showClaimPopup}
         closeAfterTransition
         BackdropProps={{
@@ -4014,7 +4047,20 @@ function Page() {
             </div>
           </div>
         </Box>
-      </Modal>
+      </Modal> */}
+      {
+        showClaimPopup && (
+          <ClaimNumber
+            showClaimPopup={showClaimPopup}
+            handleCloseClaimPopup={handleCloseClaimPopup}
+            setOpenCalimNumDropDown={setOpenCalimNumDropDown}
+            setSelectNumber={setAssignNumber}
+            setPreviousNumber={setPreviousNumber}
+            previousNumber={previousNumber}
+            AssignNumber={AssignNumber}
+          />
+        )
+      }
     </div>
   );
 }

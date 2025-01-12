@@ -22,6 +22,8 @@ const AddCalender = ({ handleContinue }) => {
   const [calenderLoader, setAddCalenderLoader] = useState(false);
   const [shouldContinue, setshouldContinue] = useState(true);
 
+  const [videoPlace, setVideoPlace] = useState(null);
+
   const [calenderTitle, setCalenderTitle] = useState("");
   const [calenderApiKey, setCalenderApiKey] = useState("");
   const [eventId, setEventId] = useState("");
@@ -38,6 +40,12 @@ const AddCalender = ({ handleContinue }) => {
   const [selectTimeZone, setSelectTimeZone] = useState("");
 
   useEffect(() => {
+    let screenwidth = window.innerWidth;
+    if (screenwidth < 640) {
+      setVideoPlace(false);
+    } else {
+      setVideoPlace(true);
+    }
     getCalenders();
   }, []);
 
@@ -219,6 +227,26 @@ const AddCalender = ({ handleContinue }) => {
               />
             </div>
 
+            <div
+              className="-ml-4 lg:flex hidden lg:w-2/12 xl:w-3/12"
+              style={{
+                position: "absolute",
+                // left: "18%",
+                // translate: "-50%",
+                // left: "14%",
+                top: "20%",
+                // backgroundColor: "red"
+              }}
+            >
+              <VideoCard
+                horizontal={false}
+                playVideo={() => {
+                  setIntroVideoModal(true);
+                }}
+                title="Learn how to add a calendar"
+              />
+            </div>
+
             <div>
               <div
                 style={{ fontWeight: "700", fontSize: 38, textAlign: "center" }}
@@ -374,29 +402,13 @@ const AddCalender = ({ handleContinue }) => {
           </div>
         </div>
         {/* Modal for video */}
-        <div
-          style={{
-            position: "absolute",
-            left: "50%",
-            translate: "-50%",
-            left: "14%",
-            top: "20%",
-          }}
-        >
-          <VideoCard
-            horizontal={false}
-            playVideo={() => {
-              setIntroVideoModal(true);
-            }}
-            title="Learn how to add a calendar"
-          />
-        </div>
         <IntroVideoModal
           open={introVideoModal}
           onClose={() => setIntroVideoModal(false)}
           videoTitle="Learn more about assigning leads"
           videoUrl="https://drive.google.com/file/d/1tXG1yC7u3yKWqhZ8HBtdJUmBx0KCWzRV/view?usp=share_link"
         />
+
         {/* Modal to add custom calender */}
 
         <Modal

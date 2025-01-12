@@ -22,6 +22,7 @@ import PhoneInput from "react-phone-input-2";
 import { getLocalLocation } from "../onboarding/services/apisServices/ApiService";
 import VideoCard from "./VideoCard";
 import IntroVideoModal from "./IntroVideoModal";
+import ClaimNumber from "../dashboard/myagentX/ClaimNumber";
 
 const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const timerRef = useRef(null);
@@ -296,113 +297,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     setSelectedPurchasedIndex((prevId) => (prevId === index ? null : index));
   };
 
-  //function to fine numbers api
-  const handleFindeNumbers = async (number) => {
-    try {
-      setFindeNumberLoader(true);
-      const ApiPath = `${Apis.findPhoneNumber}?areaCode=${number}`;
-      let AuthToken = null;
-      const LocalData = localStorage.getItem("User");
-      if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
-        AuthToken = UserDetails.token;
-      }
 
-      console.log("Apipath is :--", ApiPath);
-      // return
-      const response = await axios.get(ApiPath, {
-        headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response) {
-        console.log("Response of find number api is :--", response.data);
-        if (response.data.status === true) {
-          setFoundeNumbers(response.data.data);
-        }
-      }
-    } catch (error) {
-      console.error("Error occured in finde number api is :---", error);
-    } finally {
-      setFindeNumberLoader(false);
-    }
-  };
-
-  // function for purchasing number api
-  const handlePurchaseNumber = async () => {
-    try {
-      setPurchaseLoader(true);
-      let AuthToken = null;
-      const LocalData = localStorage.getItem("User");
-      const agentDetails = localStorage.getItem("agentDetails");
-      let MyAgentData = null;
-      if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
-        AuthToken = UserDetails.token;
-      }
-
-      console.log("Authtoken is:", AuthToken);
-
-      if (agentDetails) {
-        console.log("trying");
-        const agentData = JSON.parse(agentDetails);
-        console.log("Agent details are :--", agentData);
-        MyAgentData = agentData;
-      }
-
-      const ApiPath = Apis.purchaseNumber;
-      console.log("Apipath is :--", ApiPath);
-      // console.log("Number selected is:", selectedPurchasedNumber);
-      const formData = new FormData();
-      formData.append("phoneNumber", selectedPurchasedNumber.phoneNumber);
-      // formData.append("phoneNumber", "+14062040550");
-      // formData.append("callbackNumber", "+14062040550");
-      formData.append("mainAgentId", MyAgentData.id);
-
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key} ${value} `);
-      }
-
-      // localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
-      // setOpenPurchaseSuccessModal(true);
-      setSelectNumber(selectedPurchasedNumber.phoneNumber);
-      setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
-      setShowClaimPopup(false);
-      setOpenCalimNumDropDown(false);
-
-      // return
-
-      const response = await axios.post(ApiPath, formData, {
-        headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "multipart/form-data",
-          // "Content-Type": "application/json"
-        },
-      });
-
-      if (response) {
-        console.log("Response of purchase number api is :--", response.data);
-        if (response.data.status === true) {
-          setOpenPurchaseSuccessModal(true);
-          localStorage.setItem(
-            "purchasedNumberDetails",
-            JSON.stringify(response.data.data)
-          );
-          // handleContinue();
-          setSelectNumber(selectedPurchasedNumber.phoneNumber);
-          setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
-          setShowClaimPopup(false);
-          setOpenCalimNumDropDown(false);
-        }
-      }
-    } catch (error) {
-      console.error("Error occured in purchase number api is: --", error);
-    } finally {
-      setPurchaseLoader(false);
-    }
-  };
 
   //get available phonenumbers
   const getAvailabePhoneNumbers = async () => {
@@ -573,13 +468,24 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       >
         <div>
           {/* Video Card */}
+          <IntroVideoModal
+            open={introVideoModal}
+            onClose={() => setIntroVideoModal(false)}
+            videoTitle="Learn more about assigning leads"
+            videoUrl="https://drive.google.com/file/d/1Z6klkeEzGRFM-iSLM-EmSsoSLbBL57pt/view?usp=share_link"
+          />
+          {/* header */}
+          <Header />
+          {/* Body */}
           <div
+            className="-ml-4 lg:flex hidden lg:w-2/12 xl:w-3/12"
             style={{
               position: "absolute",
-              // left: "50%",
-              translate: "-50%",
-              left: "18%",
+              // left: "18%",
+              // translate: "-50%",
+              // left: "14%",
               top: "20%",
+              // backgroundColor: "red"
             }}
           >
             <VideoCard
@@ -590,15 +496,6 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               title="Learn about phone numbers"
             />
           </div>
-          <IntroVideoModal
-            open={introVideoModal}
-            onClose={() => setIntroVideoModal(false)}
-            videoTitle="Learn more about assigning leads"
-            videoUrl="https://drive.google.com/file/d/1Z6klkeEzGRFM-iSLM-EmSsoSLbBL57pt/view?usp=share_link"
-          />
-          {/* header */}
-          <Header />
-          {/* Body */}
           <div
             className="flex flex-col items-center px-4 w-full h-[65vh] overflow-auto"
             style={{ scrollbarWidth: "none" }}
@@ -731,233 +628,18 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               </div>
 
               {/* Code for Purchase and find number popup */}
-              <Modal
-                open={showClaimPopup}
-                closeAfterTransition
-                BackdropProps={{
-                  timeout: 1000,
-                  sx: {
-                    backgroundColor: "#00000020",
-                    // //backdropFilter: "blur(20px)",
-                  },
-                }}
-              >
-                <Box
-                  className="lg:w-8/12 sm:w-full w-8/12"
-                  sx={styles.claimPopup}
-                >
-                  <div className="flex flex-row justify-center w-full">
-                    <div
-                      className="sm:w-8/12 w-full min-h-[50vh] max-h-[80vh] flex flex-col justify-between"
-                      style={{
-                        backgroundColor: "#ffffff",
-                        padding: 20,
-                        borderRadius: "13px",
-                      }}
-                    >
-                      <div>
-                        <div className="flex flex-row justify-end">
-                          <button onClick={handleCloseClaimPopup}>
-                            <Image
-                              src={"/assets/crossIcon.png"}
-                              height={40}
-                              width={40}
-                              alt="*"
-                            />
-                          </button>
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 24,
-                            fontWeight: "700",
-                            textAlign: "center",
-                          }}
-                        >
-                          {`Let's claim your phone number`}
-                        </div>
-                        <div
-                          className="mt-2"
-                          style={{
-                            fontSize: 15,
-                            fontWeight: "700",
-                            textAlign: "center",
-                          }}
-                        >
-                          Enter the 3 digit area code you would like to use
-                        </div>
-                        <div
-                          className="mt-4"
-                          style={{
-                            fontSize: 13,
-                            fontWeight: "500",
-                            color: "#15151550",
-                          }}
-                        >
-                          Number
-                        </div>
-                        <div className="mt-2">
-                          <input
-                            className="border border-[#00000010] outline-none p-3 rounded-lg w-full mx-2 focus:outline-none focus:ring-0"
-                            type=""
-                            placeholder="Ex: 619, 213, 313"
-                            value={findNumber}
-                            onChange={(e) => {
-                              setFindeNumberLoader(true);
-                              if (timerRef.current) {
-                                clearTimeout(timerRef.current);
-                              }
-
-                              const value = e.target.value;
-                              setFindNumber(
-                                e.target.value.replace(/[^0-9]/g, "")
-                              );
-                              // handleFindeNumbers(value)
-                              if (value) {
-                                timerRef.current = setTimeout(() => {
-                                  handleFindeNumbers(value);
-                                }, 300);
-                              } else {
-                                console.log("Should not search");
-                                return;
-                              }
-                            }}
-                          />
-                        </div>
-
-                        {findNumber ? (
-                          <div>
-                            {findeNumberLoader ? (
-                              <div className="flex flex-row justify-center mt-6">
-                                <CircularProgress size={35} />
-                              </div>
-                            ) : (
-                              <div
-                                className="mt-6 max-h-[40vh] overflow-auto"
-                                style={{ scrollbarWidth: "none" }}
-                              >
-                                {foundeNumbers.length > 0 ? (
-                                  <div className="w-full">
-                                    {foundeNumbers.map((item, index) => (
-                                      <div
-                                        key={index}
-                                        className="h-[10vh] rounded-2xl flex flex-col justify-center p-4 mb-4"
-                                        style={{
-                                          border:
-                                            index === selectedPurchasedIndex
-                                              ? "2px solid #7902DF"
-                                              : "1px solid #00000020",
-                                          backgroundColor:
-                                            index === selectedPurchasedIndex
-                                              ? "#402FFF05"
-                                              : "",
-                                        }}
-                                      >
-                                        <button
-                                          className="flex flex-row items-start justify-between outline-none"
-                                          onClick={(e) => {
-                                            handlePurchaseNumberClick(
-                                              item,
-                                              index
-                                            );
-                                          }}
-                                        >
-                                          <div>
-                                            <div style={styles.findNumberTitle}>
-                                              {item.phoneNumber}
-                                            </div>
-                                            <div
-                                              className="text-start mt-2"
-                                              style={
-                                                styles.findNumberDescription
-                                              }
-                                            >
-                                              {item.locality} {item.region}
-                                            </div>
-                                          </div>
-                                          <div className="flex flex-row items-start gap-4">
-                                            <div style={styles.findNumberTitle}>
-                                              ${item.price}/mo
-                                            </div>
-                                            <div>
-                                              {index ==
-                                                selectedPurchasedIndex ? (
-                                                <Image
-                                                  src={"/assets/charmTick.png"}
-                                                  height={35}
-                                                  width={35}
-                                                  alt="*"
-                                                />
-                                              ) : (
-                                                <Image
-                                                  src={
-                                                    "/assets/charmUnMark.png"
-                                                  }
-                                                  height={35}
-                                                  width={35}
-                                                  alt="*"
-                                                />
-                                              )}
-                                            </div>
-                                          </div>
-                                        </button>
-                                      </div>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <div className="text-xl font-[600] text-center mt-4">
-                                    No result found. Try a new search
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <div className="text-xl font-[600] text-center mt-4">
-                            Enter number to search
-                          </div>
-                        )}
-                      </div>
-                      <div className="h-[50px]">
-                        <div>
-                          {purchaseLoader ? (
-                            <div className="w-full flex flex-row justify-center mt-4">
-                              <CircularProgress size={32} />
-                            </div>
-                          ) : (
-                            <div>
-                              {selectedPurchasedNumber && (
-                                <button
-                                  className="text-white bg-purple w-full h-[50px] rounded-lg"
-                                  onClick={handlePurchaseNumber}
-                                >
-                                  Proceed to Buy
-                                </button>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                        {/* {selectedPurchasedNumber ? (
-                                                    <div>
-                                                        {
-                                                            purchaseLoader ?
-                                                                <div className='w-full flex flex-row justify-center mt-4'>
-                                                                    <CircularProgress size={32} />
-                                                                </div> :
-                                                                <button className='text-white bg-purple w-full h-[50px] rounded-lg' onClick={handlePurchaseNumber}>
-                                                                    Proceed to Buy
-                                                                </button>
-                                                        }
-                                                    </div>
-                                                ) : (
-                                                    <button className='text-white bg-purple w-full h-[50px] rounded-lg' onClick={handleFindeNumbers}>
-                                                        Find Number
-                                                    </button>
-                                                )} */}
-                      </div>
-                    </div>
-                  </div>
-                </Box>
-              </Modal>
+              {
+                showClaimPopup && (
+                  <ClaimNumber
+                    showClaimPopup={showClaimPopup}
+                    handleCloseClaimPopup={handleCloseClaimPopup}
+                    setOpenCalimNumDropDown={setOpenCalimNumDropDown}
+                    setSelectNumber={setSelectNumber}
+                    setPreviousNumber={setPreviousNumber}
+                    previousNumber={previousNumber}
+                  />
+                )
+              }
 
               {/* Code for Purchase number success popup */}
               <Modal

@@ -37,7 +37,7 @@ const Page = ({ params }) => {
             console.log("Data recieved from get profile api", response);
 
             if (response) {
-                if (response?.data?.data?.plan.status === "cancelled") {
+                if (response?.data?.data?.plan?.status === "cancelled") {
                     setShowPlansPopup(true);
                 }
             }
