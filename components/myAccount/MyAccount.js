@@ -59,15 +59,15 @@ function MyAccount() {
     const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected]);
     const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
 
-    // useEffect(() => {
-    //     const tab = searchParams.get("tab"); // Get the value of 'tab'
-    //     let number = Number(tab) || 1;
-    //     console.log("Tab value is ", number);
-    //     setTabSelected(number);
-    //     if (!tab) {
-    //         setParamsInSearchBar(1);
-    //     }
-    // }, []);
+    useEffect(() => {
+        const tab = searchParams.get("tab"); // Get the value of 'tab'
+        let number = Number(tab) || 1;
+        console.log("Tab value is ", number);
+        setTabSelected(number);
+        if (!tab) {
+            setParamsInSearchBar(6);
+        }
+    }, []);
 
     const setParamsInSearchBar = (index = 1) => {
         // Create a new URLSearchParams object to modify

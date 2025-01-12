@@ -61,7 +61,7 @@ function Support() {
                         fontSize: 14, fontWeight: '400', marginTop: '1vh',
                         color: HoverAIWebinar ? "white" : ""
                     }}>
-                    Lorem ipsum dolor sit amet consectetur. Odio in congue a magna in. Et placerat est in imperdiet odio facilisis donec
+                    {`Learn tips and tricks to enhance your AI, perfect your script, and master best practices in our weekly live webinar. Don’t miss out on actionable insights to boost your success!`}
                 </div>
             </div>
 
