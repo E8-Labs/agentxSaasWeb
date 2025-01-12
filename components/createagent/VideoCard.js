@@ -3,9 +3,8 @@ import Image from "next/image";
 const VideoCard = ({ playVideo, horizontal = true, title }) => {
   return (
     <div
-      className={`flex  ${
-        horizontal ? "flex-row items-center" : "flex-col items-start"
-      } p-4 bg-white rounded-lg border border-brdColor max-w-md cursor-pointer `}
+      className={`flex  ${horizontal ? "flex-row items-center" : "flex-col items-start"
+        } p-4 bg-white rounded-lg border border-brdColor max-w-md cursor-pointer `}
       onClick={() => {
         playVideo();
       }}
@@ -20,7 +19,7 @@ const VideoCard = ({ playVideo, horizontal = true, title }) => {
             className={"rounded-lg object-cover"}
           />
           {/* Play Icon */}
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
+          <div className="absolute inset-0 flex flex-row justify-center bg-black bg-opacity-50 rounded-lg">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="w-8 h-8 text-white"
@@ -37,17 +36,17 @@ const VideoCard = ({ playVideo, horizontal = true, title }) => {
             </svg>
           </div>
         </div>
+        <div className="flex px-2 py-1 flex-col justify-center items-center rounded-full border border-brdColor">
+          <p className="text-sm text-gray-600">2mins</p>
+        </div>
       </div>
 
       {/* Content Section */}
       <div className={`flex flex-col items-start  justify-left`}>
-        <h3 className="text-lg font-medium text-gray-800">
+        <h3 className="xl:text-lg text-sm font-medium text-gray-800">
           {/* Learn how to add calendar */}
           {title}
         </h3>
-        <div className="flex px-2 py-1 mt-2 flex-col justify-center items-center rounded-full border border-brdColor">
-          <p className="text-sm text-gray-600">2mins</p>
-        </div>
       </div>
     </div>
   );

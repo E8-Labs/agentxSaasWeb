@@ -48,6 +48,7 @@ import { getTeamsList } from "../onboarding/services/apisServices/ApiService";
 import { PersistanceKeys } from "@/constants/Constants";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GetFormattedDateString } from "@/utilities/utility";
+import { getAgentsListImage } from "@/utilities/agentUtilities";
 
 const Pipeline1 = () => {
   const bottomRef = useRef();

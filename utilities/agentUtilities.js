@@ -82,8 +82,8 @@ export const getAgentsListImage = (subAgent) => {
             <div className="bg-gray-100 rounded-full h-[43px]  flex flex-row items-center justify-center">
                 <Image
                     src={subAgent.thumb_profile_image}
-                    height={42}
-                    width={42}
+                    height={62}
+                    width={62}
                     alt="*"
                     className="rounded-full"
                     style={{
@@ -107,8 +107,8 @@ export const getAgentsListImage = (subAgent) => {
                 <div className="bg-gray-100 rounded-full h-[43px] flex flex-row items-center justify-center">
                     < Image
                         src={selectedVoice.img}
-                        height={42}
-                        width={42}
+                        height={62}
+                        width={62}
                         alt="*"
                         className="rounded-full"
                         style={{
@@ -125,8 +125,8 @@ export const getAgentsListImage = (subAgent) => {
         <div className="h-[60px] w-[60px] rounded-full flex flex-row items-center justify-center">
             < Image
                 src="/agentXOrb.gif"
-                height={42}
-                width={42}
+                height={62}
+                width={62}
                 alt="*"
             />
         </div>

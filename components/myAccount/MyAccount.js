@@ -61,11 +61,11 @@ function MyAccount() {
 
     useEffect(() => {
         const tab = searchParams.get("tab"); // Get the value of 'tab'
-        let number = Number(tab) || 1;
+        let number = Number(tab) || 6;
         console.log("Tab value is ", number);
         setTabSelected(number);
         if (!tab) {
-            setParamsInSearchBar(6);
+            setParamsInSearchBar(1);
         }
     }, []);
 

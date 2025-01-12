@@ -144,12 +144,6 @@ function MyPhoneNumber() {
                                                         alt='more'
                                                     />
                                                 </button>
-
-                                                {/* <button> */}
-                                                <div style={{ fontSize: 15, fontWeight: '700', color: '#7902DF' }}>
-                                                    {`{Ann's ai}`}
-                                                </div>
-                                                {/* </button> */}
                                             </div>
 
 
@@ -174,26 +168,6 @@ function MyPhoneNumber() {
                                             horizontal: 'right',
                                         }}
                                     >
-                                        <MenuItem
-                                            sx={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: 1,
-                                                fontSize: 15,
-                                                fontWeight: '500',
-                                                color: 'black',
-                                                padding: '10px 20px',
-                                            }}
-                                            onClick={handleMoreClose}
-                                        >
-                                            <Image
-                                                src="/otherAssets/editIcon.png"
-                                                alt="Edit"
-                                                width={24}
-                                                height={24}
-                                            />
-                                            Edit
-                                        </MenuItem>
                                         <MenuItem
                                             sx={{
                                                 display: 'flex',

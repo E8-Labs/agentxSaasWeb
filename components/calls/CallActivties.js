@@ -830,7 +830,7 @@ function SheduledCalls() {
                     <div className="flex w-full items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm mt-6">
                       <input
                         type="text"
-                        placeholder="Search by name, email or phone"
+                        placeholder="Search by name or phone"
                         className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0"
                         value={leadsSearchValue}
                         onChange={(e) => {

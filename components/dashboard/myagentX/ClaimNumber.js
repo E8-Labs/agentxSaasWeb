@@ -4,6 +4,7 @@ import { Box, CircularProgress, Modal } from '@mui/material';
 import axios from 'axios';
 import Image from 'next/image';
 import React, { useRef, useState } from 'react'
+import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
 
 const ClaimNumber = ({
     showClaimPopup,
@@ -24,6 +25,9 @@ const ClaimNumber = ({
     const [selectedPurchasedNumber, setSelectedPurchasedNumber] = useState(null);
     const [purchaseLoader, setPurchaseLoader] = useState(false);
     const [openPurchaseSuccessModal, setOpenPurchaseSuccessModal] = useState(false);
+    const [openPurchaseErrSnack, setOpenPurchaseErrSnack] = useState("");
+    const [isSnackVisible, setIsSnackVisible] = useState(false);
+    const [errorType, setErrorType] = useState(null);
 
     //code to select Purchase number
     const handlePurchaseNumberClick = (item, index) => {
@@ -106,6 +110,10 @@ const ClaimNumber = ({
                     if (setOpenCalimNumDropDown) {
                         setOpenCalimNumDropDown(false);
                     }
+                } else if (response.data.data.status === false) {
+                    setOpenPurchaseErrSnack(response.data.data.message);
+                    setIsSnackVisible(true);
+                    setErrorType(SnackbarTypes.Error);
                 }
             }
         } catch (error) {
@@ -190,6 +198,19 @@ const ClaimNumber = ({
                             }}
                         >
                             <div>
+                                {
+                                    isSnackVisible && (
+                                        <AgentSelectSnackMessage
+                                            message={openPurchaseErrSnack}
+                                            type={errorType}
+                                            isVisible={isSnackVisible}
+                                            hide={() => {
+                                                setIsSnackVisible(false);
+                                                setOpenPurchaseErrSnack("");
+                                                setErrorType(null);
+                                            }}
+                                        />
+                                    )}
                                 <div className="flex flex-row justify-end">
                                     <button onClick={handleCloseClaimPopup}>
                                         <Image

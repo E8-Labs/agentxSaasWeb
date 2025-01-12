@@ -708,7 +708,7 @@ const BuyerKycs = ({ handleContinue }) => {
                 )}
 
                 <button
-                  className="mt-2 w-10/12 md:w-6/12 outline-none border-none justify-start flex text-purple"
+                  className="mt-2 w-10/12 md:w-8/12 outline-none border-none justify-start flex text-purple"
                   style={{ fontWeight: "700", fontSize: 15 }}
                   onClick={handleAddKyc}
                 >

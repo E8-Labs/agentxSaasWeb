@@ -1380,25 +1380,33 @@ function Billing() {
                 style={{
                   fontWeight: "500",
                   fontSize: 15,
+                  textAlign: "center"
                 }}
               >
                 {`Tell us why you’re canceling to better improve our platform for you.`}
               </div>
 
-              <div className="mt-9">
-                {cancelPlanReasons.map((item, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      fontWeight: "500",
-                      fontSize: 15,
-                      textAlign: "center",
-                      marginTop: 6,
-                    }}
-                  >
-                    {item.reason}
-                  </div>
-                ))}
+              <div className="w-full flex flex-row items-center justify-center">
+                <div className="mt-9 w-9/12">
+                  {cancelPlanReasons.map((item, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        fontWeight: "500",
+                        fontSize: 15,
+                        textAlign: "start",
+                        marginTop: 6,
+                      }}
+                      className="flex flex-row items-center gap-2"
+                    >
+                      <button>
+                      </button>
+                      <div>
+                        {item.reason}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="w-full flex flex-row items-center justify-center mt-1">

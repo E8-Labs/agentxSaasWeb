@@ -1766,20 +1766,6 @@ function Page() {
                           />
                         </div>
                       ) : (
-                        // <Image
-                        //   className="hidden md:flex"
-                        //   src={item?.thumb_profile_image || "/agentXOrb.gif"}
-                        //   style={{
-                        //     height: "69px",
-                        //     width: "69px",
-                        //     objectFit: "cover",
-                        //     resize: "cover",
-                        //     borderRadius: "50%",
-                        //   }}
-                        //   height={69}
-                        //   width={69}
-                        //   alt="*"
-                        // />
                         getAgentsListImage(item)
                       )}
 
