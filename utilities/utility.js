@@ -12,7 +12,7 @@ export function convertUTCToTimezone(utcTimestamp, timezone = null) {
   console.log("Time zone to convert to is ", timezone);
   return DateTime.fromISO(utcTimestamp, { zone: "utc" })
     .setZone(timezone)
-    .toFormat("yyyy-MM-dd H:mm:ss");
+    .toFormat("yyyy-MM-dd h:mm:ss");
 }
 
 export function GetFormattedDateString(dateString, time = false, RequiredDateFormat = null) {
