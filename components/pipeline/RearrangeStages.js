@@ -204,12 +204,14 @@ const RearrangeStages = ({
     // console.log("Value to set is :", value);
     setAssignToMember(event.target.value);
 
-    const selectedItem = myTeamList.find((item) => item.name === value);
-    setAssignToMember(selectedItem.name || myTeamAdmin.name);
-    setAssignLeadToMember([...assignLeadToMember, selectedItem.id || myTeamAdmin.id]);
+    const selectedItem = myTeamList.find((item) => item.invitedUser.name === value);
+    console.log("Selected teammeber is:", selectedItem);
+    setAssignToMember(selectedItem.invitedUser.name || myTeamAdmin.invitedUser.name); //
+    setAssignLeadToMember([...assignLeadToMember, selectedItem.invitedUser.id || myTeamAdmin.invitedUser.id]); //
 
-    console.log("Selected inext stage is:", selectedItem);
+    console.log("Selected teammeber is:", selectedItem);
   };
+
 
   const getMyTeam = async () => {
     try {

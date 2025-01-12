@@ -105,6 +105,7 @@ const LeadDetails = ({
 
   //variables storing tammember data
   const [myTeam, setMyTeam] = useState([]);
+  const [myTeamAdmin, setMyTeamAdmin] = useState(null);
 
   //variable for showing modal
   const [extraTagsModal, setExtraTagsModal] = useState(false);
@@ -144,6 +145,7 @@ const LeadDetails = ({
           if (response.data.status === true) {
             console.log("get team api response is", response.data);
             setMyTeam(response.data.data);
+            setMyTeamAdmin(response.data.admin);
           } else {
             console.log("get team api message is", response.data.message);
           }
@@ -1290,6 +1292,22 @@ const LeadDetails = ({
                           },
                         }}
                       >
+                        <button
+                          onClick={() => {
+                            handleAssignLeadToTeammember(myTeamAdmin)
+                          }}
+                        >
+                          <div className="w-full flex flex-row items-center gap-2">
+                            <div>
+                              {myTeamAdmin?.name}
+                            </div>
+                            <div
+                              className="bg-purple text-white text-sm px-2 rounded-full"
+                            >
+                              Admin
+                            </div>
+                          </div>
+                        </button>
                         {
                           myTeam.length > 0 ? (
                             <div>

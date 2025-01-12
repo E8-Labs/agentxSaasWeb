@@ -173,14 +173,15 @@ const PipelineStages = ({
     let value = event.target.value;
     console.log("Value to set is :", value);
     setAssignToMember(event.target.value);
-    
-    const selectedItem = myTeamList.find((item) => item.invitingUser.name === value);
+
+    const selectedItem = myTeamList.find((item) => item.invitedUser.name === value);
     console.log("Selected teammeber is:", selectedItem);
-    setAssignToMember(selectedItem.invitingUser.name || myTeamAdmin.invitedUser.name); //
-    setAssignLeadToMember([...assignLeadToMember, selectedItem.invitingUser.id || myTeamAdmin.invitedUser.id]); //
+    setAssignToMember(selectedItem.invitedUser.name || myTeamAdmin.invitedUser.name); //
+    setAssignLeadToMember([...assignLeadToMember, selectedItem.invitedUser.id || myTeamAdmin.invitedUser.id]); //
 
     console.log("Selected teammeber is:", selectedItem);
   };
+
 
   const handlePopoverClose = () => {
     setActionInfoEl(null);
