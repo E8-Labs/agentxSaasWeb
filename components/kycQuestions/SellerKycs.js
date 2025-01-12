@@ -237,7 +237,7 @@ const SellerKycs = ({ handleContinue }) => {
   };
 
   const handleToggleClick = (id) => {
-    setToggleClick((prevId) => (prevId === id ? null : id));
+    setToggleClick((prevId) => (prevId === id ? id : id));
   };
 
   //code to select question
@@ -539,16 +539,14 @@ const SellerKycs = ({ handleContinue }) => {
             />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[90%]">
-            <div
-              style={{
-                position: "absolute",
-                // left: "50%",
-                translate: "-50%",
-                left: "14%",
-                top: "18%",
-              }}
-            >
+          <IntroVideoModal
+            open={introVideoModal}
+            onClose={() => setIntroVideoModal(false)}
+            videoTitle="Learn more about assigning leads"
+            videoUrl="https://drive.google.com/file/d/1mjcZ9-OIKBv44-eeOa2TrippR5h0RfSs/view?usp=share_link"
+          />
+          <div className="flex flex-row w-full justify-center h-[98%]">
+            <div className="hidden lg:inline w-3/12 -ml-4">
               <VideoCard
                 horizontal={false}
                 playVideo={() => {
@@ -557,344 +555,327 @@ const SellerKycs = ({ handleContinue }) => {
                 title="Learn about asking questions (KYC)"
               />
             </div>
-            <IntroVideoModal
-              open={introVideoModal}
-              onClose={() => setIntroVideoModal(false)}
-              videoTitle="Learn more about assigning leads"
-              videoUrl="https://drive.google.com/file/d/1mjcZ9-OIKBv44-eeOa2TrippR5h0RfSs/view?usp=share_link"
-            />
-            <div
-              className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
-              style={{ textAlign: "center" }}
-            >
-              What would you like to ask sellers?
-            </div>
-            <div
-              className="mt-6 w-11/12 md:text-xl text-lg font-[400]"
-              style={{ textAlign: "center" }}
-            >
-              Answers to these questions will be saved in the customer profile
-            </div>
-            {/* <button className='mt-10 underline text-purple' style={styles.inputStyle} onClick={() => { router.push("/buyerskycquestions"); }}>
+            <div className="flex flex-col items-center px-4 w-full h-[90%]">
+              <div
+                className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
+                style={{ textAlign: "center" }}
+              >
+                What would you like to ask sellers?
+              </div>
+              <div
+                className="mt-6 w-11/12 md:text-xl text-lg font-[400]"
+                style={{ textAlign: "center" }}
+              >
+                Answers to these questions will be saved in the customer profile
+              </div>
+              {/* <button className='mt-10 underline text-purple' style={styles.inputStyle} onClick={() => { router.push("/buyerskycquestions"); }}>
                             {`I don't need questions for sellers`}
                         </button> */}
-            <div className="flex flex-row items-center gap-10 mt-10">
-              {KYCQuestionType.map((item, index) => (
-                <button
-                  key={item.id}
-                  style={{
-                    ...styles.inputStyle,
-                    color: item.id === toggleClick ? "#7902DF" : "",
-                  }}
-                  onClick={(e) => {
-                    handleToggleClick(item.id);
-                  }}
-                >
-                  {item.title}
-                </button>
-              ))}
-            </div>
-            <div>
+              <div className="flex flex-row items-center gap-10 mt-10">
+                {KYCQuestionType.map((item, index) => (
+                  <button
+                    key={item.id}
+                    style={{
+                      ...styles.inputStyle,
+                      color: item.id === toggleClick ? "#7902DF" : "",
+                    }}
+                    onClick={(e) => {
+                      handleToggleClick(item.id);
+                    }}
+                  >
+                    {item.title}
+                  </button>
+                ))}
+              </div>
+              <div>
+                {toggleClick === 1 ? (
+                  <Image
+                    src={"/assets/needKYC.png"}
+                    height={5}
+                    width={303}
+                    alt="*"
+                  />
+                ) : toggleClick === 2 ? (
+                  <Image
+                    src={"/assets/motivationKyc.png"}
+                    height={5}
+                    width={303}
+                    alt="*"
+                  />
+                ) : toggleClick === 3 ? (
+                  <Image
+                    src={"/assets/urgencyKyc.png"}
+                    height={8}
+                    width={310}
+                    alt="*"
+                  />
+                ) : (
+                  ""
+                )}
+              </div>
+
               {toggleClick === 1 ? (
-                <Image
-                  src={"/assets/needKYC.png"}
-                  height={5}
-                  width={303}
-                  alt="*"
-                />
+                <div
+                  className="mt-8 w-10/12 md:w-8/12 max-h-[85%] overflow-auto"
+                  style={{ scrollbarWidth: "none" }}
+                >
+                  {needKYCQuestions.map((item, index) => {
+                    let selected = isMotivationKycSelected(
+                      item,
+                      selectedNeedKYC
+                    );
+                    return (
+                      <button
+                        className="mb-4 border rounded-3xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full"
+                        style={{
+                          border: selected ? "2px solid #7902DF" : "",
+                          backgroundColor: selected ? "#402FFF15" : "",
+                        }}
+                        key={index}
+                        onClick={() => handleSelectNeedKYC(item)}
+                      >
+                        <div style={{ width: "90%" }} className="text-start">
+                          {item.question}
+                        </div>
+                        <div
+                          className="outline-none border-none"
+                          style={{ width: "10%" }}
+                        >
+                          {selected ? (
+                            <Image
+                              src={"/assets/charmTick.png"}
+                              height={35}
+                              width={35}
+                              alt="*"
+                            />
+                          ) : (
+                            <Image
+                              src={"/assets/charmUnMark.png"}
+                              height={35}
+                              width={35}
+                              alt="*"
+                            />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               ) : toggleClick === 2 ? (
-                <Image
-                  src={"/assets/motivationKyc.png"}
-                  height={5}
-                  width={303}
-                  alt="*"
-                />
+                <div
+                  className="mt-8 w-10/12 md:w-8/12 max-h-[85%] overflow-auto"
+                  style={{ scrollbarWidth: "none" }}
+                >
+                  {motivationKycQuestions.map((item, index) => {
+                    console.log(
+                      "########################### START ########################################"
+                    );
+                    let selected = isMotivationKycSelected(
+                      item,
+                      selectedMotivationKyc
+                    );
+                    console.log(selected);
+                    console.log(
+                      "########################## END #########################################"
+                    );
+                    return (
+                      <button
+                        className="mb-4 border rounded-3xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full"
+                        key={index}
+                        onClick={() => handleSelectMotivationKYC(item)}
+                        style={{
+                          border: selected ? "2px solid #7902DF" : "", //selectedMotivationKyc.some(selectedItem => selectedItem.id === item.id) ? "2px solid #7902DF" : "",
+                          backgroundColor: selected ? "#402FFF15" : "",
+                        }}
+                      >
+                        <div style={{ width: "90%" }} className="text-start">
+                          {item.question}
+                        </div>
+                        <div
+                          className="outline-none border-none"
+                          style={{ width: "10%" }}
+                        >
+                          {selected ? (
+                            <Image
+                              src={"/assets/charmTick.png"}
+                              height={35}
+                              width={35}
+                              alt="*"
+                            />
+                          ) : (
+                            <Image
+                              src={"/assets/charmUnMark.png"}
+                              height={35}
+                              width={35}
+                              alt="*"
+                            />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               ) : toggleClick === 3 ? (
-                <Image
-                  src={"/assets/urgencyKyc.png"}
-                  height={8}
-                  width={310}
-                  alt="*"
-                />
+                <div
+                  className="mt-8 w-10/12 md:w-8/12 max-h-[85%] overflow-auto"
+                  style={{ scrollbarWidth: "none" }}
+                >
+                  {urgencyKycQuestions.map((item, index) => {
+                    let selected = isMotivationKycSelected(
+                      item,
+                      selectedUrgencyKyc
+                    );
+                    return (
+                      <button
+                        className="mb-4 border rounded-3xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full"
+                        key={index}
+                        onClick={() => handleUrgencyKYC(item)}
+                        style={{
+                          border: selected ? "2px solid #7902DF" : "",
+                          backgroundColor: selected ? "#402FFF15" : "",
+                        }}
+                      >
+                        <div style={{ width: "90%" }} className="text-start">
+                          {item.question}
+                        </div>
+                        <div
+                          className="outline-none border-none"
+                          style={{ width: "10%" }}
+                        >
+                          {selected ? (
+                            <Image
+                              src={"/assets/charmTick.png"}
+                              height={35}
+                              width={35}
+                              alt="*"
+                            />
+                          ) : (
+                            <Image
+                              src={"/assets/charmUnMark.png"}
+                              height={35}
+                              width={35}
+                              alt="*"
+                            />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               ) : (
                 ""
               )}
-            </div>
 
-            {toggleClick === 1 ? (
-              <div
-                className="mt-8 w-10/12 md:w-6/12 max-h-[85%] overflow-auto"
-                style={{ scrollbarWidth: "none" }}
+              <button
+                className="mt-2 w-10/12 md:w-6/12 justify-start flex justify-start flex text-purple"
+                style={{
+                  fontWeight: "700",
+                  fontSize: 15,
+                  scrollbarWidth: "none",
+                }}
+                onClick={handleAddKyc}
               >
-                {needKYCQuestions.map((item, index) => {
-                  let selected = isMotivationKycSelected(item, selectedNeedKYC);
-                  return (
-                    <button
-                      className="mb-4 border rounded-3xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full"
-                      style={{
-                        border: selected ? "2px solid #7902DF" : "",
-                        backgroundColor: selected ? "#402FFF15" : "",
-                      }}
-                      key={index}
-                      onClick={() => handleSelectNeedKYC(item)}
-                    >
-                      <div style={{ width: "90%" }} className="text-start">
-                        {item.question}
-                      </div>
-                      <div
-                        className="outline-none border-none"
-                        style={{ width: "10%" }}
-                      >
-                        {selected ? (
-                          <Image
-                            src={"/assets/charmTick.png"}
-                            height={35}
-                            width={35}
-                            alt="*"
-                          />
-                        ) : (
-                          <Image
-                            src={"/assets/charmUnMark.png"}
-                            height={35}
-                            width={35}
-                            alt="*"
-                          />
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            ) : toggleClick === 2 ? (
-              <div
-                className="mt-8 w-10/12 md:w-6/12 max-h-[85%] overflow-auto"
-                style={{ scrollbarWidth: "none" }}
+                Add Question
+              </button>
+              {/* Modal to add KYC */}
+              <Modal
+                open={addKYCQuestion}
+                // onClose={() => setAddKYCQuestion(false)}
+                closeAfterTransition
+                BackdropProps={{
+                  timeout: 1000,
+                  sx: {
+                    backgroundColor: "#00000050",
+                    // //backdropFilter: "blur(20px)",
+                  },
+                }}
               >
-                {motivationKycQuestions.map((item, index) => {
-                  console.log(
-                    "########################### START ########################################"
-                  );
-                  let selected = isMotivationKycSelected(
-                    item,
-                    selectedMotivationKyc
-                  );
-                  console.log(selected);
-                  console.log(
-                    "########################## END #########################################"
-                  );
-                  return (
-                    <button
-                      className="mb-4 border rounded-3xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full"
-                      key={index}
-                      onClick={() => handleSelectMotivationKYC(item)}
+                <Box
+                  className="lg:w-5/12 sm:w-full w-8/12"
+                  sx={styles.AddNewKYCQuestionModal}
+                >
+                  <div className="flex flex-row justify-center w-full">
+                    <div
+                      className="sm:w-9/12 w-full"
                       style={{
-                        border: selected ? "2px solid #7902DF" : "", //selectedMotivationKyc.some(selectedItem => selectedItem.id === item.id) ? "2px solid #7902DF" : "",
-                        backgroundColor: selected ? "#402FFF15" : "",
+                        backgroundColor: "#ffffff",
+                        padding: 20,
+                        borderRadius: "13px",
                       }}
                     >
-                      <div style={{ width: "90%" }} className="text-start">
-                        {item.question}
+                      <div className="flex flex-row justify-end">
+                        <button onClick={handleClose}>
+                          <Image
+                            src={"/assets/crossIcon.png"}
+                            height={40}
+                            width={40}
+                            alt="*"
+                          />
+                        </button>
                       </div>
                       <div
-                        className="outline-none border-none"
-                        style={{ width: "10%" }}
+                        className="text-center mt-2"
+                        style={{ fontWeight: "700", fontSize: 24 }}
                       >
-                        {selected ? (
-                          <Image
-                            src={"/assets/charmTick.png"}
-                            height={35}
-                            width={35}
-                            alt="*"
-                          />
-                        ) : (
-                          <Image
-                            src={"/assets/charmUnMark.png"}
-                            height={35}
-                            width={35}
-                            alt="*"
-                          />
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            ) : toggleClick === 3 ? (
-              <div
-                className="mt-8 w-10/12 md:w-6/12 max-h-[85%] overflow-auto"
-                style={{ scrollbarWidth: "none" }}
-              >
-                {urgencyKycQuestions.map((item, index) => {
-                  let selected = isMotivationKycSelected(
-                    item,
-                    selectedUrgencyKyc
-                  );
-                  return (
-                    <button
-                      className="mb-4 border rounded-3xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full"
-                      key={index}
-                      onClick={() => handleUrgencyKYC(item)}
-                      style={{
-                        border: selected ? "2px solid #7902DF" : "",
-                        backgroundColor: selected ? "#402FFF15" : "",
-                      }}
-                    >
-                      <div style={{ width: "90%" }} className="text-start">
-                        {item.question}
+                        New Question
                       </div>
                       <div
-                        className="outline-none border-none"
-                        style={{ width: "10%" }}
+                        className="text-[#00000060] mx-2"
+                        style={{ fontWeight: "600", fontSize: 13 }}
                       >
-                        {selected ? (
-                          <Image
-                            src={"/assets/charmTick.png"}
-                            height={35}
-                            width={35}
-                            alt="*"
-                          />
-                        ) : (
-                          <Image
-                            src={"/assets/charmUnMark.png"}
-                            height={35}
-                            width={35}
-                            alt="*"
-                          />
-                        )}
+                        {`What’s the question? `}
                       </div>
-                    </button>
-                  );
-                })}
-              </div>
-            ) : (
-              ""
-            )}
-
-            {/* <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
-                            {needKYCQuestions.map((item, index) => (
-                                <div className='mb-4 border rounded-xl flex flex-row items-center justify-between px-4 sm:h-[10vh]' key={index}>
-                                    <div style={{ width: "90%" }}>{item.question}</div>
-                                    <button className='outline-none border-none' onClick={() => handleSelectNeedKYC(item)} style={{ width: "10%" }}>
-                                        {
-                                            selectedNeedKYC.some(selectedItem => selectedItem.id === item.id)
-                                                ? <Image src={"/assets/charmTick.png"} height={35} width={35} alt='*' />
-                                                : <Image src={"/assets/charmUnMark.png"} height={35} width={35} alt='*' />
-                                        }
-                                    </button>
-                                </div>
-                            ))}
-                        </div> */}
-
-            <button
-              className="mt-2 w-10/12 md:w-6/12 justify-start flex justify-start flex text-purple"
-              style={{
-                fontWeight: "700",
-                fontSize: 15,
-                scrollbarWidth: "none",
-              }}
-              onClick={handleAddKyc}
-            >
-              Add Question
-            </button>
-            {/* Modal to add KYC */}
-            <Modal
-              open={addKYCQuestion}
-              // onClose={() => setAddKYCQuestion(false)}
-              closeAfterTransition
-              BackdropProps={{
-                timeout: 1000,
-                sx: {
-                  backgroundColor: "#00000050",
-                  // //backdropFilter: "blur(20px)",
-                },
-              }}
-            >
-              <Box
-                className="lg:w-5/12 sm:w-full w-8/12"
-                sx={styles.AddNewKYCQuestionModal}
-              >
-                <div className="flex flex-row justify-center w-full">
-                  <div
-                    className="sm:w-9/12 w-full"
-                    style={{
-                      backgroundColor: "#ffffff",
-                      padding: 20,
-                      borderRadius: "13px",
-                    }}
-                  >
-                    <div className="flex flex-row justify-end">
-                      <button onClick={handleClose}>
-                        <Image
-                          src={"/assets/crossIcon.png"}
-                          height={40}
-                          width={40}
-                          alt="*"
+                      <div className="mt-2">
+                        <input
+                          className="border outline-none w-full p-2 rounded-lg px-3 mx-2 focus:outline-none focus:ring-0"
+                          style={{
+                            fontSize: 15,
+                            fontWeight: "500",
+                            borderColor: "#00000020",
+                          }}
+                          placeholder="Ex: What's your name?"
+                          value={newQuestion}
+                          onChange={(e) => setNewQuestion(e.target.value)}
                         />
-                      </button>
-                    </div>
-                    <div
-                      className="text-center mt-2"
-                      style={{ fontWeight: "700", fontSize: 24 }}
-                    >
-                      New Question
-                    </div>
-                    <div
-                      className="text-[#00000060] mx-2"
-                      style={{ fontWeight: "600", fontSize: 13 }}
-                    >
-                      {`What’s the question? `}
-                    </div>
-                    <div className="mt-2">
-                      <input
-                        className="border outline-none w-full p-2 rounded-lg px-3 mx-2 focus:outline-none focus:ring-0"
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "500",
-                          borderColor: "#00000020",
-                        }}
-                        placeholder="Ex: What's your name?"
-                        value={newQuestion}
-                        onChange={(e) => setNewQuestion(e.target.value)}
-                      />
-                    </div>
-                    <div className="mt-4 mx-2" style={styles.headingStyle}>
-                      Sample Answers
-                    </div>
+                      </div>
+                      <div className="mt-4 mx-2" style={styles.headingStyle}>
+                        Sample Answers
+                      </div>
 
-                    <div
-                      className="mt-2 text-[#00000060] mx-2"
-                      style={{ fontWeight: "500", fontSize: 12 }}
-                    >
-                      What are possible answers leads will give to this
-                      question?
-                    </div>
+                      <div
+                        className="mt-2 text-[#00000060] mx-2"
+                        style={{ fontWeight: "500", fontSize: 12 }}
+                      >
+                        What are possible answers leads will give to this
+                        question?
+                      </div>
 
-                    <div
-                      className="max-h-[30vh] overflow-auto mt-4" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
-                      style={{ scrollbarWidth: "none" }}
-                    >
-                      {inputs.map((input, index) => (
-                        <div
-                          key={input.id}
-                          className="w-full flex flex-row items-center gap-4 mt-4"
-                        >
-                          <input
-                            className="border p-2 rounded-lg px-3 outline-none mx-2 focus:outline-none focus:ring-0"
-                            style={{ width: "95%", borderColor: "#00000020" }}
-                            placeholder={`Sample Answer`}
-                            value={input.value}
-                            onChange={(e) =>
-                              handleInputChange(input.id, e.target.value)
-                            }
-                          />
-                          {/* <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
+                      <div
+                        className="max-h-[30vh] overflow-auto mt-4" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                        style={{ scrollbarWidth: "none" }}
+                      >
+                        {inputs.map((input, index) => (
+                          <div
+                            key={input.id}
+                            className="w-full flex flex-row items-center gap-4 mt-4"
+                          >
+                            <input
+                              className="border p-2 rounded-lg px-3 outline-none mx-2 focus:outline-none focus:ring-0"
+                              style={{ width: "95%", borderColor: "#00000020" }}
+                              placeholder={`Sample Answer`}
+                              value={input.value}
+                              onChange={(e) =>
+                                handleInputChange(input.id, e.target.value)
+                              }
+                            />
+                            {/* <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
                                                         <Image src={"/assets/blackBgCross.png"} height={15} width={15} alt='*' />
                                                     </button> */}
-                        </div>
-                      ))}
-                    </div>
+                          </div>
+                        ))}
+                      </div>
 
-                    {/* <div style={{ height: "50px" }}>
+                      {/* <div style={{ height: "50px" }}>
                                             {
                                                 inputs.length < 3 && (
                                                     <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
@@ -907,28 +888,30 @@ const SellerKycs = ({ handleContinue }) => {
                                             }
                                         </div> */}
 
-                    <div className="w-full h-[]80px">
-                      {inputs.filter((input) => input.value.trim() !== "")
-                        .length === 3 &&
-                        newQuestion && (
-                          <button
-                            className="bg-purple outline-none border-none rounded-lg text-white w-full mt-4 mx-2"
-                            style={{ ...styles.headingStyle, height: "50px" }}
-                            onClick={handleAddKycQuestion}
-                          >
-                            Add Question
-                          </button>
-                        )}
+                      <div className="w-full h-[]80px">
+                        {inputs.filter((input) => input.value.trim() !== "")
+                          .length === 3 &&
+                          newQuestion && (
+                            <button
+                              className="bg-purple outline-none border-none rounded-lg text-white w-full mt-4 mx-2"
+                              style={{ ...styles.headingStyle, height: "50px" }}
+                              onClick={handleAddKycQuestion}
+                            >
+                              Add Question
+                            </button>
+                          )}
+                      </div>
+
+                      {/* Error snack bar message */}
+
+                      {/* Can be use full to add shadow */}
+                      {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
                     </div>
-
-                    {/* Error snack bar message */}
-
-                    {/* Can be use full to add shadow */}
-                    {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
                   </div>
-                </div>
-              </Box>
-            </Modal>
+                </Box>
+              </Modal>
+            </div>
+            <div className="hidden lg:inline w-3/12 "></div>
           </div>
         </div>
         <div className="h-[10%]">

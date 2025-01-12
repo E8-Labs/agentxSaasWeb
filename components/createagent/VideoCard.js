@@ -3,20 +3,21 @@ import Image from "next/image";
 const VideoCard = ({ playVideo, horizontal = true, title }) => {
   return (
     <div
-      className={`flex  ${horizontal ? "flex-row items-center" : "flex-col items-start"
-        } p-4 bg-white rounded-lg border border-brdColor max-w-md cursor-pointer `}
+      className={`flex  ${
+        horizontal ? "flex-row items-center" : "flex-col items-start"
+      } p-4 bg-white rounded-lg border border-brdColor max-w-md cursor-pointer `}
       onClick={() => {
         playVideo();
       }}
     >
       {/* Video Thumbnail */}
       <div className="w-full flex flex-row items-end gap-2">
-        <div className="relative w-[6vw] h-[10vh] flex-shrink-0">
+        <div className={"relative w-[6vw] h-[10vh] flex-shrink-0"}>
           <Image
             src="/assets/youtubeplay.png" // Replace with your image path
             alt="Video thumbnail"
             layout="fill"
-            className="rounded-lg object-cover"
+            className={"rounded-lg object-cover"}
           />
           {/* Play Icon */}
           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
@@ -36,7 +37,6 @@ const VideoCard = ({ playVideo, horizontal = true, title }) => {
             </svg>
           </div>
         </div>
-
       </div>
 
       {/* Content Section */}
