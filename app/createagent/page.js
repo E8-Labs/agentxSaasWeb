@@ -60,11 +60,11 @@ const Page = () => {
         } else {
           setComponents([
             CreateAgent1,
-            CreatAgent3,
+            // CreatAgent3,
             CreateAgent4,
             CreateAgentVoice,
           ]);
-          setIndex(1)
+          // setIndex(1)
         }
       } else {
         if (windowSize < 640) {
