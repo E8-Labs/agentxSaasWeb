@@ -66,14 +66,10 @@ const UserService = ({ handleContinue, handleBack }) => {
         AgentTypeTitle = serviceIds.userTypeTitle;
       }
 
-      // formatAgentTypeTitle(AgentTypeTitle)
 
-      // console.log("Formated titel is", formatAgentTypeTitle(AgentTypeTitle));
 
       console.log("Check 1 clear !!!");
-      const ApiPath = `${Apis.defaultData}?type=${formatAgentTypeTitle(
-        AgentTypeTitle
-      )}`;
+      const ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`;
       console.log("Api link is:--", ApiPath);
       const response = await axios.get(ApiPath, {
         headers: {
@@ -94,29 +90,6 @@ const UserService = ({ handleContinue, handleBack }) => {
     }
   };
 
-  //function to format the agenttypetitle
-  const formatAgentTypeTitle = (title) => {
-    switch (title) {
-      case "Real Estate Agent":
-        return "RealEstateAgent";
-      case "Sales Dev Agent":
-        return "SalesDevRep";
-      case "Solar Rep":
-        return "SolarRep";
-      case "Insurance Agent":
-        return "InsuranceAgent";
-      case "Marketer":
-        return "MarketerAgent";
-      case "Website Agent":
-        return "WebsiteAgent";
-      case "Recuiter Agent":
-        return "RecruiterAgent";
-      case "Tax Agent":
-        return "TaxAgent";
-      default:
-        return title; // Fallback if no match is found
-    }
-  };
 
   const handleserviceId = (id) => {
     // setServiceId(prevId => (prevId === id ? null : id));

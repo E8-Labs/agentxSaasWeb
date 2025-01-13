@@ -268,7 +268,6 @@ const SalesDevAgent = ({
       setRegisterLoader(true);
 
       let agentTitle = userData.userTypeTitle;
-      // formatAgentTypeTitle(agentTitle);
       console.log("AgentTitle is", agentTitle);
       const formData = new FormData();
       const ApiPath = Apis.register;
@@ -285,7 +284,7 @@ const SalesDevAgent = ({
       // formData.append("averageTransactionPerYear", userTransaction);
       formData.append("agentService", JSON.stringify(userData.serviceID));
       formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
-      formData.append("userType", formatAgentTypeTitle(agentTitle));
+      formData.append("userType", agentTitle);
       formData.append("areaOfService", customerService);
       formData.append("company", company);
       formData.append("login", false);
@@ -300,11 +299,7 @@ const SalesDevAgent = ({
         console.log(`${key}: ${value}`);
       }
 
-      console.log("Agent tile updated is", formatAgentTypeTitle(agentTitle));
-
-      // if (formatAgentTypeTitle(agentTitle) === "RealEstateAgent") {
-      //     console.log("it is real state agent")
-      // }
+      console.log("Agent tile updated is", agentTitle);
 
       // return
       const response = await axios.post(ApiPath, formData);
@@ -315,53 +310,13 @@ const SalesDevAgent = ({
         console.log("Status is :---", response.data.status);
         if (response.data.status === true) {
           localStorage.removeItem(PersistanceKeys.RegisterDetails);
-          // localStorage.setItem("User", JSON.stringify(response.data.data));
-          //set cokie on locastorage to run middle ware
-          // document.cookie = `User=${encodeURIComponent(
-          //   JSON.stringify(response.data.data)
-          // )}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
-
-          //check for document undefined issue
-
-          // if (typeof document !== "undefined") {
-          //     document.cookie = `User=${encodeURIComponent(
-          //         JSON.stringify(response.data.data)
-          //     )}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
-          // }
           handleWaitList();
-          // if (formatAgentTypeTitle(agentTitle) === "RealEstateAgent") {
-          //     console.log("it is real state agent")
-          // }
         }
       }
     } catch (error) {
       console.error("Error occured in register api is: ", error);
     } finally {
       setRegisterLoader(false);
-    }
-  };
-
-  //format the title
-  const formatAgentTypeTitle = (title) => {
-    switch (title) {
-      case "Real Estate Agent":
-        return "RealEstateAgent";
-      case "Sales Dev Agent":
-        return "SalesDevRep";
-      case "Solar Rep":
-        return "SolarRep";
-      case "Insurance Agent":
-        return "InsuranceAgent";
-      case "Marketer":
-        return "MarketerAgent";
-      case "Website Agent":
-        return "WebsiteAgent";
-      case "Recuiter Agent":
-        return "RecruiterAgent";
-      case "Tax Agent":
-        return "TaxAgent";
-      default:
-        return title; // Fallback if no match is found
     }
   };
 

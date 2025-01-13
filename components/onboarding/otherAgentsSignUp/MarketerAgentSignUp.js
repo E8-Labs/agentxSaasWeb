@@ -270,8 +270,7 @@ const MarketerAgentSignUp = ({
       setRegisterLoader(true);
 
       let agentTitle = userData.userTypeTitle;
-      // formatAgentTypeTitle(agentTitle);
-      // console.log("AgentTitle", formatAgentTypeTitle(agentTitle));
+
 
       const formData = new FormData();
       const ApiPath = Apis.register;
@@ -288,7 +287,7 @@ const MarketerAgentSignUp = ({
       // formData.append("averageTransactionPerYear", userTransaction);
       formData.append("agentService", JSON.stringify(userData.serviceID));
       formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
-      formData.append("userType", formatAgentTypeTitle(agentTitle));
+      formData.append("userType", agentTitle);
       formData.append("areaOfService", customerService);
       formData.append("company", company);
       formData.append("login", false);
@@ -336,29 +335,6 @@ const MarketerAgentSignUp = ({
     }
   };
 
-  //format the title
-  const formatAgentTypeTitle = (title) => {
-    switch (title) {
-      case "Real Estate Agent":
-        return "RealEstateAgent";
-      case "Sales Dev Agent":
-        return "SalesDevRep";
-      case "Solar Rep":
-        return "SolarRep";
-      case "Insurance Agent":
-        return "InsuranceAgent";
-      case "Marketer":
-        return "MarketerAgent";
-      case "Website Agent":
-        return "WebsiteAgent";
-      case "Recuiter Agent":
-        return "RecruiterAgent";
-      case "Tax Agent":
-        return "TaxAgent";
-      default:
-        return title; // Fallback if no match is found
-    }
-  };
 
   //code to check email and phone
 

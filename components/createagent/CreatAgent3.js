@@ -745,10 +745,17 @@ const CreatAgent3 = ({ handleContinue }) => {
             },
           }}
         >
-          <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
+          <Box
+            className="flex items-center justify-center w-full h-full"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             <div className="flex flex-row justify-center w-full">
               <div
-                className="sm:w-7/12 w-full"
+                className="sm:w-5/12 w-full"
                 style={{
                   backgroundColor: "#ffffff",
                   padding: 20,
@@ -766,10 +773,9 @@ const CreatAgent3 = ({ handleContinue }) => {
                   </button>
                 </div>
                 <div className="text-center mt-2 text-[18px] font-[700] md:text-[24px] md:font-[700]">
-                  {/* {selectedPlan?.id > 1
-                    ? "Add your payment method." //"Select a plan that fits your needs"
-                    : "Start for Free. Then Pay as you go!"} */}
-                  Select a plan that fits your needs
+                  {selectedPlan?.id > 1
+                    ? "Add your payment method" //"Select a plan that fits your needs"
+                    : "Start for Free. Then Pay as you go!"}
                 </div>
 
                 {selectedPlan?.id > 1 ? (
@@ -892,305 +898,264 @@ const CreatAgent3 = ({ handleContinue }) => {
 
         {/* Modal 2 to reassure the plan */}
         <Modal
-          open={showSubscribeplan2} //showSubscribeplan2
+          open={showSubscribeplan2} // showSubscribeplan2
           closeAfterTransition
           BackdropProps={{
             timeout: 1000,
             sx: {
               backgroundColor: "#00000020",
-              // //backdropFilter: "blur(20px)",
+              overflow: "hidden",
             },
           }}
         >
           <Box
-            className="lg:w-8/12 sm:w-full flex flex-row justify-center w-full bg-red"
-            sx={styles.paymentModal}
+            className="flex items-center justify-center w-full h-full"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
             <div
-              className="flex flex-col items-center justify-start w-[95%] sm:w-7/12 max-h-[95svh] bg-white"
+              className="flex flex-col w-[95%] sm:w-5/12 max-h-[95vh] bg-white"
               style={{
-                overflow: "auto",
                 borderRadius: "13px",
+                overflow: "hidden", // Prevents overflow of the modal content
               }}
             >
-              <div className="flex flex-col items-center h-[100%] mt-4">
+              {/* Scrollable Content */}
+              <div
+                className="flex flex-col items-center w-full overflow-auto"
+                style={{
+                  padding: 20,
+                  flex: 1, // Allows the scrollable content to take remaining space
+                }}
+              >
+                {/* Header Content */}
                 <div
-                  className=" flex flex-col  items-center w-full h-[90%] overflow-auto"
-                  style={{
-                    backgroundColor: "#ffffff",
-                    padding: 20,
-                  }}
+                  className="mt-6 w-11/12 sm:text-3xl text-xl font-[600]"
+                  style={{ textAlign: "center" }}
                 >
-                  <div
-                    className="mt-6 w-11/12 sm:text-3xl text-xl font-[600]"
-                    style={{ textAlign: "center" }}
-                  >
-                    {
-                      selectedPlan?.id > 1
-                        ? "Select a plan that fits your needs"
-                        : "Add your payment method."
-                      // Start for Free. Then Pay as you go!
-                    }
-                  </div>
+                  Select a plan that fits your needs
+                </div>
 
-                  <div
-                    className="w-11/12 sm:text-[24px] text-[16px] font-[400]"
-                    style={{ textAlign: "center" }}
-                  >
-                    Continue with a plan after your free 30 mins
-                  </div>
+                <div
+                  className="w-11/12 sm:text-[24px] text-[16px] font-[400]"
+                  style={{ textAlign: "center" }}
+                >
+                  Continue with a plan after your free 30 mins
+                </div>
 
-                  <div className="w-full flex flex-row items-center justify-center">
-                    <div
-                      className="hidden md:flex flex flex-row items-center justify-center py-3 gap-4 mt-6 mb-8 px-4"
-                      style={{
-                        backgroundColor: "#402FFF20",
-                        borderRadius: "50px",
-                        width: "fit-content",
-                      }}
-                    >
-                      <Image
-                        src={"/svgIcons/attachIcon.svg"}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                      <div className="text-purple" style={styles.giftTextStyle}>
-                        Invest In Your Business Growth.
-                      </div>
+                <div className="w-full flex flex-row items-center justify-center">
+                  <div
+                    className="hidden md:flex flex-row items-center justify-center py-3 gap-4 mt-6 mb-8 px-4"
+                    style={{
+                      backgroundColor: "#402FFF20",
+                      borderRadius: "50px",
+                      width: "fit-content",
+                    }}
+                  >
+                    <Image
+                      src={"/svgIcons/attachIcon.svg"}
+                      height={24}
+                      width={24}
+                      alt="*"
+                    />
+                    <div className="text-purple" style={styles.giftTextStyle}>
+                      Invest In Your Business Growth.
                     </div>
                   </div>
+                </div>
 
-                  <div className="w-full">
-                    {plans2.map((item, index) => (
-                      <button
-                        key={item.id}
-                        className="w-full mt-4"
-                        onClick={(e) => handleTogglePlanClick2(item)}
+                {/* Plans Section */}
+                <div className="w-full">
+                  {plans2.map((item, index) => (
+                    <button
+                      key={item.id}
+                      className="w-full mt-4"
+                      onClick={(e) => handleTogglePlanClick2(item)}
+                    >
+                      <div
+                        className="px-4 py-1 pb-4"
+                        style={{
+                          ...styles.pricingBox,
+                          border:
+                            item.id === togglePlan2
+                              ? "2px solid #7902DF"
+                              : "1px solid #15151520",
+                          backgroundColor:
+                            item.id === togglePlan2 ? "#402FFF05" : "",
+                        }}
                       >
                         <div
-                          className="px-4 py-1 pb-4"
                           style={{
-                            ...styles.pricingBox,
-                            border:
-                              // item.id === 1
-                              //   ? "2px solid #7902DF"
-                              //   :
-                              item.id === togglePlan2
-                                ? "2px solid #7902DF"
-                                : "1px solid #15151520",
-                            backgroundColor:
-                              // item.id === 1
-                              //   ? "#402fff05"
-                              //   :
-                              item.id === togglePlan2 ? "#402FFF05" : "",
+                            ...styles.triangleLabel,
+                            borderTopRightRadius: "7px",
                           }}
+                        ></div>
+                        <span style={styles.labelText}>{item.planStatus}</span>
+                        <div
+                          className="flex flex-row items-start gap-3"
+                          style={styles.content}
                         >
-                          <div
-                            style={{
-                              ...styles.triangleLabel,
-                              borderTopRightRadius: "7px",
-                            }}
-                          ></div>
-                          <span style={styles.labelText}>
-                            {item.planStatus}
-                          </span>
-                          <div
-                            className="flex flex-row items-start gap-3"
-                            style={styles.content}
-                          >
-                            <div className="mt-1">
-                              {/* {item.id === 1 ? (
-                              <Image
-                                src={"/svgIcons/checkMark.svg"}
-                                height={24}
-                                width={24}
-                                alt="*"
-                              />
-                            ) : (
-                              <div>
-                                {item.id === togglePlan2 ? (
-                                  <Image
-                                    src={"/svgIcons/checkMark.svg"}
-                                    height={24}
-                                    width={24}
-                                    alt="*"
-                                  />
-                                ) : (
-                                  <Image
-                                    src={"/svgIcons/unCheck.svg"}
-                                    height={24}
-                                    width={24}
-                                    alt="*"
-                                  />
-                                )}
-                              </div>
-                            )} */}
-                              <div>
-                                {item.id === togglePlan2 ? (
-                                  <Image
-                                    src={"/svgIcons/checkMark.svg"}
-                                    height={24}
-                                    width={24}
-                                    alt="*"
-                                  />
-                                ) : (
-                                  <Image
-                                    src={"/svgIcons/unCheck.svg"}
-                                    height={24}
-                                    width={24}
-                                    alt="*"
-                                  />
-                                )}
-                              </div>
+                          <div className="mt-1">
+                            <div>
+                              {item.id === togglePlan2 ? (
+                                <Image
+                                  src={"/svgIcons/checkMark.svg"}
+                                  height={24}
+                                  width={24}
+                                  alt="*"
+                                />
+                              ) : (
+                                <Image
+                                  src={"/svgIcons/unCheck.svg"}
+                                  height={24}
+                                  width={24}
+                                  alt="*"
+                                />
+                              )}
                             </div>
-                            <div className="w-full">
-                              {item.id === 1 && (
+                          </div>
+                          <div className="w-full">
+                            {item.id === 1 && (
+                              <div
+                                className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
+                                style={{
+                                  fontSize: 11.6,
+                                  fontWeight: "500",
+                                  width: "fit-content",
+                                }}
+                              >
+                                Current Plan
+                              </div>
+                            )}
+                            <div
+                              style={{
+                                color: "#151515",
+                                fontSize: 20,
+                                fontWeight: "600",
+                              }}
+                              className="flex flex-row items-center gap-1"
+                            >
+                              {item.mints}mins | Approx {item.calls}
+                              {item.status && (
                                 <div
-                                  className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
+                                  className="flex px-2 py-1 bg-purple rounded-full text-white"
                                   style={{
                                     fontSize: 11.6,
                                     fontWeight: "500",
-                                    width: "fit-content",
                                   }}
                                 >
-                                  Current Plan
+                                  {item.status}
                                 </div>
                               )}
+                            </div>
+                            <div className="flex flex-row items-center justify-between">
                               <div
+                                className="mt-2"
                                 style={{
-                                  color: "#151515",
-                                  fontSize: 20,
+                                  color: "#15151590",
+                                  fontSize: 12,
+                                  width: "80%",
                                   fontWeight: "600",
                                 }}
-                                className="flex flex-row items-center gap-1"
                               >
-                                {item.mints}mins | Approx {item.calls}
-                                {item.status && (
-                                  <div
-                                    className="flex px-2 py-1 bg-purple rounded-full text-white"
-                                    style={{
-                                      fontSize: 11.6,
-                                      fontWeight: "500",
-                                    }}
-                                  >
-                                    {item.status}
+                                {item.details}
+                              </div>
+                              <div className="flex flex-row items-center">
+                                {item.originalPrice && (
+                                  <div style={styles.originalPrice}>
+                                    ${item.originalPrice}
                                   </div>
                                 )}
-                              </div>
-                              <div className="flex flex-row items-center justify-between">
-                                <div
-                                  className="mt-2"
-                                  style={{
-                                    color: "#15151590",
-                                    fontSize: 12,
-                                    width: "80%",
-                                    fontWeight: "600",
-                                  }}
-                                >
-                                  {item.details}
-                                </div>
-                                <div className="flex flex-row items-center">
-                                  {item.originalPrice && (
-                                    <div style={styles.originalPrice}>
-                                      ${item.originalPrice}
-                                    </div>
-                                  )}
-                                  <div style={styles.discountedPrice}>
-                                    ${item.discountPrice}
-                                  </div>
+                                <div style={styles.discountedPrice}>
+                                  ${item.discountPrice}
                                 </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="flex flex-row items-center gap-4 justify-start w-full mt-6 mb-12">
-                    <button onClick={handleToggleTermsClick}>
-                      {agreeTerms ? (
-                        <div
-                          className="bg-purple flex flex-row items-center justify-center rounded"
-                          style={{ height: "24px", width: "24px" }}
-                        >
-                          <Image
-                            src={"/assets/whiteTick.png"}
-                            height={8}
-                            width={10}
-                            alt="*"
-                          />
-                        </div>
-                      ) : (
-                        <div
-                          className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                          style={{ height: "24px", width: "24px" }}
-                        ></div>
-                      )}
+                      </div>
                     </button>
-                    <div
-                      className="flex flex-row items-center gap-1"
-                      style={{
-                        color: "#151515",
-                        fontSize: 13,
-                        fontWeight: "600",
-                      }}
-                    >
-                      I agree to the
-                      <button
-                        className="underline"
-                        onClick={() => {
-                          window.open(
-                            "https://www.myagentx.com/terms-and-condition",
-                            "_blank"
-                          );
-                        }}
-                      >
-                        Terms & Conditions.
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Can be use full to add shadow */}
-                  {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                  ))}
                 </div>
-                {subscribePlanLoader ? (
-                  <div className="flex flex-row items-center justify-center h-[50px]">
-                    <CircularProgress size={30} />
-                  </div>
-                ) : (
+              </div>
+              <div className="flex flex-row pl-5 items-center gap-4 justify-start w-full  mt-6 pb-4">
+                <button onClick={handleToggleTermsClick}>
+                  {agreeTerms ? (
+                    <div
+                      className="bg-purple flex flex-row items-center justify-center rounded"
+                      style={{ height: "24px", width: "24px" }}
+                    >
+                      <Image
+                        src={"/assets/whiteTick.png"}
+                        height={8}
+                        width={10}
+                        alt="*"
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                      style={{ height: "24px", width: "24px" }}
+                    ></div>
+                  )}
+                </button>
+                <div
+                  className="flex flex-row items-center gap-1"
+                  style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
+                >
+                  I agree to the
                   <button
-                    disabled={!agreeTerms || !togglePlan2}
-                    className=" w-11/12  bg-purple text-white rounded-xl "
-                    style={{
-                      ...styles.headingStyle,
-                      height: "50px",
-                      backgroundColor:
-                        agreeTerms && togglePlan2 ? "#7902DF" : "#00000010",
-                      color: agreeTerms && togglePlan2 ? "white" : "#000000",
-                      flexShrink: 0,
-                      // position: "absolute",
-                      // bottom: 5,
-                      // marginLeft: 10,
-                      // marginRight: 10,
-                      // width: "90%",
-                    }}
+                    className="underline"
                     onClick={() => {
-                      if (togglePlan2 === 1) {
-                        handleContinue();
-                      } else {
-                        handleSubScribePlan();
-                      }
+                      window.open(
+                        "https://www.myagentx.com/terms-and-condition",
+                        "_blank"
+                      );
                     }}
                   >
-                    Continue
+                    Terms & Conditions.
                   </button>
-                )}
+                </div>
+              </div>
+              {/* Fixed "Continue" Button */}
+              <div
+                className="flex items-center justify-center w-full"
+                style={{
+                  padding: "16px 20px",
+                  backgroundColor: "#fff", // Optional for clarity
+                  borderTop: "1px solid #eaeaea", // Optional for clarity
+                  flexShrink: 0, // Prevent shrinking
+                }}
+              >
+                <button
+                  disabled={!agreeTerms || !togglePlan2}
+                  className="w-full bg-purple text-white rounded-xl"
+                  style={{
+                    ...styles.headingStyle,
+                    height: "50px",
+                    backgroundColor:
+                      agreeTerms && togglePlan2 ? "#7902DF" : "#00000010",
+                    color: agreeTerms && togglePlan2 ? "white" : "#000000",
+                  }}
+                  onClick={() => {
+                    if (togglePlan2 === 1) {
+                      handleContinue();
+                    } else {
+                      handleSubScribePlan();
+                    }
+                  }}
+                >
+                  Continue
+                </button>
               </div>
             </div>
           </Box>
         </Modal>
+
+
       </div>
     </div>
   );

@@ -43,7 +43,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
 
   const handleUserType = async (item) => {
     setSelectUserType(item.id);
-    setSelectUserTypeTitle(item.title);
+    setSelectUserTypeTitle(item.userType);
     setSelectedFocusAreaTitle(item.areaOfFocusTitle);
     // if (item.id === 1) {
     //     setSelectUserType(item.id);
@@ -80,6 +80,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
     }
   };
 
+
   const userType = [
     {
       id: 1,
@@ -87,6 +88,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
       agentType: "Real Estate Agent",
       icon: "/usertype/avt1.png",
       areaOfFocusTitle: "What area of real state do you focus on?",
+      userType: "RealEstateAgent"
     },
     {
       id: 2,
@@ -94,6 +96,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
       agentType: "Sales Dev Agent",
       icon: "/usertype/avt2.png",
       areaOfFocusTitle: "What area of sales do you focus on?",
+      userType: "SalesDevRep"
     },
     {
       id: 3,
@@ -101,6 +104,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
       agentType: "Solar Agent",
       icon: "/usertype/avt3.png",
       areaOfFocusTitle: "What area of solar do you focus on?",
+      userType: "SolarRep"
     },
     {
       id: 4,
@@ -108,6 +112,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
       agentType: "Insurance Agent",
       icon: "/usertype/avt4.png",
       areaOfFocusTitle: "What area of insurance do you focus on?",
+      userType: "InsuranceAgent"
     },
     {
       id: 5,
@@ -115,6 +120,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
       agentType: "Marketer Agent",
       icon: "/usertype/avt5.png",
       areaOfFocusTitle: "What area of marketing do you focus on?",
+      userType: "MarketerAgent"
     },
     {
       id: 6,
@@ -122,6 +128,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
       agentType: "Website Agent",
       icon: "/agentXOrb.gif", //"/usertype/avt7.png",
       areaOfFocusTitle: "How would you use AgentX?",
+      userType: "WebsiteAgent"
     },
     {
       id: 7,
@@ -129,6 +136,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
       agentType: "Recuiter Agent",
       icon: "/usertype/avt8.png",
       areaOfFocusTitle: "What industries do you specialize in?",
+      userType: "RecruiterAgent"
     },
     {
       id: 8,
@@ -136,6 +144,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
       agentType: "Tax Agent",
       icon: "/usertype/avt9.png",
       areaOfFocusTitle: "What type of clients do you primarily serve?",
+      userType: "TaxAgent"
     },
   ];
 
@@ -161,12 +170,11 @@ const UserType = ({ handleContinue, DefaultData }) => {
       <div
         className="bg-white sm:rounded-2xl flex flex-col justify-between w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[90%] py-4"
         style={{ scrollbarWidth: "none" }}
-        //className='bg-white sm:rounded-2xl w-full sm:mx-2 sm:w-10/12 h-[100%] sm:h-[90%] py-4 flex flex-col' style={{ scrollbarWidth: "none" }}
+      //className='bg-white sm:rounded-2xl w-full sm:mx-2 sm:w-10/12 h-[100%] sm:h-[90%] py-4 flex flex-col' style={{ scrollbarWidth: "none" }}
       >
         <div
-          className={`flex flex-col items-center h-[84svh] ${
-            screenHeight < 840 ? "sm:h-[80svh]" : "sm:h-[80svh]"
-          }`}
+          className={`flex flex-col items-center h-[84svh] ${screenHeight < 840 ? "sm:h-[80svh]" : "sm:h-[80svh]"
+            }`}
         >
           {/* header */}
           <div className="w-full h-[10%]">

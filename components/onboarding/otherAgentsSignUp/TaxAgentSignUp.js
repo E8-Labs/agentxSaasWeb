@@ -269,8 +269,6 @@ const TaxAgentSignUp = ({
       setRegisterLoader(true);
 
       let agentTitle = userData.userTypeTitle;
-      // formatAgentTypeTitle(agentTitle);
-      // console.log("AgentTitle", formatAgentTypeTitle(agentTitle));
       const formData = new FormData();
       const ApiPath = Apis.register;
       let campainee = GetCampaigneeNameIfAvailable(window);
@@ -283,7 +281,7 @@ const TaxAgentSignUp = ({
       formData.append("phone", userPhoneNumber);
       formData.append("agentService", JSON.stringify(userData.serviceID));
       formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
-      formData.append("userType", formatAgentTypeTitle(agentTitle));
+      formData.append("userType", agentTitle);
       formData.append("areaOfService", ServiceCustomer);
       formData.append("login", false);
       formData.append("verificationCode", VerifyCode.join(""));
@@ -327,30 +325,6 @@ const TaxAgentSignUp = ({
       console.error("Error occured in register api is: ", error);
     } finally {
       setRegisterLoader(false);
-    }
-  };
-
-  //format the title
-  const formatAgentTypeTitle = (title) => {
-    switch (title) {
-      case "Real Estate Agent":
-        return "RealEstateAgent";
-      case "Sales Dev Agent":
-        return "SalesDevRep";
-      case "Solar Rep":
-        return "SolarRep";
-      case "Insurance Agent":
-        return "InsuranceAgent";
-      case "Marketer":
-        return "MarketerAgent";
-      case "Website Agent":
-        return "WebsiteAgent";
-      case "Recuiter Agent":
-        return "RecruiterAgent";
-      case "Tax Agent":
-        return "TaxAgent";
-      default:
-        return title; // Fallback if no match is found
     }
   };
 

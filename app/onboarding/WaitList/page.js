@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const Page = ({ handleContinue, DefaultData }) => {
 
@@ -93,13 +94,14 @@ const Page = ({ handleContinue, DefaultData }) => {
                                 </div>
                             </div>
 
-                            <div className='w-6/12'>
-                                <button
-                                    className='bg-purple h-[50px] rounded-xl w-full rounded-xl text-white'
-                                    style={{ fontWeight: "600", fontSize: 15 }}
+                            <div className='w-6/12 flex flex-row items-center justify-center'>
+                                <Link
+                                    href={"/"}
+                                    className='bg-purple h-[50px] w-full flex flex-row items-center justify-center rounded-xl w-full rounded-xl text-white'
+                                    style={{ fontWeight: "600", fontSize: 15, textDecoration: "none" }}
                                 >
                                     Done
-                                </button>
+                                </Link>
                             </div>
 
                         </div>

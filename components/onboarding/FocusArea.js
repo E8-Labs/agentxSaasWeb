@@ -43,7 +43,7 @@ const FocusArea = ({
       console.log("Local details are :", FocusAreaDetails);
       setFocusArea(FocusAreaDetails.focusAreaId);
       setFocusAreaTitle(FocusAreaDetails.areaFocusTitle);
-      if (FocusAreaDetails.userTypeTitle !== "Real Estate Agent") {
+      if (FocusAreaDetails.userTypeTitle !== "RealEstateAgent") {
         setShowOtherInput(true);
       }
     }
@@ -67,14 +67,9 @@ const FocusArea = ({
         AgentTypeTitle = serviceIds.userTypeTitle;
       }
 
-      // formatAgentTypeTitle(AgentTypeTitle)
-
-      // console.log("Formated titel is", formatAgentTypeTitle(AgentTypeTitle));
 
       console.log("Check 1 clear !!!");
-      const ApiPath = `${Apis.defaultData}?type=${formatAgentTypeTitle(
-        AgentTypeTitle
-      )}`;
+      const ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`;
       console.log("Api link is:--", ApiPath);
       const response = await axios.get(ApiPath, {
         headers: {
@@ -87,11 +82,14 @@ const FocusArea = ({
         const focusData = localStorage.getItem(PersistanceKeys.RegisterDetails);
         if (focusData) {
           const FocusAreaDetails = JSON.parse(focusData);
-          if (FocusAreaDetails.userTypeTitle === "Recuiter Agent") {
-            console.log("Recruiter", response.data.data.userIndustry);
-            setFocusData(response.data.data.userIndustry);
+          // console.log("Registeration details", FocusAreaDetails);
+          if (FocusAreaDetails.userTypeTitle === "RecruiterAgent") {
+            // console.log("I am recruiter")
+            console.log("Recruiter", response?.data?.data?.userIndustry);
+            setFocusData(response?.data?.data?.userIndustry);
           } else {
-            setFocusData(response.data.data.areaOfFocus);
+            // console.log("I am other")
+            setFocusData(response?.data?.data?.areaOfFocus);
           }
         }
       } else {
@@ -104,29 +102,6 @@ const FocusArea = ({
     }
   };
 
-  //function to format the agenttypetitle
-  const formatAgentTypeTitle = (title) => {
-    switch (title) {
-      case "Real Estate Agent":
-        return "RealEstateAgent";
-      case "Sales Dev Agent":
-        return "SalesDevRep";
-      case "Solar Rep":
-        return "SolarRep";
-      case "Insurance Agent":
-        return "InsuranceAgent";
-      case "Marketer":
-        return "MarketerAgent";
-      case "Website Agent":
-        return "WebsiteAgent";
-      case "Recuiter Agent":
-        return "RecruiterAgent";
-      case "Tax Agent":
-        return "TaxAgent";
-      default:
-        return title; // Fallback if no match is found
-    }
-  };
 
   useEffect(() => {
     console.log("Focus area is :", focusArea);
@@ -174,30 +149,24 @@ const FocusArea = ({
       //     handleRecruiterAgentContinue,
       //     handleTaxAgentContinue,
 
-      if (agentType === "Real Estate Agent") {
+      console.log("Agent type is", agentType);
+
+      if (agentType === "RealEstateAgent") {
         handleContinue();
-        console.log("Selected agent type is");
-      } else if (agentType === "Sales Dev Agent") {
+      } else if (agentType === "SalesDevRep") {
         handleSalesAgentContinue();
-        console.log("Selected agent type is");
-      } else if (agentType === "Solar Rep") {
+      } else if (agentType === "SolarRep") {
         handleSolarAgentContinue();
-        console.log("Selected agent type is");
-      } else if (agentType === "Insurance Agent") {
+      } else if (agentType === "InsuranceAgent") {
         handleInsuranceContinue();
-        console.log("Selected agent type is");
-      } else if (agentType === "Marketer") {
+      } else if (agentType === "MarketerAgent") {
         handleMarketerAgentContinue();
-        console.log("Selected agent type is");
-      } else if (agentType === "Website Agent") {
+      } else if (agentType === "WebsiteAgent") {
         handleWebsiteAgentContinue();
-        console.log("Selected agent type is");
-      } else if (agentType === "Recuiter Agent") {
+      } else if (agentType === "RecruiterAgent") {
         handleRecruiterAgentContinue();
-        console.log("Selected agent type is");
-      } else if (agentType === "Tax Agent") {
+      } else if (agentType === "TaxAgent") {
         handleTaxAgentContinue();
-        console.log("Selected agent type is");
       }
     }
 

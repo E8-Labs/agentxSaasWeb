@@ -249,12 +249,16 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             console.log("Locla agent details are :-", localAgentData);
             setAgentDetails(localAgentData);
             if (localAgentData.agents.length === 2 || localAgentData.agents[0].agentType === "outbound") {
-                setGreetingTagInput(localAgentData.greeting);
-                setScriptTagInput(localAgentData.callScript);
-                setObjective(localAgentData.agents[0].prompt.objective);
+                console.log("Check case for 2Agents", localAgentData.agents.filter((item) => item.agentType === "outbound" ? item : ""));
+                const outBoundAgent = localAgentData.agents.filter((item) => item.agentType === "outbound" ? item : "");
+                setGreetingTagInput(outBoundAgent[0]?.prompt?.greeting);
+                setScriptTagInput(outBoundAgent[0]?.prompt?.callScript);
+                setObjective(outBoundAgent[0]?.prompt?.objective);
             } else if (localAgentData.agents[0].agentType === "inbound") {
-                setGreetingTagInput(localAgentData.inboundGreeting);
-                setScriptTagInput(localAgentData.inboundScript);
+                console.log("Check case it is inbound data set")
+                setGreetingTagInput(localAgentData?.agents[0]?.prompt?.greeting);
+                setScriptTagInput(localAgentData?.agents[0]?.prompt?.callScript);
+                setObjective(localAgentData?.agents[0]?.prompt?.objective);
             }
         }
         getUniquesColumn();
@@ -381,13 +385,14 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 const Data = JSON.parse(mainAgentData);
                 console.log("Local agent dat recieved is :--", Data);
                 mainAgentId = Data.id;
-                AgentName = Data.name;
                 AgentObjective = Data.agents[0].agentObjective;
                 AgentDescription = Data.agents[0].agentObjectiveDescription;
                 AgentType = Data.agents[0].agentType;
                 Address = Data.agents[0].address;
                 AgentRole = Data.agents[0].agentRole;
                 if (Data.agents.length === 2 || Data.agents[0].agentType === "outbound") {
+                    console.log("Check case for 2Agents", Data.agents.filter((item) => item.agentType === "outbound" ? item : ""));
+                    const outBoundAgent = Data.agents.filter((item) => item.agentType === "outbound" ? item : "");
                     // setGreetingTagInput(localAgentData.greeting);
                     // setScriptTagInput(localAgentData.callScript);
                 } else if (Data.agents[0].agentType === "inbound") {
@@ -405,13 +410,11 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
             const formData = new FormData();
 
-            formData.append("name", AgentName);
-            formData.append("agentRole", AgentRole);
+
             formData.append("agentObjective", AgentObjective);
             formData.append("agentObjectiveDescription", AgentDescription);
-            formData.append("agentType", AgentType);
-            formData.append("status", "Just Listed");
-            formData.append("address", Address);
+            // formData.append("agentType", AgentType);
+            // formData.append("address", Address);
             formData.append("mainAgentId", mainAgentId);
             formData.append("outboundObjective", objective);
             // formData.append("voiceId", VoiceId);
@@ -425,9 +428,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
             ////console.log("Update agent details are is :-----");
             for (let [key, value] of formData.entries()) {
-                ////console.log(`${key}: ${value}`);
+                console.log(`${key}: ${value}`);
             }
-
+            // return
             const response = await axios.post(ApiPath, formData, {
                 headers: {
                     "Authorization": "Bearer " + AuthToken

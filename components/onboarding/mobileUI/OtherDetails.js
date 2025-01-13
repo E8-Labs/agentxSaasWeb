@@ -130,15 +130,15 @@ const OtherDetails = ({
   // Function to get the user's location and set the country code
   useEffect(() => {
     if (
-      userData?.userTypeTitle === "Sales Dev Agent" ||
-      userData?.userTypeTitle === "Marketer"
+      userData?.userTypeTitle === "SalesDevRep" ||
+      userData?.userTypeTitle === "MarketerAgent"
     ) {
       if (service && companyName) {
         setShouldContinue(false);
       } else if (!service || !companyName) {
         setShouldContinue(true);
       }
-    } else if (userData?.userTypeTitle === "Solar Rep") {
+    } else if (userData?.userTypeTitle === "SolarRep") {
       if (
         userFarm &&
         userBrokage &&
@@ -156,21 +156,21 @@ const OtherDetails = ({
       ) {
         setShouldContinue(true);
       }
-    } else if (userData?.userTypeTitle === "Insurance Agent") {
+    } else if (userData?.userTypeTitle === "InsuranceAgent") {
       if (userFarm && userBrokage) {
         setShouldContinue(false);
       } else if (!userFarm || !userBrokage) {
         setShouldContinue(true);
       }
-    } else if (userData?.userTypeTitle === "Website Agent") {
+    } else if (userData?.userTypeTitle === "WebsiteAgent") {
       if (websiteUrl) {
         setShouldContinue(false);
       } else if (!websiteUrl) {
         setShouldContinue(true);
       }
     } else if (
-      userData?.userTypeTitle === "Recuiter Agent" ||
-      userData?.userTypeTitle === "Tax Agent"
+      userData?.userTypeTitle === "RecruiterAgent" ||
+      userData?.userTypeTitle === "TaxAgent"
     ) {
       if (websiteUrservice) {
         setShouldContinue(false);
@@ -393,8 +393,7 @@ const OtherDetails = ({
       setRegisterLoader(true);
 
       let agentTitle = userData.userTypeTitle;
-      // formatAgentTypeTitle(agentTitle);
-      // console.log("AgentTitle", formatAgentTypeTitle(agentTitle));
+
       const formData = new FormData();
       const ApiPath = Apis.register;
       let campainee = GetCampaigneeNameIfAvailable(window);
@@ -433,7 +432,7 @@ const OtherDetails = ({
 
       formData.append("agentService", JSON.stringify(userData.serviceID));
       formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
-      formData.append("userType", formatAgentTypeTitle(agentTitle));
+      formData.append("userType", agentTitle);
 
       formData.append("login", false);
       formData.append(
@@ -490,29 +489,6 @@ const OtherDetails = ({
     }
   };
 
-  //format the title
-  const formatAgentTypeTitle = (title) => {
-    switch (title) {
-      case "Real Estate Agent":
-        return "RealEstateAgent";
-      case "Sales Dev Agent":
-        return "SalesDevRep";
-      case "Solar Rep":
-        return "SolarRep";
-      case "Insurance Agent":
-        return "InsuranceAgent";
-      case "Marketer":
-        return "MarketerAgent";
-      case "Website Agent":
-        return "WebsiteAgent";
-      case "Recuiter Agent":
-        return "RecruiterAgent";
-      case "Tax Agent":
-        return "TaxAgent";
-      default:
-        return title; // Fallback if no match is found
-    }
-  };
 
   //code to check email and phone
 
@@ -640,8 +616,8 @@ const OtherDetails = ({
               {
                 // userData.agentTitle = "Real Estate Agent" ? (
                 //     "RealEstateAgent") :
-                userData?.userTypeTitle === "Sales Dev Agent" ||
-                userData?.userTypeTitle === "Marketer" ? (
+                userData?.userTypeTitle === "SalesDevRep" ||
+                userData?.userTypeTitle === "MarketerAgent" ? (
                   <div className="w-full">
                     <div style={styles.headingStyle} className="mt-6">
                       Where do you primarily operate or serve customers
@@ -689,7 +665,7 @@ const OtherDetails = ({
                       }}
                     />
                   </div>
-                ) : userData?.userTypeTitle === "Solar Rep" ? (
+                ) : userData?.userTypeTitle === "SolarRep" ? (
                   <div className="w-full">
                     <div style={styles.headingStyle} className="mt-6">
                       {`What’s your market territory`}
@@ -831,7 +807,7 @@ const OtherDetails = ({
                       })}
                     </div>
                   </div>
-                ) : userData?.userTypeTitle === "Insurance Agent" ? (
+                ) : userData?.userTypeTitle === "InsuranceAgent" ? (
                   <div className="w-full">
                     <div style={styles.headingStyle} className="mt-6">
                       Market Teritory
@@ -879,7 +855,7 @@ const OtherDetails = ({
                       }}
                     />
                   </div>
-                ) : userData?.userTypeTitle === "Website Agent" ? (
+                ) : userData?.userTypeTitle === "WebsiteAgent" ? (
                   <div className="w-full">
                     <div style={styles.headingStyle} className="mt-6">
                       Website (URL)
@@ -900,8 +876,8 @@ const OtherDetails = ({
                       }}
                     />
                   </div>
-                ) : userData?.userTypeTitle === "Recuiter Agent" ||
-                  userData?.userTypeTitle === "Tax Agent" ? (
+                ) : userData?.userTypeTitle === "RecruiterAgent" ||
+                  userData?.userTypeTitle === "TaxAgent" ? (
                   <div className="w-full">
                     <div style={styles.headingStyle} className="mt-6">
                       Where do you primarily operate or serve customers
