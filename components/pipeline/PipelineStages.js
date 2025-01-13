@@ -1267,13 +1267,13 @@ const PipelineStages = ({
                                             border: "1px solid #00000020", // Same border on hover
                                           },
                                           "& .MuiOutlinedInput-notchedOutline":
-                                            {
-                                              border: "none", // Remove the default outline
-                                            },
+                                          {
+                                            border: "none", // Remove the default outline
+                                          },
                                           "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                            {
-                                              border: "none", // Remove outline on focus
-                                            },
+                                          {
+                                            border: "none", // Remove outline on focus
+                                          },
                                           "&.MuiSelect-select": {
                                             py: 0, // Optional padding adjustments
                                           },
@@ -1773,9 +1773,9 @@ const PipelineStages = ({
                                   border: "none", // Remove the default outline
                                 },
                                 "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                  {
-                                    border: "none", // Remove outline on focus
-                                  },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                                 "&.MuiSelect-select": {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -1811,7 +1811,7 @@ const PipelineStages = ({
                                       height={35}
                                       alt="*"
                                     /> */}
-                                    {getAgentsListImage(item?.invitedUser)}
+                                    {getAgentsListImage(item?.invitedUser, 42, 42)}
                                     {item.invitedUser?.name}
                                   </MenuItem>
                                 );
@@ -1871,7 +1871,7 @@ const PipelineStages = ({
                               fontWeight: 600,
                               fontSize: "20",
                             }}
-                            // onClick={handleAddNewStageTitle}
+                          // onClick={handleAddNewStageTitle}
                           >
                             Add Stage
                           </button>

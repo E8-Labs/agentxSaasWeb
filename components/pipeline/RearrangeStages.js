@@ -21,6 +21,7 @@ import TagsInput from "../dashboard/leads/TagsInput";
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../dashboard/leads/AgentSelectSnackMessage";
+import { getTeamsList } from "../onboarding/services/apisServices/ApiService";
 
 const RearrangeStages = ({
   stages,
@@ -199,21 +200,41 @@ const RearrangeStages = ({
 
   //selec teammeber
   //new teammeber
+  // const handleAssignTeamMember = (event) => {
+  //   let value = event.target.value;
+  //   // console.log("Value to set is :", value);
+  //   setAssignToMember(event.target.value);
+
+  //   const selectedItem = myTeamList.find(
+  //     (item) => item.invitedUser.name === value
+  //   );
+  //   console.log("Selected teammeber is:", selectedItem);
+  //   setAssignToMember(
+  //     selectedItem.invitedUser.name || myTeamAdmin.invitedUser.name
+  //   ); //
+  //   setAssignLeadToMember([
+  //     ...assignLeadToMember,
+  //     selectedItem.invitedUser.id || myTeamAdmin.invitedUser.id,
+  //   ]); //
+
+  //   console.log("Selected teammeber is:", selectedItem);
+  // };
+
   const handleAssignTeamMember = (event) => {
     let value = event.target.value;
-    // console.log("Value to set is :", value);
+    console.log("Value to set is :", value);
     setAssignToMember(event.target.value);
 
     const selectedItem = myTeamList.find(
-      (item) => item.invitedUser.name === value
+      (item) => item?.invitedUser?.name === value
     );
     console.log("Selected teammeber is:", selectedItem);
     setAssignToMember(
-      selectedItem.invitedUser.name || myTeamAdmin.invitedUser.name
+      selectedItem?.invitedUser?.name || myTeamAdmin.invitedUser?.name
     ); //
     setAssignLeadToMember([
       ...assignLeadToMember,
-      selectedItem.invitedUser.id || myTeamAdmin.invitedUser.id,
+      selectedItem?.invitedUser?.id || myTeamAdmin.invitedUser?.id,
     ]); //
 
     console.log("Selected teammeber is:", selectedItem);
@@ -222,9 +243,28 @@ const RearrangeStages = ({
   const getMyTeam = async () => {
     try {
       let response = await getTeamsList();
+      // if (response) {
+      //   console.log("Response recieved is", response);
+      //   let teams = [];
+      //   if (response.data && response.data.length > 0) {
+      //     for (const t of response.data) {
+      //       if (t.status == "Accepted") {
+      //         teams.push(t);
+      //       }
+      //     }
+      //   }
+      //   setMyTeamList(teams);
+      //   setMyTeamAdmin(response.admin);
+      // }
+
       if (response) {
-        console.log("Response recieved is", response);
+        console.log("Team Response recieved is", response);
         let teams = [];
+        if (response.admin) {
+          let admin = response.admin;
+          let newInvite = { id: -1, invitedUser: admin, invitingUser: admin };
+          teams.push(newInvite);
+        }
         if (response.data && response.data.length > 0) {
           for (const t of response.data) {
             if (t.status == "Accepted") {
@@ -232,9 +272,11 @@ const RearrangeStages = ({
             }
           }
         }
+
         setMyTeamList(teams);
         setMyTeamAdmin(response.admin);
       }
+
     } catch (error) {
       console.error("Error occured in api is", error);
     }
@@ -895,9 +937,9 @@ const RearrangeStages = ({
                                   border: "none", // Remove the default outline
                                 },
                                 "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                  {
-                                    border: "none", // Remove outline on focus
-                                  },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                                 "&.MuiSelect-select": {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -912,19 +954,29 @@ const RearrangeStages = ({
                                 },
                               }}
                             >
-                              <MenuItem value={myTeamAdmin.name}>
+                              {/* <MenuItem value={myTeamAdmin.name}>
                                 <div className="w-full flex flex-row items-center gap-2">
                                   <div>{myTeamAdmin.name}</div>
                                   <div className="bg-purple text-white text-sm px-2 rounded-full">
                                     Admin
                                   </div>
                                 </div>
-                              </MenuItem>
+                              </MenuItem> */}
                               {myTeamList.map((item, index) => {
                                 return (
-                                  <MenuItem key={index} value={item.name}>
-                                    {getAgentsListImage(item.invitedUser)}
-                                    {item.name}
+                                  <MenuItem
+                                    className="flex flex-row items-center gap-2"
+                                    key={index}
+                                    value={item?.invitedUser?.name}
+                                  >
+                                    {/* <Image
+                                                                    src={item.invitedUser.full_profile_image || "/agentXOrb.gif"}
+                                                                    width={35}
+                                                                    height={35}
+                                                                    alt="*"
+                                                                  /> */}
+                                    {getAgentsListImage(item?.invitedUser)}
+                                    {item.invitedUser?.name}
                                   </MenuItem>
                                 );
                               })}

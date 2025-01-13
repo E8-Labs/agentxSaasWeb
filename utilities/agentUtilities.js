@@ -69,25 +69,35 @@ export const getAgentImage = (item) => {
   );
 };
 
-export const getAgentsListImage = (subAgent) => {
+export const getAgentsListImage = (subAgent, imgHeight, imgWidth, showExtraheight = true) => {
   // console.log("Item passed is", subAgent);
 
   // Extract subagents
   // const subagents = item.agents || [];
   // console.log("Sub agents are", subagents);
 
+  // console.log("Height is", imgHeight);
+  // console.log("Width is", imgWidth);
+
+  console.log("Extra height is")
+
+  let height = imgHeight || 62;
+  let width = imgWidth || 62;
+
   if (subAgent?.thumb_profile_image) {
     return (
-      <div className="bg-gray-100 rounded-full h-[43px]  flex flex-row items-center justify-center">
+      <div className={`bg-gray-100 rounded-full flex flex-row items-center justify-center`}
+      // h-[43px]
+      >
         <Image
           src={subAgent?.thumb_profile_image}
-          height={62}
-          width={62}
+          height={height}
+          width={width}
           alt="*"
           className="rounded-full"
           style={{
-            height: "42px",
-            width: "42px",
+            height: "",
+            width: "",
             objectFit: "cover",
             // margin: "8px"
           }}
@@ -106,8 +116,8 @@ export const getAgentsListImage = (subAgent) => {
         <div className="bg-gray-100 rounded-full h-[43px] flex flex-row items-center justify-center">
           <Image
             src={selectedVoice.img}
-            height={62}
-            width={62}
+            height={height}
+            width={width}
             alt="*"
             className="rounded-full"
             style={
@@ -123,8 +133,8 @@ export const getAgentsListImage = (subAgent) => {
 
   // Fallback image
   return (
-    <div className="h-[60px] w-[60px] rounded-full flex flex-row items-center justify-center">
-      <Image src="/agentXOrb.gif" height={62} width={62} alt="*" />
+    <div className={`h-[${height}] w-[${width}] rounded-full flex flex-row items-center justify-center`}>
+      <Image src="/agentXOrb.gif" height={height} width={width} alt="*" />
     </div>
   );
 };

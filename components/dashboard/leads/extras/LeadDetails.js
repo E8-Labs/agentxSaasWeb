@@ -33,6 +33,7 @@ import LeadTeamsAssignedList from "../LeadTeamsAssignedList";
 import SelectStageDropdown from "../StageSelectDropdown";
 import { AssignTeamMember } from "@/components/onboarding/services/apisServices/ApiService";
 import CircularLoader from "@/utilities/CircularLoader";
+import { getAgentsListImage } from "@/utilities/agentUtilities";
 
 
 const LeadDetails = ({
@@ -151,7 +152,8 @@ const LeadDetails = ({
           }
         }
       }
-    } catch (e) {
+    }
+    catch (e) {
       setGetTeamLoader(false);
 
       console.log("error in get team api is", e);
@@ -1288,7 +1290,7 @@ const LeadDetails = ({
                           style: {
                             boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
                             borderRadius: "10px",
-                            width: "120px",
+                            minWidth: "120px",
                           },
                         }}
                       >
@@ -1297,8 +1299,11 @@ const LeadDetails = ({
                             handleAssignLeadToTeammember(myTeamAdmin)
                           }}
                         >
-                          <div className="w-full flex flex-row items-center gap-2">
-                            <div>
+                          <div className="p-2 w-full flex flex-row items-center justify-start gap-2 ">
+                            <div className="">
+                              {getAgentsListImage(myTeamAdmin?.invitedUser, 32, 32, false)}
+                            </div>
+                            <div className="">
                               {myTeamAdmin?.name}
                             </div>
                             <div
@@ -1320,8 +1325,10 @@ const LeadDetails = ({
                                       style={{ fontWeight: "500", fontSize: 15 }}
                                     >
                                       <button
+                                        className="text-start flex flex-row items-center justify-start gap-2"
                                         onClick={() => { handleAssignLeadToTeammember(item) }}
                                       >
+                                        {getAgentsListImage(myTeamAdmin?.invitedUser, 32, 32, false)}
                                         {item.name}
                                       </button>
                                     </div>
