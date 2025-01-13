@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Apis from "../apis/Apis";
 import axios from "axios";
@@ -9,6 +9,7 @@ import {
   Fade,
   Modal,
   Snackbar,
+  TextField,
 } from "@mui/material";
 import { Elements } from "@stripe/react-stripe-js";
 import AddCardDetails from "../createagent/addpayment/AddCardDetails";
@@ -126,6 +127,10 @@ function Billing() {
     {
       id: 4,
       reason: "It’s too complicated to use",
+    },
+    {
+      id: 5,
+      reason: "Others",
     },
   ];
 
@@ -496,9 +501,9 @@ function Billing() {
           setGiftPopup(false);
           setTogglePlan(planType);
           setCurrentPlan(planType);
-          if(response2.data.status === true){
+          if (response2.data.status === true) {
             setSuccessSnack("You've claimed an extra 30 mins");
-          }else if(response2.data.status === false){
+          } else if (response2.data.status === false) {
             setErrorSnack(response2.data.message);
           }
         }
@@ -512,8 +517,6 @@ function Billing() {
 
 
   //function to get card brand image
-
-
   const getCardImage = (item) => {
     if (item.brand === 'visa') {
       return '/svgIcons/Visa.svg'
@@ -525,6 +528,77 @@ function Billing() {
       return '/svgIcons/Discover.svg'
     } else if (item.brand === 'dinersClub') {
       return '/svgIcons/DinersClub.svg'
+    }
+  }
+
+  //variables
+  const textFieldRef = useRef(null);
+  const [selectReason, setSelectReason] = useState("");
+  const [showOtherReasonInput, setShowOtherReasonInput] = useState(false);
+  const [otherReasonInput, setOtherReasonInput] = useState("");
+
+  //delreason extra variables
+  const [cancelReasonLoader, setCancelReasonLoader] = useState(false);
+  //function to select the cancel plan reason
+  const handleSelectReason = async (item) => {
+    console.log("Item is", item)
+    setSelectReason(item.reason);
+    if (item.reason === "Others") {
+      setShowOtherReasonInput(true);
+      const timer = setTimeout(() => {
+        textFieldRef.current.focus();
+      }, 300);
+      return (() => clearTimeout(timer))
+    } else {
+      setShowOtherReasonInput(false);
+      setOtherReasonInput("");
+    }
+  };
+
+  //del reason api
+  const handleDelReason = async () => {
+    try {
+      setCancelReasonLoader(true)
+      const localdata = localStorage.getItem("User");
+      let AuthToken = null;
+      if (localdata) {
+        const D = JSON.parse(localdata);
+        AuthToken = D.token
+      }
+
+      const ApiData = {
+        reason: otherReasonInput || selectReason
+      }
+
+      console.log("Api data is", ApiData);
+
+      const ApiPath = Apis.calcelPlanReason;
+      console.log("Api Path is", ApiPath);
+
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          "Authorization": "Bearer " + AuthToken,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        console.log("Response of cancel plan reason api is", response);
+        if (response.data.status === true) {
+          setShowConfirmCancelPlanPopup2(false);
+          setSuccessSnack(response.data.message)
+        } else if (response.data.status === true) {
+          setErrorSnack(response.data.message);
+        }
+      }
+
+    } catch (error) {
+      setErrorSnack(error);
+      setCancelReasonLoader(false);
+      console.error("Error occured in api is ", error);
+    } finally {
+      setCancelReasonLoader(false);
+      console.log("Del reason api done")
     }
   }
 
@@ -1331,7 +1405,7 @@ function Billing() {
         }}
       >
         <Box
-          className="md:10/12 lg:w-8/12 sm:w-11/12 w-full"
+          className="md:9/12 lg:w-7/12 sm:w-10/12 w-full"
           sx={styles.paymentModal}
         >
           <div className="flex flex-row justify-center w-full">
@@ -1348,7 +1422,8 @@ function Billing() {
                 <div
                   style={{
                     fontSize: 16.8,
-                    fontWeight: "500"
+                    fontWeight: "500",
+                    paddingLeft: "12px"
                   }}
                 >
                   Cancel Plan
@@ -1386,15 +1461,16 @@ function Billing() {
               <div
                 style={{
                   fontWeight: "500",
-                  fontSize: 15,
-                  textAlign: "center"
+                  fontSize: 16,
+                  textAlign: "center",
+                  marginTop: 30
                 }}
               >
                 {`Tell us why you’re canceling to better improve our platform for you.`}
               </div>
 
               <div className="w-full flex flex-row items-center justify-center">
-                <div className="mt-9 w-9/12">
+                <div className="mt-9 w-10/12">
                   {cancelPlanReasons.map((item, index) => (
                     <div
                       key={index}
@@ -1406,39 +1482,96 @@ function Billing() {
                       }}
                       className="flex flex-row items-center gap-2"
                     >
-                      <button>
+                      <button
+                        onClick={() => { handleSelectReason(item) }}
+                        className="rounded-full flex flex-row items-center justify-center"
+                        style={{
+                          border: item.reason === selectReason ? "2px solid #7902DF" : "2px solid #15151510",
+                          // backgroundColor: item.reason === selectReason ? "#7902DF" : "",
+                          // margin: item.reason === selectReason && "5px",
+                          height: "20px",
+                          width: "20px",
+
+                        }}
+                      >
+                        <div
+                          className="w-full h-full rounded-full"
+                          style={{
+                            backgroundColor: item.reason === selectReason && "#7902DF",
+                            height: "12px",
+                            width: "12px"
+                          }}
+                        />
                       </button>
                       <div>
                         {item.reason}
                       </div>
                     </div>
                   ))}
+                  {
+                    showOtherReasonInput && (
+                      <div className="w-full mt-4">
+                        <TextField
+                          inputRef={textFieldRef}
+                          placeholder="Type here"
+                          className="focus:ring-0 outline-none"
+                          variant="outlined"
+                          fullWidth
+                          multiline
+                          minRows={4}
+                          maxRows={5}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              '& fieldset': {
+                                border: '1px solid #00000010', // Normal border
+                              },
+                              '&:hover fieldset': {
+                                border: '1px solid #00000010', // Hover border
+                              },
+                              '&.Mui-focused fieldset': {
+                                border: 'none', // Remove border on focus
+                              },
+                            },
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              border: 'none', // Additional safety to remove outline
+                            },
+                            '& .Mui-focused': {
+                              outline: 'none', // Remove focus outline
+                            },
+                          }}
+                          value={otherReasonInput}
+                          onChange={setOtherReasonInput}
+                        />
+                      </div>
+
+                    )
+                  }
+                  {
+                    cancelReasonLoader ? (
+                      <div className="flex flex-row items-center justify-center mt-10">
+                        <CircularProgress size={35} />
+                      </div>
+                    ) : (
+                      <button
+                        className="w-full flex flex-row items-center h-[50px] rounded-lg bg-purple text-white justify-center mt-10"
+                        style={{
+                          fontWeight: "600",
+                          fontSize: 16.8,
+                          outline: "none",
+                          // backgroundColor: !otherReasonInput || !selectReason && "#00000060",
+                          // color: !otherReasonInput || !selectReason && "red",
+                        }}
+                        onClick={() => {
+                          handleDelReason()
+                        }}
+                        // disabled={!selectReason || !otherReasonInput || }
+                      >
+                        Continue
+                      </button>
+                    )
+                  }
                 </div>
               </div>
-
-              <div className="w-full flex flex-row items-center justify-center mt-1">
-                <button
-                  style={{
-                    textAlign: "center",
-                  }}
-                >
-                  Other (type in)
-                </button>
-              </div>
-
-              <button
-                className="w-full flex flex-row items-center h-[50px] rounded-lg bg-purple text-white justify-center mt-10"
-                style={{
-                  fontWeight: "600",
-                  fontSize: 16.8,
-                  outline: "none",
-                }}
-                onClick={() => {
-                  setShowConfirmCancelPlanPopup2(false);
-                }}
-              >
-                Continue
-              </button>
             </div>
           </div>
         </Box>

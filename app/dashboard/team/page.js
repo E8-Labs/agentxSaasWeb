@@ -15,6 +15,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { checkPhoneNumber, getLocalLocation } from "@/components/onboarding/services/apisServices/ApiService";
+import { formatPhoneNumber } from "@/utilities/agentUtilities";
 
 function Page() {
   const timerRef = useRef(null);
@@ -394,6 +395,17 @@ function Page() {
                               fontWeight: "500",
                               color: "#00000060",
                               width: "15vw",
+                            }}
+                          >
+                            {formatPhoneNumber(item?.phone)}
+                          </div>
+
+                          <div
+                            style={{
+                              fontSize: 15,
+                              fontWeight: "500",
+                              color: "#00000060",
+                              width: "15vw",
                               textDecorationLine: "underline",
                             }}
                           >
@@ -624,13 +636,13 @@ function Page() {
                         style={{
                           ...styles.errmsg,
                           color:
-                            emailCheckResponse.status === true
+                            emailCheckResponse?.status === true
                               ? "green"
                               : "red",
                         }}
                       >
-                        {emailCheckResponse.message.slice(0, 1).toUpperCase() +
-                          emailCheckResponse.message.slice(1)}
+                        {emailCheckResponse?.message?.slice(0, 1).toUpperCase() +
+                          emailCheckResponse?.message?.slice(1)}
                       </p>
                     ) : (
                       <div />
@@ -724,7 +736,7 @@ function Page() {
                   style={{
                     marginTop: 20,
                     backgroundColor:
-                      !name || !email || !phone || errorMessage || emailCheckResponse.status !== true ? "#00000020" : "",
+                      !name || !email || !phone || errorMessage || emailCheckResponse?.status !== true ? "#00000020" : "",
                   }}
                   className="w-full flex bg-purple p-3 rounded-lg items-center justify-center"
                   onClick={() => {
@@ -735,13 +747,13 @@ function Page() {
                     };
                     inviteTeamMember(data);
                   }}
-                  disabled={!name || !email || !phone || errorMessage || emailCheckResponse.status !== true}
+                  disabled={!name || !email || !phone || errorMessage || emailCheckResponse?.status !== true}
                 >
                   <div
                     style={{
                       fontSize: 16,
                       fontWeight: "500",
-                      color: !name || !email || !phone || errorMessage || emailCheckResponse.status !== true ? "#000000" : "#ffffff",
+                      color: !name || !email || !phone || errorMessage || emailCheckResponse?.status !== true ? "#000000" : "#ffffff",
                     }}
                   >
                     Send Invite

@@ -1337,7 +1337,7 @@ const LeadDetails = ({
                               }
                             </div>
                           ) : (
-                            "No Team"
+                            ""
                           )
                         }
                       </Popover>

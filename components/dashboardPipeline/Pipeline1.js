@@ -702,9 +702,9 @@ const Pipeline1 = () => {
 
   //code to seect other pipeline
   const handleSelectOtherPipeline = (item, index) => {
-    console.log("Other pipeline selected is :", index);
+    console.log("Other pipeline selected is :", item);
     setSelectedPipeline(item);
-    setSelectedPipeline(item);
+    // setSelectedPipeline(item);
     setStagesList(item.stages);
     setLeadsList(item.leads);
     handleCloseOtherPipeline();
@@ -770,6 +770,23 @@ const Pipeline1 = () => {
           setStagesList(response.data.data.stages);
           handleCloseAddStage();
           setPipelinePopoverAnchorel(null);
+          setSelectedPipeline((prevData) => ({
+            ...prevData, // Spread the previous state
+            stages: response.data.data.stages, // Update or add the `stages` property
+          }));
+
+          const newPipeline = response.data.data;
+
+          setPipeLines((prevData) =>
+            prevData.map((item) =>
+              item.id === SelectedPipeline.id
+                ? { ...item, ...newPipeline } // Update the matching item with the new pipeline data
+                : item
+            )
+          );
+
+          // setPipeLines([...PipeLines, newPipeline]);
+
         }
       }
     } catch (error) {
@@ -778,6 +795,10 @@ const Pipeline1 = () => {
       setAddStageLoader(false);
     }
   };
+
+  useEffect(() => {
+    console.log("Selected pipeline is", PipeLines);
+  }, [PipeLines])
 
   //code ford deleting the stage
   const handleDeleteStage = async (value) => {

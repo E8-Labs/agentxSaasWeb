@@ -94,6 +94,10 @@ const Apis = {
   inviteTeamMember: `${BasePath}api/team/inviteTeamMember`,
   updateProfileApi: `${BasePath}api/user/updateProfile`,
   AssignLeadToTeam: `${BasePath}api/team/assignLeadToTeam`,
+
+  delNumber: `${BasePath}api/agent/deletePhoneNumber`,
+  calcelPlanReason: `${BasePath}api/user/addCancelPlanReason`
+
 };
 
 export default Apis;

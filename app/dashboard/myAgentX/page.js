@@ -39,7 +39,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
-import { getAgentsListImage } from "@/utilities/agentUtilities";
+import { formatPhoneNumber, getAgentImage, getAgentProfileImage, getAgentsListImage } from "@/utilities/agentUtilities";
 import { getLocalLocation } from "@/components/onboarding/services/apisServices/ApiService";
 import ClaimNumber from "@/components/dashboard/myagentX/ClaimNumber";
 
@@ -494,19 +494,19 @@ function Page() {
   };
 
   //code for formating the number
-  const formatPhoneNumber = (rawNumber) => {
-    if (rawNumber) {
-      const phoneNumber = parsePhoneNumberFromString(
-        rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
-      );
-      // //console.log("Raw number is", rawNumber);
-      return phoneNumber
-        ? phoneNumber.formatInternational()
-        : "No phone number";
-    } else {
-      return "No phone number";
-    }
-  };
+  // const formatPhoneNumber = (rawNumber) => {
+  //   if (rawNumber) {
+  //     const phoneNumber = parsePhoneNumberFromString(
+  //       rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
+  //     );
+  //     // //console.log("Raw number is", rawNumber);
+  //     return phoneNumber
+  //       ? phoneNumber.formatInternational()
+  //       : "No phone number";
+  //   } else {
+  //     return "No phone number";
+  //   }
+  // };
 
   //fucntion for assigning the number
   const handleCloseClaimPopup = () => {
@@ -2428,9 +2428,9 @@ function Page() {
               <button
                 // className='mt-8'
                 onClick={() => {
-                  if (typeof document === "undefined") {
-                    document.getElementById("fileInput").click();
-                  }
+                  document.getElementById("fileInput").click();
+                  // if (typeof document === "undefined") {
+                  // }
                 }}
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
@@ -2444,7 +2444,8 @@ function Page() {
                     }
                   }
                 >
-                  {selectedImage ? (
+
+                  {/* {selectedImage ? (
                     <div style={{ marginTop: "", background: "" }}>
                       <Image
                         src={selectedImage}
@@ -2467,7 +2468,9 @@ function Page() {
                       width={74}
                       alt="profileImage"
                     />
-                  )}
+                  )} */}
+
+                  {getAgentsListImage(showDrawerSelectedAgent)}
 
                   <Image
                     src={"/otherAssets/cameraBtn.png"}
