@@ -41,7 +41,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const [showClaimPopup, setShowClaimPopup] = useState(false);
   const [previousNumber, setPreviousNumber] = useState([]);
   //agent details variable
-  const [AgentData, setAgentData] = useState(null)
+  const [AgentData, setAgentData] = useState(null);
   //show reassign btn or not
   const [showConfirmationModal, setShowConfirmationModal] = useState(null);
   const [showReassignBtn, setShowReassignBtn] = useState(false);
@@ -97,7 +97,6 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       } else if (agetnDetails.agents[0].agentType === "inbound") {
         setShowReassignBtn(true);
         setShowGlobalBtn(false);
-
       }
     }
   }, []);
@@ -297,8 +296,6 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     setSelectedPurchasedIndex((prevId) => (prevId === index ? null : index));
   };
 
-
-
   //get available phonenumbers
   const getAvailabePhoneNumbers = async () => {
     try {
@@ -464,7 +461,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     >
       <div
         className="bg-white sm:rounded-2xl w-full sm:w-10/12 h-[90vh] py-4 flex flex-col justify-between"
-      // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+        // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
         <div>
           {/* Video Card */}
@@ -575,9 +572,11 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                     }
                                   }}
                                 >
-                                  <div className="text-[#00000070] me-1">(Claimed by {item.claimedBy.name})</div>
+                                  <div className="text-[#15151570] me-1">
+                                    (Claimed by {item.claimedBy.name})
+                                  </div>
                                   {reassignLoader?.claimedBy?.id ===
-                                    item.claimedBy.id ? (
+                                  item.claimedBy.id ? (
                                     <CircularProgress size={15} />
                                   ) : (
                                     <button
@@ -628,18 +627,16 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               </div>
 
               {/* Code for Purchase and find number popup */}
-              {
-                showClaimPopup && (
-                  <ClaimNumber
-                    showClaimPopup={showClaimPopup}
-                    handleCloseClaimPopup={handleCloseClaimPopup}
-                    setOpenCalimNumDropDown={setOpenCalimNumDropDown}
-                    setSelectNumber={setSelectNumber}
-                    setPreviousNumber={setPreviousNumber}
-                    previousNumber={previousNumber}
-                  />
-                )
-              }
+              {showClaimPopup && (
+                <ClaimNumber
+                  showClaimPopup={showClaimPopup}
+                  handleCloseClaimPopup={handleCloseClaimPopup}
+                  setOpenCalimNumDropDown={setOpenCalimNumDropDown}
+                  setSelectNumber={setSelectNumber}
+                  setPreviousNumber={setPreviousNumber}
+                  previousNumber={previousNumber}
+                />
+              )}
 
               {/* Code for Purchase number success popup */}
               <Modal
@@ -779,7 +776,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       overflowY: "auto",
                     }}
                     countryCodeEditable={true}
-                  // defaultMask={locationLoader ? "Loading..." : undefined}
+                    // defaultMask={locationLoader ? "Loading..." : undefined}
                   />
 
                   <div
@@ -826,7 +823,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                // defaultMask={locationLoader ? "Loading..." : undefined}
+                  // defaultMask={locationLoader ? "Loading..." : undefined}
                 />
                 <div style={{ fontWeight: "500", fontSize: 11, color: "red" }}>
                   {errorMessage}
@@ -1002,7 +999,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
           </Box>
         </Modal>
       </div>
-    </div >
+    </div>
   );
 };
 

@@ -58,7 +58,7 @@ function Page() {
 
   const [address, setAddress] = useState("");
   // const [budget, setBudget] = useState("");
-  const [showDrawer, setShowDrawer] = useState(null);
+  const [showDrawerSelectedAgent, setShowDrawerSelectedAgent] = useState(null);
   const [showMainAgent, setShowMainAgent] = useState(null);
   //calender details of selected agent
   const [calendarDetails, setCalendarDetails] = useState(null);
@@ -175,10 +175,10 @@ function Page() {
 
   //call get numbers list api
   useEffect(() => {
-    if (showDrawer === null) {
+    if (showDrawerSelectedAgent === null) {
       getAvailabePhoneNumbers();
     }
-  }, [showDrawer])
+  }, [showDrawerSelectedAgent]);
 
   //code for scroll ofset
   useEffect(() => {
@@ -245,8 +245,8 @@ function Page() {
     //   }
     // }
     if (
-      showDrawer?.agentType === "outbound" ||
-      showDrawer?.name === agName ||
+      showDrawerSelectedAgent?.agentType === "outbound" ||
+      showDrawerSelectedAgent?.name === agName ||
       !agName
     ) {
       return "100%";
@@ -352,7 +352,7 @@ function Page() {
       const formData = new FormData();
 
       formData.append("media", image);
-      formData.append("agentId", showDrawer.id);
+      formData.append("agentId", showDrawerSelectedAgent.id);
 
       for (let [key, value] of formData.entries()) {
         console.log(`${key} :- ${value}`);
@@ -445,7 +445,7 @@ function Page() {
     setCalendarDetails(comparedAgent);
 
     //console.log("")
-    setShowDrawer(item);
+    setShowDrawerSelectedAgent(item);
     setSelectedImage(item?.thumb_profile_image);
     //console.log("Selected agent is:", item);
     if (item.agentType === "inbound") {
@@ -575,7 +575,7 @@ function Page() {
       const ApiData = {
         agentId: item.claimedBy.id,
         phoneNumber: item.phoneNumber,
-        newAgentId: showDrawer.id,
+        newAgentId: showDrawerSelectedAgent.id,
       };
       //console.log("I a just trigered")
 
@@ -594,7 +594,11 @@ function Page() {
       if (response) {
         console.log("Respose of reassign api is:", response.data.data);
         if (response.data.status === true) {
-          setShowSuccessSnack("Number assigned to modal");
+          setShowSuccessSnack(
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
+            }`
+          );
         } else if (response.data.status === false) {
           setShowSuccessSnack(response.data.message);
         }
@@ -603,7 +607,9 @@ function Page() {
         // setShowClaimPopup(null);
         setAssignNumber(item.phoneNumber.slice(1));
         setOpenCalimNumDropDown(false);
-
+        setShowDrawerSelectedAgent((prev) => {
+          return { ...prev, phoneNumber: item.phoneNumber };
+        });
         //Update the selected number agents also
 
         //check jo add karna hy us mein kia karna hyy k api ka response console karwao aur us k badus k response ko examine karo
@@ -632,7 +638,8 @@ function Page() {
         // Update the agent's phone number and ensure no other agents have the same phone number
         setAgentsContent((prevAgents) => {
           const newPhoneNumber1 = response.data.data.agent1.phoneNumber;
-          const newPhoneNumber2 = response.data.data.agent2.phoneNumber.slice(1);
+          const newPhoneNumber2 =
+            response.data.data.agent2.phoneNumber.slice(1);
 
           return prevAgents.map((agent) => {
             if (agent.id === response.data.data.agent1.id) {
@@ -646,7 +653,8 @@ function Page() {
             }
 
             // If the phone number matches either of the new phone numbers, set it to null
-            if (agent.phoneNumber === newPhoneNumber1) { // || agent.phoneNumber === newPhoneNumber2
+            if (agent.phoneNumber === newPhoneNumber1) {
+              // || agent.phoneNumber === newPhoneNumber2
               return { ...agent, phoneNumber: null };
             }
 
@@ -654,7 +662,6 @@ function Page() {
             return agent;
           });
         });
-
 
         setShowConfirmationModal(null);
         // setShowDrawer(null);
@@ -831,8 +838,8 @@ function Page() {
         formData.append("voiceId", vocieId);
       }
 
-      if (showDrawer) {
-        formData.append("mainAgentId", showDrawer.mainAgentId);
+      if (showDrawerSelectedAgent) {
+        formData.append("mainAgentId", showDrawerSelectedAgent.mainAgentId);
       }
 
       for (let [key, value] of formData.entries()) {
@@ -992,14 +999,20 @@ function Page() {
 
       const formData = new FormData();
       formData.append("phoneNumber", phoneNumber);
-      formData.append("callbackNumber", showDrawer?.callbackNumber);
+      formData.append(
+        "callbackNumber",
+        showDrawerSelectedAgent?.callbackNumber
+      );
       // if (userSelectedNumber) {
       //   formData.append("callbackNumber", assignNumber);
       // } else {
       //   formData.append("callbackNumber", officeNumber);
       // }
-      formData.append("liveTransforNumber", showDrawer?.liveTransferNumber);
-      formData.append("agentId", showDrawer.id);
+      formData.append(
+        "liveTransforNumber",
+        showDrawerSelectedAgent?.liveTransferNumber
+      );
+      formData.append("agentId", showDrawerSelectedAgent.id);
       // formData.append("mainAgentId", showDrawer.id);
       // formData.append("liveTransfer", toggleClick);
 
@@ -1021,7 +1034,15 @@ function Page() {
         //console.log("Response of assign number api is :", response.data)
         console.log("Response of update number api is", response.data);
         if (response.data.status === true) {
-          setShowSuccessSnack(response.data.message);
+          setShowSuccessSnack(
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
+            }`
+          );
+
+          setShowDrawerSelectedAgent((prev) => {
+            return { ...prev, phoneNumber };
+          });
           setIsVisibleSnack(true);
           setShowConfirmationModal(null);
           // setAgentsContent((prevAgents) =>
@@ -1038,7 +1059,7 @@ function Page() {
             const agentsList = JSON.parse(localAgentsList);
             // agentsListDetails = agentsList;
 
-            const updateAgentData = showDrawer;
+            const updateAgentData = showDrawerSelectedAgent;
 
             console.log("Agents list is", agentsList);
 
@@ -1227,11 +1248,11 @@ function Page() {
       }
 
       const ApiData = {
-        agentId: showDrawer.id,
+        agentId: showDrawerSelectedAgent.id,
       };
       console.log("Data sending in del agent api is:", ApiData);
 
-      console.log("Current agent selected is", showDrawer);
+      console.log("Current agent selected is", showDrawerSelectedAgent);
 
       // return
       const ApiPath = Apis.DelAgent;
@@ -1247,10 +1268,10 @@ function Page() {
       if (response) {
         console.log("Response of del agent api is:", response);
         setAgentsContent(
-          agentsContent.filter((item) => item.id !== showDrawer.id)
+          agentsContent.filter((item) => item.id !== showDrawerSelectedAgent.id)
         );
 
-        setShowDrawer(null);
+        setShowDrawerSelectedAgent(null);
         setDelAgentModal(false);
 
         //updating data on localstorage
@@ -1259,7 +1280,7 @@ function Page() {
           const agentsList = JSON.parse(localAgentsList);
           // agentsListDetails = agentsList;
 
-          const updateAgentData = showDrawer;
+          const updateAgentData = showDrawerSelectedAgent;
 
           const updatedAgentsList = agentsList.map((agentGroup) => {
             if (Array.isArray(agentGroup.agents)) {
@@ -1593,7 +1614,7 @@ function Page() {
     const selectedVoice = voicesList.find(
       (voice) => voice.voice_id === event.target.value
     );
-    if (showDrawer.thumb_profile_image) {
+    if (showDrawerSelectedAgent.thumb_profile_image) {
       return;
     } else {
       setSelectedImage(selectedVoice.img);
@@ -2309,7 +2330,7 @@ function Page() {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                // defaultMask={loading ? 'Loading...' : undefined}
+                  // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -2339,8 +2360,9 @@ function Page() {
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                        }`}
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
+                        index === scriptKeys?.length - 1 ? "mb-16" : ""
+                      }`}
                       style={{
                         ...styles.inputStyle,
                         border: "1px solid #00000010",
@@ -2393,8 +2415,8 @@ function Page() {
 
       <Drawer
         anchor="right"
-        open={showDrawer}
-        onClose={() => setShowDrawer(null)}
+        open={showDrawerSelectedAgent}
+        onClose={() => setShowDrawerSelectedAgent(null)}
         sx={{
           "& .MuiDrawer-paper": {
             width: "50%", // Adjust the width as per your design
@@ -2503,24 +2525,24 @@ function Page() {
               <div className="flex flex-col gap-1 items-start ">
                 <div className="flex flex-row gap-2 items-center ">
                   <div style={{ fontSize: 22, fontWeight: "600" }}>
-                    {showDrawer?.name.slice(0, 1).toUpperCase()}
-                    {showDrawer?.name.slice(1)}
+                    {showDrawerSelectedAgent?.name.slice(0, 1).toUpperCase()}
+                    {showDrawerSelectedAgent?.name.slice(1)}
                   </div>
                   <div
                     className="text-purple"
                     style={{ fontSize: 11, fontWeight: "600" }}
                   >
-                    {showDrawer?.agentObjective}{" "}
+                    {showDrawerSelectedAgent?.agentObjective}{" "}
                     <span className="text-[#00000060]">
                       {" "}
-                      | {showDrawer?.agentType}
+                      | {showDrawerSelectedAgent?.agentType}
                     </span>
                   </div>
                 </div>
 
                 <div style={{ fontSize: 15, fontWeight: "500", color: "#000" }}>
                   {/* {showDrawer?.phoneNumber} */}
-                  {formatPhoneNumber(showDrawer?.phoneNumber)}
+                  {formatPhoneNumber(showDrawerSelectedAgent?.phoneNumber)}
                 </div>
 
                 <div className="flex flex-row gap-2 items-center ">
@@ -2533,7 +2555,7 @@ function Page() {
                     style={{ fontSize: 11, fontWeight: "500", color: "#000" }}
                   >
                     {/* {showDrawer?.createdAt} */}
-                    {GetFormattedDateString(showDrawer?.createdAt)}
+                    {GetFormattedDateString(showDrawerSelectedAgent?.createdAt)}
                   </div>
                 </div>
               </div>
@@ -2544,8 +2566,9 @@ function Page() {
             <Card
               name="Calls"
               value={
-                showDrawer?.calls && showDrawer?.calls > 0 ? (
-                  <div>{showDrawer?.calls}</div>
+                showDrawerSelectedAgent?.calls &&
+                showDrawerSelectedAgent?.calls > 0 ? (
+                  <div>{showDrawerSelectedAgent?.calls}</div>
                 ) : (
                   "-"
                 )
@@ -2557,8 +2580,9 @@ function Page() {
             <Card
               name="Convos"
               value={
-                showDrawer?.callsGt10 && showDrawer?.callsGt10 > 0 ? (
-                  <div>{showDrawer?.callsGt10}</div>
+                showDrawerSelectedAgent?.callsGt10 &&
+                showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                  <div>{showDrawerSelectedAgent?.callsGt10}</div>
                 ) : (
                   "-"
                 )
@@ -2584,10 +2608,13 @@ function Page() {
             <Card
               name="Mins Talked"
               value={
-                showDrawer?.totalDuration && showDrawer?.totalDuration > 0 ? (
+                showDrawerSelectedAgent?.totalDuration &&
+                showDrawerSelectedAgent?.totalDuration > 0 ? (
                   // <div>{showDrawer?.totalDuration}</div>
                   <div>
-                    {moment(showDrawer.totalDuration * 1000).format("mm:ss")}
+                    {moment(
+                      showDrawerSelectedAgent.totalDuration * 1000
+                    ).format("mm:ss")}
                   </div>
                 ) : (
                   "-"
@@ -2604,10 +2631,11 @@ function Page() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${activeTab === tab
-                  ? "text-purple border-b-2 border-purple"
-                  : "text-black-500"
-                  }`}
+                className={`${
+                  activeTab === tab
+                    ? "text-purple border-b-2 border-purple"
+                    : "text-black-500"
+                }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >
                 {tab}
@@ -2658,7 +2686,7 @@ function Page() {
                       color: "#000",
                     }}
                   >
-                    {showDrawer?.name}
+                    {showDrawerSelectedAgent?.name}
                   </div>
                 </div>
                 <div className="flex justify-between items-center mt-4">
@@ -2674,7 +2702,7 @@ function Page() {
                       color: "#000",
                     }}
                   >
-                    {showDrawer?.agentRole}
+                    {showDrawerSelectedAgent?.agentRole}
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
@@ -2875,27 +2903,27 @@ function Page() {
                                 >
                                   {item.claimedBy && (
                                     <div className="flex flex-row items-center gap-2">
-                                      {showDrawer?.name !==
+                                      {showDrawerSelectedAgent?.name !==
                                         item.claimedBy.name && (
-                                          <div>
-                                            {`(Claimed by {${item.claimedBy.name}})`}
-                                            {reassignLoader === item ? (
-                                              <CircularProgress size={15} />
-                                            ) : (
-                                              <button
-                                                className="text-purple underline"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  setShowConfirmationModal(item);
-                                                  // handleReassignNumber(item)
-                                                  // handleReassignNumber(e.target.value)
-                                                }}
-                                              >
-                                                Reassign
-                                              </button>
-                                            )}
-                                          </div>
-                                        )}
+                                        <div>
+                                          <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                          {reassignLoader === item ? (
+                                            <CircularProgress size={15} />
+                                          ) : (
+                                            <button
+                                              className="text-purple underline"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setShowConfirmationModal(item);
+                                                // handleReassignNumber(item)
+                                                // handleReassignNumber(e.target.value)
+                                              }}
+                                            >
+                                              Reassign
+                                            </button>
+                                          )}
+                                        </div>
+                                      )}
                                     </div>
                                   )}
                                 </div>
@@ -2966,8 +2994,8 @@ function Page() {
                       color: "#000",
                     }}
                   >
-                    {showDrawer?.callbackNumber ? (
-                      <div>{showDrawer?.callbackNumber}</div>
+                    {showDrawerSelectedAgent?.callbackNumber ? (
+                      <div>{showDrawerSelectedAgent?.callbackNumber}</div>
                     ) : (
                       "-"
                     )}
@@ -2993,8 +3021,8 @@ function Page() {
                     />
                   </div>
                   <div>
-                    {showDrawer?.liveTransferNumber ? (
-                      <div>{showDrawer?.liveTransferNumber}</div>
+                    {showDrawerSelectedAgent?.liveTransferNumber ? (
+                      <div>{showDrawerSelectedAgent?.liveTransferNumber}</div>
                     ) : (
                       "-"
                     )}
@@ -3007,7 +3035,7 @@ function Page() {
               <UserCalender
                 calendarDetails={calendarDetails}
                 setUserDetails={setUserAgentsList}
-                selectedAgent={showDrawer}
+                selectedAgent={showDrawerSelectedAgent}
                 mainAgentId={MainAgentId}
                 previousCalenders={previousCalenders}
               />
@@ -3015,7 +3043,7 @@ function Page() {
           ) : activeTab === "Pipeline | Stages" ? (
             <div className="flex flex-col gap-4">
               <PiepelineAdnStage
-                selectedAgent={showDrawer}
+                selectedAgent={showDrawerSelectedAgent}
                 UserPipeline={UserPipeline}
               />
             </div>
@@ -3241,7 +3269,7 @@ function Page() {
                   fontSize: "20",
                 }}
                 onClick={() => {
-                  setShowDrawer(ShowWarningModal);
+                  setShowDrawerSelectedAgent(ShowWarningModal);
                   setShowWarningModal(null);
                 }}
               >
@@ -3330,7 +3358,8 @@ function Page() {
                 <span className="text-purple">
                   ({formatPhoneNumber(showConfirmationModal?.phoneNumber)})
                 </span>{" "}
-                to {showDrawer?.name}.{/* {`{${showDrawer?.name}}`}. */}
+                to {showDrawerSelectedAgent?.name}.
+                {/* {`{${showDrawer?.name}}`}. */}
               </p>
             </div>
 
@@ -4034,19 +4063,17 @@ function Page() {
           </div>
         </Box>
       </Modal> */}
-      {
-        showClaimPopup && (
-          <ClaimNumber
-            showClaimPopup={showClaimPopup}
-            handleCloseClaimPopup={handleCloseClaimPopup}
-            setOpenCalimNumDropDown={setOpenCalimNumDropDown}
-            setSelectNumber={setAssignNumber}
-            setPreviousNumber={setPreviousNumber}
-            previousNumber={previousNumber}
-            AssignNumber={AssignNumber}
-          />
-        )
-      }
+      {showClaimPopup && (
+        <ClaimNumber
+          showClaimPopup={showClaimPopup}
+          handleCloseClaimPopup={handleCloseClaimPopup}
+          setOpenCalimNumDropDown={setOpenCalimNumDropDown}
+          setSelectNumber={setAssignNumber}
+          setPreviousNumber={setPreviousNumber}
+          previousNumber={previousNumber}
+          AssignNumber={AssignNumber}
+        />
+      )}
     </div>
   );
 }

@@ -21,7 +21,9 @@ import axios from "axios";
 import { CaretDown, Minus, YoutubeLogo } from "@phosphor-icons/react";
 import PipelineStages from "./PipelineStages";
 import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
-import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from "../dashboard/leads/AgentSelectSnackMessage";
 import IntroVideoModal from "../createagent/IntroVideoModal";
 import VideoCard from "../createagent/VideoCard";
 
@@ -48,14 +50,14 @@ const Pipeline1 = ({ handleContinue }) => {
   // const [nextStage, setNextStage] = useState([]);
   // const [selectedNextStage, setSelectedNextStage] = useState([]);
 
-  const [reorderSuccessBarMessage, setReorderSuccessBarMessage] = useState(null);
+  const [reorderSuccessBarMessage, setReorderSuccessBarMessage] =
+    useState(null);
   const [isVisibleSnack, setIsVisibleSnack] = useState(false);
   const [snackType, setSnackType] = useState(null);
 
   useEffect(() => {
-    console.log("Snack message is", reorderSuccessBarMessage)
-  }, [reorderSuccessBarMessage])
-
+    console.log("Snack message is", reorderSuccessBarMessage);
+  }, [reorderSuccessBarMessage]);
 
   const [reorderLoader, setReorderLoader] = useState(false);
   //code for new Lead calls
@@ -66,7 +68,7 @@ const Pipeline1 = ({ handleContinue }) => {
     if (localAgentData) {
       const Data = JSON.parse(localAgentData);
       if (Data.agents.length === 1 && Data.agents[0].agentType == "inbound") {
-        return
+        return;
       } else {
         console.log("Check 1 clear to go");
       }
@@ -169,7 +171,7 @@ const Pipeline1 = ({ handleContinue }) => {
       console.log("Should not reorder stages");
     } else {
       console.log("Should reorder stages");
-      handleReorder();
+      // handleReorder();
     }
   }, [selectedPipelineStages]);
 
@@ -323,30 +325,33 @@ const Pipeline1 = ({ handleContinue }) => {
     const pipelineID = selectedPipelineItem.id;
     const cadence = allData;
 
-    let cadenceData = null
+    let cadenceData = null;
 
     //getting local agent data then sending the cadence accordingly
     const agentDetails = localStorage.getItem("agentDetails");
     if (agentDetails) {
       const agentData = JSON.parse(agentDetails);
       console.log("Recieved from local storage are :--", agentData);
-      if (agentData.agents.length === 1 && agentData.agents[0].agentType === "inbound") {
-        cadenceData =
-        {
-          "pipelineID": selectedPipelineItem?.id,
-          "cadenceDetails":
-            [
-              {
-                "stage": selectedPipelineItem?.stages[0]?.id,
-                "calls": [
-                  {
-                    "id": 0,
-                    "waitTimeDays": 3650,
-                    "waitTimeHours": 0,
-                    "waitTimeMinutes": 0
-                  }]
-              }]
-        }
+      if (
+        agentData.agents.length === 1 &&
+        agentData.agents[0].agentType === "inbound"
+      ) {
+        cadenceData = {
+          pipelineID: selectedPipelineItem?.id,
+          cadenceDetails: [
+            {
+              stage: selectedPipelineItem?.stages[0]?.id,
+              calls: [
+                {
+                  id: 0,
+                  waitTimeDays: 3650,
+                  waitTimeHours: 0,
+                  waitTimeMinutes: 0,
+                },
+              ],
+            },
+          ],
+        };
       } else {
         console.log("Might be outbound agent");
         cadenceData = {
@@ -358,7 +363,10 @@ const Pipeline1 = ({ handleContinue }) => {
 
     console.log("Cadence data for agent", cadenceData);
 
-    console.log("Cadence data storing on local storage is :", JSON.stringify(cadenceData));
+    console.log(
+      "Cadence data storing on local storage is :",
+      JSON.stringify(cadenceData)
+    );
 
     localStorage.setItem("AddCadenceDetails", JSON.stringify(cadenceData));
 
@@ -509,11 +517,11 @@ const Pipeline1 = ({ handleContinue }) => {
       if (response) {
         console.log("Response of updated stages is:", response.data);
         if (response.data.status === true) {
-          let type = SnackbarTypes.Success
+          let type = SnackbarTypes.Success;
           setSnackType("Success");
           setReorderSuccessBarMessage(response.data.message);
         } else if (response.data.status === false) {
-          let type = SnackbarTypes.Error
+          let type = SnackbarTypes.Error;
           setSnackType("Error");
           setReorderSuccessBarMessage(response.data.message);
         }
@@ -526,6 +534,21 @@ const Pipeline1 = ({ handleContinue }) => {
       setReorderLoader(false);
     }
   };
+
+  function onNewStageCreated(pipeline) {
+    let pipelines = [];
+
+    for (let p of pipelinesDetails) {
+      if (p.id == pipeline.id) {
+        pipelines.push(pipeline);
+      } else {
+        pipelines.push(p);
+      }
+    }
+    setSelectedPipelineItem(pipeline);
+    setSelectedPipelineStages(pipeline.stages);
+    setPipelinesDetails(pipelines);
+  }
 
   const styles = {
     headingStyle: {
@@ -565,15 +588,14 @@ const Pipeline1 = ({ handleContinue }) => {
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
       {/* <AgentSelectSnackMessage isVisible={reorderSuccessBar == null || reorderSuccessBar == false ? false : true} hide={() => setReorderSuccessBar(null)} message={reorderSuccessBar} time={SnackbarTypes.Success} /> */}
-      {
-        isVisibleSnack && (
-          <AgentSelectSnackMessage
-            isVisible={isVisibleSnack === false ? false : true}
-            hide={() => setIsVisibleSnack(false)}
-            message={reorderSuccessBarMessage} type={snackType}
-          />
-        )
-      }
+      {isVisibleSnack && (
+        <AgentSelectSnackMessage
+          isVisible={isVisibleSnack === false ? false : true}
+          hide={() => setIsVisibleSnack(false)}
+          message={reorderSuccessBarMessage}
+          type={snackType}
+        />
+      )}
       <div
         className="bg-white rounded-2xl w-10/12 h-[100%] py-4 flex flex-col justify-between" //overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
@@ -786,6 +808,8 @@ const Pipeline1 = ({ handleContinue }) => {
                 setShowRearrangeErr={setReorderSuccessBarMessage}
                 setIsVisibleSnack={setIsVisibleSnack}
                 setSnackType={setSnackType}
+                onNewStageCreated={onNewStageCreated}
+                handleReOrder={handleReorder}
               />
 
               {/* Reorder stage loader modal */}
@@ -836,8 +860,6 @@ const Pipeline1 = ({ handleContinue }) => {
           />
         </div>
       </div>
-
-
     </div>
   );
 };

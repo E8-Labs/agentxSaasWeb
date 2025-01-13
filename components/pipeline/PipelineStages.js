@@ -41,10 +41,12 @@ const PipelineStages = ({
   setShowRearrangeErr,
   setIsVisibleSnack,
   setSnackType,
+  onNewStageCreated,
+  handleReOrder,
 }) => {
   const [showSampleTip, setShowSampleTip] = useState(false);
 
-  //VIP variable for checking if agent is only inbound
+  //VIP variable for checking if agent is ononNewStageCreatedly inbound
   const [isInboundAgent, setIsInboundAgent] = useState(false);
 
   const [pipelineStages, setPipelineStages] = useState(stages);
@@ -100,7 +102,7 @@ const PipelineStages = ({
 
   useEffect(() => {
     getMyTeam();
-  }, [])
+  }, []);
 
   //ading stages data
   useEffect(() => {
@@ -159,14 +161,28 @@ const PipelineStages = ({
     try {
       let response = await getTeamsList();
       if (response) {
-        console.log("Response recieved is", response);
-        setMyTeamList(response.data)
-        setMyTeamAdmin(response.admin)
+        console.log("Team Response recieved is", response);
+        let teams = [];
+        if (response.admin) {
+          let admin = response.admin;
+          let newInvite = { id: -1, invitedUser: admin, invitingUser: admin };
+          teams.push(newInvite);
+        }
+        if (response.data && response.data.length > 0) {
+          for (const t of response.data) {
+            if (t.status == "Accepted") {
+              teams.push(t);
+            }
+          }
+        }
+
+        setMyTeamList(teams);
+        setMyTeamAdmin(response.admin);
       }
     } catch (error) {
       console.error("Error occured in api is", error);
     }
-  }
+  };
 
   //new teammeber
   const handleAssignTeamMember = (event) => {
@@ -174,14 +190,20 @@ const PipelineStages = ({
     console.log("Value to set is :", value);
     setAssignToMember(event.target.value);
 
-    const selectedItem = myTeamList.find((item) => item.invitedUser.name === value);
+    const selectedItem = myTeamList.find(
+      (item) => item?.invitedUser?.name === value
+    );
     console.log("Selected teammeber is:", selectedItem);
-    setAssignToMember(selectedItem.invitedUser.name || myTeamAdmin.invitedUser.name); //
-    setAssignLeadToMember([...assignLeadToMember, selectedItem.invitedUser.id || myTeamAdmin.invitedUser.id]); //
+    setAssignToMember(
+      selectedItem?.invitedUser?.name || myTeamAdmin.invitedUser?.name
+    ); //
+    setAssignLeadToMember([
+      ...assignLeadToMember,
+      selectedItem?.invitedUser?.id || myTeamAdmin.invitedUser?.id,
+    ]); //
 
     console.log("Selected teammeber is:", selectedItem);
   };
-
 
   const handlePopoverClose = () => {
     setActionInfoEl(null);
@@ -198,7 +220,7 @@ const PipelineStages = ({
       const agentData = JSON.parse(agentDetails);
       console.log("Current Agent Details Recieved Are :--", agentData);
       if (agentData.agents?.length > 1) {
-        console.log("Two agents")
+        console.log("Two agents");
         setIsInboundAgent(false);
       } else {
         if (agentData.agents[0]?.agentType === "inbound") {
@@ -208,7 +230,7 @@ const PipelineStages = ({
         }
       }
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     console.log("Stagesrecieved are :", stages);
@@ -319,6 +341,7 @@ const PipelineStages = ({
     console.log("Check 5 about to call the api");
     setPipelineStages(updatedStages);
     onUpdateOrder(updatedStages);
+    handleReOrder();
   };
 
   //functions to move to stage after deleting one
@@ -437,7 +460,7 @@ const PipelineStages = ({
         action: action,
         examples: inputs,
         tags: tagsValue,
-        teams: assignLeadToMember
+        teams: assignLeadToMember,
       };
 
       console.log("Data sending in api is:", ApiData);
@@ -457,6 +480,8 @@ const PipelineStages = ({
           setNewStageTitle("");
           // setStageColor("");
           setStagesList(response.data.data.stages);
+          selectedPipelineItem.stages = response.data.data.stages;
+          onNewStageCreated(selectedPipelineItem);
         }
       }
     } catch (error) {
@@ -659,9 +684,7 @@ const PipelineStages = ({
                               </button>
                             )}
                           </div>
-                        )
-                        }
-
+                        )}
                       </div>
                       <div>
                         {assignedLeads[index] && (
@@ -1244,13 +1267,13 @@ const PipelineStages = ({
                                             border: "1px solid #00000020", // Same border on hover
                                           },
                                           "& .MuiOutlinedInput-notchedOutline":
-                                          {
-                                            border: "none", // Remove the default outline
-                                          },
+                                            {
+                                              border: "none", // Remove the default outline
+                                            },
                                           "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                          {
-                                            border: "none", // Remove outline on focus
-                                          },
+                                            {
+                                              border: "none", // Remove outline on focus
+                                            },
                                           "&.MuiSelect-select": {
                                             py: 0, // Optional padding adjustments
                                           },
@@ -1613,7 +1636,6 @@ const PipelineStages = ({
                           />
                         </div>
 
-
                         <div
                           className=" mt-2" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple max-h-[30vh] overflow-auto
                           style={{ scrollbarWidth: "none" }}
@@ -1735,7 +1757,9 @@ const PipelineStages = ({
                               renderValue={(selected) => {
                                 if (!selected) {
                                   return (
-                                    <div style={{ color: "#aaa" }}>Select team member</div>
+                                    <div style={{ color: "#aaa" }}>
+                                      Select team member
+                                    </div>
                                   ); // Placeholder style
                                 }
                                 return selected;
@@ -1748,9 +1772,10 @@ const PipelineStages = ({
                                 "& .MuiOutlinedInput-notchedOutline": {
                                   border: "none", // Remove the default outline
                                 },
-                                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                  border: "none", // Remove outline on focus
-                                },
+                                "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                  {
+                                    border: "none", // Remove outline on focus
+                                  },
                                 "&.MuiSelect-select": {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -1765,26 +1790,20 @@ const PipelineStages = ({
                                 },
                               }}
                             >
-                              <MenuItem
-                                value={myTeamAdmin.name}
-                              >
+                              {/* <MenuItem value={myTeamAdmin.name}>
                                 <div className="w-full flex flex-row items-center gap-2">
-                                  <div>
-                                    {myTeamAdmin.name}
-                                  </div>
-                                  <div
-                                    className="bg-purple text-white text-sm px-2 rounded-full"
-                                  >
+                                  <div>{myTeamAdmin.name}</div>
+                                  <div className="bg-purple text-white text-sm px-2 rounded-full">
                                     Admin
                                   </div>
                                 </div>
-                              </MenuItem>
+                              </MenuItem> */}
                               {myTeamList.map((item, index) => {
                                 return (
                                   <MenuItem
                                     className="flex flex-row items-center gap-2"
                                     key={index}
-                                    value={item.name}
+                                    value={item?.invitedUser?.name}
                                   >
                                     {/* <Image
                                       src={item.invitedUser.full_profile_image || "/agentXOrb.gif"}
@@ -1792,8 +1811,8 @@ const PipelineStages = ({
                                       height={35}
                                       alt="*"
                                     /> */}
-                                    {getAgentsListImage(item.invitedUser)}
-                                    {item.invitedUser.name}
+                                    {getAgentsListImage(item?.invitedUser)}
+                                    {item.invitedUser?.name}
                                   </MenuItem>
                                 );
                               })}
@@ -1801,7 +1820,12 @@ const PipelineStages = ({
                           </FormControl>
                         </div>
 
-                        <p className="mt-2" style={{ fontWeight: "500", fontSize: 15 }}>Tags</p>
+                        <p
+                          className="mt-2"
+                          style={{ fontWeight: "500", fontSize: 15 }}
+                        >
+                          Tags
+                        </p>
 
                         <div className="mt-4">
                           <TagsInput setTags={setTagsValue} />
@@ -1847,7 +1871,7 @@ const PipelineStages = ({
                               fontWeight: 600,
                               fontSize: "20",
                             }}
-                          // onClick={handleAddNewStageTitle}
+                            // onClick={handleAddNewStageTitle}
                           >
                             Add Stage
                           </button>

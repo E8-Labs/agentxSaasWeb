@@ -118,7 +118,7 @@ const RearrangeStages = ({
 
   useEffect(() => {
     getMyTeam();
-  }, [])
+  }, []);
 
   //code for showing the add stage button according to dirredent conditions
   useEffect(() => {
@@ -204,27 +204,41 @@ const RearrangeStages = ({
     // console.log("Value to set is :", value);
     setAssignToMember(event.target.value);
 
-    const selectedItem = myTeamList.find((item) => item.invitedUser.name === value);
+    const selectedItem = myTeamList.find(
+      (item) => item.invitedUser.name === value
+    );
     console.log("Selected teammeber is:", selectedItem);
-    setAssignToMember(selectedItem.invitedUser.name || myTeamAdmin.invitedUser.name); //
-    setAssignLeadToMember([...assignLeadToMember, selectedItem.invitedUser.id || myTeamAdmin.invitedUser.id]); //
+    setAssignToMember(
+      selectedItem.invitedUser.name || myTeamAdmin.invitedUser.name
+    ); //
+    setAssignLeadToMember([
+      ...assignLeadToMember,
+      selectedItem.invitedUser.id || myTeamAdmin.invitedUser.id,
+    ]); //
 
     console.log("Selected teammeber is:", selectedItem);
   };
-
 
   const getMyTeam = async () => {
     try {
       let response = await getTeamsList();
       if (response) {
         console.log("Response recieved is", response);
-        setMyTeamList(response.data);
+        let teams = [];
+        if (response.data && response.data.length > 0) {
+          for (const t of response.data) {
+            if (t.status == "Accepted") {
+              teams.push(t);
+            }
+          }
+        }
+        setMyTeamList(teams);
         setMyTeamAdmin(response.admin);
       }
     } catch (error) {
       console.error("Error occured in api is", error);
     }
-  }
+  };
 
   //function to clsoe add stage modal
   const handleCloseAddStage = () => {
@@ -865,7 +879,9 @@ const RearrangeStages = ({
                               renderValue={(selected) => {
                                 if (!selected) {
                                   return (
-                                    <div style={{ color: "#aaa" }}>Select team member</div>
+                                    <div style={{ color: "#aaa" }}>
+                                      Select team member
+                                    </div>
                                   ); // Placeholder style
                                 }
                                 return selected;
@@ -878,9 +894,10 @@ const RearrangeStages = ({
                                 "& .MuiOutlinedInput-notchedOutline": {
                                   border: "none", // Remove the default outline
                                 },
-                                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                  border: "none", // Remove outline on focus
-                                },
+                                "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                  {
+                                    border: "none", // Remove outline on focus
+                                  },
                                 "&.MuiSelect-select": {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -895,26 +912,17 @@ const RearrangeStages = ({
                                 },
                               }}
                             >
-                              <MenuItem
-                                value={myTeamAdmin.name}
-                              >
+                              <MenuItem value={myTeamAdmin.name}>
                                 <div className="w-full flex flex-row items-center gap-2">
-                                  <div>
-                                    {myTeamAdmin.name}
-                                  </div>
-                                  <div
-                                    className="bg-purple text-white text-sm px-2 rounded-full"
-                                  >
+                                  <div>{myTeamAdmin.name}</div>
+                                  <div className="bg-purple text-white text-sm px-2 rounded-full">
                                     Admin
                                   </div>
                                 </div>
                               </MenuItem>
                               {myTeamList.map((item, index) => {
                                 return (
-                                  <MenuItem
-                                    key={index}
-                                    value={item.name}
-                                  >
+                                  <MenuItem key={index} value={item.name}>
                                     {getAgentsListImage(item.invitedUser)}
                                     {item.name}
                                   </MenuItem>

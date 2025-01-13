@@ -15,7 +15,9 @@ import GoogleAdddressPicker from "../test/GoogleAdddressPicker";
 import usePlacesService from "react-google-autocomplete/lib/usePlacesAutocompleteService";
 import VideoCard from "./VideoCard";
 import IntroVideoModal from "./IntroVideoModal";
-import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from "../dashboard/leads/AgentSelectSnackMessage";
 
 const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   const addressKey = process.env.NEXT_PUBLIC_AddressPickerApiKey;
@@ -417,7 +419,6 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
         className=" sm:rounded-2xl w-full md:w-10/12 h-[90vh] flex flex-col items-center"
         style={{ scrollbarWidth: "none", backgroundColor: "#ffffff" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
-
         <AgentSelectSnackMessage
           message={snackMessage}
           type={msgType}
@@ -429,8 +430,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           }}
         />
 
-        <div className="w-full h-[77vh]">
-
+        <div className="w-full h-[90%]">
           {/* Video card */}
 
           <IntroVideoModal
@@ -543,11 +543,13 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
               </div>
 
               <div className="sm:flex sm:flex-row items-center gap-4">
-                <button
-                  className="flex flex-row items-center justify-center gap-2 border h-[60px] w-full sm:w-[240px] outline-none px-6"
+                <div
+                  className="flex flex-row cursor-pointer items-center justify-center gap-2 h-[60px] w-full sm:w-[240px] px-6"
                   style={{
                     borderRadius: "23px",
-                    border: OutBoundCalls ? "2px solid #7902DF" : "",
+                    border: OutBoundCalls
+                      ? "2px solid #7902DF"
+                      : "2px solid #00000010",
                   }}
                   onClick={handleOutBoundCallClick}
                 >
@@ -576,12 +578,14 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                   >
                     Making outbound calls
                   </div>
-                </button>
-                <button
-                  className="flex flex-row items-center justify-center gap-2 border h-[60px] sm:mt-0 mt-4 w-full sm:w-[240px] outline-none px-6"
+                </div>
+                <div
+                  className="flex flex-row cursor-pointer items-center justify-center gap-2  h-[60px] sm:mt-0 mt-4 w-full sm:w-[240px] px-6"
                   style={{
                     borderRadius: "23px",
-                    border: InBoundCalls ? "2px solid #7902DF" : "",
+                    border: InBoundCalls
+                      ? "2px solid #7902DF"
+                      : "2px solid #00000010",
                   }}
                   onClick={handleInboundCallClick}
                 >
@@ -606,7 +610,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                   >
                     Taking Inbound Calls
                   </div>
-                </button>
+                </div>
               </div>
 
               <div className="mt-2" style={styles.headingStyle}>
@@ -714,7 +718,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           </div>
         </div>
 
-        <div className="w-full h-[10%]">
+        <div className="w-full h-[10%] ">
           <div>
             <ProgressBar value={33} />
           </div>
@@ -877,12 +881,12 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                       placeholder="Type here ..."
                       value={addressValue}
                       readOnly={true}
-                    // disabled={true}
-                    // onChange={(evt) => {
-                    //   setAddressValue(evt.target.value); // Update input field value
-                    //   // getPlacePredictions({ input: evt.target.value });
-                    //   // setShowDropdown(true); // Show dropdown on input
-                    // }}
+                      // disabled={true}
+                      // onChange={(evt) => {
+                      //   setAddressValue(evt.target.value); // Update input field value
+                      //   // getPlacePredictions({ input: evt.target.value });
+                      //   // setShowDropdown(true); // Show dropdown on input
+                      // }}
                     />
                   </div>
                 </div>
