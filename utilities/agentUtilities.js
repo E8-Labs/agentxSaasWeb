@@ -19,7 +19,7 @@ export const getAgentImage = (item) => {
             height: "62px",
             width: "62px",
             borderRadius: "50%",
-            backgroundColor: "#d3d3d380",
+            backgroundColor: "white",
             overflow: "hidden", // Ensures no part of the image spills outside the container
           }}
         >
@@ -51,7 +51,7 @@ export const getAgentImage = (item) => {
             height: "62px",
             width: "62px",
             borderRadius: "50%",
-            backgroundColor: "#d3d3d380",
+            backgroundColor: "white",
           }}
         >
           <Image
@@ -115,7 +115,7 @@ export const getAgentsListImage = (subAgent, imgHeight, imgWidth, showExtraheigh
       //     height: "62px",
       //     width: "62px",
       //     borderRadius: "50%",
-      //     backgroundColor: "#d3d3d380",
+      //     backgroundColor: "white",
       //   }}
       // >
       //   <Image
@@ -140,7 +140,7 @@ export const getAgentsListImage = (subAgent, imgHeight, imgWidth, showExtraheigh
           height: "62px",
           width: "62px",
           borderRadius: "50%",
-          backgroundColor: "#d3d3d380",
+          backgroundColor: "white",
           overflow: "hidden", // Ensures no part of the image spills outside the container
         }}
       >
@@ -174,7 +174,7 @@ export const getAgentsListImage = (subAgent, imgHeight, imgWidth, showExtraheigh
             height: "62px",
             width: "62px",
             borderRadius: "50%",
-            backgroundColor: "#d3d3d380",
+            backgroundColor: "white",
           }}
         >
           <Image

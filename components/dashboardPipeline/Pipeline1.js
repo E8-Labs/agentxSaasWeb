@@ -2032,7 +2032,7 @@ const Pipeline1 = () => {
                                 )}
 
                                 <div className="w-full flex flex-row items-center justify-between mt-12">
-                                  {lead.lead.teamsAssigned.length > 0 ? (
+                                  {lead?.lead?.teamsAssigned?.length > 0 ? (
                                     <LeadTeamsAssignedList
                                       users={lead?.lead?.teamsAssigned}
                                       maxVisibleUsers={1}

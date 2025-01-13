@@ -5,11 +5,11 @@ const UserAssignedTeamView = ({ user }) => {
     <div className="flex items-center space-x-1">
       {/* Avatar */}
       <div className="w-6 h-6 bg-purple rounded-full flex items-center justify-center text-white font-bold text-sm">
-        {user.name.charAt(0)}
+        {user?.name?.charAt(0)}
       </div>
 
       {/* User Name */}
-      <span className="text-gray-700 text-sm">{user.name}</span>
+      <span className="text-gray-700 text-sm">{user?.name}</span>
     </div>
   );
 };
