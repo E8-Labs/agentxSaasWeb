@@ -346,10 +346,14 @@ const AddSellerKyc = ({
         setInputs([...inputs, { id: newId, value: '' }]);
     };
 
+    // const handleToggleClick = (id) => {
+    //     console.log("Id passed is", id)
+    //     setToggleClick(prevId => (prevId === id ? null : id))
+    // }
+
     const handleToggleClick = (id) => {
-        console.log("Id passed is", id)
-        setToggleClick(prevId => (prevId === id ? null : id))
-    }
+        setToggleClick((prevId) => (prevId === id ? id : id));
+    };
 
     //code to select question
     const handleSelectNeedKYC = (item) => {
@@ -734,7 +738,7 @@ const AddSellerKyc = ({
 
     return (
         <div style={{ width: "100%" }} className="overflow-y-hidden flex flex-row justify-center items-center">
-            <AgentSelectSnackMessage isVisible={showErrorSnack} hide={()=>setShowErrorSnack(false)} message={showErrorSnack} />
+            <AgentSelectSnackMessage isVisible={showErrorSnack} hide={() => setShowErrorSnack(false)} message={showErrorSnack} />
             <div className='w-full py-4 overflow-auto h-[90%] flex flex-col justify-between'>
                 <div className='h-[62vh]' style={{ scrollbarWidth: "none" }}>
                     {/* header */}
@@ -967,7 +971,7 @@ const AddSellerKyc = ({
 
                                         {/* Error snack bar message */}
                                         <div>
-                                        
+
                                         </div>
 
                                         {/* Can be use full to add shadow */}

@@ -34,6 +34,10 @@ function SheduledCalls() {
   const [showConfirmationPopuup, setShowConfirmationPopup] = useState(null);
   const [color, setColor] = useState(false);
 
+  //variable for showing modal
+  const [extraTagsModal, setExtraTagsModal] = useState(false);
+  const [otherTags, setOtherTags] = useState([]);
+
   useEffect(() => {
     getAgents();
     // getSheduledCallLogs();
@@ -345,6 +349,70 @@ function SheduledCalls() {
 
   return (
     <div className="w-full items-start overflow-hidden">
+      <Popover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClosePopup}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+        }}
+        PaperProps={{
+          elevation: 0, // This will remove the shadow
+          style: {
+            boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
+            borderRadius: "10px",
+            width: "120px",
+          },
+        }}
+      >
+        <div
+          className="p-2 flex flex-col gap-2"
+          style={{ fontWeight: "500", fontSize: 15 }}
+        >
+          <div>
+            {PauseLoader ? (
+              <CircularProgress size={18} />
+            ) : (
+              <button
+                className="text-start outline-none"
+                onClick={() => {
+
+                  if (SelectedItem?.status == "Paused") {
+                    // console.log("Calls are paused")
+                    setColor(true);
+                    setShowConfirmationPopup("resume Calls")
+                  } else {
+                    // console.log("Calls are active")
+                    setShowConfirmationPopup("pause Calls")
+                    setColor(false);
+                  }
+                  console.log("Cha")
+                }}
+              >
+                {SelectedItem?.status == "Paused"
+                  ? "Run Calls"
+                  : "Pause Calls"}
+              </button>
+            )}
+          </div>
+
+          <button
+            className="text-start outline-none"
+            onClick={() => {
+              handleShowDetails();
+            }}
+          >
+            View Details
+          </button>
+          {/* <div className="text-red">Delete</div> */}
+        </div>
+      </Popover>
       {/* Confirmation popup */}
       {showConfirmationPopuup && (
         <ShowConfirmationPopup
@@ -358,33 +426,6 @@ function SheduledCalls() {
       )}
 
       <div className="flex w-full pl-10 flex-row items-start gap-3 overflow-hidden">
-        {/* <div className="flex w-3/12 items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm">
-          <input
-            type="text"
-            placeholder="Search by name, email or phone"
-            className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0"
-            value={searchValue}
-            onChange={(e) => {
-              const value = e.target.value;
-              handleSearchChange(value);
-              setSearchValue(e.target.value);
-            }}
-          />
-          <img
-            src={"/otherAssets/searchIcon.png"}
-            alt="Search"
-            width={20}
-            height={20}
-          />
-        </div> */}
-
-        {/* <button>
-                    <Image src={'/otherAssets/filterBtn.png'}
-                        height={36}
-                        width={36}
-                        alt='Search'
-                    />
-                </button> */}
       </div>
 
       <div className="w-full flex flex-row justify-between mt-10 px-10">
@@ -511,70 +552,6 @@ function SheduledCalls() {
                                       alt="icon"
                                     />
                                   </button>
-                                  <Popover
-                                    id={id}
-                                    open={open}
-                                    anchorEl={anchorEl}
-                                    onClose={handleClosePopup}
-                                    anchorOrigin={{
-                                      vertical: "bottom",
-                                      horizontal: "right",
-                                    }}
-                                    transformOrigin={{
-                                      vertical: "top",
-                                      horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
-                                    }}
-                                    PaperProps={{
-                                      elevation: 0, // This will remove the shadow
-                                      style: {
-                                        boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
-                                        borderRadius: "10px",
-                                        width: "120px",
-                                      },
-                                    }}
-                                  >
-                                    <div
-                                      className="p-2 flex flex-col gap-2"
-                                      style={{ fontWeight: "500", fontSize: 15 }}
-                                    >
-                                      <div>
-                                        {PauseLoader ? (
-                                          <CircularProgress size={18} />
-                                        ) : (
-                                          <button
-                                            className="text-start outline-none"
-                                            onClick={() => {
-
-                                              if (SelectedItem?.status == "Paused") {
-                                                // console.log("Calls are paused")
-                                                setColor(true);
-                                                setShowConfirmationPopup("resume Calls")
-                                              } else {
-                                                // console.log("Calls are active")
-                                                setShowConfirmationPopup("pause Calls")
-                                                setColor(false);
-                                              }
-                                              console.log("Cha")
-                                            }}
-                                          >
-                                            {SelectedItem?.status == "Paused"
-                                              ? "Run Calls"
-                                              : "Pause Calls"}
-                                          </button>
-                                        )}
-                                      </div>
-
-                                      <button
-                                        className="text-start outline-none"
-                                        onClick={() => {
-                                          handleShowDetails();
-                                        }}
-                                      >
-                                        View Details
-                                      </button>
-                                      {/* <div className="text-red">Delete</div> */}
-                                    </div>
-                                  </Popover>
                                 </div>
                               </div>
                             </div>
@@ -608,10 +585,10 @@ function SheduledCalls() {
         }}
       >
         <Box
-          className="sm:w-10/12 lg:w-10/12 xl:w-8/12 w-11/12 max-h-[70vh]"
+          className="sm:w-10/12 lg:w-10/12 xl:w-8/12 w-11/12"
           sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
         >
-          <div className="flex flex-row justify-center w-full">
+          <div className="flex flex-row justify-center w-full max-h-[80svh]">
             <div
               className="sm:w-10/12 w-full"
               style={{
@@ -650,7 +627,7 @@ function SheduledCalls() {
                     <div className="flex w-full items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm mt-6">
                       <input
                         type="text"
-                        placeholder="Search by name, email or phone"
+                        placeholder="Search by name or phone"  //, email
                         className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0"
                         value={detailsFilterSearchValue}
                         onChange={(e) => {
@@ -683,7 +660,12 @@ function SheduledCalls() {
                     </div>
 
                     {sheduledCalllogs.length > 0 ? (
-                      <div className="w-full">
+                      <div
+                        className="w-full max-h[92%] overflow-auto"
+                        style={{
+                          scrollbarWidth: "none"
+                        }}
+                      >
                         {filteredSheduledCalllogs.map((item, index) => {
                           return (
                             <div
@@ -726,7 +708,7 @@ function SheduledCalls() {
                                         return (
                                           <div
                                             key={index}
-                                            className="bg-[#1C55FF10] text-[#1C55FF] p-2 rounded"
+                                            className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg text-purple"
                                           >
                                             {tag}
                                           </div>
@@ -737,15 +719,20 @@ function SheduledCalls() {
                                     "-"
                                   )
                                   }
-                                  {item?.tags?.length > 2 && (
+                                  {item?.tags?.length > 1 && (
                                     <div
                                       key={index}
+                                      className="text-purple underline cursor-pointer"
                                       style={{
                                         fontWeight: "500",
                                         fontSize: 13,
                                       }}
+                                      onClick={() => {
+                                        setExtraTagsModal(true);
+                                        setOtherTags(item?.tags);
+                                      }}
                                     >
-                                      {item.tags.length - 2}
+                                      {item.tags.length - 1}
                                     </div>
                                   )}
                                 </div>
@@ -784,12 +771,12 @@ function SheduledCalls() {
         }}
       >
         <Box
-          className="sm:w-10/12 lg:w-10/12 xl:w-8/12 w-11/12 max-h-[70vh]"
+          className="sm:w-10/12 lg:w-10/12 xl:w-8/12 w-11/12"
           sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
         >
-          <div className="flex flex-row justify-center w-full">
+          <div className="flex flex-row justify-center w-full h-[80vh]">
             <div
-              className="sm:w-10/12 w-full"
+              className="sm:w-10/12 w-full h-[100%] overflow-none"
               style={{
                 backgroundColor: "#ffffff",
                 padding: 20,
@@ -820,7 +807,12 @@ function SheduledCalls() {
                   />
                 </button>
               </div>
-              <div>
+              <div
+                className="max-h-[92%] overflow-auto"
+                style={{
+                  scrollbarWidth: "none"
+                }}
+              >
                 {AgentCallLogLoader ? (
                   <div className="flex flex-row items-center justify-center h-full">
                     <CircularProgress size={35} />
@@ -898,22 +890,41 @@ function SheduledCalls() {
                                 <div className="w-3/12 truncate">
                                   {item?.address}
                                 </div>
-                                <div className="w-2/12 truncate flex flex-row gap-1">
-                                  {item.tags.slice(0, 2).map((tag, index) => {
-                                    return (
-                                      <div
-                                        key={index}
-                                        className="bg-[#1C55FF10] text-[#1C55FF] rounded p-2"
-                                      >
-                                        {tag}
+                                <div className="w-2/12">
+                                  {
+                                    item.tags.length > 0 ? (
+                                      <div className="w-full truncate flex flex-row items-center gap-1">
+                                        {item.tags.slice(0, 1).map((tag, index) => {
+                                          return (
+                                            <div
+                                              key={index}
+                                              // className="bg-[#1C55FF10] text-[#1C55FF] rounded p-2"
+                                              className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg text-purple"
+                                            >
+                                              {tag}
+                                            </div>
+                                          );
+                                        })}
+                                        {item.tags.length > 1 && (
+                                          <div
+                                            className="text-purple underline cursor-pointer"
+                                            onClick={() => {
+                                              setExtraTagsModal(true);
+                                              setOtherTags(item.tags);
+                                            }}
+                                          >
+                                            +{item.tags.length - 1}
+                                          </div>
+                                        )}
                                       </div>
-                                    );
-                                  })}
-                                  {item.tags.length > 2 && (
-                                    <div>+{item.tags.length - 2}</div>
-                                  )}
+                                    ) : (
+                                      "-"
+                                    )
+                                  }
                                 </div>
-                                <div className="w-2/12 truncate">Scheduled</div>
+                                <div className="w-2/12 truncate">
+                                  {SelectedItem?.status}
+                                </div>
                               </div>
                             </div>
                           );
@@ -931,6 +942,98 @@ function SheduledCalls() {
           </div>
         </Box>
       </Modal>
+
+      {/* Modal for All Tags */}
+      <Modal
+        open={extraTagsModal}
+        onClose={() => setExtraTagsModal(false)}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(20px)",
+          },
+        }}
+      >
+        <Box
+          className="lg:w-3/12 sm:w-full w-4/12"
+          sx={styles.modalsStyle}
+        >
+          <div className="flex flex-row justify-center w-full">
+            <div
+              className="sm:w-full w-full"
+              style={{
+                backgroundColor: "#ffffff",
+                padding: 20,
+                borderRadius: "13px",
+              }}
+            >
+              <div className="w-full flex items-center justify-between">
+                <div
+                  style={{
+                    fontsize: 15,
+                    fontWeight: "600",
+                  }}
+                >
+                  Other Tags
+                </div>
+                <div>
+                  <button
+                    onClick={() => {
+                      setExtraTagsModal(false);
+                    }}
+                  >
+                    <Image
+                      src={"/assets/blackBgCross.png"}
+                      height={20}
+                      width={20}
+                      alt="*"
+                    />
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-row items-center gap-4 flex-wrap mt-2">
+                {otherTags?.map((tag, index) => {
+                  return (
+                    <div
+                      key={index}
+                      className="flex flex-row items-center gap-2"
+                    >
+                      <div className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg">
+                        <div
+                          className="text-purple" //1C55FF10
+                        >
+                          {tag}
+                        </div>
+                        {/* {DelTagLoader &&
+                          tag.includes(DelTagLoader) ? (
+                          <div>
+                            <CircularProgress size={15} />
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              handleDelTag(tag);
+                            }}
+                          >
+                            <X
+                              size={15}
+                              weight="bold"
+                              color="#7902DF"
+                            />
+                          </button>
+                        )} */}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </Box>
+      </Modal>
+
     </div>
   );
 }

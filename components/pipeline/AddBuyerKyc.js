@@ -324,9 +324,12 @@ const AddBuyerKyc = ({
         setInputs([...inputs, { id: newId, value: '' }]);
     };
 
+    // const handleToggleClick = (id) => {
+    //     setToggleClick(prevId => (prevId === id ? null : id))
+    // }
     const handleToggleClick = (id) => {
-        setToggleClick(prevId => (prevId === id ? null : id))
-    }
+        setToggleClick((prevId) => (prevId === id ? id : id));
+    };
 
     //code to select question
     const handleSelectNeedKYC = (item) => {

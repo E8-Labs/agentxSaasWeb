@@ -6,7 +6,7 @@ import ProgressBar from '@/components/onboarding/ProgressBar';
 import { useRouter } from 'next/navigation';
 import Footer from '@/components/onboarding/Footer';
 import { Box, FormControl, MenuItem, Modal, Popover, Select, TextField, Typography } from '@mui/material';
-import { CaretDown, CaretUp, DotsThree, Plus } from '@phosphor-icons/react';
+import { ArrowUpRight, CaretDown, CaretUp, DotsThree, Plus } from '@phosphor-icons/react';
 import Apis from '../apis/Apis';
 import axios from 'axios';
 import TagInput from '../test/TagInput';
@@ -688,8 +688,28 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                     </div>
                                 </button>
                             </div>
-                            <div style={{ fontSize: 24, fontWeight: "700" }}>
-                                {AgentDetails?.name} Script
+                            <div
+                                style={{ fontSize: 24, fontWeight: "700" }}
+                                className='flex flex-row items-center center w-full justify-between'
+                            >
+                                <div>
+                                    {AgentDetails?.name} Script
+                                </div>
+                                <div>
+                                    <button
+                                        className='flex flex-row items-center gap-2 h-[43px] rounded-md bg-purple text-white px-4'
+                                        style={{
+                                            fontWeight: "500",
+                                            fontSize: 15
+                                        }}
+                                        onClick={() => {
+                                            window.open("https://www.google.com/url?q=https://chatgpt.com/g/g-0O0jItKdk-agentx-script-builder&sa=D&source=docs&ust=1736727664686727&usg=AOvVaw3gT9iletUxbxgJ4hPXXIj9", "_blank")
+                                        }}
+                                    >
+                                        User Script Builder
+                                        <ArrowUpRight size={20} color='white' />
+                                    </button>
+                                </div>
                             </div>
                             <div style={styles.headingStyle}>
                                 Greeting

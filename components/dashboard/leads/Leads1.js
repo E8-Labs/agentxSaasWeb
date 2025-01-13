@@ -947,8 +947,8 @@ const Leads1 = () => {
               />
             </div>
           ) : (
-            <div>
-              <div className="flex flex-row items-center justify-center w-full">
+            <div className="h-screen">
+              <div className="flex flex-row items-start justify-center mt-48 w-full">
                 <Image
                   src={"/assets/placeholder.png"}
                   height={145}

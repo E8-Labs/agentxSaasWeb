@@ -490,7 +490,7 @@ const BuyerKycs = ({ handleContinue }) => {
               videoUrl="https://drive.google.com/file/d/1mjcZ9-OIKBv44-eeOa2TrippR5h0RfSs/view?usp=share_link"
             />
             <div className="flex flex-row w-full justify-center h-[100%]">
-              <div className="hidden lg:inline w-2/12 -ml-4">
+              <div className="hidden lg:inline w-2/12 -ml-4 mt-12">
                 <VideoCard
                   horizontal={false}
                   playVideo={() => {

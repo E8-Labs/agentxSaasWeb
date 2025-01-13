@@ -1554,7 +1554,7 @@ function Page() {
   //code for popover
 
   const handlePopoverOpen = (event, item) => {
-    console.log("Hovered index is", item);
+    // console.log("Hovered index is", item);
     setActionInfoEl(event.currentTarget);
     setHoveredIndexStatus(item.status);
     setHoveredIndexAddress(item.address);
@@ -1712,6 +1712,72 @@ function Page() {
 
   return (
     <div className="w-full flex flex-col items-center">
+      {/* Code for popover */}
+      <Popover
+        id="mouse-over-popover"
+        sx={{
+          pointerEvents: "none",
+          // marginBottom: "20px"
+        }}
+        open={open}
+        anchorEl={actionInfoEl}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+        transformOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        PaperProps={{
+          sx: {
+            width: "fit-content",
+            border: "none",
+            // border: "1px solid #15151520",
+            boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)"
+            // transition: "box-shadow 0.3s ease-in-out", // Smooth transition for shadow
+          },
+        }}
+        onClose={handlePopoverClose}
+        disableRestoreFocus
+      >
+        <div className="p-3 min-w-[250px]">
+          <div className="flex flex-row items-center justify-between gap-1">
+            <p
+              style={{
+                ...styles.paragraph,
+                color: "#00000060",
+              }}
+            >
+              Status
+            </p>
+            <p style={styles.paragraph}>
+              {hoveredIndexStatus ? hoveredIndexStatus : "-"}
+            </p>
+          </div>
+          <div className="flex flex-row items-center justify-between mt-1 gap-1">
+            <p
+              style={{
+                ...styles.paragraph,
+                color: "#00000060",
+              }}
+            >
+              Address
+            </p>
+            <div style={styles.paragraph}>
+              {hoveredIndexAddress ? (
+                <div>
+                  {hoveredIndexAddress.length > 15
+                    ? hoveredIndexAddress.slice(0, 15) + "..."
+                    : hoveredIndexAddress}
+                </div>
+              ) : (
+                "-"
+              )}
+            </div>
+          </div>
+        </div>
+      </Popover>
       {/* Global snack */}
       {/* Success snack bar */}
       <div>
@@ -1842,8 +1908,8 @@ function Page() {
                             aria-owns={open ? "mouse-over-popover" : undefined}
                             aria-haspopup="true"
                             onMouseEnter={(event) => {
-                              console.log("Agent hovered is", item.agentObjective);
-                              if (item.agentObjective === "Community update") {
+                              console.log("Agent hovered is", item.agentObjectiveId);
+                              if (item.agentObjectiveId === 3) {
                                 handlePopoverOpen(event, item);
                               }
                             }}
@@ -1859,98 +1925,6 @@ function Page() {
                           </div>
                         </div>
 
-                        {/* Code for popover */}
-                        {/* <Popover
-                          id="mouse-over-popover"
-                          sx={{
-                            pointerEvents: "none",
-                            // marginBottom: "20px"
-                          }}
-                          open={open}
-                          anchorEl={actionInfoEl}
-                          anchorOrigin={{
-                            vertical: "top",
-                            horizontal: "center",
-                          }}
-                          transformOrigin={{
-                            vertical: "bottom",
-                            horizontal: "center",
-                          }}
-                          PaperProps={{
-                            style: {
-                              width: "fit-content",
-                            },
-                          }}
-                          onClose={handlePopoverClose}
-                          disableRestoreFocus
-                        > */}
-                        <Popover
-                          id="mouse-over-popover"
-                          sx={{
-                            pointerEvents: "none",
-                            // marginBottom: "20px"
-                          }}
-                          open={open}
-                          anchorEl={actionInfoEl}
-                          anchorOrigin={{
-                            vertical: "top",
-                            horizontal: "center",
-                          }}
-                          transformOrigin={{
-                            vertical: "bottom",
-                            horizontal: "center",
-                          }}
-                          PaperProps={{
-                            sx: {
-                              width: "fit-content",
-                              border: "none",
-                              // border: "1px solid #15151520",
-                              boxShadow: open
-                                ? "0px 2px 6px rgba(0, 0, 0, 0)"
-                                : "0px 0px 0px rgba(0, 0, 0, 0)",
-                              // transition: "box-shadow 0.3s ease-in-out", // Smooth transition for shadow
-                            },
-                          }}
-                          onClose={handlePopoverClose}
-                          disableRestoreFocus
-                        >
-                          <div className="p-3 min-w-[250px]">
-                            <div className="flex flex-row items-center justify-between gap-1">
-                              <p
-                                style={{
-                                  ...styles.paragraph,
-                                  color: "#00000060",
-                                }}
-                              >
-                                Status
-                              </p>
-                              <p style={styles.paragraph}>
-                                {hoveredIndexStatus ? hoveredIndexStatus : "-"}
-                              </p>
-                            </div>
-                            <div className="flex flex-row items-center justify-between mt-1 gap-1">
-                              <p
-                                style={{
-                                  ...styles.paragraph,
-                                  color: "#00000060",
-                                }}
-                              >
-                                Address
-                              </p>
-                              <div style={styles.paragraph}>
-                                {hoveredIndexAddress ? (
-                                  <div>
-                                    {hoveredIndexAddress.length > 15
-                                      ? hoveredIndexAddress.slice(0, 15) + "..."
-                                      : hoveredIndexAddress}
-                                  </div>
-                                ) : (
-                                  "-"
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </Popover>
                       </div>
                       <div
                         className="flex flex-row gap-3 items-center text-purple"

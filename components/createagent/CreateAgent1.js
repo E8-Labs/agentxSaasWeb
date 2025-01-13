@@ -167,11 +167,20 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     {
       id: 5,
       icon: "",
-      title: "Agent Recruiting",
+      title: "Recruiting Agent",
       details:
         "Identify, engage, and attract potential real estate agents to expand your team with top talent. Recruit new agents to your team.",
       focusIcn: "/svgIcons/obj5RAF.svg",
       unFocusIcon: "/svgIcons/obj5RAU.svg",
+    },
+    {
+      id: 7,
+      icon: "",
+      title: "Receptionist",
+      details:
+        "Greet clients, manage appointments, and ensure smooth office operations. Provide front-desk support for incoming calls.",
+      focusIcn: "/svgIcons/reciptionistFC.svg",
+      unFocusIcon: "/svgIcons/reciptionistUFC.svg",
     },
     {
       id: 6,
@@ -179,7 +188,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       title: "Expired Listing",
       details:
         "Connect with homeowners whose listings have expired to understand their needs and offer solutions. Help relist their property and guide them toward a successful sale.",
-      focusIcn: "/svgIcons/obj5F.svg",
+      focusIcn: "/svgIcons/obj6FOCUS.svg",
       unFocusIcon: "/svgIcons/obj6ELU.svg",
     },
     {
@@ -881,12 +890,12 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                       placeholder="Type here ..."
                       value={addressValue}
                       readOnly={true}
-                      // disabled={true}
-                      // onChange={(evt) => {
-                      //   setAddressValue(evt.target.value); // Update input field value
-                      //   // getPlacePredictions({ input: evt.target.value });
-                      //   // setShowDropdown(true); // Show dropdown on input
-                      // }}
+                    // disabled={true}
+                    // onChange={(evt) => {
+                    //   setAddressValue(evt.target.value); // Update input field value
+                    //   // getPlacePredictions({ input: evt.target.value });
+                    //   // setShowDropdown(true); // Show dropdown on input
+                    // }}
                     />
                   </div>
                 </div>

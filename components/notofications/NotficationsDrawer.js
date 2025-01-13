@@ -515,7 +515,7 @@ function NotficationsDrawer({ close }) {
         anchor="right"
         sx={{
           "& .MuiDrawer-paper": {
-            width: "30%", // Drawer width
+            width: "35%", // Drawer width
             boxSizing: "border-box", // Ensure padding doesn't shrink content
           },
         }}

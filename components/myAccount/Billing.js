@@ -438,7 +438,7 @@ function Billing() {
           setTogglePlan(null);
           setCurrentPlan(null);
           setShowConfirmCancelPlanPopup2(true);
-          setSuccessSnack("Your plan was successfully downgraded");
+          setSuccessSnack("Your plan was successfully cancelled");
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
         }
@@ -492,10 +492,16 @@ function Billing() {
           } else if (togglePlan === "Plan720") {
             planType = 4;
           }
+          setUserLocalData(response2?.data?.data);
+          setGiftPopup(false);
           setTogglePlan(planType);
           setCurrentPlan(planType);
+          if(response2.data.status === true){
+            setSuccessSnack("You've claimed an extra 30 mins");
+          }else if(response2.data.status === false){
+            setErrorSnack(response2.data.message);
+          }
         }
-        setGiftPopup(false);
       }
     } catch (error) {
       console.error("Error occurd in api is", error);
@@ -537,6 +543,7 @@ function Billing() {
           setErrorSnack(null);
         }}
         message={errorSnack}
+        type={SnackbarTypes.Error}
       />
       <AgentSelectSnackMessage
         isVisible={successSnack == null ? false : true}

@@ -13,15 +13,25 @@ export const getAgentImage = (item) => {
     // Check for thumb_profile_image
     if (subAgent.thumb_profile_image) {
       return (
-        <div className="bg-gray-100 rounded-full flex flex-row items-center justify-center">
-          <Image
-            src={subAgent.thumb_profile_image}
-            height={42}
-            width={42}
+        <div
+          className="flex flex-row items-center justify-center"
+          style={{
+            height: "62px",
+            width: "62px",
+            borderRadius: "50%",
+            backgroundColor: "#d3d3d380",
+            overflow: "hidden", // Ensures no part of the image spills outside the container
+          }}
+        >
+          <img
+            src={subAgent?.thumb_profile_image}
             alt="*"
             className="rounded-full"
             style={{
-              margin: "18px",
+              height: "100%",        // Makes the image fill the height of the container
+              width: "100%",         // Makes the image fill the width of the container
+              objectFit: "cover",    // Ensures the image fully covers the container without empty space
+              // backgroundColor: 'red' // Optional fallback background color
             }}
           />
         </div>
@@ -35,18 +45,28 @@ export const getAgentImage = (item) => {
       );
       if (selectedVoice && selectedVoice.img) {
         return (
-          <div className="bg-gray-100 rounded-full flex flex-row items-center justify-center">
-            <Image
-              src={selectedVoice.img}
-              height={42}
-              width={42}
-              alt="*"
-              className="rounded-full"
-              style={{
-                margin: "5px",
-              }}
-            />
-          </div>
+          <div
+          className="flex flex-row items-center justify-center"
+          style={{
+            height: "62px",
+            width: "62px",
+            borderRadius: "50%",
+            backgroundColor: "#d3d3d380",
+          }}
+        >
+          <Image
+            src={selectedVoice.img}
+            height={62}
+            width={62}
+            alt="*"
+            className="rounded-full"
+            style={
+              {
+                // margin: "5px"
+              }
+            }
+          />
+        </div>
         );
       }
     }
@@ -79,30 +99,64 @@ export const getAgentsListImage = (subAgent, imgHeight, imgWidth, showExtraheigh
   // console.log("Height is", imgHeight);
   // console.log("Width is", imgWidth);
 
-  console.log("Extra height is")
 
   let height = imgHeight || 62;
   let width = imgWidth || 62;
 
+  console.log("Heght is", height);
+  console.log("Heght Width is", width);
+
   if (subAgent?.thumb_profile_image) {
     return (
-      <div className={`bg-gray-100 rounded-full flex flex-row items-center justify-center`}
-      // h-[43px]
+      // <div className={`bg-gray-100 rounded-full flex flex-row items-center justify-center`}>
+      // <div
+      //   className="flex flex-row items-center justify-center"
+      //   style={{
+      //     height: "62px",
+      //     width: "62px",
+      //     borderRadius: "50%",
+      //     backgroundColor: "#d3d3d380",
+      //   }}
+      // >
+      //   <Image
+      //     src={subAgent?.thumb_profile_image}
+      //     height={height}
+      //     width={width}
+      //     alt="*"
+      //     className="rounded-full"
+      //     style={{
+      //       height: "100%",
+      //       width: "100%",
+      //       objectFit: "contain",
+      //       // resize: "cover",
+      //       backgroundColor: 'red'
+      //       // margin: "8px"
+      //     }}
+      //   />
+      // </div>
+      <div
+        className="flex flex-row items-center justify-center"
+        style={{
+          height: "62px",
+          width: "62px",
+          borderRadius: "50%",
+          backgroundColor: "#d3d3d380",
+          overflow: "hidden", // Ensures no part of the image spills outside the container
+        }}
       >
-        <Image
+        <img
           src={subAgent?.thumb_profile_image}
-          height={height}
-          width={width}
           alt="*"
           className="rounded-full"
           style={{
-            height: "",
-            width: "",
-            objectFit: "cover",
-            // margin: "8px"
+            height: "100%",        // Makes the image fill the height of the container
+            width: "100%",         // Makes the image fill the width of the container
+            objectFit: "cover",    // Ensures the image fully covers the container without empty space
+            // backgroundColor: 'red' // Optional fallback background color
           }}
         />
       </div>
+
     );
   }
 
@@ -113,7 +167,16 @@ export const getAgentsListImage = (subAgent, imgHeight, imgWidth, showExtraheigh
     );
     if (selectedVoice && selectedVoice.img) {
       return (
-        <div className="bg-gray-100 rounded-full h-[43px] flex flex-row items-center justify-center">
+        // <div className="bg-white rounded-full h-[43px] flex flex-row items-center justify-center">
+        <div
+          className="flex flex-row items-center justify-center"
+          style={{
+            height: "62px",
+            width: "62px",
+            borderRadius: "50%",
+            backgroundColor: "#d3d3d380",
+          }}
+        >
           <Image
             src={selectedVoice.img}
             height={height}
