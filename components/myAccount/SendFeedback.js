@@ -1,13 +1,81 @@
 import React, { useState } from 'react'
 import Image from 'next/image'
+import Apis from '../apis/Apis';
+import axios from 'axios';
+import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage';
+import { CircularProgress } from '@mui/material';
 
 function SendFeedback() {
 
     const [feedbackTitle, setFeedbackTitle] = useState("");
     const [feedbackDescription, setFeedbackDescription] = useState("");
 
+    //feedback extra variables
+    const [snackMsg, setSnackMsg] = useState(null);
+    const [errType, setErrType] = useState(null);
+    const [feedBackLoader, setFeedBackLoader] = useState(false);
+
+    //function to handle send feed back
+    const handleSendFeedBack = async () => {
+        try {
+            setFeedBackLoader(true);
+            const localdata = localStorage.getItem("User");
+            let AuthToken = null;
+            if (localdata) {
+                const D = JSON.parse(localdata);
+                AuthToken = D.token;
+            }
+
+            const ApiData = {
+                title: feedbackTitle,
+                feedback: feedbackDescription
+            }
+
+            console.log("ApiData is", ApiData);
+
+            const ApiPath = Apis.sendFeedbback;
+            console.log("Apipath is", ApiPath);
+
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + AuthToken,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of api is", response);
+                if (response.data.status === true) {
+                    setFeedbackTitle("");
+                    setFeedbackDescription("");
+                    setSnackMsg("Feedback sent");
+                    setErrType(SnackbarTypes.Success);
+                } else if (response.data.status === false) {
+                    setSnackMsg(response.data.message);
+                    setErrType(SnackbarTypes.Error);
+                }
+            }
+
+        } catch (error) {
+            console.error("Error occuredd in api is", error);
+            setFeedBackLoader(false);
+        } finally {
+            setFeedBackLoader(false);
+            console.log("Send feedback done")
+        }
+    }
+
     return (
         <div className='w-full flex flex-col items-start px-8 py-2' style={{ paddingBottom: '50px', height: '100%', overflow: 'auto', scrollbarWidth: 'none' }}>
+
+            <AgentSelectSnackMessage
+                isVisible={snackMsg == null ? false : true}
+                hide={() => {
+                    setSnackMsg(null);
+                }}
+                message={snackMsg}
+                type={errType}
+            />
 
             <div style={{ fontSize: 22, fontWeight: "700", color: '#000' }}>
                 Send Feedback
@@ -61,12 +129,34 @@ function SendFeedback() {
                             onChange={(e) => { setFeedbackDescription(e.target.value) }}
                         />
 
-
-                        <button style={{ marginTop: 20 }} className='w-full flex bg-purple p-3 rounded-lg items-center justify-center outline-none'>
-                            <div style={{ fontSize: 16, fontWeight: '500', color: '#fff' }}>
-                                Test AI
-                            </div>
-                        </button>
+                        {
+                            feedBackLoader ? (
+                                <div className='w-full flex flex-row items-ceter justify-center mt-10'>
+                                    <CircularProgress size={35} />
+                                </div>
+                            ) : (
+                                <button
+                                    disabled={!feedbackTitle || !feedbackDescription}
+                                    style={{
+                                        marginTop: 20,
+                                        backgroundColor: !feedbackTitle || !feedbackDescription ? "#00000020" : "#7902DF",
+                                    }}
+                                    className='w-full flex p-3 rounded-lg items-center justify-center outline-none'
+                                    onClick={() => {
+                                        handleSendFeedBack()
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            fontSize: 16, fontWeight: '500',
+                                            color: !feedbackTitle || !feedbackDescription ? "#000000" : "white"
+                                        }}>
+                                        {/* Test AI */}
+                                        Send Feedback
+                                    </div>
+                                </button>
+                            )
+                        }
 
 
 

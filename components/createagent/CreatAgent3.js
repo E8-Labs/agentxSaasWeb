@@ -766,9 +766,10 @@ const CreatAgent3 = ({ handleContinue }) => {
                   </button>
                 </div>
                 <div className="text-center mt-2 text-[18px] font-[700] md:text-[24px] md:font-[700]">
-                  {selectedPlan?.id > 1
+                  {/* {selectedPlan?.id > 1
                     ? "Add your payment method." //"Select a plan that fits your needs"
-                    : "Start for Free. Then Pay as you go!"}
+                    : "Start for Free. Then Pay as you go!"} */}
+                  Select a plan that fits your needs
                 </div>
 
                 {selectedPlan?.id > 1 ? (
@@ -795,7 +796,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                     setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp}
                     handleClose={handleClose}
                     togglePlan={togglePlan}
-                    // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>
               </div>

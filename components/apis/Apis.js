@@ -96,7 +96,8 @@ const Apis = {
   AssignLeadToTeam: `${BasePath}api/team/assignLeadToTeam`,
 
   delNumber: `${BasePath}api/agent/deletePhoneNumber`,
-  calcelPlanReason: `${BasePath}api/user/addCancelPlanReason`
+  calcelPlanReason: `${BasePath}api/user/addCancelPlanReason`,
+  sendFeedbback: `${BasePath}api/user/sendFeedback`
 
 };
 
