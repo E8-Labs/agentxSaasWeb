@@ -1150,7 +1150,7 @@ function Billing() {
 
       {/* Modal for Gift popup */}
       <Modal
-        open={!giftPopup}
+        open={giftPopup}
         // open={true}
         closeAfterTransition
         BackdropProps={{
