@@ -15,15 +15,21 @@ export function convertUTCToTimezone(utcTimestamp, timezone = null) {
     .toFormat("yyyy-MM-dd h:mm:ss");
 }
 
-export function GetFormattedDateString(dateString, time = false, RequiredDateFormat = null) {
+export function GetFormattedDateString(
+  dateString,
+  time = false,
+  RequiredDateFormat = null
+) {
   if (typeof dateString == "undefined" || dateString == null) {
     return dateString;
   }
   let formatted = "";
-  console.log("Created At before", dateString);
+  // console.log("Created At before", dateString);
   let dateFormat = RequiredDateFormat ? RequiredDateFormat : "MMM DD, YYYY";
   if (time) {
-    dateFormat = RequiredDateFormat ? RequiredDateFormat : "MMM DD, YYYY h:mm A";
+    dateFormat = RequiredDateFormat
+      ? RequiredDateFormat
+      : "MMM DD, YYYY h:mm A";
   }
   try {
     // Check if the date string ends with "Z" (indicating UTC)
@@ -56,7 +62,7 @@ export function GetFormattedTimeString(dateString) {
     return dateString;
   }
   let formatted = "";
-  console.log("Created At before", dateString);
+  // console.log("Created At before", dateString);
   let dateFormat = "h:mm A";
 
   try {

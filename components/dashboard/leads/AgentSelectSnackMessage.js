@@ -15,9 +15,9 @@ export default function AgentSelectSnackMessage({
   isVisible,
   hide,
 }) {
-  console.log("Visible Snack ", isVisible);
+  // console.log("Visible Snack ", isVisible);
   // console.log("Type passed is ", type);
-  console.log("Message passed is", message);
+  // console.log("Message passed is", message);
   function GetIcon() {
     if (type == SnackbarTypes.Error) {
       return "/assets/salmanassets/danger_conflict.svg";
@@ -37,21 +37,21 @@ export default function AgentSelectSnackMessage({
 
   useEffect(() => {
     if (type) {
-      console.log("Type passed is ", type);
+      // console.log("Type passed is ", type);
     }
   }, [type]);
 
   useEffect(() => {
-    console.log("UseEffect");
+    // console.log("UseEffect");
 
     if (isVisible) {
       let timer = setTimeout(() => {
         // setErrorMessage(null);
-        console.log("Timer hit");
+        // console.log("Timer hit");
         hide();
       }, time);
       return () => {
-        console.log("Clearing timer");
+        // console.log("Clearing timer");
         clearTimeout(timer);
       };
     }
@@ -77,8 +77,10 @@ export default function AgentSelectSnackMessage({
           // display: isVisible ? "flex" : "hidden",
         }}
       >
-
-        <div className="flex items-center space-x-4 p-2 bg-white  rounded-md shadow-md" style={{ width: "fit-content" }}>
+        <div
+          className="flex items-center space-x-4 p-2 bg-white  rounded-md shadow-md"
+          style={{ width: "fit-content" }}
+        >
           {/* Icon Section */}
           <div className="flex-shrink-0">
             <div className="w-10 h-10 flex items-center justify-center bg-red-100 rounded-full">
@@ -89,16 +91,14 @@ export default function AgentSelectSnackMessage({
           {/* Text Section */}
           <div style={{ width: "fit-content" }}>
             {/* {title && ( */}
-            <h3
-              className="text-lg font-semibold text-gray-900"
-            >
+            <h3 className="text-lg font-semibold text-gray-900">
               {title || message}
             </h3>
             {/* // )} */}
             <p
               className={`${!title ? "text-lg" : "text-sm"} text-gray-600`}
               style={{
-                fontWeight: !title ? "600" : "500"
+                fontWeight: !title ? "600" : "500",
               }}
             >
               {title && message}

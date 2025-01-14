@@ -98,8 +98,7 @@ const Apis = {
   delNumber: `${BasePath}api/agent/deletePhoneNumber`,
   calcelPlanReason: `${BasePath}api/user/addCancelPlanReason`,
   sendFeedbback: `${BasePath}api/user/sendFeedback`,
-  getAiNot: `${BasePath}/api/agent/sendTestAiNotification`
-
+  getAiNot: `${BasePath}/api/agent/sendTestAiNotification`,
 };
 
 export default Apis;

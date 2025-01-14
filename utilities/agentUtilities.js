@@ -29,9 +29,9 @@ export const getAgentImage = (item) => {
             alt="*"
             className="rounded-full"
             style={{
-              height: "100%",        // Makes the image fill the height of the container
-              width: "100%",         // Makes the image fill the width of the container
-              objectFit: "cover",    // Ensures the image fully covers the container without empty space
+              height: "100%", // Makes the image fill the height of the container
+              width: "100%", // Makes the image fill the width of the container
+              objectFit: "cover", // Ensures the image fully covers the container without empty space
               // backgroundColor: 'red' // Optional fallback background color
             }}
           />
@@ -91,8 +91,13 @@ export const getAgentImage = (item) => {
   );
 };
 
-export const getAgentsListImage = (subAgent, imgHeight, imgWidth, showExtraheight = true) => {
-  // console.log("Item passed is", subAgent);
+export const getAgentsListImage = (
+  subAgent,
+  imgHeight,
+  imgWidth,
+  showExtraheight = true
+) => {
+  // console.log("Get image from agent ", subAgent);
 
   // Extract subagents
   // const subagents = item.agents || [];
@@ -101,12 +106,11 @@ export const getAgentsListImage = (subAgent, imgHeight, imgWidth, showExtraheigh
   // console.log("Height is", imgHeight);
   // console.log("Width is", imgWidth);
 
-
   let height = imgHeight || 62;
   let width = imgWidth || 62;
 
-  console.log("Heght is", height);
-  console.log("Heght Width is", width);
+  // console.log("Heght is", height);
+  // console.log("Heght Width is", width);
 
   if (subAgent?.thumb_profile_image) {
     return (
@@ -125,14 +129,13 @@ export const getAgentsListImage = (subAgent, imgHeight, imgWidth, showExtraheigh
           alt="*"
           className="rounded-full"
           style={{
-            height: "100%",        // Makes the image fill the height of the container
-            width: "100%",         // Makes the image fill the width of the container
-            objectFit: "cover",    // Ensures the image fully covers the container without empty space
+            height: "100%", // Makes the image fill the height of the container
+            width: "100%", // Makes the image fill the width of the container
+            objectFit: "cover", // Ensures the image fully covers the container without empty space
             // backgroundColor: 'red' // Optional fallback background color
           }}
         />
       </div>
-
     );
   }
 
@@ -141,7 +144,7 @@ export const getAgentsListImage = (subAgent, imgHeight, imgWidth, showExtraheigh
     const selectedVoice = voicesList.find(
       (voice) => voice.voice_id === subAgent.voiceId
     );
-    console.log("Selected voice is", selectedVoice);
+    // console.log("Selected voice is", selectedVoice);
     if (selectedVoice && selectedVoice.img) {
       return (
         // <div className="bg-white rounded-full h-[43px] flex flex-row items-center justify-center">
@@ -173,15 +176,13 @@ export const getAgentsListImage = (subAgent, imgHeight, imgWidth, showExtraheigh
 
   // Fallback image
   return (
-    <div className={`h-[${height}] w-[${width}] rounded-full flex flex-row items-center justify-center`}>
+    <div
+      className={`h-[${height}] w-[${width}] rounded-full flex flex-row items-center justify-center`}
+    >
       <Image src="/agentXOrb.gif" height={height} width={width} alt="*" />
     </div>
   );
 };
-
-
-
-
 
 //format the phonenumber
 
@@ -227,12 +228,6 @@ export const formatPhoneNumber = (rawNumber) => {
   return "No phone number";
 };
 
-
-
-
-
-
-
 ////agent profile image
 export const getAgentProfileImage = (subAgent) => {
   // console.log("Item passed is", item);
@@ -257,9 +252,9 @@ export const getAgentProfileImage = (subAgent) => {
           alt="*"
           className="rounded-full"
           style={{
-            height: "100%",        // Makes the image fill the height of the container
-            width: "100%",         // Makes the image fill the width of the container
-            objectFit: "cover",    // Ensures the image fully covers the container without empty space
+            height: "100%", // Makes the image fill the height of the container
+            width: "100%", // Makes the image fill the width of the container
+            objectFit: "cover", // Ensures the image fully covers the container without empty space
             // backgroundColor: 'red' // Optional fallback background color
           }}
         />

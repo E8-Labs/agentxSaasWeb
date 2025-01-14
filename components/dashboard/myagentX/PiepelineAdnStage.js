@@ -5,7 +5,7 @@ import axios from "axios";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
-const PipelineAndStage = ({ selectedAgent, UserPipeline }) => {
+const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
   const [expandedStages, setExpandedStages] = useState([]);
   const [StagesList, setStagesList] = useState([
     { id: 1, title: "s1", description: "Testing the stage1" },
@@ -117,7 +117,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline }) => {
           {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
         </div>
         <div style={styles.paragraph}>
-          {UserPipeline?.title ? UserPipeline?.title : "-"}
+          {mainAgent?.pipeline?.title ? mainAgent?.pipeline?.title : "-"}
         </div>
       </div>
 

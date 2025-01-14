@@ -47,7 +47,6 @@ import {
 } from "@/utilities/agentUtilities";
 import { getLocalLocation } from "@/components/onboarding/services/apisServices/ApiService";
 import ClaimNumber from "@/components/dashboard/myagentX/ClaimNumber";
-import { PersistanceKeys } from "@/constants/Constants";
 
 function Page() {
   const timerRef = useRef();
@@ -69,7 +68,7 @@ function Page() {
   //calender details of selected agent
   const [calendarDetails, setCalendarDetails] = useState(null);
   const [activeTab, setActiveTab] = useState("Agent Info");
-  const [mainAgentsList, setMainAgentsList] = useState([]);
+  const [userAgentsList, setUserAgentsList] = useState([]);
   const [agentData, setAgentData] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
 
@@ -167,7 +166,7 @@ function Page() {
   //variable for input field value
   const [inputValues, setInputValues] = useState({});
   //code for storing the agents data
-  const [agentsListSeparated, setAgentsListSeparated] = useState([]); //agentsListSeparated: Inbound and outbound separated. Api gives is under one main agent
+  const [agentsContent, setAgentsContent] = useState([]);
   const [actionInfoEl, setActionInfoEl] = React.useState(null);
   const [hoveredIndexStatus, setHoveredIndexStatus] = useState(null);
   const [hoveredIndexAddress, setHoveredIndexAddress] = useState(null);
@@ -377,9 +376,7 @@ function Page() {
         console.log("Response of update agent api is", response);
 
         if (response.data.status === true) {
-          const localAgentsList = localStorage.getItem(
-            PersistanceKeys.LocalStoredAgentsListMain
-          );
+          const localAgentsList = localStorage.getItem("localAgentDetails");
 
           if (localAgentsList) {
             const agentsList = JSON.parse(localAgentsList);
@@ -419,10 +416,10 @@ function Page() {
 
             console.log("Updated agents list array is", updatedArray);
             localStorage.setItem(
-              PersistanceKeys.LocalStoredAgentsListMain,
+              "localAgentDetails",
               JSON.stringify(updatedArray)
             );
-            setMainAgentsList(updatedArray);
+            setUserAgentsList(updatedArray);
             // agentsListDetails = updatedArray
           }
         } else if (response.data.status === false) {
@@ -442,9 +439,11 @@ function Page() {
     setAssignNumber(item?.phoneNumber);
     setSelectedVoice(item?.voiceId);
     setVoicesList([voicesList]);
+    // let comparedAgent = null;
+    //console.log("Main agents list is:", userDetails);
 
-    const comparedAgent = mainAgentsList.find((mainAgent) =>
-      mainAgent.agents.some((subAgent) => subAgent.id === item.id)
+    const comparedAgent = userAgentsList.find((prevAgent) =>
+      prevAgent.agents.some((subAgent) => subAgent.id === item.id)
     );
     //console.log("Agent selected details are", comparedAgent);
 
@@ -616,56 +615,37 @@ function Page() {
         setShowDrawerSelectedAgent((prev) => {
           return { ...prev, phoneNumber: item.phoneNumber };
         });
+        //Update the selected number agents also
 
-        const localAgentsList = localStorage.getItem(
-          PersistanceKeys.LocalStoredAgentsListMain
-        );
+        //check jo add karna hy us mein kia karna hyy k api ka response console karwao aur us k badus k response ko examine karo
 
-        if (localAgentsList) {
-          const mainAgentsList = JSON.parse(localAgentsList);
-          let mainAgents = []; //Main agents not subagents list
+        //you will get 2 agents from api then 1 wo agnt 2 jis ko assign karwana hy agnt 1 jis ko null karna hy
 
-          for (let mainAgent of mainAgentsList) {
-            let subAgents = mainAgent.agents;
-            let newAgents = [];
-            for (let ag of subAgents) {
-              if (ag.phoneNumber == item.phoneNumber) {
-                if (ag.agentType == "inbound") {
-                  ag.phoneNumber = "";
-                  console.log("Removing phone number from ", ag.name);
-                }
-              } else {
-                if (ag.id == showDrawerSelectedAgent.id) {
-                  ag.phoneNumber = item.phoneNumber;
-                  console.log("Assigning phone number to ", ag.name);
-                }
-              }
-              newAgents.push(ag);
-            }
-            mainAgent.agents = newAgents;
-            mainAgents.push(mainAgent);
-          }
-          setMainAgentsList(mainAgents);
-          localStorage.setItem(
-            PersistanceKeys.LocalStoredAgentsListMain,
-            JSON.stringify(mainAgents)
-          );
-        }
-        setShowConfirmationModal(null);
-        // setShowDrawer(null);
+        // setAgentsContent((prevAgents) =>
+        //   prevAgents.map((agent) =>
+        //     agent.id === response.data.data.agent2.id
+        //       ? {
+        //         ...agent,
+        //         phoneNumber: response.data.data.agent2.phoneNumber.slice(1),
+        //       }
+        //       : agent
+        //   )
+        // );
 
-        //code to close the dropdown
-        if (selectRef.current) {
-          selectRef.current.blur(); // Triggers dropdown close
-        }
-        return;
+        // setAgentsContent((prevAgents) =>
+        //   prevAgents.map((agent) =>
+        //     agent.id === response.data.data.agent1.id
+        //       ? { ...agent, phoneNumber: response.data.data.agent1.phoneNumber }
+        //       : agent
+        //   )
+        // );
 
         // Update the agent's phone number and ensure no other agents have the same phone number
-        console.log("Agents Content is ", agentsListSeparated);
+        console.log("Agents Content is ", agentsContent);
         let agents = [];
         let mainAgents = []; //Main agents not subagents list
 
-        for (let ag of agentsListSeparated) {
+        for (let ag of agentsContent) {
           if (ag.phoneNumber == item.phoneNumber) {
             if (ag.agentType == "inbound") {
               ag.phoneNumber = "";
@@ -680,13 +660,79 @@ function Page() {
           agents.push(ag);
         }
         console.log("Total agents after updating ", agents.length);
-        setAgentsListSeparated(agents);
-        localStorage.setItem(
-          PersistanceKeys.LocalStoredAgentsListMain,
-          JSON.stringify(agents)
-        );
+        setAgentsContent(agents);
+        localStorage.setItem("localAgentDetails", JSON.stringify(agents));
+
+        // return
+        // const newPhoneNumber1 = response.data.data.agent1.phoneNumber;
+        // const newPhoneNumber2 =
+        //   response.data.data.agent2.phoneNumber.slice(1);
+
+        // const UpdatedAgents = agentsContent.map((agent) => {
+        //   if (agent.id === response.data.data.agent1.id) {
+        //     // Update agent1's phone number
+        //     return { ...agent, phoneNumber: newPhoneNumber1 };
+        //   }
+
+        //   if (agent.id === response.data.data.agent2.id) {
+        //     // Update agent2's phone number
+        //     return { ...agent, phoneNumber: newPhoneNumber2 };
+        //   }
+
+        //   // If the phone number matches either of the new phone numbers, set it to null
+        //   if (agent.phoneNumber === newPhoneNumber1) {
+        //     // || agent.phoneNumber === newPhoneNumber2
+        //     return { ...agent, phoneNumber: null };
+        //   }
+
+        //   // Otherwise, return the agent unchanged
+        //   return agent;
+        // });
 
         console.log("Updated agent list is after changing phone", agents);
+
+        // localStorage.setItem("localAgentDetails", JSON.stringify(UpdatedAgents));
+
+        // setAgentsContent((prevAgents) => {
+        //   const newPhoneNumber1 = response.data.data.agent1.phoneNumber;
+        //   const newPhoneNumber2 =
+        //     response.data.data.agent2.phoneNumber.slice(1);
+
+        //   return prevAgents.map((agent) => {
+        //     if (agent.id === response.data.data.agent1.id) {
+        //       // Update agent1's phone number
+        //       return { ...agent, phoneNumber: newPhoneNumber1 };
+        //     }
+
+        //     if (agent.id === response.data.data.agent2.id) {
+        //       // Update agent2's phone number
+        //       return { ...agent, phoneNumber: newPhoneNumber2 };
+        //     }
+
+        //     // If the phone number matches either of the new phone numbers, set it to null
+        //     if (agent.phoneNumber === newPhoneNumber1) {
+        //       // || agent.phoneNumber === newPhoneNumber2
+        //       return { ...agent, phoneNumber: null };
+        //     }
+
+        //     // Otherwise, return the agent unchanged
+        //     return agent;
+        //   });
+        // });
+
+        setShowConfirmationModal(null);
+        // setShowDrawer(null);
+
+        //code to close the dropdown
+        if (selectRef.current) {
+          selectRef.current.blur(); // Triggers dropdown close
+        }
+
+        // if (response.data.status === true) {
+        //     setSelectNumber(phoneNumber);
+        // } else {
+        //     setSelectNumber(phoneNumber);
+        // }
       }
     } catch (error) {
       console.error("Error occured in reassign the number api:", error);
@@ -870,11 +916,40 @@ function Page() {
         if (response.data.status === true) {
           setIsVisibleSnack(true);
 
-          const localAgentsList = localStorage.getItem(
-            PersistanceKeys.LocalStoredAgentsListMain
-          );
+          const localAgentsList = localStorage.getItem("localAgentDetails");
 
           let agentsListDetails = [];
+
+          // if (localAgentsList) {
+          //   const agentsList = JSON.parse(localAgentsList);
+          //   agentsListDetails = agentsList;
+          //   console.log("Loooop is trigered for", agentsListDetails);
+          //   let updatedAgent = response.data.data;
+          //   for (let i = 0; i < agentsList?.length; i++) {
+          //     let ag = agentsList[i];
+          //     let subAgents = ag.agents;
+
+          //     for (let j = 0; j < subAgents?.length; j++) {
+          //       let subAg = subAgents[j];
+          //       if (subAg.id == updatedAgent.agents[0].id) {
+          //         subAgents[j] = updatedAgent.agents[0];
+          //       } else if (
+          //         subAg?.length > 0 &&
+          //         subAg.id == updatedAgent.agents[1].id
+          //       ) {
+          //         subAgents[j] = updatedAgent.agents[1];
+          //       }
+          //     }
+          //     ag.agents = subAgents;
+          //     agentsList[i] = ag;
+          //   }
+          //   //save to localstorage
+          //   localStorage.setItem(
+          //     "localAgentDetails",
+          //     JSON.stringify(agentsList)
+          //   );
+          //   console.log("Agent update is", agentsList);
+          // }
 
           if (localAgentsList) {
             const agentsList = JSON.parse(localAgentsList);
@@ -888,27 +963,57 @@ function Page() {
 
               return apiItem ? { ...localItem, ...apiItem } : localItem;
             });
-            // let updatedSubAgent = null
-            if (updateAgentData.agents.length > 0 && showDrawerSelectedAgent) {
-              if (updateAgentData.agents[0].id == showDrawerSelectedAgent.id) {
-                setShowDrawerSelectedAgent(updateAgentData.agents[0]);
-              } else if (updateAgentData.agents.length > 1) {
-                if (
-                  updateAgentData.agents[1].id == showDrawerSelectedAgent.id
-                ) {
-                  setShowDrawerSelectedAgent(updateAgentData.agents[1]);
-                }
-              }
-            }
 
             console.log("Updated agents list array is", updatedArray);
             localStorage.setItem(
-              PersistanceKeys.LocalStoredAgentsListMain,
+              "localAgentDetails",
               JSON.stringify(updatedArray)
             );
-            setMainAgentsList(updatedArray);
+            setUserAgentsList(updatedArray);
             // agentsListDetails = updatedArray
           }
+
+          //update on main agents list variable
+          // if (showScriptModal) {
+          //   setUserDetails((prevAgents) =>
+          //     prevAgents.map((agent) =>
+          //       agent.id === showScriptModal.id
+          //         ? { ...agent, ...response.data.data }
+          //         : agent
+          //     )
+          //   );
+          // }
+
+          //update on localstorage
+          // if (showScriptModal) {
+          //   console.log("It is trigered")
+          //   agentsListDetails = agentsListDetails.map((agent) =>
+          //     agent.id === response.data.data.agents[0].id
+          //       ? { ...agent, ...response.data.data }
+          //       : agent
+          //   )
+          //   console.log("Script updated", agentsListDetails);
+          // }
+
+          //update on main agent variable
+          // if (showDrawer) {
+          //   setUserDetails((prevAgents) =>
+          //     prevAgents.map((agent) =>
+          //       agent.id === showDrawer.id
+          //         ? { ...agent, ...response.data.data }
+          //         : agent
+          //     )
+          //   );
+          // }
+
+          // //update on localstorage
+          // if (showDrawer) {
+          //   agentsListDetails = matchingAgents.map((agent) =>
+          //     agent.id === showDrawer.id
+          //       ? { ...agent, ...response.data.data }
+          //       : agent
+          //   )
+          // }
 
           setGreetingTagInput("");
           setScriptTagInput("");
@@ -955,18 +1060,26 @@ function Page() {
         "callbackNumber",
         showDrawerSelectedAgent?.callbackNumber
       );
-
+      // if (userSelectedNumber) {
+      //   formData.append("callbackNumber", assignNumber);
+      // } else {
+      //   formData.append("callbackNumber", officeNumber);
+      // }
       formData.append(
         "liveTransforNumber",
         showDrawerSelectedAgent?.liveTransferNumber
       );
       formData.append("agentId", showDrawerSelectedAgent.id);
+      // formData.append("mainAgentId", showDrawer.id);
+      // formData.append("liveTransfer", toggleClick);
 
       const ApiPath = Apis.asignPhoneNumber;
 
       for (let [key, value] of formData.entries()) {
         console.log(`${key} ${value}`);
       }
+
+      // return
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -975,6 +1088,7 @@ function Page() {
       });
 
       if (response) {
+        //console.log("Response of assign number api is :", response.data)
         console.log("Response of update number api is", response.data);
         if (response.data.status === true) {
           setShowSuccessSnack(
@@ -988,16 +1102,31 @@ function Page() {
           });
           setIsVisibleSnack(true);
           setShowConfirmationModal(null);
+          // setAgentsContent((prevAgents) =>
+          //   prevAgents.map((agent) =>
+          //     agent.id === showDrawer.id
+          //       ? { ...agent, phoneNumber: phoneNumber }
+          //       : agent
+          //   )
+          // );
 
-          const localAgentsList = localStorage.getItem(
-            PersistanceKeys.LocalStoredAgentsListMain
-          );
+          const localAgentsList = localStorage.getItem("localAgentDetails");
 
           if (localAgentsList) {
             const agentsList = JSON.parse(localAgentsList);
+            // agentsListDetails = agentsList;
+
             const updateAgentData = showDrawerSelectedAgent;
 
             console.log("Agents list is", agentsList);
+
+            // const updatedArray = agentsList.map((localItem) => {
+            //   const apiItem =
+            //     updateAgentData.id === localItem.id ? updateAgentData : null;
+
+            //   return apiItem ? { ...localItem, ...apiItem } : localItem;
+            // });
+
             const updatedArray = agentsList.map((localItem) => {
               if (updateAgentData.mainAgentId === localItem.id) {
                 const updatedSubAgents = localItem.agents.map((subAgent) => {
@@ -1013,17 +1142,30 @@ function Page() {
 
               return localItem;
             });
+
             console.log(
               "Updated agents list array with phone is",
               updatedArray
             );
             localStorage.setItem(
-              PersistanceKeys.LocalStoredAgentsListMain,
+              "localAgentDetails",
               JSON.stringify(updatedArray)
             );
-            setMainAgentsList(updatedArray);
+            setUserAgentsList(updatedArray);
             // agentsListDetails = updatedArray
           }
+
+          // setShowDrawer(null);
+          //phoneNumber
+          // handleContinue();
+          // alert("Phone number assigned")
+          // const calimNoData = {
+          //   officeNo: officeNumber,
+          //   userNumber: selectNumber,
+          //   usernumber2: userSelectedNumber,
+          //   callBackNumber: callBackNumber
+          // }
+          // localStorage.setItem("claimNumberData", JSON.stringify(calimNoData))
         } else if (response.data.status === false) {
           setShowErrorSnack(response.data.message);
           setIsVisibleSnack2(true);
@@ -1073,19 +1215,9 @@ function Page() {
 
   //function ot compare the selected agent wiith the main agents list
   const matchingAgent = (agent) => {
-    console.log();
-    const agentData = mainAgentsList.filter((prevAgent) => {
-      console.log(`Matching ${prevAgent.id} = ${agent.mainAgentId}`);
-      if (prevAgent.id === agent.mainAgentId) {
-        return true;
-      } else {
-        return false;
-      }
-    });
-    console.log("Agent Data in match ", agentData);
-    if (typeof agentData == undefined || agentData == null) {
-      return;
-    }
+    const agentData = userAgentsList.filter(
+      (prevAgent) => prevAgent.id === agent.id
+    );
     //console.log("Agent matcing grretings are:", agentData);
     setKYCList(agentData[0].kyc);
 
@@ -1201,19 +1333,15 @@ function Page() {
 
       if (response) {
         console.log("Response of del agent api is:", response);
-        setAgentsListSeparated(
-          agentsListSeparated.filter(
-            (item) => item.id !== showDrawerSelectedAgent.id
-          )
+        setAgentsContent(
+          agentsContent.filter((item) => item.id !== showDrawerSelectedAgent.id)
         );
 
         setShowDrawerSelectedAgent(null);
         setDelAgentModal(false);
 
         //updating data on localstorage
-        const localAgentsList = localStorage.getItem(
-          PersistanceKeys.LocalStoredAgentsListMain
-        );
+        const localAgentsList = localStorage.getItem("localAgentDetails");
         if (localAgentsList) {
           const agentsList = JSON.parse(localAgentsList);
           // agentsListDetails = agentsList;
@@ -1238,7 +1366,7 @@ function Page() {
 
           console.log("Updated agents list array is", updatedAgentsList);
           localStorage.setItem(
-            PersistanceKeys.LocalStoredAgentsListMain,
+            "localAgentDetails",
             JSON.stringify(updatedAgentsList)
           );
           // agentsListDetails = updatedArray
@@ -1382,14 +1510,12 @@ function Page() {
 
   useEffect(() => {
     getCalenders();
-    const agentLocalDetails = localStorage.getItem(
-      PersistanceKeys.LocalStoredAgentsListMain
-    );
+    const agentLocalDetails = localStorage.getItem("localAgentDetails");
 
     if (agentLocalDetails) {
       const agentData = JSON.parse(agentLocalDetails);
       console.log("Data on LocalStorage", agentData);
-      setMainAgentsList(agentData);
+      setUserAgentsList(agentData);
     } else {
       console.log("No data of agents");
     }
@@ -1453,9 +1579,7 @@ function Page() {
   //code to get agents
   const getAgents = async (userData) => {
     try {
-      const agentLocalDetails = localStorage.getItem(
-        PersistanceKeys.LocalStoredAgentsListMain
-      );
+      const agentLocalDetails = localStorage.getItem("localAgentDetails");
       if (!agentLocalDetails) {
         setInitialLoader(true);
       }
@@ -1476,10 +1600,10 @@ function Page() {
       if (response) {
         console.log("Response of get agents api is:", response.data);
         localStorage.setItem(
-          PersistanceKeys.LocalStoredAgentsListMain,
+          "localAgentDetails",
           JSON.stringify(response.data.data)
         );
-        setMainAgentsList(response.data.data);
+        setUserAgentsList(response.data.data);
       }
     } catch (error) {
       console.error("Error occured in get Agents api is :", error);
@@ -1521,9 +1645,7 @@ function Page() {
 
     console.log("Again setting data in array");
 
-    const localAgentsData = localStorage.getItem(
-      PersistanceKeys.LocalStoredAgentsListMain
-    );
+    const localAgentsData = localStorage.getItem("localAgentDetails");
 
     let localDetails = [];
     if (localAgentsData) {
@@ -1545,10 +1667,10 @@ function Page() {
         // agentsContent.push(<div key="no-agent">No agents available</div>);
       }
     });
-    setAgentsListSeparated(agents);
+    setAgentsContent(agents);
 
     //console.log("Agents data in updated array is", agentsContent);
-  }, [mainAgentsList]);
+  }, [userAgentsList]);
 
   //code for voices droopdown
   const [SelectedVoice, setSelectedVoice] = useState("");
@@ -1565,8 +1687,8 @@ function Page() {
     if (showDrawerSelectedAgent.thumb_profile_image) {
       return;
     } else {
-      // setSelectedImage(selectedVoice.img);
-      // updateAgentProfile(selectedVoice.img);
+      setSelectedImage(selectedVoice.img);
+      updateAgentProfile(selectedVoice.img);
     }
   };
 
@@ -1771,7 +1893,7 @@ function Page() {
             className="h-[75vh] overflow-auto flex flex-col gap-4 pt-10"
             style={{ scrollbarWidth: "none" }}
           >
-            {agentsListSeparated.map((item, index) => (
+            {agentsContent.map((item, index) => (
               <div
                 key={index}
                 className="w-full px-10 py-2"
@@ -1911,8 +2033,8 @@ function Page() {
                         <button
                           onClick={() => {
                             handleShowDrawer(item);
-                            // matchingAgent(item);
-                            // console.log("Item details are", item);
+                            matchingAgent(item);
+                            console.log("Item details are", item);
                           }}
                         >
                           <div>More info</div>
@@ -1961,7 +2083,7 @@ function Page() {
                         const regex = /\{(.*?)\}/g;
                         let match;
                         let mainAgent = null;
-                        mainAgentsList.map((ma) => {
+                        userAgentsList.map((ma) => {
                           if (ma.agents?.length > 0) {
                             if (ma.agents[0].id == item.id) {
                               mainAgent = ma;
@@ -2837,6 +2959,8 @@ function Page() {
                                               onClick={(e) => {
                                                 e.stopPropagation();
                                                 setShowConfirmationModal(item);
+                                                // handleReassignNumber(item)
+                                                // handleReassignNumber(e.target.value)
                                               }}
                                             >
                                               Reassign
@@ -2954,7 +3078,7 @@ function Page() {
             <div>
               <UserCalender
                 calendarDetails={calendarDetails}
-                setUserDetails={setMainAgentsList}
+                setUserDetails={setUserAgentsList}
                 selectedAgent={showDrawerSelectedAgent}
                 mainAgentId={MainAgentId}
                 previousCalenders={previousCalenders}
@@ -2965,7 +3089,6 @@ function Page() {
               <PiepelineAdnStage
                 selectedAgent={showDrawerSelectedAgent}
                 UserPipeline={UserPipeline}
-                mainAgent={calendarDetails}
               />
             </div>
           ) : (
