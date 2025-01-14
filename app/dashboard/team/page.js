@@ -282,8 +282,11 @@ function Page() {
         let response = await checkPhoneNumber(phoneNumber);
         console.log("Response of check number api is", response)
         // setErrorMessage(null)
+        setCheckPhoneResponse(response.data);
         if (response.data.status === false) {
           setErrorMessage("Taken");
+        } else if (response.data.status === true) {
+          setErrorMessage("Available");
         }
       } catch (error) {
         console.error("Error occured in api is", error);
@@ -709,11 +712,15 @@ function Page() {
                   {errorMessage && (
                     <div
                       className={`text-end text-red`}
-                      style={{ ...styles.errmsg, }}
+                      style={{
+                        ...styles.errmsg,
+                        color: checkPhoneResponse?.status === true ? "green" : "red"
+                      }}
                     >
                       {errorMessage}
                     </div>
-                  )}
+                  )
+                  }
                 </div>
                 <div>
                   {checkPhoneLoader && (
@@ -736,7 +743,7 @@ function Page() {
                   style={{
                     marginTop: 20,
                     backgroundColor:
-                      !name || !email || !phone || errorMessage || emailCheckResponse?.status !== true ? "#00000020" : "",
+                      !name || !email || !phone || emailCheckResponse?.status !== true || checkPhoneResponse?.status !== true ? "#00000020" : "",
                   }}
                   className="w-full flex bg-purple p-3 rounded-lg items-center justify-center"
                   onClick={() => {
@@ -747,13 +754,13 @@ function Page() {
                     };
                     inviteTeamMember(data);
                   }}
-                  disabled={!name || !email || !phone || errorMessage || emailCheckResponse?.status !== true}
+                  disabled={!name || !email || !phone || emailCheckResponse?.status !== true || checkPhoneResponse?.status !== true}
                 >
                   <div
                     style={{
                       fontSize: 16,
                       fontWeight: "500",
-                      color: !name || !email || !phone || errorMessage || emailCheckResponse?.status !== true ? "#000000" : "#ffffff",
+                      color: !name || !email || !phone || emailCheckResponse?.status !== true || checkPhoneResponse?.status !== true ? "#000000" : "#ffffff",
                     }}
                   >
                     Send Invite

@@ -364,7 +364,7 @@ const CreatAgent3 = ({ handleContinue }) => {
           </div>
           {/* Body */}
           <div
-            className="flex flex-col items-center px-4 w-full h-[80%] overflow-auto sm:overflow-none"
+            className="flex flex-col items-center px-4 w-full h-[72%] overflow-auto sm:overflow-none"
             style={{ scrollbarWidth: "none" }}
           >
             <div
@@ -497,6 +497,19 @@ const CreatAgent3 = ({ handleContinue }) => {
                         item.id === togglePlan ? "#402FFF05" : "",
                     }}
                   >
+                  {item.status && (
+                    <div
+                      className="-mt-[18px] sm:hidden flex px-2 py-1 bg-purple rounded-full text-white"
+                      style={{
+                        fontSize: 11.6,
+                        fontWeight: "500",
+                        width: "fit-content",
+                      }}
+                    >
+                      {item.status}
+                    </div>
+                  )
+                  }
                     <div
                       style={{
                         ...styles.triangleLabel,
@@ -539,7 +552,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                           {item.mints}mins | Approx {item.calls} Calls
                           {item.status && (
                             <div
-                              className="flex px-2 py-1 bg-purple rounded-full text-white"
+                              className="flex hidden sm:flex px-2 py-1 bg-purple rounded-full text-white"
                               style={{ fontSize: 11.6, fontWeight: "500" }}
                             >
                               {item.status}
@@ -622,46 +635,6 @@ const CreatAgent3 = ({ handleContinue }) => {
               </div>
             </div>
 
-            <div className="flex flex-row items-center gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6 pb-4">
-              <button onClick={handleToggleTermsClick}>
-                {agreeTerms ? (
-                  <div
-                    className="bg-purple flex flex-row items-center justify-center rounded"
-                    style={{ height: "24px", width: "24px" }}
-                  >
-                    <Image
-                      src={"/assets/whiteTick.png"}
-                      height={8}
-                      width={10}
-                      alt="*"
-                    />
-                  </div>
-                ) : (
-                  <div
-                    className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                    style={{ height: "24px", width: "24px" }}
-                  ></div>
-                )}
-              </button>
-              <div
-                className="flex flex-row items-center gap-1"
-                style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
-              >
-                I agree to the
-                <button
-                  className="underline"
-                  onClick={() => {
-                    window.open(
-                      "https://www.myagentx.com/terms-and-condition",
-                      "_blank"
-                    );
-                  }}
-                >
-                  Terms & Conditions.
-                </button>
-              </div>
-            </div>
-
             <div
               className="hidden sm:flex"
               style={{
@@ -677,6 +650,45 @@ const CreatAgent3 = ({ handleContinue }) => {
             </div>
           </div>
           {/* style={{ position: "absolute", bottom: 65, }} */}
+          <div className="flex flex-row items-center gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6 pb-4 pl-5">
+            <button onClick={handleToggleTermsClick}>
+              {agreeTerms ? (
+                <div
+                  className="bg-purple flex flex-row items-center justify-center rounded"
+                  style={{ height: "24px", width: "24px" }}
+                >
+                  <Image
+                    src={"/assets/whiteTick.png"}
+                    height={8}
+                    width={10}
+                    alt="*"
+                  />
+                </div>
+              ) : (
+                <div
+                  className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                  style={{ height: "24px", width: "24px" }}
+                ></div>
+              )}
+            </button>
+            <div
+              className="flex flex-row items-center gap-1"
+              style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
+            >
+              I agree to the
+              <button
+                className="underline"
+                onClick={() => {
+                  window.open(
+                    "https://www.myagentx.com/terms-and-condition",
+                    "_blank"
+                  );
+                }}
+              >
+                Terms & Conditions.
+              </button>
+            </div>
+          </div>
           <div className="w-full flex-col items-center flex gap-4 h-[10%]">
             {selectedPlan && agreeTerms ? (
               <div className="w-full flex-col items-center flex">
@@ -1030,6 +1042,19 @@ const CreatAgent3 = ({ handleContinue }) => {
                                 Current Plan
                               </div>
                             )}
+                            {item.status && (
+                              <div
+                                className="-mt-[27px] sm:hidden px-2 py-1 bg-purple rounded-full text-white"
+                                style={{
+                                  fontSize: 11.6,
+                                  fontWeight: "500",
+                                  width: "fit-content",
+                                }}
+                              >
+                                {item.status}
+                              </div>
+                            )
+                            }
                             <div
                               style={{
                                 color: "#151515",
@@ -1041,7 +1066,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                               {item.mints}mins | Approx {item.calls}
                               {item.status && (
                                 <div
-                                  className="flex px-2 py-1 bg-purple rounded-full text-white"
+                                  className="flex hidden sm:flex px-2 py-1 bg-purple rounded-full text-white"
                                   style={{
                                     fontSize: 11.6,
                                     fontWeight: "500",
@@ -1130,26 +1155,35 @@ const CreatAgent3 = ({ handleContinue }) => {
                   flexShrink: 0, // Prevent shrinking
                 }}
               >
-                <button
-                  disabled={!agreeTerms || !togglePlan2}
-                  className="w-full bg-purple text-white rounded-xl"
-                  style={{
-                    ...styles.headingStyle,
-                    height: "50px",
-                    backgroundColor:
-                      agreeTerms && togglePlan2 ? "#7902DF" : "#00000010",
-                    color: agreeTerms && togglePlan2 ? "white" : "#000000",
-                  }}
-                  onClick={() => {
-                    if (togglePlan2 === 1) {
-                      handleContinue();
-                    } else {
-                      handleSubScribePlan();
-                    }
-                  }}
-                >
-                  Continue
-                </button>
+                {
+                  subscribePlanLoader ? (
+                    <div className="w-full flex flex-row items-center justify-center mt-4">
+                      <CircularProgress size={35} />
+                    </div>
+                  ) : (
+                    <button
+                      disabled={!agreeTerms || !togglePlan2}
+                      className="w-full bg-purple text-white rounded-xl"
+                      style={{
+                        ...styles.headingStyle,
+                        height: "50px",
+                        backgroundColor:
+                          agreeTerms && togglePlan2 ? "#7902DF" : "#00000010",
+                        color: agreeTerms && togglePlan2 ? "white" : "#000000",
+                      }}
+                      onClick={() => {
+                        let windowWidth = window.innerWidth;
+                        if (togglePlan2 === 1) {
+                          handleContinue();
+                        } else {
+                          handleSubScribePlan();
+                        }
+                      }}
+                    >
+                      Continue
+                    </button>
+                  )
+                }
               </div>
             </div>
           </Box>

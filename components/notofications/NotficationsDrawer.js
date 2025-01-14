@@ -155,16 +155,21 @@ function NotficationsDrawer({ close }) {
   // ]
 
   //function to get support
+  const styles = {
+    bg: {
+      backgroundColor: ""
+    }
+  }
   const getSupport = () => {
     let userData = localStorage.getItem("User");
     if (userData) {
       const D = JSON.parse(userData);
-      if(D?.user?.campaignee && D?.user?.campaignee?.officeHoursUrl){
+      if (D?.user?.campaignee && D?.user?.campaignee?.officeHoursUrl) {
         console.log("Response", D.user.campaignee.officeHoursUrl)
         let campaigneeLink = D.user.campaignee.officeHoursUrl;
         window.open(campaigneeLink, "_blank");
       }
-      else{
+      else {
         window.open("https://api.leadconnectorhq.com/widget/booking/SMTp2AfgjdTcjLOIUBkR", "_blank");
       }
     }
@@ -187,6 +192,7 @@ function NotficationsDrawer({ close }) {
           height={37}
           width={37}
           alt="*"
+          style={styles.bg}
         />
       );
     } else if (item.type === NotificationTypes.InviteAccepted) {
@@ -205,6 +211,7 @@ function NotficationsDrawer({ close }) {
           height={37}
           width={37}
           alt="*"
+          style={styles.bg}
         />
       );
     } else if (item.type === NotificationTypes.TotalHotlead) {
@@ -232,11 +239,12 @@ function NotficationsDrawer({ close }) {
           height={22}
           width={22}
           alt="*"
+          style={styles.bg}
         />
       );
     } else if (item.type === NotificationTypes.CallsMadeByAgent) {
       return (
-        <Image src={"/svgIcons/aiNotIcon.svg"} height={25} width={25} alt="*" />
+        <Image src={"/svgIcons/aiNotIcon.svg"} height={25} width={25} alt="*" style={styles.bg} />
       );
     } else if (item.type === NotificationTypes.LeadCalledBack) {
       return (
@@ -249,35 +257,35 @@ function NotficationsDrawer({ close }) {
       );
     } else if (item.type === NotificationTypes.Trial30MinTicking) {
       return (
-        <Image src={"/svgIcons/Trial30MinTickingNotIcon.svg"} height={22} width={22} alt="*" />
+        <Image src={"/svgIcons/Trial30MinTickingNotIcon.svg"} height={22} width={22} alt="*" style={styles.bg} />
       );
     } else if (item.type === NotificationTypes.X3MoreLikeyToWin) {
       return (
-        <Image src={"/svgIcons/3xMoreLikeyToWinNotIcon.svg"} height={22} width={22} alt="*" />
+        <Image src={"/svgIcons/3xMoreLikeyToWinNotIcon.svg"} height={22} width={22} alt="*" style={styles.bg} />
       );
     } else if (item.type === NotificationTypes.NeedHand || item.type === NotificationTypes.NeedHelpDontMissOut) {
       return (
-        <Image src={"/svgIcons/NeedHandNotIcon.svg"} height={22} width={22} alt="*" />
+        <Image src={"/svgIcons/NeedHandNotIcon.svg"} height={22} width={22} alt="*" style={styles.bg} />
       );
     } else if (item.type === NotificationTypes.TrialReminder) {
       return (
-        <Image src={"/svgIcons/TrialReminderNotIcon.svg"} height={22} width={22} alt="*" />
+        <Image src={"/svgIcons/TrialReminderNotIcon.svg"} height={22} width={22} alt="*" style={styles.bg} />
       );
     } else if (item.type === NotificationTypes.LastChanceToAct) {
       return (
-        <Image src={"/svgIcons/LastChanceToActNotIcon.svg"} height={22} width={22} alt="*" />
+        <Image src={"/svgIcons/LastChanceToActNotIcon.svg"} height={22} width={22} alt="*" style={styles.bg} />
       );
     } else if (item.type === NotificationTypes.LastDayToMakeItCount) {
       return (
-        <Image src={"/svgIcons/LastDayToMakeItCountNotIcon.svg"} height={22} width={22} alt="*" />
+        <Image src={"/svgIcons/LastDayToMakeItCountNotIcon.svg"} height={22} width={22} alt="*" style={styles.bg} />
       );
     } else if (item.type === NotificationTypes.TrialTime2MinLeft) {
       return (
-        <Image src={"/svgIcons/TrialTime2MinLeftNotIcon.svg"} height={22} width={22} alt="*" />
+        <Image src={"/svgIcons/TrialTime2MinLeftNotIcon.svg"} height={22} width={22} alt="*" style={styles.bg} />
       );
     } else if (item.type === NotificationTypes.PlanRenewed) {
       return (
-        <Image src={"/svgIcons/PlanRenewedNotIcon.svg"} height={22} width={22} alt="*" />
+        <Image src={"/svgIcons/PlanRenewedNotIcon.svg"} height={22} width={22} alt="*" style={styles.bg} />
       );
     }
   };

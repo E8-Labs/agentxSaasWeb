@@ -217,6 +217,7 @@ const Page = ({ length = 6, onComplete }) => {
 
   const handleVerifyPopup = async () => {
     try {
+      setShowVerifyPopup(true);
       setSendcodeLoader(true);
       let response = await SendVerificationCode(userPhoneNumber, true);
       console.log("Number for sending code is", userPhoneNumber);
@@ -239,7 +240,6 @@ const Page = ({ length = 6, onComplete }) => {
     } finally {
       setSendcodeLoader(false);
     }
-    setShowVerifyPopup(true);
     setTimeout(() => {
       if (verifyInputRef.current[0]) {
         verifyInputRef.current[0].focus();

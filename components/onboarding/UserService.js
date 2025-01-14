@@ -148,8 +148,8 @@ const UserService = ({ handleContinue, handleBack }) => {
         className="bg-white sm:rounded-2xl flex flex-col justify-between w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[90%] py-4"
         style={{ scrollbarWidth: "none" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
-        <div className="h-[84svh] sm:h-[82svh]">
-          {/* header */}
+        <div className="h-[90svh] sm:h-[82svh]">
+          {/* header84svh */}
           <div className="h-[10%]">
             <Header />
           </div>

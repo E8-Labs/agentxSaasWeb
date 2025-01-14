@@ -1501,10 +1501,14 @@ const Pipeline1 = () => {
         let firstName = lead.lead.firstName.toLowerCase();
         let lastName = lead.lead.lastName.toLowerCase();
         let fullName = (firstName || "") + " " + (lastName || "");
+        let email = lead?.lead?.email?.toLowerCase();
+        let phone = lead?.lead?.phone;
         return (
           firstName.includes(search) ||
           lastName.includes(search) ||
-          fullName.includes(search)
+          fullName.includes(search) ||
+          email.includes(search) ||
+          phone.includes(search)
         );
       });
       setLeadsList(filteredLeads);
@@ -1781,7 +1785,16 @@ const Pipeline1 = () => {
                           // textShadow: '1px 1px 2px rgba(0, 0, 0, 0.6)',
                         }}
                       >
-                        <span>{stage.stageTitle}</span>
+                        <span>
+                          {stage.stageTitle.length > 15 ? (
+                            <div className="flex flex-row items-center gap-1">
+                              {stage.stageTitle.slice(0, 15) + "..."}
+                            </div>
+                          ) : (
+                            stage.stageTitle
+                          )
+                          }
+                        </span>
                         <div
                           className="h-[23px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center text-black"
                           style={{ ...styles.paragraph, fontSize: 14 }}

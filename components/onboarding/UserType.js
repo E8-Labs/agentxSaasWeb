@@ -173,8 +173,9 @@ const UserType = ({ handleContinue, DefaultData }) => {
       //className='bg-white sm:rounded-2xl w-full sm:mx-2 sm:w-10/12 h-[100%] sm:h-[90%] py-4 flex flex-col' style={{ scrollbarWidth: "none" }}
       >
         <div
-          className={`flex flex-col items-center h-[84svh] ${screenHeight < 840 ? "sm:h-[80svh]" : "sm:h-[80svh]"
+          className={`flex flex-col items-center h-[90svh] ${screenHeight < 840 ? "sm:h-[80svh]" : "sm:h-[80svh]"
             }`}
+            //84svh
         >
           {/* header */}
           <div className="w-full h-[10%]">

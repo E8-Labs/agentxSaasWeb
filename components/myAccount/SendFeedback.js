@@ -48,7 +48,7 @@ function SendFeedback() {
                 if (response.data.status === true) {
                     setFeedbackTitle("");
                     setFeedbackDescription("");
-                    setSnackMsg("Feedback sent");
+                    setSnackMsg("Feedback submitted");
                     setErrType(SnackbarTypes.Success);
                 } else if (response.data.status === false) {
                     setSnackMsg(response.data.message);

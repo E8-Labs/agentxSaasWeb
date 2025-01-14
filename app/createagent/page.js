@@ -47,15 +47,18 @@ const Page = () => {
     let windowSize = window.innerWidth;
     if (localData) {
       const Data = JSON.parse(localData);
+      console.log("Window size is", windowSize)
+      console.log("Data is", Data)
       if (Data.user.plan) {
         if (windowSize < 640) {
+          console.log("Data should be set")
           setComponents([
             BuildAgentName,
             BuildAgentTask,
             BuildAgentObjective,
             // CreatAgent3,
-            CreateAgent4,
-            CreateAgentVoice,
+            // CreateAgent4,
+            // CreateAgentVoice,
           ]);
         } else {
           setComponents([
@@ -73,8 +76,8 @@ const Page = () => {
             BuildAgentTask,
             BuildAgentObjective,
             CreatAgent3,
-            CreateAgent4,
-            CreateAgentVoice,
+            // CreateAgent4,
+            // CreateAgentVoice,
           ]);
           // setIndex(3)
         } else {

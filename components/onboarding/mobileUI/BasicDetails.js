@@ -463,8 +463,8 @@ const BasicDetails = ({
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
       <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[100%] sm:max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
-        <div className="h-[84svh] sm:h-[82svh]">
-          {/* header */}
+        <div className="h-[90svh] sm:h-[82svh]">
+          {/* header h-[84svh]*/}
           <div className="h-[10%]">
             <Header />
           </div>

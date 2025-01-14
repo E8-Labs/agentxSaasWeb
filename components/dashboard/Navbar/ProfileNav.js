@@ -51,6 +51,38 @@ const ProfileNav = () => {
 
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
 
+  useEffect(() => {
+    const testNot = async () => {
+      try {
+
+        const localData = localStorage.getItem("User");
+        let AuthToken = null;
+        if (localData) {
+          const D = JSON.parse(localData);
+          AuthToken = D.token
+        }
+
+        const ApiPath = Apis.getAiNot;
+
+        const response = axios.post(ApiPath, {}, {
+          headers: {
+            "Authorization": "Bearer " + AuthToken,
+            "Content-Type": "application/json"
+          }
+        });
+
+        // if (response) {
+        //   console.log("Response of send not api is", response);
+        // }
+
+      } catch (error) {
+        console.error("Error occured in test not is"), error;
+
+      }
+    }
+    testNot();
+  }, [])
+
   const plans = [
     {
       id: 1,

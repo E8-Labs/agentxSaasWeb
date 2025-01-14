@@ -119,7 +119,8 @@ function InviteAgentX() {
             console.log("Authtoken is", AuthToken);
 
             const ApiData = {
-                plan: planType
+                plan: planType,
+                payNow: true
             }
 
             console.log("Api data is", ApiData);

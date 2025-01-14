@@ -167,7 +167,7 @@ function Page() {
   const [hoveredIndexAddress, setHoveredIndexAddress] = useState(null);
 
   //code for image select and drag and drop
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImage, setSelectedImage] = useState("");
   const [selectedImage2, setSelectedImage2] = useState(null);
   const [dragging, setDragging] = useState(false);
 
@@ -635,6 +635,37 @@ function Page() {
         // );
 
         // Update the agent's phone number and ensure no other agents have the same phone number
+
+        const newPhoneNumber1 = response.data.data.agent1.phoneNumber;
+        const newPhoneNumber2 =
+          response.data.data.agent2.phoneNumber.slice(1);
+
+        const UpdatedAgents = agentsContent.map((agent) => {
+          if (agent.id === response.data.data.agent1.id) {
+            // Update agent1's phone number
+            return { ...agent, phoneNumber: newPhoneNumber1 };
+          }
+
+          if (agent.id === response.data.data.agent2.id) {
+            // Update agent2's phone number
+            return { ...agent, phoneNumber: newPhoneNumber2 };
+          }
+
+          // If the phone number matches either of the new phone numbers, set it to null
+          if (agent.phoneNumber === newPhoneNumber1) {
+            // || agent.phoneNumber === newPhoneNumber2
+            return { ...agent, phoneNumber: null };
+          }
+
+          // Otherwise, return the agent unchanged
+          return agent;
+        });
+
+        console.log("Updated agent list is after changing phone", UpdatedAgents);
+
+        localStorage.setItem("localAgentDetails", JSON.stringify(UpdatedAgents));
+
+
         setAgentsContent((prevAgents) => {
           const newPhoneNumber1 = response.data.data.agent1.phoneNumber;
           const newPhoneNumber2 =
@@ -1084,7 +1115,7 @@ function Page() {
               return localItem;
             });
 
-            console.log("Updated agents list array is", updatedArray);
+            console.log("Updated agents list array with phone is", updatedArray);
             localStorage.setItem(
               "localAgentDetails",
               JSON.stringify(updatedArray)
@@ -2445,7 +2476,7 @@ function Page() {
                   }
                 >
 
-                  {/* {selectedImage ? (
+                  {selectedImage ? (
                     <div style={{ marginTop: "", background: "" }}>
                       <Image
                         src={selectedImage}
@@ -2462,15 +2493,8 @@ function Page() {
                       />
                     </div>
                   ) : (
-                    <Image
-                      src={"/agentXOrb.gif"}
-                      height={74}
-                      width={74}
-                      alt="profileImage"
-                    />
-                  )} */}
-
-                  {getAgentsListImage(showDrawerSelectedAgent)}
+                    getAgentsListImage(showDrawerSelectedAgent)
+                  )}
 
                   <Image
                     src={"/otherAssets/cameraBtn.png"}

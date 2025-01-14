@@ -13,6 +13,8 @@ import LoaderAnimation from "@/components/animations/LoaderAnimation";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import GoogleAddressPicker from "@/components/test/GoogleAdddressPicker";
 import usePlacesService from "react-google-autocomplete/lib/usePlacesAutocompleteService";
+import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import { SnackMessageTitles } from "@/components/constants/constants";
 
 const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
 
@@ -63,6 +65,9 @@ const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
     //other objective
     const [showOtherObjective, setShowOtherObjective] = useState(false);
     const [otherObjVal, setOtherObjVal] = useState("");
+
+    //warning snack
+    const [snackMessage, setSnackMessage] = useState("");
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
@@ -203,7 +208,11 @@ const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
     //code for creating agent api
     const handleBuildAgent = async () => {
 
-        handleContinue();
+        if (agentName && agentRole) {
+            handleContinue();
+        } else {
+            setSnackMessage("Insufficient details!")
+        }
 
         return
 
@@ -399,6 +408,14 @@ const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
             style={{ width: "100%" }}
             className="overflow-y-hidden flex flex-row justify-center items-center"
         >
+            <AgentSelectSnackMessage
+                message={snackMessage}
+                type={SnackbarTypes.Error}
+                isVisible={snackMessage}
+                hide={() => {
+                    setSnackMessage("");
+                }}
+            />
             <div
                 className=" sm:rounded-2xl w-full lg:w-10/12 h-[90vh] flex flex-col items-center"
                 style={{ scrollbarWidth: "none", backgroundColor: "#ffffff" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
@@ -505,6 +522,15 @@ const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
                                 value={agentRole}
                                 onChange={(e) => {
                                     setAgentRole(e.target.value);
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === "Done") {
+                                        if (agentName && agentRole) {
+                                            handleBuildAgent();
+                                        } else {
+                                            setSnackMessage("Insufficient details!")
+                                        }
+                                    }
                                 }}
                             />
 

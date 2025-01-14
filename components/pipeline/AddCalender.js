@@ -391,7 +391,7 @@ const AddCalender = ({ handleContinue }) => {
             </div>
           </div>
 
-          <div className="h-[13%]">
+          <div className="h-[13%] flex flex-col justify-end">
             <ProgressBar value={33} />
             <Footer
               handleContinue={handleAddCalender}

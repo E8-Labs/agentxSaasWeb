@@ -186,6 +186,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
   const handleVerifyPopup = async () => {
     // let response = await SendVerificationCode(userPhoneNumber, true);
     try {
+      setShowVerifyPopup(true);
       setSendcodeLoader(true);
       let response = await SendVerificationCode(userPhoneNumber, true);
       setResponse(response);
@@ -198,7 +199,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
     }
     // setResponse(response)
     // setIsVisible(true)
-    setShowVerifyPopup(true);
+
     setTimeout(() => {
       if (verifyInputRef.current[0]) {
         verifyInputRef.current[0].focus();
