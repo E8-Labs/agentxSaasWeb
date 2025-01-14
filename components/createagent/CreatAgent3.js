@@ -378,7 +378,7 @@ const CreatAgent3 = ({ handleContinue }) => {
             </div>
 
             <div
-              className="sm:h-[70%] overflow-none sm:overflow-auto w-full flex flex-col items-center"
+              className="sm:h-[80%] overflow-none sm:overflow-auto w-full flex flex-col items-center"
               style={{ scrollbarWidth: "none" }}
             >
               {/* For mobile view */}
@@ -482,7 +482,7 @@ const CreatAgent3 = ({ handleContinue }) => {
               {plans.map((item, index) => (
                 <button
                   key={item.id}
-                  className="w-full md:md-10/12 lg:w-6/12 mt-4"
+                  className="w-full md:w-10/12 lg:w-6/12 mt-4"
                   onClick={(e) => handleTogglePlanClick(item)}
                 >
                   <div
@@ -497,19 +497,19 @@ const CreatAgent3 = ({ handleContinue }) => {
                         item.id === togglePlan ? "#402FFF05" : "",
                     }}
                   >
-                  {item.status && (
-                    <div
-                      className="-mt-[18px] sm:hidden flex px-2 py-1 bg-purple rounded-full text-white"
-                      style={{
-                        fontSize: 11.6,
-                        fontWeight: "500",
-                        width: "fit-content",
-                      }}
-                    >
-                      {item.status}
-                    </div>
-                  )
-                  }
+                    {item.status && (
+                      <div
+                        className="-mt-[18px] sm:hidden flex px-2 py-1 bg-purple rounded-full text-white"
+                        style={{
+                          fontSize: 11.6,
+                          fontWeight: "500",
+                          width: "fit-content",
+                        }}
+                      >
+                        {item.status}
+                      </div>
+                    )
+                    }
                     <div
                       style={{
                         ...styles.triangleLabel,
@@ -648,9 +648,49 @@ const CreatAgent3 = ({ handleContinue }) => {
             >
               <CycleArray />
             </div>
+            {/*for large size screen i agreeto terms and conditions*/}
+            <div className="flex flex-row items-center gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6 pb-4 hidden sm:flex">
+              <button onClick={handleToggleTermsClick}>
+                {agreeTerms ? (
+                  <div
+                    className="bg-purple flex flex-row items-center justify-center rounded"
+                    style={{ height: "24px", width: "24px" }}
+                  >
+                    <Image
+                      src={"/assets/whiteTick.png"}
+                      height={8}
+                      width={10}
+                      alt="*"
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                    style={{ height: "24px", width: "24px" }}
+                  ></div>
+                )}
+              </button>
+              <div
+                className="flex flex-row items-center gap-1"
+                style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
+              >
+                I agree to the
+                <button
+                  className="underline"
+                  onClick={() => {
+                    window.open(
+                      "https://www.myagentx.com/terms-and-condition",
+                      "_blank"
+                    );
+                  }}
+                >
+                  Terms & Conditions.
+                </button>
+              </div>
+            </div>
           </div>
-          {/* style={{ position: "absolute", bottom: 65, }} */}
-          <div className="flex flex-row items-center gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6 pb-4 pl-5">
+          {/*for small size screen i agreeto terms and conditions*/}
+          <div className="flex flex-row items-center gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6 pb-4 pl-5 sm:hidden">
             <button onClick={handleToggleTermsClick}>
               {agreeTerms ? (
                 <div
@@ -694,7 +734,7 @@ const CreatAgent3 = ({ handleContinue }) => {
               <div className="w-full flex-col items-center flex">
                 {selectedPlan?.id > 1 ? (
                   <button
-                    className="bg-purple w-11/12 md:w-5/12 rounded-lg text-white h-[50px]"
+                    className="bg-purple w-11/12 md:w-10/12 lg:w-6/12 rounded-lg text-white h-[50px]"
                     style={{
                       fontSize: 16,
                       fontWeight: "600",
@@ -709,7 +749,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                   </button>
                 ) : (
                   <button
-                    className="bg-purple w-11/12 md:w-5/12 rounded-lg text-white h-[50px]"
+                    className="bg-purple w-11/12 md:w-10/12 lg:w-6/12 rounded-lg text-white h-[50px]"
                     style={{
                       fontSize: 16,
                       fontWeight: "600",
@@ -727,7 +767,7 @@ const CreatAgent3 = ({ handleContinue }) => {
             ) : (
               <button
                 disabled={true}
-                className="w-11/12 md:w-5/12 rounded-lg text-white h-[50px]"
+                className="w-11/12 md:w-10/12 lg:w-6/12 rounded-lg text-white h-[50px]"
                 style={{
                   fontSize: 16,
                   fontWeight: "600",

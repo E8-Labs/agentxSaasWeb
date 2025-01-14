@@ -636,20 +636,36 @@ const ProfileNav = () => {
         >
           <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
             <div className="flex flex-row justify-center w-full">
+
               <div
                 className="sm:w-7/12 w-full"
                 style={{
                   backgroundColor: "#ffffff",
-                  paddingInline: 50,
-                  paddingTop: 50,
-                  paddingBottom: 50,
+                  paddingInline: 30,
+                  paddingTop: 20,
+                  paddingBottom: 40,
                   borderRadius: "13px",
                 }}
               >
-                <div className="flex justify-center items-center">
-                  <Typography className="text-[22px] font-semibold">
-                    {`You’ll need to select a plan to continue`}
-                  </Typography>
+
+              <div
+                style={{
+                  fontWeight: "600",
+                  fontSize: 17
+                }}
+              >
+                Subscribe to plan
+              </div>
+
+                <div
+                  className="flex justify-center items-center"
+                  style={{
+                    fontSize: 22,
+                    fontWeight: "600",
+                    marginTop: 20
+                  }}
+                >
+                  {`You’ll need to select a plan to continue`}
                 </div>
 
                 <div className="flex flex-row items-center justify-center ">

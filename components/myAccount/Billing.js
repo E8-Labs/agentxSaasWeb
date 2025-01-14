@@ -60,10 +60,17 @@ function Billing() {
 
   //variables for cancel plan
   const [giftPopup, setGiftPopup] = useState(false);
+  const [ScreenWidth, setScreenWidth] = useState(null);
   const [showConfirmCancelPlanPopup, setShowConfirmCancelPlanPopup] =
     useState(false);
   const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] =
     useState(false);
+
+  useEffect(() => {
+    let screenWidth = window.innerWidth;
+    console.log("Window width is", screenWidth);
+    setScreenWidth(screenWidth);
+  }, [])
 
   //array of plans
   const plans = [
@@ -1169,7 +1176,7 @@ function Billing() {
                 backgroundColor: "#ffffff",
                 padding: 20,
                 borderRadius: "13px",
-                paddingBottom: "100px",
+                paddingBottom: "20px",
               }}
             >
               <div className="flex flex-row justify-end">
@@ -1198,11 +1205,11 @@ function Billing() {
 
               <div className="flex flex-row items-center justify-center w-full mt-6">
                 <div
-                  className="text-center"
+                  className="text-center  w-full"
                   style={{
                     fontWeight: "600",
-                    fontSize: 24,
-                    width: "70%",
+                    fontSize: ScreenWidth < 1300 ? 19 : ScreenWidth <= 640 ? 16 : 24,
+                    width: ScreenWidth > 1200 ? "70%" : "100%",
                     alignSelf: "center",
                   }}
                 >
@@ -1212,13 +1219,13 @@ function Billing() {
 
               <div className="flex flex-col items-center px-4 w-full">
                 <div
-                  className="flex flex-row items-center gap-2 text-purple mt-6 bg-[#402FFF10] py-2 px-4 rounded-full"
+                  className={`flex flex-row items-center gap-2 text-purple ${ScreenWidth < 1200 ? "mt-4" : "mt-6"}bg-[#402FFF10] py-2 px-4 rounded-full`}
                   style={styles.gitTextStyle}
                 >
                   <Image
                     src={"/svgIcons/gift.svg"}
-                    height={22}
-                    width={22}
+                    height={ScreenWidth < 1300 ? 19 : ScreenWidth <= 640 ? 16 : 22}
+                    width={ScreenWidth < 1300 ? 19 : ScreenWidth <= 640 ? 16 : 22}
                     alt="*"
                   />
                   Enjoy your next calls on us
@@ -1540,7 +1547,7 @@ function Billing() {
                             },
                           }}
                           value={otherReasonInput}
-                          onChange={setOtherReasonInput}
+                          onChange={(e) => { setOtherReasonInput(e.target.value) }}
                         />
                       </div>
 
@@ -1564,7 +1571,7 @@ function Billing() {
                         onClick={() => {
                           handleDelReason()
                         }}
-                        // disabled={!selectReason || !otherReasonInput || }
+                      // disabled={!selectReason || !otherReasonInput || }
                       >
                         Continue
                       </button>
