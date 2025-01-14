@@ -336,7 +336,7 @@ function BasicInfo() {
         return prevIds.filter((prevId) => prevId !== id);
       } else {
         // Select the item if it's not already selected
-        return [...prevIds, id];
+        return [...prevIds,id];
       }
     })
 
@@ -351,7 +351,7 @@ function BasicInfo() {
     try {
       setAreaLoading(true)
       let data = {
-        areaOfFocus: [selectedArea.join()]
+        areaOfFocus: selectedArea //[selectedArea.join()]
       }
       console.log('data is', data)
       // return
@@ -368,10 +368,9 @@ function BasicInfo() {
     try {
       setServiceLoader(true)
       let data = {
-        agentService: [serviceId.join()]
+        agentService: serviceId//[serviceId.join()]
       }
-      console.log('data is', data)
-      console.log("Services id is", [serviceId.join()])
+      console.log('Api data is', serviceId)
       // return
 
       await UpdateProfile(data)

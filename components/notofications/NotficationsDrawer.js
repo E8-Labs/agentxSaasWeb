@@ -75,91 +75,9 @@ function NotficationsDrawer({ close }) {
       console.log("error in get notifications is ", e);
     }
   };
-  // const notifications = [
-  // {
-  // id: 1,
-  // title: "Noah is a hotlead",
-  // type: "Hotlead",
-  // fromUserId: "None",
-  // userId: 10,
-  // leadId: 40341,
-  // agentId: "None",
-  // codeRedeemed: "None",
-  // isSeen: true,
-  // createdAt: "2024-12-31T15:50:26.000Z",
-  // updatedAt: "2025-01-03T14:15:55.000Z",
-  // lead: "None",
-  // agent: "None",
-  // fromUser: "None"
-  // },
-  // {
-  // id: 121,
-  // title: "Salman booked a meeting 🗓️",
-  // type: "MeetingBooked",
-  // fromUserId: null,
-  // userId: 10,
-  // leadId: 12,
-  // agentId: 202,
-  // codeRedeemed: null,
-  // isSeen: true,
-  // createdAt: "2025-01-03T09:54:15.000Z",
-  // updatedAt: "2025-01-03T14:15:55.000Z",
-  // lead: {
-  // id: 12,
-  // firstName: "Salman",
-  // lastName: "Majid",
-  // address: "123 Elm St",
-  // email: "salman@gmail.com",
-  // phone: "923058191078",
-  // status: "active",
-  // sheetId: 2,
-  // extraColumns: "{\"roof_type\":\"Asphalt Shingle\",\"monthly_energy_bill\":2500,\"notes\":null}",
-  // columnMappings: "",
-  // userId: 10,
-  // stage: null,
-  // createdAt: "2024-11-24T20:50:12.000Z",
-  // updatedAt: "2024-11-24T20:50:12.000Z"
-  // },
-  // agent: {
-  // id: 202,
-  // name: "test",
-  // agentRole: "test",
-  // mainAgentId: 203,
-  // userId: 10,
-  // agentType: "outbound",
-  // agentObjectiveId: 3,
-  // agentObjective: "Community update",
-  // agentObjectiveDescription: "Provide local homeowners with relevant updates on a property like just listed, just sold, in escrow or something else. ",
-  // status: "Just sold",
-  // address: "300 14th Street, San Diego, CA, USA",
-  // prompt: null,
-  // modelId: "1735842271879x907888399150540200",
-  // phoneNumber: "+18054579527",
-  // phoneSid: "",
-  // phoneStatus: "active",
-  // phoneNumberPrice: "2",
-  // phonePurchasedAt: null,
-  // callbackNumber: "+18054579527",
-  // liveTransferNumber: "",
-  // liveTransfer: false,
-  // liveTransferActionId: null,
-  // voiceId: "5T8AzGjpnC5cQCfJofdO",
-  // full_profile_image: "",
-  // thumb_profile_image: "",
-  // createdAt: "2025-01-02T18:24:33.000Z",
-  // updatedAt: "2025-01-02T18:54:05.000Z"
-  // },
-  // fromUser: null
-  // }
 
-  // ]
 
   //function to get support
-  const styles = {
-    bg: {
-      backgroundColor: ""
-    }
-  }
   const getSupport = () => {
     let userData = localStorage.getItem("User");
     if (userData) {
@@ -192,32 +110,30 @@ function NotficationsDrawer({ close }) {
           height={37}
           width={37}
           alt="*"
-          style={styles.bg}
         />
       );
     } else if (item.type === NotificationTypes.InviteAccepted) {
       return (
         <div
-          className="flex rounded-full justify-center items-center bg-black text-white text-md"
+          className="flex rounded-full justify-center items-center bg-black text-white text-md flex-shrink-0"
           style={{ height: 37, width: 37, textTransform: "capitalize" }}
         >
           {item.title[0]}
         </div>
       );
-    } else if (item.type === NotificationTypes.Hotlead) {
+    } else if (item.type === NotificationTypes.Hotlead || item.type === NotificationTypes.FirstLeadUpload) {
       return (
         <Image
           src={"/svgIcons/hotLeadNotIcon.svg"}
           height={37}
           width={37}
           alt="*"
-          style={styles.bg}
         />
       );
     } else if (item.type === NotificationTypes.TotalHotlead) {
       return (
         <div
-          className="flex rounded-full justify-center items-center bg-black text-white text-md"
+          className="flex rounded-full justify-center items-center bg-black text-white text-md flex-shrink-0"
           style={{ height: 37, width: 37, textTransform: "capitalize" }}
         >
           {item.title[0]}
@@ -226,7 +142,7 @@ function NotficationsDrawer({ close }) {
     } else if (item.type === NotificationTypes.MeetingBooked) {
       return (
         <div
-          className="flex rounded-full justify-center items-center bg-black text-white text-md"
+          className="flex rounded-full justify-center items-center bg-black text-white text-md flex-shrink-0"
           style={{ height: 37, width: 37, textTransform: "capitalize" }}
         >
           {item.title[0]}
@@ -239,17 +155,16 @@ function NotficationsDrawer({ close }) {
           height={22}
           width={22}
           alt="*"
-          style={styles.bg}
         />
       );
     } else if (item.type === NotificationTypes.CallsMadeByAgent) {
       return (
-        <Image src={"/svgIcons/aiNotIcon.svg"} height={25} width={25} alt="*" style={styles.bg} />
+        <Image src={"/svgIcons/aiNotIcon.svg"} height={40} width={40} alt="*" />
       );
     } else if (item.type === NotificationTypes.LeadCalledBack) {
       return (
         <div
-          className="flex rounded-full justify-center items-center bg-black text-white text-md"
+          className="flex rounded-full justify-center items-center bg-black text-white text-md flex-shrink-0"
           style={{ height: 37, width: 37, textTransform: "capitalize" }}
         >
           {item.title[0]}
@@ -257,35 +172,59 @@ function NotficationsDrawer({ close }) {
       );
     } else if (item.type === NotificationTypes.Trial30MinTicking) {
       return (
-        <Image src={"/svgIcons/Trial30MinTickingNotIcon.svg"} height={22} width={22} alt="*" style={styles.bg} />
+        <Image src={"/svgIcons/Trial30MinTickingNotIcon.svg"} height={22} width={22} alt="*" />
       );
-    } else if (item.type === NotificationTypes.X3MoreLikeyToWin) {
+    } else if (item.type === NotificationTypes.X3MoreLikeyToWin || item.type === NotificationTypes.ThousandCalls) {
       return (
-        <Image src={"/svgIcons/3xMoreLikeyToWinNotIcon.svg"} height={22} width={22} alt="*" style={styles.bg} />
+        <Image src={"/svgIcons/3xMoreLikeyToWinNotIcon.svg"} height={22} width={22} alt="*" />
       );
     } else if (item.type === NotificationTypes.NeedHand || item.type === NotificationTypes.NeedHelpDontMissOut) {
       return (
-        <Image src={"/svgIcons/NeedHandNotIcon.svg"} height={22} width={22} alt="*" style={styles.bg} />
+        <Image src={"/svgIcons/NeedHandNotIcon.svg"} height={22} width={22} alt="*" />
       );
     } else if (item.type === NotificationTypes.TrialReminder) {
       return (
-        <Image src={"/svgIcons/TrialReminderNotIcon.svg"} height={22} width={22} alt="*" style={styles.bg} />
+        <Image src={"/svgIcons/TrialReminderNotIcon.svg"} height={22} width={22} alt="*" />
       );
     } else if (item.type === NotificationTypes.LastChanceToAct) {
       return (
-        <Image src={"/svgIcons/LastChanceToActNotIcon.svg"} height={22} width={22} alt="*" style={styles.bg} />
+        <Image src={"/svgIcons/LastChanceToActNotIcon.svg"} height={22} width={22} alt="*" />
       );
     } else if (item.type === NotificationTypes.LastDayToMakeItCount) {
       return (
-        <Image src={"/svgIcons/LastDayToMakeItCountNotIcon.svg"} height={22} width={22} alt="*" style={styles.bg} />
+        <Image src={"/svgIcons/LastDayToMakeItCountNotIcon.svg"} height={22} width={22} alt="*" />
       );
-    } else if (item.type === NotificationTypes.TrialTime2MinLeft) {
+    } else if (item.type === NotificationTypes.TrialTime2MinLeft || item.type === NotificationTypes.TwoThousandCalls) {
       return (
-        <Image src={"/svgIcons/TrialTime2MinLeftNotIcon.svg"} height={22} width={22} alt="*" style={styles.bg} />
+        <Image src={"/svgIcons/TrialTime2MinLeftNotIcon.svg"} height={22} width={22} alt="*" />
       );
     } else if (item.type === NotificationTypes.PlanRenewed) {
       return (
-        <Image src={"/svgIcons/PlanRenewedNotIcon.svg"} height={22} width={22} alt="*" style={styles.bg} />
+        <Image src={"/svgIcons/PlanRenewedNotIcon.svg"} height={22} width={22} alt="*" />
+      );
+    } else if (item.type === NotificationTypes.FirstAppointment) {
+      return (
+        <Image src={"/svgIcons/FirstAppointmentNotIcon.svg"} height={22} width={22} alt="*" />
+      );
+    } else if (item.type === NotificationTypes.ThreeAppointments) {
+      return (
+        <Image src={"/svgIcons/SevenAppointmentsNotIcon.svg"} height={22} width={22} alt="*" />
+      );
+    } else if (item.type === NotificationTypes.SevenAppointments) {
+      return (
+        <Image src={"/svgIcons/SevenAppointmentsNotIcon.svg"} height={22} width={22} alt="*" />
+      );
+    } else if (item.type === NotificationTypes.Day14FeedbackRequest) {
+      return (
+        <Image src={"/svgIcons/Day14FeedbackRequestNotIcon.svg"} height={22} width={22} alt="*" />
+      );
+    } else if (item.type === NotificationTypes.PlanUpgradeSuggestionFor30MinPlan) {
+      return (
+        <Image src={"/svgIcons/PlanUpgradeSuggestionFor30MinPlanNotIcon.svg"} height={22} width={22} alt="*" />
+      );
+    } else if (item.type === NotificationTypes.TestAINotification) {
+      return (
+        <Image src={"/svgIcons/TestAINotificationNotIcon.svg"} height={22} width={22} alt="*" />
       );
     }
   };
@@ -324,7 +263,9 @@ function NotficationsDrawer({ close }) {
         </button>
       )
     } else if (NotificationTypes.Trial30MinTicking === item.type || NotificationTypes.TrialReminder === item.type ||
-      NotificationTypes.LastDayToMakeItCount === item.type) {
+      NotificationTypes.LastDayToMakeItCount === item.type || NotificationTypes.FirstLeadUpload === item.type ||
+      NotificationTypes.TwoThousandCalls === item.type
+    ) {
       return (
         <button
           className="outline-none"
@@ -337,7 +278,7 @@ function NotficationsDrawer({ close }) {
           </div>
         </button>
       )
-    } else if (NotificationTypes.X3MoreLikeyToWin === item.type) {
+    } else if (NotificationTypes.X3MoreLikeyToWin === item.type || NotificationTypes.ThousandCalls === item.type) {
       return (
         <button
           className="outline-none"
@@ -379,7 +320,11 @@ function NotficationsDrawer({ close }) {
           </div>
         </button>
       )
-    } else if (NotificationTypes.LastChanceToAct === item.type) {
+    } else if (NotificationTypes.LastChanceToAct === item.type || NotificationTypes.FirstAppointment === item.type ||
+      NotificationTypes.ThreeAppointments === item.type || NotificationTypes.SevenAppointments === item.type ||
+      NotificationTypes.Day14FeedbackRequest === item.type || NotificationTypes.PlanUpgradeSuggestionFor30MinPlan === item.type
+
+    ) {
       return (
         <button
           className="outline-none"
@@ -425,53 +370,57 @@ function NotficationsDrawer({ close }) {
         className="w-full flex flex-row justify-between items-start mt-10"
       >
 
-        {getNotificationImage(item)}
+        <div className="flex flex-row items-start gap-6 w-[80%]">
+          {getNotificationImage(item)}
 
-        <div
-          className={`w-7/12`}
-        >
-          <div className="flex flex-col gap-1 items-start">
+          <div
+            className={`w-full`}
+          >
+            <div className="flex flex-col gap-1 items-start">
 
-            <div className="flex flex-col w-full gap-1">
-              <div className="flex flex-wrap items-center" style={{ fontSize: 16, fontWeight: "600" }}>
-                {item.title}
-                {item.type === NotificationTypes.NoCallsIn3Days && (
-                  <button
-                    style={{
-                      fontSize: 15,
-                      fontWeight: "500",
-                      color: "#7902DF",
-                      textDecorationLine: "underline",
-                      marginLeft: "8px", // Add some spacing between the title and button
-                    }}
-                    onClick={() => {
-                      getSupport()
-                    }}
-                  >
-                    Need help?
-                  </button>
-                )}
-              </div>
-            </div>
-
-
-            {
-              item.body && (
-                <div className=" flex flex col gap-2" style={{ fontSize: 15, fontWeight: "500" }}>
-                  {item.body}
+              <div className="flex flex-col w-full gap-1">
+                <div className="flex flex-wrap items-center" style={{ fontSize: 16, fontWeight: "600" }}>
+                  {item.title}
+                  {item.type === NotificationTypes.NoCallsIn3Days && (
+                    <button
+                      style={{
+                        fontSize: 15,
+                        fontWeight: "500",
+                        color: "#7902DF",
+                        textDecorationLine: "underline",
+                        marginLeft: "8px", // Add some spacing between the title and button
+                      }}
+                      onClick={() => {
+                        getSupport()
+                      }}
+                    >
+                      Need help?
+                    </button>
+                  )}
                 </div>
-              )
-            }
+              </div>
 
-            <div style={{ fontSize: 13, fontWeight: "500", color: "#00000060" }}>
-              {GetFormattedDateString(item?.createdAt, true)}
+
+              {
+                item.body && (
+                  <div className=" flex flex col gap-2" style={{ fontSize: 15, fontWeight: "500" }}>
+                    {item.body}
+                  </div>
+                )
+              }
+
+              <div style={{ fontSize: 13, fontWeight: "500", color: "#00000060" }}>
+                {GetFormattedDateString(item?.createdAt, true)}
+              </div>
             </div>
           </div>
         </div>
 
-        {
-          getNotificationBtn(item)
-        }
+        <div className="w-[20%]">
+          {
+            getNotificationBtn(item)
+          }
+        </div>
 
         {showDetailsModal && (
           <LeadDetails
@@ -621,4 +570,3 @@ export const notLeadDetails = () => {
     </div>
   )
 }
-
