@@ -274,7 +274,7 @@ const ProfileNav = () => {
       console.log("Available seconds are", Data?.totalSecondsAvailable)
 
       if (response) {
-        if (Data?.totalSecondsAvailable <= 120 || (Data?.plan == null) || (Data?.plan && Data?.plan?.status !== "active")) {
+        if (Data?.totalSecondsAvailable <= 120 || (Data?.plan == null) || (Data?.plan && Data?.plan?.status !== "active" && Data?.totalSecondsAvailable <= 120)) {
           setShowPlansPopup(true);
 
         } else {
