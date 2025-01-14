@@ -107,13 +107,15 @@ function BasicInfo() {
   }, []);
 
   const hasAreaFocusChanged = () => {
-    if (selectedArea.length !== originalSelectedArea.length) return true;
-    return selectedArea.includes((id) => !originalSelectedArea.includes(id));
+    // if (selectedArea.length !== originalSelectedArea.length) return true;
+    // return selectedArea.includes((id) => !originalSelectedArea.includes(id));
+    return true
   };
 
   const hasServiceChanged = () => {
-    if (serviceId.length !== originalSelectedService.length) return true;
-    return serviceId.includes((id) => !originalSelectedService.includes(id));
+    // if (serviceId.length !== originalSelectedService.length)
+    return true;
+    // return serviceId.includes((id) => !originalSelectedService.includes(id));
   };
 
 
@@ -317,26 +319,42 @@ function BasicInfo() {
   // };
 
   const handleserviceId = (id) => {
-    // setServiceId(prevId => (prevId === id ? null : id));
-    setServiceId((prevIds) => {
-      if (prevIds.includes(id)) {
-        // Unselect the item if it's already selected
-        return prevIds.filter((prevId) => prevId !== id);
-      } else {
-        // Select the item if it's not already selected
-        return [...prevIds, id];
-      }
-    });
+    console.log("Id to ad is", id);
+    console.log("Old is are", serviceId)
+    let newIDs = [];
+    if (serviceId.includes(id)) {
+      // Unselect the item if it's already selected
+      newIDs = serviceId.filter((prevId) => prevId !== id);
+    } else {
+      // Select the item if it's not already selected
+      newIDs = [...serviceId, id];
+    }
+
+    setServiceId(newIDs);
+    console.log("New array is", newIDs);
   }
 
   const handleAreaSelect = (id) => {
+    console.log("Id to ad is", id);
+    console.log("Old is are", selectedArea)
+    let newIDs = []
+    if (selectedArea.includes(id)) {
+      // Unselect the item if it's already selected
+      newIDs = selectedArea.filter((prevId) => prevId !== id);
+    } else {
+      // Select the item if it's not already selected
+      newIDs = [...selectedArea, id];
+    }
+    setSelectedArea(newIDs);
+    console.log("New array is", newIDs)
+    return
     setSelectedArea((prevIds) => {
       if (prevIds.includes(id)) {
         // Unselect the item if it's already selected
         return prevIds.filter((prevId) => prevId !== id);
       } else {
         // Select the item if it's not already selected
-        return [...prevIds,id];
+        return [...prevIds, id];
       }
     })
 
@@ -354,8 +372,8 @@ function BasicInfo() {
         areaOfFocus: selectedArea //[selectedArea.join()]
       }
       console.log('data is', data)
-      // return
 
+      // return
       await UpdateProfile(data)
       setOriginalSelectedArea([...selectedArea]);
       setAreaLoading(false)
@@ -371,8 +389,8 @@ function BasicInfo() {
         agentService: serviceId//[serviceId.join()]
       }
       console.log('Api data is', serviceId)
-      // return
 
+      // return
       await UpdateProfile(data)
       setOriginalSelectedService([...serviceId]);
       setServiceLoader(false)

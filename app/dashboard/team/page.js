@@ -343,20 +343,23 @@ function Page() {
           </div>
         ) : (
           <div className="w-11/12 flex flex-col items-start">
-            <div className="w-full flex flex-row items-center justify-end">
-              <button
-                className="rounded-lg text-white bg-purple mt-8"
-                style={{
-                  fontWeight: "500",
-                  fontSize: "16",
-                  height: "50px",
-                  width: "173px",
-                }}
-                onClick={() => setOpenInvitePopup(true)}
-              >
-                + Invite new
-              </button>
-            </div>
+            {myTeam.length > 0 && (
+              <div className="w-full flex flex-row items-center justify-end">
+                <button
+                  className="rounded-lg text-white bg-purple mt-8"
+                  style={{
+                    fontWeight: "500",
+                    fontSize: "16",
+                    height: "50px",
+                    width: "173px",
+                  }}
+                  onClick={() => setOpenInvitePopup(true)}
+                >
+                  + Invite new
+                </button>
+              </div>
+            )
+            }
 
             {myTeam.length > 0 ? (
               <div
@@ -496,20 +499,35 @@ function Page() {
                 ))}
               </div>
             ) : (
-              <div
-                style={{
-                  fontWeight: "600",
-                  fontSize: 24,
-                  textAlign: "center",
-                  marginTop: 25,
-                }}
-              >
-                No Team Member
+              <div className="h-screen w-full flex flex-col items-center justify-center">
+                <div>
+                  <Image
+                    src={"/svgIcons/noTeamIcon2.svg"}
+                    height={291}
+                    width={249}
+                    alt="*"
+                  />
+                </div>
+                <div className="">
+                  <button
+                    className="rounded-lg text-white bg-purple mt-8"
+                    style={{
+                      fontWeight: "500",
+                      fontSize: "16",
+                      height: "50px",
+                      width: "173px",
+                    }}
+                    onClick={() => setOpenInvitePopup(true)}
+                  >
+                    + Invite new
+                  </button>
+                </div>
               </div>
             )}
           </div>
-        )}
-      </div>
+        )
+        }
+      </div >
 
       <Modal
         open={openInvitePopup}
@@ -774,7 +792,7 @@ function Page() {
           </div>
         </Box>
       </Modal>
-    </div>
+    </div >
   );
 }
 

@@ -103,130 +103,140 @@ function NotficationsDrawer({ close }) {
           alt="*"
         />
       );
-    } else if (item.type === NotificationTypes.NoCallsIn3Days) {
-      return (
-        <Image
-          src={"/svgIcons/callsNotIcon.svg"}
-          height={37}
-          width={37}
-          alt="*"
-        />
-      );
-    } else if (item.type === NotificationTypes.InviteAccepted) {
-      return (
-        <div
-          className="flex rounded-full justify-center items-center bg-black text-white text-md flex-shrink-0"
-          style={{ height: 37, width: 37, textTransform: "capitalize" }}
-        >
-          {item.title[0]}
-        </div>
-      );
-    } else if (item.type === NotificationTypes.Hotlead || item.type === NotificationTypes.FirstLeadUpload) {
-      return (
-        <Image
-          src={"/svgIcons/hotLeadNotIcon.svg"}
-          height={37}
-          width={37}
-          alt="*"
-        />
-      );
-    } else if (item.type === NotificationTypes.TotalHotlead) {
-      return (
-        <div
-          className="flex rounded-full justify-center items-center bg-black text-white text-md flex-shrink-0"
-          style={{ height: 37, width: 37, textTransform: "capitalize" }}
-        >
-          {item.title[0]}
-        </div>
-      );
-    } else if (item.type === NotificationTypes.MeetingBooked) {
-      return (
-        <div
-          className="flex rounded-full justify-center items-center bg-black text-white text-md flex-shrink-0"
-          style={{ height: 37, width: 37, textTransform: "capitalize" }}
-        >
-          {item.title[0]}
-        </div>
-      );
-    } else if (item.type === NotificationTypes.PaymentFailed) {
-      return (
-        <Image
-          src={"/svgIcons/urgentNotIcon.svg"}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      );
-    } else if (item.type === NotificationTypes.CallsMadeByAgent) {
-      return (
-        <Image src={"/svgIcons/aiNotIcon.svg"} height={40} width={40} alt="*" />
-      );
-    } else if (item.type === NotificationTypes.LeadCalledBack) {
-      return (
-        <div
-          className="flex rounded-full justify-center items-center bg-black text-white text-md flex-shrink-0"
-          style={{ height: 37, width: 37, textTransform: "capitalize" }}
-        >
-          {item.title[0]}
-        </div>
-      );
-    } else if (item.type === NotificationTypes.Trial30MinTicking) {
-      return (
-        <Image src={"/svgIcons/Trial30MinTickingNotIcon.svg"} height={22} width={22} alt="*" />
-      );
-    } else if (item.type === NotificationTypes.X3MoreLikeyToWin || item.type === NotificationTypes.ThousandCalls) {
-      return (
-        <Image src={"/svgIcons/3xMoreLikeyToWinNotIcon.svg"} height={22} width={22} alt="*" />
-      );
-    } else if (item.type === NotificationTypes.NeedHand || item.type === NotificationTypes.NeedHelpDontMissOut) {
-      return (
-        <Image src={"/svgIcons/NeedHandNotIcon.svg"} height={22} width={22} alt="*" />
-      );
-    } else if (item.type === NotificationTypes.TrialReminder) {
-      return (
-        <Image src={"/svgIcons/TrialReminderNotIcon.svg"} height={22} width={22} alt="*" />
-      );
-    } else if (item.type === NotificationTypes.LastChanceToAct) {
-      return (
-        <Image src={"/svgIcons/LastChanceToActNotIcon.svg"} height={22} width={22} alt="*" />
-      );
-    } else if (item.type === NotificationTypes.LastDayToMakeItCount) {
-      return (
-        <Image src={"/svgIcons/LastDayToMakeItCountNotIcon.svg"} height={22} width={22} alt="*" />
-      );
-    } else if (item.type === NotificationTypes.TrialTime2MinLeft || item.type === NotificationTypes.TwoThousandCalls) {
-      return (
-        <Image src={"/svgIcons/TrialTime2MinLeftNotIcon.svg"} height={22} width={22} alt="*" />
-      );
-    } else if (item.type === NotificationTypes.PlanRenewed) {
-      return (
-        <Image src={"/svgIcons/PlanRenewedNotIcon.svg"} height={22} width={22} alt="*" />
-      );
-    } else if (item.type === NotificationTypes.FirstAppointment) {
-      return (
-        <Image src={"/svgIcons/FirstAppointmentNotIcon.svg"} height={22} width={22} alt="*" />
-      );
-    } else if (item.type === NotificationTypes.ThreeAppointments) {
-      return (
-        <Image src={"/svgIcons/SevenAppointmentsNotIcon.svg"} height={22} width={22} alt="*" />
-      );
-    } else if (item.type === NotificationTypes.SevenAppointments) {
-      return (
-        <Image src={"/svgIcons/SevenAppointmentsNotIcon.svg"} height={22} width={22} alt="*" />
-      );
-    } else if (item.type === NotificationTypes.Day14FeedbackRequest) {
-      return (
-        <Image src={"/svgIcons/Day14FeedbackRequestNotIcon.svg"} height={22} width={22} alt="*" />
-      );
-    } else if (item.type === NotificationTypes.PlanUpgradeSuggestionFor30MinPlan) {
-      return (
-        <Image src={"/svgIcons/PlanUpgradeSuggestionFor30MinPlanNotIcon.svg"} height={22} width={22} alt="*" />
-      );
-    } else if (item.type === NotificationTypes.TestAINotification) {
-      return (
-        <Image src={"/svgIcons/TestAINotificationNotIcon.svg"} height={22} width={22} alt="*" />
-      );
-    }
+    } else
+      if (item.type === NotificationTypes.RedeemedAgentXCodeMine) {
+        return (
+          <Image
+            src={"/svgIcons/minsNotIcon.svg"}
+            height={22}
+            width={22}
+            alt="*"
+          />
+        );
+      } else if (item.type === NotificationTypes.NoCallsIn3Days) {
+        return (
+          <Image
+            src={"/svgIcons/callsNotIcon.svg"}
+            height={37}
+            width={37}
+            alt="*"
+          />
+        );
+      } else if (item.type === NotificationTypes.InviteAccepted) {
+        return (
+          <div
+            className="flex rounded-full justify-center items-center bg-black text-white text-md flex-shrink-0"
+            style={{ height: 37, width: 37, textTransform: "capitalize" }}
+          >
+            {item.title[0]}
+          </div>
+        );
+      } else if (item.type === NotificationTypes.Hotlead || item.type === NotificationTypes.FirstLeadUpload) {
+        return (
+          <Image
+            src={"/svgIcons/hotLeadNotIcon.svg"}
+            height={37}
+            width={37}
+            alt="*"
+          />
+        );
+      } else if (item.type === NotificationTypes.TotalHotlead) {
+        return (
+          <div
+            className="flex rounded-full justify-center items-center bg-black text-white text-md flex-shrink-0"
+            style={{ height: 37, width: 37, textTransform: "capitalize" }}
+          >
+            {item.title[0]}
+          </div>
+        );
+      } else if (item.type === NotificationTypes.MeetingBooked) {
+        return (
+          <div
+            className="flex rounded-full justify-center items-center bg-black text-white text-md flex-shrink-0"
+            style={{ height: 37, width: 37, textTransform: "capitalize" }}
+          >
+            {item.title[0]}
+          </div>
+        );
+      } else if (item.type === NotificationTypes.PaymentFailed) {
+        return (
+          <Image
+            src={"/svgIcons/urgentNotIcon.svg"}
+            height={22}
+            width={22}
+            alt="*"
+          />
+        );
+      } else if (item.type === NotificationTypes.CallsMadeByAgent) {
+        return (
+          <Image src={"/svgIcons/aiNotIcon.svg"} height={40} width={40} alt="*" />
+        );
+      } else if (item.type === NotificationTypes.LeadCalledBack) {
+        return (
+          <div
+            className="flex rounded-full justify-center items-center bg-black text-white text-md flex-shrink-0"
+            style={{ height: 37, width: 37, textTransform: "capitalize" }}
+          >
+            {item.title[0]}
+          </div>
+        );
+      } else if (item.type === NotificationTypes.Trial30MinTicking) {
+        return (
+          <Image src={"/svgIcons/Trial30MinTickingNotIcon.svg"} height={22} width={22} alt="*" />
+        );
+      } else if (item.type === NotificationTypes.X3MoreLikeyToWin || item.type === NotificationTypes.ThousandCalls) {
+        return (
+          <Image src={"/svgIcons/3xMoreLikeyToWinNotIcon.svg"} height={22} width={22} alt="*" />
+        );
+      } else if (item.type === NotificationTypes.NeedHand || item.type === NotificationTypes.NeedHelpDontMissOut) {
+        return (
+          <Image src={"/svgIcons/NeedHandNotIcon.svg"} height={22} width={22} alt="*" />
+        );
+      } else if (item.type === NotificationTypes.TrialReminder) {
+        return (
+          <Image src={"/svgIcons/TrialReminderNotIcon.svg"} height={22} width={22} alt="*" />
+        );
+      } else if (item.type === NotificationTypes.LastChanceToAct) {
+        return (
+          <Image src={"/svgIcons/LastChanceToActNotIcon.svg"} height={22} width={22} alt="*" />
+        );
+      } else if (item.type === NotificationTypes.LastDayToMakeItCount) {
+        return (
+          <Image src={"/svgIcons/LastDayToMakeItCountNotIcon.svg"} height={22} width={22} alt="*" />
+        );
+      } else if (item.type === NotificationTypes.TrialTime2MinLeft || item.type === NotificationTypes.TwoThousandCalls) {
+        return (
+          <Image src={"/svgIcons/TrialTime2MinLeftNotIcon.svg"} height={22} width={22} alt="*" />
+        );
+      } else if (item.type === NotificationTypes.PlanRenewed) {
+        return (
+          <Image src={"/svgIcons/PlanRenewedNotIcon.svg"} height={22} width={22} alt="*" />
+        );
+      } else if (item.type === NotificationTypes.FirstAppointment) {
+        return (
+          <Image src={"/svgIcons/FirstAppointmentNotIcon.svg"} height={22} width={22} alt="*" />
+        );
+      } else if (item.type === NotificationTypes.ThreeAppointments) {
+        return (
+          <Image src={"/svgIcons/SevenAppointmentsNotIcon.svg"} height={22} width={22} alt="*" />
+        );
+      } else if (item.type === NotificationTypes.SevenAppointments) {
+        return (
+          <Image src={"/svgIcons/SevenAppointmentsNotIcon.svg"} height={22} width={22} alt="*" />
+        );
+      } else if (item.type === NotificationTypes.Day14FeedbackRequest) {
+        return (
+          <Image src={"/svgIcons/Day14FeedbackRequestNotIcon.svg"} height={22} width={22} alt="*" />
+        );
+      } else if (item.type === NotificationTypes.PlanUpgradeSuggestionFor30MinPlan) {
+        return (
+          <Image src={"/svgIcons/PlanUpgradeSuggestionFor30MinPlanNotIcon.svg"} height={22} width={22} alt="*" />
+        );
+      } else if (item.type === NotificationTypes.TestAINotification) {
+        return (
+          <Image src={"/svgIcons/TestAINotificationNotIcon.svg"} height={22} width={22} alt="*" />
+        );
+      }
   };
 
   const getNotificationBtn = (item) => {
@@ -541,8 +551,32 @@ function NotficationsDrawer({ close }) {
                 <CircularProgress size={35} />
               </div>
             ) : !notifications.length > 0 ? (
-              <div style={{ fontSize: 20, fontWeight: "700", padding: 20 }}>
-                No Notification
+              <div className="h-screen flex flex-col items-center justify-center w-full" //style={{ fontSize: 20, fontWeight: "700", padding: 20 }}
+              >
+                <Image
+                  src={"/svgIcons/notNotificationImg.svg"}
+                  height={297}
+                  width={364}
+                  alt="*"
+                />
+                <div
+                  className="-mt-8"
+                  style={{
+                    fontSize: 16.8,
+                    fontWeight: "700",
+                  }}
+                >
+                  Nothing to see here... yet!
+                </div>
+                <div
+                  className="mt-2"
+                  style={{
+                    fontSize: 15,
+                    fontWeight: "500",
+                  }}
+                >
+                  {`You’ll find all your notifications here`}
+                </div>
               </div>
             ) : (
               notifications.map((item, index) => renderItem(item, index))
