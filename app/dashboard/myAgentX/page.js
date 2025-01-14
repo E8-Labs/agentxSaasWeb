@@ -635,63 +635,90 @@ function Page() {
         // );
 
         // Update the agent's phone number and ensure no other agents have the same phone number
+        console.log("Agents Content is ", agentsContent)
+        let agents = [] 
+        let mainAgents = []//Main agents not subagents list
 
-        const newPhoneNumber1 = response.data.data.agent1.phoneNumber;
-        const newPhoneNumber2 =
-          response.data.data.agent2.phoneNumber.slice(1);
+        
 
-        const UpdatedAgents = agentsContent.map((agent) => {
-          if (agent.id === response.data.data.agent1.id) {
-            // Update agent1's phone number
-            return { ...agent, phoneNumber: newPhoneNumber1 };
-          }
-
-          if (agent.id === response.data.data.agent2.id) {
-            // Update agent2's phone number
-            return { ...agent, phoneNumber: newPhoneNumber2 };
-          }
-
-          // If the phone number matches either of the new phone numbers, set it to null
-          if (agent.phoneNumber === newPhoneNumber1) {
-            // || agent.phoneNumber === newPhoneNumber2
-            return { ...agent, phoneNumber: null };
-          }
-
-          // Otherwise, return the agent unchanged
-          return agent;
-        });
-
-        console.log("Updated agent list is after changing phone", UpdatedAgents);
-
-        localStorage.setItem("localAgentDetails", JSON.stringify(UpdatedAgents));
-
-
-        setAgentsContent((prevAgents) => {
-          const newPhoneNumber1 = response.data.data.agent1.phoneNumber;
-          const newPhoneNumber2 =
-            response.data.data.agent2.phoneNumber.slice(1);
-
-          return prevAgents.map((agent) => {
-            if (agent.id === response.data.data.agent1.id) {
-              // Update agent1's phone number
-              return { ...agent, phoneNumber: newPhoneNumber1 };
+        for(let ag of agentsContent){
+          if(ag.phoneNumber == item.phoneNumber){
+            if(ag.agentType == "inbound"){
+              ag.phoneNumber = ""
+              console.log("Removing phone number from ", ag.name)
             }
-
-            if (agent.id === response.data.data.agent2.id) {
-              // Update agent2's phone number
-              return { ...agent, phoneNumber: newPhoneNumber2 };
+          }
+          else{
+            if(ag.id == showDrawerSelectedAgent.id){
+              ag.phoneNumber = item.phoneNumber
+              console.log("Assigning phone number to ", ag.name)
             }
+          }
+          agents.push(ag)
+        }
+        console.log("Total agents after updating ", agents.length)
+        setAgentsContent(agents)
+        localStorage.setItem("localAgentDetails", JSON.stringify(agents))
 
-            // If the phone number matches either of the new phone numbers, set it to null
-            if (agent.phoneNumber === newPhoneNumber1) {
-              // || agent.phoneNumber === newPhoneNumber2
-              return { ...agent, phoneNumber: null };
-            }
 
-            // Otherwise, return the agent unchanged
-            return agent;
-          });
-        });
+
+        // return
+        // const newPhoneNumber1 = response.data.data.agent1.phoneNumber;
+        // const newPhoneNumber2 =
+        //   response.data.data.agent2.phoneNumber.slice(1);
+
+        // const UpdatedAgents = agentsContent.map((agent) => {
+        //   if (agent.id === response.data.data.agent1.id) {
+        //     // Update agent1's phone number
+        //     return { ...agent, phoneNumber: newPhoneNumber1 };
+        //   }
+
+        //   if (agent.id === response.data.data.agent2.id) {
+        //     // Update agent2's phone number
+        //     return { ...agent, phoneNumber: newPhoneNumber2 };
+        //   }
+
+        //   // If the phone number matches either of the new phone numbers, set it to null
+        //   if (agent.phoneNumber === newPhoneNumber1) {
+        //     // || agent.phoneNumber === newPhoneNumber2
+        //     return { ...agent, phoneNumber: null };
+        //   }
+
+        //   // Otherwise, return the agent unchanged
+        //   return agent;
+        // });
+
+        console.log("Updated agent list is after changing phone", agents);
+
+        // localStorage.setItem("localAgentDetails", JSON.stringify(UpdatedAgents));
+
+
+        // setAgentsContent((prevAgents) => {
+        //   const newPhoneNumber1 = response.data.data.agent1.phoneNumber;
+        //   const newPhoneNumber2 =
+        //     response.data.data.agent2.phoneNumber.slice(1);
+
+        //   return prevAgents.map((agent) => {
+        //     if (agent.id === response.data.data.agent1.id) {
+        //       // Update agent1's phone number
+        //       return { ...agent, phoneNumber: newPhoneNumber1 };
+        //     }
+
+        //     if (agent.id === response.data.data.agent2.id) {
+        //       // Update agent2's phone number
+        //       return { ...agent, phoneNumber: newPhoneNumber2 };
+        //     }
+
+        //     // If the phone number matches either of the new phone numbers, set it to null
+        //     if (agent.phoneNumber === newPhoneNumber1) {
+        //       // || agent.phoneNumber === newPhoneNumber2
+        //       return { ...agent, phoneNumber: null };
+        //     }
+
+        //     // Otherwise, return the agent unchanged
+        //     return agent;
+        //   });
+        // });
 
         setShowConfirmationModal(null);
         // setShowDrawer(null);
@@ -1185,30 +1212,36 @@ function Page() {
   //function ot compare the selected agent wiith the main agents list
   const matchingAgent = (agent) => {
     const agentData = userAgentsList.filter(
-      (prevAgent) => prevAgent.name === agent.name
+      (prevAgent) => prevAgent.id === agent.id
     );
     //console.log("Agent matcing grretings are:", agentData);
     setKYCList(agentData[0].kyc);
 
     //console.log("Pipeline of selected agent", agentData[0].pipeline);
-
+    console.log("Received Agent ", agent)
     setMainAgentId(agentData[0].id);
-    if (
-      agentData[0].agents?.length === 2 ||
-      agentData[0].agents[0].agentType === "outbound"
-    ) {
-      setUserPipeline(agentData[0].pipeline);
-      // setOldGreetingTagInput(agentData[0].greeting);
-      // setGreetingTagInput(agentData[0].greeting);
-      // setScriptTagInput(agentData[0].callScript);
-      // setOldScriptTagInput(agentData[0].callScript);
-    } else if (agentData[0].agents[0].agentType === "inbound") {
-      setUserPipeline(agentData[0].pipeline);
-      // setGreetingTagInput(agentData[0].inboundGreeting);
-      // setOldGreetingTagInput(agentData[0].inboundGreeting);
-      // setScriptTagInput(agentData[0].inboundScript);
-      // setOldScriptTagInput(agentData[0].inboundScript);
-    }
+    let firstAgent = agentData[0]
+    console.log("First Agent ", firstAgent)
+    setUserPipeline(firstAgent.pipeline)
+    // if (
+    //   firstAgent.agents?.length === 2
+      
+    // ) {
+    //   if(firstAgent.agents[0].agentType === "outbound"){
+    //     setUserPipeline(firstAgent.pipeline);
+    //   }
+      
+    //   // setOldGreetingTagInput(firstAgent.greeting);
+    //   // setGreetingTagInput(firstAgent.greeting);
+    //   // setScriptTagInput(firstAgent.callScript);
+    //   // setOldScriptTagInput(firstAgent.callScript);
+    // } else if (firstAgent.agents[0].agentType === "inbound") {
+    //   setUserPipeline(firstAgent.pipeline);
+    //   // setGreetingTagInput(agentData[0].inboundGreeting);
+    //   // setOldGreetingTagInput(agentData[0].inboundGreeting);
+    //   // setScriptTagInput(agentData[0].inboundScript);
+    //   // setOldScriptTagInput(agentData[0].inboundScript);
+    // }
 
     // setGreetingTagInput(agentData[0].greeting);
     // // setOldGreetingTagInput(agentData[0].greeting);
@@ -1474,9 +1507,14 @@ function Page() {
   useEffect(() => {
     getCalenders();
     const agentLocalDetails = localStorage.getItem("localAgentDetails");
+    
     if (agentLocalDetails) {
       const agentData = JSON.parse(agentLocalDetails);
+      console.log("Data on LocalStorage", agentData)
       setUserAgentsList(agentData);
+    }
+    else{
+      console.log("No data of agents")
     }
 
     const userData = localStorage.getItem("User");
@@ -1542,7 +1580,7 @@ function Page() {
       if (!agentLocalDetails) {
         setInitialLoader(true);
       }
-      const ApiPath = `${Apis.getAgents}?agentType=outbound`;
+      const ApiPath = `${Apis.getAgents}`;//?agentType=outbound
 
       //console.log("Api path is: ", ApiPath);
 

@@ -103,12 +103,14 @@ const CreateAgentVoice = ({ handleBack }) => {
         if (response.data.status === true) {
           router.push("/sellerskycquestions");
           localStorage.removeItem("claimNumberData");
+        }else{
+          setVoicesLoader(false);
         }
       }
     } catch (error) {
       console.error("ERror occured in api is error0", error);
-    } finally {
       setVoicesLoader(false);
+    } finally {
     }
   };
 

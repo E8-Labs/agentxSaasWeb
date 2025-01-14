@@ -447,8 +447,8 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
         } catch (error) {
             console.error("Error occured in update agent api is:", error);
-        } finally {
             setLoader(false);
+        } finally {
             ////console.log("update agent api completed");
         }
     }
@@ -509,14 +509,16 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 if (response.data.status === true) {
                     localStorage.removeItem("AddCadenceDetails");
                     router.push("/dashboard/leads");
+                } else {
+                    // setLoader(false);
                 }
             }
 
 
         } catch (error) {
             console.error("Error occured in api is :", error);
-        } finally {
             setLoader(false);
+        } finally {
         }
     }
 

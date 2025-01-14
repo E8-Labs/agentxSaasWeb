@@ -398,42 +398,6 @@ const SellerKycs = ({ handleContinue }) => {
       const ApiPath = Apis.addKyc;
       let ApiData = [];
 
-      // if (selectedNeedQuestions.length > 0) {
-      //     // console.log("#need Question details are :", selectedNeedQuestions);
-      //     const data = {
-      //         kycQuestions: kycQuestions,
-      //         mainAgentId: MyAgentData.id
-      //     };
-      //     // console.log("Data to send in api is", data);
-      //     ApiData = data;
-      // } else if (selectedMotivationQuestions.length > 0) {
-      //     console.log("#motivation Question details are :", selectedMotivationQuestions);
-      //     const data = {
-      //         kycQuestions: selectedMotivationQuestions.map(item => ({
-      //             question: item.question,
-      //             category: "motivation",
-      //             type: "seller",
-      //             examples: item.sampleAnswers.filter(answer => answer)
-      //         })),
-      //         mainAgentId: MyAgentData.id
-      //     };
-      //     // console.log("Data to send in api is", data);
-      //     ApiData = data;
-      // } else if (selectedUrgencyQuestions.length > 0) {
-      //     console.log("#urgency Question details are :", selectedUrgencyQuestions);
-      //     const data = {
-      //         kycQuestions: selectedUrgencyQuestions.map(item => ({
-      //             question: item.question,
-      //             category: "urgency",
-      //             type: "seller",
-      //             examples: item.sampleAnswers.filter(answer => answer)
-      //         })),
-      //         mainAgentId: MyAgentData.id
-      //     };
-      //     // console.log("Data to send in api is", data);
-      //     ApiData = data;
-      // }
-
       const data = {
         kycQuestions: kycQuestions,
         mainAgentId: MyAgentData.id,
@@ -458,12 +422,14 @@ const SellerKycs = ({ handleContinue }) => {
             JSON.stringify(response.data.data)
           );
           router.push("/buyerskycquestions");
+        }else{
+          setSellerKycLoader(false);
         }
       }
     } catch (error) {
       console.error("Error occured in api is :--", error);
-    } finally {
       setSellerKycLoader(false);
+    } finally {
     }
   };
 

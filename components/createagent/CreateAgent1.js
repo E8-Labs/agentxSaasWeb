@@ -296,13 +296,14 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
         } else if (response.data.status === false) {
           setSnackMessage("Agent creation failed!");
           setMsgType(SnackbarTypes.Error);
+          setBuildAgentLoader(false);
         }
       }
     } catch (error) {
       console.error("Error occured in build agent api is: ----", error);
-    } finally {
-      setBuildAgentLoader(false);
       setLoaderModal(false);
+      setBuildAgentLoader(false);
+    } finally {
     }
   };
 

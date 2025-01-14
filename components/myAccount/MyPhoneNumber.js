@@ -244,14 +244,6 @@ function MyPhoneNumber() {
                                                     <div className='' style={{ fontSize: 16, fontWeight: '700' }}>
                                                         {item.phoneNumber}
                                                     </div>
-
-                                                    <div style={{ fontSize: 11, fontWeight: '500' }}>
-                                                        {item.claimedBy?.agentType}
-                                                    </div>
-                                                </div>
-
-                                                <div style={{ fontSize: 13, fontWeight: '500' }}>
-                                                    Assigned Agents
                                                 </div>
                                             </div>
 
