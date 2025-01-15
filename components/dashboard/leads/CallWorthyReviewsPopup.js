@@ -214,7 +214,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                         marginRight: 30,
                                       }}
                                     >
-                                      {`Ann's ai`}
+                                      {item?.callActivity[0]?.agent?.name || "-"}
                                     </div>
                                   </div>
                                 </div>

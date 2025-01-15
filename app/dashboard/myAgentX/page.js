@@ -2298,7 +2298,7 @@ function Page() {
                 {scriptKeys?.map((key, index) => (
                   <div key={index}>
                     <div className="pt-5" style={styles.headingStyle}>
-                      {key}
+                      {key[0]?.toUpperCase()}{key?.slice(1)}
                     </div>
                     <input
                       placeholder="Type here"

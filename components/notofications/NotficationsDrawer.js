@@ -141,8 +141,8 @@ function NotficationsDrawer({ close }) {
       return (
         <Image
           src={"/svgIcons/minsNotIcon.svg"}
-          height={22}
-          width={22}
+          height={32}
+          width={32}
           alt="*"
         />
       );
@@ -151,8 +151,8 @@ function NotficationsDrawer({ close }) {
         return (
           <Image
             src={"/svgIcons/minsNotIcon.svg"}
-            height={22}
-            width={22}
+            height={32}
+            width={32}
             alt="*"
           />
         );
@@ -174,7 +174,7 @@ function NotficationsDrawer({ close }) {
             {item.title[0]}
           </div>
         );
-      } else if (item.type === NotificationTypes.Hotlead || item.type === NotificationTypes.FirstLeadUpload) {
+      } else if (item.type === NotificationTypes.Hotlead || item.type === NotificationTypes.FirstLeadUpload || item.type === NotificationTypes.SocialProof) {
         return (
           <Image
             src={"/svgIcons/hotLeadNotIcon.svg"}
@@ -227,11 +227,11 @@ function NotficationsDrawer({ close }) {
         return (
           <Image src={"/svgIcons/Trial30MinTickingNotIcon.svg"} height={22} width={22} alt="*" />
         );
-      } else if (item.type === NotificationTypes.X3MoreLikeyToWin || item.type === NotificationTypes.ThousandCalls) {
+      } else if (item.type === NotificationTypes.X3MoreLikeyToWin || item.type === NotificationTypes.ThousandCalls || item.type === NotificationTypes.CompetitiveEdge) {
         return (
           <Image src={"/svgIcons/3xMoreLikeyToWinNotIcon.svg"} height={22} width={22} alt="*" />
         );
-      } else if (item.type === NotificationTypes.NeedHand || item.type === NotificationTypes.NeedHelpDontMissOut) {
+      } else if (item.type === NotificationTypes.NeedHand || item.type === NotificationTypes.NeedHelpDontMissOut || item.type === NotificationTypes.TrainingReminder) {
         return (
           <Image src={"/svgIcons/NeedHandNotIcon.svg"} height={22} width={22} alt="*" />
         );
@@ -239,7 +239,7 @@ function NotficationsDrawer({ close }) {
         return (
           <Image src={"/svgIcons/TrialReminderNotIcon.svg"} height={22} width={22} alt="*" />
         );
-      } else if (item.type === NotificationTypes.LastChanceToAct) {
+      } else if (item.type === NotificationTypes.LastChanceToAct || item.type === NotificationTypes.FOMOAlert) {
         return (
           <Image src={"/svgIcons/LastChanceToActNotIcon.svg"} height={22} width={22} alt="*" />
         );
@@ -279,7 +279,17 @@ function NotficationsDrawer({ close }) {
         return (
           <Image src={"/svgIcons/TestAINotificationNotIcon.svg"} height={22} width={22} alt="*" />
         );
+      } else if (item.type === NotificationTypes.Exclusivity) {
+        return (
+          <Image src={"/svgIcons/TeritaryTraining.svg"} height={22} width={18} alt="*" />
+        );
+      } else if (item.type === NotificationTypes.TerritoryUpdate) {
+        return (
+          <Image src={"/svgIcons/2Listings.svg"} height={22} width={22} alt="*" />
+        );
       }
+
+      //2Listings
   };
 
   const getNotificationBtn = (item) => {
