@@ -185,8 +185,10 @@ function Page() {
               return [...prev, newMember];
             });
             setShowSnak(true);
-
             setOpenInvitePopup(false);
+            setName("");
+            setEmail("");
+            setPhone("");
             // getMyteam()
           } else {
             console.log("invite team api message is", response.data.message);

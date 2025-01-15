@@ -2569,8 +2569,8 @@ function Page() {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`${activeTab === tab
-                    ? "text-purple border-b-2 border-purple"
-                    : "text-black-500"
+                  ? "text-purple border-b-2 border-purple"
+                  : "text-black-500"
                   }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >
@@ -2829,6 +2829,7 @@ function Page() {
                               </div>
                               {showReassignBtn && (
                                 <div
+                                  className="w-full"
                                   onClick={(e) => {
                                     console.log(
                                       "Should open confirmation modal"
@@ -3292,7 +3293,7 @@ function Page() {
               >
                 Please confirm you would like to reassign{" "}
                 <span className="text-purple">
-                  ({formatPhoneNumber(showConfirmationModal?.phoneNumber)})
+                  {formatPhoneNumber(showConfirmationModal?.phoneNumber)}
                 </span>{" "}
                 to {showDrawerSelectedAgent?.name}.
                 {/* {`{${showDrawer?.name}}`}. */}

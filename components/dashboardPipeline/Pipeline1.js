@@ -2033,7 +2033,7 @@ const Pipeline1 = () => {
                                     className="flex flex-row items-center gap-2"
                                     style={{
                                       fontWeight: "500",
-                                      fontsize: 13,
+                                      fontsize: 11,
                                       color: "#15151560",
                                     }}
                                   >
@@ -2042,6 +2042,7 @@ const Pipeline1 = () => {
                                       height={16}
                                       width={16}
                                       alt="*"
+                                      style={{ filter: "opacity(50%)" }}
                                     />
                                     {/* {moment(lead?.lead?.booking?.date).format(
                                       "MMM D"
@@ -2056,6 +2057,7 @@ const Pipeline1 = () => {
                                       height={16}
                                       width={16}
                                       alt="*"
+                                      style={{ filter: "opacity(50%)" }}
                                     />
                                     {lead?.lead?.booking?.time}
                                     {/* {moment(
