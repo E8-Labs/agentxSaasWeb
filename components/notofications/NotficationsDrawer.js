@@ -10,6 +10,7 @@ import getProfileDetails from "../apis/GetProfile";
 import { GetFormattedDateString } from "@/utilities/utility";
 import LeadDetails from "../dashboard/leads/extras/LeadDetails";
 import { useRouter } from "next/navigation";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 function NotficationsDrawer({ close }) {
 
@@ -26,6 +27,7 @@ function NotficationsDrawer({ close }) {
   //variables to show the lead details modal
   const [selectedLeadsDetails, setselectedLeadsDetails] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     getUserData();
@@ -44,13 +46,45 @@ function NotficationsDrawer({ close }) {
 
   const getNotifications = async () => {
     try {
+
+      let offset = 0;
+
+      //code for get and set data from local
+      const not = localStorage.getItem("userNotifications");
+      if (not) {
+        const D = JSON.parse(not);
+        console.log("Notification Local list is", D);
+        setNotifications(D);
+        if (offset == 0) {
+          offset = D.length;
+        }
+      }
+
+      //code to stop if no more notifications
+      const moreNot = localStorage.getItem("hasMoreNotification");
+
+      if(moreNot){
+        const M = JSON.parse(moreNot);
+        if(M === "false"){
+          return
+        }
+      }
+
       const user = localStorage.getItem("User");
 
       if (user) {
         let u = JSON.parse(user);
         console.log("user data from local is", u.user);
-        setLoading(true);
-        const response = await axios.get(Apis.getNotifications, {
+
+        // if (hasMore === true) {
+        if (!notifications.length > 0 && !not) {
+          setLoading(true);
+        }
+
+        const ApiPath = `${Apis.getNotifications}?offset=${offset}`;
+        console.log("Api path is", ApiPath);
+
+        const response = await axios.get(ApiPath, {
           headers: {
             Authorization: "Bearer " + u.token,
           },
@@ -60,11 +94,18 @@ function NotficationsDrawer({ close }) {
           setLoading(false);
           if (response.data.status === true) {
             console.log("notifications list is", response.data.data);
-            setNotifications(response.data.data.notifications);
+            // setNotifications(response.data.data.notifications);
+            localStorage.setItem("userNotifications", JSON.stringify([...notifications, ...response.data.data.notifications]));
+            setNotifications([...notifications, ...response.data.data.notifications]);
             u.user.unread = 0;
             localStorage.setItem("User", JSON.stringify(u));
             setUnread(0);
             // setUnread(response.data.data.unread)
+            console.log("Length of notifications is", response.data.data.notifications.length);
+            if (response.data.data.notifications.length < 40) {
+              localStorage.setItem("hasMoreNotification", JSON.stringify("false"));
+              setHasMore(false);
+            }
           } else {
             console.log("notification api message is", response.data.message);
           }
@@ -75,6 +116,10 @@ function NotficationsDrawer({ close }) {
       console.log("error in get notifications is ", e);
     }
   };
+
+  useEffect(() => {
+    console.log("Has more status is", hasMore)
+  }, [hasMore]);
 
 
   //function to get support
@@ -579,7 +624,55 @@ function NotficationsDrawer({ close }) {
                 </div>
               </div>
             ) : (
-              notifications.map((item, index) => renderItem(item, index))
+              <div
+                className="h-[100vh] overflow-auto w-full"
+                id="scrollableDiv1"
+                style={{ scrollbarWidth: "none" }}
+              >
+                <InfiniteScroll
+                  className="lg:flex hidden flex-col w-full h-[100%]"
+                  endMessage={
+                    <p
+                      style={{
+                        textAlign: "center",
+                        paddingTop: "10px",
+                        fontWeight: "400",
+                        fontFamily: "inter",
+                        fontSize: 16,
+                        color: "#00000060",
+                      }}
+                    >
+                      {`You're all caught up`}
+                    </p>
+                  }
+                  scrollableTarget="scrollableDiv1"
+                  dataLength={notifications.length}
+                  next={() => {
+                    console.log("Loading more data");
+                    getNotifications();
+                  }} // Fetch more when scrolled
+                  hasMore={hasMore} // Check if there's more data
+                  loader={
+                    <div className="w-full flex flex-row justify-center mt-8">
+                      <CircularProgress size={35} />
+                    </div>
+                  }
+                  style={{ overflow: "unset" }}
+                >
+                  {
+                    notifications.map((item, index) => {
+                      return (
+                        <div
+                          key={index}
+                          className="w-full h-[100%]"
+                        >
+                          {renderItem(item, index)}
+                        </div>
+                      )
+                    })
+                  }
+                </InfiniteScroll>
+              </div>
             )}
           </div>
         </div>

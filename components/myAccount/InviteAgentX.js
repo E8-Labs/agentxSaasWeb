@@ -260,7 +260,8 @@ function InviteAgentX() {
             </div>
 
             {
-                userDetails?.plan && userDetails?.isTrial === true ? (
+                userDetails &&
+                    userDetails?.plan && userDetails?.isTrial === true ? (
                     <div className='w-full flex flex-col items-center'>
                         <div
                             className='w-full flex flex-row justify-center mt-4'>
@@ -411,8 +412,8 @@ function InviteAgentX() {
                     </div>
                 )
             }
-
-        </div>)
+        </div>
+    )
 }
 
 export default InviteAgentX

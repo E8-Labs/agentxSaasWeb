@@ -12,7 +12,7 @@ import timeZones from '@/utilities/Timezones'
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage'
 import CircularLoader from '@/utilities/CircularLoader'
 
-const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, selectedAgent }) => {
+const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, selectedAgent, updateVariableData }) => {
 
     const [calenderLoader, setAddCalenderLoader] = useState(false);
     const [shouldContinue, setshouldContinue] = useState(true);
@@ -23,8 +23,12 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
 
     const [selectCalender, setSelectCalender] = useState('');
     const [initialLoader, setInitialLoader] = useState(false);
-    // const [previousCalenders, setPreviousCalenders] = useState([]);
+
     const [showAddNewCalender, setShowAddNewCalender] = useState(false);
+
+
+    //all calenders
+    const [allCalendars, setAllCalendars] = useState([]);
 
     //variables for snack bar
     const [message, setMessage] = useState(null);
@@ -33,7 +37,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
     const [type, setType] = useState(null);
 
 
-    const [calendarSelected, setCalendarSelected] = useState(null)
+    const [calendarSelected, setCalendarSelected] = useState(null);
 
     //code for the IANA time zone lists
 
@@ -44,6 +48,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
 
 
     useEffect(() => {
+        setAllCalendars(previousCalenders);
         console.log("Calender details passed are", selectedAgent?.calendar?.title);
         if (selectedAgent?.calendar) {
             console.log("Selectd agent is", selectedAgent);
@@ -85,42 +90,8 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
         setSelectCalender(event.target.value);
     };
 
-    //function to get calenders
-    const getCalenders = async () => {
-        try {
-            const localData = localStorage.getItem("User");
-            let AuthToken = null;
-            if (localData) {
-                const UserDetails = JSON.parse(localData);
-                AuthToken = UserDetails.token;
-            }
 
-            console.log("Authtoken is:", AuthToken);
-
-            const ApiPath = Apis.getCalenders;
-
-            console.log("Apipath is:", ApiPath);
-
-            const response = await axios.get(ApiPath, {
-                headers: {
-                    "Authorization": "Bearer " + AuthToken,
-                    "Content-Type": "application/json"
-                }
-            });
-
-            if (response) {
-                console.log("Response of get calender api is:", response);
-                setPreviousCalenders(response.data.data);
-            }
-
-        } catch (error) {
-            console.error("Error occured in the api is ", error);
-        } finally {
-            console.log("Api cal for getting calenders done")
-        }
-    }
-
-    //code for calender api
+    //code for add calender api
     const handleAddCalender = async (calendar) => {
         try {
             setAddCalenderLoader(true);
@@ -186,33 +157,30 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
 
                     setType(SnackbarTypes.Success);
                     setMessage("Calender added");
+                    updateVariableData();
                     const localAgentsList = localStorage.getItem("localAgentDetails");
 
                     if (localAgentsList) {
                         const agentsList = JSON.parse(localAgentsList);
                         // agentsListDetails = agentsList;
 
-                        const updateAgentData = response.data.data;
+                        const newCalendarData = response.data.data;
+                        setAllCalendars([...allCalendars, newCalendarData]);
+                        setSelectCalender(newCalendarData.title);
 
                         let updatedArray = []
-                        // agentsList.map((localItem) => {
-                        //     const apiItem =
-                        //         updateAgentData.mainAgentId === localItem.id ? updateAgentData : null;
-
-                        //     return apiItem ? { ...localItem, calendar: updateAgentData } : localItem;
-                        // });
 
                         for (let i = 0; i < agentsList.length; i++) {
                             let ag = agentsList[i];
-                            console.log(`Comparing ${ag.id} = ${updateAgentData.mainAgentId}`)
+                            console.log(`Comparing ${ag.id} = ${newCalendarData.mainAgentId}`)
                             if (ag.agents.length > 0) {
                                 if (ag.agents[0].id == selectedAgent.id) {
-                                    ag.agents[0].calendar = updateAgentData;
+                                    ag.agents[0].calendar = newCalendarData;
                                 }
                             }
                             if (ag.agents.length > 1) {
                                 if (ag.agents[1].id == selectedAgent.id) {
-                                    ag.agents[1].calendar = updateAgentData;
+                                    ag.agents[1].calendar = newCalendarData;
                                 }
                             }
 
@@ -289,11 +257,19 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
                 )
             }
 
+            {
+                isVisible2 && (
+                    <AgentSelectSnackMessage type={type} message={message} isVisible={isVisible2} hide={() => {
+                        setIsVisible2(false)
+                    }} />
+                )
+            }
+
             <div className='bg-white rounded-2xl w-full h-[90vh] py-4 flex flex-col'>
 
 
                 {
-                    selectedAgent?.calendar || previousCalenders.length > 0 ? (
+                    selectedAgent?.calendar || allCalendars.length > 0 ? (
                         <div className='w-full flex flex-col w-full items-center'>
                             <div className='w-full'>
                                 <FormControl sx={{ m: 1 }} className='w-full'>
@@ -337,7 +313,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
                                         }}
                                     >
                                         {
-                                            previousCalenders.map((item, index) => {
+                                            allCalendars.map((item, index) => {
                                                 return (
                                                     <MenuItem
                                                         className='w-full hover:bg-purple10 hover:text-black'
@@ -429,13 +405,6 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
                     <Box className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12" sx={{ ...styles.modalsStyle, backgroundColor: 'white', paddingInline: "25px", paddingTop: "25px", paddingBottom: "30px" }}>
                         <div style={{ width: "100%", }}>
 
-                            {
-                                isVisible2 && (
-                                    <AgentSelectSnackMessage type={type} message={message} isVisible={isVisible2} hide={() => {
-                                        setIsVisible2(false)
-                                    }} />
-                                )
-                            }
 
                             <div className='' style={{ scrollbarWidth: "none" }}>
 
