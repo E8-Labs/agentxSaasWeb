@@ -56,6 +56,14 @@ const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
     //shows the modal for small screens only
     const [showAddressPickerModal, setShowAddressPickerModal] = useState(false);
 
+    //auto focus the input
+    // useEffect(() => {
+    //     const timer = setTimeout(() => {
+    //         agentRoleInput.current?.focus()
+    //     }, 200);
+    //     return clearTimeout(timer);
+    // }, [])
+
     useEffect(() => {
         setAddress(address?.label);
     }, [addressSelected]);

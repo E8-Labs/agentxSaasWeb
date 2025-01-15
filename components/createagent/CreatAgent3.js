@@ -1214,7 +1214,12 @@ const CreatAgent3 = ({ handleContinue }) => {
                       onClick={() => {
                         let windowWidth = window.innerWidth;
                         if (togglePlan2 === 1) {
-                          handleContinue();
+                          if (windowWidth < 640) {
+                            setSubscribePlanLoader(true);
+                            router.push("/createagent/desktop")
+                          } else {
+                            handleContinue();
+                          }
                         } else {
                           handleSubScribePlan();
                         }
