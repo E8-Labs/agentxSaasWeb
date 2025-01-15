@@ -56,7 +56,7 @@ function NotficationsDrawer({ close }) {
         const D = JSON.parse(not);
         console.log("Notification Local list is", D);
         setNotifications(D);
-        
+
       }
 
       //code to stop if no more notifications
@@ -604,7 +604,11 @@ function NotficationsDrawer({ close }) {
             style={{ height: 1, width: "100%", background: "#00000010" }}
           ></div>
 
-          <div className="flex flex-col px-6 overflow-y-auto" style={{ height: '90vh', paddingBottom: 100 }}>
+          <div
+            className="flex flex-col px-6 overflow-y-auto"
+            style={{ height: '90vh', paddingBottom: 100 }}
+            id="scrollableDiv1"
+          >
             {loading ? (
               <div className="flex w-full items-center flex-col mt-10">
                 <CircularProgress size={35} />
@@ -639,8 +643,6 @@ function NotficationsDrawer({ close }) {
               </div>
             ) : (
               <div
-                className="h-[100vh] overflow-auto w-full"
-                id="scrollableDiv1"
                 style={{ scrollbarWidth: "none" }}
               >
                 <InfiniteScroll
