@@ -11,6 +11,7 @@ import { GetFormattedDateString } from "@/utilities/utility";
 import LeadDetails from "../dashboard/leads/extras/LeadDetails";
 import { useRouter } from "next/navigation";
 import InfiniteScroll from "react-infinite-scroll-component";
+import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
 
 function NotficationsDrawer({ close }) {
 
@@ -22,7 +23,7 @@ function NotficationsDrawer({ close }) {
 
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
 
-
+  const [snackMessage, setSnackMessage] = useState("");
 
   //variables to show the lead details modal
   const [selectedLeadsDetails, setselectedLeadsDetails] = useState(null);
@@ -47,7 +48,7 @@ function NotficationsDrawer({ close }) {
   const getNotifications = async () => {
     try {
 
-      let offset = 0;
+      let offset = notifications.length;
 
       //code for get and set data from local
       const not = localStorage.getItem("userNotifications");
@@ -55,20 +56,17 @@ function NotficationsDrawer({ close }) {
         const D = JSON.parse(not);
         console.log("Notification Local list is", D);
         setNotifications(D);
-        if (offset == 0) {
-          offset = D.length;
-        }
+        
       }
 
       //code to stop if no more notifications
-      const moreNot = localStorage.getItem("hasMoreNotification");
-
-      if(moreNot){
-        const M = JSON.parse(moreNot);
-        if(M === "false"){
-          return
-        }
-      }
+      // const moreNot = localStorage.getItem("hasMoreNotification");
+      // if (moreNot) {
+      //   const M = JSON.parse(moreNot);
+      //   if (M === "false") {
+      //     return
+      //   }
+      // }
 
       const user = localStorage.getItem("User");
 
@@ -292,8 +290,12 @@ function NotficationsDrawer({ close }) {
             console.log("Check 1 clear!!")
             console.log("Lead details to show are", item);
             // setShowNotificationDrawer(false)
-            setselectedLeadsDetails(item);
-            setShowDetailsModal(true);
+            if (item.pipelineId === null || item.id === undefined || !item.lead) {
+              setSnackMessage("Lead has been deleted")
+            } else {
+              setselectedLeadsDetails(item);
+              setShowDetailsModal(true);
+            }
           }}
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
@@ -424,7 +426,6 @@ function NotficationsDrawer({ close }) {
         key={index}
         className="w-full flex flex-row justify-between items-start mt-10"
       >
-
         <div className="flex flex-row items-start gap-6 w-[80%]">
           {getNotificationImage(item)}
 
@@ -494,6 +495,19 @@ function NotficationsDrawer({ close }) {
 
   return (
     <div className="w-full">
+
+      {snackMessage && (
+        <AgentSelectSnackMessage
+          message={snackMessage}
+          type={SnackbarTypes.Warning}
+          isVisible={snackMessage}
+          hide={() => {
+            setSnackMessage("");
+          }}
+        />
+      )
+      }
+
       <button
         onClick={() => {
           setShowNotificationDrawer(true);

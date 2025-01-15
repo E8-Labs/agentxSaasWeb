@@ -57,10 +57,11 @@ const Objection = ({ showTitle, selectedAgentId }) => {
       }
 
       let mainAgentId = null;
+      console.log("Selected agent details are", selectedAgentId);
 
       if (selectedAgentId) {
         console.log("id sending in api is:", selectedAgentId);
-        mainAgentId = selectedAgentId.id
+        mainAgentId = selectedAgentId.mainAgentId//selectedAgentId.id
       } else {
         console.log("id sending in new local agent is:", mainAgentId);
         const localAgent = localStorage.getItem("agentDetails");
@@ -114,8 +115,9 @@ const Objection = ({ showTitle, selectedAgentId }) => {
 
       let mainAgentId = null;
 
+
       if (selectedAgentId) {
-        mainAgentId = selectedAgentId.id
+        mainAgentId = selectedAgentId.mainAgentId//selectedAgentId.id
       } else {
         const localAgent = localStorage.getItem("agentDetails");
         if (localAgent) {

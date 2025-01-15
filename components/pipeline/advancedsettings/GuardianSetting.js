@@ -69,7 +69,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
       let mainAgentId = null;
 
       if (selectedAgentId) {
-        mainAgentId = selectedAgentId.id
+        mainAgentId = selectedAgentId.mainAgentId //selectedAgentId.id
       } else {
         const localAgent = localStorage.getItem("agentDetails");
         if (localAgent) {
@@ -120,7 +120,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
       let mainAgentId = null;
 
       if (selectedAgentId) {
-        mainAgentId = selectedAgentId.id
+        mainAgentId = selectedAgentId.mainAgentId //selectedAgentId.id
       } else {
         const localAgent = localStorage.getItem("agentDetails");
         if (localAgent) {
