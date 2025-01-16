@@ -606,7 +606,6 @@ function NotficationsDrawer({ close }) {
             </div>
           </div>
         </div>
-
         <div className="w-[20%]">{getNotificationBtn(item)}</div>
 
         {showDetailsModal && (
