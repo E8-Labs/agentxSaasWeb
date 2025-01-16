@@ -7,3 +7,17 @@ export function GetCampaigneeNameIfAvailable(window) {
   }
   return null;
 }
+
+export const getSupportUrlFor = (user) => {
+  if (user?.campaignee && user?.campaignee?.officeHoursUrl) {
+    console.log("Response", user.campaignee.officeHoursUrl);
+    let campaigneeLink = user.campaignee.officeHoursUrl;
+    return campaigneeLink;
+  } else {
+    return PersistanceKeys.GlobalSupportUrl;
+    window.open(
+      "https://api.leadconnectorhq.com/widget/booking/SMTp2AfgjdTcjLOIUBkR",
+      "_blank"
+    );
+  }
+};

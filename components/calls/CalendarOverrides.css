@@ -1,0 +1,32 @@
+/* Remove default background for tiles */
+.react-calendar__tile {
+  background: none !important;
+  border: none !important;
+}
+
+/* Selected date (active) styling */
+.react-calendar__tile--active {
+  background-color: #7c3aed !important; /* Custom purple background */
+  color: white !important; /* White text */
+  border-radius: 9999px !important; /* Circular shape */
+  font-weight: bold;
+}
+
+/* Hover styling */
+.react-calendar__tile--active:hover {
+  background-color: #5b24a8 !important; /* Darker purple on hover */
+}
+
+/* Current date styling */
+.current-date {
+  background-color: #d6bcfa !important; /* Light purple for today's date */
+  color: black !important;
+  border-radius: 9999px !important; /* Circular shape */
+}
+
+.react-calendar {
+  border: none !important; /* Remove outer border */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Add shadow */
+  border-radius: 10px; /* Add rounded corners */
+  background-color: white; /* Set background color */
+}
