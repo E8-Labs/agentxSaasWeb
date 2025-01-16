@@ -54,34 +54,35 @@ const ProfileNav = () => {
   useEffect(() => {
     const testNot = async () => {
       try {
-
         const localData = localStorage.getItem("User");
         let AuthToken = null;
         if (localData) {
           const D = JSON.parse(localData);
-          AuthToken = D.token
+          AuthToken = D.token;
         }
 
         const ApiPath = Apis.getAiNot;
 
-        const response = axios.post(ApiPath, {}, {
-          headers: {
-            "Authorization": "Bearer " + AuthToken,
-            "Content-Type": "application/json"
+        const response = axios.post(
+          ApiPath,
+          {},
+          {
+            headers: {
+              Authorization: "Bearer " + AuthToken,
+              "Content-Type": "application/json",
+            },
           }
-        });
+        );
 
         // if (response) {
         //   console.log("Response of send not api is", response);
         // }
-
       } catch (error) {
         console.error("Error occured in test not is"), error;
-
       }
-    }
+    };
     testNot();
-  }, [])
+  }, []);
 
   const plans = [
     {
@@ -271,12 +272,17 @@ const ProfileNav = () => {
       let Data = response?.data?.data;
       // Data.totalSecondsAvailable  = 100
 
-      console.log("Available seconds are", Data?.totalSecondsAvailable)
+      console.log("Available seconds are", Data?.totalSecondsAvailable);
 
       if (response) {
-        if (Data?.totalSecondsAvailable <= 120 || (Data?.plan == null) || (Data?.plan && Data?.plan?.status !== "active" && Data?.totalSecondsAvailable <= 120)) {
+        if (
+          Data?.totalSecondsAvailable <= 120 ||
+          Data?.plan == null ||
+          (Data?.plan &&
+            Data?.plan?.status !== "active" &&
+            Data?.totalSecondsAvailable <= 120)
+        ) {
           setShowPlansPopup(true);
-
         } else {
           setShowPlansPopup(false);
         }
@@ -436,12 +442,12 @@ const ProfileNav = () => {
 
   const styles = {
     paymentModal: {
-      height: "auto",
+      // height: "auto",
       bgcolor: "transparent",
       // p: 2,
       mx: "auto",
-      my: "50vh",
-      transform: "translateY(-50%)",
+      // my: "50vh",
+      // transform: "translateY(-50%)",
       borderRadius: 2,
       border: "none",
       outline: "none",
@@ -585,11 +591,10 @@ const ProfileNav = () => {
           className="w-11/12  flex flex-row items-start gap-3 px-4 py-2 truncate outline-none text-start" //border border-[#00000015] rounded-[10px]
           style={{
             textOverflow: "ellipsis",
-            textDecoration: "none"
+            textDecoration: "none",
           }}
         >
-          <div
-            className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
+          <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
             {userDetails?.user?.name.slice(0, 1).toUpperCase()}
           </div>
           <div>
@@ -600,7 +605,7 @@ const ProfileNav = () => {
                 fontWeight: "500",
                 color: "",
                 width: "100px",
-                color: "black"
+                color: "black",
               }}
             >
               {userDetails?.user?.name}
@@ -624,19 +629,32 @@ const ProfileNav = () => {
         {/* Subscribe Plan modal */}
         <Modal
           open={showPlansPopup}
-          // open={true}
           closeAfterTransition
           BackdropProps={{
             timeout: 100,
             sx: {
               backgroundColor: "#00000020",
-              // //backdropFilter: "blur(20px)",
             },
           }}
         >
-          <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
-            <div className="flex flex-row justify-center w-full">
-
+          <Box
+            className="lg:w-8/12 sm:w-full w-full flex justify-center items-center"
+            sx={{
+              ...styles.paymentModal,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100vh", // Full viewport height
+            }}
+          >
+            <div
+              className="flex flex-row justify-center w-full"
+              style={{
+                maxHeight: "90vh", // Restrict modal height to 90% of the viewport
+                overflow: "hidden", // Prevent scrolling on the entire modal
+              }}
+            >
               <div
                 className="sm:w-7/12 w-full"
                 style={{
@@ -645,24 +663,27 @@ const ProfileNav = () => {
                   paddingTop: 20,
                   paddingBottom: 40,
                   borderRadius: "13px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "16px",
+                  overflow: "hidden",
                 }}
               >
-
-              <div
-                style={{
-                  fontWeight: "600",
-                  fontSize: 17
-                }}
-              >
-                Subscribe to plan
-              </div>
+                <div
+                  style={{
+                    fontWeight: "600",
+                    fontSize: 17,
+                  }}
+                >
+                  Subscribe to plan
+                </div>
 
                 <div
                   className="flex justify-center items-center"
                   style={{
                     fontSize: 22,
                     fontWeight: "600",
-                    marginTop: 20
+                    marginTop: 20,
                   }}
                 >
                   {`You’ll need to select a plan to continue`}
@@ -695,117 +716,122 @@ const ProfileNav = () => {
                   </div>
                 </div>
 
-                {/* <div className='flex flex-row justify-end'>
-                  <button onClick={() => setShowPlansPopup(false)}>
-                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
-                  </button>
-                </div> */}
-
-                {plans.map((item, index) => (
-                  <button
-                    key={item.id}
-                    className="w-full mt-4"
-                    onClick={(e) => handleTogglePlanClick(item)}
-                  >
-                    <div
-                      className="px-4 py-1 pb-4"
-                      style={{
-                        ...styles.pricingBox,
-                        border:
-                          item.id === togglePlan
-                            ? "2px solid #7902DF"
-                            : "1px solid #15151520",
-                        backgroundColor:
-                          item.id === togglePlan ? "#402FFF10" : "",
-                      }}
+                <div
+                  style={{
+                    flexGrow: 1,
+                    overflowY: "auto", // Make the plans scrollable
+                    paddingBottom: "20px", // Add space for the fixed buttons
+                  }}
+                >
+                  {plans.map((item, index) => (
+                    <button
+                      key={item.id}
+                      className="w-full mt-4"
+                      onClick={() => handleTogglePlanClick(item)}
                     >
-                      {index == 0 && (
-                        <Image
-                          style={{ position: "absolute", right: 60, top: -17 }}
-                          width={40}
-                          height={40}
-                          src={"/assets/giftRibbon.png"}
-                          alt="*"
-                        />
-                      )}
                       <div
+                        className="px-4 py-1 pb-4"
                         style={{
-                          ...styles.triangleLabel,
-                          borderTopRightRadius: "7px",
+                          ...styles.pricingBox,
+                          border:
+                            item.id === togglePlan
+                              ? "2px solid #7902DF"
+                              : "1px solid #15151520",
+                          backgroundColor:
+                            item.id === togglePlan ? "#402FFF10" : "",
                         }}
-                      ></div>
-                      <span style={styles.labelText}>{item.planStatus}</span>
-                      <div
-                        className="flex flex-row items-start gap-3"
-                        style={styles.content}
                       >
-                        <div className="mt-1">
-                          <div>
-                            {item.id === togglePlan ? (
-                              <Image
-                                src={"/svgIcons/checkMark.svg"}
-                                height={24}
-                                width={24}
-                                alt="*"
-                              />
-                            ) : (
-                              <Image
-                                src={"/svgIcons/unCheck.svg"}
-                                height={24}
-                                width={24}
-                                alt="*"
-                              />
-                            )}
-                          </div>
-                        </div>
-                        <div className="w-full">
-                          <div
+                        {index === 0 && (
+                          <Image
                             style={{
-                              color: "#151515",
-                              fontSize: 20,
-                              fontWeight: "600",
+                              position: "absolute",
+                              right: 60,
+                              top: -17,
                             }}
-                            className="flex flex-row items-center gap-2"
-                          >
-                            {item.mints} mins
-                            {item.status && (
-                              <div
-                                className="flex px-2 py-1 bg-purple rounded-full text-white"
-                                style={{ fontSize: 11.6, fontWeight: "500" }}
-                              >
-                                {item.status}
-                              </div>
-                            )}
-                            {/*  | Approx {item.calls} Calls */}
+                            width={40}
+                            height={40}
+                            src={"/assets/giftRibbon.png"}
+                            alt="*"
+                          />
+                        )}
+                        <div
+                          style={{
+                            ...styles.triangleLabel,
+                            borderTopRightRadius: "7px",
+                          }}
+                        ></div>
+                        <span style={styles.labelText}>{item.planStatus}</span>
+                        <div
+                          className="flex flex-row items-start gap-3"
+                          style={styles.content}
+                        >
+                          <div className="mt-1">
+                            <div>
+                              {item.id === togglePlan ? (
+                                <Image
+                                  src={"/svgIcons/checkMark.svg"}
+                                  height={24}
+                                  width={24}
+                                  alt="*"
+                                />
+                              ) : (
+                                <Image
+                                  src={"/svgIcons/unCheck.svg"}
+                                  height={24}
+                                  width={24}
+                                  alt="*"
+                                />
+                              )}
+                            </div>
                           </div>
-                          <div className="flex flex-row items-center justify-between">
+                          <div className="w-full">
                             <div
-                              className="mt-2"
                               style={{
-                                color: "#15151590",
-                                fontSize: 12,
-                                width: "80%",
+                                color: "#151515",
+                                fontSize: 20,
                                 fontWeight: "600",
                               }}
+                              className="flex flex-row items-center gap-2"
                             >
-                              {item.details}
+                              {item.mints} mins
+                              {item.status && (
+                                <div
+                                  className="flex px-2 py-1 bg-purple rounded-full text-white"
+                                  style={{ fontSize: 11.6, fontWeight: "500" }}
+                                >
+                                  {item.status}
+                                </div>
+                              )}
                             </div>
-                            <div className="flex flex-row items-center">
-                              <div style={styles.originalPrice}>
-                                {item.originalPrice && (
-                                  <div>${item.originalPrice}</div>
-                                )}
+                            <div className="flex flex-row items-center justify-between">
+                              <div
+                                className="mt-2"
+                                style={{
+                                  color: "#15151590",
+                                  fontSize: 12,
+                                  width: "80%",
+                                  fontWeight: "600",
+                                }}
+                              >
+                                {item.details}
                               </div>
-                              <div style={styles.discountedPrice}>
-                                ${item.discountPrice}
+                              <div className="flex flex-row items-center">
+                                <div style={styles.originalPrice}>
+                                  {item.originalPrice && (
+                                    <div>${item.originalPrice}</div>
+                                  )}
+                                </div>
+                                <div style={styles.discountedPrice}>
+                                  ${item.discountPrice}
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  ))}
+                </div>
 
                 <div>
                   {subscribePlanLoader ? (
@@ -813,21 +839,19 @@ const ProfileNav = () => {
                       <CircularProgress size={30} />
                     </div>
                   ) : (
-                    <div>
-                      <button
-                        disabled={!togglePlan}
-                        className="w-full flex flex-row items-center justify-center h-[50px] bg-purple rounded-lg text-white mt-6"
-                        style={{
-                          fontSize: 16.8,
-                          fontWeight: "600",
-                          backgroundColor: togglePlan ? "" : "#00000020",
-                          color: togglePlan ? "" : "#000000",
-                        }}
-                        onClick={handleSubscribePlan}
-                      >
-                        Subscribe Plan
-                      </button>
-                    </div>
+                    <button
+                      disabled={!togglePlan}
+                      className="w-full flex flex-row items-center justify-center h-[50px] bg-purple rounded-lg text-white mt-6"
+                      style={{
+                        fontSize: 16.8,
+                        fontWeight: "600",
+                        backgroundColor: togglePlan ? "" : "#00000020",
+                        color: togglePlan ? "" : "#000000",
+                      }}
+                      onClick={handleSubscribePlan}
+                    >
+                      Subscribe Plan
+                    </button>
                   )}
                 </div>
 
@@ -835,8 +859,6 @@ const ProfileNav = () => {
                   <button
                     onClick={() => {
                       localStorage.clear();
-                      // localStorage.removeItem("User");
-                      // localStorage.removeItem("localAgentDetails");
                       if (typeof document !== "undefined") {
                         document.cookie =
                           "User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
@@ -901,7 +923,7 @@ const ProfileNav = () => {
                     // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                     handleClose={handleClose}
                     togglePlan={""}
-                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                    // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>
               </div>

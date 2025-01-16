@@ -843,7 +843,10 @@ const Page = ({ length = 6, onComplete }) => {
               </div>
               {loginLoader ? (
                 <div className="flex fex-row items-center justify-center mt-8">
-                  <LoaderAnimation loaderModal={loginLoader} />
+                  <LoaderAnimation
+                    loaderModal={loginLoader}
+                    title="Launching your account..."
+                  />
                 </div>
               ) : (
                 <button

@@ -70,7 +70,7 @@ function Billing() {
     let screenWidth = window.innerWidth;
     console.log("Window width is", screenWidth);
     setScreenWidth(screenWidth);
-  }, [])
+  }, []);
 
   //array of plans
   const plans = [
@@ -78,8 +78,7 @@ function Billing() {
       id: 1,
       mints: 30,
       calls: 250,
-      details:
-        "Great for trying out AI sales agents.",
+      details: "Great for trying out AI sales agents.",
       // originalPrice: "45",
       discountPrice: "45",
       planStatus: "",
@@ -153,18 +152,22 @@ function Billing() {
       let response = await getProfileDetails();
       console.log("Response of get progf", response);
       if (response) {
-        let togglePlan = response?.data?.data?.plan?.type;
+        let plan = response?.data?.data?.plan;
+        let togglePlan = plan?.type;
         let planType = null;
-        if (togglePlan === "Plan30") {
-          planType = 1;
-        } else if (togglePlan === "Plan120") {
-          planType = 2;
-        } else if (togglePlan === "Plan360") {
-          planType = 3;
-        } else if (togglePlan === "Plan720") {
-          planType = 4;
+        if (plan.status == "active") {
+          if (togglePlan === "Plan30") {
+            planType = 1;
+          } else if (togglePlan === "Plan120") {
+            planType = 2;
+          } else if (togglePlan === "Plan360") {
+            planType = 3;
+          } else if (togglePlan === "Plan720") {
+            planType = 4;
+          }
         }
         setUserLocalData(response?.data?.data);
+        console.log("Get Profile Toggle plan is ", planType);
         setTogglePlan(planType);
         setCurrentPlan(planType);
       }
@@ -174,8 +177,8 @@ function Billing() {
   };
 
   useEffect(() => {
-    console.log("User local data is", userLocalData)
-  }, [userLocalData])
+    console.log("User local data is", userLocalData);
+  }, [userLocalData]);
 
   //function to close the add card popup
   const handleClose = (data) => {
@@ -313,7 +316,7 @@ function Billing() {
           console.log("Already have cards");
         } else {
           setErrorSnack("No payment method added");
-          return
+          return;
         }
       }
 
@@ -321,7 +324,7 @@ function Billing() {
 
       const ApiData = {
         plan: planType,
-        payNow: true
+        payNow: true,
       };
 
       console.log("Api data is", ApiData);
@@ -522,21 +525,20 @@ function Billing() {
     }
   };
 
-
   //function to get card brand image
   const getCardImage = (item) => {
-    if (item.brand === 'visa') {
-      return '/svgIcons/Visa.svg'
-    } else if (item.brand === 'Mastercard') {
-      return '/svgIcons/mastercard.svg'
-    } else if (item.brand === 'amex') {
-      return '/svgIcons/Amex.svg'
-    } else if (item.brand === 'discover') {
-      return '/svgIcons/Discover.svg'
-    } else if (item.brand === 'dinersClub') {
-      return '/svgIcons/DinersClub.svg'
+    if (item.brand === "visa") {
+      return "/svgIcons/Visa.svg";
+    } else if (item.brand === "Mastercard") {
+      return "/svgIcons/mastercard.svg";
+    } else if (item.brand === "amex") {
+      return "/svgIcons/Amex.svg";
+    } else if (item.brand === "discover") {
+      return "/svgIcons/Discover.svg";
+    } else if (item.brand === "dinersClub") {
+      return "/svgIcons/DinersClub.svg";
     }
-  }
+  };
 
   //variables
   const textFieldRef = useRef(null);
@@ -548,14 +550,14 @@ function Billing() {
   const [cancelReasonLoader, setCancelReasonLoader] = useState(false);
   //function to select the cancel plan reason
   const handleSelectReason = async (item) => {
-    console.log("Item is", item)
+    console.log("Item is", item);
     setSelectReason(item.reason);
     if (item.reason === "Others") {
       setShowOtherReasonInput(true);
       const timer = setTimeout(() => {
         textFieldRef.current.focus();
       }, 300);
-      return (() => clearTimeout(timer))
+      return () => clearTimeout(timer);
     } else {
       setShowOtherReasonInput(false);
       setOtherReasonInput("");
@@ -565,17 +567,17 @@ function Billing() {
   //del reason api
   const handleDelReason = async () => {
     try {
-      setCancelReasonLoader(true)
+      setCancelReasonLoader(true);
       const localdata = localStorage.getItem("User");
       let AuthToken = null;
       if (localdata) {
         const D = JSON.parse(localdata);
-        AuthToken = D.token
+        AuthToken = D.token;
       }
 
       const ApiData = {
-        reason: otherReasonInput || selectReason
-      }
+        reason: otherReasonInput || selectReason,
+      };
 
       console.log("Api data is", ApiData);
 
@@ -584,30 +586,29 @@ function Billing() {
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          "Authorization": "Bearer " + AuthToken,
-          "Content-Type": "application/json"
-        }
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
         console.log("Response of cancel plan reason api is", response);
         if (response.data.status === true) {
           setShowConfirmCancelPlanPopup2(false);
-          setSuccessSnack(response.data.message)
+          setSuccessSnack(response.data.message);
         } else if (response.data.status === true) {
           setErrorSnack(response.data.message);
         }
       }
-
     } catch (error) {
       setErrorSnack(error);
       setCancelReasonLoader(false);
       console.error("Error occured in api is ", error);
     } finally {
       setCancelReasonLoader(false);
-      console.log("Del reason api done")
+      console.log("Del reason api done");
     }
-  }
+  };
 
   return (
     <div
@@ -682,102 +683,108 @@ function Billing() {
           </div>
         ) : (
           <div className="w-full">
-            {
-              cards.length > 0 ? (
-                <div
-                  className="w-full flex flex-row gap-4"
-                  style={{
-                    overflowX: "auto",
-                    overflowY: "hidden",
-                    display: "flex",
-                    scrollbarWidth: "none",
-                    WebkitOverflowScrolling: "touch",
-                    height: "",
-                    marginTop: 20,
-                    // border:'2px solid red'
-                    scrollbarWidth: "none",
-                    overflowY: "hidden",
-                    height: "", // Ensures the height is always fixed
-                    flexShrink: 0,
-                  }}
-                >
-                  {cards.map((item) => (
-                    <div className="flex-shrink-0 w-5/12" key={item.id}>
-                      <button
-                        className="w-full outline-none"
-                        onClick={() => setSelectedCard(item)}
+            {cards.length > 0 ? (
+              <div
+                className="w-full flex flex-row gap-4"
+                style={{
+                  overflowX: "auto",
+                  overflowY: "hidden",
+                  display: "flex",
+                  scrollbarWidth: "none",
+                  WebkitOverflowScrolling: "touch",
+                  height: "",
+                  marginTop: 20,
+                  // border:'2px solid red'
+                  scrollbarWidth: "none",
+                  overflowY: "hidden",
+                  height: "", // Ensures the height is always fixed
+                  flexShrink: 0,
+                }}
+              >
+                {cards.map((item) => (
+                  <div className="flex-shrink-0 w-5/12" key={item.id}>
+                    <button
+                      className="w-full outline-none"
+                      onClick={() => setSelectedCard(item)}
+                    >
+                      <div
+                        className={`flex items-start justify-between w-full p-4 border rounded-lg `}
+                        style={{
+                          backgroundColor:
+                            item.isDefault || selectedCard?.id === item.id
+                              ? "#4011FA05"
+                              : "transparent",
+                          borderColor:
+                            item.isDefault || selectedCard?.id === item.id
+                              ? "#7902DF"
+                              : "#15151510",
+                        }}
                       >
-                        <div
-                          className={`flex items-start justify-between w-full p-4 border rounded-lg `}
-                          style={{
-                            backgroundColor:
-                              item.isDefault || selectedCard?.id === item.id
-                                ? "#4011FA05"
-                                : "transparent",
-                            borderColor:
-                              item.isDefault || selectedCard?.id === item.id ? "#7902DF" : "#15151510",
-                          }}
-                        >
-                          <div className="flex items-center gap-4">
-                            <div
-                              className={`w-5 h-5 rounded-full border border-[#7902DF] flex items-center justify-center`} //border-[#2548FD]
-                              style={{
-                                borderWidth: item.isDefault || selectedCard?.id === item.id ? 3 : 1,
-                              }}
-                            ></div>
-                            {/* Card Details */}
-                            <div className="flex flex-col items-start">
-                              <div className="flex flex-row items-center gap-3">
-                                <div
-                                  style={{
-                                    fontSize: "16px",
-                                    fontWeight: "700",
-                                    color: "#000",
-                                  }}
-                                >
-                                  ****{item.last4}
-                                </div>
-                                {item.isDefault && (
-                                  <div
-                                    className="flex px-2 py-1 rounded-full bg-purple text-white text-[10]"
-                                    style={{ fontSize: 11, fontWeight: "500" }}
-                                  >
-                                    Default
-                                  </div>
-                                )}
-                              </div>
+                        <div className="flex items-center gap-4">
+                          <div
+                            className={`w-5 h-5 rounded-full border border-[#7902DF] flex items-center justify-center`} //border-[#2548FD]
+                            style={{
+                              borderWidth:
+                                item.isDefault || selectedCard?.id === item.id
+                                  ? 3
+                                  : 1,
+                            }}
+                          ></div>
+                          {/* Card Details */}
+                          <div className="flex flex-col items-start">
+                            <div className="flex flex-row items-center gap-3">
                               <div
                                 style={{
-                                  fontSize: "14px",
-                                  fontWeight: "500",
-                                  color: "#909090",
+                                  fontSize: "16px",
+                                  fontWeight: "700",
+                                  color: "#000",
                                 }}
                               >
-                                {item.brand} Card
+                                ****{item.last4}
                               </div>
+                              {item.isDefault && (
+                                <div
+                                  className="flex px-2 py-1 rounded-full bg-purple text-white text-[10]"
+                                  style={{ fontSize: 11, fontWeight: "500" }}
+                                >
+                                  Default
+                                </div>
+                              )}
+                            </div>
+                            <div
+                              style={{
+                                fontSize: "14px",
+                                fontWeight: "500",
+                                color: "#909090",
+                              }}
+                            >
+                              {item.brand} Card
                             </div>
                           </div>
-
-                          {/* Card Logo */}
-                          <div>
-                            <Image
-                              src={getCardImage(item) || "/svgIcons/Visa.svg"}
-                              alt="Card Logo"
-                              width={50}
-                              height={50}
-                            />
-                          </div>
                         </div>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-start mt-12" style={{ fontSize: 18, fontWeight: "600" }}>
-                  No payment method added
-                </div>
-              )
-            }
+
+                        {/* Card Logo */}
+                        <div>
+                          <Image
+                            src={getCardImage(item) || "/svgIcons/Visa.svg"}
+                            alt="Card Logo"
+                            width={50}
+                            height={50}
+                          />
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div
+                className="text-start mt-12"
+                style={{ fontSize: 18, fontWeight: "600" }}
+              >
+                No payment method added
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -875,11 +882,7 @@ function Billing() {
                   </div>
                   <div className="flex flex-row items-center">
                     <div style={styles.originalPrice}>
-                      {item.originalPrice && (
-                        <div>
-                          ${item.originalPrice}
-                        </div>
-                      )}
+                      {item.originalPrice && <div>${item.originalPrice}</div>}
                     </div>
                     <div style={styles.discountedPrice}>
                       ${item.discountPrice}
@@ -984,40 +987,38 @@ function Billing() {
           )} */}
 
           <div className="w-9/12 flex flex-row items-center justify-center">
-            {
-              userLocalData.plan && (
-                <button
-                  className="text-black  outline-none rounded-xl w-fit-content mt-3"
-                  style={{
-                    fontSize: 16,
-                    fontWeight: "700",
-                    height: "50px",
-                    textDecorationLine: "underline",
-                    flexShrink: 0,
-                  }}
-                  onClick={() => {
-                    if (userLocalData?.isTrial === false && userLocalData?.cancelPlanRedemptions === 0) {
-                      console.log("Show gift pop")
-                      setGiftPopup(true);
-                    }
-                    else // if (userLocalData?.isTrial === true && userLocalData?.cancelPlanRedemptions !== 0) 
-                    {
-                      console.log("Show confirmation pop")
-                      setShowConfirmCancelPlanPopup(true);
-                    }
-                    // console.log("Show satus", userLocalData?.isTrial)
-                    // console.log("Show redemptions", userLocalData?.cancelPlanRedemptions)
-                  }}
-                >
-                  Cancel AgentX
-                </button>
-              )
-            }
+            {userLocalData.plan && (
+              <button
+                className="text-black  outline-none rounded-xl w-fit-content mt-3"
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  height: "50px",
+                  textDecorationLine: "underline",
+                  flexShrink: 0,
+                }}
+                onClick={() => {
+                  if (
+                    userLocalData?.isTrial === false &&
+                    userLocalData?.cancelPlanRedemptions === 0
+                  ) {
+                    console.log("Show gift pop");
+                    setGiftPopup(true);
+                  } // if (userLocalData?.isTrial === true && userLocalData?.cancelPlanRedemptions !== 0)
+                  else {
+                    console.log("Show confirmation pop");
+                    setShowConfirmCancelPlanPopup(true);
+                  }
+                  // console.log("Show satus", userLocalData?.isTrial)
+                  // console.log("Show redemptions", userLocalData?.cancelPlanRedemptions)
+                }}
+              >
+                Cancel AgentX
+              </button>
+            )}
           </div>
-
         </div>
-      )
-      }
+      )}
 
       <div style={{ fontSize: 16, fontWeight: "700", marginTop: 40 }}>
         My Billing History
@@ -1056,9 +1057,7 @@ function Billing() {
                   </div>
                 </div>
                 <div className="w-3/12">
-                  <div style={styles.text2}>
-                    ${item.price.toFixed(2)}
-                  </div>
+                  <div style={styles.text2}>${item.price.toFixed(2)}</div>
                 </div>
                 <div className="w-3/12 items-start">
                   <div
@@ -1126,7 +1125,7 @@ function Billing() {
                 <div
                   style={{
                     fontSize: 18,
-                    fontWeight: "600"
+                    fontWeight: "600",
                   }}
                 >
                   Add new card
@@ -1147,7 +1146,7 @@ function Billing() {
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
                   togglePlan={""}
-                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>
@@ -1208,7 +1207,8 @@ function Billing() {
                   className="text-center  w-full"
                   style={{
                     fontWeight: "600",
-                    fontSize: ScreenWidth < 1300 ? 19 : ScreenWidth <= 640 ? 16 : 24,
+                    fontSize:
+                      ScreenWidth < 1300 ? 19 : ScreenWidth <= 640 ? 16 : 24,
                     width: ScreenWidth > 1200 ? "70%" : "100%",
                     alignSelf: "center",
                   }}
@@ -1219,19 +1219,24 @@ function Billing() {
 
               <div className="flex flex-col items-center px-4 w-full">
                 <div
-                  className={`flex flex-row items-center gap-2 text-purple ${ScreenWidth < 1200 ? "mt-4" : "mt-6"}bg-[#402FFF10] py-2 px-4 rounded-full`}
+                  className={`flex flex-row items-center gap-2 text-purple ${
+                    ScreenWidth < 1200 ? "mt-4" : "mt-6"
+                  }bg-[#402FFF10] py-2 px-4 rounded-full`}
                   style={styles.gitTextStyle}
                 >
                   <Image
                     src={"/svgIcons/gift.svg"}
-                    height={ScreenWidth < 1300 ? 19 : ScreenWidth <= 640 ? 16 : 22}
-                    width={ScreenWidth < 1300 ? 19 : ScreenWidth <= 640 ? 16 : 22}
+                    height={
+                      ScreenWidth < 1300 ? 19 : ScreenWidth <= 640 ? 16 : 22
+                    }
+                    width={
+                      ScreenWidth < 1300 ? 19 : ScreenWidth <= 640 ? 16 : 22
+                    }
                     alt="*"
                   />
                   Enjoy your next calls on us
                 </div>
                 <div className="w-full flex flex-row justify-center items-center mt-8">
-
                   <div style={{ position: "relative" }}>
                     <Image
                       src={"/svgIcons/giftIcon.svg"}
@@ -1244,7 +1249,8 @@ function Billing() {
                         position: "relative",
                       }}
                     />
-                    <div className="text-purple"
+                    <div
+                      className="text-purple"
                       style={{
                         fontSize: 200,
                         fontWeight: "400",
@@ -1259,12 +1265,11 @@ function Billing() {
                   <div
                     style={{
                       fontSize: 40,
-                      fontWeight: "700"
+                      fontWeight: "700",
                     }}
                   >
                     Mins
                   </div>
-
                 </div>
                 {redeemLoader ? (
                   <div className="h-[50px] w-full flex flex-row items-center justify-center">
@@ -1388,7 +1393,7 @@ function Billing() {
                     outline: "none",
                   }}
                   onClick={handleCancelPlan}
-                // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
+                  // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
                 >
                   Yes. Cancel
                 </button>
@@ -1430,7 +1435,7 @@ function Billing() {
                   style={{
                     fontSize: 16.8,
                     fontWeight: "500",
-                    paddingLeft: "12px"
+                    paddingLeft: "12px",
                   }}
                 >
                   Cancel Plan
@@ -1459,7 +1464,7 @@ function Billing() {
                   fontWeight: "600",
                   fontSize: 22,
                   textAlign: "center",
-                  marginTop: 10
+                  marginTop: 10,
                 }}
               >
                 AgentX Successfully Canceled
@@ -1470,7 +1475,7 @@ function Billing() {
                   fontWeight: "500",
                   fontSize: 16,
                   textAlign: "center",
-                  marginTop: 30
+                  marginTop: 30,
                 }}
               >
                 {`Tell us why you’re canceling to better improve our platform for you.`}
@@ -1490,100 +1495,100 @@ function Billing() {
                       className="flex flex-row items-center gap-2"
                     >
                       <button
-                        onClick={() => { handleSelectReason(item) }}
+                        onClick={() => {
+                          handleSelectReason(item);
+                        }}
                         className="rounded-full flex flex-row items-center justify-center"
                         style={{
-                          border: item.reason === selectReason ? "2px solid #7902DF" : "2px solid #15151510",
+                          border:
+                            item.reason === selectReason
+                              ? "2px solid #7902DF"
+                              : "2px solid #15151510",
                           // backgroundColor: item.reason === selectReason ? "#7902DF" : "",
                           // margin: item.reason === selectReason && "5px",
                           height: "20px",
                           width: "20px",
-
                         }}
                       >
                         <div
                           className="w-full h-full rounded-full"
                           style={{
-                            backgroundColor: item.reason === selectReason && "#7902DF",
+                            backgroundColor:
+                              item.reason === selectReason && "#7902DF",
                             height: "12px",
-                            width: "12px"
+                            width: "12px",
                           }}
                         />
                       </button>
-                      <div>
-                        {item.reason}
-                      </div>
+                      <div>{item.reason}</div>
                     </div>
                   ))}
-                  {
-                    showOtherReasonInput && (
-                      <div className="w-full mt-4">
-                        <TextField
-                          inputRef={textFieldRef}
-                          placeholder="Type here"
-                          className="focus:ring-0 outline-none"
-                          variant="outlined"
-                          fullWidth
-                          multiline
-                          minRows={4}
-                          maxRows={5}
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              '& fieldset': {
-                                border: '1px solid #00000010', // Normal border
-                              },
-                              '&:hover fieldset': {
-                                border: '1px solid #00000010', // Hover border
-                              },
-                              '&.Mui-focused fieldset': {
-                                border: 'none', // Remove border on focus
-                              },
+                  {showOtherReasonInput && (
+                    <div className="w-full mt-4">
+                      <TextField
+                        inputRef={textFieldRef}
+                        placeholder="Type here"
+                        className="focus:ring-0 outline-none"
+                        variant="outlined"
+                        fullWidth
+                        multiline
+                        minRows={4}
+                        maxRows={5}
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            "& fieldset": {
+                              border: "1px solid #00000010", // Normal border
                             },
-                            '& .MuiOutlinedInput-notchedOutline': {
-                              border: 'none', // Additional safety to remove outline
+                            "&:hover fieldset": {
+                              border: "1px solid #00000010", // Hover border
                             },
-                            '& .Mui-focused': {
-                              outline: 'none', // Remove focus outline
+                            "&.Mui-focused fieldset": {
+                              border: "none", // Remove border on focus
                             },
-                          }}
-                          value={otherReasonInput}
-                          onChange={(e) => { setOtherReasonInput(e.target.value) }}
-                        />
-                      </div>
-
-                    )
-                  }
-                  {
-                    cancelReasonLoader ? (
-                      <div className="flex flex-row items-center justify-center mt-10">
-                        <CircularProgress size={35} />
-                      </div>
-                    ) : (
-                      <button
-                        className="w-full flex flex-row items-center h-[50px] rounded-lg bg-purple text-white justify-center mt-10"
-                        style={{
-                          fontWeight: "600",
-                          fontSize: 16.8,
-                          outline: "none",
-                          // backgroundColor: !otherReasonInput || !selectReason && "#00000060",
-                          // color: !otherReasonInput || !selectReason && "red",
+                          },
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            border: "none", // Additional safety to remove outline
+                          },
+                          "& .Mui-focused": {
+                            outline: "none", // Remove focus outline
+                          },
                         }}
-                        onClick={() => {
-                          handleDelReason()
+                        value={otherReasonInput}
+                        onChange={(e) => {
+                          setOtherReasonInput(e.target.value);
                         }}
+                      />
+                    </div>
+                  )}
+                  {cancelReasonLoader ? (
+                    <div className="flex flex-row items-center justify-center mt-10">
+                      <CircularProgress size={35} />
+                    </div>
+                  ) : (
+                    <button
+                      className="w-full flex flex-row items-center h-[50px] rounded-lg bg-purple text-white justify-center mt-10"
+                      style={{
+                        fontWeight: "600",
+                        fontSize: 16.8,
+                        outline: "none",
+                        // backgroundColor: !otherReasonInput || !selectReason && "#00000060",
+                        // color: !otherReasonInput || !selectReason && "red",
+                      }}
+                      onClick={() => {
+                        handleDelReason();
+                      }}
                       // disabled={!selectReason || !otherReasonInput || }
-                      >
-                        Continue
-                      </button>
-                    )
-                  }
+                    >
+                      Continue
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
           </div>
         </Box>
       </Modal>
-    </div >
+    </div>
   );
 }
 

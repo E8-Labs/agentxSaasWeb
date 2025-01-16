@@ -16,6 +16,7 @@ import {
 import { CalendarDots } from "@phosphor-icons/react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import "./CalendarOverrides.css";
 import parsePhoneNumberFromString from "libphonenumber-js";
 import InfiniteScroll from "react-infinite-scroll-component";
 import LeadDetails from "../dashboard/leads/extras/LeadDetails";
@@ -64,12 +65,12 @@ function AllCalls() {
   const requestVersion = useRef(0);
 
   useEffect(() => {
-    if ((selectedFromDate && selectedToDate) || selectedStageIds.length > 0) {
-      setCallDetails([]);
-      setFilteredCallDetails([]);
-      setInitialLoader(true);
-      getCallLogs(0);
-    }
+    // if ((selectedFromDate && selectedToDate) || selectedStageIds.length > 0) {
+    setCallDetails([]);
+    setFilteredCallDetails([]);
+    setInitialLoader(true);
+    getCallLogs(0);
+    // }
   }, [selectedToDate, selectedFromDate, selectedStageIds]);
 
   //select pipeline
@@ -645,14 +646,15 @@ function AllCalls() {
           }}
         >
           <Box
-            className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto"
+            className="lg:w-4/12 sm:w-7/12 w-8/12 px-6 flex justify-center items-center"
             sx={{
               ...styles.modalsStyle,
               scrollbarWidth: "none",
-              backgroundColor: "white",
+              backgroundColor: "transparent",
+              height: "100svh",
             }}
           >
-            <div className="w-full flex flex-col items-center justify-between h-full">
+            <div className="w-full flex flex-col items-center justify-between h-[60vh] bg-white p-4 rounded-md overflow-auto md:overflow-hidden ">
               <div className="mt-2 w-full">
                 <div className="flex flex-row items-center justify-between w-full">
                   <div>Filter</div>
@@ -714,6 +716,20 @@ function AllCalls() {
                               onClose={() => {
                                 setShowFromDatePicker(false);
                               }}
+                              tileClassName={({ date, view }) => {
+                                const today = new Date();
+
+                                // Highlight the current date
+                                if (
+                                  date.getDate() === today.getDate() &&
+                                  date.getMonth() === today.getMonth() &&
+                                  date.getFullYear() === today.getFullYear()
+                                ) {
+                                  return "current-date"; // Add a custom class for current date
+                                }
+
+                                return null; // Default for other dates
+                              }}
                             />
                           </div>
                         )}
@@ -755,12 +771,35 @@ function AllCalls() {
                                                                         <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
                                                                     </button>
                                                                 </div> */}
-                            <Calendar
+                            {/* <Calendar
                               onChange={handleToDateChange}
                               value={selectedToDate}
                               locale="en-US"
                               onClose={() => {
                                 setShowToDatePicker(false);
+                              }}
+                            /> */}
+                            <Calendar
+                              className="react-calendar"
+                              onChange={handleToDateChange}
+                              value={selectedToDate}
+                              locale="en-US"
+                              onClose={() => {
+                                setShowToDatePicker(false);
+                              }}
+                              tileClassName={({ date, view }) => {
+                                const today = new Date();
+
+                                // Highlight the current date
+                                if (
+                                  date.getDate() === today.getDate() &&
+                                  date.getMonth() === today.getMonth() &&
+                                  date.getFullYear() === today.getFullYear()
+                                ) {
+                                  return "current-date"; // Add a custom class for current date
+                                }
+
+                                return null; // Default for other dates
                               }}
                             />
                           </div>
@@ -836,22 +875,23 @@ function AllCalls() {
                   Stage
                 </div>
 
-                <div className="w-full flex flex-wrap gap-4">
-                  {stagesList.map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex flex-row items-center mt-2 justify-start"
-                      style={{ fontSize: 15, fontWeight: "500" }}
-                    >
-                      <button
-                        onClick={() => {
-                          handleSelectStage(item);
-                        }}
-                        className={`p-2 border border-[#00000020] ${
-                          selectedStageIds.includes(item.id)
-                            ? `bg-purple`
-                            : "bg-transparent"
-                        } px-6
+                {selectedPipeline && (
+                  <div className="w-full flex flex-wrap gap-4">
+                    {stagesList.map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex flex-row items-center mt-2 justify-start"
+                        style={{ fontSize: 15, fontWeight: "500" }}
+                      >
+                        <button
+                          onClick={() => {
+                            handleSelectStage(item);
+                          }}
+                          className={`p-2 border border-[#00000020] ${
+                            selectedStageIds.includes(item.id)
+                              ? `bg-purple`
+                              : "bg-transparent"
+                          } px-6
                                                                 ${
                                                                   selectedStageIds.includes(
                                                                     item.id
@@ -859,12 +899,13 @@ function AllCalls() {
                                                                     ? `text-white`
                                                                     : "text-black"
                                                                 } rounded-2xl`}
-                      >
-                        {item.stageTitle}
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                        >
+                          {item.stageTitle}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-row items-center w-full justify-between mt-4 pb-8">
@@ -954,12 +995,12 @@ const styles = {
     textOverflow: "ellipsis", // Add ellipsis for overflow text
   },
   modalsStyle: {
-    height: "auto",
+    // height: "auto",
     bgcolor: "transparent",
     p: 2,
     mx: "auto",
-    my: "50vh",
-    transform: "translateY(-55%)",
+    // my: "50vh",
+    // transform: "translateY(-55%)",
     borderRadius: 2,
     border: "none",
     outline: "none",
