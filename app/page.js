@@ -47,6 +47,7 @@ const Page = ({ length = 6, onComplete }) => {
   const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
 
+  const [loaderTitle, setLoaderTitle] = useState("Launching your account...");
   // const length = 6;
   const [VerifyCode, setVerifyCode] = useState(Array(length).fill(""));
   const [showVerifyPopup, setShowVerifyPopup] = useState(false);
@@ -279,6 +280,7 @@ const Page = ({ length = 6, onComplete }) => {
         setIsVisible(true);
 
         if (response.data.status === true) {
+          setLoaderTitle("Redirecting to dashboard...");
           if (
             response.data.data.user.userType !== "RealEstateAgent" &&
             response.data.data.user.userRole !== "Invitee"
@@ -314,9 +316,10 @@ const Page = ({ length = 6, onComplete }) => {
         }
       }
     } catch (error) {
+      setLoginLoader(false);
       console.error("ERror occured in login api is :", error);
     } finally {
-      setLoginLoader(false);
+      // setLoginLoader(false);
     }
   };
 
@@ -845,7 +848,7 @@ const Page = ({ length = 6, onComplete }) => {
                 <div className="flex fex-row items-center justify-center mt-8">
                   <LoaderAnimation
                     loaderModal={loginLoader}
-                    title="Launching your account..."
+                    title={loaderTitle}
                   />
                 </div>
               ) : (

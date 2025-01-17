@@ -74,9 +74,9 @@ const Pipeline1 = ({ handleContinue }) => {
       }
     }
     const localCadences = localStorage.getItem("AddCadenceDetails");
-    if (localCadences) {
+    if (localCadences && localCadences != "null") {
       const localCadenceDetails = JSON.parse(localCadences);
-      console.log("Local cadences retrieved:", localCadenceDetails);
+      console.log("Local cadences retrieved:", localCadences);
 
       // Set the selected pipeline item
       const storedPipelineItem = localCadenceDetails.pipelineID;
@@ -368,8 +368,9 @@ const Pipeline1 = ({ handleContinue }) => {
       JSON.stringify(cadenceData)
     );
 
-    localStorage.setItem("AddCadenceDetails", JSON.stringify(cadenceData));
-
+    if (cadenceData) {
+      localStorage.setItem("AddCadenceDetails", JSON.stringify(cadenceData));
+    }
     handleContinue();
 
     // try {
