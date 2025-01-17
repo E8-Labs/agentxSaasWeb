@@ -512,8 +512,7 @@ function NotficationsDrawer({ close }) {
       NotificationTypes.FirstAppointment === item.type ||
       NotificationTypes.ThreeAppointments === item.type ||
       NotificationTypes.SevenAppointments === item.type ||
-      NotificationTypes.Day14FeedbackRequest === item.type ||
-      NotificationTypes.PlanUpgradeSuggestionFor30MinPlan === item.type
+      NotificationTypes.Day14FeedbackRequest === item.type
     ) {
       return (
         <button
@@ -522,6 +521,22 @@ function NotficationsDrawer({ close }) {
             item.type == NotificationTypes.Day14FeedbackRequest
               ? giveFeedback()
               : getSupport();
+          }}
+        >
+          <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
+            Get Live Help
+          </div>
+        </button>
+      );
+    } else if (
+      item.type === NotificationTypes.PlanUpgradeSuggestionFor30MinPlan
+    ) {
+      return (
+        <button
+          className="outline-none"
+          onClick={(e) => {
+            e.preventDefault();
+            router.push("/dashboard/myAccount?tab=2");
           }}
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">

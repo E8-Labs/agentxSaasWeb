@@ -14,7 +14,10 @@ import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
-import { checkPhoneNumber, getLocalLocation } from "@/components/onboarding/services/apisServices/ApiService";
+import {
+  checkPhoneNumber,
+  getLocalLocation,
+} from "@/components/onboarding/services/apisServices/ApiService";
 import { formatPhoneNumber } from "@/utilities/agentUtilities";
 
 function Page() {
@@ -282,7 +285,7 @@ function Page() {
       try {
         setCheckPhoneLoader("Checking...");
         let response = await checkPhoneNumber(phoneNumber);
-        console.log("Response of check number api is", response)
+        console.log("Response of check number api is", response);
         // setErrorMessage(null)
         setCheckPhoneResponse(response.data);
         if (response.data.status === false) {
@@ -301,6 +304,48 @@ function Page() {
       console.log("Trigered");
     }
   };
+
+  async function DeleteTeamMember(team) {
+    let phoneNumber = team.phone;
+    let data = {
+      phone: phoneNumber,
+    };
+
+    console.log("data to delete", data);
+    // return
+
+    try {
+      const data = localStorage.getItem("User");
+      setInviteTeamLoader(true);
+      if (data) {
+        let u = JSON.parse(data);
+
+        let path = Apis.deleteTeamMember;
+
+        const response = await axios.post(path, {
+          headers: {
+            Authorization: "Bearer " + u.token,
+          },
+          data,
+        });
+
+        if (response) {
+          setInviteTeamLoader(false);
+          if (response.data.status === true) {
+            console.log("delete team api response is", response.data.data);
+            let team = myTeam.filter((item) => item.id != team.id);
+            setMyTeam(team);
+            // getMyteam()
+          } else {
+            console.log("delete team api message is", response.data.message);
+          }
+        }
+      }
+    } catch (e) {
+      setInviteTeamLoader(false);
+      console.log("error in invite team api is", e);
+    }
+  }
 
   const handleResendInvite = async (item) => {
     console.log("item", item);
@@ -360,8 +405,7 @@ function Page() {
                   + Invite new
                 </button>
               </div>
-            )
-            }
+            )}
 
             {myTeam.length > 0 ? (
               <div
@@ -491,7 +535,11 @@ function Page() {
 
                         <MenuItem
                           style={styles.deleteText}
-                          onClick={() => setOpenMoreDropdown(false)}
+                          onClick={async () => {
+                            setOpenMoreDropdown(false);
+                            //Delete Team member here
+                            await DeleteTeamMember(item);
+                          }}
                         >
                           Delete
                         </MenuItem>
@@ -527,9 +575,8 @@ function Page() {
               </div>
             )}
           </div>
-        )
-        }
-      </div >
+        )}
+      </div>
 
       <Modal
         open={openInvitePopup}
@@ -664,7 +711,9 @@ function Page() {
                               : "red",
                         }}
                       >
-                        {emailCheckResponse?.message?.slice(0, 1).toUpperCase() +
+                        {emailCheckResponse?.message
+                          ?.slice(0, 1)
+                          .toUpperCase() +
                           emailCheckResponse?.message?.slice(1)}
                       </p>
                     ) : (
@@ -720,7 +769,7 @@ function Page() {
                         overflowY: "auto",
                       }}
                       countryCodeEditable={true}
-                    // defaultMask={locationLoader ? "Loading..." : undefined}
+                      // defaultMask={locationLoader ? "Loading..." : undefined}
                     />
                   </div>
                 </div>
@@ -734,19 +783,19 @@ function Page() {
                       className={`text-end text-red`}
                       style={{
                         ...styles.errmsg,
-                        color: checkPhoneResponse?.status === true ? "green" : "red"
+                        color:
+                          checkPhoneResponse?.status === true ? "green" : "red",
                       }}
                     >
                       {errorMessage}
                     </div>
-                  )
-                  }
+                  )}
                 </div>
                 <div>
                   {checkPhoneLoader && (
                     <div
                       className={`text-end text-red`}
-                      style={{ ...styles.errmsg, }}
+                      style={{ ...styles.errmsg }}
                     >
                       {checkPhoneLoader}
                     </div>
@@ -763,7 +812,13 @@ function Page() {
                   style={{
                     marginTop: 20,
                     backgroundColor:
-                      !name || !email || !phone || emailCheckResponse?.status !== true || checkPhoneResponse?.status !== true ? "#00000020" : "",
+                      !name ||
+                      !email ||
+                      !phone ||
+                      emailCheckResponse?.status !== true ||
+                      checkPhoneResponse?.status !== true
+                        ? "#00000020"
+                        : "",
                   }}
                   className="w-full flex bg-purple p-3 rounded-lg items-center justify-center"
                   onClick={() => {
@@ -774,13 +829,26 @@ function Page() {
                     };
                     inviteTeamMember(data);
                   }}
-                  disabled={!name || !email || !phone || emailCheckResponse?.status !== true || checkPhoneResponse?.status !== true}
+                  disabled={
+                    !name ||
+                    !email ||
+                    !phone ||
+                    emailCheckResponse?.status !== true ||
+                    checkPhoneResponse?.status !== true
+                  }
                 >
                   <div
                     style={{
                       fontSize: 16,
                       fontWeight: "500",
-                      color: !name || !email || !phone || emailCheckResponse?.status !== true || checkPhoneResponse?.status !== true ? "#000000" : "#ffffff",
+                      color:
+                        !name ||
+                        !email ||
+                        !phone ||
+                        emailCheckResponse?.status !== true ||
+                        checkPhoneResponse?.status !== true
+                          ? "#000000"
+                          : "#ffffff",
                     }}
                   >
                     Send Invite
@@ -794,7 +862,7 @@ function Page() {
           </div>
         </Box>
       </Modal>
-    </div >
+    </div>
   );
 }
 

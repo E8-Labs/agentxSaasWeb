@@ -34,7 +34,7 @@ import SelectStageDropdown from "../StageSelectDropdown";
 import { AssignTeamMember } from "@/components/onboarding/services/apisServices/ApiService";
 import CircularLoader from "@/utilities/CircularLoader";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
-
+import { capitalize } from "@/utilities/StringUtility";
 
 const LeadDetails = ({
   showDetailsModal,
@@ -46,9 +46,8 @@ const LeadDetails = ({
   isPipeline = false,
   noBackDrop = false,
   leadStageUpdated,
-  leadAssignedTeam
+  leadAssignedTeam,
 }) => {
-
   console.log("Pipeline id passed is", pipelineId);
   console.log("Lead details are ", selectedLead);
 
@@ -152,8 +151,7 @@ const LeadDetails = ({
           }
         }
       }
-    }
-    catch (e) {
+    } catch (e) {
       setGetTeamLoader(false);
 
       console.log("error in get team api is", e);
@@ -173,7 +171,7 @@ const LeadDetails = ({
             teamsAssigned: [...prevData.teamsAssigned, item],
           };
         });
-        leadAssignedTeam(item, selectedLeadsDetails)
+        leadAssignedTeam(item, selectedLeadsDetails);
       }
       console.log("Response of api is", response);
     } catch (error) {
@@ -182,7 +180,7 @@ const LeadDetails = ({
       setGlobalLoader(false);
       handleClosePopup();
     }
-  }
+  };
 
   //function to handle stages dropdown selection
   const handleStageChange = (event) => {
@@ -633,7 +631,9 @@ const LeadDetails = ({
       <Modal
         open={showDetailsModal}
         closeAfterTransition
-        onClose={() => { setShowDetailsModal(false) }}
+        onClose={() => {
+          setShowDetailsModal(false);
+        }}
         BackdropProps={{
           sx: {
             backgroundColor: noBackDrop ? "#00000002" : "#00000020",
@@ -777,10 +777,11 @@ const LeadDetails = ({
                                         }}
                                       >
                                         {selectedLeadsDetails?.emails?.length >
-                                          1
-                                          ? `+${selectedLeadsDetails?.emails
-                                            ?.length - 1
-                                          }`
+                                        1
+                                          ? `+${
+                                              selectedLeadsDetails?.emails
+                                                ?.length - 1
+                                            }`
                                           : ""}
                                       </button>
                                     </div>
@@ -824,8 +825,9 @@ const LeadDetails = ({
                                   }}
                                 >
                                   {selectedLeadsDetails?.emails?.length > 1
-                                    ? `+${selectedLeadsDetails?.emails?.length - 1
-                                    }`
+                                    ? `+${
+                                        selectedLeadsDetails?.emails?.length - 1
+                                      }`
                                     : ""}
                                 </button>
                               </div>
@@ -966,7 +968,7 @@ const LeadDetails = ({
                                         {tag}
                                       </div>
                                       {DelTagLoader &&
-                                        tag.includes(DelTagLoader) ? (
+                                      tag.includes(DelTagLoader) ? (
                                         <div>
                                           <CircularProgress size={15} />
                                         </div>
@@ -1039,7 +1041,7 @@ const LeadDetails = ({
                       {selectedLeadsDetails?.tags.length > 0 ? (
                         <div
                           className="text-end flex flex-row items-center gap-2"
-                        // style={styles.paragraph}
+                          // style={styles.paragraph}
                         >
                           {
                             // selectedLeadsDetails?.tags?.map.slice(0, 1)
@@ -1058,7 +1060,7 @@ const LeadDetails = ({
                                         {tag}
                                       </div>
                                       {DelTagLoader &&
-                                        tag.includes(DelTagLoader) ? (
+                                      tag.includes(DelTagLoader) ? (
                                         <div>
                                           <CircularProgress size={15} />
                                         </div>
@@ -1296,50 +1298,54 @@ const LeadDetails = ({
                       >
                         <button
                           onClick={() => {
-                            handleAssignLeadToTeammember(myTeamAdmin)
+                            handleAssignLeadToTeammember(myTeamAdmin);
                           }}
                         >
                           <div className="p-2 w-full flex flex-row items-center justify-start gap-2 ">
                             <div className="">
-                              {getAgentsListImage(myTeamAdmin?.invitedUser, 32, 32, false)}
+                              {getAgentsListImage(
+                                myTeamAdmin?.invitedUser,
+                                32,
+                                32,
+                                false
+                              )}
                             </div>
-                            <div className="">
-                              {myTeamAdmin?.name}
-                            </div>
-                            <div
-                              className="bg-purple text-white text-sm px-2 rounded-full"
-                            >
+                            <div className="">{myTeamAdmin?.name}</div>
+                            <div className="bg-purple text-white text-sm px-2 rounded-full">
                               Admin
                             </div>
                           </div>
                         </button>
-                        {
-                          myTeam.length > 0 ? (
-                            <div>
-                              {
-                                myTeam.map((item, index) => {
-                                  return (
-                                    <div
-                                      key={index}
-                                      className="p-2 flex flex-col gap-2"
-                                      style={{ fontWeight: "500", fontSize: 15 }}
-                                    >
-                                      <button
-                                        className="text-start flex flex-row items-center justify-start gap-2"
-                                        onClick={() => { handleAssignLeadToTeammember(item) }}
-                                      >
-                                        {getAgentsListImage(myTeamAdmin?.invitedUser, 32, 32, false)}
-                                        {item.name}
-                                      </button>
-                                    </div>
-                                  )
-                                })
-                              }
-                            </div>
-                          ) : (
-                            ""
-                          )
-                        }
+                        {myTeam.length > 0 ? (
+                          <div>
+                            {myTeam.map((item, index) => {
+                              return (
+                                <div
+                                  key={index}
+                                  className="p-2 flex flex-col gap-2"
+                                  style={{ fontWeight: "500", fontSize: 15 }}
+                                >
+                                  <button
+                                    className="text-start flex flex-row items-center justify-start gap-2"
+                                    onClick={() => {
+                                      handleAssignLeadToTeammember(item);
+                                    }}
+                                  >
+                                    {getAgentsListImage(
+                                      myTeamAdmin?.invitedUser,
+                                      32,
+                                      32,
+                                      false
+                                    )}
+                                    {item.name}
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          ""
+                        )}
                       </Popover>
                     </div>
 
@@ -1363,16 +1369,10 @@ const LeadDetails = ({
                           }}
                         >
                           {/* {selectedLeadsDetails?.phone} */}
-                          {selectedLeadsDetails?.booking
-                            ? moment(selectedLeadsDetails.booking.date).format(
-                              "MM/DD/YYYY"
-                            ) +
-                            " - " +
-                            moment(
-                              selectedLeadsDetails.booking.time,
-                              "HH:mm"
-                            ).format("HH:mm")
-                            : "-"}
+                          {GetFormattedDateString(
+                            selectedLeadsDetails.booking.datetime,
+                            true
+                          )}
                         </div>
                       </div>
                     )}
@@ -1457,7 +1457,7 @@ const LeadDetails = ({
                                     {/* <Image src={"/"} */}
                                     <div>-</div>
                                     <div style={styles.subHeading}>
-                                      {column.title}
+                                      {capitalize(column.title)}
                                     </div>
                                   </div>
                                   <div style={styles.paragraph}>
@@ -1808,103 +1808,103 @@ const LeadDetails = ({
                                           {isExpandedActivity.includes(
                                             item.id
                                           ) && (
+                                            <div
+                                              className="mt-6"
+                                              style={{
+                                                border: "1px solid #00000020",
+                                                borderRadius: "10px",
+                                                padding: 10,
+                                                paddingInline: 15,
+                                              }}
+                                            >
                                               <div
-                                                className="mt-6"
+                                                className="mt-4"
                                                 style={{
-                                                  border: "1px solid #00000020",
-                                                  borderRadius: "10px",
-                                                  padding: 10,
-                                                  paddingInline: 15,
+                                                  fontWeight: "500",
+                                                  fontSize: 12,
+                                                  color: "#00000070",
                                                 }}
                                               >
+                                                Transcript
+                                              </div>
+                                              <div className="flex flex-row items-center justify-between mt-4">
                                                 <div
-                                                  className="mt-4"
                                                   style={{
                                                     fontWeight: "500",
-                                                    fontSize: 12,
-                                                    color: "#00000070",
+                                                    fontSize: 15,
                                                   }}
                                                 >
-                                                  Transcript
+                                                  {moment(
+                                                    item?.duration * 1000
+                                                  ).format("mm:ss")}{" "}
                                                 </div>
-                                                <div className="flex flex-row items-center justify-between mt-4">
+                                                <button
+                                                  onClick={() => {
+                                                    if (item?.recordingUrl) {
+                                                      setShowAudioPlay(
+                                                        item?.recordingUrl
+                                                      );
+                                                    } else {
+                                                      setShowNoAudioPlay(true);
+                                                    }
+                                                    // window.open(item.recordingUrl, "_blank")
+                                                  }}
+                                                >
+                                                  <Image
+                                                    src={"/assets/play.png"}
+                                                    height={35}
+                                                    width={35}
+                                                    alt="*"
+                                                  />
+                                                </button>
+                                              </div>
+                                              {item.transcript ? (
+                                                <div className="w-full">
                                                   <div
-                                                    style={{
-                                                      fontWeight: "500",
-                                                      fontSize: 15,
-                                                    }}
-                                                  >
-                                                    {moment(
-                                                      item?.duration * 1000
-                                                    ).format("mm:ss")}{" "}
-                                                  </div>
-                                                  <button
-                                                    onClick={() => {
-                                                      if (item?.recordingUrl) {
-                                                        setShowAudioPlay(
-                                                          item?.recordingUrl
-                                                        );
-                                                      } else {
-                                                        setShowNoAudioPlay(true);
-                                                      }
-                                                      // window.open(item.recordingUrl, "_blank")
-                                                    }}
-                                                  >
-                                                    <Image
-                                                      src={"/assets/play.png"}
-                                                      height={35}
-                                                      width={35}
-                                                      alt="*"
-                                                    />
-                                                  </button>
-                                                </div>
-                                                {item.transcript ? (
-                                                  <div className="w-full">
-                                                    <div
-                                                      className="mt-4"
-                                                      style={{
-                                                        fontWeight: "600",
-                                                        fontSize: 15,
-                                                      }}
-                                                    >
-                                                      {/* {item.transcript} */}
-                                                      {isExpanded.includes(
-                                                        item.id
-                                                      )
-                                                        ? `${item.transcript}`
-                                                        : `${initialText}...`}
-                                                    </div>
-                                                    <button
-                                                      style={{
-                                                        fontWeight: "600",
-                                                        fontSize: 15,
-                                                      }}
-                                                      onClick={() => {
-                                                        handleReadMoreToggle(
-                                                          item
-                                                        );
-                                                      }}
-                                                      className="mt-2 text-black underline"
-                                                    >
-                                                      {isExpanded.includes(
-                                                        item.id
-                                                      )
-                                                        ? "Read Less"
-                                                        : "Read more"}
-                                                    </button>
-                                                  </div>
-                                                ) : (
-                                                  <div
+                                                    className="mt-4"
                                                     style={{
                                                       fontWeight: "600",
                                                       fontSize: 15,
                                                     }}
                                                   >
-                                                    No transcript
+                                                    {/* {item.transcript} */}
+                                                    {isExpanded.includes(
+                                                      item.id
+                                                    )
+                                                      ? `${item.transcript}`
+                                                      : `${initialText}...`}
                                                   </div>
-                                                )}
-                                              </div>
-                                            )}
+                                                  <button
+                                                    style={{
+                                                      fontWeight: "600",
+                                                      fontSize: 15,
+                                                    }}
+                                                    onClick={() => {
+                                                      handleReadMoreToggle(
+                                                        item
+                                                      );
+                                                    }}
+                                                    className="mt-2 text-black underline"
+                                                  >
+                                                    {isExpanded.includes(
+                                                      item.id
+                                                    )
+                                                      ? "Read Less"
+                                                      : "Read more"}
+                                                  </button>
+                                                </div>
+                                              ) : (
+                                                <div
+                                                  style={{
+                                                    fontWeight: "600",
+                                                    fontSize: 15,
+                                                  }}
+                                                >
+                                                  No transcript
+                                                </div>
+                                              )}
+                                            </div>
+                                          )}
                                         </div>
                                       </div>
                                     </div>
@@ -2092,10 +2092,7 @@ const LeadDetails = ({
       </Modal>
 
       {/* Global Loader */}
-      <CircularLoader
-        globalLoader={globalLoader}
-      />
-
+      <CircularLoader globalLoader={globalLoader} />
     </div>
   );
 };

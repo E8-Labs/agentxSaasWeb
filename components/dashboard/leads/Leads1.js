@@ -408,9 +408,9 @@ const Leads1 = () => {
           console.log("Updated name is default column", UpdatedColumnName);
           let value =
             d.extraColumns[
-            UpdateHeader.dbName
-              ? UpdateHeader.dbName
-              : UpdateHeader.ColumnNameInSheet
+              UpdateHeader.dbName
+                ? UpdateHeader.dbName
+                : UpdateHeader.ColumnNameInSheet
             ];
           delete d.extraColumns[
             UpdateHeader.dbName
@@ -977,7 +977,7 @@ const Leads1 = () => {
                       width={20}
                       alt="*"
                     />
-                    <span style={styles.headingStyle}>Add Leads</span>
+                    <span style={styles.headingStyle}>Upload Leads</span>
                   </button>
                 </div>
                 <div className="">
@@ -1024,8 +1024,7 @@ const Leads1 = () => {
             // </div>
           )}
         </div>
-      )
-      }
+      )}
 
       {/* Modal to add lead */}
       <Modal
@@ -1110,7 +1109,7 @@ const Leads1 = () => {
                     alt="Upload Icon"
                     height={30}
                     width={30}
-                  // style={{ marginBottom: "10px" }}
+                    // style={{ marginBottom: "10px" }}
                   />
                 </div>
                 <p style={{ ...styles.subHeadingStyle }}>
@@ -1339,8 +1338,8 @@ const Leads1 = () => {
                             {item.dbName
                               ? processedData[0].extraColumns[item.dbName]
                               : processedData[0].extraColumns[
-                              item.ColumnNameInSheet
-                              ]}
+                                  item.ColumnNameInSheet
+                                ]}
                           </div>
                         )}
                       </div>
@@ -1819,7 +1818,7 @@ const Leads1 = () => {
                       width={20}
                       alt="*"
                     />
-                    <span style={styles.headingStyle}>Add Leads</span>
+                    <span style={styles.headingStyle}>Upload Leads</span>
                   </button>
                 </div>
                 <div className="">
@@ -2013,7 +2012,7 @@ const Leads1 = () => {
           </Box>
         </Modal>
       </div>
-    </div >
+    </div>
   );
 };
 

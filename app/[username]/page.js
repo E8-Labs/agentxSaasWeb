@@ -71,8 +71,17 @@ const Page = ({ length = 6, onComplete }) => {
       console.log("user login details are :", localData);
       router.push("/dashboard");
     }
-
-    getUserLocation();
+    const localLoc = localStorage.getItem("userLocation");
+    if (!localLoc) {
+      getUserLocation();
+    } else if (localLoc) {
+      // const L = JSON.parse(localLoc);
+      // setCountryCode(L.location);
+      let Data = getLocalLocation();
+      if (userPhoneNumber == "") {
+        setCountryCode(Data);
+      }
+    }
 
     // const localAgentData = localStorage.getItem("agentDetails");
     // if (localAgentData) {
@@ -102,7 +111,10 @@ const Page = ({ length = 6, onComplete }) => {
   const getUserLocation = async () => {
     try {
       let loc = await getLocalLocation();
-      setCountryCode(loc);
+
+      if (userPhoneNumber == "") {
+        setCountryCode(loc);
+      }
     } catch (error) {
       console.error("Error occured in get location", error);
     }

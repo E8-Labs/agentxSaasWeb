@@ -1,244 +1,304 @@
-"use client"
-import React, { useEffect, useState } from 'react'
-import Image from 'next/image'
-import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
-import { MenuItem, FormControl, Select, Snackbar, Alert, CircularProgress } from '@mui/material'
-import axios from 'axios'
-import Apis from '@/components/apis/Apis'
-import { CaretDown, CaretUp, Copy } from '@phosphor-icons/react'
-import CallWorthyReviewsPopup from '@/components/dashboard/leads/CallWorthyReviewsPopup'
-import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
-
-
-
+"use client";
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
+import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import InputAdornment from "@mui/material/InputAdornment";
+import {
+  MenuItem,
+  FormControl,
+  Select,
+  Snackbar,
+  Alert,
+  CircularProgress,
+  TextField,
+} from "@mui/material";
+import axios from "axios";
+import Apis from "@/components/apis/Apis";
+import { CaretDown, CaretUp, Copy } from "@phosphor-icons/react";
+import CallWorthyReviewsPopup from "@/components/dashboard/leads/CallWorthyReviewsPopup";
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import { Searchbar } from "@/components/general/MuiSearchBar";
+const allIntegrations = [
+  {
+    title: "Mailchimp",
+    url: "https://youtube.com",
+    description:
+      "Automatically nurture AgentX leads with targeted email campaigns in Mailchimp to stay top-of-mind.",
+    icon: "/svgicons/MailchimpIcon.svg",
+  },
+  {
+    title: "ActiveCampaign",
+    url: "https://youtube.com",
+    description:
+      "Send AgentX leads to ActiveCampaign to trigger automated email sequences and track engagement.",
+    icon: "/svgicons/ActiveCampaignIcon.svg",
+  },
+  {
+    title: "ClickUp",
+    url: "https://youtube.com",
+    description:
+      "Create follow-up tasks in ClickUp for AgentX leads to ensure no opportunity is missed.",
+    icon: "/svgIcons/ClickUpIcon.svg",
+  },
+  {
+    title: "Trello",
+    url: "https://youtube.com",
+    description:
+      "Organize AgentX leads into Trello boards for tracking follow-up actions and collaboration with your team.",
+    icon: "/svgIcons/TrelloIcon.svg",
+  },
+  {
+    title: "Asana",
+    url: "https://youtube.com",
+    description:
+      "Add tasks for AgentX lead follow-ups in Asana to keep your pipeline moving forward.",
+    icon: "/svgIcons/AsanaIcon.svg",
+  },
+  {
+    title: "Slack",
+    url: "https://youtube.com",
+    description:
+      "Receive instant updates in Slack when AgentX nurtures a lead or books an appointment.",
+    icon: "/svgIcons/SlackIcon.svg",
+  },
+  {
+    title: "Shopify",
+    url: "https://youtube.com",
+    description:
+      "Sync Shopify customers to AgentX for personalized follow-ups and repeat business outreach.",
+    icon: "/svgIcons/ShopifyIcon.svg",
+  },
+  {
+    title: "Stripe",
+    url: "https://youtube.com",
+    description:
+      "Automatically update AgentX lead profiles when payments are received through Stripe for nurturing upsell opportunities.",
+    icon: "/svgIcons/StripeIcon.svg",
+  },
+  {
+    title: "PayPal",
+    url: "https://youtube.com",
+    description:
+      "Track PayPal transactions in AgentX and follow up with leads to build long-term relationships",
+    icon: "/svgIcons/PayPalIcon.svg",
+  },
+  {
+    title: "Google Sheets",
+    url: "https://youtube.com",
+    description:
+      "Add new leads from Google Sheets to AgentX for AI-driven follow-ups and nurturing.",
+    icon: "/svgIcons/GoogleSheetsIcon.svg",
+  },
+  {
+    title: "Zoho",
+    url: "https://youtube.com",
+    description:
+      "Sync Zoho CRM leads with AgentX for automated follow-ups and timely engagement.",
+    icon: "/svgIcons/ZohoIcon.svg",
+  },
+  {
+    title: "FUB",
+    url: "https://youtube.com",
+    description:
+      "Send FUB leads to AgentX to ensure consistent nurturing through AI-powered communication.",
+    icon: "/svgIcons/FUBIcon.svg",
+  },
+  {
+    title: "HubSpot",
+    url: "https://youtube.com",
+    description:
+      "Integrate HubSpot contacts with AgentX to automate follow-ups and streamline your pipeline.",
+    icon: "/svgIcons/HubSpotIcon.svg",
+  },
+  {
+    title: "Clio Grow",
+    url: "https://youtube.com",
+    description:
+      "Capture Clio Grow client leads and let AgentX handle the nurturing and scheduling.",
+    icon: "/svgIcons/ClioGrowIcon.svg",
+  },
+  {
+    title: "Close",
+    url: "https://youtube.com",
+    description:
+      "Update Close opportunities with AgentX follow-up progress to streamline sales efforts.",
+    icon: "/svgIcons/CloseIcon.svg",
+  },
+  {
+    title: "KV Core",
+    url: "https://youtube.com",
+    description:
+      "Send KV Core leads to AgentX to automate follow-ups and improve conversion rates.",
+    icon: "/svgIcons/KVCoreIcon.svg",
+  },
+  {
+    title: "Typeform",
+    url: "https://youtube.com",
+    description:
+      "Capture Typeform responses as leads in AgentX for instant follow-up and nurturing.",
+    icon: "/svgIcons/Typeform.svg",
+  },
+  {
+    title: "JotForm",
+    url: "https://youtube.com",
+    description:
+      "Add Jotform submissions to AgentX to kickstart AI-driven lead engagement and follow-up.",
+    icon: "/svgIcons/JotFormIcon.svg",
+  },
+  {
+    title: "Facebook Ads (Instant form)",
+    url: "https://youtube.com",
+    description:
+      "Sync Facebook leads to AgentX for immediate qualifying, follow-ups and lead nurturing. Speed to lead! ",
+    icon: "/svgIcons/FacebookIcon.svg",
+  },
+  {
+    title: "Wix forms",
+    url: "https://youtube.com",
+    description:
+      "Turn Wix form submissions into AgentX leads for automated nurturing and engagement.",
+    icon: "/svgIcons/WixformsIcon.svg",
+  },
+  {
+    title: "Calendly",
+    url: "https://youtube.com",
+    description:
+      "Automatically update AgentX when appointments are scheduled in Calendly to ensure timely follow-ups.",
+    icon: "/svgIcons/CalendlyIcon.svg",
+  },
+  {
+    title: "Cal.com",
+    url: "https://youtube.com",
+    description:
+      "Sync Cal.com bookings with AgentX for seamless scheduling and lead engagement.",
+    icon: "/svgIcons/Cal.comIcon.svg",
+  },
+  {
+    title: "GHL",
+    url: "https://youtube.com",
+    description:
+      "Integrate with AgentX to streamline lead management, automate follow-ups, and boost conversions effortlessly.",
+    icon: "/svgIcons/GHLIcon.svg",
+  },
+];
 function Page() {
+  const [showKeysBox, setshowKeysBox] = useState(false);
+  const [myKeys, setMyKeys] = useState([]);
+  const [keyLoader, setKeyLoader] = useState(false);
+  const [genratekeyLoader, setGenrateeyLoader] = useState(false);
+  const [genratekeyLoader2, setGenrateeyLoader2] = useState(false);
+  const [showCopySnak, setShowCopySnak] = useState(null);
 
-  const [showKeysBox, setshowKeysBox] = useState(false)
-  const [myKeys, setMyKeys] = useState([])
-  const [keyLoader, setKeyLoader] = useState(false)
-  const [genratekeyLoader, setGenrateeyLoader] = useState(false)
-  const [genratekeyLoader2, setGenrateeyLoader2] = useState(false)
-  const [showCopySnak, setShowCopySnak] = useState(null)
+  //test
 
-  //test 
-
-  const [showCallReviewPopup, setShowCallReviewPopup] = useState(false)
-
+  const [showCallReviewPopup, setShowCallReviewPopup] = useState(false);
 
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const integrations = [
-    {
-      title: "Mailchimp",
-      url: "https://youtube.com",
-      description: "Automatically nurture AgentX leads with targeted email campaigns in Mailchimp to stay top-of-mind.",
-      icon: "/svgicons/MailchimpIcon.svg",
-    },
-    {
-      title: "ActiveCampaign",
-      url: "https://youtube.com",
-      description: "Send AgentX leads to ActiveCampaign to trigger automated email sequences and track engagement.",
-      icon: "/svgicons/ActiveCampaignIcon.svg",
-    },
-    {
-      title: "ClickUp",
-      url: "https://youtube.com",
-      description: "Create follow-up tasks in ClickUp for AgentX leads to ensure no opportunity is missed.",
-      icon: "/svgIcons/ClickUpIcon.svg",
-    },
-    {
-      title: "Trello",
-      url: "https://youtube.com",
-      description: "Organize AgentX leads into Trello boards for tracking follow-up actions and collaboration with your team.",
-      icon: "/svgIcons/TrelloIcon.svg",
-    },{
-      title: "Asana",
-      url: "https://youtube.com",
-      description: "Add tasks for AgentX lead follow-ups in Asana to keep your pipeline moving forward.",
-      icon: "/svgIcons/AsanaIcon.svg",
-    },{
-      title: "Slack",
-      url: "https://youtube.com",
-      description: "Receive instant updates in Slack when AgentX nurtures a lead or books an appointment.",
-      icon: "/svgIcons/SlackIcon.svg",
-    },{
-      title: "Shopify",
-      url: "https://youtube.com",
-      description: "Sync Shopify customers to AgentX for personalized follow-ups and repeat business outreach.",
-      icon: "/svgIcons/ShopifyIcon.svg",
-    },{
-      title: "Stripe",
-      url: "https://youtube.com",
-      description: "Automatically update AgentX lead profiles when payments are received through Stripe for nurturing upsell opportunities.",
-      icon: "/svgIcons/StripeIcon.svg",
-    },{
-      title: "PayPal",
-      url: "https://youtube.com",
-      description: "Track PayPal transactions in AgentX and follow up with leads to build long-term relationships",
-      icon: "/svgIcons/PayPalIcon.svg",
-    },{
-      title: "Google Sheets",
-      url: "https://youtube.com",
-      description: "Add new leads from Google Sheets to AgentX for AI-driven follow-ups and nurturing.",
-      icon: "/svgIcons/GoogleSheetsIcon.svg",
-    },{
-      title: "Zoho",
-      url: "https://youtube.com",
-      description: "Sync Zoho CRM leads with AgentX for automated follow-ups and timely engagement.",
-      icon: "/svgIcons/ZohoIcon.svg",
-    },{
-      title: "FUB",
-      url: "https://youtube.com",
-      description: "Send FUB leads to AgentX to ensure consistent nurturing through AI-powered communication.",
-      icon: "/svgIcons/FUBIcon.svg",
-    },{
-      title: "HubSpot",
-      url: "https://youtube.com",
-      description: "Integrate HubSpot contacts with AgentX to automate follow-ups and streamline your pipeline.",
-      icon: "/svgIcons/HubSpotIcon.svg",
-    },{
-      title: "Clio Grow",
-      url: "https://youtube.com",
-      description: "Capture Clio Grow client leads and let AgentX handle the nurturing and scheduling.",
-      icon: "/svgIcons/ClioGrowIcon.svg",
-    },{
-      title: "Close",
-      url: "https://youtube.com",
-      description: "Update Close opportunities with AgentX follow-up progress to streamline sales efforts.", 
-      icon: "/svgIcons/CloseIcon.svg",
-    },{
-      title: "KV Core",
-      url: "https://youtube.com",
-      description: "Send KV Core leads to AgentX to automate follow-ups and improve conversion rates.",
-      icon: "/svgIcons/KVCoreIcon.svg",
-    },{
-      title: "Typeform",
-      url: "https://youtube.com",
-      description: "Capture Typeform responses as leads in AgentX for instant follow-up and nurturing." , 
-      icon: "/svgIcons/Typeform.svg",
-    },{
-      title: "JotForm",
-      url: "https://youtube.com",
-      description: "Add Jotform submissions to AgentX to kickstart AI-driven lead engagement and follow-up.",
-      icon: "/svgIcons/JotFormIcon.svg",
-    },{
-      title: "Facebook Ads (Instant form)",
-      url: "https://youtube.com",
-      description: "Sync Facebook leads to AgentX for immediate qualifying, follow-ups and lead nurturing. Speed to lead! ",
-      icon: "/svgIcons/FacebookIcon.svg",
-    },{
-      title: "Wix forms",
-      url: "https://youtube.com",
-      description: "Turn Wix form submissions into AgentX leads for automated nurturing and engagement.",
-      icon: "/svgIcons/WixformsIcon.svg",
-    },{
-      title: "Calendly",
-      url: "https://youtube.com",
-      description: "Automatically update AgentX when appointments are scheduled in Calendly to ensure timely follow-ups.",
-      icon: "/svgIcons/CalendlyIcon.svg",
-    },{
-      title: "Cal.com",
-      url: "https://youtube.com",
-      description: "Sync Cal.com bookings with AgentX for seamless scheduling and lead engagement.",
-      icon: "/svgIcons/Cal.comIcon.svg",
-    },{
-      title: "GHL",
-      url: "https://youtube.com",
-      description: "Integrate with AgentX to streamline lead management, automate follow-ups, and boost conversions effortlessly.",
-      icon: "/svgIcons/GHLIcon.svg",
-    },
-  ]
-
+  const [search, setSearch] = useState("");
+  const [integrations, setIntegrations] = useState(allIntegrations);
 
   useEffect(() => {
-    getMyApiKeys()
-  }, [])
+    getMyApiKeys();
+  }, []);
 
+  useEffect(() => {
+    if (search) {
+      let searched = allIntegrations.filter((item) =>
+        item.title.toLowerCase().includes(search.toLowerCase())
+      );
+      setIntegrations(searched);
+    } else {
+      setIntegrations(allIntegrations);
+    }
+  }, [search]);
 
   const getMyApiKeys = async () => {
-    console.log('trying to get my api keys')
+    console.log("trying to get my api keys");
     try {
-      const data = localStorage.getItem("User")
-      setKeyLoader(true)
-      let u = JSON.parse(data)
-      console.log('user data from local is', u.user)
+      const data = localStorage.getItem("User");
+      setKeyLoader(true);
+      let u = JSON.parse(data);
+      console.log("user data from local is", u.user);
 
-      let path = Apis.myApiKeys
-      console.log('path', path)
+      let path = Apis.myApiKeys;
+      console.log("path", path);
 
       const response = await axios.get(path, {
         headers: {
-          "Authorization": "Bearer " + u.token,
-        }
-      })
+          Authorization: "Bearer " + u.token,
+        },
+      });
 
       if (response) {
-        setKeyLoader(false)
+        setKeyLoader(false);
 
         if (response.data.status) {
-          console.log('response of get my api keys is', response.data.data)
-          setMyKeys(response.data.data)
-
-
+          console.log("response of get my api keys is", response.data.data);
+          setMyKeys(response.data.data);
         } else {
-          console.log('get my api keys api message is', response.data.message)
+          console.log("get my api keys api message is", response.data.message);
         }
       }
     } catch (e) {
-      setKeyLoader(false)
-      console.log('error in get my api keys is', e)
+      setKeyLoader(false);
+      console.log("error in get my api keys is", e);
     }
-  }
+  };
 
   const genrateApiKey = async () => {
     try {
+      const data = localStorage.getItem("User");
 
-
-      const data = localStorage.getItem("User")
-
-      let u = JSON.parse(data)
-      console.log('user data from local is', u.user)
+      let u = JSON.parse(data);
+      console.log("user data from local is", u.user);
 
       let apidata = {
-        "email": u.email,
-        "name": u.name,
-        "phone": u.phone,
-        "farm": u.farm,
-        "brokerage": u.brokerage,
-        "averageTransactionPerYear": u.averageTransactionPerYear,
-        "agentService": u.agentService,
-        "areaOfFocus": u.areaOfFocus,
-        "userType": u.userType
-      }
+        email: u.email,
+        name: u.name,
+        phone: u.phone,
+        farm: u.farm,
+        brokerage: u.brokerage,
+        averageTransactionPerYear: u.averageTransactionPerYear,
+        agentService: u.agentService,
+        areaOfFocus: u.areaOfFocus,
+        userType: u.userType,
+      };
 
       // return
 
       const response = await axios.post(Apis.genrateApiKey, apidata, {
         headers: {
-          "Authorization": "Bearer " + u.token,
-          "Content-Type": 'application/json'
-        }
-      })
+          Authorization: "Bearer " + u.token,
+          "Content-Type": "application/json",
+        },
+      });
 
       if (response) {
-        setGenrateeyLoader(false)
-        setGenrateeyLoader2(false)
+        setGenrateeyLoader(false);
+        setGenrateeyLoader2(false);
 
         if (response.data.status) {
-          console.log('response of genrate api keys is', response.data.data)
-          setShowCopySnak("Api key generated successfully")
-          setMyKeys((prevKeys) => [...prevKeys, response.data.data])
+          console.log("response of genrate api keys is", response.data.data);
+          setShowCopySnak("Api key generated successfully");
+          setMyKeys((prevKeys) => [...prevKeys, response.data.data]);
         } else {
-          console.log('get genrate api keys api message is', response.data.message)
+          console.log(
+            "get genrate api keys api message is",
+            response.data.message
+          );
         }
       }
     } catch (e) {
-      setGenrateeyLoader2(false)
-      setGenrateeyLoader(false)
+      setGenrateeyLoader2(false);
+      setGenrateeyLoader(false);
 
-      console.log('error in genrate api keys is', e)
+      console.log("error in genrate api keys is", e);
     }
-  }
+  };
 
   // const myKeys = [
   //   {
@@ -268,27 +328,28 @@ function Page() {
   //   }
   // ]
 
-
   // funtion for mask keys
 
-
   const maskId = (id) => {
-    const maskedId = id.slice(0, -4).replace(/./g, '*') + id.slice(-4);
+    const maskedId = id.slice(0, -4).replace(/./g, "*") + id.slice(-4);
     console.log("length of mask id is", maskedId.length);
     console.log("length of id is", id);
     return maskedId;
-  }
-
+  };
 
   return (
-    <div className='w-full flex flex-col items-center'>
-      <AgentSelectSnackMessage isVisible={showCopySnak} hide={() => setShowCopySnak(null)} message={showCopySnak} type={SnackbarTypes.Success} />
-      <div className=' w-full flex flex-row justify-between items-center py-4 px-10'
-        style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
+    <div className="w-full flex flex-col items-center">
+      <AgentSelectSnackMessage
+        isVisible={showCopySnak}
+        hide={() => setShowCopySnak(null)}
+        message={showCopySnak}
+        type={SnackbarTypes.Success}
+      />
+      <div
+        className=" w-full flex flex-row justify-between items-center py-4 px-10"
+        style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
-        <div style={{ fontSize: 24, fontWeight: '600' }}>
-          Integration
-        </div>
+        <div style={{ fontSize: 24, fontWeight: "600" }}>Integration</div>
         <div className="flex flex-col">
           <NotficationsDrawer />
         </div>
@@ -312,25 +373,37 @@ function Page() {
         }
 
       </div> */}
-      <div className='w-full flex flex-col h-[80vh] mt-8' style={{ overflow: 'auto', scrollbarWidth: 'none' }}>
-        <div className='w-full pl-5 pr-8'>
-          <div className='border w-7/12 p-3'>
-            <button className='w-full' onClick={() => { setshowKeysBox(!showKeysBox) }}>
-              <div className='flex flex-row items-center justify-between '>
-                <div>
-                  My Api Key
-                </div>
-                {
-                  showKeysBox ?
-                    <CaretUp size={20} /> :
+      <div
+        className="w-full flex flex-col h-[80vh] mt-8"
+        style={{ overflow: "auto", scrollbarWidth: "none" }}
+      >
+        <div className="w-full pl-5 pr-8">
+          <div className="flex flex-row justify-between items-start">
+            <Searchbar
+              placeholder={"Search your favorite integrations"}
+              value={search}
+              setValue={(search) => {
+                setSearch(search);
+              }}
+            />
+            <div className="border w-4/12 p-3 ">
+              <button
+                className="w-full"
+                onClick={() => {
+                  setshowKeysBox(!showKeysBox);
+                }}
+              >
+                <div className="flex flex-row items-center justify-between ">
+                  <div>My Api Key</div>
+                  {showKeysBox ? (
+                    <CaretUp size={20} />
+                  ) : (
                     <CaretDown size={20} />
-                }
+                  )}
+                </div>
+              </button>
 
-              </div>
-            </button>
-
-            {
-              showKeysBox && (
+              {showKeysBox && (
                 <>
                   {/* {
                     myKeys.map((item, index) => {
@@ -370,61 +443,63 @@ function Page() {
                     })
                   } */}
 
-
-                  {
-                    myKeys.length > 0 && (
-                      <button className='flex text-start flex-row items-center justify-between w-full mt-5'
-                        onClick={() => {
-                          navigator.clipboard
-                            .writeText(myKeys[myKeys.length - 1].key)
-                            .then(() => setShowCopySnak("Api key copied successfully"))
-                            .catch((err) =>
-                              console.error("Failed to copy API key:", err)
-                            );
+                  {myKeys.length > 0 && (
+                    <button
+                      className="flex text-start flex-row items-center justify-between w-full mt-5"
+                      onClick={() => {
+                        navigator.clipboard
+                          .writeText(myKeys[myKeys.length - 1].key)
+                          .then(() =>
+                            setShowCopySnak("Api key copied successfully")
+                          )
+                          .catch((err) =>
+                            console.error("Failed to copy API key:", err)
+                          );
+                      }}
+                    >
+                      <div
+                        className="w-[90%] truncate "
+                        style={{
+                          fontFamily: "'Courier New', monospace", // Monospace font
+                          lineHeight: "1.5", // Line height for proper spacing
+                          verticalAlign: "middle", // Align text vertically
+                          whiteSpace: "nowrap", // Prevent wrapping of the text
                         }}
                       >
-                        <div
-                          className='w-[90%] truncate '
-                          style={{
-                            fontFamily: "'Courier New', monospace", // Monospace font
-                            lineHeight: '1.5', // Line height for proper spacing
-                            verticalAlign: 'middle', // Align text vertically
-                            whiteSpace: 'nowrap', // Prevent wrapping of the text
-                          }}
-                        >
-                          {/* {item.key} */}
-                          {maskId(myKeys[myKeys.length - 1].key)}
-                        </div>
-                        <Copy size={20} color='#7920fd' />
-                      </button>
-                    )
-                  }
+                        {/* {item.key} */}
+                        {maskId(myKeys[myKeys.length - 1].key)}
+                      </div>
+                      <Copy size={20} color="#7920fd" />
+                    </button>
+                  )}
 
-
-                  {
-                    genratekeyLoader2 ? (
-                      <CircularProgress style={{ margin: 10 }} size={20} />
-                    ) : (
-                      <button className='mt-5'
-                        onClick={() => {
-                          setGenrateeyLoader2(true)
-                          genrateApiKey()
+                  {genratekeyLoader2 ? (
+                    <CircularProgress style={{ margin: 10 }} size={20} />
+                  ) : (
+                    <button
+                      className="mt-5"
+                      onClick={() => {
+                        setGenrateeyLoader2(true);
+                        genrateApiKey();
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: 16,
+                          fontWeight: "500",
+                          color: "#7902df",
+                          textDecorationLine: "underline",
                         }}
                       >
-                        <div style={{ fontSize: 16, fontWeight: '500', color: '#7902df', textDecorationLine: 'underline' }}>
-                          {myKeys.length > 0 ? "Refresh" : "Genrate New Api Key"}
-                        </div>
-                      </button>
-                    )
-                  }
-
+                        {myKeys.length > 0 ? "Refresh" : "Genrate New Api Key"}
+                      </div>
+                    </button>
+                  )}
                 </>
-              )
-            }
+              )}
+            </div>
           </div>
         </div>
-
-
 
         {/* <div className='pl-10 flex flex-col items-center w-7/12' style={{ alignSelf: 'flex-start' }}>
           <div className='w-full border p-3 flex flex-row items-center justify-between mt-5'>
@@ -507,7 +582,6 @@ function Page() {
           </div>
         </div> */}
 
-
         <div className="flex flex-row w-full flex-wrap gap-3 p-5">
           {integrations.map((integration, index) => (
             <div
@@ -519,9 +593,16 @@ function Page() {
                 alt={integration.title}
                 className="w-12 h-12 object-contain"
               />
-              <div className='flex flex-col gap-2'>
-                <div style={{fontSize:"1vw",fontWeight:'500'}}>{integration.title}</div>
-                <div style={{fontSize:'1vw',fontWeight:'500'}} className="flex-wrap text-gray-600 w-[20vw]">{integration.description}</div>
+              <div className="flex flex-col gap-2">
+                <div style={{ fontSize: "1vw", fontWeight: "500" }}>
+                  {integration.title}
+                </div>
+                <div
+                  style={{ fontSize: "1vw", fontWeight: "500" }}
+                  className="flex-wrap text-gray-600 w-[20vw]"
+                >
+                  {integration.description}
+                </div>
                 <button
                   // onClick={integration.url}
                   className="w-full bg-purple text-white px-4 py-2 rounded-md text-sm font-medium"
@@ -533,13 +614,10 @@ function Page() {
           ))}
         </div>
 
-        <div>
-        </div>
+        <div></div>
       </div>
     </div>
-
-
-  )
+  );
 }
 
 export default Page;

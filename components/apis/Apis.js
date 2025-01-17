@@ -1,5 +1,5 @@
 const BasePath =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== "Production"
     ? "https://www.blindcircle.com/agentx/"
     : "https://www.blindcircle.com/agentxtest/";
 
@@ -92,6 +92,7 @@ const Apis = {
 
   getTeam: `${BasePath}api/team/getTeamMembers`,
   inviteTeamMember: `${BasePath}api/team/inviteTeamMember`,
+  deleteTeamMember: `${BasePath}api/team/deleteTeamMember`,
   updateProfileApi: `${BasePath}api/user/updateProfile`,
   AssignLeadToTeam: `${BasePath}api/team/assignLeadToTeam`,
 

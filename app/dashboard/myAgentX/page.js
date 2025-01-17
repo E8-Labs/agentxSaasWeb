@@ -456,7 +456,7 @@ function Page() {
     //console.log("")
     setShowDrawerSelectedAgent(item);
     setSelectedImage(item?.thumb_profile_image);
-    //console.log("Selected agent is:", item);
+    console.log("Selected agent is:", item);
     if (item.agentType === "inbound") {
       setShowReassignBtn(true);
       setShowGlobalBtn(false);
@@ -465,6 +465,7 @@ function Page() {
       // }
     } else if (item.agentType === "outbound") {
       setShowReassignBtn(false);
+      setShowGlobalBtn(true);
     }
   };
 
@@ -604,7 +605,8 @@ function Page() {
         console.log("Respose of reassign api is:", response.data.data);
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -980,7 +982,8 @@ function Page() {
         console.log("Response of update number api is", response.data);
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -1571,7 +1574,6 @@ function Page() {
     }
   };
 
-
   //function for getitng the calenders list
   const getCalenders = async () => {
     try {
@@ -1619,7 +1621,7 @@ function Page() {
     } else {
       console.log("No data of agents");
     }
-  }
+  };
 
   const styles = {
     claimPopup: {
@@ -2273,7 +2275,7 @@ function Page() {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                // defaultMask={loading ? 'Loading...' : undefined}
+                  // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -2298,13 +2300,15 @@ function Page() {
                 {scriptKeys?.map((key, index) => (
                   <div key={index}>
                     <div className="pt-5" style={styles.headingStyle}>
-                      {key[0]?.toUpperCase()}{key?.slice(1)}
+                      {key[0]?.toUpperCase()}
+                      {key?.slice(1)}
                     </div>
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                        }`}
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
+                        index === scriptKeys?.length - 1 ? "mb-16" : ""
+                      }`}
                       style={{
                         ...styles.inputStyle,
                         border: "1px solid #00000010",
@@ -2504,7 +2508,7 @@ function Page() {
               name="Calls"
               value={
                 showDrawerSelectedAgent?.calls &&
-                  showDrawerSelectedAgent?.calls > 0 ? (
+                showDrawerSelectedAgent?.calls > 0 ? (
                   <div>{showDrawerSelectedAgent?.calls}</div>
                 ) : (
                   "-"
@@ -2518,7 +2522,7 @@ function Page() {
               name="Convos"
               value={
                 showDrawerSelectedAgent?.callsGt10 &&
-                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                showDrawerSelectedAgent?.callsGt10 > 0 ? (
                   <div>{showDrawerSelectedAgent?.callsGt10}</div>
                 ) : (
                   "-"
@@ -2546,7 +2550,7 @@ function Page() {
               name="Mins Talked"
               value={
                 showDrawerSelectedAgent?.totalDuration &&
-                  showDrawerSelectedAgent?.totalDuration > 0 ? (
+                showDrawerSelectedAgent?.totalDuration > 0 ? (
                   // <div>{showDrawer?.totalDuration}</div>
                   <div>
                     {moment(
@@ -2568,10 +2572,11 @@ function Page() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${activeTab === tab
-                  ? "text-purple border-b-2 border-purple"
-                  : "text-black-500"
-                  }`}
+                className={`${
+                  activeTab === tab
+                    ? "text-purple border-b-2 border-purple"
+                    : "text-black-500"
+                }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >
                 {tab}
@@ -2842,23 +2847,23 @@ function Page() {
                                     <div className="flex flex-row items-center gap-2">
                                       {showDrawerSelectedAgent?.name !==
                                         item.claimedBy.name && (
-                                          <div>
-                                            <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                            {reassignLoader === item ? (
-                                              <CircularProgress size={15} />
-                                            ) : (
-                                              <button
-                                                className="text-purple underline"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  setShowConfirmationModal(item);
-                                                }}
-                                              >
-                                                Reassign
-                                              </button>
-                                            )}
-                                          </div>
-                                        )}
+                                        <div>
+                                          <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                          {reassignLoader === item ? (
+                                            <CircularProgress size={15} />
+                                          ) : (
+                                            <button
+                                              className="text-purple underline"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setShowConfirmationModal(item);
+                                              }}
+                                            >
+                                              Reassign
+                                            </button>
+                                          )}
+                                        </div>
+                                      )}
                                     </div>
                                   )}
                                 </div>

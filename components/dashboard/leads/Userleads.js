@@ -1867,8 +1867,8 @@ const Userleads = ({
             <div
               className="flex flex-row items-center mt-8 gap-2"
               style={styles.paragraph}
-            // className="flex flex-row items-center mt-8 gap-2"
-            // style={{ ...styles.paragraph, overflowY: "hidden" }}
+              // className="flex flex-row items-center mt-8 gap-2"
+              // style={{ ...styles.paragraph, overflowY: "hidden" }}
             >
               <div
                 className="flex flex-row items-center gap-2 w-full"
@@ -1899,8 +1899,8 @@ const Userleads = ({
                         color: SelectedSheetId === item.id ? "#7902DF" : "",
                         whiteSpace: "nowrap", // Prevent text wrapping
                       }}
-                    // className='flex flex-row items-center gap-1 px-3'
-                    // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
+                      // className='flex flex-row items-center gap-1 px-3'
+                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
                     >
                       <button
                         style={styles.paragraph}
@@ -2069,10 +2069,11 @@ const Userleads = ({
                               return (
                                 <th
                                   key={index}
-                                  className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn
+                                  className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${
+                                    isMoreColumn
                                       ? "sticky right-0 bg-white"
                                       : ""
-                                    }`}
+                                  }`}
                                   // style={isMoreColumn ? { zIndex: 1 } : {}}
                                   style={{
                                     whiteSpace: "nowrap",
@@ -2099,10 +2100,11 @@ const Userleads = ({
                                   // <td key={colIndex} className="border-none px-4 py-2">
                                   <td
                                     key={colIndex}
-                                    className={`border-none px-4 py-2 ${column.title === "More"
+                                    className={`border-none px-4 py-2 ${
+                                      column.title === "More"
                                         ? "sticky right-0 bg-white"
                                         : ""
-                                      }`}
+                                    }`}
                                     style={{
                                       whiteSpace: "nowrap",
                                       // overflow: "hidden",
@@ -2146,7 +2148,7 @@ const Userleads = ({
                 }}
               >
                 <Box
-                  className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto"
+                  className="lg:w-4/12 sm:w-7/12 w-8/12 py-2 px-6 bg-white h-[75svh] lg:h-[60vh] overflow-auto"
                   sx={{
                     ...styles.modalsStyle,
                     scrollbarWidth: "none",
@@ -2309,9 +2311,9 @@ const Userleads = ({
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -2376,12 +2378,14 @@ const Userleads = ({
                                   onClick={() => {
                                     handleSelectStage(item);
                                   }}
-                                  className={`p-2 border border-[#00000020] ${found >= 0 ? `bg-purple` : "bg-transparent"
-                                    } px-6
-                                                                    ${found >= 0
-                                      ? `text-white`
-                                      : "text-black"
-                                    } rounded-2xl`}
+                                  className={`p-2 border border-[#00000020] ${
+                                    found >= 0 ? `bg-purple` : "bg-transparent"
+                                  } px-6
+                                                                    ${
+                                                                      found >= 0
+                                                                        ? `text-white`
+                                                                        : "text-black"
+                                                                    } rounded-2xl`}
                                 >
                                   {item.stageTitle}
                                 </button>
