@@ -23,6 +23,7 @@ import {
   getLocalLocation,
   getLocation,
 } from "@/components/onboarding/services/apisServices/ApiService";
+import Link from "next/link";
 
 const Page = ({ length = 6, onComplete }) => {
   let width = 3760;
@@ -631,15 +632,16 @@ const Page = ({ length = 6, onComplete }) => {
               <div onClick={() => setShowVerifyPopup(true)}>
                 {`Don't have an account?`}
               </div>
-              <button
+              <Link
                 className=""
-                onClick={() => {
-                  router.push("/onboarding");
-                }}
+                href={"/onboarding"}
+                // onClick={() => {
+                //   router.push("/onboarding");
+                // }}
                 style={{ fontWeight: "bold", fontSize: 15 }}
               >
                 Sign Up
-              </button>
+              </Link>
             </div>
           </div>
         </div>

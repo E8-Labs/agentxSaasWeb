@@ -21,6 +21,7 @@ import AgentSelectSnackMessage, {
 import { setCookie } from "@/utilities/cookies";
 import { PersistanceKeys } from "@/constants/Constants";
 import { getLocalLocation } from "@/components/onboarding/services/apisServices/ApiService";
+import Link from "next/link";
 
 const Page = ({ length = 6, onComplete }) => {
   let width = 3760;
@@ -573,7 +574,8 @@ const Page = ({ length = 6, onComplete }) => {
                 <div onClick={() => setShowVerifyPopup(true)}>
                   {`Don't have an account?`}
                 </div>
-                <button
+                <Link
+                  href={"/onboarding"}
                   className=""
                   onClick={() => {
                     router.push("/onboarding");
@@ -581,7 +583,7 @@ const Page = ({ length = 6, onComplete }) => {
                   style={{ fontWeight: "bold", fontSize: 15 }}
                 >
                   Sign Up
-                </button>
+                </Link>
               </div>
             </div>
           </div>
