@@ -80,7 +80,6 @@ const UserType = ({ handleContinue, DefaultData }) => {
     }
   };
 
-
   const userType = [
     {
       id: 1,
@@ -88,7 +87,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
       agentType: "Real Estate Agent",
       icon: "/usertype/avt1.png",
       areaOfFocusTitle: "What area of real state do you focus on?",
-      userType: "RealEstateAgent"
+      userType: "RealEstateAgent",
     },
     {
       id: 2,
@@ -96,7 +95,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
       agentType: "Sales Dev Agent",
       icon: "/usertype/avt2.png",
       areaOfFocusTitle: "What area of sales do you focus on?",
-      userType: "SalesDevRep"
+      userType: "SalesDevRep",
     },
     {
       id: 3,
@@ -104,7 +103,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
       agentType: "Solar Agent",
       icon: "/usertype/avt3.png",
       areaOfFocusTitle: "What area of solar do you focus on?",
-      userType: "SolarRep"
+      userType: "SolarRep",
     },
     {
       id: 4,
@@ -112,7 +111,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
       agentType: "Insurance Agent",
       icon: "/usertype/avt4.png",
       areaOfFocusTitle: "What area of insurance do you focus on?",
-      userType: "InsuranceAgent"
+      userType: "InsuranceAgent",
     },
     {
       id: 5,
@@ -120,7 +119,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
       agentType: "Marketer Agent",
       icon: "/usertype/avt5.png",
       areaOfFocusTitle: "What area of marketing do you focus on?",
-      userType: "MarketerAgent"
+      userType: "MarketerAgent",
     },
     {
       id: 6,
@@ -128,7 +127,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
       agentType: "Website Agent",
       icon: "/agentXOrb.gif", //"/usertype/avt7.png",
       areaOfFocusTitle: "How would you use AgentX?",
-      userType: "WebsiteAgent"
+      userType: "WebsiteAgent",
     },
     {
       id: 7,
@@ -136,7 +135,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
       agentType: "Recuiter Agent",
       icon: "/usertype/avt8.png",
       areaOfFocusTitle: "What industries do you specialize in?",
-      userType: "RecruiterAgent"
+      userType: "RecruiterAgent",
     },
     {
       id: 8,
@@ -144,7 +143,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
       agentType: "Tax Agent",
       icon: "/usertype/avt9.png",
       areaOfFocusTitle: "What type of clients do you primarily serve?",
-      userType: "TaxAgent"
+      userType: "TaxAgent",
     },
   ];
 
@@ -168,14 +167,13 @@ const UserType = ({ handleContinue, DefaultData }) => {
       className="overflow-y-none flex flex-row justify-center items-center"
     >
       <div
-        className="bg-white sm:rounded-2xl flex flex-col justify-between w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[90%] py-4"
+        className="bg-white sm:rounded-2xl flex flex-col justify-between w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4"
         style={{ scrollbarWidth: "none" }}
-      //className='bg-white sm:rounded-2xl w-full sm:mx-2 sm:w-10/12 h-[100%] sm:h-[90%] py-4 flex flex-col' style={{ scrollbarWidth: "none" }}
+        //className='bg-white sm:rounded-2xl w-full sm:mx-2 sm:w-10/12 h-[100%] sm:h-[90%] py-4 flex flex-col' style={{ scrollbarWidth: "none" }}
       >
         <div
-          className={`flex flex-col items-center h-[90svh] ${screenHeight < 840 ? "sm:h-[80svh]" : "sm:h-[80svh]"
-            }`}
-            //84svh
+          className={`h-[90svh] sm:h-[80svh] `}
+          //84svh
         >
           {/* header */}
           <div className="w-full h-[10%]">
@@ -254,7 +252,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
           </div>
         </div>
 
-        <div className="mb-6 h-[10%] flex flex-col justify-end w-full">
+        <div className=" h-[10%] flex flex-col justify-end w-full ">
           <div>
             <ProgressBar value={value} />
           </div>
@@ -267,58 +265,57 @@ const UserType = ({ handleContinue, DefaultData }) => {
             />
           </div>
         </div>
-
-        {/* Modals code goes here */}
-        <Modal
-          open={ShowModal}
-          onClose={() => setShowModal(false)}
-          closeAfterTransition
-          BackdropProps={{
-            timeout: 1000,
-            sx: {
-              backgroundColor: "#00000040",
-              // //backdropFilter: "blur(20px)",
-            },
-          }}
-        >
-          <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.modalsStyle}>
-            <div className="flex flex-row justify-center w-full">
-              <div
-                className="w-full"
-                style={{
-                  backgroundColor: "#ffffff",
-                  padding: 20,
-                  borderRadius: "13px",
-                }}
-              >
-                <div className="flex flex-row justify-end">
-                  <button
-                    onClick={() => {
-                      setShowModal(false);
-                    }}
-                  >
-                    <Image
-                      src={"/assets/crossIcon.png"}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
-                </div>
-                <div
-                  className="text-center mt-2 mb-4"
-                  style={{ fontWeight: "700", fontSize: 24 }}
-                >
-                  Comming Soon ....
-                </div>
-
-                {/* Can be use full to add shadow */}
-                {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-              </div>
-            </div>
-          </Box>
-        </Modal>
       </div>
+      {/* Modals code goes here */}
+      <Modal
+        open={ShowModal}
+        onClose={() => setShowModal(false)}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: "#00000040",
+            // //backdropFilter: "blur(20px)",
+          },
+        }}
+      >
+        <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.modalsStyle}>
+          <div className="flex flex-row justify-center w-full">
+            <div
+              className="w-full"
+              style={{
+                backgroundColor: "#ffffff",
+                padding: 20,
+                borderRadius: "13px",
+              }}
+            >
+              <div className="flex flex-row justify-end">
+                <button
+                  onClick={() => {
+                    setShowModal(false);
+                  }}
+                >
+                  <Image
+                    src={"/assets/crossIcon.png"}
+                    height={40}
+                    width={40}
+                    alt="*"
+                  />
+                </button>
+              </div>
+              <div
+                className="text-center mt-2 mb-4"
+                style={{ fontWeight: "700", fontSize: 24 }}
+              >
+                Comming Soon ....
+              </div>
+
+              {/* Can be use full to add shadow */}
+              {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+            </div>
+          </div>
+        </Box>
+      </Modal>
     </div>
   );
 };

@@ -23,6 +23,7 @@ import {
   getLocalLocation,
   getLocation,
 } from "@/components/onboarding/services/apisServices/ApiService";
+import Link from "next/link";
 
 const Page = ({ length = 6, onComplete }) => {
   let width = 3760;
@@ -74,6 +75,7 @@ const Page = ({ length = 6, onComplete }) => {
   }, [countryCode]);
 
   useEffect(() => {
+    console.log("User phone number is ", userPhoneNumber);
     const localData = localStorage.getItem("User");
     if (localData) {
       console.log("user login details are :", localData);
@@ -88,7 +90,9 @@ const Page = ({ length = 6, onComplete }) => {
       // const L = JSON.parse(localLoc);
       // setCountryCode(L.location);
       let Data = getLocalLocation();
-      setCountryCode(Data);
+      if (userPhoneNumber == "") {
+        setCountryCode(Data);
+      }
     }
   }, []);
 
@@ -116,7 +120,10 @@ const Page = ({ length = 6, onComplete }) => {
             const locationData = {
               location: data.countryCode.toLowerCase(),
             };
-            setCountryCode(data.countryCode.toLowerCase());
+            if (userPhoneNumber == "") {
+              setCountryCode(data.countryCode.toLowerCase());
+            }
+
             console.log("Api Loc Check 4");
             if (data && data.countryCode) {
               localStorage.setItem(
@@ -153,7 +160,10 @@ const Page = ({ length = 6, onComplete }) => {
         console.log("Check 2 clear");
         console.log("Location received from local storage is", L);
         console.log("Check 3 clear");
-        setCountryCode(L.location);
+
+        if (userPhoneNumber == "") {
+          setCountryCode(L.location);
+        }
         console.log("Check 4 clear");
       }
 
@@ -631,15 +641,16 @@ const Page = ({ length = 6, onComplete }) => {
               <div onClick={() => setShowVerifyPopup(true)}>
                 {`Don't have an account?`}
               </div>
-              <button
+              <Link
                 className=""
-                onClick={() => {
-                  router.push("/onboarding");
-                }}
+                href={"/onboarding"}
+                // onClick={() => {
+                //   router.push("/onboarding");
+                // }}
                 style={{ fontWeight: "bold", fontSize: 15 }}
               >
                 Sign Up
-              </button>
+              </Link>
             </div>
           </div>
         </div>

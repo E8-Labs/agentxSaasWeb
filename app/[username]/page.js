@@ -21,6 +21,7 @@ import AgentSelectSnackMessage, {
 import { setCookie } from "@/utilities/cookies";
 import { PersistanceKeys } from "@/constants/Constants";
 import { getLocalLocation } from "@/components/onboarding/services/apisServices/ApiService";
+import Link from "next/link";
 
 const Page = ({ length = 6, onComplete }) => {
   let width = 3760;
@@ -70,8 +71,17 @@ const Page = ({ length = 6, onComplete }) => {
       console.log("user login details are :", localData);
       router.push("/dashboard");
     }
-
-    getUserLocation();
+    const localLoc = localStorage.getItem("userLocation");
+    if (!localLoc) {
+      getUserLocation();
+    } else if (localLoc) {
+      // const L = JSON.parse(localLoc);
+      // setCountryCode(L.location);
+      let Data = getLocalLocation();
+      if (userPhoneNumber == "") {
+        setCountryCode(Data);
+      }
+    }
 
     // const localAgentData = localStorage.getItem("agentDetails");
     // if (localAgentData) {
@@ -101,7 +111,10 @@ const Page = ({ length = 6, onComplete }) => {
   const getUserLocation = async () => {
     try {
       let loc = await getLocalLocation();
-      setCountryCode(loc);
+
+      if (userPhoneNumber == "") {
+        setCountryCode(loc);
+      }
     } catch (error) {
       console.error("Error occured in get location", error);
     }
@@ -573,7 +586,8 @@ const Page = ({ length = 6, onComplete }) => {
                 <div onClick={() => setShowVerifyPopup(true)}>
                   {`Don't have an account?`}
                 </div>
-                <button
+                <Link
+                  href={"/onboarding"}
                   className=""
                   onClick={() => {
                     router.push("/onboarding");
@@ -581,7 +595,7 @@ const Page = ({ length = 6, onComplete }) => {
                   style={{ fontWeight: "bold", fontSize: 15 }}
                 >
                   Sign Up
-                </button>
+                </Link>
               </div>
             </div>
           </div>
