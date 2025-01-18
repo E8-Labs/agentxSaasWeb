@@ -489,7 +489,6 @@ const OtherDetails = ({
     }
   };
 
-
   //code to check email and phone
 
   const checkEmail = async (value) => {
@@ -1205,7 +1204,7 @@ const OtherDetails = ({
                             router.push("/createagent");
                           }}
                         >
-                          Build AI AgentX
+                          Build AI Sales Agent
                         </button>
                       )}
                     </div>

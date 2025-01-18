@@ -348,8 +348,6 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
     }
   };
 
-
-
   //code to check email and phone
 
   const checkEmail = async (value) => {
@@ -944,7 +942,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                           textAlign: "center",
                         }}
                       >
-                        Congrats
+                        Congrats!
                       </div>
 
                       <div className="w-full mt-8 flex flex-row justify-center">
@@ -1002,7 +1000,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                             router.push("/createagent");
                           }}
                         >
-                          Build AI AgentX
+                          Build AI Sales Agent
                         </button>
                       )}
                     </div>
