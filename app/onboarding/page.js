@@ -22,7 +22,10 @@ import BackgroundVideo from "@/components/general/BackgroundVideo";
 const Page = ({ params }) => {
   const router = useRouter();
   const [index, setIndex] = useState(0);
-  let windowSize = window.innerWidth;
+  let windowSize = 1000;
+  if (typeof windo != "undefined") {
+    windowSize = window.innerWidth;
+  }
 
   const [components, setComponents] = useState([
     UserType,

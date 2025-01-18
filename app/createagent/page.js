@@ -45,7 +45,10 @@ const Page = () => {
     // CreateAgent4,
     // CreateAgentVoice,
   ]);
-  let windowSize = window.innerWidth;
+  let windowSize = 1000;
+  if (typeof windo != "undefined") {
+    windowSize = window.innerWidth;
+  }
   let CurrentComp = components[index];
 
   function GetEmptyComponent() {
