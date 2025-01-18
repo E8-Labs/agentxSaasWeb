@@ -288,7 +288,6 @@ const BasicDetails = ({
     try {
       setRegisterLoader(true);
 
-
       const formData = new FormData();
       const ApiPath = Apis.register;
       let campainee = GetCampaigneeNameIfAvailable(window);
@@ -460,16 +459,16 @@ const BasicDetails = ({
   return (
     <div
       style={{ width: "100%" }}
-      className="overflow-y-hidden flex flex-row justify-center items-center"
+      className="overflow-y-hidden flex flex-col justify-center items-center h-[100svh] "
     >
-      <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[100%] sm:max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+      <div className="flex flex-col bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[90%] sm:max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
         <div className="h-[90svh] sm:h-[82svh]">
           {/* header h-[84svh]*/}
           <div className="h-[10%]">
             <Header />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[90%]">
+          <div className="flex flex-col items-center px-4 w-full h-[90%] ">
             <div
               className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: "center" }}
@@ -752,19 +751,18 @@ const BasicDetails = ({
             </div>
           </div>
         </div>
-
-        <div className="h-[10%]">
-          <div>
-            <ProgressBar value={70} />
-          </div>
-
-          <Footer
-            handleContinue={handleVerifyPopup}
-            handleBack={handleBack}
-            registerLoader={registerLoader}
-            shouldContinue={shouldContinue}
-          />
+      </div>
+      <div className="h-[10%] w-full">
+        <div>
+          <ProgressBar value={70} />
         </div>
+
+        <Footer
+          handleContinue={handleVerifyPopup}
+          handleBack={handleBack}
+          registerLoader={registerLoader}
+          shouldContinue={shouldContinue}
+        />
       </div>
     </div>
   );

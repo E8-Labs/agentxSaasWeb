@@ -1,5 +1,6 @@
 "use client";
 
+import BackgroundVideo from "@/components/general/BackgroundVideo.js";
 import dynamic from "next/dynamic.js";
 import { useEffect, useState } from "react";
 
@@ -31,27 +32,36 @@ const BuildAgentTask = dynamic(() =>
   import("../../components/createagent/mobileCreateAgent/BuildAgentTask.js")
 );
 
+function EmptyPage() {
+  return <div></div>;
+}
+
 const Page = () => {
   const [index, setIndex] = useState(0);
   const [components, setComponents] = useState([
-    CreateAgent1,
-    CreatAgent3,
-    CreateAgent4,
-    CreateAgentVoice,
+    EmptyPage,
+    // CreateAgent1,
+    // CreatAgent3,
+    // CreateAgent4,
+    // CreateAgentVoice,
   ]);
-
+  let windowSize = window.innerWidth;
   let CurrentComp = components[index];
+
+  function GetEmptyComponent() {
+    return <div>Loading..</div>;
+  }
 
   useEffect(() => {
     const localData = localStorage.getItem("User");
-    let windowSize = window.innerWidth;
+
     if (localData) {
       const Data = JSON.parse(localData);
-      console.log("Window size is", windowSize)
-      console.log("Data is", Data)
+      console.log("Window size is", windowSize);
+      console.log("Data is", Data);
       if (Data.user.plan) {
         if (windowSize < 640) {
-          console.log("Data should be set")
+          console.log("Data should be set");
           setComponents([
             BuildAgentName,
             BuildAgentTask,
@@ -142,24 +152,21 @@ const Page = () => {
       style={backgroundImage}
       className="overflow-y-none flex flex-row justify-center items-center"
     >
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          zIndex: -1, // Ensure the video stays behind content
-        }}
-      >
-        <source src="/banerVideo.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
+      {windowSize > 640 && (
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            zIndex: -1, // Ensure the video stays behind content
+          }}
+        >
+          <BackgroundVideo />
+        </div>
+      )}
       <CurrentComp
         handleContinue={handleContinue}
         handleBack={handleBack}

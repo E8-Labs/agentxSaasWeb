@@ -16,6 +16,7 @@ import moment, { duration } from "moment";
 import getProfileDetails from "@/components/apis/GetProfile";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import { useRouter } from "next/navigation";
+import BackgroundVideo from "@/components/general/BackgroundVideo";
 
 const Page = () => {
   const router = useRouter();
@@ -302,25 +303,19 @@ const Page = () => {
         </div>
       ) : (
         <div className="flex flex-col mt-12 items-center w-full h-[100%]">
-          <video
-            // className="hidden sm:block"
-            autoPlay
-            loop
-            muted
-            playsInline
+          <div
             style={{
               position: "absolute",
               top: 0,
               left: 0,
               width: "100%",
-              height: "20%",
+              height: "100%",
               objectFit: "cover",
-              zIndex: -9999, // Ensure the video stays behind content
+              zIndex: -1, // Ensure the video stays behind content
             }}
           >
-            <source src="/banerVideo.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
+            <BackgroundVideo />
+          </div>
           <div className="w-9/12 flex flex-col items-center h-[100%]">
             {/* <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
  Good to have you back, <span className='text-[#00000090]'>{userDetails?.name}</span>

@@ -508,8 +508,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                       >
                         {item.status}
                       </div>
-                    )
-                    }
+                    )}
                     <div
                       style={{
                         ...styles.triangleLabel,
@@ -854,7 +853,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                     setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp}
                     handleClose={handleClose}
                     togglePlan={togglePlan}
-                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                    // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>
               </div>
@@ -957,11 +956,14 @@ const CreatAgent3 = ({ handleContinue }) => {
             sx: {
               backgroundColor: "#00000020",
               overflow: "hidden",
+              justifyContent: "center",
+              alignItems: "center",
+              // bgcolor: "red",
             },
           }}
         >
           <Box
-            className="flex items-center justify-center w-full h-full"
+            className="flex items-center justify-center w-full h-[100svh] md:h-full"
             sx={{
               display: "flex",
               alignItems: "center",
@@ -969,7 +971,7 @@ const CreatAgent3 = ({ handleContinue }) => {
             }}
           >
             <div
-              className="flex flex-col w-[95%] sm:w-5/12 max-h-[95vh] bg-white"
+              className="flex flex-col w-[95%] sm:w-5/12 max-h-[85svh]  md:max-h-[95vh] bg-white"
               style={{
                 borderRadius: "13px",
                 overflow: "hidden", // Prevents overflow of the modal content
@@ -985,14 +987,14 @@ const CreatAgent3 = ({ handleContinue }) => {
               >
                 {/* Header Content */}
                 <div
-                  className="mt-6 w-11/12 sm:text-3xl text-xl font-[600]"
+                  className="mt-6 w-11/12 sm:text-3xl text-lg font-[600]"
                   style={{ textAlign: "center" }}
                 >
                   Select a plan that fits your needs
                 </div>
 
                 <div
-                  className="w-11/12 sm:text-[24px] text-[16px] font-[400]"
+                  className="w-11/12 sm:text-[24px] text-[13px] font-[400]"
                   style={{ textAlign: "center" }}
                 >
                   Continue with a plan after your free 30 mins
@@ -1093,8 +1095,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                               >
                                 {item.status}
                               </div>
-                            )
-                            }
+                            )}
                             <div
                               style={{
                                 color: "#151515",
@@ -1195,46 +1196,42 @@ const CreatAgent3 = ({ handleContinue }) => {
                   flexShrink: 0, // Prevent shrinking
                 }}
               >
-                {
-                  subscribePlanLoader ? (
-                    <div className="w-full flex flex-row items-center justify-center mt-4">
-                      <CircularProgress size={35} />
-                    </div>
-                  ) : (
-                    <button
-                      disabled={!agreeTerms || !togglePlan2}
-                      className="w-full bg-purple text-white rounded-xl"
-                      style={{
-                        ...styles.headingStyle,
-                        height: "50px",
-                        backgroundColor:
-                          agreeTerms && togglePlan2 ? "#7902DF" : "#00000010",
-                        color: agreeTerms && togglePlan2 ? "white" : "#000000",
-                      }}
-                      onClick={() => {
-                        let windowWidth = window.innerWidth;
-                        if (togglePlan2 === 1) {
-                          if (windowWidth < 640) {
-                            setSubscribePlanLoader(true);
-                            router.push("/createagent/desktop")
-                          } else {
-                            handleContinue();
-                          }
+                {subscribePlanLoader ? (
+                  <div className="w-full flex flex-row items-center justify-center mt-4">
+                    <CircularProgress size={35} />
+                  </div>
+                ) : (
+                  <button
+                    disabled={!agreeTerms || !togglePlan2}
+                    className="w-full bg-purple text-white rounded-xl"
+                    style={{
+                      ...styles.headingStyle,
+                      height: "50px",
+                      backgroundColor:
+                        agreeTerms && togglePlan2 ? "#7902DF" : "#00000010",
+                      color: agreeTerms && togglePlan2 ? "white" : "#000000",
+                    }}
+                    onClick={() => {
+                      let windowWidth = window.innerWidth;
+                      if (togglePlan2 === 1) {
+                        if (windowWidth < 640) {
+                          setSubscribePlanLoader(true);
+                          router.push("/createagent/desktop");
                         } else {
-                          handleSubScribePlan();
+                          handleContinue();
                         }
-                      }}
-                    >
-                      Continue
-                    </button>
-                  )
-                }
+                      } else {
+                        handleSubScribePlan();
+                      }
+                    }}
+                  >
+                    Continue
+                  </button>
+                )}
               </div>
             </div>
           </Box>
         </Modal>
-
-
       </div>
     </div>
   );
