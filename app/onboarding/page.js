@@ -25,6 +25,9 @@ const Page = ({ params }) => {
   let windowSize = 1000;
   if (typeof window != "undefined") {
     windowSize = window.innerWidth;
+    console.log("Window with ", windowSize);
+  } else {
+    console.log("Window width is less");
   }
 
   const [components, setComponents] = useState([
@@ -199,7 +202,7 @@ const Page = ({ params }) => {
   return (
     <div
       // style={backgroundImage}
-      className="overflow-hidden flex flex-row justify-center items-center h-[100svh] bg-white"
+      className="overflow-hidden flex flex-row justify-center items-center h-[100svh]"
     >
       {windowSize > 640 && (
         <div
@@ -210,6 +213,7 @@ const Page = ({ params }) => {
             width: "100%",
             height: "100%",
             objectFit: "cover",
+            backgroundColor: "green",
             zIndex: -1, // Ensure the video stays behind content
           }}
         >
