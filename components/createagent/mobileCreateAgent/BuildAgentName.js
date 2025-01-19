@@ -22,7 +22,7 @@ const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
   const addressKey = process.env.NEXT_PUBLIC_AddressPickerApiKey;
 
   let windowWidth = window.innerWidth;
-
+  const agentNameInputRef = useRef(null); // Ref for the first input
   const agentRoleInput = useRef(null);
 
   const router = useRouter();
@@ -98,6 +98,12 @@ const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
 
     if (showOtherObjective && bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+
+    if (typeof document != "undefined") {
+      document.addEventListener("focusout", (e) => {
+        console.log("Focus out event triggered");
+      });
     }
   }, [showOtherObjective]);
 
@@ -406,6 +412,18 @@ const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
     },
   };
 
+  const handleDoneKey = (event, nextInputRef) => {
+    // Detect the 'Done' button or 'Enter' key
+    if (event.key === "Enter" || event.key == "Done") {
+      event.preventDefault(); // Prevent default form submission
+      if (nextInputRef?.current) {
+        nextInputRef.current.focus(); // Focus the next input
+      } else {
+        event.target.blur(); // Dismiss the keyboard if no next input
+      }
+    }
+  };
+
   return (
     <div
       style={{ width: "100%" }}
@@ -490,6 +508,7 @@ const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
                 </div>
               </Popover>
               <input
+                ref={agentNameInputRef}
                 placeholder="Ex: Ana's AI, Ana.ai, Ana's Assistant"
                 className="border rounded p-3 outline-none focus:outline-none focus:ring-0"
                 autoComplete="off"
@@ -503,8 +522,19 @@ const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
                   setAgentName(e.target.value);
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === "Done") {
-                    agentRoleInput.current?.focus(); // Move to the second input
+                  handleDoneKey(event, agentRoleInput);
+                  // if (e.key === "Enter" || e.key === "Done") {
+                  //   agentRoleInput.current?.focus(); // Move to the second input
+                  // }
+                }}
+                onBlur={(event) => {
+                  const isLastInput =
+                    event.target === agentNameInputRef.current;
+                  console.log("On blur called");
+                  if (!isLastInput) {
+                    setTimeout(() => {
+                      agentRoleInput.current?.focus();
+                    }, 0); // Delay ensures iOS processes keyboard dismissal
                   }
                 }}
               />

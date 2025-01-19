@@ -8,6 +8,7 @@ import axios from "axios";
 import Apis from "../apis/Apis";
 import { CircularProgress } from "@mui/material";
 import { PersistanceKeys } from "@/constants/Constants";
+import { GetAreasOfFocusForUser } from "@/utilities/AreaOfFocus";
 
 const FocusArea = ({
   handleContinue,
@@ -56,7 +57,7 @@ const FocusArea = ({
   //function to get the default data
   const getDefaultData = async () => {
     try {
-      setLoader(true);
+      // setLoader(true);
       const selectedServiceID = localStorage.getItem(
         PersistanceKeys.RegisterDetails
       );
@@ -66,22 +67,26 @@ const FocusArea = ({
         console.log("Userdetails are", serviceIds);
         AgentTypeTitle = serviceIds.userTypeTitle;
       }
+      const focusData = localStorage.getItem(PersistanceKeys.RegisterDetails);
+      if (focusData) {
+        const FocusAreaDetails = JSON.parse(focusData);
+        if (FocusAreaDetails.userTypeTitle !== "RecruiterAgent") {
+          let servicesLocal = GetAreasOfFocusForUser(AgentTypeTitle);
+          setFocusData(servicesLocal);
+        }
 
+        console.log("Check 1 clear !!!");
+        const ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`;
+        console.log("Api link is:--", ApiPath);
+        const response = await axios.get(ApiPath, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
 
-      console.log("Check 1 clear !!!");
-      const ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`;
-      console.log("Api link is:--", ApiPath);
-      const response = await axios.get(ApiPath, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+        if (response) {
+          console.log("Response of api is : -----", response.data);
 
-      if (response) {
-        console.log("Response of api is : -----", response.data);
-        const focusData = localStorage.getItem(PersistanceKeys.RegisterDetails);
-        if (focusData) {
-          const FocusAreaDetails = JSON.parse(focusData);
           // console.log("Registeration details", FocusAreaDetails);
           if (FocusAreaDetails.userTypeTitle === "RecruiterAgent") {
             // console.log("I am recruiter")
@@ -101,7 +106,6 @@ const FocusArea = ({
       setLoader(false);
     }
   };
-
 
   useEffect(() => {
     console.log("Focus area is :", focusArea);

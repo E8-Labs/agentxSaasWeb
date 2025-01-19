@@ -45,10 +45,9 @@ const Page = () => {
     // CreateAgent4,
     // CreateAgentVoice,
   ]);
-  let windowSize = 1000;
-  if (typeof windo != "undefined") {
-    windowSize = window.innerWidth;
-  }
+
+  const [windowSize, setWindowSize] = useState(1000);
+
   let CurrentComp = components[index];
 
   function GetEmptyComponent() {
@@ -56,6 +55,18 @@ const Page = () => {
   }
 
   useEffect(() => {
+    let size = null;
+    if (typeof window != "undefined") {
+      size = window.innerWidth;
+      setWindowSize(size);
+    } else {
+      console.log("Window is undefined");
+    }
+    console.log("Window size is ", size);
+  }, []);
+
+  useEffect(() => {
+    console.log("Window size changed", windowSize);
     const localData = localStorage.getItem("User");
 
     if (localData) {
@@ -103,7 +114,7 @@ const Page = () => {
         }
       }
     }
-  }, []);
+  }, [windowSize]);
 
   // Function to proceed to the next step
   const handleContinue = () => {
