@@ -163,7 +163,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
 
   return (
     <div
-      style={{ width: "100%" }}
+      style={{ width: "100%", backgroundColor: "transparent" }}
       className="overflow-y-none flex flex-row justify-center items-center"
     >
       <div

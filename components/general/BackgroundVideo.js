@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export default function BackgroundVideo({ height = 100 }) {
+export default function BackgroundVideo() {
   const [isVideoSupported, setIsVideoSupported] = useState(false);
 
   useEffect(() => {
@@ -14,9 +14,11 @@ export default function BackgroundVideo({ height = 100 }) {
         await video.play();
         video.remove(); // Remove the test video element
         setIsVideoSupported(true); // Autoplay supported
+        console.log("Video is supported");
       } catch {
         video.remove();
         setIsVideoSupported(false); // Autoplay not supported
+        console.log("Video is not supported");
       }
     };
 
@@ -24,7 +26,7 @@ export default function BackgroundVideo({ height = 100 }) {
   }, []);
 
   return (
-    <div className={`relative w-full h-screen overflow-hidden`}>
+    <div className="relative w-full h-screen overflow-hidden ">
       {isVideoSupported ? (
         <video
           autoPlay
