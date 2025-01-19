@@ -83,17 +83,17 @@ const Page = ({ length = 6, onComplete }) => {
     }
 
     const localLoc = localStorage.getItem("userLocation");
-    // if (!localLoc) {
-    getLocation();
-    getLocation2();
-    // } else if (localLoc) {
-    //   // const L = JSON.parse(localLoc);
-    //   // setCountryCode(L.location);
-    //   let Data = getLocalLocation();
-    //   if (userPhoneNumber == "") {
-    //     setCountryCode(Data);
-    //   }
-    // }
+    if (!localLoc) {
+      getLocation();
+      getLocation2();
+    } else if (localLoc) {
+      // const L = JSON.parse(localLoc);
+      // setCountryCode(L.location);
+      let Data = getLocalLocation();
+      if (userPhoneNumber == "") {
+        setCountryCode(Data);
+      }
+    }
   }, []);
 
   //get location

@@ -23,7 +23,7 @@ const Page = ({ params }) => {
   const router = useRouter();
   const [index, setIndex] = useState(0);
   let windowSize = 1000;
-  if (typeof windo != "undefined") {
+  if (typeof window != "undefined") {
     windowSize = window.innerWidth;
   }
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export default function BackgroundVideo() {
+export default function BackgroundVideo({ height = 100 }) {
   const [isVideoSupported, setIsVideoSupported] = useState(false);
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export default function BackgroundVideo() {
   }, []);
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className={`relative w-full h-screen overflow-hidden`}>
       {isVideoSupported ? (
         <video
           autoPlay

@@ -9,6 +9,7 @@ import DefaultData from "./extras/DefaultData";
 import Apis from "../apis/Apis";
 import axios from "axios";
 import { PersistanceKeys } from "@/constants/Constants";
+import { GetServicesForUser } from "@/utilities/AgentServices";
 
 const UserService = ({ handleContinue, handleBack }) => {
   const router = useRouter();
@@ -55,7 +56,7 @@ const UserService = ({ handleContinue, handleBack }) => {
   //function to get the default data
   const getDefaultData = async () => {
     try {
-      setLoader(true);
+      // setLoader(true);
       const selectedServiceID = localStorage.getItem(
         PersistanceKeys.RegisterDetails
       );
@@ -65,8 +66,8 @@ const UserService = ({ handleContinue, handleBack }) => {
         console.log("Userdetails are", serviceIds);
         AgentTypeTitle = serviceIds.userTypeTitle;
       }
-
-
+      let servicesLocal = GetServicesForUser(AgentTypeTitle);
+      setServicesData(servicesLocal);
 
       console.log("Check 1 clear !!!");
       const ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`;
@@ -89,7 +90,6 @@ const UserService = ({ handleContinue, handleBack }) => {
       setLoader(false);
     }
   };
-
 
   const handleserviceId = (id) => {
     // setServiceId(prevId => (prevId === id ? null : id));
