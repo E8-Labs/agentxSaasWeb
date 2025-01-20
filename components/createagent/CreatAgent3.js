@@ -167,7 +167,7 @@ const CreatAgent3 = ({ handleContinue }) => {
     },
     {
       id: 3,
-      title: "No monthly commitment",
+      title: "AI Powered CRM",
     },
     {
       id: 6,
@@ -187,7 +187,7 @@ const CreatAgent3 = ({ handleContinue }) => {
     },
     {
       id: 3,
-      title: "No commitment",
+      title: "AI Powered CRM",
     },
     {
       id: 6,
@@ -198,20 +198,23 @@ const CreatAgent3 = ({ handleContinue }) => {
   const plans = [
     {
       id: 1,
+      startFreeLabel: "Free",
       mints: 30,
       calls: 250,
-      details:
-        "Perfect for getting started! Free for the first 30 mins then $45 to continue.",
+      isTrial: true,
+      trial: "7 Day Trial",
+      details: "Perfect to start for free, then $45 to continue.",
       originalPrice: "45",
-      discountPrice: "0",
+      discountPrice: "Free Trial",
       planStatus: "Free",
       status: "",
     },
     {
       id: 2,
       mints: 120,
+      isTrial: false,
       calls: "1k",
-      details: "Perfect for neighborhood updates and engagement.",
+      details: "Perfect for lead updates and engagement.", // "Perfect for lead updates and engagement.",
       originalPrice: "165",
       discountPrice: "99",
       planStatus: "40%",
@@ -220,8 +223,9 @@ const CreatAgent3 = ({ handleContinue }) => {
     {
       id: 3,
       mints: 360,
+      isTrial: false,
       calls: "3k",
-      details: "Great for 2-3 listing appointments in your territory.",
+      details: "Perfect for lead reactivation and prospecting.",
       originalPrice: "540",
       discountPrice: "370",
       planStatus: "50%",
@@ -230,8 +234,9 @@ const CreatAgent3 = ({ handleContinue }) => {
     {
       id: 4,
       mints: 720,
+      isTrial: false,
       calls: "10k",
-      details: "Great for teams and reaching new GCI goals. ",
+      details: "Ideal for teams and reaching new GCI goals.  ",
       originalPrice: "1200",
       discountPrice: "480",
       planStatus: "60%",
@@ -243,6 +248,7 @@ const CreatAgent3 = ({ handleContinue }) => {
     {
       id: 1,
       mints: 30,
+      isTrial: true,
       calls: 250,
       details: "Great for trying out AI sales agents",
       originalPrice: "",
@@ -253,8 +259,9 @@ const CreatAgent3 = ({ handleContinue }) => {
     {
       id: 2,
       mints: 120,
+      isTrial: false,
       calls: "1k",
-      details: "Perfect for neighborhood updates and engagement.",
+      details: "Perfect for lead updates and engagement.",
       originalPrice: "165",
       discountPrice: "99",
       planStatus: "40%",
@@ -263,8 +270,9 @@ const CreatAgent3 = ({ handleContinue }) => {
     {
       id: 3,
       mints: 360,
+      isTrial: false,
       calls: "3k",
-      details: "Great for 2-3 listing appointments in your territory.",
+      details: "Perfect for lead reactivation and prospecting.",
       originalPrice: "540",
       discountPrice: "370",
       planStatus: "50%",
@@ -273,8 +281,9 @@ const CreatAgent3 = ({ handleContinue }) => {
     {
       id: 4,
       mints: 720,
+      isTrial: false,
       calls: "10k",
-      details: "Great for teams and reaching new GCI goals. ",
+      details: "Ideal for teams and reaching new GCI goals.  ",
       originalPrice: "1200",
       discountPrice: "480",
       planStatus: "60%",
@@ -333,8 +342,9 @@ const CreatAgent3 = ({ handleContinue }) => {
       fontWeight: "600",
     },
     discountedPrice: {
+      // width: "100px",
       color: "#000000",
-      fontWeight: "bold",
+      fontWeight: "600",
       fontSize: 18,
       marginLeft: "10px",
     },
@@ -356,15 +366,15 @@ const CreatAgent3 = ({ handleContinue }) => {
       style={{ width: "100%" }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
-      <div className="bg-white sm:rounded-2xl w-full lg:w-10/12 h-[90vh] py-4">
-        <div className="h-[100%]">
+      <div className="bg-white sm:rounded-2xl w-full lg:w-10/12 h-[90vh] py-4 ">
+        <div className="h-[100%] ">
           {/* header */}
           <div className="h-[10%]">
             <Header />
           </div>
           {/* Body */}
           <div
-            className="flex flex-col items-center px-4 w-full h-[72%] overflow-auto sm:overflow-none"
+            className="flex flex-col items-center px-4 w-full h-[78%] overflow-auto sm:overflow-none "
             style={{ scrollbarWidth: "none" }}
           >
             <div
@@ -455,8 +465,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                   alt="*"
                 />
                 <div className="text-purple" style={styles.giftTextStyle}>
-                  Invest In Your Business Growth - Quick Start, Minimal Cost,
-                  Maximum Value.
+                  Every plan renews monthly and tops up when your minutes hit 0
                 </div>
               </div>
 
@@ -548,7 +557,10 @@ const CreatAgent3 = ({ handleContinue }) => {
                           }}
                           className="flex flex-row items-center gap-2"
                         >
-                          {item.mints}mins | Approx {item.calls} Calls
+                          {item.startFreeLabel ? `${item.startFreeLabel} ` : ""}
+                          {item.mints}mins
+                          {item.trial ? ` ${item.trial} ` : "  "}| Approx{" "}
+                          {item.calls} Calls
                           {item.status && (
                             <div
                               className="flex hidden sm:flex px-2 py-1 bg-purple rounded-full text-white"
@@ -570,12 +582,28 @@ const CreatAgent3 = ({ handleContinue }) => {
                           >
                             {item.details}
                           </div>
-                          <div className="flex flex-row items-center">
-                            <div style={styles.originalPrice}>
+                          <div className="flex flex-row items-center justify-end space-x-1">
+                            <div className="line-through text-gray-500 text-sm">
                               ${item.originalPrice}
                             </div>
-                            <div style={styles.discountedPrice}>
-                              ${item.discountPrice}
+                            <div
+                              className="flex flex-row justify-start items-start"
+                              style={{
+                                // fontSize: `${item.isTrial ? 15 : 18}px`,
+                                width: `${item.isTrial ? 100 : 88}px`,
+                              }}
+                            >
+                              <div
+                                className="font-bold text-red-600 "
+                                style={{
+                                  fontSize: `${item.isTrial ? 15 : 18}px`,
+                                }}
+                              >
+                                ${item.discountPrice}
+                              </div>
+                              {!item.isTrial && (
+                                <p style={{ color: "#15151580" }}>/mo*</p>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -669,23 +697,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                   ></div>
                 )}
               </button>
-              <div
-                className="flex flex-row items-center gap-1"
-                style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
-              >
-                I agree to the
-                <button
-                  className="underline"
-                  onClick={() => {
-                    window.open(
-                      "https://www.myagentx.com/terms-and-condition",
-                      "_blank"
-                    );
-                  }}
-                >
-                  Terms & Conditions.
-                </button>
-              </div>
+              <TermsText />
             </div>
           </div>
           {/*for small size screen i agreeto terms and conditions*/}
@@ -714,21 +726,24 @@ const CreatAgent3 = ({ handleContinue }) => {
               className="flex flex-row items-center gap-1"
               style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
             >
-              I agree to the
-              <button
-                className="underline"
-                onClick={() => {
-                  window.open(
-                    "https://www.myagentx.com/terms-and-condition",
-                    "_blank"
-                  );
-                }}
-              >
-                Terms & Conditions.
-              </button>
+              <p style={{ color: "#15151580" }}>
+                I agree to the monthly subscription and understand that
+                additional minutes will be automatically topped up when my
+                balance reaches zero, ensuring uninterrupted access to MyAgentX
+                services. I accept the{" "}
+                <a
+                  href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
+                  style={{ textDecoration: "underline", color: "black" }} // Underline and color styling
+                  target="_blank" // Opens in a new tab (optional)
+                  rel="noopener noreferrer" // Security for external links
+                >
+                  Terms & Conditions
+                </a>
+                .
+              </p>
             </div>
           </div>
-          <div className="w-full flex-col items-center flex h-[10%] mt-10">
+          <div className="w-full flex-col items-center flex h-[10%] mt-4">
             {selectedPlan && agreeTerms ? (
               <div className="w-full flex-col items-center flex">
                 {selectedPlan?.id > 1 ? (
@@ -833,15 +848,15 @@ const CreatAgent3 = ({ handleContinue }) => {
                   <div
                     className="text-center mt-4 text-[14px] font-[600] md:text-[17px] md:font-[700]" //style={styles.headingStyle}
                   >
-                    Your minutes will renew after using {selectedPlan?.mints}{" "}
-                    mins
+                    Your minutes will renew monthly or after using{" "}
+                    {selectedPlan?.mints} mins
                   </div>
                 ) : (
                   <div
                     className="text-center mt-4 text-[14px] font-[600] md:text-[17px] md:font-[700]"
                     style={styles.headingStyle}
                   >
-                    Payment starts after your free {selectedPlan?.mints} mins
+                    Payment starts after your 7 day free trial*
                   </div>
                 )}
 
@@ -1135,8 +1150,11 @@ const CreatAgent3 = ({ handleContinue }) => {
                                     ${item.originalPrice}
                                   </div>
                                 )}
-                                <div style={styles.discountedPrice}>
-                                  ${item.discountPrice}
+                                <div className="flex flex-row justify-start items-start ">
+                                  <div style={styles.discountedPrice}>
+                                    ${item.discountPrice}
+                                  </div>
+                                  <p style={{ color: "#15151580" }}>/mo*</p>
                                 </div>
                               </div>
                             </div>
@@ -1168,23 +1186,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                     ></div>
                   )}
                 </button>
-                <div
-                  className="flex flex-row items-center gap-1"
-                  style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
-                >
-                  I agree to the
-                  <button
-                    className="underline"
-                    onClick={() => {
-                      window.open(
-                        "https://www.myagentx.com/terms-and-condition",
-                        "_blank"
-                      );
-                    }}
-                  >
-                    Terms & Conditions.
-                  </button>
-                </div>
+                <TermsText />
               </div>
               {/* Fixed "Continue" Button */}
               <div
@@ -1238,3 +1240,27 @@ const CreatAgent3 = ({ handleContinue }) => {
 };
 
 export default CreatAgent3;
+
+function TermsText() {
+  return (
+    <div
+      className="flex flex-row items-center gap-1"
+      style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
+    >
+      <p style={{ color: "#15151580" }}>
+        I agree to the monthly subscription and understand that additional
+        minutes will be automatically topped up when my balance reaches zero,
+        ensuring uninterrupted access to MyAgentX services. I accept the{" "}
+        <a
+          href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
+          style={{ textDecoration: "underline", color: "black" }} // Underline and color styling
+          target="_blank" // Opens in a new tab (optional)
+          rel="noopener noreferrer" // Security for external links
+        >
+          Terms & Conditions
+        </a>
+        .
+      </p>
+    </div>
+  );
+}

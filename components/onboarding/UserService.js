@@ -82,7 +82,7 @@ const UserService = ({ handleContinue, handleBack }) => {
         console.log("Response of api is : -----", response.data);
         setServicesData(response.data.data.agentServices);
       } else {
-        alert(response.data);
+        // alert(response.data);
       }
     } catch (error) {
       console.error("ERror occured in default data api is :----", error);

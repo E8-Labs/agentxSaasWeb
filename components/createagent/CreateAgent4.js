@@ -23,6 +23,7 @@ import { getLocalLocation } from "../onboarding/services/apisServices/ApiService
 import VideoCard from "./VideoCard";
 import IntroVideoModal from "./IntroVideoModal";
 import ClaimNumber from "../dashboard/myagentX/ClaimNumber";
+import { HowtoVideos } from "@/constants/Constants";
 
 const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const timerRef = useRef(null);
@@ -468,8 +469,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
           <IntroVideoModal
             open={introVideoModal}
             onClose={() => setIntroVideoModal(false)}
-            videoTitle="Learn more about assigning leads"
-            videoUrl="https://drive.google.com/file/d/1Z6klkeEzGRFM-iSLM-EmSsoSLbBL57pt/view?usp=share_link"
+            videoTitle="Learn about phone numbers"
+            videoUrl={HowtoVideos.LetsTalkDigits}
           />
           {/* header */}
           <Header />

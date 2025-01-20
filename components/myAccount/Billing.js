@@ -88,7 +88,7 @@ function Billing() {
       id: 2,
       mints: 120,
       calls: "1k",
-      details: "Perfect for neighborhood updates and engagement.",
+      details: "Perfect for lead updates and engagement.",
       originalPrice: "165",
       discountPrice: "99",
       planStatus: "40%",
@@ -98,7 +98,7 @@ function Billing() {
       id: 3,
       mints: 360,
       calls: "3k",
-      details: "Great for 2-3 listing appointments in your territory.",
+      details: "Perfect for lead reactivation and prospecting.",
       originalPrice: "540",
       discountPrice: "370",
       planStatus: "50%",
@@ -108,7 +108,7 @@ function Billing() {
       id: 4,
       mints: 720,
       calls: "10k",
-      details: "Great for teams and reaching new GCI goals.",
+      details: "Ideal for teams and reaching new GCI goals. ",
       originalPrice: "1200",
       discountPrice: "480",
       planStatus: "60%",
@@ -884,8 +884,11 @@ function Billing() {
                     <div style={styles.originalPrice}>
                       {item.originalPrice && <div>${item.originalPrice}</div>}
                     </div>
-                    <div style={styles.discountedPrice}>
-                      ${item.discountPrice}
+                    <div className="flex flex-row justify-start items-start ">
+                      <div style={styles.discountedPrice}>
+                        ${item.discountPrice}
+                      </div>
+                      <p style={{ color: "#15151580" }}>/mo*</p>
                     </div>
                   </div>
                 </div>

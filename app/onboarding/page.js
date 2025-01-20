@@ -213,7 +213,7 @@ const Page = ({ params }) => {
             width: "100%",
             height: "100%",
             objectFit: "cover",
-            backgroundColor: "green",
+            backgroundColor: "white",
             zIndex: -1, // Ensure the video stays behind content
           }}
         >

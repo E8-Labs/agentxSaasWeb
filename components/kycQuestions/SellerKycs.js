@@ -13,6 +13,7 @@ import { KycCategory } from "../constants/constants";
 import AgentSelectSnackMessage from "../dashboard/leads/AgentSelectSnackMessage";
 import IntroVideoModal from "../createagent/IntroVideoModal";
 import VideoCard from "../createagent/VideoCard";
+import { HowtoVideos } from "@/constants/Constants";
 
 const SellerKycs = ({ handleContinue }) => {
   const router = useRouter();
@@ -422,7 +423,7 @@ const SellerKycs = ({ handleContinue }) => {
             JSON.stringify(response.data.data)
           );
           router.push("/buyerskycquestions");
-        }else{
+        } else {
           setSellerKycLoader(false);
         }
       }
@@ -508,13 +509,11 @@ const SellerKycs = ({ handleContinue }) => {
           <IntroVideoModal
             open={introVideoModal}
             onClose={() => setIntroVideoModal(false)}
-            videoTitle="Learn more about assigning leads"
-            videoUrl="https://drive.google.com/file/d/1mjcZ9-OIKBv44-eeOa2TrippR5h0RfSs/view?usp=share_link"
+            videoTitle="Learn about asking questions (KYC)"
+            videoUrl={HowtoVideos.KycQuestions}
           />
           <div className="flex flex-row w-full justify-center h-[98%]">
-            <div
-              className="hidden lg:inline w-3/12 -ml-4 mt-12"
-            >
+            <div className="hidden lg:inline w-3/12 -ml-4 mt-12">
               <VideoCard
                 horizontal={false}
                 playVideo={() => {

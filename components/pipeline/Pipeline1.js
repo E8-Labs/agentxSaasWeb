@@ -26,6 +26,7 @@ import AgentSelectSnackMessage, {
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import IntroVideoModal from "../createagent/IntroVideoModal";
 import VideoCard from "../createagent/VideoCard";
+import { HowtoVideos } from "@/constants/Constants";
 
 const Pipeline1 = ({ handleContinue }) => {
   const router = useRouter();
@@ -609,8 +610,8 @@ const Pipeline1 = ({ handleContinue }) => {
           <IntroVideoModal
             open={introVideoModal}
             onClose={() => setIntroVideoModal(false)}
-            videoTitle="Learn more about assigning leads"
-            videoUrl="https://drive.google.com/file/d/1dB9krET4BIxaeOhZ6mZt0S8-DKQbWiAn/view?usp=share_link"
+            videoTitle="Learn about pipeline and stages"
+            videoUrl={HowtoVideos.Pipeline}
           />
 
           <div

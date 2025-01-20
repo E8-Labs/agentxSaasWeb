@@ -57,7 +57,7 @@ const IntroVideoModal = ({ open, onClose, videoTitle, videoUrl }) => {
 
           {/* Video Section */}
           <div className="mt-6">
-            <iframe
+            {/* <iframe
               src={`${videoUrl}?autoplay=1&mute=1`}
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -68,7 +68,20 @@ const IntroVideoModal = ({ open, onClose, videoTitle, videoUrl }) => {
                 height: "50vh",
                 borderRadius: 15,
               }}
-            />
+            /> */}
+            <video
+              controls
+              autoPlay
+              muted={false}
+              style={{
+                width: "100%",
+                height: "50vh",
+                borderRadius: 15,
+              }}
+            >
+              <source src={videoUrl} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
           </div>
         </div>
       </Box>

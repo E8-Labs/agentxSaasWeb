@@ -26,6 +26,7 @@ import AgentSelectSnackMessage, {
 import { SnackMessageTitles } from "@/components/constants/constants";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import VideoCard from "@/components/createagent/VideoCard";
+import { HowtoVideos } from "@/constants/Constants";
 
 const Leads1 = () => {
   const addColRef = useRef(null);
@@ -1017,8 +1018,8 @@ const Leads1 = () => {
               <IntroVideoModal
                 open={introVideoModal}
                 onClose={() => setIntroVideoModal(false)}
-                videoTitle="Learn more about assigning leads"
-                videoUrl="https://drive.google.com/file/d/1CoE17XW9eU7P2D9GfB3fOwutjlBv599z/view?usp=share_link"
+                videoTitle="Learn how to add leads to your pipeline"
+                videoUrl={HowtoVideos.Leads}
               />
             </div>
             // </div>
