@@ -75,7 +75,7 @@ const PipelineStages = ({
   //code to add new stage
   const [addNewStageModal, setAddNewStageModal] = useState(false);
   const [newStageTitle, setNewStageTitle] = useState("");
-  const [stageColor, setStageColor] = useState("#FF4E4E");
+  const [stageColor, setStageColor] = useState("#000");
   const [addStageLoader, setAddStageLoader] = useState(false);
   //code for advance setting modal inside new stages
   const [showAdvanceSettings, setShowAdvanceSettings] = useState(false);

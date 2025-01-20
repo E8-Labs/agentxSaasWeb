@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
-import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+// import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import InputAdornment from "@mui/material/InputAdornment";
 import {
   MenuItem,
@@ -27,14 +27,14 @@ const allIntegrations = [
     url: "https://youtube.com",
     description:
       "Automatically nurture AgentX leads with targeted email campaigns in Mailchimp to stay top-of-mind.",
-    icon: "/svgicons/MailchimpIcon.svg",
+    icon: "/svgIcons/MailchimpIcon.svg",
   },
   {
     title: "ActiveCampaign",
     url: "https://youtube.com",
     description:
       "Send AgentX leads to ActiveCampaign to trigger automated email sequences and track engagement.",
-    icon: "/svgicons/ActiveCampaignIcon.svg",
+    icon: "/svgIcons/ActiveCampaignIcon.svg",
   },
   {
     title: "ClickUp",
@@ -125,7 +125,7 @@ const allIntegrations = [
     url: "https://youtube.com",
     description:
       "Update Close opportunities with AgentX follow-up progress to streamline sales efforts.",
-    icon: "/svgIcons/CloseIcon.svg",
+    icon: "/svgIcons/closeIcon.svg",
   },
   {
     title: "KV Core",
@@ -146,7 +146,7 @@ const allIntegrations = [
     url: "https://youtube.com",
     description:
       "Add Jotform submissions to AgentX to kickstart AI-driven lead engagement and follow-up.",
-    icon: "/svgIcons/JotFormIcon.svg",
+    icon: "/svgIcons/JotformIcon.svg",
   },
   {
     title: "Facebook Ads (Instant form)",

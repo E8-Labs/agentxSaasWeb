@@ -92,7 +92,7 @@ function Support() {
             color: HoverAIWebinar ? "white" : "",
           }}
         >
-          {`Learn tips and tricks to enhance your AI, perfect your script, and master best practices in our weekly live webinar. Don’t miss out on actionable insights to boost your success!`}
+          {`Learn tips and tricks to enhance your AI, perfect your script, and master best practices in our weekly live webinar. Don't miss out on actionable insights to boost your success!`}
         </div>
       </div>
 
@@ -130,7 +130,7 @@ function Support() {
               color: hoverConsultation ? "#fff" : "#7902DF",
             }}
           >
-            Schedule a one on one consultation
+            Done-With-You AI Agent Setup
           </div>
         </div>
         <div
@@ -141,9 +141,7 @@ function Support() {
             color: hoverConsultation ? "#fff" : "",
           }}
         >
-          Schedule a personalized one-on-one consultation for just $99/hour. Get
-          expert guidance to refine your AI, customize your script, and achieve
-          your goals with tailored advice!
+          {"Get up and running the right way. We'll work alongside to set up and integrate your CRM, ensuring everything is optimized for success from the start. See results faster and start closing more deals with confidence—all at affordable rates to meet you where you are."}
         </div>
       </div>
     </div>

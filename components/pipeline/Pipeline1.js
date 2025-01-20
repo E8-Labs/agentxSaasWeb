@@ -695,26 +695,6 @@ const Pipeline1 = ({ handleContinue }) => {
                 Assign this agent to a stage
               </div>
 
-              <div>
-                <button
-                  className="flex flex-row items-center gap-4"
-                  onClick={() => {
-                    setIntroVideoModal(true);
-                  }}
-                >
-                  <Image
-                    src={"/assets/youtubeplay.png"}
-                    height={71}
-                    width={58}
-                    alt="*"
-                    style={{ borderRadius: "7px" }}
-                  />
-                  <div style={styles.inputStyle} className="underline">
-                    Watch to learn more on assigning agents
-                  </div>
-                </button>
-              </div>
-
               {/* intro video modal */}
               <Modal
                 open={introVideoModal}

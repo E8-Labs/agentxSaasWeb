@@ -33,7 +33,7 @@ const ColorPicker = forwardRef(({ setStageColor, setStageColor2, stageColor, onl
         if (stageColor) {
             setColor(stageColor);
         } else {
-            setColor("#F3F4F6");
+            setColor("#000000");
         }
     }, []);
 

@@ -419,7 +419,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                 {facilities.map((item, index) => (
                   <div
                     key={item.id}
-                    className="flex flex-row items-center justify-start pl-4 gap-2 w-1/2 mt-4"
+                    className="flex flex-row items-center justify-start pl-4 gap-2 w-1/2 mt-1"
                   >
                     <div
                       className="flex flex-row items-center gap-2 justify-start ml-2 "
@@ -441,7 +441,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                 ))}
               </div>
               <div
-                className="hidden md:flex flex flex-row items-center justify-center py-3 gap-4 mt-6 mb-8 px-4"
+                className="hidden md:flex flex flex-row items-center justify-center py-3 gap-4 mt-6 mb-3 px-4"
                 style={{
                   backgroundColor: "#402FFF20",
                   borderRadius: "50px",
@@ -460,7 +460,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                 </div>
               </div>
 
-              <div
+              {/* <div
                 className="flex flex-row md:hidden items-center justify-center py-3 gap-4 mt-6 mb-8 px-4"
                 style={{
                   backgroundColor: "#402FFF20",
@@ -477,7 +477,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                 <div className="text-purple" style={styles.giftTextStyle}>
                   Enjoy your first calls on us
                 </div>
-              </div>
+              </div> */}
 
               {plans.map((item, index) => (
                 <button
@@ -728,7 +728,7 @@ const CreatAgent3 = ({ handleContinue }) => {
               </button>
             </div>
           </div>
-          <div className="w-full flex-col items-center flex gap-4 h-[10%]">
+          <div className="w-full flex-col items-center flex h-[10%] mt-10">
             {selectedPlan && agreeTerms ? (
               <div className="w-full flex-col items-center flex">
                 {selectedPlan?.id > 1 ? (

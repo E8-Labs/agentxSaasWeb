@@ -6,6 +6,7 @@ export const PersistanceKeys = {
   GlobalSupportUrl:
     "https://api.leadconnectorhq.com/widget/booking/SMTp2AfgjdTcjLOIUBkR",
   GlobalConsultationUrl:
-    "https://api.leadconnectorhq.com/widget/booking/XC2GeMpCatioQ4ttz7An",
+    " https://api.leadconnectorhq.com/widget/booking/F1DtpvAR8fNf3RJM1akZ",
+    
   // LocalStoredAgentsList
 };

@@ -200,12 +200,12 @@ const UserType = ({ handleContinue, DefaultData }) => {
             </div>
 
             <div
-              className="flex flex-wrap md:w-11/12 sm:w-full lg:w-7/12 mt-8 h-[80%] overflow-auto"
-              style={{
-                scrollbarWidth: "none",
-                msOverflowStyle: "none",
-                WebkitOverflowScrolling: "none",
-              }}
+              className="flex flex-wrap md:w-11/12 sm:w-full lg:w-7/12 mt-8 h-[80%] overflow-auto scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+              // style={{
+              //   scrollbarWidth: "none",
+              //   msOverflowStyle: "none",
+              //   WebkitOverflowScrolling: "none",
+              // }}
             >
               {userType.map((item, index) => (
                 <div key={item.id} className="flex w-6/12 md:w-4/12 p-2">

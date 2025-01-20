@@ -488,6 +488,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
               <div
                 style={styles.headingStyle}
                 className="flex flex-row items-center gap-2"
+                onClick={handleContinue}
               >
                 {`What's your AI agent's name?`}
                 <div

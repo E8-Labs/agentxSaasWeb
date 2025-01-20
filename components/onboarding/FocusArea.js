@@ -240,7 +240,7 @@ const FocusArea = ({
             ) : (
               <div
                 className="mt-2 sm:mt-8 md:10/12 w-full lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
-                style={{ scrollbarWidth: "none" }}
+                // style={{ scrollbarWidth: "none" }}
               >
                 {focusData.map((item, index) => (
                   <button

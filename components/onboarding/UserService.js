@@ -169,7 +169,7 @@ const UserService = ({ handleContinue, handleBack }) => {
             ) : (
               <div
                 className="mt-2 sm:mt-8 w-full md:w-10/12 lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
-                style={{ scrollbarWidth: "none" }}
+                // style={{ scrollbarWidth: "none" }}
               >
                 {servicesData.map((item, index) => (
                   <button

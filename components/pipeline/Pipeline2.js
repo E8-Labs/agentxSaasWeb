@@ -742,7 +742,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                   {/* </div> */}
                 </div>
               </div>
-              <div>
+              {/* <div>
                 <button
                   className="flex flex-row items-center gap-4"
                   onClick={() => {
@@ -760,7 +760,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                     Learn how to customize your script
                   </div>
                 </button>
-              </div>
+              </div> */}
               <div
                 style={{ fontSize: 24, fontWeight: "700" }}
                 className="flex flex-row items-center center w-full justify-between"

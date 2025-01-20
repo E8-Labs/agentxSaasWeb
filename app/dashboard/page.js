@@ -17,6 +17,7 @@ import getProfileDetails from "@/components/apis/GetProfile";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import { useRouter } from "next/navigation";
 import BackgroundVideo from "@/components/general/BackgroundVideo";
+import { PersistanceKeys } from "@/constants/Constants";
 
 const Page = () => {
   const router = useRouter();
@@ -350,8 +351,8 @@ const Page = () => {
                           screenHeight < 640
                             ? 35
                             : screenHeight < 800
-                            ? 50
-                            : 75,
+                              ? 50
+                              : 75,
                         fontWeight: "700",
                         color: "#000",
                       }}
@@ -553,8 +554,8 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.callsGt10Change
                           ? `${statsComparisonDetails?.callsGt10Change.toFixed(
-                              2
-                            )}%`
+                            2
+                          )}%`
                           : "-"
                       }
                       borderSide="border-b-2"
@@ -569,8 +570,8 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.hotLeadsChange
                           ? `${statsComparisonDetails?.hotLeadsChange.toFixed(
-                              2
-                            )}%`
+                            2
+                          )}%`
                           : "-"
                       }
                       borderSide="border-l-2 border-b-2"
@@ -593,8 +594,8 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.bookingChange
                           ? `${statsComparisonDetails?.bookingChange.toFixed(
-                              2
-                            )}%`
+                            2
+                          )}%`
                           : "-"
                       }
                       borderSide="border-l-2 border-b-2"
@@ -689,7 +690,8 @@ const Page = () => {
                         setConsulthover(false);
                       }}
                       onClick={() => {
-                        window.open("https://web.whatsapp.com/", "_blank");
+                        let url = PersistanceKeys.GlobalConsultationUrl;
+                        window.open(url, "_blank");
                       }}
                       style={{
                         cursor: "pointer",
@@ -718,7 +720,7 @@ const Page = () => {
                             color: consultHover ? "white" : "#7902DF",
                           }}
                         >
-                          Schedule a one on one consultation
+                          Done-With-You AI Agent Setup
                         </div>
                       </div>
                       <div
@@ -728,10 +730,7 @@ const Page = () => {
                           marginTop: "1vh",
                         }}
                       >
-                        Schedule a personalized one-on-one consultation for just
-                        $99/hour. Get expert guidance to refine your AI,
-                        customize your script, and achieve your goals with
-                        tailored advice!
+                        {`Learn tips and tricks to enhance your AI, perfect your script, and master best practices in our weekly live webinar. Don't miss out on actionable insights to boost your success!`}
                       </div>
                     </div>
                   </div>
