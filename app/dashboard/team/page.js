@@ -46,6 +46,7 @@ function Page() {
   const [validEmail, setValidEmail] = useState("");
 
   const [showSnak, setShowSnak] = useState(false);
+  const [snackTitle, setSnackTitle] = useState("Team invite sent successfully");
 
   //variables for phone number err messages and checking
   const [errorMessage, setErrorMessage] = useState(null);
@@ -187,6 +188,7 @@ function Page() {
               }
               return [...prev, newMember];
             });
+            setSnackTitle("Team invite sent successfully");
             setShowSnak(true);
             setOpenInvitePopup(false);
             setName("");
@@ -306,13 +308,15 @@ function Page() {
   };
 
   async function DeleteTeamMember(team) {
+    console.log("Deleting ", team);
+    // return;
     let phoneNumber = team.phone;
-    let data = {
+    let apidata = {
       phone: phoneNumber,
     };
 
-    console.log("data to delete", data);
-    // return
+    console.log("data to delete", apidata);
+    // return;
 
     try {
       const data = localStorage.getItem("User");
@@ -321,21 +325,23 @@ function Page() {
         let u = JSON.parse(data);
 
         let path = Apis.deleteTeamMember;
-
-        const response = await axios.post(path, {
+        console.log("token ", u.token);
+        const response = await axios.post(path, apidata, {
           headers: {
             Authorization: "Bearer " + u.token,
           },
-          data,
         });
 
         if (response) {
           setInviteTeamLoader(false);
           if (response.data.status === true) {
-            console.log("delete team api response is", response.data.data);
-            let team = myTeam.filter((item) => item.id != team.id);
-            setMyTeam(team);
+            console.log("delete team api response is", response.data);
+            // let tea
+            let teams = myTeam.filter((item) => item.id != team.id);
+            setMyTeam(teams);
             // getMyteam()
+            setSnackTitle("Team member removed");
+            setShowSnak(true);
           } else {
             console.log("delete team api message is", response.data.message);
           }
@@ -343,7 +349,8 @@ function Page() {
       }
     } catch (e) {
       setInviteTeamLoader(false);
-      console.log("error in invite team api is", e);
+      // console.log()
+      console.log("error in delete team api is", e);
     }
   }
 
@@ -367,7 +374,7 @@ function Page() {
         <AgentSelectSnackMessage
           isVisible={showSnak}
           hide={() => setShowSnak(false)}
-          message={"Team invite sent successfully"}
+          message={snackTitle}
           type={SnackbarTypes.Success}
         />
       )}
@@ -409,142 +416,89 @@ function Page() {
 
             {myTeam.length > 0 ? (
               <div
-                className="pt-3 flex flex-row flex-wrap gap-6 "
+                className="pt-3 flex flex-row flex-wrap gap-6"
                 style={{ overflow: "auto", scrollbarWidth: "none" }}
               >
                 {myTeam.map((item, index) => (
-                  <div key={index}>
-                    <div>
-                      <div className="p-4 flex flex-row gap-4 items-start border rounded-lg ">
-                        <div
-                          className="flex rounded-full justify-center items-center bg-black text-white text-md"
-                          style={{
-                            height: 37,
-                            width: 37,
-                            textTransform: "capitalize",
-                          }}
-                        >
-                          {item.name[0]}
-                        </div>
-
-                        <div
-                          className="flex flex-wrap flex-col items-start gap-2"
-                          style={{ width: "15vw" }}
-                        >
-                          <div
-                            style={{
-                              fontSize: 15,
-                              fontWeight: "500",
-                              color: "black",
-                            }}
-                          >
-                            {item.name}
-                          </div>
-
-                          <div
-                            style={{
-                              fontSize: 15,
-                              fontWeight: "500",
-                              color: "#00000060",
-                              width: "15vw",
-                            }}
-                          >
-                            {formatPhoneNumber(item?.phone)}
-                          </div>
-
-                          <div
-                            style={{
-                              fontSize: 15,
-                              fontWeight: "500",
-                              color: "#00000060",
-                              width: "15vw",
-                              textDecorationLine: "underline",
-                            }}
-                          >
-                            {item.email}
-                          </div>
-
-                          <div
-                            style={{
-                              fontSize: 15,
-                              fontWeight: "500",
-                              color:
-                                item.status === "Pending"
-                                  ? "#FF4E4E"
-                                  : "#01CB76",
-                            }}
-                          >
-                            {item.status}
-                          </div>
-                        </div>
-
-                        <button
-                          id="more-menu"
-                          onClick={(event) => {
-                            setOpenMoreDropdown(true);
-                            setMoreDropdown(event.currentTarget);
-                          }}
-                        >
-                          <img
-                            src={"/otherAssets/threeDotsIcon.png"}
-                            height={24}
-                            width={24}
-                            alt="threeDots"
-                          />
-                        </button>
+                  <div key={item.id} className="relative">
+                    <div className="p-4 flex flex-row gap-4 items-start border rounded-lg">
+                      <div
+                        className="flex rounded-full justify-center items-center bg-black text-white text-md"
+                        style={{
+                          height: 37,
+                          width: 37,
+                          textTransform: "capitalize",
+                        }}
+                      >
+                        {item.name[0]}
                       </div>
-                    </div>
-                    <Menu
-                      id="more-menu"
-                      anchorEl={moreDropdown}
-                      open={openMoreDropdown}
-                      onClose={handleMoreClose}
-                      MenuListProps={{
-                        "aria-labelledby": "basic-button",
-                      }}
-                      anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "right",
-                      }}
-                      transformOrigin={{
-                        vertical: "top",
-                        horizontal: "right",
-                      }}
-                      PaperProps={{
-                        sx: {
-                          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.05)", // Subtle shadow
-                          borderRadius: "5px", // Optional: To make it smoother
-                          borderWidth: 1,
-                          borderColor: "#000000010",
-                        },
-                      }}
-                    >
-                      <Box sx={{}}>
-                        {item.status !== "Accepted" && reInviteTeamLoader ? (
-                          <div className="w-full flex flex-col items-center">
-                            <CircularProgress size={25} />
-                          </div>
-                        ) : (
-                          <MenuItem
-                            style={styles.itemText}
-                            onClick={() => handleResendInvite(item)}
-                          >
-                            Resend Invite
-                          </MenuItem>
-                        )}
 
-                        <MenuItem
-                          style={styles.deleteText}
-                          onClick={async () => {
-                            setOpenMoreDropdown(false);
-                            //Delete Team member here
-                            await DeleteTeamMember(item);
+                      <div className="flex flex-wrap flex-col items-start gap-2 w-60">
+                        <div className="text-lg font-medium text-black">
+                          {item.name}
+                        </div>
+                        <div className="text-sm font-medium text-gray-500">
+                          {formatPhoneNumber(item?.phone)}
+                        </div>
+                        <div className="text-sm font-medium text-gray-500 underline">
+                          {item.email}
+                        </div>
+                        <div
+                          className={`text-sm font-medium ${
+                            item.status === "Pending"
+                              ? "text-red-500"
+                              : "text-green-500"
+                          }`}
+                        >
+                          {item.status}
+                        </div>
+                      </div>
+
+                      <button
+                        id={`dropdown-toggle-${item.id}`}
+                        onClick={() =>
+                          setMoreDropdown(
+                            moreDropdown === item.id ? null : item.id
+                          )
+                        }
+                        className="relative"
+                      >
+                        <img
+                          src={"/otherAssets/threeDotsIcon.png"}
+                          height={24}
+                          width={24}
+                          alt="threeDots"
+                        />
+                      </button>
+                    </div>
+
+                    {/* Custom Dropdown */}
+                    {moreDropdown === item.id && (
+                      <div
+                        className="absolute right-0  top-10 bg-white border rounded-lg shadow-lg z-10"
+                        style={{ width: "200px" }}
+                      >
+                        <div
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                          onClick={() => {
+                            handleResendInvite(item);
+                            setMoreDropdown(null);
+                          }}
+                        >
+                          Resend Invite
+                        </div>
+                        <div
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-red-500"
+                          onClick={() => {
+                            console.log("Deleting team member:", item);
+                            DeleteTeamMember(item);
+                            setMoreDropdown(null);
                           }}
                         >
                           Delete
-                        </MenuItem>
-                      </Box>
-                    </Menu>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

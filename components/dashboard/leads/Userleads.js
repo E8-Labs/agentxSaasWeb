@@ -2151,14 +2151,14 @@ const Userleads = ({
               }}
             >
               <Box
-                className="flex flex-row justify-center items-center lg:w-4/12 sm:w-7/12 w-8/12 py-2 px-6 bg-white h-[75svh] lg:h-[70vh] overflow-hidden"
+                className="flex flex-row justify-center items-start lg:w-4/12 sm:w-7/12 w-8/12 py-2 px-6 bg-white max-h-[75svh]  overflow-auto md:overflow-auto"
                 sx={{
                   ...styles.modalsStyle,
                   scrollbarWidth: "none",
                   backgroundColor: "white",
                 }}
               >
-                <div className="w-full flex flex-col items-center justify-between h-full ">
+                <div className="w-full flex flex-col items-center justify-start ">
                   <div className="flex flex-row items-center justify-between w-full">
                     <div>Filter</div>
                     <button
@@ -2174,7 +2174,7 @@ const Userleads = ({
                       />
                     </button>
                   </div>
-                  <div className="mt-2 w-full overflow-auto ">
+                  <div className="mt-2 w-full overflow-auto h-[85%]">
                     <div className="flex flex-row items-start gap-4">
                       <div className="w-1/2 h-full">
                         <div
