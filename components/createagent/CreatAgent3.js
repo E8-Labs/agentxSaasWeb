@@ -118,6 +118,7 @@ const CreatAgent3 = ({ handleContinue }) => {
 
       const ApiData = {
         plan: planType,
+        updateFuturePlan: true,
       };
 
       console.log("Api data is", ApiData);

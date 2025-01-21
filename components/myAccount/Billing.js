@@ -363,7 +363,7 @@ function Billing() {
             setCurrentPlan(planType);
           }
           // localStorage.setItem("User", JSON.stringify(localDetails));
-          setSuccessSnack("Your plan was successfully upgraded");
+          setSuccessSnack("Your plan successfully updated");
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
         }

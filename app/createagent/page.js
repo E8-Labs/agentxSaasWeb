@@ -46,7 +46,7 @@ const Page = () => {
     // CreateAgentVoice,
   ]);
 
-  const [windowSize, setWindowSize] = useState(1000);
+  const [windowSize, setWindowSize] = useState(null);
 
   let CurrentComp = components[index];
 
