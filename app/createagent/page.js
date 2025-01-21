@@ -77,11 +77,11 @@ const Page = () => {
         if (windowSize < 640) {
           console.log("Data should be set");
           setComponents([
-            // BuildAgentName,
-            // BuildAgentTask,
-            // BuildAgentObjective,
+            BuildAgentName,
+            BuildAgentTask,
+            BuildAgentObjective,
 
-            CreatAgent3,
+            // CreatAgent3,
             // CreateAgent4,
             // CreateAgentVoice,
           ]);

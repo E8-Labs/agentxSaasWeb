@@ -364,17 +364,17 @@ const CreatAgent3 = ({ handleContinue }) => {
   return (
     <div
       style={{ width: "100%" }}
-      className="overflow-y-hidden flex flex-row justify-center items-center bg-green h-[100svh]"
+      className="overflow-y-hidden flex flex-row justify-center items-center  h-[100svh]"
     >
       <div className="bg-white sm:rounded-2xl w-full lg:w-10/12 h-[90vh] py-4 ">
-        <div className="h-[100%] ">
+        <div className="h-[100%] overflow-auto sm:overflow-none">
           {/* header */}
-          <div className="h-[10%]">
+          <div className="h-[10%] ">
             <Header />
           </div>
           {/* Body */}
           <div
-            className="flex flex-col items-center px-4 w-full h-[58%] md:h-[78%] overflow-auto sm:overflow-none "
+            className="flex flex-col items-center px-4 w-full  md:h-[78%] overflow-none sm:overflow-none"
             style={{ scrollbarWidth: "none" }}
           >
             <div
@@ -387,8 +387,9 @@ const CreatAgent3 = ({ handleContinue }) => {
               Start for free, then pay as you go
             </div>
 
+            {/*  Plans array start here  */}
             <div
-              className="sm:h-[75%] overflow-none sm:overflow-auto w-full flex flex-col items-center bg-red"
+              className="sm:h-[75%] overflow-none sm:overflow-auto  w-full flex flex-col items-center"
               style={{ scrollbarWidth: "none" }}
             >
               {/* For mobile view */}
@@ -399,7 +400,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                 {mobileFacilities.map((item, index) => (
                   <div
                     key={item.id}
-                    className="flex flex-row items-center justify-start pl-4 gap-2 w-1/2 mt-4"
+                    className="flex flex-row items-center justify-start pl-4 gap-1 w-1/2 mt-4"
                   >
                     <div
                       className="flex flex-row items-center gap-2 justify-start ml-2 "
@@ -986,7 +987,7 @@ const CreatAgent3 = ({ handleContinue }) => {
             }}
           >
             <div
-              className="flex flex-col w-[95%] sm:w-5/12 max-h-[85svh]  md:max-h-[95vh] bg-white"
+              className="flex flex-col w-[95%] sm:w-5/12 max-h-[95svh]  md:max-h-[95vh] bg-white"
               style={{
                 borderRadius: "13px",
                 overflow: "hidden", // Prevents overflow of the modal content
