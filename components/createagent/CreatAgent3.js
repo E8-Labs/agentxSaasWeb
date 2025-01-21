@@ -364,7 +364,7 @@ const CreatAgent3 = ({ handleContinue }) => {
   return (
     <div
       style={{ width: "100%" }}
-      className="overflow-y-hidden flex flex-row justify-center items-center"
+      className="overflow-y-hidden flex flex-row justify-center items-center bg-green h-[100svh]"
     >
       <div className="bg-white sm:rounded-2xl w-full lg:w-10/12 h-[90vh] py-4 ">
         <div className="h-[100%] ">
@@ -374,7 +374,7 @@ const CreatAgent3 = ({ handleContinue }) => {
           </div>
           {/* Body */}
           <div
-            className="flex flex-col items-center px-4 w-full h-[78%] overflow-auto sm:overflow-none "
+            className="flex flex-col items-center px-4 w-full h-[58%] md:h-[78%] overflow-auto sm:overflow-none "
             style={{ scrollbarWidth: "none" }}
           >
             <div
@@ -388,7 +388,7 @@ const CreatAgent3 = ({ handleContinue }) => {
             </div>
 
             <div
-              className="sm:h-[80%] overflow-none sm:overflow-auto w-full flex flex-col items-center"
+              className="sm:h-[75%] overflow-none sm:overflow-auto w-full flex flex-col items-center bg-red"
               style={{ scrollbarWidth: "none" }}
             >
               {/* For mobile view */}
