@@ -505,12 +505,21 @@ function CallWorthyReviewsPopup({ open, close }) {
                                         style={styles.paragraph}
                                       >
                                         <div
-                                          className="h-[10px] w-[10px] rounded-full"
+                                          className="h-[10px] max-w-[200px] "
                                           style={{
-                                            backgroundColor:
-                                              selectedCall?.stage,
+                                            // backgroundColor: "red",
+                                            overflow: "hidden", // Ensures content is clipped
+                                            whiteSpace: "nowrap", // Prevents text from wrapping
+                                            textOverflow: "ellipsis", // Adds the ellipsis
+                                            height: "50px",
                                           }}
-                                        ></div>
+                                          title={
+                                            selectedCall?.stage?.stageTitle
+                                          } // Optional: Show full text on hover
+                                        >
+                                          {selectedCall?.stage?.stageTitle}
+                                        </div>
+
                                         {/* {selectedLeadsDetails?.stage?.stageTitle || "-"}
                                                                     <FormControl size="fit-content">
                                                                         <Select
