@@ -608,7 +608,7 @@ const ProfileNav = () => {
                 color: "black",
               }}
             >
-              {userDetails?.user?.name}
+              {userDetails?.user?.name?.split(" ")[0]}
             </div>
             <div
               className="truncate w-[120px]"

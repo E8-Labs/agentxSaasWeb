@@ -67,7 +67,7 @@ const PricingBox = () => {
         </div>
         <div>
           <div style={{ color: "#151515", fontSize: 24, fontWeight: "700" }}>
-            30mins | Approx 250 Calls
+            30mins | 250 Calls*
           </div>
           <div className="flex flex-row items-center justify-between">
             <div style={{ color: "#15151590", fontSize: 15 }}>

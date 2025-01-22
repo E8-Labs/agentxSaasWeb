@@ -624,7 +624,9 @@ const Page = ({ length = 6, onComplete }) => {
                       >
                         {checkPhoneResponse && (
                           <div className="text-center">
-                            {checkPhoneResponse === true ? "No such user" : ""}
+                            {checkPhoneResponse === true
+                              ? "User not found"
+                              : ""}
                           </div>
                         )}
                       </div>

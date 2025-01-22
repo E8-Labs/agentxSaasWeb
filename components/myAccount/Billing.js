@@ -857,7 +857,7 @@ function Billing() {
                       fontWeight: "600",
                     }}
                   >
-                    {item.mints}mins | Approx {item.calls} Calls
+                    {item.mints}mins | {item.calls} Calls
                   </div>
                   {item.status && (
                     <div

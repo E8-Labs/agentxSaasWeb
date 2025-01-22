@@ -408,6 +408,11 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       fontWeight: "400",
       width: "95%",
     },
+    headingTitle: {
+      fontSize: 13,
+      fontWeight: "700",
+      width: "95%",
+    },
     modalsStyle: {
       height: "auto",
       bgcolor: "transparent",
@@ -683,7 +688,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                           alt="*"
                         />
                       )}
-                      <div className="mt-8" style={styles.inputStyle}>
+                      <div className="mt-8" style={styles.headingTitle}>
                         {item.title}
                       </div>
                       <div

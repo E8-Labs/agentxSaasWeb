@@ -202,23 +202,25 @@ const UserService = ({ handleContinue, handleBack }) => {
                           >
                             {item.title}
                           </div>
-                          <div className="mt-2">{item.description}</div>
+                          <div className="flex flex-row items-end">
+                            <div className="mt-2">{item.description}</div>
+                            {serviceId.includes(item.id) ? (
+                              <Image
+                                src={"/assets/charmTick.png"}
+                                alt="*"
+                                height={36}
+                                width={36}
+                              />
+                            ) : (
+                              <Image
+                                src={"/assets/charmUnMark.png"}
+                                alt="*"
+                                height={36}
+                                width={36}
+                              />
+                            )}
+                          </div>
                         </div>
-                        {serviceId.includes(item.id) ? (
-                          <Image
-                            src={"/assets/charmTick.png"}
-                            alt="*"
-                            height={36}
-                            width={36}
-                          />
-                        ) : (
-                          <Image
-                            src={"/assets/charmUnMark.png"}
-                            alt="*"
-                            height={36}
-                            width={36}
-                          />
-                        )}
                       </div>
                     </div>
                   </button>
