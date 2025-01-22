@@ -1,4 +1,5 @@
 export const PersistanceKeys = {
+  LocalStorageUser: "User",
   LocalStorageCampaignee: "CampaigneeSaved",
   LocalStoragePipelines: "LocalStoragePipelines",
   RegisterDetails: "registerDetails",

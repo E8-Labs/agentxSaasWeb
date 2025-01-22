@@ -103,7 +103,7 @@ const CreateAgentVoice = ({ handleBack }) => {
         if (response.data.status === true) {
           router.push("/sellerskycquestions");
           localStorage.removeItem("claimNumberData");
-        }else{
+        } else {
           setVoicesLoader(false);
         }
       }
@@ -193,7 +193,7 @@ const CreateAgentVoice = ({ handleBack }) => {
                 className="mt-8 w-6/12 gap-4 flex flex-col max-h-[53vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
                 style={{ scrollbarWidth: "none" }}
               >
-                {voices.slice(0, 10).map((item, index) => (
+                {voices.map((item, index) => (
                   <button
                     key={index}
                     style={{

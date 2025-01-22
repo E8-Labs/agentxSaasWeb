@@ -33,6 +33,7 @@ const AddCardDetails = ({
   handleClose,
   togglePlan,
   setAddPaymentSuccessPopUp,
+  textBelowContinue = "",
 }) => {
   const stripeReact = useStripe();
   const elements = useElements();
@@ -504,7 +505,7 @@ const AddCardDetails = ({
       </div>
 
       {/* <CardPostalCodeElement id="postal-code" options={elementOptions} /> */}
-      <div className="w-full mt-6 flex justify-center">
+      <div className="flex flex-col items-center gap-2 w-full mt-6 flex justify-center">
         {addCardLoader ? (
           <div className="flex flex-row justify-center items-center mt-8 w-full">
             <CircularProgress size={30} />
@@ -530,6 +531,7 @@ const AddCardDetails = ({
             )}
           </div>
         )}
+        <p className="text-[#15151580]">{textBelowContinue}</p>
       </div>
     </div>
   );

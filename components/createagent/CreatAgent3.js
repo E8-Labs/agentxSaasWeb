@@ -296,6 +296,7 @@ const CreatAgent3 = ({ handleContinue }) => {
     headingStyle: {
       fontSize: 16,
       fontWeight: "700",
+      color: "#15151580",
     },
     giftTextStyle: {
       fontSize: 14,
@@ -870,6 +871,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                     setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp}
                     handleClose={handleClose}
                     togglePlan={togglePlan}
+                    textBelowContinue="Trial is limited to 30 mins"
                     // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>

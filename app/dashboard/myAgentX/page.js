@@ -2715,7 +2715,7 @@ function Page() {
                           },
                         }}
                       >
-                        {voicesList.slice(0, 10).map((item, index) => {
+                        {voicesList.map((item, index) => {
                           const selectedVoiceName = (id) => {
                             const voiceName = voicesList.find(
                               (voice) => voice.voice_id === id

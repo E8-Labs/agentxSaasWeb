@@ -19,6 +19,7 @@ import {
   getLocalLocation,
 } from "@/components/onboarding/services/apisServices/ApiService";
 import { formatPhoneNumber } from "@/utilities/agentUtilities";
+import { PersistanceKeys } from "@/constants/Constants";
 
 function Page() {
   const timerRef = useRef(null);
@@ -125,7 +126,20 @@ function Page() {
 
           if (response.data.status === true) {
             console.log("get team api response is", response.data);
-            setMyTeam(response.data.data);
+            let admin = response.data.admin;
+            let array = [
+              {
+                invitingUser: admin,
+                invitedUser: admin,
+                id: -1,
+                status: "Admin",
+                name: admin.name,
+                email: admin.email,
+                phone: admin.phone,
+              },
+              ...response.data.data,
+            ];
+            setMyTeam(array);
           } else {
             console.log("get team api message is", response.data.message);
           }
@@ -368,6 +382,57 @@ function Page() {
     setOpenMoreDropdown(false);
   };
 
+  function canShowMenuDots(team) {
+    let user = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    if (user) {
+      user = JSON.parse(user);
+      user = user.user;
+    }
+    console.log("Current user role ", user.userRole);
+    if (user.userRole == "Invitee") {
+      if (team.invitedUser.id == user.id) {
+        return true; // show menu at own profile
+      }
+      return false;
+    } else if (user.userRole == "AgentX") {
+      if (team.invitedUser.id == user.id) {
+        return false; // don't show menu at own profile for admin
+      }
+      return true;
+    }
+    return true;
+  }
+  function canShowResendOption(team) {
+    let user = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    if (user) {
+      user = JSON.parse(user);
+      user = user.user;
+    }
+    if (user.userRole == "Invitee") {
+      if (team.invitedUser.id == user.id) {
+        return false; // show menu at own profile
+      }
+      return true;
+    }
+    if (user.userRole == "AgentX") {
+      if (team.invitedUser.id == user.id) {
+        return false; // show menu at own profile
+      }
+      return true;
+    }
+    return true;
+  }
+  function canShowInviteButton() {
+    let user = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    if (user) {
+      user = JSON.parse(user);
+    }
+    if (user.userRole == "AgentX") {
+      return true;
+    }
+    return false;
+  }
+
   return (
     <div className="w-full flex flex-col items-center">
       {showSnak && (
@@ -397,7 +462,7 @@ function Page() {
           </div>
         ) : (
           <div className="w-11/12 flex flex-col items-start">
-            {myTeam.length > 0 && (
+            {myTeam.length > 0 && canShowInviteButton() && (
               <div className="w-full flex flex-row items-center justify-end">
                 <button
                   className="rounded-lg text-white bg-purple mt-8"
@@ -419,88 +484,95 @@ function Page() {
                 className="pt-3 flex flex-row flex-wrap gap-6"
                 style={{ overflow: "auto", scrollbarWidth: "none" }}
               >
-                {myTeam.map((item, index) => (
-                  <div key={item.id} className="relative">
-                    <div className="p-4 flex flex-row gap-4 items-start border rounded-lg">
-                      <div
-                        className="flex rounded-full justify-center items-center bg-black text-white text-md"
-                        style={{
-                          height: 37,
-                          width: 37,
-                          textTransform: "capitalize",
-                        }}
-                      >
-                        {item.name[0]}
-                      </div>
-
-                      <div className="flex flex-wrap flex-col items-start gap-2 w-60">
-                        <div className="text-lg font-medium text-black">
-                          {item.name}
-                        </div>
-                        <div className="text-sm font-medium text-gray-500">
-                          {formatPhoneNumber(item?.phone)}
-                        </div>
-                        <div className="text-sm font-medium text-gray-500 underline">
-                          {item.email}
-                        </div>
+                {myTeam.map((item, index) => {
+                  console.log("Team is ", item);
+                  return (
+                    <div key={item.id} className="relative">
+                      <div className="p-4 flex flex-row gap-4 items-start border rounded-lg">
                         <div
-                          className={`text-sm font-medium ${
-                            item.status === "Pending"
-                              ? "text-red-500"
-                              : "text-green-500"
-                          }`}
+                          className="flex rounded-full justify-center items-center bg-black text-white text-md"
+                          style={{
+                            height: 37,
+                            width: 37,
+                            textTransform: "capitalize",
+                          }}
                         >
-                          {item.status}
+                          {item.name[0]}
                         </div>
+
+                        <div className="flex flex-wrap flex-col items-start gap-2 w-60">
+                          <div className="text-lg font-medium text-black">
+                            {item.name}
+                          </div>
+                          <div className="text-sm font-medium text-gray-500">
+                            {formatPhoneNumber(item?.phone)}
+                          </div>
+                          <div className="text-sm font-medium text-gray-500 underline">
+                            {item.email}
+                          </div>
+                          <div
+                            className={`text-sm font-medium ${
+                              item.status === "Pending"
+                                ? "text-red-500"
+                                : "text-green-500"
+                            }`}
+                          >
+                            {item.status}
+                          </div>
+                        </div>
+
+                        {canShowMenuDots(item) && (
+                          <button
+                            id={`dropdown-toggle-${item.id}`}
+                            onClick={() =>
+                              setMoreDropdown(
+                                moreDropdown === item.id ? null : item.id
+                              )
+                            }
+                            className="relative"
+                          >
+                            <img
+                              src={"/otherAssets/threeDotsIcon.png"}
+                              height={24}
+                              width={24}
+                              alt="threeDots"
+                            />
+                          </button>
+                        )}
                       </div>
 
-                      <button
-                        id={`dropdown-toggle-${item.id}`}
-                        onClick={() =>
-                          setMoreDropdown(
-                            moreDropdown === item.id ? null : item.id
-                          )
-                        }
-                        className="relative"
-                      >
-                        <img
-                          src={"/otherAssets/threeDotsIcon.png"}
-                          height={24}
-                          width={24}
-                          alt="threeDots"
-                        />
-                      </button>
+                      {/* Custom Dropdown */}
+                      {moreDropdown === item.id && (
+                        <div
+                          className="absolute right-0  top-10 bg-white border rounded-lg shadow-lg z-10"
+                          style={{ width: "200px" }}
+                        >
+                          {canShowResendOption(item) && (
+                            <div
+                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                              onClick={() => {
+                                handleResendInvite(item);
+                                setMoreDropdown(null);
+                              }}
+                            >
+                              Resend Invite
+                            </div>
+                          )}
+                          <div
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-red-500"
+                            onClick={() => {
+                              console.log("Deleting team member:", item);
+                              DeleteTeamMember(item);
+                              setMoreDropdown(null);
+                            }}
+                          >
+                            Delete
+                          </div>
+                        </div>
+                      )}
                     </div>
-
-                    {/* Custom Dropdown */}
-                    {moreDropdown === item.id && (
-                      <div
-                        className="absolute right-0  top-10 bg-white border rounded-lg shadow-lg z-10"
-                        style={{ width: "200px" }}
-                      >
-                        <div
-                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
-                          onClick={() => {
-                            handleResendInvite(item);
-                            setMoreDropdown(null);
-                          }}
-                        >
-                          Resend Invite
-                        </div>
-                        <div
-                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-red-500"
-                          onClick={() => {
-                            console.log("Deleting team member:", item);
-                            DeleteTeamMember(item);
-                            setMoreDropdown(null);
-                          }}
-                        >
-                          Delete
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="h-screen w-full flex flex-col items-center justify-center">

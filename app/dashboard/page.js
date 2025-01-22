@@ -351,8 +351,8 @@ const Page = () => {
                           screenHeight < 640
                             ? 35
                             : screenHeight < 800
-                              ? 50
-                              : 75,
+                            ? 50
+                            : 75,
                         fontWeight: "700",
                         color: "#000",
                       }}
@@ -554,8 +554,8 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.callsGt10Change
                           ? `${statsComparisonDetails?.callsGt10Change.toFixed(
-                            2
-                          )}%`
+                              2
+                            )}%`
                           : "-"
                       }
                       borderSide="border-b-2"
@@ -570,8 +570,8 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.hotLeadsChange
                           ? `${statsComparisonDetails?.hotLeadsChange.toFixed(
-                            2
-                          )}%`
+                              2
+                            )}%`
                           : "-"
                       }
                       borderSide="border-l-2 border-b-2"
@@ -594,8 +594,8 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.bookingChange
                           ? `${statsComparisonDetails?.bookingChange.toFixed(
-                            2
-                          )}%`
+                              2
+                            )}%`
                           : "-"
                       }
                       borderSide="border-l-2 border-b-2"
@@ -730,7 +730,7 @@ const Page = () => {
                           marginTop: "1vh",
                         }}
                       >
-                        {`Learn tips and tricks to enhance your AI, perfect your script, and master best practices in our weekly live webinar. Don't miss out on actionable insights to boost your success!`}
+                        {`Get up and running the right way. We’ll work alongside to set up and integrate your CRM, ensuring everything is optimized for success from the start. See results faster and start closing more deals with confidence—all at affordable rates to meet you where you are.`}
                       </div>
                     </div>
                   </div>
