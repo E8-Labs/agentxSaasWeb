@@ -307,10 +307,13 @@ const AddCardDetails = ({
       });
 
       if (response) {
-        console.log("Response of subscribe plan api is", response);
+        console.log(
+          "Response of subscribe plan api is",
+          Object.keys(response.data)
+        );
         if (response.data.status === true) {
-          handleClose();
-          setAddPaymentSuccessPopUp(true);
+          handleClose(response.data);
+          if (setAddPaymentSuccessPopUp) setAddPaymentSuccessPopUp(true);
         }
       }
     } catch (error) {

@@ -25,6 +25,7 @@ import { UpdateProfile } from "@/components/apis/UpdateProfile";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
+import { PersistanceKeys } from "@/constants/Constants";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -358,10 +359,14 @@ const ProfileNav = () => {
 
   const handleSubscribePlan = async () => {
     try {
-      let cards = [];
+      // let cards = [];
 
-      cards = getCardsList();
-      // return
+      // cards = await getCardsList();
+      // if (cards.length == 0) {
+      //   setAddPaymentPopup(true);
+      //   return;
+      // }
+      // return;
       let planType = null;
 
       // console.log("Selected plan is:", togglePlan);
@@ -387,6 +392,10 @@ const ProfileNav = () => {
         localDetails = LocalDetails;
         AuthToken = LocalDetails.token;
       }
+      // if (localDetails.user.cards.length == 0) {
+      //   setAddPaymentPopup(true);
+      //   return;
+      // }
 
       console.log("Authtoken is", AuthToken);
 
@@ -451,6 +460,7 @@ const ProfileNav = () => {
       borderRadius: 2,
       border: "none",
       outline: "none",
+      height: "100svh",
     },
     cardStyles: {
       fontSize: "14",
@@ -625,6 +635,7 @@ const ProfileNav = () => {
         </Link>
       </div>
 
+      {/* Subscribe Plan modal */}
       <div>
         {/* Subscribe Plan modal */}
         <Modal
@@ -793,7 +804,7 @@ const ProfileNav = () => {
                               }}
                               className="flex flex-row items-center gap-2"
                             >
-                              {item.mints} mins
+                              {item.mints} mins | {item.calls} calls*
                               {item.status && (
                                 <div
                                   className="flex px-2 py-1 bg-purple rounded-full text-white"
@@ -851,7 +862,22 @@ const ProfileNav = () => {
                         backgroundColor: togglePlan ? "" : "#00000020",
                         color: togglePlan ? "" : "#000000",
                       }}
-                      onClick={handleSubscribePlan}
+                      onClick={() => {
+                        let localDetails = null;
+                        const localData = localStorage.getItem(
+                          PersistanceKeys.LocalStorageUser
+                        );
+                        if (localData) {
+                          const LocalDetails = JSON.parse(localData);
+                          localDetails = LocalDetails;
+                          // AuthToken = LocalDetails.token;
+                        }
+                        if (localDetails.user.cards.length == 0) {
+                          setAddPaymentPopup(true);
+                        } else {
+                          handleSubscribePlan();
+                        }
+                      }}
                     >
                       Subscribe Plan
                     </button>
@@ -891,8 +917,11 @@ const ProfileNav = () => {
             },
           }}
         >
-          <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
-            <div className="flex flex-row justify-center w-full">
+          <Box
+            className="flex lg:w-8/12 sm:w-full w-full justify-center items-center"
+            sx={styles.paymentModal}
+          >
+            <div className="flex flex-row justify-center w-full ">
               <div
                 className="sm:w-7/12 w-full"
                 style={{
@@ -925,7 +954,7 @@ const ProfileNav = () => {
                     // stop={stop}
                     // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                     handleClose={handleClose}
-                    togglePlan={""}
+                    togglePlan={togglePlan}
                     // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>

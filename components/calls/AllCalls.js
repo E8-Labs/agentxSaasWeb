@@ -654,7 +654,7 @@ function AllCalls() {
               height: "100svh",
             }}
           >
-            <div className="w-full flex flex-col items-center justify-between h-[60vh] bg-white p-4 rounded-md overflow-auto md:overflow-hidden ">
+            <div className="w-full flex flex-col items-center justify-between h-[60vh] bg-white p-4 rounded-md overflow-auto  ">
               <div className="mt-2 w-full">
                 <div className="flex flex-row items-center justify-between w-full">
                   <div>Filter</div>
