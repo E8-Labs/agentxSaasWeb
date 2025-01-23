@@ -428,6 +428,7 @@ const ProfileNav = () => {
           setSuccessSnack(response.data.message);
           setShowSuccessSnack(true);
           setShowPlansPopup(false);
+          getProfile();
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
           setShowErrorSnack(true);
@@ -445,6 +446,7 @@ const ProfileNav = () => {
     if (data.status === true) {
       let newCard = data.data;
       setAddPaymentPopup(false);
+      getProfile();
       // setCards([newCard, ...cards]);
     }
   };
