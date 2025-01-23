@@ -1499,7 +1499,7 @@ const Pipeline1 = () => {
         let firstName = lead.lead.firstName.toLowerCase();
         let lastName = lead.lead.lastName.toLowerCase();
         let fullName = (firstName || "") + " " + (lastName || "");
-        let email = lead?.lead?.email?.toLowerCase();
+        let email = lead?.lead?.email?.toLowerCase() || "";
         let phone = lead?.lead?.phone;
         return (
           firstName.includes(search) ||

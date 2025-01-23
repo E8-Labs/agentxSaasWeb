@@ -156,7 +156,7 @@ const UserService = ({ handleContinue, handleBack }) => {
           {/* Body */}
           <div className="flex flex-col items-center px-4 w-full h-[90%]">
             <div
-              className="mt-6 w-full md:w-11/12 md:text-4xl text-lg font-[600]"
+              className="mt-6  w-10/12 sm:w-full md:w-11/12 md:text-4xl text-lg font-[650] sm:font-[600]"
               style={{ textAlign: "center" }}
             >
               What would you like AgentX to help you with?

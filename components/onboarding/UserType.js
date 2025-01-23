@@ -86,7 +86,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
       title: "Real Estate Agent",
       agentType: "Real Estate Agent",
       icon: "/usertype/avt1.png",
-      areaOfFocusTitle: "What area of real state do you focus on?",
+      areaOfFocusTitle: "What area of real estate do you focus on?",
       userType: "RealEstateAgent",
     },
     {
@@ -209,7 +209,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
             >
               {userType.map((item, index) => (
                 <div key={item.id} className="flex w-6/12 md:w-4/12 p-2">
-                  <button
+                  <div
                     className="w-full rounded-lg p-2 md:hover:border-2 md:hover:border-[#7902DF] border border-[#00000010] transition-all duration-400 ease-in-out transform active:scale-90"
                     onClick={(e) => {
                       handleUserType(item);
@@ -217,8 +217,8 @@ const UserType = ({ handleContinue, DefaultData }) => {
                     style={{
                       border:
                         item.id === SelectUserType ? "2px solid #7902DF" : "",
-                      transform: "scale(0.9)",
-                      transition: "0.4s ease",
+                      // transform: "scale(0.99)",
+                      // transition: "0.4s ease",
                     }}
                   >
                     <div
@@ -245,7 +245,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
                     >
                       {item.agentType}
                     </div>
-                  </button>
+                  </div>
                 </div>
               ))}
             </div>
