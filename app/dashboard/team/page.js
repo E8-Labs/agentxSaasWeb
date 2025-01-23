@@ -98,6 +98,10 @@ function Page() {
     },
   ];
 
+  useEffect(()=>{
+
+  })
+
   useEffect(() => {
     let loc = getLocalLocation();
     setCountryCode(loc);
@@ -403,7 +407,6 @@ function Page() {
     return true;
   }
   function canShowResendOption(team) {
-    let user = localStorage.getItem(PersistanceKeys.LocalStorageUser);
     if (user) {
       user = JSON.parse(user);
       user = user.user;
@@ -422,16 +425,39 @@ function Page() {
     }
     return true;
   }
+  // function canShowInviteButton() {
+  //   console.log("PersistanceKeys.LocalStorageUser", PersistanceKeys.LocalStorageUser)
+  //   if (typeof window !== "undefined") {
+  //     let user = localStorage.getItem("User")
+  //     if (user) {
+  //       user = JSON.parse(user);
+  //       console.log('user.userRole', user.userRole)
+  //       if (user.userRole == "AgentX") {
+  //         return true;
+  //       }
+  //       return false;
+  //     }else{
+  //       console.log('user is null')
+  //     }
+  //   }
+  // }
+
+
   function canShowInviteButton() {
+    console.log("In show invite button");
+    if(typeof localStorage != 'undefined'){
     let user = localStorage.getItem(PersistanceKeys.LocalStorageUser);
     if (user) {
       user = JSON.parse(user);
+      user = user.user;
     }
+    console.log("User is ", user.id);
     if (user.userRole == "AgentX") {
       return true;
     }
     return false;
   }
+}
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -462,7 +488,7 @@ function Page() {
           </div>
         ) : (
           <div className="w-11/12 flex flex-col items-start">
-            {myTeam.length > 0 && canShowInviteButton() && (
+            {canShowInviteButton() && (
               <div className="w-full flex flex-row items-center justify-end">
                 <button
                   className="rounded-lg text-white bg-purple mt-8"
@@ -511,11 +537,10 @@ function Page() {
                             {item.email}
                           </div>
                           <div
-                            className={`text-sm font-medium ${
-                              item.status === "Pending"
-                                ? "text-red-500"
-                                : "text-green-500"
-                            }`}
+                            className={`text-sm font-medium ${item.status === "Pending"
+                              ? "text-red-500"
+                              : "text-green-500"
+                              }`}
                           >
                             {item.status}
                           </div>
@@ -681,6 +706,37 @@ function Page() {
               <div className="pt-5" style={styles.headingStyle}>
                 Email Address
               </div>
+              <div className="text-end">
+                {emailLoader ? (
+                  <p style={{ ...styles.errmsg, color: "black" }}>
+                    Checking ...
+                  </p>
+                ) : (
+                  <div>
+                    {emailCheckResponse ? (
+                      <p
+                        style={{
+                          ...styles.errmsg,
+                          color:
+                            emailCheckResponse?.status === true
+                              ? "green"
+                              : "red",
+                        }}
+                      >
+                        {emailCheckResponse?.message
+                          ?.slice(0, 1)
+                          .toUpperCase() +
+                          emailCheckResponse?.message?.slice(1)}
+                      </p>
+                    ) : (
+                      <div />
+                    )}
+                  </div>
+                )}
+                <div style={{ ...styles.errmsg, color: "red" }}>
+                  {validEmail}
+                </div>
+              </div>
               <input
                 placeholder="Type here"
                 className="w-full border rounded p-2 focus:ring-0 outline-none"
@@ -720,42 +776,38 @@ function Page() {
                   }
                 }}
               />
-              <div className="text-end">
-                {emailLoader ? (
-                  <p style={{ ...styles.errmsg, color: "black" }}>
-                    Checking ...
-                  </p>
-                ) : (
-                  <div>
-                    {emailCheckResponse ? (
-                      <p
-                        style={{
-                          ...styles.errmsg,
-                          color:
-                            emailCheckResponse?.status === true
-                              ? "green"
-                              : "red",
-                        }}
-                      >
-                        {emailCheckResponse?.message
-                          ?.slice(0, 1)
-                          .toUpperCase() +
-                          emailCheckResponse?.message?.slice(1)}
-                      </p>
-                    ) : (
-                      <div />
-                    )}
-                  </div>
-                )}
-                <div style={{ ...styles.errmsg, color: "red" }}>
-                  {validEmail}
-                </div>
-              </div>
+
 
               <div className="pt-5" style={styles.headingStyle}>
                 Phone Number
               </div>
-
+              {/* Code for error messages */}
+              <div className="w-full mt-2">
+                <div>
+                  {errorMessage && (
+                    <div
+                      className={`text-end text-red`}
+                      style={{
+                        ...styles.errmsg,
+                        color:
+                          checkPhoneResponse?.status === true ? "green" : "red",
+                      }}
+                    >
+                      {errorMessage}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  {checkPhoneLoader && (
+                    <div
+                      className={`text-end text-red`}
+                      style={{ ...styles.errmsg }}
+                    >
+                      {checkPhoneLoader}
+                    </div>
+                  )}
+                </div>
+              </div>
               <div className="flex flex-row items-center justify-center gap-2 w-full mt-3">
                 <div className="flex flex-row items-center gap-2 border rounded-lg w-full justify-between pe-4">
                   <div className="w-full">
@@ -795,39 +847,13 @@ function Page() {
                         overflowY: "auto",
                       }}
                       countryCodeEditable={true}
-                      // defaultMask={locationLoader ? "Loading..." : undefined}
+                    // defaultMask={locationLoader ? "Loading..." : undefined}
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Code for error messages */}
-              <div className="w-full mt-2">
-                <div>
-                  {errorMessage && (
-                    <div
-                      className={`text-end text-red`}
-                      style={{
-                        ...styles.errmsg,
-                        color:
-                          checkPhoneResponse?.status === true ? "green" : "red",
-                      }}
-                    >
-                      {errorMessage}
-                    </div>
-                  )}
-                </div>
-                <div>
-                  {checkPhoneLoader && (
-                    <div
-                      className={`text-end text-red`}
-                      style={{ ...styles.errmsg }}
-                    >
-                      {checkPhoneLoader}
-                    </div>
-                  )}
-                </div>
-              </div>
+
 
               {inviteTeamLoader ? (
                 <div className="flex flex-col items-center p-5">
@@ -839,10 +865,10 @@ function Page() {
                     marginTop: 20,
                     backgroundColor:
                       !name ||
-                      !email ||
-                      !phone ||
-                      emailCheckResponse?.status !== true ||
-                      checkPhoneResponse?.status !== true
+                        !email ||
+                        !phone ||
+                        emailCheckResponse?.status !== true ||
+                        checkPhoneResponse?.status !== true
                         ? "#00000020"
                         : "",
                   }}
@@ -869,10 +895,10 @@ function Page() {
                       fontWeight: "500",
                       color:
                         !name ||
-                        !email ||
-                        !phone ||
-                        emailCheckResponse?.status !== true ||
-                        checkPhoneResponse?.status !== true
+                          !email ||
+                          !phone ||
+                          emailCheckResponse?.status !== true ||
+                          checkPhoneResponse?.status !== true
                           ? "#000000"
                           : "#ffffff",
                     }}

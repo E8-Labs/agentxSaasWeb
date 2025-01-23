@@ -277,11 +277,12 @@ const ProfileNav = () => {
 
       if (response) {
         if (
-          Data?.totalSecondsAvailable <= 120 ||
+          // Data?.totalSecondsAvailable <= 120 ||
           Data?.plan == null ||
           (Data?.plan &&
-            Data?.plan?.status !== "active" &&
-            Data?.totalSecondsAvailable <= 120)
+            Data?.plan?.status !== "active"// &&
+            // Data?.totalSecondsAvailable <= 120
+          )
         ) {
           setShowPlansPopup(true);
         } else {
@@ -424,7 +425,7 @@ const ProfileNav = () => {
           localDetails.user.plan = response.data.data;
           console.log("Data updated is", localDetails);
           await getProfileDetails();
-          // localStorage.setItem("User", JSON.stringify(localDetails));
+          localStorage.setItem("User", JSON.stringify(localDetails));
           setSuccessSnack(response.data.message);
           setShowSuccessSnack(true);
           setShowPlansPopup(false);
