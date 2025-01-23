@@ -928,7 +928,7 @@ const CreatAgent3 = ({ handleContinue }) => {
 
                 <button
                   className="bg-purple text-white w-full rounded-xl mt-6 mb-6"
-                  style={{ ...styles.headingStyle, height: "50px" }}
+                  style={{ fontSize: 16,fontWeight: "700", height: "50px" }}
                   onClick={() => {
                     const screenWidth = window.innerWidth; // Get current screen width
                     const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px

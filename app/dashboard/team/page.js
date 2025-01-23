@@ -501,7 +501,7 @@ function Page() {
                   }}
                   onClick={() => setOpenInvitePopup(true)}
                 >
-                  + Invite new
+                  + Invite Team
                 </button>
               </div>
             )}
@@ -621,7 +621,7 @@ function Page() {
                     }}
                     onClick={() => setOpenInvitePopup(true)}
                   >
-                    + Invite new
+                    + Invite Team
                   </button>
                 </div>
               </div>
@@ -687,7 +687,7 @@ function Page() {
                   marginTop: 20,
                 }}
               >
-                Invite New Team Member
+                Invite Team
               </div>
 
               <div className="pt-5" style={styles.headingStyle}>

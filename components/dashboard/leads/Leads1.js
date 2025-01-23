@@ -96,6 +96,17 @@ const Leads1 = () => {
         "firstname",
         "name",
         "username",
+        "user name",
+        "given name",
+        "person name",
+        "employee name",
+        "contact",
+        "contact name",
+        "customer",
+        "prospect",
+        "prospect name",
+        "suspect",
+        "suspect name",
         "customer name",
       ],
       ColumnNameInSheet: "",
@@ -103,7 +114,7 @@ const Leads1 = () => {
     },
     lastName: {
       UserFacingName: "Last Name",
-      mappings: ["last name", "lastname", "name"],
+      mappings: ["last name", "lastname", "name", "surname", "family name"],
       ColumnNameInSheet: "",
       dbName: "lastName",
     },
@@ -115,7 +126,7 @@ const Leads1 = () => {
     // },
     email: {
       UserFacingName: "Email",
-      mappings: ["email", "email address", "mail"],
+      mappings: ["email", "email address", "mail", "gmail"],
       ColumnNameInSheet: "",
       dbName: "email",
     },
@@ -123,10 +134,22 @@ const Leads1 = () => {
       UserFacingName: "Phone Number",
       mappings: [
         "cell no",
+        "cell",
         "phone no",
         "phone",
         "phone number",
+        "number",
+        "contact",
         "contact number",
+        "mobile",
+        "mobile number",
+        "home phone",
+        "work phone",
+        "office phone",
+        "user phone",
+        "employee phone",
+        "telephone",
+        "telephone number",
       ],
       ColumnNameInSheet: "",
       dbName: "phone",
@@ -146,6 +169,17 @@ const Leads1 = () => {
         "firstname",
         "name",
         "username",
+        "user name",
+        "given name",
+        "person name",
+        "employee name",
+        "contact",
+        "contact name",
+        "customer",
+        "prospect",
+        "prospect name",
+        "suspect",
+        "suspect name",
         "customer name",
       ],
       ColumnNameInSheet: "",
@@ -153,7 +187,7 @@ const Leads1 = () => {
     },
     {
       UserFacingName: "Last Name",
-      mappings: ["last name", "lastname"],
+      mappings: ["last name", "lastname", "surname", "family name"],
       ColumnNameInSheet: "",
       dbName: "lastName",
     },
@@ -173,10 +207,22 @@ const Leads1 = () => {
       UserFacingName: "Phone Number",
       mappings: [
         "cell no",
+        "cell",
         "phone no",
         "phone",
         "phone number",
+        "number",
+        "contact",
         "contact number",
+        "mobile",
+        "mobile number",
+        "home phone",
+        "work phone",
+        "office phone",
+        "user phone",
+        "employee phone",
+        "telephone",
+        "telephone number",
       ],
       ColumnNameInSheet: "",
       dbName: "phone",
@@ -228,8 +274,9 @@ const Leads1 = () => {
       // console.log(`Matching with `, key);
       let includes = columnsMatched.includes(key);
       // console.log(`Columns matched include ${key}`, isAlreadyMatched);
+      //lowerCaseName.includes(alias)
       if (
-        mappings[key].mappings.some((alias) => lowerCaseName.includes(alias)) &&
+        mappings[key].mappings.some((alias) => lowerCaseName == alias) &&
         !isAlreadyMatched
       ) {
         // matched. Check if the column name
@@ -554,7 +601,7 @@ const Leads1 = () => {
         let matched = [];
         headers.forEach((header) => {
           const matchedColumn = matchColumn(header, defaultColumns, allColumns);
-          //console.log(`Matched Col For Header ${header}`, matchedColumn);
+          console.log(`Matched Col For Header ${header}`, matchedColumn);
           if (matchedColumn) {
             if (!matched.includes(matchedColumn)) {
               let col = defaultColumns[matchedColumn];

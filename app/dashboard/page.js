@@ -730,7 +730,7 @@ const Page = () => {
                           marginTop: "1vh",
                         }}
                       >
-                        {`Get up and running the right way. We’ll work alongside to set up and integrate your CRM, ensuring everything is optimized for success from the start. See results faster and start closing more deals with confidence—all at affordable rates to meet you where you are.`}
+                        {`Get up and running the right way. We'll work alongside to set up and integrate your CRM, ensuring everything is optimized for success from the start. See results faster and start closing more deals.`}
                       </div>
                     </div>
                   </div>

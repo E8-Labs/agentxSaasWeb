@@ -49,7 +49,7 @@ const IntroVideoModal = ({ open, onClose, videoTitle, videoUrl }) => {
 
           {/* Title */}
           <div
-            className="text-center sm:font-24 font-16"
+            className="text-center sm:font-28 font-20"
             style={{ fontWeight: "700" }}
           >
             {videoTitle || "Learn more about assigning leads"}

@@ -642,7 +642,7 @@ const Pipeline1 = ({ handleContinue }) => {
               Pipeline and Stages
             </div>
             <div
-              className="mt-8 w-6/12 gap-4 flex flex-col h-[56vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+              className="mt-4 w-6/12 gap-4 flex flex-col h-[56vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
               style={{ scrollbarWidth: "none" }}
             >
               {pipelinesDetails.length > 1 && (
@@ -696,78 +696,8 @@ const Pipeline1 = ({ handleContinue }) => {
                 Assign this agent to a stage
               </div>
 
-              {/* intro video modal */}
-              <Modal
-                open={introVideoModal}
-                onClose={() => setIntroVideoModal(false)}
-                closeAfterTransition
-                BackdropProps={{
-                  timeout: 1000,
-                  sx: {
-                    backgroundColor: "#00000020",
-                    // //backdropFilter: "blur(20px)",
-                  },
-                }}
-              >
-                <Box
-                  className="lg:w-7/12 sm:w-full w-8/12"
-                  sx={styles.AddNewKYCQuestionModal}
-                >
-                  <div className="flex flex-row justify-center w-full">
-                    <div
-                      className="sm:w-7/12 w-full"
-                      style={{
-                        backgroundColor: "#ffffff",
-                        padding: 20,
-                        borderRadius: "13px",
-                      }}
-                    >
-                      <div className="flex flex-row justify-end">
-                        <button
-                          onClick={() => {
-                            setIntroVideoModal(false);
-                          }}
-                        >
-                          <Image
-                            src={"/assets/crossIcon.png"}
-                            height={40}
-                            width={40}
-                            alt="*"
-                          />
-                        </button>
-                      </div>
-
-                      <div
-                        className="text-center sm:font-24 font-16"
-                        style={{ fontWeight: "700" }}
-                      >
-                        Learn more about assigning agents
-                      </div>
-
-                      <div className="mt-6">
-                        <iframe
-                          src="https://www.youtube.com/embed/Dy9DM5u_GVg?autoplay=1&mute=1" //?autoplay=1&mute=1 to make it autoplay
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                          title="YouTube video"
-                          // className='w-20vh h-40vh'
-                          style={{
-                            width: "100%",
-                            height: "50vh",
-                            borderRadius: 15,
-                          }}
-                        />
-                      </div>
-
-                      {/* Can be use full to add shadow */}
-                      {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-                    </div>
-                  </div>
-                </Box>
-              </Modal>
-
-              <div className="mt-4" style={styles.inputStyle}>
+             
+              <div className="mt-2" style={styles.inputStyle}>
                 {`This agent will call leads when they're added to the selected stage.`}
               </div>
 
