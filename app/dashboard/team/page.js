@@ -392,14 +392,15 @@ function Page() {
       user = JSON.parse(user);
       user = user.user;
     }
-    console.log("Current user role ", user.userRole);
+    console.log("Current user role ", user);
+    console.log('team member is', team)
     if (user.userRole == "Invitee") {
       if (team.invitedUser.id == user.id) {
         return true; // show menu at own profile
       }
       return false;
     } else if (user.userRole == "AgentX") {
-      if (team.invitedUser.id == user.id) {
+      if (team.invitedUser?.id == user.id) {
         return false; // don't show menu at own profile for admin
       }
       return true;

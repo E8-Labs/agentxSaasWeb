@@ -73,7 +73,7 @@ const voicesList = [
     name: "Neo",
     preview: "/voicesList/Neo.MP3",
     workspace: "1711297163700x954223200313016300",
-    img: "/voicesIcons/Neo.svg",
+    img: "/voicesIcons/neo.svg",
     status: "Popular",
     Dialect: "Calm, Focused, Mid 20s | Chicagoan",
   },
