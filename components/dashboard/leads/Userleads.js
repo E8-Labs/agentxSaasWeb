@@ -2625,7 +2625,10 @@ const Userleads = ({
           className="overflow-scroll"
           style={{
             backgroundColor: "",
-            height: window.innerHeight * 0.95,
+            height:
+              typeof window !== "undefined"
+                ? window.innerHeight * 0.95
+                : 1000 * 0.95,
             width: "100%",
           }}
         >

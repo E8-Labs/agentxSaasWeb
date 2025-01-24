@@ -47,10 +47,12 @@ const Page = () => {
   const open = Boolean(anchorEl);
 
   useEffect(() => {
-    let screnW = window.innerWidth;
-    let screnH = window.innerHeight;
-    setScreenWidth(screnW);
-    setScreenHeight(screnH);
+    if (typeof window !== "undefined") {
+      let screnW = window.innerWidth;
+      let screnH = window.innerHeight;
+      setScreenWidth(screnW);
+      setScreenHeight(screnH);
+    }
   }, []);
 
   useEffect(() => {
@@ -640,7 +642,9 @@ const Page = () => {
                         setAIWebinarhover(false);
                       }}
                       onClick={() => {
-                        window.open("https://web.whatsapp.com/", "_blank");
+                        if (typeof window !== "undefined") {
+                          window.open("https://web.whatsapp.com/", "_blank");
+                        }
                       }}
                     >
                       <div className="flex flex-row gap-2">
@@ -691,7 +695,9 @@ const Page = () => {
                       }}
                       onClick={() => {
                         let url = PersistanceKeys.GlobalConsultationUrl;
-                        window.open(url, "_blank");
+                        if (typeof window !== "undefined") {
+                          window.open(url, "_blank");
+                        }
                       }}
                       style={{
                         cursor: "pointer",

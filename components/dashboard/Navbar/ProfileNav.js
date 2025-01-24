@@ -15,7 +15,11 @@ import {
 import getProfileDetails from "@/components/apis/GetProfile";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
-import { initFacebookPixel } from "@/utilities/facebookPixel";
+// const FacebookPixel = dynamic(() => import("../utils/facebookPixel.js"), {
+//   ssr: false,
+// });
+
+// import { initFacebookPixel } from "@/utilities/facebookPixel";
 
 import AgentSelectSnackMessage, {
   SnackbarTypes,
@@ -54,8 +58,8 @@ const ProfileNav = () => {
 
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
   useEffect(() => {
-    let pixed_id = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
-    initFacebookPixel(pixed_id);
+    let pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
+    // FacebookPixel.initFacebookPixel(pixelId); //initFacebookPixel(pixed_id);
   });
   useEffect(() => {
     const testNot = async () => {
@@ -135,7 +139,10 @@ const ProfileNav = () => {
 
   //useeffect that redirect the user back to the main screen for mobile view
   useEffect(() => {
-    let windowWidth = window.innerWidth;
+    let windowWidth = 1000;
+    if (typeof window !== "undefined") {
+      windowWidth = window.innerWidth;
+    }
     if (windowWidth < 640) {
       router.push("/createagent/desktop");
     } else {

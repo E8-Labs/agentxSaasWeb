@@ -13,13 +13,17 @@ function Support() {
     if (userData) {
       const D = JSON.parse(userData);
       let url = getSupportUrlFor(D.user);
-      window.open(url, "_blank");
+      if (typeof window !== "undefined") {
+        window.open(url, "_blank");
+      }
     }
   };
 
   const getConsultation = () => {
     let url = PersistanceKeys.GlobalConsultationUrl;
-    window.open(url, "_blank");
+    if (typeof window !== "undefined") {
+      window.open(url, "_blank");
+    }
   };
   return (
     <div
@@ -141,7 +145,9 @@ function Support() {
             color: hoverConsultation ? "#fff" : "",
           }}
         >
-          {"Get up and running the right way. We'll work alongside to set up and integrate your CRM, ensuring everything is optimized for success from the start. See results faster and start closing more deals."}
+          {
+            "Get up and running the right way. We'll work alongside to set up and integrate your CRM, ensuring everything is optimized for success from the start. See results faster and start closing more deals."
+          }
         </div>
       </div>
     </div>

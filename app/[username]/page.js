@@ -54,7 +54,7 @@ const Page = ({ length = 6, onComplete }) => {
   useEffect(() => {
     if (params && params.username) {
       console.log("Username is ", params.username);
-      if (typeof window != "undefined") {
+      if (typeof window !== "undefined") {
         localStorage.setItem(
           PersistanceKeys.LocalStorageCampaignee,
           params.username
@@ -92,8 +92,10 @@ const Page = ({ length = 6, onComplete }) => {
 
   //action detects inner width
   useEffect(() => {
-    console.log("Window inner width is", window.innerWidth);
-    setInnerWidth(window.innerWidth);
+    if (typeof window !== "undefined") {
+      console.log("Window inner width is", window.innerWidth);
+      setInnerWidth(window.innerWidth);
+    }
   }, [InnerWidth]);
 
   const handlePhoneNumberChange = (phone) => {
@@ -225,7 +227,10 @@ const Page = ({ length = 6, onComplete }) => {
               console.log("Here Not undefined");
 
               setCookie(response.data.data.user, document);
-              let w = window.innerWidth;
+              let w = 1000;
+              if (typeof window !== "undefined") {
+                window.innerWidth;
+              }
               if (w < 540) {
                 console.log("It is mobile view");
                 router.push("/createagent/desktop");
@@ -610,10 +615,12 @@ const Page = ({ length = 6, onComplete }) => {
             <button
               className="flex-shrink-0 outline-none"
               onClick={() => {
-                window.open(
-                  "https://www.myagentx.com/terms-and-condition",
-                  "_blank"
-                );
+                if (typeof window !== "undefined") {
+                  window.open(
+                    "https://www.myagentx.com/terms-and-condition",
+                    "_blank"
+                  );
+                }
               }}
             >
               | Terms & Conditions
@@ -621,10 +628,12 @@ const Page = ({ length = 6, onComplete }) => {
             <button
               className="flex-shrink-0 outline-none"
               onClick={() => {
-                window.open(
-                  "https://www.myagentx.com/terms-and-condition",
-                  "_blank"
-                );
+                if (typeof window !== "undefined") {
+                  window.open(
+                    "https://www.myagentx.com/terms-and-condition",
+                    "_blank"
+                  );
+                }
               }}
             >
               | Privacy Policy
@@ -650,10 +659,12 @@ const Page = ({ length = 6, onComplete }) => {
               <button
                 className="flex-shrink-0 outline-none"
                 onClick={() => {
-                  window.open(
-                    "https://www.myagentx.com/terms-and-condition",
-                    "_blank"
-                  );
+                  if (typeof window !== "undefined") {
+                    window.open(
+                      "https://www.myagentx.com/terms-and-condition",
+                      "_blank"
+                    );
+                  }
                 }}
               >
                 | Privacy Policy

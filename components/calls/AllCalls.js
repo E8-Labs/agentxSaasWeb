@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import moment from "moment";
@@ -917,7 +918,7 @@ function AllCalls() {
                     // setSelectedToDate(null);
                     // setSelectedStage(null);
                     // getLeads()
-                    if (typeof window != "undefined") {
+                    if (typeof window !== "undefined") {
                       window.location.reload();
                     }
                   }}

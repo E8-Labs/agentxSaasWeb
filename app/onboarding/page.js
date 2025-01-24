@@ -23,7 +23,7 @@ const Page = ({ params }) => {
   const router = useRouter();
   const [index, setIndex] = useState(0);
   let windowSize = 1000;
-  if (typeof window != "undefined") {
+  if (typeof window !== "undefined") {
     windowSize = window.innerWidth;
     console.log("Window with ", windowSize);
   } else {
@@ -62,7 +62,10 @@ const Page = ({ params }) => {
   };
 
   useEffect(() => {
-    let screenWidth = window.innerWidth;
+    let screenWidth = 1000;
+    if (typeof window !== "undefined") {
+      screenWidth = window.innerWidth;
+    }
     if (screenWidth < 640) {
       setComponents([
         UserType,

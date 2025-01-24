@@ -68,7 +68,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   useEffect(() => {
     if (params && params.username) {
       console.log("Username is ", params.username);
-      if (typeof window != "undefined") {
+      if (typeof window !== "undefined") {
         localStorage.setItem(
           PersistanceKeys.LocalStorageCampaignee,
           params.username
@@ -184,7 +184,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
 
   //action detects inner width
   useEffect(() => {
-    if (typeof window != "undefined") {
+    if (typeof window !== "undefined") {
       console.log("Window inner width is", window.innerWidth);
       setInnerWidth(window.innerWidth);
     }
@@ -685,7 +685,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           <button
             className="flex-shrink-0 outline-none"
             onClick={() => {
-              if (typeof window != "undefined") {
+              if (typeof window !== "undefined") {
                 window.open(
                   "https://www.myagentx.com/terms-and-condition",
                   "_blank"
@@ -698,7 +698,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           <button
             className="flex-shrink-0 outline-none"
             onClick={() => {
-              if (typeof window != "undefined") {
+              if (typeof window !== "undefined") {
                 window.open(
                   "https://www.myagentx.com/terms-and-condition",
                   "_blank"
@@ -718,7 +718,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             <button
               className="flex-shrink-0 outline-none"
               onClick={() => {
-                if (typeof window != "undefined") {
+                if (typeof window !== "undefined") {
                   window.open(
                     "https://www.myagentx.com/terms-and-condition",
                     "_blank"
@@ -731,7 +731,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             <button
               className="flex-shrink-0 outline-none"
               onClick={() => {
-                if (typeof window != "undefined") {
+                if (typeof window !== "undefined") {
                   window.open(
                     "https://www.myagentx.com/terms-and-condition",
                     "_blank"

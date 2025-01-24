@@ -138,7 +138,10 @@ const CreatAgent3 = ({ handleContinue }) => {
         console.log("Response of subscribe plan api is", response);
         if (response.data.status === true) {
           // handleClose();
-          const screenWidth = window.innerWidth; // Get current screen width
+          const screenWidth = 1000;
+          if (typeof window !== "undefined") {
+            screenWidth = window.innerWidth; // Get current screen width
+          }
           const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
 
           if (screenWidth <= SM_SCREEN_SIZE) {
@@ -635,7 +638,12 @@ const CreatAgent3 = ({ handleContinue }) => {
                     backgroundColor: "#330864",
                   }}
                   onClick={() => {
-                    window.open(PersistanceKeys.ExternalCalendarLink, "_blank");
+                    if (typeof window !== "undefined") {
+                      window.open(
+                        PersistanceKeys.ExternalCalendarLink,
+                        "_blank"
+                      );
+                    }
                   }}
                 >
                   <Image
@@ -928,9 +936,12 @@ const CreatAgent3 = ({ handleContinue }) => {
 
                 <button
                   className="bg-purple text-white w-full rounded-xl mt-6 mb-6"
-                  style={{ fontSize: 16,fontWeight: "700", height: "50px" }}
+                  style={{ fontSize: 16, fontWeight: "700", height: "50px" }}
                   onClick={() => {
-                    const screenWidth = window.innerWidth; // Get current screen width
+                    const screenWidth = 1000;
+                    if (typeof window !== "undefined") {
+                      screenWidth = window.innerWidth; // Get current screen width
+                    }
                     const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
 
                     if (screenWidth <= SM_SCREEN_SIZE) {
@@ -1213,7 +1224,10 @@ const CreatAgent3 = ({ handleContinue }) => {
                       color: agreeTerms && togglePlan2 ? "white" : "#000000",
                     }}
                     onClick={() => {
-                      let windowWidth = window.innerWidth;
+                      let windowWidth = 1000;
+                      if (typeof window !== "undefined") {
+                        windowWidth = window.innerWidth;
+                      }
                       if (togglePlan2 === 1) {
                         if (windowWidth < 640) {
                           setSubscribePlanLoader(true);

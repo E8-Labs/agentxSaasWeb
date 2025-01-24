@@ -381,7 +381,10 @@ const FocusArea = ({
 
           <Footer
             handleContinue={() => {
-              let windowWidth = window.innerWidth;
+              let windowWidth = 1000;
+              if (typeof window !== "undefined") {
+                windowWidth = window.innerWidth;
+              }
               if (windowWidth < 640) {
                 const data = localStorage.getItem(
                   PersistanceKeys.RegisterDetails

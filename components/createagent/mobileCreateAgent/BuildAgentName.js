@@ -21,7 +21,10 @@ import { SnackMessageTitles } from "@/components/constants/constants";
 const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
   const addressKey = process.env.NEXT_PUBLIC_AddressPickerApiKey;
 
-  let windowWidth = window.innerWidth;
+  let windowWidth = 1000;
+  if (typeof window !== "undefined") {
+    windowWidth = window.innerWidth;
+  }
   const agentNameInputRef = useRef(null); // Ref for the first input
   const agentRoleInput = useRef(null);
 

@@ -67,7 +67,10 @@ function Billing() {
     useState(false);
 
   useEffect(() => {
-    let screenWidth = window.innerWidth;
+    let screenWidth = 1000;
+    if (typeof window !== "undefined") {
+      screenWidth = window.innerWidth;
+    }
     console.log("Window width is", screenWidth);
     setScreenWidth(screenWidth);
   }, []);

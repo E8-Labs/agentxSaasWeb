@@ -140,7 +140,9 @@ function NotficationsDrawer({ close }) {
     if (userData) {
       const D = JSON.parse(userData);
       let url = getSupportUrlFor(D.user);
-      window.open(url, "_blank");
+      if (typeof window !== "undefined") {
+        window.open(url, "_blank");
+      }
     }
   };
 

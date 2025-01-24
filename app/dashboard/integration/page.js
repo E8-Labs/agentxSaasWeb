@@ -605,15 +605,15 @@ function Page() {
                 </div>
                 <button
                   onClick={() => {
-                    if(integration.title === "GHL"){
-                      setShowCopySnak("Comming soon")
-                      return
+                    if (integration.title === "GHL") {
+                      setShowCopySnak("Comming soon");
+                      return;
                     }
-                    window.open(
-                      integration.url,
-                      "_blank"
-                    );
-                  }} className="w-full bg-purple text-white px-4 py-2 rounded-md text-sm font-medium"
+                    if (typeof window !== "undefined") {
+                      window.open(integration.url, "_blank");
+                    }
+                  }}
+                  className="w-full bg-purple text-white px-4 py-2 rounded-md text-sm font-medium"
                 >
                   Add
                 </button>

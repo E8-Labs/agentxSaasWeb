@@ -30,7 +30,10 @@ const UserType = ({ handleContinue, DefaultData }) => {
   }, [SelectUserType]);
 
   useEffect(() => {
-    let windowHeight = window.innerHeight;
+    let windowHeight = 1000;
+    if (typeof window !== "undefined") {
+      windowHeight = window.innerHeight;
+    }
     setScreenHeight(windowHeight);
     const localData = localStorage.getItem(PersistanceKeys.RegisterDetails);
     if (localData) {

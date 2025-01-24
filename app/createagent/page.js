@@ -56,7 +56,7 @@ const Page = () => {
 
   useEffect(() => {
     let size = null;
-    if (typeof window != "undefined") {
+    if (typeof window !== "undefined") {
       size = window.innerWidth;
       setWindowSize(size);
     } else {
