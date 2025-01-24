@@ -576,8 +576,8 @@ function AllCalls() {
                     </div>
                     <div className="w-1/12">
                       <div style={styles.text2}>
-                        {item?.PipelineStages?.stageTitle
-                          ? item.PipelineStages?.stageTitle
+                        {item?.callStage?.stageTitle
+                          ? item.callStage?.stageTitle
                           : "No Stage"}
                       </div>
                     </div>
