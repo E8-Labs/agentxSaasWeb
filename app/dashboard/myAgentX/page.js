@@ -50,6 +50,7 @@ import ClaimNumber from "@/components/dashboard/myagentX/ClaimNumber";
 import { Constants, HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import LoaderAnimation from "@/components/animations/LoaderAnimation";
+import Link from "next/link";
 
 function Page() {
   const timerRef = useRef();
@@ -2059,7 +2060,7 @@ function Page() {
         )}
 
         {/* code to add new agent */}
-        <a
+        <Link
           className="w-full py-6 flex justify-center items-center"
           href="/createagent"
           style={{
@@ -2082,7 +2083,7 @@ function Page() {
           >
             <Plus weight="bold" size={22} /> Add New Agent
           </div>
-        </a>
+        </Link>
       </div>
 
       {/* Test ai modal */}

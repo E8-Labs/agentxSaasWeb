@@ -15,6 +15,8 @@ import {
 import getProfileDetails from "@/components/apis/GetProfile";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
+import { initFacebookPixel } from "@/utilities/facebookPixel";
+
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../leads/AgentSelectSnackMessage";
@@ -51,7 +53,10 @@ const ProfileNav = () => {
   const [showerrorSnack, setShowErrorSnack] = useState(null);
 
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
-
+  useEffect(() => {
+    let pixed_id = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
+    initFacebookPixel(pixed_id);
+  });
   useEffect(() => {
     const testNot = async () => {
       try {
@@ -279,10 +284,8 @@ const ProfileNav = () => {
         if (
           // Data?.totalSecondsAvailable <= 120 ||
           Data?.plan == null ||
-          (Data?.plan &&
-            Data?.plan?.status !== "active"// &&
-            // Data?.totalSecondsAvailable <= 120
-          )
+          (Data?.plan && Data?.plan?.status !== "active") // &&
+          // Data?.totalSecondsAvailable <= 120
         ) {
           setShowPlansPopup(true);
         } else {

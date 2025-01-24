@@ -917,7 +917,9 @@ function AllCalls() {
                     // setSelectedToDate(null);
                     // setSelectedStage(null);
                     // getLeads()
-                    window.location.reload();
+                    if (typeof window != "undefined") {
+                      window.location.reload();
+                    }
                   }}
                 >
                   Reset
