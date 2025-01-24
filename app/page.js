@@ -9,7 +9,7 @@ import React, { useEffect, useRef, useState } from "react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import LoaderAnimation from "@/components/animations/LoaderAnimation";
 import SendVerificationCode from "@/components/onboarding/services/AuthVerification/AuthService";
@@ -24,10 +24,13 @@ import {
   getLocation,
 } from "@/components/onboarding/services/apisServices/ApiService";
 import Link from "next/link";
+// import { useRouter, useSearchParams } from "next/navigation";
 
 const Page = ({ length = 6, onComplete }) => {
   let width = 3760;
   let height = 4684;
+  let searchParams = useSearchParams();
+  const [redirect, setRedirect] = useState(null);
 
   const verifyInputRef = useRef([]);
   const timerRef = useRef();
@@ -56,6 +59,12 @@ const Page = ({ length = 6, onComplete }) => {
   //code for detecting the window inner width
   const [InnerWidth, setInnerWidth] = useState("");
 
+  useEffect(() => {
+    const redirect = searchParams.get("redirect"); // Get the value of 'tab'
+    // let number = Number(tab) || 6;
+    console.log("redirect value is ", redirect);
+    setRedirect(redirect);
+  }, []);
   useEffect(() => {
     if (params && params.username) {
       console.log("Username is ", params.username);
@@ -305,6 +314,8 @@ const Page = ({ length = 6, onComplete }) => {
             }
           } else {
             console.log("Here Else");
+            // let routeTo = ""
+
             localStorage.setItem("User", JSON.stringify(response.data.data));
             //set cokie on locastorage to run middle ware
             if (typeof document !== "undefined") {
@@ -317,7 +328,12 @@ const Page = ({ length = 6, onComplete }) => {
                 router.push("/createagent/desktop");
               } else if (w > 540) {
                 console.log("It is desktop view");
-                router.push("/dashboard/leads");
+
+                if (redirect) {
+                  router.push(redirect);
+                } else {
+                  router.push("/dashboard/leads");
+                }
               }
             } else {
               console.log("Here undefined");

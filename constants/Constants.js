@@ -26,3 +26,7 @@ export const HowtoVideos = {
   Pipeline:
     "https://www.blindcircle.com/agentx/uploads/howtos/2025-01-20_497e2da3-8f32-44f2-b9ee-7231fa31e4cf_howtos_Pipeline",
 };
+
+export const Constants = {
+  GlobalPhoneNumber: "+14062040550",
+};

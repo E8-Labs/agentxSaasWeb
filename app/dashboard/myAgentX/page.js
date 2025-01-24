@@ -47,8 +47,9 @@ import {
 } from "@/utilities/agentUtilities";
 import { getLocalLocation } from "@/components/onboarding/services/apisServices/ApiService";
 import ClaimNumber from "@/components/dashboard/myagentX/ClaimNumber";
-import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
+import { Constants, HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
+import LoaderAnimation from "@/components/animations/LoaderAnimation";
 
 function Page() {
   const timerRef = useRef();
@@ -180,13 +181,11 @@ function Page() {
 
   const [globalLoader, setGlobalLoader] = useState(false);
 
-  const [showVoiceLoader, setShowVoiceLoader] = useState(false)
-  const [showPhoneLoader, setShowPhoneLoader] = useState(false)
+  const [showVoiceLoader, setShowVoiceLoader] = useState(false);
+  const [showPhoneLoader, setShowPhoneLoader] = useState(false);
 
   //all calenders added by user
   const [previousCalenders, setPreviousCalenders] = useState([]);
-
-
 
   //call get numbers list api
   useEffect(() => {
@@ -195,7 +194,7 @@ function Page() {
     }
   }, [showDrawerSelectedAgent]);
 
-  console.log('showDrawerSelectedAgent', showDrawerSelectedAgent)
+  console.log("showDrawerSelectedAgent", showDrawerSelectedAgent);
 
   //code for scroll ofset
   useEffect(() => {
@@ -511,7 +510,6 @@ function Page() {
     setAssignNumber(event.target.value);
   };
 
-
   // const formatPhoneNumber = (rawNumber) => {
   //   if (rawNumber) {
   //     const phoneNumber = parsePhoneNumberFromString(
@@ -569,8 +567,8 @@ function Page() {
   //code for reassigning the number api
   const handleReassignNumber = async (item) => {
     try {
-      //console.log("Phonenumber is:", item.phoneNumber.slice(1));
-      // return
+      console.log("Phonenumber is:", item);
+      // return;
       setReassignLoader(item);
       let AuthToken = null;
       const LocalData = localStorage.getItem("User");
@@ -613,7 +611,8 @@ function Page() {
         console.log("Respose of reassign api is:", response.data.data);
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -948,10 +947,15 @@ function Page() {
   };
 
   const AssignNumber = async (phoneNumber) => {
+    if (showDrawerSelectedAgent.phoneNumber == phoneNumber) {
+      return;
+    }
     try {
       console.log("Updated number is", phoneNumber);
 
-      setGlobalLoader(true);
+      // setGlobalLoader(true);
+      // setAssignLoader(true);
+      setShowPhoneLoader(true);
       let AuthToken = null;
       const LocalData = localStorage.getItem("User");
 
@@ -985,11 +989,14 @@ function Page() {
         },
       });
 
+      // setAssignLoader(false);
+      setShowPhoneLoader(false);
       if (response) {
         console.log("Response of update number api is", response.data);
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -1374,13 +1381,12 @@ function Page() {
     } catch (error) {
       console.error("Error occured is :", error);
     } finally {
-      setShowPhoneLoader(false)
+      setShowPhoneLoader(false);
 
       // setInitialLoder(false)
     }
   }, []);
 
-  
   const handleSelectProfileImg = (index) => {
     fileInputRef.current[index]?.click();
   };
@@ -1438,7 +1444,8 @@ function Page() {
   };
 
   //function to add new agent
-  const handleAddNewAgent = () => {
+  const handleAddNewAgent = (event) => {
+    event.preventDefault();
     const data = {
       status: true,
     };
@@ -1446,7 +1453,6 @@ function Page() {
     router.push("/createagent");
   };
 
- 
   const handlePopoverOpen = (event, item) => {
     // console.log("Hovered index is", item);
     setActionInfoEl(event.currentTarget);
@@ -1503,9 +1509,9 @@ function Page() {
   //console.log("Voices list is", voicesList.slice(0, 10));
 
   const handleChangeVoice = async (event) => {
-    setShowVoiceLoader(true)
+    setShowVoiceLoader(true);
     await updateAgent(event.target.value);
-    setShowVoiceLoader(false)
+    setShowVoiceLoader(false);
     setSelectedVoice(event.target.value);
     const selectedVoice = voicesList.find(
       (voice) => voice.voice_id === event.target.value
@@ -1689,6 +1695,7 @@ function Page() {
           </div>
         </div>
       </Popover>
+      {/* <LoaderAnimation isOpen={reassignLoader || assignLoader} /> */}
       {/* Global snack */}
       {/* Success snack bar */}
       <div>
@@ -2052,8 +2059,9 @@ function Page() {
         )}
 
         {/* code to add new agent */}
-        <button
+        <a
           className="w-full py-6 flex justify-center items-center"
+          href="/createagent"
           style={{
             marginTop: 40,
             border: "1px dashed #7902DF",
@@ -2074,7 +2082,7 @@ function Page() {
           >
             <Plus weight="bold" size={22} /> Add New Agent
           </div>
-        </button>
+        </a>
       </div>
 
       {/* Test ai modal */}
@@ -2219,7 +2227,7 @@ function Page() {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                // defaultMask={loading ? 'Loading...' : undefined}
+                  // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -2250,8 +2258,9 @@ function Page() {
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                        }`}
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
+                        index === scriptKeys?.length - 1 ? "mb-16" : ""
+                      }`}
                       style={{
                         ...styles.inputStyle,
                         border: "1px solid #00000010",
@@ -2451,7 +2460,7 @@ function Page() {
               name="Calls"
               value={
                 showDrawerSelectedAgent?.calls &&
-                  showDrawerSelectedAgent?.calls > 0 ? (
+                showDrawerSelectedAgent?.calls > 0 ? (
                   <div>{showDrawerSelectedAgent?.calls}</div>
                 ) : (
                   "-"
@@ -2465,7 +2474,7 @@ function Page() {
               name="Convos"
               value={
                 showDrawerSelectedAgent?.callsGt10 &&
-                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                showDrawerSelectedAgent?.callsGt10 > 0 ? (
                   <div>{showDrawerSelectedAgent?.callsGt10}</div>
                 ) : (
                   "-"
@@ -2493,7 +2502,7 @@ function Page() {
               name="Mins Talked"
               value={
                 showDrawerSelectedAgent?.totalDuration &&
-                  showDrawerSelectedAgent?.totalDuration > 0 ? (
+                showDrawerSelectedAgent?.totalDuration > 0 ? (
                   // <div>{showDrawer?.totalDuration}</div>
                   <div>
                     {moment(
@@ -2515,10 +2524,11 @@ function Page() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${activeTab === tab
-                  ? "text-purple border-b-2 border-purple"
-                  : "text-black-500"
-                  }`}
+                className={`${
+                  activeTab === tab
+                    ? "text-purple border-b-2 border-purple"
+                    : "text-black-500"
+                }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >
                 {tab}
@@ -2601,98 +2611,113 @@ function Page() {
                       <Image src={"/otherAssets/voiceAvt.png"} height={22} width={22} alt='*' />
                       {showDrawer?.voiceId}
                     </div> */}
-                  <div style={{ width: "150px", display: 'flex', alignItems: 'center', }}>
-                    {
-                      showVoiceLoader ? (
-                        <div style={{ width: "150px", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <CircularProgress size={15} />
-                        </div>
-                      ) : (
-                        <FormControl fullWidth>
-                          <Select
-                            value={SelectedVoice}
-                            onChange={handleChangeVoice}
-                            displayEmpty // Enables placeholder
-                            renderValue={(selected) => {
-                              if (!selected) {
-                                return (
-                                  <div style={{ color: "#aaa" }}>Select Voice</div>
-                                ); // Placeholder style
-                              }
-                              // return selected;
-                              const selectedVoice = voicesList.find(
-                                (voice) => voice.voice_id === selected
-                              );
-                              return selectedVoice ? (
-                                <div
-                                  style={{ display: "flex", alignItems: "center" }}
-                                >
-                                  <Image
-                                    src={selectedVoice.img}
-                                    height={40}
-                                    width={35}
-                                    alt="Selected Voice"
-                                  />
-                                  <div>{selectedVoice.name}</div>
-                                </div>
-                              ) : null;
-                            }}
-                            sx={{
-                              border: "none", // Default border
-                              "&:hover": {
-                                border: "none", // Same border on hover
-                              },
-                              "& .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove the default outline
-                              },
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove outline on focus
-                              },
-                              "&.MuiSelect-select": {
-                                py: 0, // Optional padding adjustments
-                              },
-                            }}
-                            MenuProps={{
-                              PaperProps: {
-                                style: {
-                                  maxHeight: "30vh", // Limit dropdown height
-                                  overflow: "auto", // Enable scrolling in dropdown
-                                  scrollbarWidth: "none",
-                                  // borderRadius: "10px"
-                                },
-                              },
-                            }}
-                          >
-                            {voicesList.map((item, index) => {
-                              const selectedVoiceName = (id) => {
-                                const voiceName = voicesList.find(
-                                  (voice) => voice.voice_id === id
-                                );
-
-                                return voiceName.name;
-                              };
+                  <div
+                    style={{
+                      width: "150px",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    {showVoiceLoader ? (
+                      <div
+                        style={{
+                          width: "150px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <CircularProgress size={15} />
+                      </div>
+                    ) : (
+                      <FormControl fullWidth>
+                        <Select
+                          value={SelectedVoice}
+                          onChange={handleChangeVoice}
+                          displayEmpty // Enables placeholder
+                          renderValue={(selected) => {
+                            if (!selected) {
                               return (
-                                <MenuItem
-                                  value={item?.voice_id}
-                                  key={index}
-                                  disabled={SelectedVoice === item.voice_id}
-                                >
-                                  <Image
-                                    // src={avatarImages[index % avatarImages.length]} // Deterministic selection
-                                    src={item.img} // Deterministic selection
-                                    height={40}
-                                    width={35}
-                                    alt="*"
-                                  />
-                                  <div>{selectedVoiceName(item.voice_id)}</div>
-                                </MenuItem>
+                                <div style={{ color: "#aaa" }}>
+                                  Select Voice
+                                </div>
+                              ); // Placeholder style
+                            }
+                            // return selected;
+                            const selectedVoice = voicesList.find(
+                              (voice) => voice.voice_id === selected
+                            );
+                            return selectedVoice ? (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Image
+                                  src={selectedVoice.img}
+                                  height={40}
+                                  width={35}
+                                  alt="Selected Voice"
+                                />
+                                <div>{selectedVoice.name}</div>
+                              </div>
+                            ) : null;
+                          }}
+                          sx={{
+                            border: "none", // Default border
+                            "&:hover": {
+                              border: "none", // Same border on hover
+                            },
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              border: "none", // Remove the default outline
+                            },
+                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                              border: "none", // Remove outline on focus
+                            },
+                            "&.MuiSelect-select": {
+                              py: 0, // Optional padding adjustments
+                            },
+                          }}
+                          MenuProps={{
+                            PaperProps: {
+                              style: {
+                                maxHeight: "30vh", // Limit dropdown height
+                                overflow: "auto", // Enable scrolling in dropdown
+                                scrollbarWidth: "none",
+                                // borderRadius: "10px"
+                              },
+                            },
+                          }}
+                        >
+                          {voicesList.map((item, index) => {
+                            const selectedVoiceName = (id) => {
+                              const voiceName = voicesList.find(
+                                (voice) => voice.voice_id === id
                               );
-                            })}
-                          </Select>
-                        </FormControl>
-                      )
-                    }
 
+                              return voiceName.name;
+                            };
+                            return (
+                              <MenuItem
+                                value={item?.voice_id}
+                                key={index}
+                                disabled={SelectedVoice === item.voice_id}
+                              >
+                                <Image
+                                  // src={avatarImages[index % avatarImages.length]} // Deterministic selection
+                                  src={item.img} // Deterministic selection
+                                  height={40}
+                                  width={35}
+                                  alt="*"
+                                />
+                                <div>{selectedVoiceName(item.voice_id)}</div>
+                              </MenuItem>
+                            );
+                          })}
+                        </Select>
+                      </FormControl>
+                    )}
                   </div>
                 </div>
               </div>
@@ -2714,152 +2739,168 @@ function Page() {
                       color: "#000",
                     }}
                   >
-                    {
-                      showPhoneLoader ? (
-                        <div style={{ width: "150px", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <CircularProgress size={15} />
-                        </div>
-                      ) : (
-                        <Box className="w-full">
-                          <FormControl className="w-full">
-                            <Select
-                              ref={selectRef}
-                              open={openCalimNumDropDown}
-                              onClose={() => setOpenCalimNumDropDown(false)}
-                              onOpen={() => setOpenCalimNumDropDown(true)}
-                              className="border-none rounded-2xl outline-none p-0 m-0"
-                              displayEmpty
-                              value={assignNumber}
-                              // onChange={handleSelectNumber}
-                              onChange={(e) => {
-                                let value = e.target.value;
-                                setAssignNumber(value);
-                                setOpenCalimNumDropDown(false);
-                               
-                              }}
-                              renderValue={(selected) => {
-                                if (selected === "") {
-                                  return <div>Select Number</div>;
-                                }
-                                return selected;
-                              }}
-                              sx={{
-                                ...styles.dropdownMenu,
-                                backgroundColor: "none",
-                                "& .MuiOutlinedInput-notchedOutline": {
-                                  border: "none",
-                                },
-                                padding: 0,
-                                margin: 0,
-                              }}
-                            >
-                              {previousNumber?.map((item, index) => (
-                                <MenuItem
-                                  key={index}
-                                  style={styles.dropdownMenu}
-                                  value={item.phoneNumber.slice(1)}
-                                  className="flex flex-row items-center gap-2"
-                                  disabled={assignNumber === item.phoneNumber}
-                                >
-                                  <div
-                                    onClick={(e) => {
-                                      if (showReassignBtn && item?.claimedBy) {
-                                        e.stopPropagation();
-                                        setShowConfirmationModal(item);
-                                        console.log("Hit release number api");
-                                        // AssignNumber
-                                      } else {
-                                        console.log("Hit reassign number api");
-                                        console.log(
-                                          "Should call assign number api"
-                                        );
-                                        AssignNumber(item.phoneNumber);
-                                        console.log(
-                                          "Updated number is",
-                                          item.phoneNumber
-                                        );
-                                      }
-                                    }}
-                                    style={{
-                                      width: numberDropDownWidth(
-                                        item?.claimedBy?.name
-                                      ),
-                                    }}
-                                  >
-                                    {item.phoneNumber}
-                                  </div>
-                                  {showReassignBtn && (
-                                    <div
-                                      className="w-full"
-                                      onClick={(e) => {
-                                        console.log(
-                                          "Should open confirmation modal"
-                                        );
-                                        e.stopPropagation();
-                                        setShowConfirmationModal(item);
-                                      }}
-                                    >
-                                      {item.claimedBy && (
-                                        <div className="flex flex-row items-center gap-2">
-                                          {showDrawerSelectedAgent?.name !==
-                                            item.claimedBy.name && (
-                                              <div>
-                                                <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                {reassignLoader === item ? (
-                                                  <CircularProgress size={15} />
-                                                ) : (
-                                                  <button
-                                                    className="text-purple underline"
-                                                    onClick={(e) => {
-                                                      e.stopPropagation();
-                                                      setShowConfirmationModal(item);
-                                                    }}
-                                                  >
-                                                    Reassign
-                                                  </button>
-                                                )}
-                                              </div>
-                                            )}
-                                        </div>
-                                      )}
-                                    </div>
-                                  )}
-                                </MenuItem>
-                              ))}
+                    {showPhoneLoader ? (
+                      <div
+                        style={{
+                          width: "150px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <CircularProgress size={15} />
+                      </div>
+                    ) : (
+                      <Box className="w-full">
+                        <FormControl className="w-full">
+                          <Select
+                            ref={selectRef}
+                            open={openCalimNumDropDown}
+                            onClose={() => setOpenCalimNumDropDown(false)}
+                            onOpen={() => setOpenCalimNumDropDown(true)}
+                            className="border-none rounded-2xl outline-none p-0 m-0"
+                            displayEmpty
+                            value={assignNumber}
+                            // onChange={handleSelectNumber}
+                            onChange={(e) => {
+                              let value = e.target.value;
+                              console.log("Assign number here");
+                              // return;
+                              setAssignNumber(value);
+                              setOpenCalimNumDropDown(false);
+                            }}
+                            renderValue={(selected) => {
+                              if (selected === "") {
+                                return <div>Select Number</div>;
+                              }
+                              return selected;
+                            }}
+                            sx={{
+                              ...styles.dropdownMenu,
+                              backgroundColor: "none",
+                              "& .MuiOutlinedInput-notchedOutline": {
+                                border: "none",
+                              },
+                              padding: 0,
+                              margin: 0,
+                            }}
+                          >
+                            {previousNumber?.map((item, index) => (
                               <MenuItem
+                                key={index}
                                 style={styles.dropdownMenu}
-                                value={showGlobalBtn ? 14062040550 : ""}
-                                disabled={!showGlobalBtn}
-                                onClick={()=>{
-                                  handleReassignNumber(showConfirmationModal)
-                                }}
+                                value={item.phoneNumber.slice(1)}
+                                className="flex flex-row items-center gap-2"
+                                disabled={assignNumber === item.phoneNumber}
                               >
-                                +14062040550
-                                {showGlobalBtn &&
-                                  " (Our global phone number avail to first time users)"}
-                                {showGlobalBtn == false &&
-                                  " (Only for outbound agents. You must Buy a number)"}
-                              </MenuItem>
-                              <div
-                                className="ms-4"
-                                style={{ ...styles.inputStyle, color: "#00000070" }}
-                              >
-                                <i>Get your own unique phone number.</i>{" "}
-                                <button
-                                  className="text-purple underline"
-                                  onClick={() => {
-                                    setShowClaimPopup(true);
+                                <div
+                                  onClick={(e) => {
+                                    if (showReassignBtn && item?.claimedBy) {
+                                      e.stopPropagation();
+                                      setShowConfirmationModal(item);
+                                      console.log("Hit release number api");
+                                      // AssignNumber
+                                    } else {
+                                      console.log("Hit reassign number api");
+                                      console.log(
+                                        "Should call assign number api"
+                                      );
+                                      // return;
+                                      AssignNumber(item.phoneNumber);
+                                      console.log(
+                                        "Updated number is",
+                                        item.phoneNumber
+                                      );
+                                    }
+                                  }}
+                                  style={{
+                                    width: numberDropDownWidth(
+                                      item?.claimedBy?.name
+                                    ),
                                   }}
                                 >
-                                  Claim one
-                                </button>
-                              </div>
-                            </Select>
-                          </FormControl>
-                        </Box>
-                      )
-                    }
-
+                                  {item.phoneNumber}
+                                </div>
+                                {showReassignBtn && (
+                                  <div
+                                    className="w-full"
+                                    onClick={(e) => {
+                                      console.log(
+                                        "Should open confirmation modal"
+                                      );
+                                      e.stopPropagation();
+                                      setShowConfirmationModal(item);
+                                    }}
+                                  >
+                                    {item.claimedBy && (
+                                      <div className="flex flex-row items-center gap-2">
+                                        {showDrawerSelectedAgent?.name !==
+                                          item.claimedBy.name && (
+                                          <div>
+                                            <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                            {reassignLoader === item ? (
+                                              <CircularProgress size={15} />
+                                            ) : (
+                                              <button
+                                                className="text-purple underline"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  setShowConfirmationModal(
+                                                    item
+                                                  );
+                                                }}
+                                              >
+                                                Reassign
+                                              </button>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </MenuItem>
+                            ))}
+                            <MenuItem
+                              style={styles.dropdownMenu}
+                              value={showGlobalBtn ? 14062040550 : ""}
+                              disabled={!showGlobalBtn}
+                              onClick={() => {
+                                console.log(
+                                  "This triggers when user clicks on assigning global number"
+                                );
+                                // return;
+                                AssignNumber(Constants.GlobalPhoneNumber);
+                                // handleReassignNumber(showConfirmationModal);
+                              }}
+                            >
+                              {Constants.GlobalPhoneNumber}
+                              {showGlobalBtn &&
+                                " (Our global phone number avail to first time users)"}
+                              {showGlobalBtn == false &&
+                                " (Only for outbound agents. You must Buy a number)"}
+                            </MenuItem>
+                            <div
+                              className="ms-4"
+                              style={{
+                                ...styles.inputStyle,
+                                color: "#00000070",
+                              }}
+                            >
+                              <i>Get your own unique phone number.</i>{" "}
+                              <button
+                                className="text-purple underline"
+                                onClick={() => {
+                                  setShowClaimPopup(true);
+                                }}
+                              >
+                                Claim one
+                              </button>
+                            </div>
+                          </Select>
+                        </FormControl>
+                      </Box>
+                    )}
                   </div>
                 </div>
                 <div className="flex justify-between">
@@ -3552,7 +3593,6 @@ function Page() {
                       <div className="w-full pb-8">
                         {UpdateAgentLoader ? (
                           <div className="w-full flex flex-row justify-center">
-
                             <CircularProgress size={35} />
                           </div>
                         ) : (

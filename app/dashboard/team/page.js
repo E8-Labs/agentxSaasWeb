@@ -98,9 +98,7 @@ function Page() {
     },
   ];
 
-  useEffect(()=>{
-
-  })
+  useEffect(() => {});
 
   useEffect(() => {
     let loc = getLocalLocation();
@@ -131,18 +129,19 @@ function Page() {
           if (response.data.status === true) {
             console.log("get team api response is", response.data);
             let admin = response.data.admin;
-            let array = [
-              {
-                invitingUser: admin,
-                invitedUser: admin,
-                id: -1,
-                status: "Admin",
-                name: admin.name,
-                email: admin.email,
-                phone: admin.phone,
-              },
-              ...response.data.data,
-            ];
+            let adminMember = {
+              invitingUser: admin,
+              invitedUser: admin,
+              id: -1,
+              status: "Admin",
+              name: admin.name,
+              email: admin.email,
+              phone: admin.phone,
+            };
+            let array = [adminMember, ...response.data.data];
+            if (response.data.data.length == 0) {
+              array = [];
+            }
             setMyTeam(array);
           } else {
             console.log("get team api message is", response.data.message);
@@ -393,7 +392,7 @@ function Page() {
       user = user.user;
     }
     console.log("Current user role ", user);
-    console.log('team member is', team)
+    console.log("team member is", team);
     if (user.userRole == "Invitee") {
       if (team.invitedUser.id == user.id) {
         return true; // show menu at own profile
@@ -443,22 +442,21 @@ function Page() {
   //   }
   // }
 
-
   function canShowInviteButton() {
     console.log("In show invite button");
-    if(typeof localStorage != 'undefined'){
-    let user = localStorage.getItem(PersistanceKeys.LocalStorageUser);
-    if (user) {
-      user = JSON.parse(user);
-      user = user.user;
+    if (typeof localStorage != "undefined") {
+      let user = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+      if (user) {
+        user = JSON.parse(user);
+        user = user.user;
+      }
+      console.log("User is ", user.id);
+      if (user.userRole == "AgentX") {
+        return true;
+      }
+      return false;
     }
-    console.log("User is ", user.id);
-    if (user.userRole == "AgentX") {
-      return true;
-    }
-    return false;
   }
-}
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -538,10 +536,11 @@ function Page() {
                             {item.email}
                           </div>
                           <div
-                            className={`text-sm font-medium ${item.status === "Pending"
-                              ? "text-red-500"
-                              : "text-green-500"
-                              }`}
+                            className={`text-sm font-medium ${
+                              item.status === "Pending"
+                                ? "text-red-500"
+                                : "text-green-500"
+                            }`}
                           >
                             {item.status}
                           </div>
@@ -778,7 +777,6 @@ function Page() {
                 }}
               />
 
-
               <div className="pt-5" style={styles.headingStyle}>
                 Phone Number
               </div>
@@ -848,13 +846,11 @@ function Page() {
                         overflowY: "auto",
                       }}
                       countryCodeEditable={true}
-                    // defaultMask={locationLoader ? "Loading..." : undefined}
+                      // defaultMask={locationLoader ? "Loading..." : undefined}
                     />
                   </div>
                 </div>
               </div>
-
-
 
               {inviteTeamLoader ? (
                 <div className="flex flex-col items-center p-5">
@@ -866,10 +862,10 @@ function Page() {
                     marginTop: 20,
                     backgroundColor:
                       !name ||
-                        !email ||
-                        !phone ||
-                        emailCheckResponse?.status !== true ||
-                        checkPhoneResponse?.status !== true
+                      !email ||
+                      !phone ||
+                      emailCheckResponse?.status !== true ||
+                      checkPhoneResponse?.status !== true
                         ? "#00000020"
                         : "",
                   }}
@@ -896,10 +892,10 @@ function Page() {
                       fontWeight: "500",
                       color:
                         !name ||
-                          !email ||
-                          !phone ||
-                          emailCheckResponse?.status !== true ||
-                          checkPhoneResponse?.status !== true
+                        !email ||
+                        !phone ||
+                        emailCheckResponse?.status !== true ||
+                        checkPhoneResponse?.status !== true
                           ? "#000000"
                           : "#ffffff",
                     }}

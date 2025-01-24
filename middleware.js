@@ -17,7 +17,19 @@ export function middleware(request) {
 
   if (!userCookie) {
     console.log("No User cookie found, redirecting...");
-    return NextResponse.redirect(new URL("/", request.url));
+
+    // Check if the user is trying to access the createagent route
+    if (request.nextUrl.pathname.startsWith("/createagent")) {
+      const loginUrl = new URL("/", request.url);
+      loginUrl.searchParams.set("redirect", request.nextUrl.pathname); // Add redirect query param
+      console.log(
+        "Redirecting to login with redirect URL:",
+        loginUrl.toString()
+      );
+      return NextResponse.redirect(loginUrl);
+    }
+
+    return NextResponse.redirect(new URL("/", request.url)); // Default redirect for other paths
   }
 
   // Proceed to the requested page

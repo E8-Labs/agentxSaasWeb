@@ -4,6 +4,7 @@ import React from "react";
 
 const LoaderAnimation = ({
   loaderModal,
+  isOpen,
   title = "Your agent is building..",
 }) => {
   const styles = {
@@ -36,7 +37,7 @@ const LoaderAnimation = ({
   return (
     <div>
       <Modal
-        open={loaderModal}
+        open={loaderModal || isOpen}
         // onClose={() => loaderModal(false)}
         closeAfterTransition
         BackdropProps={{
