@@ -815,7 +815,7 @@ const PipelineStages = ({
                                           className="ms-4 mt-2"
                                           style={styles.inputStyle}
                                         >
-                                          , then{" "}
+                                          {item.stageTitle === "Booked" && "before the meeting"}, then{" "}
                                           <span style={{ fontWeight: "600" }}>
                                             Make Call
                                           </span>
