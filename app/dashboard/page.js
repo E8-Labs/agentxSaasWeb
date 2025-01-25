@@ -17,7 +17,7 @@ import getProfileDetails from "@/components/apis/GetProfile";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import { useRouter } from "next/navigation";
 import BackgroundVideo from "@/components/general/BackgroundVideo";
-import { PersistanceKeys } from "@/constants/Constants";
+import { Constants, PersistanceKeys } from "@/constants/Constants";
 
 const Page = () => {
   const router = useRouter();
@@ -353,8 +353,8 @@ const Page = () => {
                           screenHeight < 640
                             ? 35
                             : screenHeight < 800
-                            ? 50
-                            : 75,
+                              ? 50
+                              : 75,
                         fontWeight: "700",
                         color: "#000",
                       }}
@@ -556,8 +556,8 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.callsGt10Change
                           ? `${statsComparisonDetails?.callsGt10Change.toFixed(
-                              2
-                            )}%`
+                            2
+                          )}%`
                           : "-"
                       }
                       borderSide="border-b-2"
@@ -572,8 +572,8 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.hotLeadsChange
                           ? `${statsComparisonDetails?.hotLeadsChange.toFixed(
-                              2
-                            )}%`
+                            2
+                          )}%`
                           : "-"
                       }
                       borderSide="border-l-2 border-b-2"
@@ -596,8 +596,8 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.bookingChange
                           ? `${statsComparisonDetails?.bookingChange.toFixed(
-                              2
-                            )}%`
+                            2
+                          )}%`
                           : "-"
                       }
                       borderSide="border-l-2 border-b-2"
@@ -642,8 +642,12 @@ const Page = () => {
                         setAIWebinarhover(false);
                       }}
                       onClick={() => {
+
                         if (typeof window !== "undefined") {
-                          window.open("https://web.whatsapp.com/", "_blank");
+                          let url = userDetails?.campaignee ? userDetails?.campaignee.officeHoursUrl :
+                            PersistanceKeys.GlobalWebinarUrl
+                          console.log("webinar url is", url)
+                          window.open(url,"_blank");
                         }
                       }}
                     >

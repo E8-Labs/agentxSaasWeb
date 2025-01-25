@@ -101,9 +101,11 @@ function Page() {
   useEffect(() => {});
 
   useEffect(() => {
-    let loc = getLocalLocation();
-    setCountryCode(loc);
-    getMyteam();
+    if (typeof window !== "undefined") {
+      let loc = getLocalLocation();
+      setCountryCode(loc);
+      getMyteam();
+    }
   }, []);
 
   //function to get team mebers api
@@ -407,6 +409,7 @@ function Page() {
     return true;
   }
   function canShowResendOption(team) {
+    let user = localStorage.getItem("User")
     if (user) {
       user = JSON.parse(user);
       user = user.user;

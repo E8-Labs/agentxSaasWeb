@@ -383,23 +383,11 @@ const AddCalender = ({ handleContinue }) => {
                     No Calendar added
                   </div>
 
-                  <div
-                    style={{
-                      fontSize: 12,
-                      fontWeight: "300",
-                      color: "#000",
-                      width: 140,
-                      textAlign: "center",
-                    }}
-                  >
-                    please add a calendar. to lorem ipsum dor miset
-                  </div>
-
                   <button
                     className="flex items-center justify-center h-[50px] w-[200px] text-white rounded-xl bg-purple"
                     onClick={() => setShowAddNewCalender(true)}
                   >
-                    + Add Calender
+                    + Add Calendar
                   </button>
                 </div>
               )}

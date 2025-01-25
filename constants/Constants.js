@@ -8,6 +8,8 @@ export const PersistanceKeys = {
     "https://api.leadconnectorhq.com/widget/booking/SMTp2AfgjdTcjLOIUBkR",
   GlobalConsultationUrl:
     "https://api.leadconnectorhq.com/widget/booking/F1DtpvAR8fNf3RJM1akZ",
+  GlobalWebinarUrl:
+  "https://api.leadconnectorhq.com/widget/booking/SMTp2AfgjdTcjLOIUBkR",
   ExternalCalendarLink:
     "https://api.leadconnectorhq.com/widget/bookings/agentx/enterprise-plan",
   // LocalStoredAgentsList

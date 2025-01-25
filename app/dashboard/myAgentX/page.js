@@ -2521,7 +2521,7 @@ function Page() {
           </div>
 
           <div className="flex gap-8 pb-2 mb-4">
-            {["Agent Info", "Calender", "Pipeline | Stages"].map((tab) => (
+            {["Agent Info", "Calendar", "Pipeline | Stages"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -2879,7 +2879,7 @@ function Page() {
                               {showGlobalBtn &&
                                 " (Our global phone number avail to first time users)"}
                               {showGlobalBtn == false &&
-                                " (Only for outbound agents. You must Buy a number)"}
+                                " (Only for outbound agents. You must buy a number)"}
                             </MenuItem>
                             <div
                               className="ms-4"
@@ -2917,17 +2917,6 @@ function Page() {
                     // onMouseEnter={handlePopoverOpen}
                     // onMouseLeave={handlePopoverClose}
                     >
-                      <Image
-                        src={"/otherAssets/updateIcon.png"}
-                        style={{
-                          height: "20px",
-                          width: "20px",
-                          objectFit: "cover", // Ensures proper fitting
-                        }}
-                        height={20}
-                        width={20}
-                        alt="call"
-                      />
                     </div>
                     {/* Code for popover */}
                   </div>
@@ -2952,17 +2941,6 @@ function Page() {
                     >
                       Call transfer number
                     </div>
-                    <Image
-                      src={"/otherAssets/updateIcon.png"}
-                      style={{
-                        height: "20px",
-                        width: "20px",
-                        objectFit: "cover", // Ensures proper fitting
-                      }}
-                      alt="call"
-                      height={20}
-                      width={20}
-                    />
                   </div>
                   <div>
                     {showDrawerSelectedAgent?.liveTransferNumber ? (
@@ -2974,7 +2952,7 @@ function Page() {
                 </div>
               </div>
             </div>
-          ) : activeTab === "Calender" ? (
+          ) : activeTab === "Calendar" ? (
             <div>
               <UserCalender
                 calendarDetails={calendarDetails}
