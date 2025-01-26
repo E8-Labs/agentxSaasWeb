@@ -150,14 +150,35 @@ const ProfileNav = () => {
     }
   }, []);
 
-  useEffect(() => {
-    getProfile();
+
+  const getUserProfile = async () =>{
+    await getProfile();
     const data = localStorage.getItem("User");
     if (data) {
       const LocalData = JSON.parse(data);
       setUserDetails(LocalData);
     }
+  }
+
+  useEffect(() => {
+    getUserProfile()
   }, []);
+
+  useEffect(() => {
+    const handleUpdateProfile = (event) => {
+      console.log("Update profile event received:", event.detail);
+      getUserProfile(); // Refresh the profile data
+    };
+  
+    window.addEventListener("UpdateProfile", handleUpdateProfile);
+  
+    return () => {
+      document.removeEventListener("UpdateProfile", handleUpdateProfile); // Clean up
+    };
+  }, []);
+  
+
+
 
   useEffect(() => {
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {

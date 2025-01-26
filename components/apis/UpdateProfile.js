@@ -23,7 +23,11 @@ export const UpdateProfile = async (apidata) => {
                 if (response.data.status === true) {
                     console.log('updateProfile data is', response.data)
                     u.user = response.data.data
+
+                    // console.log('u', u)
                     localStorage.setItem("User", JSON.stringify(u))
+                    console.log('trying to send event')
+                    window.dispatchEvent(new CustomEvent("UpdateProfile", { detail: { update: true } }));
                     return response.data.data
                 }
             }
