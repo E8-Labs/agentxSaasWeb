@@ -150,18 +150,17 @@ const ProfileNav = () => {
     }
   }, []);
 
-
-  const getUserProfile = async () =>{
+  const getUserProfile = async () => {
     await getProfile();
     const data = localStorage.getItem("User");
     if (data) {
       const LocalData = JSON.parse(data);
       setUserDetails(LocalData);
     }
-  }
+  };
 
   useEffect(() => {
-    getUserProfile()
+    getUserProfile();
   }, []);
 
   useEffect(() => {
@@ -169,16 +168,13 @@ const ProfileNav = () => {
       console.log("Update profile event received:", event.detail);
       getUserProfile(); // Refresh the profile data
     };
-  
+
     window.addEventListener("UpdateProfile", handleUpdateProfile);
-  
+
     return () => {
       document.removeEventListener("UpdateProfile", handleUpdateProfile); // Clean up
     };
   }, []);
-  
-
-
 
   useEffect(() => {
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
@@ -312,8 +308,10 @@ const ProfileNav = () => {
         if (
           // Data?.totalSecondsAvailable <= 120 ||
           Data?.plan == null ||
-          (Data?.plan && Data?.plan?.status !== "active" &&
-           Data?.totalSecondsAvailable <= 120)
+          (Data?.plan && Data?.plan?.status !== "active") ||
+          (Data?.plan &&
+            Data?.plan?.status == "active" &&
+            Data?.totalSecondsAvailable <= 120)
         ) {
           setShowPlansPopup(true);
         } else {
