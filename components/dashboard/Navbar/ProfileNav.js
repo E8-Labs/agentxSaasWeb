@@ -308,7 +308,9 @@ const ProfileNav = () => {
         if (
           // Data?.totalSecondsAvailable <= 120 ||
           Data?.plan == null ||
-          (Data?.plan && Data?.plan?.status !== "active") ||
+          (Data?.plan &&
+            Data?.plan?.status !== "active" &&
+            Data?.totalSecondsAvailable <= 120) ||
           (Data?.plan &&
             Data?.plan?.status == "active" &&
             Data?.totalSecondsAvailable <= 120)
