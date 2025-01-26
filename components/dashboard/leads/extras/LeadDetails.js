@@ -626,6 +626,21 @@ const LeadDetails = ({
     },
   };
 
+  function getExtraColumsCount(columns) {
+    let count = 0;
+    let ExcludedColumns = ["name", "phone", "email", "status", "stage"];
+    for (const c of columns) {
+      if (!c.isDefault) {
+        if (!ExcludedColumns.includes(c.title.toLowerCase())) {
+          count += 1;
+        }
+      }
+    }
+    console.log("Total columns to show ", count);
+
+    return count;
+  }
+
   return (
     <div className="h-[100svh]">
       <Modal
@@ -1379,7 +1394,7 @@ const LeadDetails = ({
 
                     {/* Code for custom variables */}
 
-                    {columnsLength?.length > 5 && (
+                    {getExtraColumsCount(columnsLength) >= 1 && (
                       <div className="mt-2 border rounded-xl p-2">
                         <button
                           onClick={() => {
@@ -1418,12 +1433,12 @@ const LeadDetails = ({
                             )}
                           </div>
                           <div>
-                            {columnsLength.length > 5 ? (
+                            {getExtraColumsCount(columnsLength) > 0 ? (
                               <div
                                 className="text-purple underline"
                                 style={{ fontsize: 15, fontWeight: "500" }}
                               >
-                                +{columnsLength?.length - 5}
+                                +{getExtraColumsCount(columnsLength)}
                               </div>
                             ) : (
                               ""

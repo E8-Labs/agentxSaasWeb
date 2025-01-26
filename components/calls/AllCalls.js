@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import moment from "moment";
@@ -575,8 +576,8 @@ function AllCalls() {
                     </div>
                     <div className="w-1/12">
                       <div style={styles.text2}>
-                        {item?.PipelineStages?.stageTitle
-                          ? item.PipelineStages?.stageTitle
+                        {item?.callStage?.stageTitle
+                          ? item.callStage?.stageTitle
                           : "No Stage"}
                       </div>
                     </div>
@@ -654,7 +655,7 @@ function AllCalls() {
               height: "100svh",
             }}
           >
-            <div className="w-full flex flex-col items-center justify-between h-[60vh] bg-white p-4 rounded-md overflow-auto md:overflow-hidden ">
+            <div className="w-full flex flex-col items-center justify-between h-[60vh] bg-white p-4 rounded-md overflow-auto  ">
               <div className="mt-2 w-full">
                 <div className="flex flex-row items-center justify-between w-full">
                   <div>Filter</div>
@@ -917,7 +918,9 @@ function AllCalls() {
                     // setSelectedToDate(null);
                     // setSelectedStage(null);
                     // getLeads()
-                    window.location.reload();
+                    if (typeof window !== "undefined") {
+                      window.location.reload();
+                    }
                   }}
                 >
                   Reset

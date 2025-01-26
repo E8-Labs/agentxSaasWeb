@@ -17,6 +17,7 @@ import getProfileDetails from "@/components/apis/GetProfile";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import { useRouter } from "next/navigation";
 import BackgroundVideo from "@/components/general/BackgroundVideo";
+import { Constants, PersistanceKeys } from "@/constants/Constants";
 
 const Page = () => {
   const router = useRouter();
@@ -46,10 +47,12 @@ const Page = () => {
   const open = Boolean(anchorEl);
 
   useEffect(() => {
-    let screnW = window.innerWidth;
-    let screnH = window.innerHeight;
-    setScreenWidth(screnW);
-    setScreenHeight(screnH);
+    if (typeof window !== "undefined") {
+      let screnW = window.innerWidth;
+      let screnH = window.innerHeight;
+      setScreenWidth(screnW);
+      setScreenHeight(screnH);
+    }
   }, []);
 
   useEffect(() => {
@@ -350,8 +353,8 @@ const Page = () => {
                           screenHeight < 640
                             ? 35
                             : screenHeight < 800
-                            ? 50
-                            : 75,
+                              ? 50
+                              : 75,
                         fontWeight: "700",
                         color: "#000",
                       }}
@@ -553,8 +556,8 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.callsGt10Change
                           ? `${statsComparisonDetails?.callsGt10Change.toFixed(
-                              2
-                            )}%`
+                            2
+                          )}%`
                           : "-"
                       }
                       borderSide="border-b-2"
@@ -569,8 +572,8 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.hotLeadsChange
                           ? `${statsComparisonDetails?.hotLeadsChange.toFixed(
-                              2
-                            )}%`
+                            2
+                          )}%`
                           : "-"
                       }
                       borderSide="border-l-2 border-b-2"
@@ -593,8 +596,8 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.bookingChange
                           ? `${statsComparisonDetails?.bookingChange.toFixed(
-                              2
-                            )}%`
+                            2
+                          )}%`
                           : "-"
                       }
                       borderSide="border-l-2 border-b-2"
@@ -639,7 +642,13 @@ const Page = () => {
                         setAIWebinarhover(false);
                       }}
                       onClick={() => {
-                        window.open("https://web.whatsapp.com/", "_blank");
+
+                        if (typeof window !== "undefined") {
+                          let url = userDetails?.campaignee ? userDetails?.campaignee.officeHoursUrl :
+                            PersistanceKeys.GlobalWebinarUrl
+                          console.log("webinar url is", url)
+                          window.open(url,"_blank");
+                        }
                       }}
                     >
                       <div className="flex flex-row gap-2">
@@ -689,7 +698,10 @@ const Page = () => {
                         setConsulthover(false);
                       }}
                       onClick={() => {
-                        window.open("https://web.whatsapp.com/", "_blank");
+                        let url = PersistanceKeys.GlobalConsultationUrl;
+                        if (typeof window !== "undefined") {
+                          window.open(url, "_blank");
+                        }
                       }}
                       style={{
                         cursor: "pointer",
@@ -718,7 +730,7 @@ const Page = () => {
                             color: consultHover ? "white" : "#7902DF",
                           }}
                         >
-                          Schedule a one on one consultation
+                          Done-With-You AI Agent Setup
                         </div>
                       </div>
                       <div
@@ -728,10 +740,7 @@ const Page = () => {
                           marginTop: "1vh",
                         }}
                       >
-                        Schedule a personalized one-on-one consultation for just
-                        $99/hour. Get expert guidance to refine your AI,
-                        customize your script, and achieve your goals with
-                        tailored advice!
+                        {`Get up and running the right way. We'll work alongside to set up and integrate your CRM, ensuring everything is optimized for success from the start. See results faster and start closing more deals.`}
                       </div>
                     </div>
                   </div>

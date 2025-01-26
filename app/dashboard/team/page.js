@@ -19,6 +19,7 @@ import {
   getLocalLocation,
 } from "@/components/onboarding/services/apisServices/ApiService";
 import { formatPhoneNumber } from "@/utilities/agentUtilities";
+import { PersistanceKeys } from "@/constants/Constants";
 
 function Page() {
   const timerRef = useRef(null);
@@ -46,6 +47,7 @@ function Page() {
   const [validEmail, setValidEmail] = useState("");
 
   const [showSnak, setShowSnak] = useState(false);
+  const [snackTitle, setSnackTitle] = useState("Team invite sent successfully");
 
   //variables for phone number err messages and checking
   const [errorMessage, setErrorMessage] = useState(null);
@@ -96,10 +98,14 @@ function Page() {
     },
   ];
 
+  useEffect(() => {});
+
   useEffect(() => {
-    let loc = getLocalLocation();
-    setCountryCode(loc);
-    getMyteam();
+    if (typeof window !== "undefined") {
+      let loc = getLocalLocation();
+      setCountryCode(loc);
+      getMyteam();
+    }
   }, []);
 
   //function to get team mebers api
@@ -124,7 +130,21 @@ function Page() {
 
           if (response.data.status === true) {
             console.log("get team api response is", response.data);
-            setMyTeam(response.data.data);
+            let admin = response.data.admin;
+            let adminMember = {
+              invitingUser: admin,
+              invitedUser: admin,
+              id: -1,
+              status: "Admin",
+              name: admin.name,
+              email: admin.email,
+              phone: admin.phone,
+            };
+            let array = [adminMember, ...response.data.data];
+            if (response.data.data.length == 0) {
+              array = [];
+            }
+            setMyTeam(array);
           } else {
             console.log("get team api message is", response.data.message);
           }
@@ -187,6 +207,7 @@ function Page() {
               }
               return [...prev, newMember];
             });
+            setSnackTitle("Team invite sent successfully");
             setShowSnak(true);
             setOpenInvitePopup(false);
             setName("");
@@ -306,13 +327,15 @@ function Page() {
   };
 
   async function DeleteTeamMember(team) {
+    console.log("Deleting ", team);
+    // return;
     let phoneNumber = team.phone;
-    let data = {
+    let apidata = {
       phone: phoneNumber,
     };
 
-    console.log("data to delete", data);
-    // return
+    console.log("data to delete", apidata);
+    // return;
 
     try {
       const data = localStorage.getItem("User");
@@ -321,21 +344,23 @@ function Page() {
         let u = JSON.parse(data);
 
         let path = Apis.deleteTeamMember;
-
-        const response = await axios.post(path, {
+        console.log("token ", u.token);
+        const response = await axios.post(path, apidata, {
           headers: {
             Authorization: "Bearer " + u.token,
           },
-          data,
         });
 
         if (response) {
           setInviteTeamLoader(false);
           if (response.data.status === true) {
-            console.log("delete team api response is", response.data.data);
-            let team = myTeam.filter((item) => item.id != team.id);
-            setMyTeam(team);
+            console.log("delete team api response is", response.data);
+            // let tea
+            let teams = myTeam.filter((item) => item.id != team.id);
+            setMyTeam(teams);
             // getMyteam()
+            setSnackTitle("Team member removed");
+            setShowSnak(true);
           } else {
             console.log("delete team api message is", response.data.message);
           }
@@ -343,7 +368,8 @@ function Page() {
       }
     } catch (e) {
       setInviteTeamLoader(false);
-      console.log("error in invite team api is", e);
+      // console.log()
+      console.log("error in delete team api is", e);
     }
   }
 
@@ -361,13 +387,87 @@ function Page() {
     setOpenMoreDropdown(false);
   };
 
+  function canShowMenuDots(team) {
+    let user = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    if (user) {
+      user = JSON.parse(user);
+      user = user.user;
+    }
+    console.log("Current user role ", user);
+    console.log("team member is", team);
+    if (user.userRole == "Invitee") {
+      if (team.invitedUser.id == user.id) {
+        return true; // show menu at own profile
+      }
+      return false;
+    } else if (user.userRole == "AgentX") {
+      if (team.invitedUser?.id == user.id) {
+        return false; // don't show menu at own profile for admin
+      }
+      return true;
+    }
+    return true;
+  }
+  function canShowResendOption(team) {
+    let user = localStorage.getItem("User")
+    if (user) {
+      user = JSON.parse(user);
+      user = user.user;
+    }
+    if (user.userRole == "Invitee") {
+      if (team.invitedUser.id == user.id) {
+        return false; // show menu at own profile
+      }
+      return true;
+    }
+    if (user.userRole == "AgentX") {
+      if (team.invitedUser.id == user.id) {
+        return false; // show menu at own profile
+      }
+      return true;
+    }
+    return true;
+  }
+  // function canShowInviteButton() {
+  //   console.log("PersistanceKeys.LocalStorageUser", PersistanceKeys.LocalStorageUser)
+  //   if (typeof window !== "undefined") {
+  //     let user = localStorage.getItem("User")
+  //     if (user) {
+  //       user = JSON.parse(user);
+  //       console.log('user.userRole', user.userRole)
+  //       if (user.userRole == "AgentX") {
+  //         return true;
+  //       }
+  //       return false;
+  //     }else{
+  //       console.log('user is null')
+  //     }
+  //   }
+  // }
+
+  function canShowInviteButton() {
+    console.log("In show invite button");
+    if (typeof localStorage != "undefined") {
+      let user = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+      if (user) {
+        user = JSON.parse(user);
+        user = user.user;
+      }
+      console.log("User is ", user.id);
+      if (user.userRole == "AgentX") {
+        return true;
+      }
+      return false;
+    }
+  }
+
   return (
     <div className="w-full flex flex-col items-center">
       {showSnak && (
         <AgentSelectSnackMessage
           isVisible={showSnak}
           hide={() => setShowSnak(false)}
-          message={"Team invite sent successfully"}
+          message={snackTitle}
           type={SnackbarTypes.Success}
         />
       )}
@@ -390,7 +490,7 @@ function Page() {
           </div>
         ) : (
           <div className="w-11/12 flex flex-col items-start">
-            {myTeam.length > 0 && (
+            {canShowInviteButton() && (
               <div className="w-full flex flex-row items-center justify-end">
                 <button
                   className="rounded-lg text-white bg-purple mt-8"
@@ -402,20 +502,21 @@ function Page() {
                   }}
                   onClick={() => setOpenInvitePopup(true)}
                 >
-                  + Invite new
+                  + Invite Team
                 </button>
               </div>
             )}
 
             {myTeam.length > 0 ? (
               <div
-                className="pt-3 flex flex-row flex-wrap gap-6 "
+                className="pt-3 flex flex-row flex-wrap gap-6"
                 style={{ overflow: "auto", scrollbarWidth: "none" }}
               >
-                {myTeam.map((item, index) => (
-                  <div key={index}>
-                    <div>
-                      <div className="p-4 flex flex-row gap-4 items-start border rounded-lg ">
+                {myTeam.map((item, index) => {
+                  console.log("Team is ", item);
+                  return (
+                    <div key={item.id} className="relative">
+                      <div className="p-4 flex flex-row gap-4 items-start border rounded-lg">
                         <div
                           className="flex rounded-full justify-center items-center bg-black text-white text-md"
                           style={{
@@ -427,126 +528,79 @@ function Page() {
                           {item.name[0]}
                         </div>
 
-                        <div
-                          className="flex flex-wrap flex-col items-start gap-2"
-                          style={{ width: "15vw" }}
-                        >
-                          <div
-                            style={{
-                              fontSize: 15,
-                              fontWeight: "500",
-                              color: "black",
-                            }}
-                          >
+                        <div className="flex flex-wrap flex-col items-start gap-2 w-60">
+                          <div className="text-lg font-medium text-black">
                             {item.name}
                           </div>
-
-                          <div
-                            style={{
-                              fontSize: 15,
-                              fontWeight: "500",
-                              color: "#00000060",
-                              width: "15vw",
-                            }}
-                          >
+                          <div className="text-sm font-medium text-gray-500">
                             {formatPhoneNumber(item?.phone)}
                           </div>
-
-                          <div
-                            style={{
-                              fontSize: 15,
-                              fontWeight: "500",
-                              color: "#00000060",
-                              width: "15vw",
-                              textDecorationLine: "underline",
-                            }}
-                          >
+                          <div className="text-sm font-medium text-gray-500 underline">
                             {item.email}
                           </div>
-
                           <div
-                            style={{
-                              fontSize: 15,
-                              fontWeight: "500",
-                              color:
-                                item.status === "Pending"
-                                  ? "#FF4E4E"
-                                  : "#01CB76",
-                            }}
+                            className={`text-sm font-medium ${
+                              item.status === "Pending"
+                                ? "text-red-500"
+                                : "text-green-500"
+                            }`}
                           >
                             {item.status}
                           </div>
                         </div>
 
-                        <button
-                          id="more-menu"
-                          onClick={(event) => {
-                            setOpenMoreDropdown(true);
-                            setMoreDropdown(event.currentTarget);
-                          }}
-                        >
-                          <img
-                            src={"/otherAssets/threeDotsIcon.png"}
-                            height={24}
-                            width={24}
-                            alt="threeDots"
-                          />
-                        </button>
-                      </div>
-                    </div>
-                    <Menu
-                      id="more-menu"
-                      anchorEl={moreDropdown}
-                      open={openMoreDropdown}
-                      onClose={handleMoreClose}
-                      MenuListProps={{
-                        "aria-labelledby": "basic-button",
-                      }}
-                      anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "right",
-                      }}
-                      transformOrigin={{
-                        vertical: "top",
-                        horizontal: "right",
-                      }}
-                      PaperProps={{
-                        sx: {
-                          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.05)", // Subtle shadow
-                          borderRadius: "5px", // Optional: To make it smoother
-                          borderWidth: 1,
-                          borderColor: "#000000010",
-                        },
-                      }}
-                    >
-                      <Box sx={{}}>
-                        {item.status !== "Accepted" && reInviteTeamLoader ? (
-                          <div className="w-full flex flex-col items-center">
-                            <CircularProgress size={25} />
-                          </div>
-                        ) : (
-                          <MenuItem
-                            style={styles.itemText}
-                            onClick={() => handleResendInvite(item)}
+                        {canShowMenuDots(item) && (
+                          <button
+                            id={`dropdown-toggle-${item.id}`}
+                            onClick={() =>
+                              setMoreDropdown(
+                                moreDropdown === item.id ? null : item.id
+                              )
+                            }
+                            className="relative"
                           >
-                            Resend Invite
-                          </MenuItem>
+                            <img
+                              src={"/otherAssets/threeDotsIcon.png"}
+                              height={24}
+                              width={24}
+                              alt="threeDots"
+                            />
+                          </button>
                         )}
+                      </div>
 
-                        <MenuItem
-                          style={styles.deleteText}
-                          onClick={async () => {
-                            setOpenMoreDropdown(false);
-                            //Delete Team member here
-                            await DeleteTeamMember(item);
-                          }}
+                      {/* Custom Dropdown */}
+                      {moreDropdown === item.id && (
+                        <div
+                          className="absolute right-0  top-10 bg-white border rounded-lg shadow-lg z-10"
+                          style={{ width: "200px" }}
                         >
-                          Delete
-                        </MenuItem>
-                      </Box>
-                    </Menu>
-                  </div>
-                ))}
+                          {canShowResendOption(item) && (
+                            <div
+                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                              onClick={() => {
+                                handleResendInvite(item);
+                                setMoreDropdown(null);
+                              }}
+                            >
+                              Resend Invite
+                            </div>
+                          )}
+                          <div
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-red-500"
+                            onClick={() => {
+                              console.log("Deleting team member:", item);
+                              DeleteTeamMember(item);
+                              setMoreDropdown(null);
+                            }}
+                          >
+                            Delete
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div className="h-screen w-full flex flex-col items-center justify-center">
@@ -569,7 +623,7 @@ function Page() {
                     }}
                     onClick={() => setOpenInvitePopup(true)}
                   >
-                    + Invite new
+                    + Invite Team
                   </button>
                 </div>
               </div>
@@ -635,7 +689,7 @@ function Page() {
                   marginTop: 20,
                 }}
               >
-                Invite New Team Member
+                Invite Team
               </div>
 
               <div className="pt-5" style={styles.headingStyle}>
@@ -654,6 +708,37 @@ function Page() {
 
               <div className="pt-5" style={styles.headingStyle}>
                 Email Address
+              </div>
+              <div className="text-end">
+                {emailLoader ? (
+                  <p style={{ ...styles.errmsg, color: "black" }}>
+                    Checking ...
+                  </p>
+                ) : (
+                  <div>
+                    {emailCheckResponse ? (
+                      <p
+                        style={{
+                          ...styles.errmsg,
+                          color:
+                            emailCheckResponse?.status === true
+                              ? "green"
+                              : "red",
+                        }}
+                      >
+                        {emailCheckResponse?.message
+                          ?.slice(0, 1)
+                          .toUpperCase() +
+                          emailCheckResponse?.message?.slice(1)}
+                      </p>
+                    ) : (
+                      <div />
+                    )}
+                  </div>
+                )}
+                <div style={{ ...styles.errmsg, color: "red" }}>
+                  {validEmail}
+                </div>
               </div>
               <input
                 placeholder="Type here"
@@ -694,42 +779,37 @@ function Page() {
                   }
                 }}
               />
-              <div className="text-end">
-                {emailLoader ? (
-                  <p style={{ ...styles.errmsg, color: "black" }}>
-                    Checking ...
-                  </p>
-                ) : (
-                  <div>
-                    {emailCheckResponse ? (
-                      <p
-                        style={{
-                          ...styles.errmsg,
-                          color:
-                            emailCheckResponse?.status === true
-                              ? "green"
-                              : "red",
-                        }}
-                      >
-                        {emailCheckResponse?.message
-                          ?.slice(0, 1)
-                          .toUpperCase() +
-                          emailCheckResponse?.message?.slice(1)}
-                      </p>
-                    ) : (
-                      <div />
-                    )}
-                  </div>
-                )}
-                <div style={{ ...styles.errmsg, color: "red" }}>
-                  {validEmail}
-                </div>
-              </div>
 
               <div className="pt-5" style={styles.headingStyle}>
                 Phone Number
               </div>
-
+              {/* Code for error messages */}
+              <div className="w-full mt-2">
+                <div>
+                  {errorMessage && (
+                    <div
+                      className={`text-end text-red`}
+                      style={{
+                        ...styles.errmsg,
+                        color:
+                          checkPhoneResponse?.status === true ? "green" : "red",
+                      }}
+                    >
+                      {errorMessage}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  {checkPhoneLoader && (
+                    <div
+                      className={`text-end text-red`}
+                      style={{ ...styles.errmsg }}
+                    >
+                      {checkPhoneLoader}
+                    </div>
+                  )}
+                </div>
+              </div>
               <div className="flex flex-row items-center justify-center gap-2 w-full mt-3">
                 <div className="flex flex-row items-center gap-2 border rounded-lg w-full justify-between pe-4">
                   <div className="w-full">
@@ -772,34 +852,6 @@ function Page() {
                       // defaultMask={locationLoader ? "Loading..." : undefined}
                     />
                   </div>
-                </div>
-              </div>
-
-              {/* Code for error messages */}
-              <div className="w-full mt-2">
-                <div>
-                  {errorMessage && (
-                    <div
-                      className={`text-end text-red`}
-                      style={{
-                        ...styles.errmsg,
-                        color:
-                          checkPhoneResponse?.status === true ? "green" : "red",
-                      }}
-                    >
-                      {errorMessage}
-                    </div>
-                  )}
-                </div>
-                <div>
-                  {checkPhoneLoader && (
-                    <div
-                      className={`text-end text-red`}
-                      style={{ ...styles.errmsg }}
-                    >
-                      {checkPhoneLoader}
-                    </div>
-                  )}
                 </div>
               </div>
 

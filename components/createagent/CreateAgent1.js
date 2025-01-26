@@ -18,6 +18,7 @@ import IntroVideoModal from "./IntroVideoModal";
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../dashboard/leads/AgentSelectSnackMessage";
+import { HowtoVideos } from "@/constants/Constants";
 
 const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   const addressKey = process.env.NEXT_PUBLIC_AddressPickerApiKey;
@@ -407,6 +408,11 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       fontWeight: "400",
       width: "95%",
     },
+    headingTitle: {
+      fontSize: 13,
+      fontWeight: "700",
+      width: "95%",
+    },
     modalsStyle: {
       height: "auto",
       bgcolor: "transparent",
@@ -446,8 +452,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           <IntroVideoModal
             open={introVideoModal}
             onClose={() => setIntroVideoModal(false)}
-            videoTitle="Learn more about assigning leads"
-            videoUrl="https://drive.google.com/file/d/14syvjh2r3jd8E5KtHrikZgOcPtBA8UaU/view?usp=share_link"
+            videoTitle="Learn about getting started"
+            videoUrl={HowtoVideos.GettingStarted}
           />
 
           {/* header */}
@@ -478,6 +484,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
             <button
               className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
               style={{ textAlign: "center" }}
+              onClick={handleContinue}
             >
               Get started with your AI agent
             </button>
@@ -488,6 +495,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
               <div
                 style={styles.headingStyle}
                 className="flex flex-row items-center gap-2"
+                onClick={handleContinue}
               >
                 {`What's your AI agent's name?`}
                 <div
@@ -681,7 +689,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                           alt="*"
                         />
                       )}
-                      <div className="mt-8" style={styles.inputStyle}>
+                      <div className="mt-8" style={styles.headingTitle}>
                         {item.title}
                       </div>
                       <div
@@ -891,12 +899,12 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                       placeholder="Type here ..."
                       value={addressValue}
                       readOnly={true}
-                    // disabled={true}
-                    // onChange={(evt) => {
-                    //   setAddressValue(evt.target.value); // Update input field value
-                    //   // getPlacePredictions({ input: evt.target.value });
-                    //   // setShowDropdown(true); // Show dropdown on input
-                    // }}
+                      // disabled={true}
+                      // onChange={(evt) => {
+                      //   setAddressValue(evt.target.value); // Update input field value
+                      //   // getPlacePredictions({ input: evt.target.value });
+                      //   // setShowDropdown(true); // Show dropdown on input
+                      // }}
                     />
                   </div>
                 </div>

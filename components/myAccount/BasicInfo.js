@@ -44,6 +44,8 @@ function BasicInfo() {
   const [loading2, setloading2] = useState(false)
   const [loading3, setloading3] = useState(false)
   const [loading4, setloading4] = useState(false)
+  const [loading5, setloading5] = useState(false)
+
   const [srviceLoader, setServiceLoader] = useState(false)
   const [areaLoading, setAreaLoading] = useState(false)
 
@@ -51,7 +53,7 @@ function BasicInfo() {
   const [selectedArea, setSelectedArea] = useState([]);
 
   //code for image select and drag and drop
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImage, setSelectedImage] = useState("");
   const [dragging, setDragging] = useState(false);
 
 
@@ -69,9 +71,10 @@ function BasicInfo() {
     const LocalData = localStorage.getItem("User");
     if (LocalData) {
       const userData = JSON.parse(LocalData);
-      console.log("Should set data")
+      console.log("Should set data",userData?.user?.thumb_profile_image)
       setUserDetails(userData.user);
       setName(userData?.user?.name);
+      setSelectedImage(userData?.user?.thumb_profile_image)
       setEmail(userData?.user?.email);
       setFarm(userData?.user?.farm);
       setTransaction(userData?.user?.averageTransactionPerYear);
@@ -119,6 +122,49 @@ function BasicInfo() {
   };
 
 
+  const uploadeImage = async (imageUrl) => {
+    try {
+      const data = localStorage.getItem("User")
+      if (data) {
+        let u = JSON.parse(data)
+        const apidata = new FormData();
+
+        apidata.append("media",imageUrl)
+
+        console.log("Uploading image with apidata:");
+        for (let pair of apidata.entries()) {
+          console.log(`${pair[0]}:`, pair[1]); // Debug FormData contents
+        }
+        let path = Apis.updateProfileApi;
+
+        console.log("Authtoken is", u.token);
+        console.log("Api Data passsed is", apidata)
+        // return
+        const response = await axios.post(path, apidata, {
+          headers: {
+            'Authorization': 'Bearer ' + u.token,
+          }
+        })
+
+        if (response) {
+          if (response.data.status === true) {
+            console.log('updateProfile data is', response.data)
+            u.user = response.data.data
+
+            // console.log('u', u)
+            localStorage.setItem("User", JSON.stringify(u))
+            console.log('trying to send event')
+            window.dispatchEvent(new CustomEvent("UpdateProfile", { detail: { update: true } }));
+            return response.data.data
+          }
+        }
+      }
+    } catch (e) {
+      console.log('error in update profile is', e)
+    }
+  }
+
+
   //function to fetch the profile data
   const getProfile = async () => {
     try {
@@ -133,17 +179,25 @@ function BasicInfo() {
   //function to handle image selection
   const handleImageChange = async (event) => {
     const file = event.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      let data = new FormData()
+    if (!file) return;
 
-      data.append("profile_image", imageUrl)
+    
+
+    try {
+      setloading5(true);
+      const imageUrl = URL.createObjectURL(file); // Generate preview URL
+
+     
+      setSelectedImage(imageUrl); // Set the preview image
+
+      uploadeImage(file)
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    } finally {
+      setloading5(false);
     }
-    setloading(true)
-    await UpdateProfile(data)
-    setSelectedImage(imageUrl);
-    setloading(false)
   };
+
 
   const handleDrop = async (event) => {
     event.preventDefault();
@@ -245,18 +299,16 @@ function BasicInfo() {
 
   const handleNameSave = async () => {
     try {
-      setloading(true)
-
-      let data = {
-        name: name
-      }
-      await UpdateProfile(data)
-      setloading(false)
-      setIsNameChanged(false)
+      setloading(true);
+      const data = { name: name };
+      await UpdateProfile(data);
+      setloading(false);
+      setIsNameChanged(false);
     } catch (e) {
-      console.log('error in updating', e)
+      console.log("Error in updating", e);
     }
-  }
+  };
+
 
   const handleFarmSave = async () => {
     try {
@@ -441,37 +493,42 @@ function BasicInfo() {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
       >
-        <div className='flex flex-row items-end'
-          style={{
-            // border: dragging ? "2px dashed #0070f3" : "",
-          }}
-        >
+        {loading5 ? (
+          <CircularProgress size={20} />
+        ) :
+          <div className='flex flex-row items-end'
+            style={{
+              // border: dragging ? "2px dashed #0070f3" : "",
+            }}
+          >
 
-          {selectedImage ? (
-            <div style={{ marginTop: "20px" }}>
-              <Image src={selectedImage}
-                height={74}
-                width={74}
-                style={{ borderRadius: '50%' }}
-                alt='profileImage'
-              />
-            </div>
-          ) : (
-            <Image src={'/agentXOrb.gif'}
-              height={74}
-              width={74}
+            {
+              selectedImage ? (
+                <div style={{ marginTop: "20px" }}>
+                  <Image src={selectedImage}
+                    height={74}
+                    width={74}
+                    style={{ borderRadius: '50%', resize: 'contain' }}
+                    alt='profileImage'
+                  />
+                </div>
+              ) : (
+                <Image src={'/agentXOrb.gif'}
+                  height={74}
+                  width={74}
+                  alt='profileImage'
+                />
+              )
+            }
+
+            <Image src={'/otherAssets/cameraBtn.png'}
+              style={{ marginLeft: -25 }}
+              height={36}
+              width={36}
               alt='profileImage'
             />
-          )
-          }
-
-          <Image src={'/otherAssets/cameraBtn.png'}
-            style={{ marginLeft: -25 }}
-            height={36}
-            width={36}
-            alt='profileImage'
-          />
-        </div>
+          </div>
+        }
       </button>
 
       {/* Hidden file input */}

@@ -13,6 +13,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import Apis from "../apis/Apis";
 import axios from "axios";
 import CycleArray from "../onboarding/extras/CycleArray";
+import { PersistanceKeys } from "@/constants/Constants";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -118,6 +119,7 @@ const CreatAgent3 = ({ handleContinue }) => {
 
       const ApiData = {
         plan: planType,
+        updateFuturePlan: true,
       };
 
       console.log("Api data is", ApiData);
@@ -136,7 +138,10 @@ const CreatAgent3 = ({ handleContinue }) => {
         console.log("Response of subscribe plan api is", response);
         if (response.data.status === true) {
           // handleClose();
-          const screenWidth = window.innerWidth; // Get current screen width
+          const screenWidth = 1000;
+          if (typeof window !== "undefined") {
+            screenWidth = window.innerWidth; // Get current screen width
+          }
           const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
 
           if (screenWidth <= SM_SCREEN_SIZE) {
@@ -167,7 +172,7 @@ const CreatAgent3 = ({ handleContinue }) => {
     },
     {
       id: 3,
-      title: "No monthly commitment",
+      title: "AI Powered CRM",
     },
     {
       id: 6,
@@ -187,7 +192,7 @@ const CreatAgent3 = ({ handleContinue }) => {
     },
     {
       id: 3,
-      title: "No commitment",
+      title: "AI Powered CRM",
     },
     {
       id: 6,
@@ -198,20 +203,23 @@ const CreatAgent3 = ({ handleContinue }) => {
   const plans = [
     {
       id: 1,
+      startFreeLabel: "Free",
       mints: 30,
       calls: 250,
-      details:
-        "Perfect for getting started! Free for the first 30 mins then $45 to continue.",
+      isTrial: true,
+      trial: "7 Day Trial",
+      details: "Perfect to start for free, then $45 to continue.",
       originalPrice: "45",
-      discountPrice: "0",
+      discountPrice: "Free Trial",
       planStatus: "Free",
       status: "",
     },
     {
       id: 2,
       mints: 120,
+      isTrial: false,
       calls: "1k",
-      details: "Perfect for neighborhood updates and engagement.",
+      details: "Perfect for lead updates and engagement.", // "Perfect for lead updates and engagement.",
       originalPrice: "165",
       discountPrice: "99",
       planStatus: "40%",
@@ -220,8 +228,9 @@ const CreatAgent3 = ({ handleContinue }) => {
     {
       id: 3,
       mints: 360,
+      isTrial: false,
       calls: "3k",
-      details: "Great for 2-3 listing appointments in your territory.",
+      details: "Perfect for lead reactivation and prospecting.",
       originalPrice: "540",
       discountPrice: "370",
       planStatus: "50%",
@@ -230,8 +239,9 @@ const CreatAgent3 = ({ handleContinue }) => {
     {
       id: 4,
       mints: 720,
+      isTrial: false,
       calls: "10k",
-      details: "Great for teams and reaching new GCI goals. ",
+      details: "Ideal for teams and reaching new GCI goals.  ",
       originalPrice: "1200",
       discountPrice: "480",
       planStatus: "60%",
@@ -243,6 +253,7 @@ const CreatAgent3 = ({ handleContinue }) => {
     {
       id: 1,
       mints: 30,
+      isTrial: true,
       calls: 250,
       details: "Great for trying out AI sales agents",
       originalPrice: "",
@@ -253,8 +264,9 @@ const CreatAgent3 = ({ handleContinue }) => {
     {
       id: 2,
       mints: 120,
+      isTrial: false,
       calls: "1k",
-      details: "Perfect for neighborhood updates and engagement.",
+      details: "Perfect for lead updates and engagement.",
       originalPrice: "165",
       discountPrice: "99",
       planStatus: "40%",
@@ -263,8 +275,9 @@ const CreatAgent3 = ({ handleContinue }) => {
     {
       id: 3,
       mints: 360,
+      isTrial: false,
       calls: "3k",
-      details: "Great for 2-3 listing appointments in your territory.",
+      details: "Perfect for lead reactivation and prospecting.",
       originalPrice: "540",
       discountPrice: "370",
       planStatus: "50%",
@@ -273,8 +286,9 @@ const CreatAgent3 = ({ handleContinue }) => {
     {
       id: 4,
       mints: 720,
+      isTrial: false,
       calls: "10k",
-      details: "Great for teams and reaching new GCI goals. ",
+      details: "Ideal for teams and reaching new GCI goals.  ",
       originalPrice: "1200",
       discountPrice: "480",
       planStatus: "60%",
@@ -286,6 +300,7 @@ const CreatAgent3 = ({ handleContinue }) => {
     headingStyle: {
       fontSize: 16,
       fontWeight: "700",
+      color: "#15151580",
     },
     giftTextStyle: {
       fontSize: 14,
@@ -333,8 +348,9 @@ const CreatAgent3 = ({ handleContinue }) => {
       fontWeight: "600",
     },
     discountedPrice: {
+      // width: "100px",
       color: "#000000",
-      fontWeight: "bold",
+      fontWeight: "600",
       fontSize: 18,
       marginLeft: "10px",
     },
@@ -354,113 +370,119 @@ const CreatAgent3 = ({ handleContinue }) => {
   return (
     <div
       style={{ width: "100%" }}
-      className="overflow-y-hidden flex flex-row justify-center items-center"
+      className="overflow-y-hidden flex flex-row justify-center items-center  h-[100svh]"
     >
-      <div className="bg-white sm:rounded-2xl w-full lg:w-10/12 h-[90vh] py-4">
-        <div className="h-[100%]">
-          {/* header */}
-          <div className="h-[10%]">
-            <Header />
-          </div>
-          {/* Body */}
-          <div
-            className="flex flex-col items-center px-4 w-full h-[72%] overflow-auto sm:overflow-none"
-            style={{ scrollbarWidth: "none" }}
-          >
-            <div
-              className="mt-6 w-11/12 sm:text-3xl text-xl font-[600]"
-              style={{ textAlign: "center" }}
-            >
-              Your first 30 minutes are on us!
+      <div className="bg-white sm:rounded-2xl w-full lg:w-10/12 h-[90vh] py-4 ">
+        <div className="flex flex-col h-[100%] ">
+          {/*for small size screen i agreeto terms and conditions*/}
+          <div className="overflow-auto sm:overflow-none">
+            {/* header */}
+            <div className="h-[10%] ">
+              <Header />
             </div>
-            <div className="mt-2 sm:text-[20px]" style={{ fontWeight: "400" }}>
-              Start for free, then pay as you go
-            </div>
-
+            {/* Body */}
             <div
-              className="sm:h-[80%] overflow-none sm:overflow-auto w-full flex flex-col items-center"
+              className="flex flex-col items-center px-4 w-full  md:h-[86%] overflow-none sm:overflow-none"
               style={{ scrollbarWidth: "none" }}
             >
-              {/* For mobile view */}
               <div
-                className="sm:hidden flex flex-wrap w-full sm:w-10/12 md:w-4/12 "
-                style={{ backgroundColor: "" }}
+                className="mt-6 w-11/12 sm:text-3xl text-xl font-[600]"
+                style={{ textAlign: "center" }}
               >
-                {mobileFacilities.map((item, index) => (
-                  <div
-                    key={item.id}
-                    className="flex flex-row items-center justify-start pl-4 gap-2 w-1/2 mt-4"
-                  >
-                    <div
-                      className="flex flex-row items-center gap-2 justify-start ml-2 "
-                      style={{ width: "auto" }}
-                    >
-                      <div>
-                        <Image
-                          src={"/assets/tickMark.png"}
-                          height={14}
-                          width={17}
-                          alt="*"
-                        />
-                      </div>
-                      <div style={{ fontWeight: "500", fontSize: 13 }}>
-                        {item.title}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                Your first 30 minutes are on us!
+              </div>
+              <div
+                className="mt-2 sm:text-[20px]"
+                style={{ fontWeight: "400" }}
+              >
+                Start for free, then pay as you go
               </div>
 
-              {/* For greater then small size screen */}
+              {/*  Plans array start here  */}
               <div
-                className="sm:flex hidden flex flex-wrap w-full sm:w-10/12 md:w-4/12 "
-                style={{ backgroundColor: "" }}
+                className="sm:h-[75%] overflow-none sm:overflow-auto  w-full flex flex-col items-center"
+                style={{ scrollbarWidth: "none" }}
               >
-                {facilities.map((item, index) => (
-                  <div
-                    key={item.id}
-                    className="flex flex-row items-center justify-start pl-4 gap-2 w-1/2 mt-4"
-                  >
+                {/* For mobile view */}
+                <div
+                  className="sm:hidden flex flex-wrap w-full sm:w-10/12 md:w-4/12 "
+                  style={{ backgroundColor: "" }}
+                >
+                  {mobileFacilities.map((item, index) => (
                     <div
-                      className="flex flex-row items-center gap-2 justify-start ml-2 "
-                      style={{ width: "auto" }}
+                      key={item.id}
+                      className="flex flex-row items-center justify-start pl-4 gap-1 w-1/2 mt-4"
                     >
-                      <div>
-                        <Image
-                          src={"/assets/tickMark.png"}
-                          height={14}
-                          width={17}
-                          alt="*"
-                        />
-                      </div>
-                      <div style={{ fontWeight: "500", fontSize: 13 }}>
-                        {item.title}
+                      <div
+                        className="flex flex-row items-center gap-2 justify-start ml-2 "
+                        style={{ width: "auto" }}
+                      >
+                        <div>
+                          <Image
+                            src={"/assets/tickMark.png"}
+                            height={14}
+                            width={17}
+                            alt="*"
+                          />
+                        </div>
+                        <div style={{ fontWeight: "500", fontSize: 13 }}>
+                          {item.title}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-              <div
-                className="hidden md:flex flex flex-row items-center justify-center py-3 gap-4 mt-6 mb-8 px-4"
-                style={{
-                  backgroundColor: "#402FFF20",
-                  borderRadius: "50px",
-                  width: "fit-content",
-                }}
-              >
-                <Image
-                  src={"/svgIcons/attachIcon.svg"}
-                  height={24}
-                  width={24}
-                  alt="*"
-                />
-                <div className="text-purple" style={styles.giftTextStyle}>
-                  Invest In Your Business Growth - Quick Start, Minimal Cost,
-                  Maximum Value.
+                  ))}
                 </div>
-              </div>
 
-              <div
+                {/* For greater then small size screen */}
+                <div
+                  className="sm:flex hidden flex flex-wrap w-full sm:w-10/12 md:w-4/12 "
+                  style={{ backgroundColor: "" }}
+                >
+                  {facilities.map((item, index) => (
+                    <div
+                      key={item.id}
+                      className="flex flex-row items-center justify-start pl-4 gap-2 w-1/2 mt-1"
+                    >
+                      <div
+                        className="flex flex-row items-center gap-2 justify-start ml-2 "
+                        style={{ width: "auto" }}
+                      >
+                        <div>
+                          <Image
+                            src={"/assets/tickMark.png"}
+                            height={14}
+                            width={17}
+                            alt="*"
+                          />
+                        </div>
+                        <div style={{ fontWeight: "500", fontSize: 13 }}>
+                          {item.title}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div
+                  className="hidden md:flex flex flex-row items-center justify-center py-3 gap-4 mt-6 mb-3 px-4"
+                  style={{
+                    backgroundColor: "#402FFF20",
+                    borderRadius: "50px",
+                    width: "fit-content",
+                  }}
+                >
+                  <Image
+                    src={"/svgIcons/attachIcon.svg"}
+                    height={24}
+                    width={24}
+                    alt="*"
+                  />
+                  <div className="text-purple" style={styles.giftTextStyle}>
+                    Every plan renews monthly and tops up when your minutes hit
+                    0
+                  </div>
+                </div>
+
+                {/* <div
                 className="flex flex-row md:hidden items-center justify-center py-3 gap-4 mt-6 mb-8 px-4"
                 style={{
                   backgroundColor: "#402FFF20",
@@ -477,219 +499,233 @@ const CreatAgent3 = ({ handleContinue }) => {
                 <div className="text-purple" style={styles.giftTextStyle}>
                   Enjoy your first calls on us
                 </div>
-              </div>
+              </div> */}
 
-              {plans.map((item, index) => (
-                <button
-                  key={item.id}
-                  className="w-full md:w-10/12 lg:w-6/12 mt-4"
-                  onClick={(e) => handleTogglePlanClick(item)}
-                >
-                  <div
-                    className="px-4 py-1 pb-4"
-                    style={{
-                      ...styles.pricingBox,
-                      border:
-                        item.id === togglePlan
-                          ? "2px solid #7902DF"
-                          : "1px solid #15151520",
-                      backgroundColor:
-                        item.id === togglePlan ? "#402FFF05" : "",
-                    }}
+                {plans.map((item, index) => (
+                  <button
+                    key={item.id}
+                    className="w-full md:w-10/12 lg:w-6/12 mt-4"
+                    onClick={(e) => handleTogglePlanClick(item)}
                   >
-                    {item.status && (
-                      <div
-                        className="-mt-[18px] sm:hidden flex px-2 py-1 bg-purple rounded-full text-white"
-                        style={{
-                          fontSize: 11.6,
-                          fontWeight: "500",
-                          width: "fit-content",
-                        }}
-                      >
-                        {item.status}
-                      </div>
-                    )}
                     <div
+                      className="px-4 py-1 pb-4"
                       style={{
-                        ...styles.triangleLabel,
-                        borderTopRightRadius: "7px",
+                        ...styles.pricingBox,
+                        border:
+                          item.id === togglePlan
+                            ? "2px solid #7902DF"
+                            : "1px solid #15151520",
+                        backgroundColor:
+                          item.id === togglePlan ? "#402FFF05" : "",
                       }}
-                    ></div>
-                    <span style={styles.labelText}>{item.planStatus}</span>
-                    <div
-                      className="flex flex-row items-start gap-3"
-                      style={styles.content}
                     >
-                      <div className="mt-1">
-                        <div>
-                          {item.id === togglePlan ? (
-                            <Image
-                              src={"/svgIcons/checkMark.svg"}
-                              height={24}
-                              width={24}
-                              alt="*"
-                            />
-                          ) : (
-                            <Image
-                              src={"/svgIcons/unCheck.svg"}
-                              height={24}
-                              width={24}
-                              alt="*"
-                            />
-                          )}
-                        </div>
-                      </div>
-                      <div className="w-full">
+                      {item.status && (
                         <div
+                          className="-mt-[18px] sm:hidden flex px-2 py-1 bg-purple rounded-full text-white"
                           style={{
-                            color: "#151515",
-                            fontSize: 20,
-                            fontWeight: "600",
+                            fontSize: 11.6,
+                            fontWeight: "500",
+                            width: "fit-content",
                           }}
-                          className="flex flex-row items-center gap-2"
                         >
-                          {item.mints}mins | Approx {item.calls} Calls
-                          {item.status && (
-                            <div
-                              className="flex hidden sm:flex px-2 py-1 bg-purple rounded-full text-white"
-                              style={{ fontSize: 11.6, fontWeight: "500" }}
-                            >
-                              {item.status}
-                            </div>
-                          )}
+                          {item.status}
                         </div>
-                        <div className="flex flex-row items-center justify-between">
+                      )}
+                      <div
+                        style={{
+                          ...styles.triangleLabel,
+                          borderTopRightRadius: "7px",
+                        }}
+                      ></div>
+                      <span style={styles.labelText}>{item.planStatus}</span>
+                      <div
+                        className="flex flex-row items-start gap-3"
+                        style={styles.content}
+                      >
+                        <div className="mt-1">
+                          <div>
+                            {item.id === togglePlan ? (
+                              <Image
+                                src={"/svgIcons/checkMark.svg"}
+                                height={24}
+                                width={24}
+                                alt="*"
+                              />
+                            ) : (
+                              <Image
+                                src={"/svgIcons/unCheck.svg"}
+                                height={24}
+                                width={24}
+                                alt="*"
+                              />
+                            )}
+                          </div>
+                        </div>
+                        <div className="w-full">
                           <div
-                            className="mt-2"
                             style={{
-                              color: "#15151590",
-                              fontSize: 12,
-                              width: "80%",
+                              color: "#151515",
+                              fontSize: 20,
                               fontWeight: "600",
                             }}
+                            className="flex flex-row items-center gap-2"
                           >
-                            {item.details}
+                            {item.startFreeLabel
+                              ? `${item.startFreeLabel} `
+                              : ""}
+                            {item.mints}mins
+                            {item.trial ? ` ${item.trial} ` : "  "}|{" "}
+                            {item.calls} Calls*
+                            {item.status && (
+                              <div
+                                className="flex hidden sm:flex px-2 py-1 bg-purple rounded-full text-white"
+                                style={{ fontSize: 11.6, fontWeight: "500" }}
+                              >
+                                {item.status}
+                              </div>
+                            )}
                           </div>
-                          <div className="flex flex-row items-center">
-                            <div style={styles.originalPrice}>
-                              ${item.originalPrice}
+                          <div className="flex flex-row items-center justify-between ">
+                            <div
+                              className="mt-2"
+                              style={{
+                                color: "#15151590",
+                                fontSize: 12,
+                                width: "76%",
+                                fontWeight: "600",
+                              }}
+                            >
+                              {item.details}
                             </div>
-                            <div style={styles.discountedPrice}>
-                              ${item.discountPrice}
+                            <div className="flex flex-row items-center justify-end space-x-1 ">
+                              <div className="line-through text-gray-500 text-sm">
+                                ${item.originalPrice}
+                              </div>
+                              <div
+                                className="flex flex-row justify-start items-start "
+                                style={{
+                                  // fontSize: `${item.isTrial ? 15 : 18}px`,
+                                  width: `${item.isTrial ? 75 : 70}px`,
+                                }}
+                              >
+                                <div
+                                  className="font-bold  "
+                                  style={{
+                                    fontSize: `${item.isTrial ? 15 : 18}px`,
+                                  }}
+                                >
+                                  {item.isTrial ? "" : "$"}
+                                  {item.discountPrice}
+                                </div>
+                                {!item.isTrial && (
+                                  <p style={{ color: "#15151580" }}>/mo*</p>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                ))}
 
-              <div
-                className="w-full md:w-10/12 lg:w-6/12 mt-4 flex flex-row items-start gap-2"
-                style={{
-                  borderRadius: "7px",
-                  border: "1px solid #15151540",
-                  padding: "15px",
-                  backgroundColor: "#330864",
-                }}
-              >
-                <Image
-                  src={"/assets/diamond.png"}
-                  className="mt-2"
-                  height={18}
-                  width={20}
-                  alt="*"
-                />
-                <div>
-                  <div
-                    style={{
-                      color: "#ffffff",
-                      fontSize: 20,
-                      fontWeight: "600",
-                    }}
-                  >
-                    Brokerage Plan
-                  </div>
-                  <div className="flex flex-row items-start justify-between w-full">
+                <div
+                  className="w-full md:w-10/12 lg:w-6/12 mt-4 flex flex-row items-start gap-2 cursor-pointer"
+                  style={{
+                    borderRadius: "7px",
+                    border: "1px solid #15151540",
+                    padding: "15px",
+                    backgroundColor: "#330864",
+                  }}
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      window.open(
+                        PersistanceKeys.ExternalCalendarLink,
+                        "_blank"
+                      );
+                    }
+                  }}
+                >
+                  <Image
+                    src={"/assets/diamond.png"}
+                    className="mt-2"
+                    height={18}
+                    width={20}
+                    alt="*"
+                  />
+                  <div>
                     <div
                       style={{
                         color: "#ffffff",
-                        fontSize: 12,
+                        fontSize: 20,
                         fontWeight: "600",
-                        width: "60%",
                       }}
                     >
-                      Custom solution specific to your business. Integrate
-                      AgentX into your sales operation.
+                      Brokerage Plan
                     </div>
-                    <button
-                      className="text-[#ffffff] pe-8"
-                      style={{ fontSize: 14, fontWeight: "700" }}
-                    >
-                      Contact Team
-                    </button>
+                    <div className="flex flex-row items-start justify-between w-full">
+                      <div
+                        style={{
+                          color: "#ffffff",
+                          fontSize: 12,
+                          fontWeight: "600",
+                          width: "60%",
+                        }}
+                      >
+                        Custom solution specific to your business. Integrate
+                        AgentX into your sales operation.
+                      </div>
+                      <button
+                        className="text-[#ffffff] pe-8"
+                        style={{ fontSize: 14, fontWeight: "700" }}
+                      >
+                        Contact Team
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div
-              className="hidden sm:flex"
-              style={{
-                fontWeight: "600",
-                fontSize: 17,
-                position: "absolute",
-                bottom: "2%",
-                right: "11%",
-                // backgroundColor: "red"
-              }}
-            >
-              <CycleArray />
-            </div>
-            {/*for large size screen i agreeto terms and conditions*/}
-            <div className="flex flex-row items-center gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6 pb-4 hidden sm:flex">
-              <button onClick={handleToggleTermsClick}>
-                {agreeTerms ? (
-                  <div
-                    className="bg-purple flex flex-row items-center justify-center rounded"
-                    style={{ height: "24px", width: "24px" }}
-                  >
-                    <Image
-                      src={"/assets/whiteTick.png"}
-                      height={8}
-                      width={10}
-                      alt="*"
-                    />
-                  </div>
-                ) : (
-                  <div
-                    className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                    style={{ height: "24px", width: "24px" }}
-                  ></div>
-                )}
-              </button>
               <div
-                className="flex flex-row items-center gap-1"
-                style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
+                className="hidden sm:flex"
+                style={{
+                  fontWeight: "600",
+                  fontSize: 17,
+                  position: "absolute",
+                  bottom: "2%",
+                  right: "11%",
+                  // backgroundColor: "red"
+                }}
               >
-                I agree to the
-                <button
-                  className="underline"
-                  onClick={() => {
-                    window.open(
-                      "https://www.myagentx.com/terms-and-condition",
-                      "_blank"
-                    );
-                  }}
-                >
-                  Terms & Conditions.
+                <CycleArray />
+              </div>
+              {/*for large size screen i agreeto terms and conditions*/}
+              <div className="flex flex-row items-center gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6 pb-4 hidden sm:flex">
+                <button onClick={handleToggleTermsClick}>
+                  {agreeTerms ? (
+                    <div
+                      className="bg-purple flex flex-row items-center justify-center rounded"
+                      style={{ height: "24px", width: "24px" }}
+                    >
+                      <Image
+                        src={"/assets/whiteTick.png"}
+                        height={8}
+                        width={10}
+                        alt="*"
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                      style={{ height: "24px", width: "24px" }}
+                    ></div>
+                  )}
                 </button>
+                <TermsText />
               </div>
             </div>
           </div>
-          {/*for small size screen i agreeto terms and conditions*/}
-          <div className="flex flex-row items-center gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6 pb-4 pl-5 sm:hidden">
+          <div className="flex flex-row items-center  gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6 pb-4 pl-5 sm:hidden">
             <button onClick={handleToggleTermsClick}>
               {agreeTerms ? (
                 <div
@@ -710,25 +746,9 @@ const CreatAgent3 = ({ handleContinue }) => {
                 ></div>
               )}
             </button>
-            <div
-              className="flex flex-row items-center gap-1"
-              style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
-            >
-              I agree to the
-              <button
-                className="underline"
-                onClick={() => {
-                  window.open(
-                    "https://www.myagentx.com/terms-and-condition",
-                    "_blank"
-                  );
-                }}
-              >
-                Terms & Conditions.
-              </button>
-            </div>
+            <TermsText />
           </div>
-          <div className="w-full flex-col items-center flex gap-4 h-[10%]">
+          <div className="w-full flex-col items-center flex h-[10%] sm:mt-4">
             {selectedPlan && agreeTerms ? (
               <div className="w-full flex-col items-center flex">
                 {selectedPlan?.id > 1 ? (
@@ -833,15 +853,15 @@ const CreatAgent3 = ({ handleContinue }) => {
                   <div
                     className="text-center mt-4 text-[14px] font-[600] md:text-[17px] md:font-[700]" //style={styles.headingStyle}
                   >
-                    Your minutes will renew after using {selectedPlan?.mints}{" "}
-                    mins
+                    Your minutes will renew monthly or after using{" "}
+                    {selectedPlan?.mints} mins
                   </div>
                 ) : (
                   <div
                     className="text-center mt-4 text-[14px] font-[600] md:text-[17px] md:font-[700]"
                     style={styles.headingStyle}
                   >
-                    Payment starts after your free {selectedPlan?.mints} mins
+                    Payment starts after your 7 day free trial*
                   </div>
                 )}
 
@@ -853,6 +873,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                     setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp}
                     handleClose={handleClose}
                     togglePlan={togglePlan}
+                    textBelowContinue="Trial is limited to 30 mins"
                     // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>
@@ -915,9 +936,12 @@ const CreatAgent3 = ({ handleContinue }) => {
 
                 <button
                   className="bg-purple text-white w-full rounded-xl mt-6 mb-6"
-                  style={{ ...styles.headingStyle, height: "50px" }}
+                  style={{ fontSize: 16, fontWeight: "700", height: "50px" }}
                   onClick={() => {
-                    const screenWidth = window.innerWidth; // Get current screen width
+                    const screenWidth = 1000;
+                    if (typeof window !== "undefined") {
+                      screenWidth = window.innerWidth; // Get current screen width
+                    }
                     const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
 
                     if (screenWidth <= SM_SCREEN_SIZE) {
@@ -971,7 +995,7 @@ const CreatAgent3 = ({ handleContinue }) => {
             }}
           >
             <div
-              className="flex flex-col w-[95%] sm:w-5/12 max-h-[85svh]  md:max-h-[95vh] bg-white"
+              className="flex flex-col w-[95%] sm:w-5/12 max-h-[95svh]  md:max-h-[95vh] bg-white"
               style={{
                 borderRadius: "13px",
                 overflow: "hidden", // Prevents overflow of the modal content
@@ -1104,7 +1128,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                               }}
                               className="flex flex-row items-center gap-1"
                             >
-                              {item.mints}mins | Approx {item.calls}
+                              {item.mints}mins | {item.calls} calls*
                               {item.status && (
                                 <div
                                   className="flex hidden sm:flex px-2 py-1 bg-purple rounded-full text-white"
@@ -1135,8 +1159,12 @@ const CreatAgent3 = ({ handleContinue }) => {
                                     ${item.originalPrice}
                                   </div>
                                 )}
-                                <div style={styles.discountedPrice}>
-                                  ${item.discountPrice}
+                                <div className="flex flex-row justify-start items-start">
+                                  <div style={styles.discountedPrice}>
+                                    {item.isTrial ? "" : "$"}
+                                    {item.discountPrice}
+                                  </div>
+                                  <p style={{ color: "#15151580" }}>/mo*</p>
                                 </div>
                               </div>
                             </div>
@@ -1168,23 +1196,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                     ></div>
                   )}
                 </button>
-                <div
-                  className="flex flex-row items-center gap-1"
-                  style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
-                >
-                  I agree to the
-                  <button
-                    className="underline"
-                    onClick={() => {
-                      window.open(
-                        "https://www.myagentx.com/terms-and-condition",
-                        "_blank"
-                      );
-                    }}
-                  >
-                    Terms & Conditions.
-                  </button>
-                </div>
+                <TermsText />
               </div>
               {/* Fixed "Continue" Button */}
               <div
@@ -1212,7 +1224,10 @@ const CreatAgent3 = ({ handleContinue }) => {
                       color: agreeTerms && togglePlan2 ? "white" : "#000000",
                     }}
                     onClick={() => {
-                      let windowWidth = window.innerWidth;
+                      let windowWidth = 1000;
+                      if (typeof window !== "undefined") {
+                        windowWidth = window.innerWidth;
+                      }
                       if (togglePlan2 === 1) {
                         if (windowWidth < 640) {
                           setSubscribePlanLoader(true);
@@ -1238,3 +1253,27 @@ const CreatAgent3 = ({ handleContinue }) => {
 };
 
 export default CreatAgent3;
+
+function TermsText() {
+  return (
+    <div
+      className="flex flex-row items-center gap-1"
+      style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
+    >
+      <p style={{ color: "#15151580" }}>
+        I agree to the monthly subscription and understand that additional
+        minutes will be automatically topped up when my balance reaches zero,
+        ensuring uninterrupted access to MyAgentX services. I accept the{" "}
+        <a
+          href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
+          style={{ textDecoration: "underline", color: "black" }} // Underline and color styling
+          target="_blank" // Opens in a new tab (optional)
+          rel="noopener noreferrer" // Security for external links
+        >
+          Terms & Conditions
+        </a>
+        .
+      </p>
+    </div>
+  );
+}

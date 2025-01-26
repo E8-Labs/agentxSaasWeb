@@ -13,6 +13,7 @@ import { KycCategory } from "@/components/constants/constants";
 import AgentSelectSnackMessage from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import VideoCard from "@/components/createagent/VideoCard";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
+import { HowtoVideos } from "@/constants/Constants";
 
 const BuyerKycs = ({ handleContinue }) => {
   const router = useRouter();
@@ -374,7 +375,7 @@ const BuyerKycs = ({ handleContinue }) => {
             JSON.stringify(response.data.data)
           );
           router.push("/pipeline");
-        }else{
+        } else {
           setBuyerKycLoader(false);
         }
       }
@@ -447,8 +448,8 @@ const BuyerKycs = ({ handleContinue }) => {
             <IntroVideoModal
               open={introVideoModal}
               onClose={() => setIntroVideoModal(false)}
-              videoTitle="Learn more about assigning leads"
-              videoUrl="https://drive.google.com/file/d/1mjcZ9-OIKBv44-eeOa2TrippR5h0RfSs/view?usp=share_link"
+              videoTitle="Learn about asking questions (KYC)"
+              videoUrl={HowtoVideos.KycQuestions}
             />
             <div className="flex flex-row w-full justify-center h-[100%]">
               <div className="hidden lg:inline w-2/12 -ml-4 mt-12">

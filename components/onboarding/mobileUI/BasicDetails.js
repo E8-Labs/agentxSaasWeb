@@ -290,7 +290,10 @@ const BasicDetails = ({
 
       const formData = new FormData();
       const ApiPath = Apis.register;
-      let campainee = GetCampaigneeNameIfAvailable(window);
+      let campainee = null;
+      if (typeof window !== "undefined") {
+        campainee = GetCampaigneeNameIfAvailable(window);
+      }
       if (campainee) {
         formData.append("campaignee", campainee);
       }
@@ -339,7 +342,10 @@ const BasicDetails = ({
 
           // handleContinue();
 
-          const screenWidth = window.innerWidth; // Get current screen width
+          const screenWidth = 1000;
+          if (typeof window !== "undefined") {
+            screenWidth = window.innerWidth; // Get current screen width
+          }
           const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
 
           if (screenWidth <= SM_SCREEN_SIZE) {

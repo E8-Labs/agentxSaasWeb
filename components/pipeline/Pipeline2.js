@@ -38,6 +38,7 @@ import ReactMentions from "../test/ReactMentions";
 import DraftMentions from "../test/DraftMentions";
 import IntroVideoModal from "../createagent/IntroVideoModal";
 import VideoCard from "../createagent/VideoCard";
+import { HowtoVideos } from "@/constants/Constants";
 
 const Pipeline2 = ({ handleContinue, handleBack }) => {
   const containerRef = useRef(null); // Ref to the scrolling container
@@ -663,7 +664,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
               open={introVideoModal}
               onClose={() => setIntroVideoModal(false)}
               videoTitle="Learn about creating a script"
-              videoUrl="https://drive.google.com/file/d/1dB9krET4BIxaeOhZ6mZt0S8-DKQbWiAn/view?usp=share_link"
+              videoUrl={HowtoVideos.Pipeline}
             />
 
             <div
@@ -742,7 +743,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                   {/* </div> */}
                 </div>
               </div>
-              <div>
+              {/* <div>
                 <button
                   className="flex flex-row items-center gap-4"
                   onClick={() => {
@@ -760,7 +761,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                     Learn how to customize your script
                   </div>
                 </button>
-              </div>
+              </div> */}
               <div
                 style={{ fontSize: 24, fontWeight: "700" }}
                 className="flex flex-row items-center center w-full justify-between"

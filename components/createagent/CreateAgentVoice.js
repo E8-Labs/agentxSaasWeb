@@ -103,7 +103,7 @@ const CreateAgentVoice = ({ handleBack }) => {
         if (response.data.status === true) {
           router.push("/sellerskycquestions");
           localStorage.removeItem("claimNumberData");
-        }else{
+        } else {
           setVoicesLoader(false);
         }
       }
@@ -171,6 +171,91 @@ const CreateAgentVoice = ({ handleBack }) => {
       outline: "none",
     },
   };
+
+  const getImageHeight = (item) => {
+    if (item.name === "Ava") {
+      return 50
+    } else if (item.name === "Zane") {
+      return 50
+    } else if (item.name === "Trinity") {
+      return 30
+    } else if (item.name === "Dax") {
+      return 70
+    } else if (item.name === "Mia") {
+      return 30
+    } else if (item.name === "Kaia") {
+      return 30
+    } else if (item.name === "Axel") {
+      return 30
+    } else if (item.name === "Aria") {
+      return 60
+    }else if (item.name === "Luna") {
+      return 45
+    }
+
+    return 70
+  }
+  const getImageWidth = (item) => {
+    if (item.name === "Ava") {
+      return 50
+    } else if (item.name === "Zane") {
+      return 50
+    } else if (item.name === "Trinity") {
+      return 55
+    } else if (item.name === "Dax") {
+      return 60
+    } else if (item.name === "Mia") {
+      return 55
+    } else if (item.name === "Kaia") {
+      return 50
+    } else if (item.name === "Axel") {
+      return 55
+    } else if (item.name === "Aria") {
+      return 58
+    } else if (item.name === "Luna") {
+      return 50
+    }
+
+    return 60
+  }
+
+  const addMarginTop = (item) => {
+    if (item.name === "Trinity") {
+      return 5
+    } else if (item.name === "Dax") {
+      return 3
+    } else if (item.name === "Axel") {
+      return 7
+    } else if (item.name === "Niko") {
+      return 5
+    } else if (item.name === "Lex") {
+      return 2
+    } else if (item.name === "Xen") {
+      return 6
+    } else if (item.name === "Elon") {
+      return 8
+    } else if (item.name === "Aria") {
+      return 12
+    }
+
+    return 0
+  }
+
+  const addMariginLeft = (item) => {
+    if (item.name === "Niko") {
+      return 4
+    } else if (item.name === "Lex") {
+      return 4
+    } else if (item.name === "Dax") {
+      return 3
+    } else if (item.name === "Xen") {
+      return 6
+    } else if (item.name === "Elon") {
+      return 5
+    }
+    return 0
+  }
+
   return (
     <div
       style={{ width: "100%" }}
@@ -193,7 +278,7 @@ const CreateAgentVoice = ({ handleBack }) => {
                 className="mt-8 w-6/12 gap-4 flex flex-col max-h-[53vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
                 style={{ scrollbarWidth: "none" }}
               >
-                {voices.slice(0, 10).map((item, index) => (
+                {voices.map((item, index) => (
                   <button
                     key={index}
                     style={{
@@ -227,8 +312,13 @@ const CreateAgentVoice = ({ handleBack }) => {
                         <Image
                           // src={avatarImages[index % avatarImages.length]} // Deterministic selection
                           src={item.img} // Deterministic selection
-                          height={70}
-                          width={65}
+                          height={getImageHeight(item)}
+                          width={getImageWidth(item)}
+                          style={{
+                            // backgroundColor:'red',
+                            borderRadius: '50%', marginTop: addMarginTop(item),
+                            marginLeft: addMariginLeft(item)
+                          }}
                           alt="*"
                         />
                       </div>

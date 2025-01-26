@@ -140,7 +140,9 @@ function NotficationsDrawer({ close }) {
     if (userData) {
       const D = JSON.parse(userData);
       let url = getSupportUrlFor(D.user);
-      window.open(url, "_blank");
+      if (typeof window !== "undefined") {
+        window.open(url, "_blank");
+      }
     }
   };
 
@@ -316,7 +318,10 @@ function NotficationsDrawer({ close }) {
           alt="*"
         />
       );
-    } else if (item.type === NotificationTypes.PlanRenewed) {
+    } else if (
+      item.type === NotificationTypes.PlanRenewed ||
+      NotificationTypes.SubscriptionRenewed === item.type
+    ) {
       return (
         <Image
           src={"/svgIcons/PlanRenewedNotIcon.svg"}
@@ -546,7 +551,8 @@ function NotficationsDrawer({ close }) {
       );
     } else if (
       NotificationTypes.TrialTime2MinLeft === item.type ||
-      NotificationTypes.PlanRenewed === item.type
+      NotificationTypes.PlanRenewed === item.type ||
+      NotificationTypes.SubscriptionRenewed === item.type
     ) {
       return (
         <button

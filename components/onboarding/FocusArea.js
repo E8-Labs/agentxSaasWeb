@@ -227,7 +227,7 @@ const FocusArea = ({
           {/* Body */}
           <div className="flex flex-col items-center px-4 w-full h-[90%]">
             <div
-              className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
+              className="mt-6 w-9/12 sm:w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: "center" }}
             >
               {focusAreaTitle ? focusAreaTitle : ""}
@@ -240,7 +240,7 @@ const FocusArea = ({
             ) : (
               <div
                 className="mt-2 sm:mt-8 md:10/12 w-full lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
-                style={{ scrollbarWidth: "none" }}
+                // style={{ scrollbarWidth: "none" }}
               >
                 {focusData.map((item, index) => (
                   <button
@@ -381,7 +381,10 @@ const FocusArea = ({
 
           <Footer
             handleContinue={() => {
-              let windowWidth = window.innerWidth;
+              let windowWidth = 1000;
+              if (typeof window !== "undefined") {
+                windowWidth = window.innerWidth;
+              }
               if (windowWidth < 640) {
                 const data = localStorage.getItem(
                   PersistanceKeys.RegisterDetails

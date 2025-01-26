@@ -46,7 +46,7 @@ const Page = () => {
     // CreateAgentVoice,
   ]);
 
-  const [windowSize, setWindowSize] = useState(1000);
+  const [windowSize, setWindowSize] = useState(null);
 
   let CurrentComp = components[index];
 
@@ -56,7 +56,7 @@ const Page = () => {
 
   useEffect(() => {
     let size = null;
-    if (typeof window != "undefined") {
+    if (typeof window !== "undefined") {
       size = window.innerWidth;
       setWindowSize(size);
     } else {
@@ -80,6 +80,7 @@ const Page = () => {
             BuildAgentName,
             BuildAgentTask,
             BuildAgentObjective,
+
             // CreatAgent3,
             // CreateAgent4,
             // CreateAgentVoice,

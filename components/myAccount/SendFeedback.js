@@ -106,14 +106,14 @@ function SendFeedback() {
             }}
           >
             <div style={{ fontSize: 24, fontWeight: "700", color: "#000" }}>
-              {`What's this about`}
+              {`What's your feedback?`}
             </div>
 
             <div className="pt-5" style={styles.headingStyle}>
-              Title
+              {`What's this about?`}
             </div>
             <input
-              placeholder="In a few words what's this about? "
+              placeholder="Type here... "
               className="w-full rounded p-2 outline-none rounded-lg focus:ring-0"
               style={styles.inputStyle}
               value={feedbackTitle}
@@ -126,7 +126,7 @@ function SendFeedback() {
               Tell us more
             </div>
             <textarea
-              placeholder="Describe your feedback in detail"
+              placeholder="Type here..."
               className="w-full rounded-lg p-2 outline-none focus:ring-0"
               style={{
                 fontSize: 15,

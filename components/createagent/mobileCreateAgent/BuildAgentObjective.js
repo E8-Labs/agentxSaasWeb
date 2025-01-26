@@ -349,6 +349,11 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
       fontWeight: "400",
       width: "95%",
     },
+    inputStyle: {
+      fontSize: 13,
+      fontWeight: "700",
+      width: "95%",
+    },
     modalsStyle: {
       height: "auto",
       bgcolor: "transparent",

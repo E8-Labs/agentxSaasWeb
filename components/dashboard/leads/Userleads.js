@@ -2136,318 +2136,319 @@ const Userleads = ({
               </div>
             )}
 
-            <div>
-              <Modal
-                open={showFilterModal}
-                closeAfterTransition
-                BackdropProps={{
-                  sx: {
-                    backgroundColor: "#00000020",
-                    // //backdropFilter: "blur(5px)",
-                  },
+            {/* <div> */}
+            <Modal
+              open={showFilterModal}
+              closeAfterTransition
+              BackdropProps={{
+                sx: {
+                  backgroundColor: "#00000020",
+                  maxHeight: "100%",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  // //backdropFilter: "blur(5px)",
+                },
+              }}
+            >
+              <Box
+                className="flex flex-row justify-center items-start lg:w-4/12 sm:w-7/12 w-8/12 py-2 px-6 bg-white max-h-[75svh]  overflow-auto md:overflow-auto"
+                sx={{
+                  ...styles.modalsStyle,
+                  scrollbarWidth: "none",
+                  backgroundColor: "white",
                 }}
               >
-                <Box
-                  className="lg:w-4/12 sm:w-7/12 w-8/12 py-2 px-6 bg-white h-[75svh] lg:h-[60vh] overflow-auto"
-                  sx={{
-                    ...styles.modalsStyle,
-                    scrollbarWidth: "none",
-                    backgroundColor: "white",
-                  }}
-                >
-                  <div className="w-full flex flex-col items-center justify-between h-full">
-                    <div className="mt-2 w-full">
-                      <div className="flex flex-row items-center justify-between w-full">
-                        <div>Filter</div>
-                        <button
-                          onClick={() => {
-                            setShowFilterModal(false);
+                <div className="w-full flex flex-col items-center justify-start ">
+                  <div className="flex flex-row items-center justify-between w-full">
+                    <div>Filter</div>
+                    <button
+                      onClick={() => {
+                        setShowFilterModal(false);
+                      }}
+                    >
+                      <Image
+                        src={"/assets/cross.png"}
+                        height={17}
+                        width={17}
+                        alt="*"
+                      />
+                    </button>
+                  </div>
+                  <div className="mt-2 w-full overflow-auto h-[85%]">
+                    <div className="flex flex-row items-start gap-4">
+                      <div className="w-1/2 h-full">
+                        <div
+                          className="h-full"
+                          style={{
+                            fontWeight: "500",
+                            fontSize: 12,
+                            color: "#00000060",
+                            marginTop: 10,
                           }}
                         >
-                          <Image
-                            src={"/assets/cross.png"}
-                            height={17}
-                            width={17}
-                            alt="*"
-                          />
-                        </button>
-                      </div>
-
-                      <div className="flex flex-row items-start gap-4">
-                        <div className="w-1/2 h-full">
-                          <div
-                            className="h-full"
-                            style={{
-                              fontWeight: "500",
-                              fontSize: 12,
-                              color: "#00000060",
-                              marginTop: 10,
+                          From
+                        </div>
+                        <div>
+                          <button
+                            style={{ border: "1px solid #00000020" }}
+                            className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
+                            onClick={() => {
+                              setShowFromDatePicker(true);
                             }}
                           >
-                            From
-                          </div>
-                          <div>
-                            <button
-                              style={{ border: "1px solid #00000020" }}
-                              className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
-                              onClick={() => {
-                                setShowFromDatePicker(true);
-                              }}
-                            >
-                              <p>
-                                {selectedFromDate
-                                  ? selectedFromDate.toDateString()
-                                  : "Select Date"}
-                              </p>
-                              <CalendarDots weight="regular" size={25} />
-                            </button>
+                            <p>
+                              {selectedFromDate
+                                ? selectedFromDate.toDateString()
+                                : "Select Date"}
+                            </p>
+                            <CalendarDots weight="regular" size={25} />
+                          </button>
 
-                            <div>
-                              {showFromDatePicker && (
-                                <div>
-                                  {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
+                          <div>
+                            {showFromDatePicker && (
+                              <div>
+                                {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
                                                                     <button>
                                                                         <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
                                                                     </button>
                                                                 </div> */}
-                                  <Calendar
-                                    onChange={handleFromDateChange}
-                                    value={selectedFromDate}
-                                    locale="en-US"
-                                    onClose={() => {
-                                      setShowFromDatePicker(false);
-                                    }}
-                                  />
-                                </div>
-                              )}
-                            </div>
+                                <Calendar
+                                  onChange={handleFromDateChange}
+                                  value={selectedFromDate}
+                                  locale="en-US"
+                                  onClose={() => {
+                                    setShowFromDatePicker(false);
+                                  }}
+                                />
+                              </div>
+                            )}
                           </div>
                         </div>
+                      </div>
 
-                        <div className="w-1/2 h-full">
-                          <div
-                            style={{
-                              fontWeight: "500",
-                              fontSize: 12,
-                              color: "#00000060",
-                              marginTop: 10,
+                      <div className="w-1/2 h-full">
+                        <div
+                          style={{
+                            fontWeight: "500",
+                            fontSize: 12,
+                            color: "#00000060",
+                            marginTop: 10,
+                          }}
+                        >
+                          To
+                        </div>
+                        <div>
+                          <button
+                            style={{ border: "1px solid #00000020" }}
+                            className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
+                            onClick={() => {
+                              setShowToDatePicker(true);
                             }}
                           >
-                            To
-                          </div>
+                            <p>
+                              {selectedToDate
+                                ? selectedToDate.toDateString()
+                                : "Select Date"}
+                            </p>
+                            <CalendarDots weight="regular" size={25} />
+                          </button>
                           <div>
-                            <button
-                              style={{ border: "1px solid #00000020" }}
-                              className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
-                              onClick={() => {
-                                setShowToDatePicker(true);
-                              }}
-                            >
-                              <p>
-                                {selectedToDate
-                                  ? selectedToDate.toDateString()
-                                  : "Select Date"}
-                              </p>
-                              <CalendarDots weight="regular" size={25} />
-                            </button>
-                            <div>
-                              {showToDatePicker && (
-                                <div>
-                                  {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
+                            {showToDatePicker && (
+                              <div>
+                                {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
                                                                     <button>
                                                                         <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
                                                                     </button>
                                                                 </div> */}
-                                  <Calendar
-                                    onChange={handleToDateChange}
-                                    value={selectedToDate}
-                                    locale="en-US"
-                                    onClose={() => {
-                                      setShowToDatePicker(false);
-                                    }}
-                                  />
-                                </div>
-                              )}
-                            </div>
+                                <Calendar
+                                  onChange={handleToDateChange}
+                                  value={selectedToDate}
+                                  locale="en-US"
+                                  onClose={() => {
+                                    setShowToDatePicker(false);
+                                  }}
+                                />
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
+                    </div>
 
-                      <div
-                        className="mt-6"
-                        style={{
-                          fontWeight: "500",
-                          fontSize: 14,
-                          color: "#00000060",
-                          marginTop: 10,
-                        }}
-                      >
-                        Select Pipeline
-                      </div>
+                    <div
+                      className="mt-6"
+                      style={{
+                        fontWeight: "500",
+                        fontSize: 14,
+                        color: "#00000060",
+                        marginTop: 10,
+                      }}
+                    >
+                      Select Pipeline
+                    </div>
 
-                      <div className="mt-2">
-                        <FormControl fullWidth>
-                          <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={selectedPipeline}
-                            label="Age"
-                            onChange={handleChange}
-                            displayEmpty // Enables placeholder
-                            renderValue={(selected) => {
-                              if (!selected) {
-                                return (
-                                  <div style={{ color: "#aaa" }}>Select</div>
-                                ); // Placeholder style
-                              }
-                              return selected;
-                            }}
-                            sx={{
-                              border: "1px solid #00000020", // Default border
-                              "&:hover": {
-                                border: "1px solid #00000020", // Same border on hover
-                              },
-                              "& .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove the default outline
-                              },
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
-                              "&.MuiSelect-select": {
-                                py: 0, // Optional padding adjustments
-                              },
-                            }}
-                            MenuProps={{
-                              PaperProps: {
-                                style: {
-                                  maxHeight: "30vh", // Limit dropdown height
-                                  overflow: "auto", // Enable scrolling in dropdown
-                                  scrollbarWidth: "none",
-                                  // borderRadius: "10px"
-                                },
-                              },
-                            }}
-                          >
-                            {pipelinesList.map((item, index) => {
+                    <div className="mt-2">
+                      <FormControl fullWidth>
+                        <Select
+                          labelId="demo-simple-select-label"
+                          id="demo-simple-select"
+                          value={selectedPipeline}
+                          label="Age"
+                          onChange={handleChange}
+                          displayEmpty // Enables placeholder
+                          renderValue={(selected) => {
+                            if (!selected) {
                               return (
-                                <MenuItem key={index} value={item.title}>
-                                  <button
-                                    onClick={() => {
-                                      ////console.log("Item passed is", item);
-                                      setSelectedStage([]);
-                                      // getStagesList(item);
-                                    }}
-                                  >
-                                    {item.title}
-                                  </button>
-                                </MenuItem>
-                              );
-                            })}
-                          </Select>
-                        </FormControl>
-                      </div>
-
-                      <div
-                        className="mt-6"
-                        style={{
-                          fontWeight: "500",
-                          fontSize: 14,
-                          color: "#00000060",
-                          marginTop: 10,
-                        }}
-                      >
-                        Stage
-                      </div>
-
-                      {stagesLoader ? (
-                        <div className="w-full flex flex-row justify-center mt-8">
-                          <CircularProgress size={25} />
-                        </div>
-                      ) : (
-                        <div className="w-full flex flex-wrap gap-4">
-                          {stagesList?.map((item, index) => {
-                            let found = isStageSelected(item);
+                                <div style={{ color: "#aaa" }}>Select</div>
+                              ); // Placeholder style
+                            }
+                            return selected;
+                          }}
+                          sx={{
+                            border: "1px solid #00000020", // Default border
+                            "&:hover": {
+                              border: "1px solid #00000020", // Same border on hover
+                            },
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              border: "none", // Remove the default outline
+                            },
+                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                              border: "none", // Remove outline on focus
+                            },
+                            "&.MuiSelect-select": {
+                              py: 0, // Optional padding adjustments
+                            },
+                          }}
+                          MenuProps={{
+                            PaperProps: {
+                              style: {
+                                maxHeight: "30vh", // Limit dropdown height
+                                overflow: "auto", // Enable scrolling in dropdown
+                                scrollbarWidth: "none",
+                                // borderRadius: "10px"
+                              },
+                            },
+                          }}
+                        >
+                          {pipelinesList.map((item, index) => {
                             return (
-                              <div
-                                key={index}
-                                className="flex flex-row items-center mt-2 justify-start"
-                                style={{ fontSize: 15, fontWeight: "500" }}
-                              >
+                              <MenuItem key={index} value={item.title}>
                                 <button
                                   onClick={() => {
-                                    handleSelectStage(item);
+                                    ////console.log("Item passed is", item);
+                                    setSelectedStage([]);
+                                    // getStagesList(item);
                                   }}
-                                  className={`p-2 border border-[#00000020] ${
-                                    found >= 0 ? `bg-purple` : "bg-transparent"
-                                  } px-6
+                                >
+                                  {item.title}
+                                </button>
+                              </MenuItem>
+                            );
+                          })}
+                        </Select>
+                      </FormControl>
+                    </div>
+
+                    <div
+                      className="mt-6"
+                      style={{
+                        fontWeight: "500",
+                        fontSize: 14,
+                        color: "#00000060",
+                        marginTop: 10,
+                      }}
+                    >
+                      Stage
+                    </div>
+
+                    {stagesLoader ? (
+                      <div className="w-full flex flex-row justify-center mt-8">
+                        <CircularProgress size={25} />
+                      </div>
+                    ) : (
+                      <div className="w-full flex flex-wrap gap-4">
+                        {stagesList?.map((item, index) => {
+                          let found = isStageSelected(item);
+                          return (
+                            <div
+                              key={index}
+                              className="flex flex-row items-center mt-2 justify-start"
+                              style={{ fontSize: 15, fontWeight: "500" }}
+                            >
+                              <button
+                                onClick={() => {
+                                  handleSelectStage(item);
+                                }}
+                                className={`p-2 border border-[#00000020] ${
+                                  found >= 0 ? `bg-purple` : "bg-transparent"
+                                } px-6
                                                                     ${
                                                                       found >= 0
                                                                         ? `text-white`
                                                                         : "text-black"
                                                                     } rounded-2xl`}
-                                >
-                                  {item.stageTitle}
-                                </button>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
+                              >
+                                {item.stageTitle}
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
 
-                    <div className="flex flex-row items-center w-full justify-between mt-4 pb-8">
+                  <div className="flex flex-row items-center w-full justify-between mt-4 pb-8">
+                    <button
+                      className="outline-none w-[105px]"
+                      style={{ fontSize: 16.8, fontWeight: "600" }}
+                      onClick={() => {
+                        // setSelectedFromDate(null);
+                        // setSelectedToDate(null);
+                        // setSelectedStage(null);
+                        // getLeads()
+                        //   window.location.reload();
+                        setFiltersSelected([]);
+                      }}
+                    >
+                      Reset
+                    </button>
+                    {sheetsLoader ? (
+                      <CircularProgress size={25} />
+                    ) : (
                       <button
-                        className="outline-none w-[105px]"
-                        style={{ fontSize: 16.8, fontWeight: "600" }}
+                        className="bg-purple h-[45px] w-[140px] bg-purple text-white rounded-xl outline-none"
+                        style={{
+                          fontSize: 16.8,
+                          fontWeight: "600",
+                          // backgroundColor: selectedFromDate && selectedToDate && selectedStage.length > 0 ? "" : "#00000050"
+                        }}
                         onClick={() => {
-                          // setSelectedFromDate(null);
-                          // setSelectedToDate(null);
-                          // setSelectedStage(null);
-                          // getLeads()
-                          //   window.location.reload();
-                          setFiltersSelected([]);
+                          ////console.log("Can continue");
+                          // setLeadsList([]);
+                          // setFilterLeads([]);
+                          setShowFilterModal(false);
+                          setFiltersFromSelection();
+
+                          // let filterText = getFilterText();
+                          // handleFilterLeads(0, filterText);
+                          // if (selectedFromDate && selectedToDate && selectedStage.length > 0) {
+                          //     ////console.log("Can continue");
+                          //     setLeadsList([]);
+                          //     setFilterLeads([]);
+                          //     handleFilterLeads(0)
+                          // } else {
+                          //     ////console.log("Cannot continue");
+                          // }
                         }}
                       >
-                        Reset
+                        Apply Filter
                       </button>
-                      {sheetsLoader ? (
-                        <CircularProgress size={25} />
-                      ) : (
-                        <button
-                          className="bg-purple h-[45px] w-[140px] bg-purple text-white rounded-xl outline-none"
-                          style={{
-                            fontSize: 16.8,
-                            fontWeight: "600",
-                            // backgroundColor: selectedFromDate && selectedToDate && selectedStage.length > 0 ? "" : "#00000050"
-                          }}
-                          onClick={() => {
-                            ////console.log("Can continue");
-                            // setLeadsList([]);
-                            // setFilterLeads([]);
-                            setShowFilterModal(false);
-                            setFiltersFromSelection();
-
-                            // let filterText = getFilterText();
-                            // handleFilterLeads(0, filterText);
-                            // if (selectedFromDate && selectedToDate && selectedStage.length > 0) {
-                            //     ////console.log("Can continue");
-                            //     setLeadsList([]);
-                            //     setFilterLeads([]);
-                            //     handleFilterLeads(0)
-                            // } else {
-                            //     ////console.log("Cannot continue");
-                            // }
-                          }}
-                        >
-                          Apply Filter
-                        </button>
-                      )}
-                    </div>
+                    )}
                   </div>
-                </Box>
-              </Modal>
-            </div>
+                </div>
+              </Box>
+            </Modal>
+            {/* </div> */}
 
             <div>
               <Modal
@@ -2624,7 +2625,10 @@ const Userleads = ({
           className="overflow-scroll"
           style={{
             backgroundColor: "",
-            height: window.innerHeight * 0.95,
+            height:
+              typeof window !== "undefined"
+                ? window.innerHeight * 0.95
+                : 1000 * 0.95,
             width: "100%",
           }}
         >

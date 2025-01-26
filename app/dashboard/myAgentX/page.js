@@ -47,7 +47,12 @@ import {
 } from "@/utilities/agentUtilities";
 import { getLocalLocation } from "@/components/onboarding/services/apisServices/ApiService";
 import ClaimNumber from "@/components/dashboard/myagentX/ClaimNumber";
-import { PersistanceKeys } from "@/constants/Constants";
+import { Constants, HowtoVideos, PersistanceKeys } from "@/constants/Constants";
+import IntroVideoModal from "@/components/createagent/IntroVideoModal";
+import LoaderAnimation from "@/components/animations/LoaderAnimation";
+import Link from "next/link";
+
+import { ArrowUpRight } from "@phosphor-icons/react";
 
 function Page() {
   const timerRef = useRef();
@@ -179,6 +184,9 @@ function Page() {
 
   const [globalLoader, setGlobalLoader] = useState(false);
 
+  const [showVoiceLoader, setShowVoiceLoader] = useState(false);
+  const [showPhoneLoader, setShowPhoneLoader] = useState(false);
+
   //all calenders added by user
   const [previousCalenders, setPreviousCalenders] = useState([]);
 
@@ -188,6 +196,8 @@ function Page() {
       getAvailabePhoneNumbers();
     }
   }, [showDrawerSelectedAgent]);
+
+  console.log("showDrawerSelectedAgent", showDrawerSelectedAgent);
 
   //code for scroll ofset
   useEffect(() => {
@@ -503,7 +513,6 @@ function Page() {
     setAssignNumber(event.target.value);
   };
 
-  //code for formating the number
   // const formatPhoneNumber = (rawNumber) => {
   //   if (rawNumber) {
   //     const phoneNumber = parsePhoneNumberFromString(
@@ -561,8 +570,8 @@ function Page() {
   //code for reassigning the number api
   const handleReassignNumber = async (item) => {
     try {
-      //console.log("Phonenumber is:", item.phoneNumber.slice(1));
-      // return
+      console.log("Phonenumber is:", item);
+      // return;
       setReassignLoader(item);
       let AuthToken = null;
       const LocalData = localStorage.getItem("User");
@@ -589,7 +598,7 @@ function Page() {
       };
       //console.log("I a just trigered")
 
-      //console.log("Data sending in api is:", ApiData);
+      console.log("Data sending in api is:", ApiData);
       //console.log("Api path is:", ApiPath);
       //console.log("Authtoken is:", AuthToken);
 
@@ -605,8 +614,7 @@ function Page() {
         console.log("Respose of reassign api is:", response.data.data);
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -819,7 +827,7 @@ function Page() {
   const updateAgent = async (vocieId) => {
     try {
       setUpdateAgentLoader(true);
-      setGlobalLoader(true);
+      // setGlobalLoader(true);
       // getAgents()
       let AuthToken = null;
       const localData = localStorage.getItem("User");
@@ -941,10 +949,15 @@ function Page() {
   };
 
   const AssignNumber = async (phoneNumber) => {
+    if (showDrawerSelectedAgent.phoneNumber == phoneNumber) {
+      return;
+    }
     try {
       console.log("Updated number is", phoneNumber);
 
-      setGlobalLoader(true);
+      // setGlobalLoader(true);
+      // setAssignLoader(true);
+      setShowPhoneLoader(true);
       let AuthToken = null;
       const LocalData = localStorage.getItem("User");
 
@@ -978,12 +991,13 @@ function Page() {
         },
       });
 
+      // setAssignLoader(false);
+      setShowPhoneLoader(false);
       if (response) {
         console.log("Response of update number api is", response.data);
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -1320,47 +1334,6 @@ function Page() {
     }
   };
 
-  //code to get user location
-
-  // const getLocation = () => {
-  //   //console.log("getlocation trigered")
-  //   const registerationDetails = localStorage.getItem(PersistanceKeys.RegisterDetails);
-  //   // let registerationData = null;
-  //   setLocationLoader(true);
-  //   if (registerationDetails) {
-  //     const registerationData = JSON.parse(registerationDetails);
-  //     //console.log("User registeration data is :--", registerationData);
-  //     // setUserData(registerationData);
-  //   } else {
-  //     // alert("Add details to continue");
-  //   }
-  //   const fetchCountry = async () => {
-  //     try {
-  //       // Get user's geolocation
-  //       navigator.geolocation.getCurrentPosition(async (position) => {
-  //         const { latitude, longitude } = position.coords;
-
-  //         // Fetch country code based on lat and long
-  //         const response = await fetch(
-  //           `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
-  //         );
-  //         const data = await response.json();
-
-  //         // Set the country code based on the geolocation API response
-  //         setCountryCode(data.countryCode.toLowerCase());
-  //         // setLoading(false);
-  //       });
-  //     } catch (error) {
-  //       console.error("Error fetching location:", error);
-  //       setLoading(true); // Stop loading if there’s an error
-  //     } finally {
-  //       setLocationLoader(false);
-  //     }
-  //   };
-
-  //   fetchCountry();
-  // };
-
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
     // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
@@ -1409,32 +1382,11 @@ function Page() {
     } catch (error) {
       console.error("Error occured is :", error);
     } finally {
-      // setInitialLoader(false)
+      setShowPhoneLoader(false);
+
+      // setInitialLoder(false)
     }
   }, []);
-
-  // code to select image
-
-  // const handleSelectProfileImg = () => {
-  //   fileInputRef.current.click(); // Programmatically click the hidden file input
-  // };
-
-  // const handleProfileImgChange = (event) => {
-  //   // const file = event.target.files[0]; // Get the selected file
-  //   // if (file) {
-  //   //   //console.log('Selected file:', file); // Do something with the file
-  //   //   setSelectedImage(file);
-  //   // }
-  //   const file = event.target.files[0]; // Get the selected file
-  //   if (file) {
-  //     // Use FileReader to generate a preview URL
-  //     const reader = new FileReader();
-  //     reader.onloadend = () => {
-  //       setSelectedImage(reader.result); // Update state with the image preview URL
-  //     };
-  //     reader.readAsDataURL(file);
-  //   }
-  // };
 
   const handleSelectProfileImg = (index) => {
     fileInputRef.current[index]?.click();
@@ -1493,17 +1445,14 @@ function Page() {
   };
 
   //function to add new agent
-  const handleAddNewAgent = () => {
+  const handleAddNewAgent = (event) => {
+    event.preventDefault();
     const data = {
       status: true,
     };
     localStorage.setItem("fromDashboard", JSON.stringify(data));
     router.push("/createagent");
   };
-
-  //code for spiling the agnts
-  // let agentsContent = [];
-  //code for popover
 
   const handlePopoverOpen = (event, item) => {
     // console.log("Hovered index is", item);
@@ -1560,8 +1509,10 @@ function Page() {
 
   //console.log("Voices list is", voicesList.slice(0, 10));
 
-  const handleChangeVoice = (event) => {
-    updateAgent(event.target.value);
+  const handleChangeVoice = async (event) => {
+    setShowVoiceLoader(true);
+    await updateAgent(event.target.value);
+    setShowVoiceLoader(false);
     setSelectedVoice(event.target.value);
     const selectedVoice = voicesList.find(
       (voice) => voice.voice_id === event.target.value
@@ -1745,6 +1696,7 @@ function Page() {
           </div>
         </div>
       </Popover>
+      {/* <LoaderAnimation isOpen={reassignLoader || assignLoader} /> */}
       {/* Global snack */}
       {/* Success snack bar */}
       <div>
@@ -2108,8 +2060,9 @@ function Page() {
         )}
 
         {/* code to add new agent */}
-        <button
+        <Link
           className="w-full py-6 flex justify-center items-center"
+          href="/createagent"
           style={{
             marginTop: 40,
             border: "1px dashed #7902DF",
@@ -2130,7 +2083,7 @@ function Page() {
           >
             <Plus weight="bold" size={22} /> Add New Agent
           </div>
-        </button>
+        </Link>
       </div>
 
       {/* Test ai modal */}
@@ -2275,7 +2228,7 @@ function Page() {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                  // defaultMask={loading ? 'Loading...' : undefined}
+                // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -2306,9 +2259,8 @@ function Page() {
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
-                        index === scriptKeys?.length - 1 ? "mb-16" : ""
-                      }`}
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
+                        }`}
                       style={{
                         ...styles.inputStyle,
                         border: "1px solid #00000010",
@@ -2508,7 +2460,7 @@ function Page() {
               name="Calls"
               value={
                 showDrawerSelectedAgent?.calls &&
-                showDrawerSelectedAgent?.calls > 0 ? (
+                  showDrawerSelectedAgent?.calls > 0 ? (
                   <div>{showDrawerSelectedAgent?.calls}</div>
                 ) : (
                   "-"
@@ -2522,7 +2474,7 @@ function Page() {
               name="Convos"
               value={
                 showDrawerSelectedAgent?.callsGt10 &&
-                showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
                   <div>{showDrawerSelectedAgent?.callsGt10}</div>
                 ) : (
                   "-"
@@ -2550,7 +2502,7 @@ function Page() {
               name="Mins Talked"
               value={
                 showDrawerSelectedAgent?.totalDuration &&
-                showDrawerSelectedAgent?.totalDuration > 0 ? (
+                  showDrawerSelectedAgent?.totalDuration > 0 ? (
                   // <div>{showDrawer?.totalDuration}</div>
                   <div>
                     {moment(
@@ -2568,15 +2520,14 @@ function Page() {
           </div>
 
           <div className="flex gap-8 pb-2 mb-4">
-            {["Agent Info", "Calender", "Pipeline | Stages"].map((tab) => (
+            {["Agent Info", "Calendar", "Pipeline | Stages"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${
-                  activeTab === tab
+                className={`${activeTab === tab
                     ? "text-purple border-b-2 border-purple"
                     : "text-black-500"
-                }`}
+                  }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >
                 {tab}
@@ -2659,89 +2610,113 @@ function Page() {
                       <Image src={"/otherAssets/voiceAvt.png"} height={22} width={22} alt='*' />
                       {showDrawer?.voiceId}
                     </div> */}
-                  <div style={{ width: "150px" }}>
-                    <FormControl fullWidth>
-                      <Select
-                        value={SelectedVoice}
-                        onChange={handleChangeVoice}
-                        displayEmpty // Enables placeholder
-                        renderValue={(selected) => {
-                          if (!selected) {
-                            return (
-                              <div style={{ color: "#aaa" }}>Select Voice</div>
-                            ); // Placeholder style
-                          }
-                          // return selected;
-                          const selectedVoice = voicesList.find(
-                            (voice) => voice.voice_id === selected
-                          );
-                          return selectedVoice ? (
-                            <div
-                              style={{ display: "flex", alignItems: "center" }}
-                            >
-                              <Image
-                                src={selectedVoice.img}
-                                height={40}
-                                width={35}
-                                alt="Selected Voice"
-                              />
-                              <div>{selectedVoice.name}</div>
-                            </div>
-                          ) : null;
-                        }}
-                        sx={{
-                          border: "none", // Default border
-                          "&:hover": {
-                            border: "none", // Same border on hover
-                          },
-                          "& .MuiOutlinedInput-notchedOutline": {
-                            border: "none", // Remove the default outline
-                          },
-                          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                            border: "none", // Remove outline on focus
-                          },
-                          "&.MuiSelect-select": {
-                            py: 0, // Optional padding adjustments
-                          },
-                        }}
-                        MenuProps={{
-                          PaperProps: {
-                            style: {
-                              maxHeight: "30vh", // Limit dropdown height
-                              overflow: "auto", // Enable scrolling in dropdown
-                              scrollbarWidth: "none",
-                              // borderRadius: "10px"
-                            },
-                          },
+                  <div
+                    style={{
+                      width: "150px",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    {showVoiceLoader ? (
+                      <div
+                        style={{
+                          width: "150px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
                         }}
                       >
-                        {voicesList.slice(0, 10).map((item, index) => {
-                          const selectedVoiceName = (id) => {
-                            const voiceName = voicesList.find(
-                              (voice) => voice.voice_id === id
+                        <CircularProgress size={15} />
+                      </div>
+                    ) : (
+                      <FormControl fullWidth>
+                        <Select
+                          value={SelectedVoice}
+                          onChange={handleChangeVoice}
+                          displayEmpty // Enables placeholder
+                          renderValue={(selected) => {
+                            if (!selected) {
+                              return (
+                                <div style={{ color: "#aaa" }}>
+                                  Select Voice
+                                </div>
+                              ); // Placeholder style
+                            }
+                            // return selected;
+                            const selectedVoice = voicesList.find(
+                              (voice) => voice.voice_id === selected
                             );
+                            return selectedVoice ? (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Image
+                                  src={selectedVoice.img}
+                                  height={40}
+                                  width={35}
+                                  alt="Selected Voice"
+                                />
+                                <div>{selectedVoice.name}</div>
+                              </div>
+                            ) : null;
+                          }}
+                          sx={{
+                            border: "none", // Default border
+                            "&:hover": {
+                              border: "none", // Same border on hover
+                            },
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              border: "none", // Remove the default outline
+                            },
+                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                              border: "none", // Remove outline on focus
+                            },
+                            "&.MuiSelect-select": {
+                              py: 0, // Optional padding adjustments
+                            },
+                          }}
+                          MenuProps={{
+                            PaperProps: {
+                              style: {
+                                maxHeight: "30vh", // Limit dropdown height
+                                overflow: "auto", // Enable scrolling in dropdown
+                                scrollbarWidth: "none",
+                                // borderRadius: "10px"
+                              },
+                            },
+                          }}
+                        >
+                          {voicesList.map((item, index) => {
+                            const selectedVoiceName = (id) => {
+                              const voiceName = voicesList.find(
+                                (voice) => voice.voice_id === id
+                              );
 
-                            return voiceName.name;
-                          };
-                          return (
-                            <MenuItem
-                              value={item?.voice_id}
-                              key={index}
-                              disabled={SelectedVoice === item.voice_id}
-                            >
-                              <Image
-                                // src={avatarImages[index % avatarImages.length]} // Deterministic selection
-                                src={item.img} // Deterministic selection
-                                height={40}
-                                width={35}
-                                alt="*"
-                              />
-                              <div>{selectedVoiceName(item.voice_id)}</div>
-                            </MenuItem>
-                          );
-                        })}
-                      </Select>
-                    </FormControl>
+                              return voiceName.name;
+                            };
+                            return (
+                              <MenuItem
+                                value={item?.voice_id}
+                                key={index}
+                                disabled={SelectedVoice === item.voice_id}
+                              >
+                                <Image
+                                  // src={avatarImages[index % avatarImages.length]} // Deterministic selection
+                                  src={item.img} // Deterministic selection
+                                  height={40}
+                                  width={35}
+                                  alt="*"
+                                />
+                                <div>{selectedVoiceName(item.voice_id)}</div>
+                              </MenuItem>
+                            );
+                          })}
+                        </Select>
+                      </FormControl>
+                    )}
                   </div>
                 </div>
               </div>
@@ -2763,141 +2738,168 @@ function Page() {
                       color: "#000",
                     }}
                   >
-                    <Box className="w-full">
-                      <FormControl className="w-full">
-                        <Select
-                          ref={selectRef}
-                          open={openCalimNumDropDown}
-                          onClose={() => setOpenCalimNumDropDown(false)}
-                          onOpen={() => setOpenCalimNumDropDown(true)}
-                          className="border-none rounded-2xl outline-none p-0 m-0"
-                          displayEmpty
-                          value={assignNumber}
-                          // onChange={handleSelectNumber}
-                          onChange={(e) => {
-                            let value = e.target.value;
-                            setAssignNumber(value);
-                            setOpenCalimNumDropDown(false);
-
-                            // if (showReassignBtn && item?.claimedBy){}
-                          }}
-                          renderValue={(selected) => {
-                            if (selected === "") {
-                              return <div>Select Number</div>;
-                            }
-                            return selected;
-                          }}
-                          sx={{
-                            ...styles.dropdownMenu,
-                            backgroundColor: "none",
-                            "& .MuiOutlinedInput-notchedOutline": {
-                              border: "none",
-                            },
-                            padding: 0,
-                            margin: 0,
-                          }}
-                        >
-                          {previousNumber?.map((item, index) => (
-                            <MenuItem
-                              key={index}
-                              style={styles.dropdownMenu}
-                              value={item.phoneNumber.slice(1)}
-                              className="flex flex-row items-center gap-2"
-                              disabled={assignNumber === item.phoneNumber}
-                            >
-                              <div
-                                onClick={(e) => {
-                                  if (showReassignBtn && item?.claimedBy) {
-                                    e.stopPropagation();
-                                    setShowConfirmationModal(item);
-                                    console.log("Hit release number api");
-                                    // AssignNumber
-                                  } else {
-                                    console.log("Hit reassign number api");
-                                    console.log(
-                                      "Should call assign number api"
-                                    );
-                                    AssignNumber(item.phoneNumber);
-                                    console.log(
-                                      "Updated number is",
-                                      item.phoneNumber
-                                    );
-                                  }
-                                }}
-                                style={{
-                                  width: numberDropDownWidth(
-                                    item?.claimedBy?.name
-                                  ),
-                                }}
+                    {showPhoneLoader ? (
+                      <div
+                        style={{
+                          width: "150px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <CircularProgress size={15} />
+                      </div>
+                    ) : (
+                      <Box className="w-full">
+                        <FormControl className="w-full">
+                          <Select
+                            ref={selectRef}
+                            open={openCalimNumDropDown}
+                            onClose={() => setOpenCalimNumDropDown(false)}
+                            onOpen={() => setOpenCalimNumDropDown(true)}
+                            className="border-none rounded-2xl outline-none p-0 m-0"
+                            displayEmpty
+                            value={assignNumber}
+                            // onChange={handleSelectNumber}
+                            onChange={(e) => {
+                              let value = e.target.value;
+                              console.log("Assign number here");
+                              // return;
+                              setAssignNumber(value);
+                              setOpenCalimNumDropDown(false);
+                            }}
+                            renderValue={(selected) => {
+                              if (selected === "") {
+                                return <div>Select Number</div>;
+                              }
+                              return selected;
+                            }}
+                            sx={{
+                              ...styles.dropdownMenu,
+                              backgroundColor: "none",
+                              "& .MuiOutlinedInput-notchedOutline": {
+                                border: "none",
+                              },
+                              padding: 0,
+                              margin: 0,
+                            }}
+                          >
+                            {previousNumber?.map((item, index) => (
+                              <MenuItem
+                                key={index}
+                                style={styles.dropdownMenu}
+                                value={item.phoneNumber.slice(1)}
+                                className="flex flex-row items-center gap-2"
+                                disabled={assignNumber === item.phoneNumber}
                               >
-                                {item.phoneNumber}
-                              </div>
-                              {showReassignBtn && (
                                 <div
-                                  className="w-full"
                                   onClick={(e) => {
-                                    console.log(
-                                      "Should open confirmation modal"
-                                    );
-                                    e.stopPropagation();
-                                    setShowConfirmationModal(item);
+                                    if (showReassignBtn && item?.claimedBy) {
+                                      e.stopPropagation();
+                                      setShowConfirmationModal(item);
+                                      console.log("Hit release number api");
+                                      // AssignNumber
+                                    } else {
+                                      console.log("Hit reassign number api");
+                                      console.log(
+                                        "Should call assign number api"
+                                      );
+                                      // return;
+                                      AssignNumber(item.phoneNumber);
+                                      console.log(
+                                        "Updated number is",
+                                        item.phoneNumber
+                                      );
+                                    }
+                                  }}
+                                  style={{
+                                    width: numberDropDownWidth(
+                                      item?.claimedBy?.name
+                                    ),
                                   }}
                                 >
-                                  {item.claimedBy && (
-                                    <div className="flex flex-row items-center gap-2">
-                                      {showDrawerSelectedAgent?.name !==
-                                        item.claimedBy.name && (
-                                        <div>
-                                          <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                          {reassignLoader === item ? (
-                                            <CircularProgress size={15} />
-                                          ) : (
-                                            <button
-                                              className="text-purple underline"
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                setShowConfirmationModal(item);
-                                              }}
-                                            >
-                                              Reassign
-                                            </button>
-                                          )}
-                                        </div>
-                                      )}
-                                    </div>
-                                  )}
+                                  {item.phoneNumber}
                                 </div>
-                              )}
-                            </MenuItem>
-                          ))}
-                          <MenuItem
-                            style={styles.dropdownMenu}
-                            value={showGlobalBtn ? 14062040550 : ""}
-                            disabled={!showGlobalBtn}
-                          >
-                            +14062040550
-                            {showGlobalBtn &&
-                              " (Our global phone number avail to first time users)"}
-                            {showGlobalBtn == false &&
-                              " (Only for outbound agents. You must Buy a number)"}
-                          </MenuItem>
-                          <div
-                            className="ms-4"
-                            style={{ ...styles.inputStyle, color: "#00000070" }}
-                          >
-                            <i>Get your own unique phone number.</i>{" "}
-                            <button
-                              className="text-purple underline"
+                                {showReassignBtn && (
+                                  <div
+                                    className="w-full"
+                                    onClick={(e) => {
+                                      console.log(
+                                        "Should open confirmation modal"
+                                      );
+                                      e.stopPropagation();
+                                      setShowConfirmationModal(item);
+                                    }}
+                                  >
+                                    {item.claimedBy && (
+                                      <div className="flex flex-row items-center gap-2">
+                                        {showDrawerSelectedAgent?.name !==
+                                          item.claimedBy.name && (
+                                            <div>
+                                              <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                              {reassignLoader === item ? (
+                                                <CircularProgress size={15} />
+                                              ) : (
+                                                <button
+                                                  className="text-purple underline"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setShowConfirmationModal(
+                                                      item
+                                                    );
+                                                  }}
+                                                >
+                                                  Reassign
+                                                </button>
+                                              )}
+                                            </div>
+                                          )}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </MenuItem>
+                            ))}
+                            <MenuItem
+                              style={styles.dropdownMenu}
+                              value={showGlobalBtn ? 14062040550 : ""}
+                              disabled={!showGlobalBtn}
                               onClick={() => {
-                                setShowClaimPopup(true);
+                                console.log(
+                                  "This triggers when user clicks on assigning global number"
+                                );
+                                // return;
+                                AssignNumber(Constants.GlobalPhoneNumber);
+                                // handleReassignNumber(showConfirmationModal);
                               }}
                             >
-                              Claim one
-                            </button>
-                          </div>
-                        </Select>
-                      </FormControl>
-                    </Box>
+                              {Constants.GlobalPhoneNumber}
+                              {showGlobalBtn &&
+                                " (Our global phone number avail to first time users)"}
+                              {showGlobalBtn == false &&
+                                " (Only for outbound agents. You must buy a number)"}
+                            </MenuItem>
+                            <div
+                              className="ms-4"
+                              style={{
+                                ...styles.inputStyle,
+                                color: "#00000070",
+                              }}
+                            >
+                              <i>Get your own unique phone number.</i>{" "}
+                              <button
+                                className="text-purple underline"
+                                onClick={() => {
+                                  setShowClaimPopup(true);
+                                }}
+                              >
+                                Claim one
+                              </button>
+                            </div>
+                          </Select>
+                        </FormControl>
+                      </Box>
+                    )}
                   </div>
                 </div>
                 <div className="flex justify-between">
@@ -2913,17 +2915,6 @@ function Page() {
                     // onMouseEnter={handlePopoverOpen}
                     // onMouseLeave={handlePopoverClose}
                     >
-                      <Image
-                        src={"/otherAssets/updateIcon.png"}
-                        style={{
-                          height: "20px",
-                          width: "20px",
-                          objectFit: "cover", // Ensures proper fitting
-                        }}
-                        height={20}
-                        width={20}
-                        alt="call"
-                      />
                     </div>
                     {/* Code for popover */}
                   </div>
@@ -2948,17 +2939,6 @@ function Page() {
                     >
                       Call transfer number
                     </div>
-                    <Image
-                      src={"/otherAssets/updateIcon.png"}
-                      style={{
-                        height: "20px",
-                        width: "20px",
-                        objectFit: "cover", // Ensures proper fitting
-                      }}
-                      alt="call"
-                      height={20}
-                      width={20}
-                    />
                   </div>
                   <div>
                     {showDrawerSelectedAgent?.liveTransferNumber ? (
@@ -2970,7 +2950,7 @@ function Page() {
                 </div>
               </div>
             </div>
-          ) : activeTab === "Calender" ? (
+          ) : activeTab === "Calendar" ? (
             <div>
               <UserCalender
                 calendarDetails={calendarDetails}
@@ -3546,11 +3526,36 @@ function Page() {
                         </button>
                       </div>
 
-                      <div
+                      {/* <div
                         className="mt-4"
                         style={{ fontSize: 24, fontWeight: "700" }}
                       >
                         Script
+                      </div> */}
+
+                      <div
+                        style={{ fontSize: 24, fontWeight: "700" }}
+                        className="flex flex-row items-center center w-full justify-between"
+                      >
+                        <div>Script</div>
+                        <div>
+                          <button
+                            className="flex flex-row items-center gap-2 h-[43px] rounded-md bg-purple text-white px-4"
+                            style={{
+                              fontWeight: "500",
+                              fontSize: 15,
+                            }}
+                            onClick={() => {
+                              window.open(
+                                "https://www.google.com/url?q=https://chatgpt.com/g/g-0O0jItKdk-agentx-script-builder&sa=D&source=docs&ust=1736727664686727&usg=AOvVaw3gT9iletUxbxgJ4hPXXIj9",
+                                "_blank"
+                              );
+                            }}
+                          >
+                            User Script Builder
+                            <ArrowUpRight size={20} color="white" />
+                          </button>
+                        </div>
                       </div>
 
                       <div className="flex flex-row items-center justify-between">
@@ -3740,8 +3745,16 @@ function Page() {
       </Modal>
 
       {/* Modal for video */}
-      <Modal
+
+      <IntroVideoModal
         open={introVideoModal}
+        onClose={() => setIntroVideoModal(false)}
+        videoTitle=" Learn how to customize your script"
+        videoUrl={HowtoVideos.LetsTalkDigits}
+      />
+
+      {/* <Modal
+        open={false}
         onClose={() => setIntroVideoModal(false)}
         closeAfterTransition
         BackdropProps={{
@@ -3786,7 +3799,7 @@ function Page() {
 
               <div className="mt-6">
                 <iframe
-                  src="https://www.youtube.com/embed/Dy9DM5u_GVg?autoplay=1&mute=1" //?autoplay=1&mute=1 to make it autoplay
+                  src={HowtoVideos.Leads} //?autoplay=1&mute=1 to make it autoplay
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -3799,13 +3812,10 @@ function Page() {
                   }}
                 />
               </div>
-
-              {/* Can be use full to add shadow */}
-              {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
             </div>
           </div>
         </Box>
-      </Modal>
+      </Modal> */}
 
       {/* Code for Purchase and find number popup */}
       {/* <Modal

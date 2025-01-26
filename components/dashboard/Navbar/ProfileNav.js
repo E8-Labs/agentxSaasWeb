@@ -15,6 +15,12 @@ import {
 import getProfileDetails from "@/components/apis/GetProfile";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
+// const FacebookPixel = dynamic(() => import("../utils/facebookPixel.js"), {
+//   ssr: false,
+// });
+
+// import { initFacebookPixel } from "@/utilities/facebookPixel";
+
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../leads/AgentSelectSnackMessage";
@@ -25,6 +31,7 @@ import { UpdateProfile } from "@/components/apis/UpdateProfile";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
+import { PersistanceKeys } from "@/constants/Constants";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -50,7 +57,10 @@ const ProfileNav = () => {
   const [showerrorSnack, setShowErrorSnack] = useState(null);
 
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
-
+  useEffect(() => {
+    let pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
+    // FacebookPixel.initFacebookPixel(pixelId); //initFacebookPixel(pixed_id);
+  });
   useEffect(() => {
     const testNot = async () => {
       try {
@@ -99,7 +109,7 @@ const ProfileNav = () => {
       id: 2,
       mints: 120,
       calls: "1k",
-      details: "Perfect for neighborhood updates and engagement.",
+      details: "Perfect for lead updates and engagement.",
       originalPrice: "165",
       discountPrice: "99",
       planStatus: "40%",
@@ -109,7 +119,7 @@ const ProfileNav = () => {
       id: 3,
       mints: 360,
       calls: "3k",
-      details: "Great for 2-3 listing appointments in your territory.",
+      details: "Perfect for lead reactivation and prospecting.",
       originalPrice: "540",
       discountPrice: "370",
       planStatus: "50%",
@@ -119,7 +129,7 @@ const ProfileNav = () => {
       id: 4,
       mints: 720,
       calls: "10k",
-      details: "Great for teams and reaching new GCI goals. ",
+      details: "Ideal for teams and reaching new GCI goals.  ",
       originalPrice: "1200",
       discountPrice: "480",
       planStatus: "60%",
@@ -129,7 +139,10 @@ const ProfileNav = () => {
 
   //useeffect that redirect the user back to the main screen for mobile view
   useEffect(() => {
-    let windowWidth = window.innerWidth;
+    let windowWidth = 1000;
+    if (typeof window !== "undefined") {
+      windowWidth = window.innerWidth;
+    }
     if (windowWidth < 640) {
       router.push("/createagent/desktop");
     } else {
@@ -137,14 +150,35 @@ const ProfileNav = () => {
     }
   }, []);
 
-  useEffect(() => {
-    getProfile();
+
+  const getUserProfile = async () =>{
+    await getProfile();
     const data = localStorage.getItem("User");
     if (data) {
       const LocalData = JSON.parse(data);
       setUserDetails(LocalData);
     }
+  }
+
+  useEffect(() => {
+    getUserProfile()
   }, []);
+
+  useEffect(() => {
+    const handleUpdateProfile = (event) => {
+      console.log("Update profile event received:", event.detail);
+      getUserProfile(); // Refresh the profile data
+    };
+  
+    window.addEventListener("UpdateProfile", handleUpdateProfile);
+  
+    return () => {
+      document.removeEventListener("UpdateProfile", handleUpdateProfile); // Clean up
+    };
+  }, []);
+  
+
+
 
   useEffect(() => {
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
@@ -276,11 +310,10 @@ const ProfileNav = () => {
 
       if (response) {
         if (
-          Data?.totalSecondsAvailable <= 120 ||
+          // Data?.totalSecondsAvailable <= 120 ||
           Data?.plan == null ||
-          (Data?.plan &&
-            Data?.plan?.status !== "active" &&
-            Data?.totalSecondsAvailable <= 120)
+          (Data?.plan && Data?.plan?.status !== "active") // &&
+          // Data?.totalSecondsAvailable <= 120
         ) {
           setShowPlansPopup(true);
         } else {
@@ -358,10 +391,14 @@ const ProfileNav = () => {
 
   const handleSubscribePlan = async () => {
     try {
-      let cards = [];
+      // let cards = [];
 
-      cards = getCardsList();
-      // return
+      // cards = await getCardsList();
+      // if (cards.length == 0) {
+      //   setAddPaymentPopup(true);
+      //   return;
+      // }
+      // return;
       let planType = null;
 
       // console.log("Selected plan is:", togglePlan);
@@ -387,6 +424,10 @@ const ProfileNav = () => {
         localDetails = LocalDetails;
         AuthToken = LocalDetails.token;
       }
+      // if (localDetails.user.cards.length == 0) {
+      //   setAddPaymentPopup(true);
+      //   return;
+      // }
 
       console.log("Authtoken is", AuthToken);
 
@@ -415,10 +456,11 @@ const ProfileNav = () => {
           localDetails.user.plan = response.data.data;
           console.log("Data updated is", localDetails);
           await getProfileDetails();
-          // localStorage.setItem("User", JSON.stringify(localDetails));
+          localStorage.setItem("User", JSON.stringify(localDetails));
           setSuccessSnack(response.data.message);
           setShowSuccessSnack(true);
           setShowPlansPopup(false);
+          getProfile();
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
           setShowErrorSnack(true);
@@ -436,6 +478,7 @@ const ProfileNav = () => {
     if (data.status === true) {
       let newCard = data.data;
       setAddPaymentPopup(false);
+      getProfile();
       // setCards([newCard, ...cards]);
     }
   };
@@ -451,6 +494,7 @@ const ProfileNav = () => {
       borderRadius: 2,
       border: "none",
       outline: "none",
+      height: "100svh",
     },
     cardStyles: {
       fontSize: "14",
@@ -608,7 +652,7 @@ const ProfileNav = () => {
                 color: "black",
               }}
             >
-              {userDetails?.user?.name}
+              {userDetails?.user?.name?.split(" ")[0]}
             </div>
             <div
               className="truncate w-[120px]"
@@ -625,6 +669,7 @@ const ProfileNav = () => {
         </Link>
       </div>
 
+      {/* Subscribe Plan modal */}
       <div>
         {/* Subscribe Plan modal */}
         <Modal
@@ -793,7 +838,7 @@ const ProfileNav = () => {
                               }}
                               className="flex flex-row items-center gap-2"
                             >
-                              {item.mints} mins
+                              {item.mints} mins | {item.calls} calls*
                               {item.status && (
                                 <div
                                   className="flex px-2 py-1 bg-purple rounded-full text-white"
@@ -821,8 +866,11 @@ const ProfileNav = () => {
                                     <div>${item.originalPrice}</div>
                                   )}
                                 </div>
-                                <div style={styles.discountedPrice}>
-                                  ${item.discountPrice}
+                                <div className="flex flex-row justify-start items-start ">
+                                  <div style={styles.discountedPrice}>
+                                    ${item.discountPrice}
+                                  </div>
+                                  <p style={{ color: "#15151580" }}>/mo*</p>
                                 </div>
                               </div>
                             </div>
@@ -848,7 +896,22 @@ const ProfileNav = () => {
                         backgroundColor: togglePlan ? "" : "#00000020",
                         color: togglePlan ? "" : "#000000",
                       }}
-                      onClick={handleSubscribePlan}
+                      onClick={() => {
+                        let localDetails = null;
+                        const localData = localStorage.getItem(
+                          PersistanceKeys.LocalStorageUser
+                        );
+                        if (localData) {
+                          const LocalDetails = JSON.parse(localData);
+                          localDetails = LocalDetails;
+                          // AuthToken = LocalDetails.token;
+                        }
+                        if (localDetails.user.cards.length == 0) {
+                          setAddPaymentPopup(true);
+                        } else {
+                          handleSubscribePlan();
+                        }
+                      }}
                     >
                       Subscribe Plan
                     </button>
@@ -888,8 +951,11 @@ const ProfileNav = () => {
             },
           }}
         >
-          <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
-            <div className="flex flex-row justify-center w-full">
+          <Box
+            className="flex lg:w-8/12 sm:w-full w-full justify-center items-center"
+            sx={styles.paymentModal}
+          >
+            <div className="flex flex-row justify-center w-full ">
               <div
                 className="sm:w-7/12 w-full"
                 style={{
@@ -922,7 +988,7 @@ const ProfileNav = () => {
                     // stop={stop}
                     // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                     handleClose={handleClose}
-                    togglePlan={""}
+                    togglePlan={togglePlan}
                     // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>

@@ -89,7 +89,7 @@ const Pipeline1 = () => {
   //code to add new stage
   const [addNewStageModal, setAddNewStageModal] = useState(false);
   const [newStageTitle, setNewStageTitle] = useState("");
-  const [stageColor, setStageColor] = useState("#F3F4F6");
+  const [stageColor, setStageColor] = useState("#000000");
   const [addStageLoader, setAddStageLoader] = useState(false);
   //code for advance setting modal inside new stages
   const [showAdvanceSettings, setShowAdvanceSettings] = useState(false);
@@ -1499,7 +1499,7 @@ const Pipeline1 = () => {
         let firstName = lead.lead.firstName.toLowerCase();
         let lastName = lead.lead.lastName.toLowerCase();
         let fullName = (firstName || "") + " " + (lastName || "");
-        let email = lead?.lead?.email?.toLowerCase();
+        let email = lead?.lead?.email?.toLowerCase() || "";
         let phone = lead?.lead?.phone;
         return (
           firstName.includes(search) ||

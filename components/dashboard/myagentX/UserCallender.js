@@ -239,15 +239,7 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
     return (
         <div style={{ width: "100%" }} className="overflow-y-none flex flex-row justify-center items-center">
 
-            {
-                calenderLoader && (
-                    <div>
-                        <CircularLoader
-                            globalLoader={calenderLoader}
-                        />
-                    </div>
-                )
-            }
+
 
             {
                 isVisible && (
@@ -272,101 +264,111 @@ const UserCalender = ({ calendarDetails, setUserDetails, previousCalenders, sele
                     selectedAgent?.calendar || allCalendars.length > 0 ? (
                         <div className='w-full flex flex-col w-full items-center'>
                             <div className='w-full'>
-                                <FormControl sx={{ m: 1 }} className='w-full'>
-                                    <Select
-                                        labelId="demo-select-small-label"
-                                        id="demo-select-small"
-                                        value={selectCalender}
-                                        // label="Age"
-                                        onChange={handleChange}
-                                        displayEmpty // Enables placeholder
-                                        renderValue={(selected) => {
-                                            if (!selected) {
-                                                return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
-                                            }
-                                            return selected;
-                                        }}
-                                        sx={{
-                                            border: "1px solid #00000020", // Default border
-                                            "&:hover": {
-                                                border: "1px solid #00000020", // Same border on hover
-                                            },
-                                            "& .MuiOutlinedInput-notchedOutline": {
-                                                border: "none", // Remove the default outline
-                                            },
-                                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                                border: "none", // Remove outline on focus
-                                            },
-                                            "&.MuiSelect-select": {
-                                                py: 0, // Optional padding adjustments
-                                            },
-                                        }}
-                                        MenuProps={{
-                                            PaperProps: {
-                                                style: {
-                                                    maxHeight: "30vh", // Limit dropdown height
-                                                    overflow: "auto", // Enable scrolling in dropdown
-                                                    scrollbarWidth: "none",
-                                                    // borderRadius: "10px"
-                                                },
-                                            },
-                                        }}
-                                    >
-                                        {
-                                            allCalendars.map((item, index) => {
-                                                return (
-                                                    <MenuItem
-                                                        className='w-full hover:bg-purple10 hover:text-black'
-                                                        value={item.title}
-                                                        key={index}
-                                                        selected={selectCalender === item.title} // Apply "selected" to match the selected value
-                                                        sx={{
-                                                            backgroundColor: selectCalender === item.title ? '#7902DF10' : 'transparent', // Set background for selected item
-                                                            // color: selectCalender === item.title ? 'white' : 'inherit', // Change text color for selected item
-                                                            "&.Mui-selected": {
-                                                                backgroundColor: '#7902DF10', // Override background for selected item
-                                                                // color: 'white', // Change text color for selected item
-                                                            },
-                                                        }}
-                                                    >
-                                                        <button className='w-full text-start'
-                                                            onClick={() => {
-                                                                console.log("Selected calender is:", item);
-                                                                setCalendarSelected(item);
-                                                                handleAddCalender(item);
-                                                                // setCalenderTitle(item.title);
-                                                                // setCalenderApiKey(item.apiKey);
-                                                                // setEventId(item.eventId);
-                                                                // setSelectTimeZone(item.timeZone);
-                                                            }}
-                                                        >
-                                                            {item.title}
-                                                        </button>
-                                                    </MenuItem>
-                                                )
-                                            })
-                                        }
-                                        <MenuItem
-                                            className='w-full'
-                                            value="Custom Calender"
-                                        >
-                                            <button
-                                                className='text-purple underline w-full text-start'
-                                                onClick={() => {
-                                                    console.log("Show show the modal");
-                                                    setCalendarSelected(null)
-                                                    // setCalenderTitle("");
-                                                    // setCalenderApiKey("");
-                                                    // setEventId("");
-                                                    // setSelectTimeZone("");
-                                                    setShowAddNewCalender(true);
+                                {
+                                    
+                                    calenderLoader ? (
+                                        <div className='w-full flex flex-row justify-center'>
+                                            <CircularProgress size = {30} />
+                                        </div>
+                                    ) : (
+                                        <FormControl sx={{ m: 1 }} className='w-full'>
+                                            <Select
+                                                labelId="demo-select-small-label"
+                                                id="demo-select-small"
+                                                value={selectCalender}
+                                                // label="Age"
+                                                onChange={handleChange}
+                                                displayEmpty // Enables placeholder
+                                                renderValue={(selected) => {
+                                                    if (!selected) {
+                                                        return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
+                                                    }
+                                                    return selected;
+                                                }}
+                                                sx={{
+                                                    border: "1px solid #00000020", // Default border
+                                                    "&:hover": {
+                                                        border: "1px solid #00000020", // Same border on hover
+                                                    },
+                                                    "& .MuiOutlinedInput-notchedOutline": {
+                                                        border: "none", // Remove the default outline
+                                                    },
+                                                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                                        border: "none", // Remove outline on focus
+                                                    },
+                                                    "&.MuiSelect-select": {
+                                                        py: 0, // Optional padding adjustments
+                                                    },
+                                                }}
+                                                MenuProps={{
+                                                    PaperProps: {
+                                                        style: {
+                                                            maxHeight: "30vh", // Limit dropdown height
+                                                            overflow: "auto", // Enable scrolling in dropdown
+                                                            scrollbarWidth: "none",
+                                                            // borderRadius: "10px"
+                                                        },
+                                                    },
                                                 }}
                                             >
-                                                Add New Calender
-                                            </button>
-                                        </MenuItem>
-                                    </Select>
-                                </FormControl>
+                                                {
+                                                    allCalendars.map((item, index) => {
+                                                        return (
+                                                            <MenuItem
+                                                                className='w-full hover:bg-purple10 hover:text-black'
+                                                                value={item.title}
+                                                                key={index}
+                                                                selected={selectCalender === item.title} // Apply "selected" to match the selected value
+                                                                sx={{
+                                                                    backgroundColor: selectCalender === item.title ? '#7902DF10' : 'transparent', // Set background for selected item
+                                                                    // color: selectCalender === item.title ? 'white' : 'inherit', // Change text color for selected item
+                                                                    "&.Mui-selected": {
+                                                                        backgroundColor: '#7902DF10', // Override background for selected item
+                                                                        // color: 'white', // Change text color for selected item
+                                                                    },
+                                                                }}
+                                                            >
+                                                                <button className='w-full text-start'
+                                                                    onClick={() => {
+                                                                        console.log("Selected calender is:", item);
+                                                                        setCalendarSelected(item);
+                                                                        handleAddCalender(item);
+                                                                        // setCalenderTitle(item.title);
+                                                                        // setCalenderApiKey(item.apiKey);
+                                                                        // setEventId(item.eventId);
+                                                                        // setSelectTimeZone(item.timeZone);
+                                                                    }}
+                                                                >
+                                                                    {item.title}
+                                                                </button>
+                                                            </MenuItem>
+                                                        )
+                                                    })
+                                                }
+                                                <MenuItem
+                                                    className='w-full'
+                                                    value="Custom Calender"
+                                                >
+                                                    <button
+                                                        className='text-purple underline w-full text-start'
+                                                        onClick={() => {
+                                                            console.log("Show show the modal");
+                                                            setCalendarSelected(null)
+                                                            // setCalenderTitle("");
+                                                            // setCalenderApiKey("");
+                                                            // setEventId("");
+                                                            // setSelectTimeZone("");
+                                                            setShowAddNewCalender(true);
+                                                        }}
+                                                    >
+                                                        Add New Calender
+                                                    </button>
+                                                </MenuItem>
+                                            </Select>
+                                        </FormControl>
+                                    )
+                                }
+
                             </div>
                             {/* <div className='w-full mt-4'>
                                 {

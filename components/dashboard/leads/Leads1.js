@@ -26,6 +26,7 @@ import AgentSelectSnackMessage, {
 import { SnackMessageTitles } from "@/components/constants/constants";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import VideoCard from "@/components/createagent/VideoCard";
+import { HowtoVideos } from "@/constants/Constants";
 
 const Leads1 = () => {
   const addColRef = useRef(null);
@@ -94,7 +95,21 @@ const Leads1 = () => {
         "first name",
         "firstname",
         "name",
+        "client name",
+        "fullname",
+        "full name",
         "username",
+        "user name",
+        "given name",
+        "person name",
+        "employee name",
+        "contact",
+        "contact name",
+        "customer",
+        "prospect",
+        "prospect name",
+        "suspect",
+        "suspect name",
         "customer name",
       ],
       ColumnNameInSheet: "",
@@ -102,7 +117,7 @@ const Leads1 = () => {
     },
     lastName: {
       UserFacingName: "Last Name",
-      mappings: ["last name", "lastname", "name"],
+      mappings: ["last name", "lastname", "name", "surname", "family name"],
       ColumnNameInSheet: "",
       dbName: "lastName",
     },
@@ -114,7 +129,7 @@ const Leads1 = () => {
     // },
     email: {
       UserFacingName: "Email",
-      mappings: ["email", "email address", "mail"],
+      mappings: ["email", "email address", "mail", "gmail"],
       ColumnNameInSheet: "",
       dbName: "email",
     },
@@ -122,10 +137,22 @@ const Leads1 = () => {
       UserFacingName: "Phone Number",
       mappings: [
         "cell no",
+        "cell",
         "phone no",
         "phone",
         "phone number",
+        "number",
+        "contact",
         "contact number",
+        "mobile",
+        "mobile number",
+        "home phone",
+        "work phone",
+        "office phone",
+        "user phone",
+        "employee phone",
+        "telephone",
+        "telephone number",
       ],
       ColumnNameInSheet: "",
       dbName: "phone",
@@ -144,7 +171,21 @@ const Leads1 = () => {
         "first name",
         "firstname",
         "name",
+        "fullname",
+        "full name",
+        "client name",
         "username",
+        "user name",
+        "given name",
+        "person name",
+        "employee name",
+        "contact",
+        "contact name",
+        "customer",
+        "prospect",
+        "prospect name",
+        "suspect",
+        "suspect name",
         "customer name",
       ],
       ColumnNameInSheet: "",
@@ -152,7 +193,7 @@ const Leads1 = () => {
     },
     {
       UserFacingName: "Last Name",
-      mappings: ["last name", "lastname"],
+      mappings: ["last name", "lastname", "surname", "family name"],
       ColumnNameInSheet: "",
       dbName: "lastName",
     },
@@ -172,10 +213,22 @@ const Leads1 = () => {
       UserFacingName: "Phone Number",
       mappings: [
         "cell no",
+        "cell",
         "phone no",
         "phone",
         "phone number",
+        "number",
+        "contact",
         "contact number",
+        "mobile",
+        "mobile number",
+        "home phone",
+        "work phone",
+        "office phone",
+        "user phone",
+        "employee phone",
+        "telephone",
+        "telephone number",
       ],
       ColumnNameInSheet: "",
       dbName: "phone",
@@ -227,8 +280,9 @@ const Leads1 = () => {
       // console.log(`Matching with `, key);
       let includes = columnsMatched.includes(key);
       // console.log(`Columns matched include ${key}`, isAlreadyMatched);
+      //lowerCaseName.includes(alias)
       if (
-        mappings[key].mappings.some((alias) => lowerCaseName.includes(alias)) &&
+        mappings[key].mappings.some((alias) => lowerCaseName == alias) &&
         !isAlreadyMatched
       ) {
         // matched. Check if the column name
@@ -553,7 +607,7 @@ const Leads1 = () => {
         let matched = [];
         headers.forEach((header) => {
           const matchedColumn = matchColumn(header, defaultColumns, allColumns);
-          //console.log(`Matched Col For Header ${header}`, matchedColumn);
+          console.log(`Matched Col For Header ${header}`, matchedColumn);
           if (matchedColumn) {
             if (!matched.includes(matchedColumn)) {
               let col = defaultColumns[matchedColumn];
@@ -1014,12 +1068,6 @@ const Leads1 = () => {
                   title="Learn how to add leads to your pipeline"
                 />
               </div>
-              <IntroVideoModal
-                open={introVideoModal}
-                onClose={() => setIntroVideoModal(false)}
-                videoTitle="Learn more about assigning leads"
-                videoUrl="https://drive.google.com/file/d/1CoE17XW9eU7P2D9GfB3fOwutjlBv599z/view?usp=share_link"
-              />
             </div>
             // </div>
           )}
@@ -1272,7 +1320,7 @@ const Leads1 = () => {
               </div>
 
               <div style={{ fontWeight: "500", fontSize: 15, marginTop: 20 }}>
-                Add Tag
+                Create a tag for leads
               </div>
 
               <div className="mt-4">
@@ -1673,74 +1721,6 @@ const Leads1 = () => {
         </Box>
       </Modal>
 
-      {/* Modal for video */}
-      <Modal
-        open={introVideoModal}
-        onClose={() => setIntroVideoModal(false)}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 1000,
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.modalsStyle}>
-          <div className="flex flex-row justify-center w-full">
-            <div
-              className="sm:w-full w-full"
-              style={{
-                backgroundColor: "#ffffff",
-                padding: 20,
-                borderRadius: "13px",
-              }}
-            >
-              <div className="flex flex-row justify-end">
-                <button
-                  onClick={() => {
-                    setIntroVideoModal(false);
-                  }}
-                >
-                  <Image
-                    src={"/assets/crossIcon.png"}
-                    height={40}
-                    width={40}
-                    alt="*"
-                  />
-                </button>
-              </div>
-
-              <div
-                className="text-center sm:font-24 font-16"
-                style={{ fontWeight: "700" }}
-              >
-                Learn more about assigning leads
-              </div>
-
-              <div className="mt-6">
-                <iframe
-                  src="https://www.youtube.com/embed/Dy9DM5u_GVg?autoplay=1&mute=1" //?autoplay=1&mute=1 to make it autoplay
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  title="YouTube video"
-                  // className='w-20vh h-40vh'
-                  style={{
-                    width: "100%",
-                    height: "50vh",
-                    borderRadius: 15,
-                  }}
-                />
-              </div>
-
-              {/* Can be use full to add shadow */}
-              {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-            </div>
-          </div>
-        </Box>
-      </Modal>
-
       {/* Modal to add lead or import lead */}
       <Modal
         open={addNewLeadModal}
@@ -1842,7 +1822,12 @@ const Leads1 = () => {
           </div>
         </Box>
       </Modal>
-
+      <IntroVideoModal
+        open={introVideoModal}
+        onClose={() => setIntroVideoModal(false)}
+        videoTitle="Learn how to add leads to your pipeline"
+        videoUrl={HowtoVideos.Leads}
+      />
       {/* Modal to add custom sheet */}
       <div>
         <Modal
