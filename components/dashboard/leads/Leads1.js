@@ -95,6 +95,9 @@ const Leads1 = () => {
         "first name",
         "firstname",
         "name",
+        "client name",
+        "fullname",
+        "full name",
         "username",
         "user name",
         "given name",
@@ -168,6 +171,9 @@ const Leads1 = () => {
         "first name",
         "firstname",
         "name",
+        "fullname",
+        "full name",
+        "client name",
         "username",
         "user name",
         "given name",
@@ -456,9 +462,9 @@ const Leads1 = () => {
           console.log("Updated name is default column", UpdatedColumnName);
           let value =
             d.extraColumns[
-            UpdateHeader.dbName
-              ? UpdateHeader.dbName
-              : UpdateHeader.ColumnNameInSheet
+              UpdateHeader.dbName
+                ? UpdateHeader.dbName
+                : UpdateHeader.ColumnNameInSheet
             ];
           delete d.extraColumns[
             UpdateHeader.dbName
@@ -1151,7 +1157,7 @@ const Leads1 = () => {
                     alt="Upload Icon"
                     height={30}
                     width={30}
-                  // style={{ marginBottom: "10px" }}
+                    // style={{ marginBottom: "10px" }}
                   />
                 </div>
                 <p style={{ ...styles.subHeadingStyle }}>
@@ -1380,8 +1386,8 @@ const Leads1 = () => {
                             {item.dbName
                               ? processedData[0].extraColumns[item.dbName]
                               : processedData[0].extraColumns[
-                              item.ColumnNameInSheet
-                              ]}
+                                  item.ColumnNameInSheet
+                                ]}
                           </div>
                         )}
                       </div>
