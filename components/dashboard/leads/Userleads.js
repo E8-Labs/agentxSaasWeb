@@ -31,6 +31,8 @@ import React, { useEffect, useRef, useState } from "react";
 import AssignLead from "./AssignLead";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css"; // Import default styles
+// import "./CalendarOverrides.css";
+import "../../calls/CalendarOverrides.css";
 import CalendarInput from "@/components/test/DatePicker";
 import parsePhoneNumberFromString from "libphonenumber-js";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -2219,6 +2221,20 @@ const Userleads = ({
                                   onClose={() => {
                                     setShowFromDatePicker(false);
                                   }}
+                                  tileClassName={({ date, view }) => {
+                                    const today = new Date();
+
+                                    // Highlight the current date
+                                    if (
+                                      date.getDate() === today.getDate() &&
+                                      date.getMonth() === today.getMonth() &&
+                                      date.getFullYear() === today.getFullYear()
+                                    ) {
+                                      return "current-date"; // Add a custom class for current date
+                                    }
+
+                                    return null; // Default for other dates
+                                  }}
                                 />
                               </div>
                             )}
@@ -2266,6 +2282,20 @@ const Userleads = ({
                                   locale="en-US"
                                   onClose={() => {
                                     setShowToDatePicker(false);
+                                  }}
+                                  tileClassName={({ date, view }) => {
+                                    const today = new Date();
+
+                                    // Highlight the current date
+                                    if (
+                                      date.getDate() === today.getDate() &&
+                                      date.getMonth() === today.getMonth() &&
+                                      date.getFullYear() === today.getFullYear()
+                                    ) {
+                                      return "current-date"; // Add a custom class for current date
+                                    }
+
+                                    return null; // Default for other dates
                                   }}
                                 />
                               </div>

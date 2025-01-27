@@ -20,10 +20,12 @@ import {
 } from "@/components/onboarding/services/apisServices/ApiService";
 import { formatPhoneNumber } from "@/utilities/agentUtilities";
 import { PersistanceKeys } from "@/constants/Constants";
+import { logout } from "@/utilities/UserUtility";
+import { useRouter } from "next/navigation";
 
 function Page() {
   const timerRef = useRef(null);
-
+  const router = useRouter();
   const [teamDropdown, setteamDropdown] = useState(null);
   const [openTeamDropdown, setOpenTeamDropdown] = useState(false);
   const [moreDropdown, setMoreDropdown] = useState(null);
@@ -361,6 +363,11 @@ function Page() {
             // getMyteam()
             setSnackTitle("Team member removed");
             setShowSnak(true);
+            if (u.user.id == team.invitedUser.id) {
+              //if current user deleted himself from the team then logout
+              logout();
+              router.push("/");
+            }
           } else {
             console.log("delete team api message is", response.data.message);
           }
@@ -409,7 +416,7 @@ function Page() {
     return true;
   }
   function canShowResendOption(team) {
-    let user = localStorage.getItem("User")
+    let user = localStorage.getItem("User");
     if (user) {
       user = JSON.parse(user);
       user = user.user;

@@ -310,7 +310,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
                 className="text-center mt-2 mb-4"
                 style={{ fontWeight: "700", fontSize: 24 }}
               >
-                Comming Soon ....
+                Coming Soon ....
               </div>
 
               {/* Can be use full to add shadow */}

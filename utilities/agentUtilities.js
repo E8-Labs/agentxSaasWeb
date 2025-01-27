@@ -117,8 +117,8 @@ export const getAgentsListImage = (
       <div
         className="flex flex-row items-center justify-center"
         style={{
-          height: "62px",
-          width: "62px",
+          height: "45px",
+          width: "45px",
           borderRadius: "50%",
           backgroundColor: "white",
           overflow: "hidden", // Ensures no part of the image spills outside the container
@@ -151,8 +151,8 @@ export const getAgentsListImage = (
         <div
           className="flex flex-row items-center justify-center"
           style={{
-            height: "62px",
-            width: "62px",
+            height: "45px",
+            width: "45px",
             borderRadius: "50%",
             backgroundColor: "white",
           }}
