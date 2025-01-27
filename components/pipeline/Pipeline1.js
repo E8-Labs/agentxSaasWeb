@@ -608,6 +608,7 @@ const Pipeline1 = ({ handleContinue }) => {
 
           {/* Code for side video */}
           <IntroVideoModal
+            
             open={introVideoModal}
             onClose={() => setIntroVideoModal(false)}
             videoTitle="Learn about pipeline and stages"
@@ -626,6 +627,7 @@ const Pipeline1 = ({ handleContinue }) => {
             }}
           >
             <VideoCard
+            duration="8 min 17 sec"
               horizontal={false}
               playVideo={() => {
                 setIntroVideoModal(true);

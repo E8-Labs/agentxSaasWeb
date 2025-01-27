@@ -487,6 +487,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             }}
           >
             <VideoCard
+              duration={"1 min 52 sec"}
               horizontal={false}
               playVideo={() => {
                 setIntroVideoModal(true);
@@ -501,7 +502,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             <div
               className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: "center" }}
-              onClick={handleContinue}
+              // onClick={handleContinue}
             >
               {`Let's talk digits`}
             </div>

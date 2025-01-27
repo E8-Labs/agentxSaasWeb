@@ -627,8 +627,9 @@ const LeadDetails = ({
   };
 
   function getExtraColumsCount(columns) {
+    console.log('columns', columns)
     let count = 0;
-    let ExcludedColumns = ["name", "phone", "email", "status", "stage"];
+    let ExcludedColumns = ["name", "phone", "email", "status", "stage","address"];
     for (const c of columns) {
       if (!c.isDefault) {
         if (!ExcludedColumns.includes(c.title.toLowerCase())) {

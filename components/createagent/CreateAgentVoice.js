@@ -190,7 +190,7 @@ const CreateAgentVoice = ({ handleBack }) => {
     } else if (item.name === "Aria") {
       return 60
     }else if (item.name === "Luna") {
-      return 45
+      return 50
     }
 
     return 70

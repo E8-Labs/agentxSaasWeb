@@ -18,6 +18,7 @@ import timeZones from "@/utilities/Timezones";
 import VideoCard from "../createagent/VideoCard";
 import IntroVideoModal from "../createagent/IntroVideoModal";
 import { HowtoVideos } from "@/constants/Constants";
+import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
 
 const AddCalender = ({ handleContinue }) => {
   const [calenderLoader, setAddCalenderLoader] = useState(false);
@@ -35,6 +36,8 @@ const AddCalender = ({ handleContinue }) => {
   const [showAddNewCalender, setShowAddNewCalender] = useState(false);
   const [introVideoModal, setIntroVideoModal] = useState(false);
   const [calendarSelected, setCalendarSelected] = useState(null);
+
+  const [showSnack, setShowSnak] = useState(false)
 
   //code for the IANA time zone lists
 
@@ -178,6 +181,7 @@ const AddCalender = ({ handleContinue }) => {
         console.log("Response of add calender api is:", response.data.data);
 
         if (response.data.status === true) {
+          setShowSnak(true)
           handleContinue();
         }
       }
@@ -217,6 +221,14 @@ const AddCalender = ({ handleContinue }) => {
       style={{ width: "100%" }}
       className="overflow-y-none flex flex-row justify-center items-center"
     >
+
+      <AgentSelectSnackMessage
+        type={SnackbarTypes.Success}
+        message={"Calendar added successfully!"}
+        isVisible={showSnack}
+        hide={() => {
+          setShowSnak(false);
+        }} />
       <div className="bg-white rounded-2xl w-10/12 h-[91vh] py-4 flex flex-col">
         <div className="h-[100%]">
           <div className="h-[87%]">
@@ -240,6 +252,7 @@ const AddCalender = ({ handleContinue }) => {
               }}
             >
               <VideoCard
+                duration="2 min 42 sec"
                 horizontal={false}
                 playVideo={() => {
                   setIntroVideoModal(true);
@@ -251,7 +264,7 @@ const AddCalender = ({ handleContinue }) => {
             <div>
               <div
                 style={{ fontWeight: "700", fontSize: 38, textAlign: "center" }}
-                // onClick={() => { handleAddCalender() }}
+              // onClick={() => { handleAddCalender() }}
               >
                 Add a Calendar
               </div>
@@ -416,9 +429,9 @@ const AddCalender = ({ handleContinue }) => {
 
         <Modal
           open={showAddNewCalender}
-          // onClose={() => {
-          // setShowAddNewCalender(false);
-          // }}
+        // onClose={() => {
+        // setShowAddNewCalender(false);
+        // }}
         >
           <Box
             className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"

@@ -53,6 +53,7 @@ import LoaderAnimation from "@/components/animations/LoaderAnimation";
 import Link from "next/link";
 
 import { ArrowUpRight } from "@phosphor-icons/react";
+import VideoCard from "@/components/createagent/VideoCard";
 
 function Page() {
   const timerRef = useRef();
@@ -3499,32 +3500,15 @@ function Page() {
                     </div>
 
                     <div className="w-full">
-                      <div className="flex flex-row items-center mt-4">
-                        <button
-                          className="flex flex-row items-center gap-4"
-                          onClick={() => {
-                            setIntroVideoModal(true);
-                          }}
-                        >
-                          <Image
-                            src={"/assets/youtubeplay.png"}
-                            height={45}
-                            width={45}
-                            alt="*"
-                            style={{ borderRadius: "7px" }}
-                          />
-                          <div
-                            style={{
-                              fontSize: 15,
-                              fontWeight: "500",
-                              borderColor: "#00000020",
-                            }}
-                            className="underline"
-                          >
-                            Learn how to customize your script
-                          </div>
-                        </button>
-                      </div>
+                     <VideoCard 
+                      duration={"13 min 56 sec"}
+                      horizontal={false}
+                      playVideo={() => {
+                        setIntroVideoModal(true);
+                      }}
+                      title="Learn how to customize your script"
+                     />
+                     
 
                       {/* <div
                         className="mt-4"
@@ -3547,7 +3531,7 @@ function Page() {
                             }}
                             onClick={() => {
                               window.open(
-                                "https://www.google.com/url?q=https://chatgpt.com/g/g-0O0jItKdk-agentx-script-builder&sa=D&source=docs&ust=1736727664686727&usg=AOvVaw3gT9iletUxbxgJ4hPXXIj9",
+                                "https://chatgpt.com/g/g-0O0jItKdk-agentx-script-builder",
                                 "_blank"
                               );
                             }}
@@ -3747,10 +3731,11 @@ function Page() {
       {/* Modal for video */}
 
       <IntroVideoModal
+    
         open={introVideoModal}
         onClose={() => setIntroVideoModal(false)}
         videoTitle=" Learn how to customize your script"
-        videoUrl={HowtoVideos.LetsTalkDigits}
+        videoUrl={HowtoVideos.script}
       />
 
       {/* <Modal

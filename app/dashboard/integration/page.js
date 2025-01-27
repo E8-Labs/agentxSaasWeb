@@ -178,7 +178,7 @@ const allIntegrations = [
   },
   {
     title: "GHL",
-    url: "https://youtube.com",
+    url: "https://zapier.com/apps/leadconnector/integrations/myagentx",
     description:
       "Integrate with AgentX to streamline lead management, automate follow-ups, and boost conversions effortlessly.",
     icon: "/svgIcons/GHLIcon.svg",
@@ -605,10 +605,10 @@ function Page() {
                 </div>
                 <button
                   onClick={() => {
-                    if (integration.title === "GHL") {
-                      setShowCopySnak("Comming soon");
-                      return;
-                    }
+                    // if (integration.title === "GHL") {
+                    //   setShowCopySnak("Comming soon");
+                    //   return;
+                    // }
                     if (typeof window !== "undefined") {
                       window.open(integration.url, "_blank");
                     }

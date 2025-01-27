@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-const VideoCard = ({ playVideo, horizontal = true, title }) => {
+const VideoCard = ({ playVideo, horizontal = true, title, duration = "2 mins" }) => {
   return (
     <div
       className={`flex  ${
@@ -38,7 +38,7 @@ const VideoCard = ({ playVideo, horizontal = true, title }) => {
           </div> */}
         </div>
         <div className="flex px-2 py-1 flex-col justify-center items-center rounded-full border border-brdColor">
-          <p className="text-sm text-gray-600">2mins</p>
+          <p className="text-sm text-gray-600">{duration}</p>
         </div>
       </div>
 

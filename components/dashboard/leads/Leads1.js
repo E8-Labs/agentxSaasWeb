@@ -990,7 +990,7 @@ const Leads1 = () => {
         </div>
       ) : (
         <div className="w-full">
-          {userLeads ? (
+          { userLeads ? (
             <div className="h-screen w-full">
               <Userleads
                 handleShowAddLeadModal={handleShowAddLeadModal}
@@ -1061,11 +1061,12 @@ const Leads1 = () => {
                 }}
               >
                 <VideoCard
+                  duration={"11 min 27 sec"}
                   horizontal={false}
                   playVideo={() => {
                     setIntroVideoModal(true);
                   }}
-                  title="Learn how to add leads to your pipeline"
+                  title=" Learn how to add leads to your CRM"
                 />
               </div>
             </div>
@@ -1294,12 +1295,12 @@ const Leads1 = () => {
 
               <div className="flex flex-row items-center gap-2 mt-8">
                 <span style={styles.subHeadingStyle}>List Name</span>{" "}
-                <Image
+                {/* <Image
                   src={"/svgIcons/infoIcon.svg"}
                   height={18}
                   width={18}
                   alt="*"
-                />
+                /> */}
               </div>
 
               <div className="w-full mt-4" style={styles.subHeadingStyle}>
@@ -1825,8 +1826,9 @@ const Leads1 = () => {
       <IntroVideoModal
         open={introVideoModal}
         onClose={() => setIntroVideoModal(false)}
-        videoTitle="Learn how to add leads to your pipeline"
+        videoTitle="Learn how to add leads to your CRM"
         videoUrl={HowtoVideos.Leads}
+        duratuin = {11}
       />
       {/* Modal to add custom sheet */}
       <div>
@@ -1883,12 +1885,12 @@ const Leads1 = () => {
                 <div className="px-4 w-full">
                   <div className="flex flex-row items-center justify-start mt-6 gap-2">
                     <span style={styles.paragraph}>List Name</span>
-                    <Image
+                    {/* <Image
                       src={"/svgIcons/infoIcon.svg"}
                       height={15}
                       width={15}
                       alt="*"
-                    />
+                    /> */}
                   </div>
                   <div className="mt-4">
                     <input

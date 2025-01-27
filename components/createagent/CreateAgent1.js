@@ -473,6 +473,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
             }}
           >
             <VideoCard
+              duration= "1 min 47 sec"
               horizontal={false}
               playVideo={() => {
                 setIntroVideoModal(true);

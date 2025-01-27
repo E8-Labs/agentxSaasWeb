@@ -454,6 +454,7 @@ const BuyerKycs = ({ handleContinue }) => {
             <div className="flex flex-row w-full justify-center h-[100%]">
               <div className="hidden lg:inline w-2/12 -ml-4 mt-12">
                 <VideoCard
+                  duration="1 min 38 sec"
                   horizontal={false}
                   playVideo={() => {
                     setIntroVideoModal(true);
