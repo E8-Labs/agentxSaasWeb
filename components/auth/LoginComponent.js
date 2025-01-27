@@ -341,6 +341,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               console.log("Here undefined");
             }
           }
+        } else {
+          setLoginLoader(false);
         }
       }
     } catch (error) {
