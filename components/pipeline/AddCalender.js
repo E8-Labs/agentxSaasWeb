@@ -240,6 +240,7 @@ const AddCalender = ({ handleContinue }) => {
               }}
             >
               <VideoCard
+                duration="2 min 42 sec"
                 horizontal={false}
                 playVideo={() => {
                   setIntroVideoModal(true);

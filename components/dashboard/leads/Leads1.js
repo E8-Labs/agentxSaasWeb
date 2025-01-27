@@ -990,7 +990,7 @@ const Leads1 = () => {
         </div>
       ) : (
         <div className="w-full">
-          {userLeads ? (
+          { userLeads ? (
             <div className="h-screen w-full">
               <Userleads
                 handleShowAddLeadModal={handleShowAddLeadModal}
@@ -1061,11 +1061,12 @@ const Leads1 = () => {
                 }}
               >
                 <VideoCard
+                  duration={"11 min 27 sec"}
                   horizontal={false}
                   playVideo={() => {
                     setIntroVideoModal(true);
                   }}
-                  title="Learn how to add leads to your pipeline"
+                  title=" Learn how to add leads to your CRM"
                 />
               </div>
             </div>
@@ -1825,8 +1826,9 @@ const Leads1 = () => {
       <IntroVideoModal
         open={introVideoModal}
         onClose={() => setIntroVideoModal(false)}
-        videoTitle="Learn how to add leads to your pipeline"
+        videoTitle="Learn how to add leads to your CRM"
         videoUrl={HowtoVideos.Leads}
+        duratuin = {11}
       />
       {/* Modal to add custom sheet */}
       <div>
