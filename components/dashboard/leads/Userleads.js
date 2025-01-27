@@ -2504,12 +2504,12 @@ const Userleads = ({
                       <div className="px-4 w-full">
                         <div className="flex flex-row items-center justify-start mt-6 gap-2">
                           <span style={styles.paragraph}>List Name</span>
-                          <Image
+                          {/* <Image
                             src={"/svgIcons/infoIcon.svg"}
                             height={15}
                             width={15}
                             alt="*"
-                          />
+                          /> */}
                         </div>
                         <div className="mt-4">
                           <input

@@ -1295,12 +1295,12 @@ const Leads1 = () => {
 
               <div className="flex flex-row items-center gap-2 mt-8">
                 <span style={styles.subHeadingStyle}>List Name</span>{" "}
-                <Image
+                {/* <Image
                   src={"/svgIcons/infoIcon.svg"}
                   height={18}
                   width={18}
                   alt="*"
-                />
+                /> */}
               </div>
 
               <div className="w-full mt-4" style={styles.subHeadingStyle}>
@@ -1885,12 +1885,12 @@ const Leads1 = () => {
                 <div className="px-4 w-full">
                   <div className="flex flex-row items-center justify-start mt-6 gap-2">
                     <span style={styles.paragraph}>List Name</span>
-                    <Image
+                    {/* <Image
                       src={"/svgIcons/infoIcon.svg"}
                       height={15}
                       width={15}
                       alt="*"
-                    />
+                    /> */}
                   </div>
                   <div className="mt-4">
                     <input
