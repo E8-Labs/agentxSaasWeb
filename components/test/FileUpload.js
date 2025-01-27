@@ -4,7 +4,7 @@ import { useDropzone } from "react-dropzone";
 
 const FileUpload = () => {
     const onDrop = useCallback((acceptedFiles) => {
-        console.log(acceptedFiles);
+       // console.log(acceptedFiles);
         // Handle the uploaded files
     }, []);
 

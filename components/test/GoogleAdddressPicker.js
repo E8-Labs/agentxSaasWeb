@@ -26,7 +26,7 @@ const GoogleAddressPicker = () => {
                 { placeId },
                 (details) => {
                     setSelectedPlace(details);
-                    console.log("Selected Place Details:", details);
+                   // console.log("Selected Place Details:", details);
                 }
             );
         }

@@ -35,7 +35,7 @@ function CallWorthyReviewsPopup({ open, close }) {
       if (data) {
         const u = JSON.parse(data);
         let path = Apis.getImportantCalls;
-        console.log("Authtoken is", u.token);
+       // console.log("Authtoken is", u.token);
         const response = await axios.get(path, {
           headers: {
             Authorization: "Bearer " + u.token,
@@ -44,22 +44,22 @@ function CallWorthyReviewsPopup({ open, close }) {
 
         if (response) {
           if (response.data.status === true) {
-            console.log(
-              "response of get imporatant calls api is",
-              response.data.data
-            );
+           // console.log(
+            //   "response of get imporatant calls api is",
+            //   response.data.data
+            // );
             setImportantCalls(response.data.data);
             setSelectedCall(response.data.data[0]);
           } else {
-            console.log(
-              "message of get important calls api is",
-              response.data.message
-            );
+           // console.log(
+              // "message of get important calls api is",
+            //   response.data.message
+            // );
           }
         }
       }
     } catch (e) {
-      console.log("error in get important calls api is", e);
+     // console.log("error in get important calls api is", e);
     } finally {
       setInitialLoader(false);
     }
@@ -69,7 +69,7 @@ function CallWorthyReviewsPopup({ open, close }) {
     const phoneNumber = parsePhoneNumberFromString(
       rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
     );
-    // console.log("Raw number is", rawNumber);
+    //// console.log("Raw number is", rawNumber);
     return phoneNumber
       ? phoneNumber.formatInternational()
       : "Invalid phone number";

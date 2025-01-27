@@ -154,25 +154,25 @@ const Pipeline1 = () => {
 
   const handleChangeNextStage = (event) => {
     let value = event.target.value;
-    // console.log("Value to set is :", value);
+    //// console.log("Value to set is :", value);
     setAssignNextStage(event.target.value);
 
     const selectedItem = StagesList.find((item) => item.stageTitle === value);
     setAssignNextStageId(selectedItem.id);
 
-    console.log("Selected inext stage is:", selectedItem);
+   // console.log("Selected inext stage is:", selectedItem);
   };
 
   //new teammeber
   // const handleAssignTeamMember = (event) => {
   //   let value = event.target.value;
-  //   // console.log("Value to set is :", value);
+  //   //// console.log("Value to set is :", value);
   //   setAssignToMember(event.target.value);
 
   //   const selectedItem = myTeamList.find(
   //     (item) => item.invitedUser.name === value
   //   );
-  //   console.log("Selected teammeber is:", selectedItem);
+  //  // console.log("Selected teammeber is:", selectedItem);
   //   setAssignToMember(
   //     selectedItem.invitedUser.name || myTeamAdmin.invitedUser.name
   //   ); //
@@ -181,18 +181,18 @@ const Pipeline1 = () => {
   //     selectedItem.invitedUser.id || myTeamAdmin.invitedUser.id,
   //   ]); //
 
-  //   console.log("Selected teammeber is:", selectedItem);
+  //  // console.log("Selected teammeber is:", selectedItem);
   // };
 
   const handleAssignTeamMember = (event) => {
     let value = event.target.value;
-    console.log("Value to set is :", value);
+   // console.log("Value to set is :", value);
     setAssignToMember(event.target.value);
 
     const selectedItem = myTeamList.find(
       (item) => item?.invitedUser?.name === value
     );
-    console.log("Selected teammeber is:", selectedItem);
+   // console.log("Selected teammeber is:", selectedItem);
     setAssignToMember(
       selectedItem?.invitedUser?.name || myTeamAdmin.invitedUser?.name
     ); //
@@ -201,7 +201,7 @@ const Pipeline1 = () => {
       selectedItem?.invitedUser?.id || myTeamAdmin.invitedUser?.id,
     ]); //
 
-    console.log("Selected teammeber is:", selectedItem);
+   // console.log("Selected teammeber is:", selectedItem);
   };
 
   //renaame the stage
@@ -271,7 +271,7 @@ const Pipeline1 = () => {
     getMyTeam();
     const pipelineIndex = searchParams.get("pipeline"); // Get the value of 'tab'
     let number = Number(pipelineIndex) || 0;
-    console.log("Pipeline index is ", number);
+   // console.log("Pipeline index is ", number);
     selectedPipelineIndex = number;
     if (!pipelineIndex) {
       setParamsInSearchBar(number);
@@ -286,14 +286,14 @@ const Pipeline1 = () => {
     // Push the updated URL
     router.push(`/dashboard/pipeline?${params.toString()}`);
 
-    console.log("Rerendering tab with selected tab: ", index);
+   // console.log("Rerendering tab with selected tab: ", index);
   };
 
   // const getMyTeam = async () => {
   //   try {
   //     let response = await getTeamsList();
   //     if (response) {
-  //       console.log("Response recieved is", response);
+  //      // console.log("Response recieved is", response);
   //       let teams = [];
   //       if (response.data && response.data.length > 0) {
   //         for (const t of response.data) {
@@ -306,7 +306,7 @@ const Pipeline1 = () => {
   //       setMyTeamAdmin(response.admin);
   //     }
   //   } catch (error) {
-  //     console.error("Error occured in api is", error);
+  //    // console.error("Error occured in api is", error);
   //   }
   // };
 
@@ -314,7 +314,7 @@ const Pipeline1 = () => {
     try {
       let response = await getTeamsList();
       if (response) {
-        console.log("Team Response recieved is", response);
+       // console.log("Team Response recieved is", response);
         let teams = [];
         if (response.admin) {
           let admin = response.admin;
@@ -329,18 +329,18 @@ const Pipeline1 = () => {
           }
         }
 
-        console.log("My teams list", teams);
+       // console.log("My teams list", teams);
 
         setMyTeamList(teams);
         setMyTeamAdmin(response.admin);
       }
     } catch (error) {
-      console.error("Error occured in api is", error);
+     // console.error("Error occured in api is", error);
     }
   };
 
   useEffect(() => {
-    console.log("Selected Lead Details changed", selectedLeadsDetails);
+   // console.log("Selected Lead Details changed", selectedLeadsDetails);
   }, [selectedLeadsDetails]);
   const getImportantCalls = async () => {
     try {
@@ -348,8 +348,8 @@ const Pipeline1 = () => {
       if (data) {
         const u = JSON.parse(data);
         let path = Apis.getImportantCalls;
-        console.log("Apipath for getcall", path);
-        console.log("Authtoken for getcall", u.token);
+       // console.log("Apipath for getcall", path);
+       // console.log("Authtoken for getcall", u.token);
         const response = await axios.get(path, {
           headers: {
             Authorization: `Bearer ${u.token}`,
@@ -358,22 +358,22 @@ const Pipeline1 = () => {
 
         if (response) {
           if (response.data.status === true) {
-            console.log(
-              "response of get imporatant calls api is",
-              response.data.data
-            );
+           // console.log(
+            //   "response of get imporatant calls api is",
+            //   response.data.data
+            // );
             setImportantCalls(response.data.data);
             setSelectedCall(response.data.data[0]);
           } else {
-            console.log(
-              "message of get important calls api is",
-              response.data.message
-            );
+           // console.log(
+            //   "message of get important calls api is",
+            //   response.data.message
+            // );
           }
         }
       }
     } catch (e) {
-      console.log("error in get important calls api is", e);
+     // console.log("error in get important calls api is", e);
     }
   };
 
@@ -382,11 +382,11 @@ const Pipeline1 = () => {
 
   //     if (showAdvanceSettings) {
   //         if (!newStageTitle || !action || inputs.filter(input => input.value.trim() !== "").length < 3) {
-  //             console.log("Shoukd hide ")
+  //            // console.log("Shoukd hide ")
   //             setShowAddStageBtn(false);
   //         }
   //         else if (newStageTitle && action && inputs.filter(input => input.value.trim() !== "").length === 3) {
-  //             console.log("Show continue to add stage")
+  //            // console.log("Show continue to add stage")
   //             setShowAddStageBtn(true);
   //         }
   //     }
@@ -423,9 +423,9 @@ const Pipeline1 = () => {
   }, []);
 
   useEffect(() => {
-    console.log("Update stage UseEffect", stageColorUpdate);
+   // console.log("Update stage UseEffect", stageColorUpdate);
     const timer = setTimeout(() => {
-      // console.log("I am trigerred after 1second");
+      //// console.log("I am trigerred after 1second");
       if (stageColorUpdate) {
         handleUpdateColor();
       }
@@ -438,17 +438,17 @@ const Pipeline1 = () => {
   //     let previousStages = oldStages.map((item) => item.id);
   //     let updatedStages = StagesList.map((item) => item.id);
 
-  //     console.log("Old stages list is reorder stages:", previousStages);
-  //     console.log("Updated stages list is reorder stages:", updatedStages);
+  //    // console.log("Old stages list is reorder stages:", previousStages);
+  //    // console.log("Updated stages list is reorder stages:", updatedStages);
 
   //     // Compare arrays
   //     const areArraysEqual = previousStages.length === updatedStages.length &&
   //         previousStages.every((item, index) => item === updatedStages[index]);
 
   //     if (areArraysEqual) {
-  //         console.log("Should not reorder stages");
+  //        // console.log("Should not reorder stages");
   //     } else {
-  //         console.log("Should reorder stages");
+  //        // console.log("Should reorder stages");
   //         handleReorder();
   //     }
   // }, [StagesList]);
@@ -473,16 +473,16 @@ const Pipeline1 = () => {
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-        console.log("Local details are :", UserDetails);
+       // console.log("Local details are :", UserDetails);
       }
 
-      console.log("Auth token is:", AuthToken);
+     // console.log("Auth token is:", AuthToken);
 
       const formData = new FormData();
       formData.append("title", newPipelineTitle);
 
       for (let [key, value] of formData.entries()) {
-        console.log(`${key} ${value} `);
+       // console.log(`${key} ${value} `);
       }
 
       const ApiPath = Apis.createPipeLine;
@@ -495,13 +495,13 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        console.log("Response of add pipeline api is:", response);
+       // console.log("Response of add pipeline api is:", response);
         if (response.data.status === true) {
           let updatedPipelinesList = [];
           setPipeLines([...PipeLines, response.data.data]);
           updatedPipelinesList = [...PipeLines, response.data.data];
           let reversePipelinesList = updatedPipelinesList.reverse();
-          console.log("Updated list of pipelines is:", reversePipelinesList);
+         // console.log("Updated list of pipelines is:", reversePipelinesList);
           setSelectedPipeline(reversePipelinesList[0]);
           setStagesList(reversePipelinesList[0].stages);
           setNewPipelineTitle("");
@@ -515,7 +515,7 @@ const Pipeline1 = () => {
         }
       }
     } catch (error) {
-      console.error("Error occured in api  create is:", error);
+     // console.error("Error occured in api  create is:", error);
     } finally {
       setAddPipelineLoader(false);
     }
@@ -539,7 +539,7 @@ const Pipeline1 = () => {
           index = -1;
         }
 
-        console.log("Pipeline Index selected is ", selectedPipelineIndex);
+       // console.log("Pipeline Index selected is ", selectedPipelineIndex);
 
         if (index != -1) {
           setPipeLines(jsonData);
@@ -547,7 +547,7 @@ const Pipeline1 = () => {
           setStagesList(jsonData[index].stages);
           setOldStages(jsonData[index].stages);
           setLeadsList(jsonData[index].leads);
-          console.log("Leads lis is :", jsonData[index].leads);
+         // console.log("Leads lis is :", jsonData[index].leads);
         }
         // setSelectedPipeline(jsonData[selectedPipelineIndex]);
         // setStagesList(jsonData[selectedPipelineIndex].stages);
@@ -571,12 +571,12 @@ const Pipeline1 = () => {
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-        console.log("Local details are :", UserDetails);
+       // console.log("Local details are :", UserDetails);
       }
 
-      console.log("Auth token is :--", AuthToken);
+     // console.log("Auth token is :--", AuthToken);
       const ApiPath = Apis.getPipelines;
-      console.log("Api path is :", ApiPath);
+     // console.log("Api path is :", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -586,7 +586,7 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        console.log("Response of getpipeline api is :", response.data.data);
+       // console.log("Response of getpipeline api is :", response.data.data);
         localStorage.setItem(
           PersistanceKeys.LocalStoragePipelines,
           JSON.stringify(response.data.data)
@@ -606,13 +606,13 @@ const Pipeline1 = () => {
           setStagesList(response.data.data[index].stages);
           setOldStages(response.data.data[index].stages);
           setLeadsList(response.data.data[index].leads);
-          console.log("Leads lis is :", response.data.data[index].leads);
+         // console.log("Leads lis is :", response.data.data[index].leads);
         }
       }
     } catch (error) {
-      console.error("Error occured in api is:", error);
+     // console.error("Error occured in api is:", error);
     } finally {
-      console.log("Api call completed");
+     // console.log("Api call completed");
       setInitialLoader(false);
     }
   };
@@ -623,7 +623,7 @@ const Pipeline1 = () => {
     try {
       setDelTagLoader(lead.lead.id);
 
-      console.log("Lead selected is", lead);
+     // console.log("Lead selected is", lead);
 
       let AuthToken = null;
 
@@ -633,7 +633,7 @@ const Pipeline1 = () => {
         AuthToken = localData.token;
       }
 
-      console.log("Auth token is:", AuthToken);
+     // console.log("Auth token is:", AuthToken);
 
       const ApiData = {
         leadId: lead.lead.id,
@@ -641,9 +641,9 @@ const Pipeline1 = () => {
       };
 
       const ApiPath = Apis.delLeadTag;
-      console.log("Leads list is", LeadsList);
-      console.log("Data sending in api is:", ApiData);
-      console.log("Api path is:", ApiPath);
+     // console.log("Leads list is", LeadsList);
+     // console.log("Data sending in api is:", ApiData);
+     // console.log("Api path is:", ApiPath);
 
       // return
       const response = await axios.post(ApiPath, ApiData, {
@@ -654,9 +654,9 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        console.log("Response of del tag api is:", response.data);
+       // console.log("Response of del tag api is:", response.data);
         if (response.data.status === true) {
-          console.log("Staus is true");
+         // console.log("Staus is true");
 
           // const updatedTags = LeadsList.lead.tags.filter(
           //   (item) => item !== tag
@@ -668,7 +668,7 @@ const Pipeline1 = () => {
         }
       }
     } catch (error) {
-      console.error("Error occured in api is:", error);
+     // console.error("Error occured in api is:", error);
     } finally {
       setDelTagLoader(null);
     }
@@ -704,7 +704,7 @@ const Pipeline1 = () => {
 
   //code to seect other pipeline
   const handleSelectOtherPipeline = (item, index) => {
-    console.log("Other pipeline selected is :", item);
+   // console.log("Other pipeline selected is :", item);
     setSelectedPipeline(item);
     // setSelectedPipeline(item);
     setStagesList(item.stages);
@@ -723,27 +723,27 @@ const Pipeline1 = () => {
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-        console.log("Local details are :", UserDetails);
+       // console.log("Local details are :", UserDetails);
       }
 
       let mainAgent = null;
 
       const mainAgentData = localStorage.getItem("agentDetails");
-      console.log("Check at 0 clear");
+     // console.log("Check at 0 clear");
 
       if (mainAgentData) {
         const mainAgentDetails = JSON.parse(mainAgentData);
-        console.log("Check clear");
-        console.log("Main agent detals are :", mainAgentDetails);
+       // console.log("Check clear");
+       // console.log("Main agent detals are :", mainAgentDetails);
         mainAgent = mainAgentDetails;
       }
 
       // return
 
-      console.log("Auth token is :--", AuthToken);
+     // console.log("Auth token is :--", AuthToken);
 
       const ApiPath = Apis.addCustomStage;
-      console.log("Api path is:", ApiPath);
+     // console.log("Api path is:", ApiPath);
 
       const ApiData = {
         stageTitle: newStageTitle,
@@ -755,7 +755,7 @@ const Pipeline1 = () => {
         tags: tagsValue,
         teams: assignLeadToMember,
       };
-      console.log("Data sending in api is:", ApiData);
+     // console.log("Data sending in api is:", ApiData);
 
       // return
 
@@ -767,7 +767,7 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        console.log("Response of add stage title :", response);
+       // console.log("Response of add stage title :", response);
         if (response.data.status === true) {
           setStagesList(response.data.data.stages);
           handleCloseAddStage();
@@ -791,24 +791,24 @@ const Pipeline1 = () => {
         }
       }
     } catch (error) {
-      console.error("Error occured inn adding new stage title api is", error);
+     // console.error("Error occured inn adding new stage title api is", error);
     } finally {
       setAddStageLoader(false);
     }
   };
 
   useEffect(() => {
-    console.log("Selected pipeline is", PipeLines);
+   // console.log("Selected pipeline is", PipeLines);
   }, [PipeLines]);
 
   //code ford deleting the stage
   const handleDeleteStage = async (value) => {
     try {
       if (value === "del2") {
-        console.log("Loader 2", value);
+       // console.log("Loader 2", value);
         setDelStageLoader2(true);
       } else if (value === "del") {
-        console.log("Loader 1", value);
+       // console.log("Loader 1", value);
         setDelStageLoader(true);
       }
       const localData = localStorage.getItem("User");
@@ -816,10 +816,10 @@ const Pipeline1 = () => {
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-        // console.log("Local details are :", UserDetails);
+        //// console.log("Local details are :", UserDetails);
       }
 
-      console.log("Auth token is :--", AuthToken);
+     // console.log("Auth token is :--", AuthToken);
 
       const ApiData = {
         pipelineId: SelectedPipeline.id,
@@ -835,12 +835,12 @@ const Pipeline1 = () => {
       }
 
       for (let [key, value] of formData) {
-        console.log(`${key}, ${value}`);
+       // console.log(`${key}, ${value}`);
       }
 
       // return
       const ApiPath = Apis.deleteStage;
-      console.log("Apipath is:", ApiPath);
+     // console.log("Apipath is:", ApiPath);
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -850,7 +850,7 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        console.log("response of del stage api is:", response.data);
+       // console.log("response of del stage api is:", response.data);
         if (response.data.status === true) {
           setStagesList(response.data.data.stages);
           setSuccessSnack(response.data.message);
@@ -859,7 +859,7 @@ const Pipeline1 = () => {
         }
       }
     } catch (error) {
-      console.error("Error occured in delstage api is:", error);
+     // console.error("Error occured in delstage api is:", error);
     } finally {
       setDelStageLoader(false);
       setDelStageLoader2(false);
@@ -877,7 +877,7 @@ const Pipeline1 = () => {
         AuthToken = UserDetails.token;
       }
 
-      console.log("Auth token is :--", AuthToken);
+     // console.log("Auth token is :--", AuthToken);
 
       // const ApiData = {
       //     stageTitle: renameStage,
@@ -890,15 +890,15 @@ const Pipeline1 = () => {
       formData.append("stageId", selectedStage.id);
       formData.append("color", updateStageColor);
 
-      // console.log("data sending in api si:", ApiData);
+      //// console.log("data sending in api si:", ApiData);
 
       for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
+       // console.log(`${key}: ${value}`);
       }
 
       const ApiPath = Apis.UpdateStage;
 
-      console.log("Api path is 826:", ApiPath);
+     // console.log("Api path is 826:", ApiPath);
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -908,13 +908,13 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        console.log("Response of updates stage api is response :", response);
+       // console.log("Response of updates stage api is response :", response);
         setStagesList(response.data.data.stages);
         setShowRenamePopup(false);
         handleCloseStagePopover();
       }
     } catch (error) {
-      console.log("Error occured in rename stage api is:", error);
+     // console.log("Error occured in rename stage api is:", error);
     } finally {
       setRenameStageLoader(false);
     }
@@ -931,17 +931,17 @@ const Pipeline1 = () => {
         AuthToken = UserDetails.token;
       }
 
-      console.log("Auth token is :--", AuthToken);
+     // console.log("Auth token is :--", AuthToken);
 
       const ApiData = {
         title: renamePipeline,
         pipelineId: SelectedPipeline.id,
       };
 
-      console.log("data sending in api si:", ApiData);
+     // console.log("data sending in api si:", ApiData);
       const ApiPath = Apis.updatePipeline;
 
-      console.log("Api path is:", ApiPath);
+     // console.log("Api path is:", ApiPath);
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -951,7 +951,7 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        console.log("Response of updates pipeline api is response :", response);
+       // console.log("Response of updates pipeline api is response :", response);
         // setPipeLines()
         setPipeLines((prevPipelines) =>
           prevPipelines.map((pipeline) =>
@@ -965,7 +965,7 @@ const Pipeline1 = () => {
         handlePipelineClosePopover();
       }
     } catch (error) {
-      console.log("Error occured in rename pipeline api is:", error);
+     // console.log("Error occured in rename pipeline api is:", error);
     } finally {
       setRenamePipelineLoader(false);
     }
@@ -982,7 +982,7 @@ const Pipeline1 = () => {
         AuthToken = UserDetails.token;
       }
 
-      console.log("Auth token is :--", AuthToken);
+     // console.log("Auth token is :--", AuthToken);
 
       // const ApiData = {
       //     stageTitle: renameStage,
@@ -995,15 +995,15 @@ const Pipeline1 = () => {
       formData.append("stageId", selectedStage?.id);
       formData.append("color", stageColorUpdate);
 
-      // console.log("data sending in api si:", ApiData);
+      //// console.log("data sending in api si:", ApiData);
 
       for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
+       // console.log(`${key}: ${value}`);
       }
 
       const ApiPath = Apis.UpdateStage;
 
-      console.log("Api path is: 931", ApiPath);
+     // console.log("Api path is: 931", ApiPath);
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -1013,13 +1013,13 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        console.log("Response of updates stage api is response :", response);
+       // console.log("Response of updates stage api is response :", response);
         setStagesList(response.data.data.stages);
         // setShowRenamePopup(false);
         // handleCloseStagePopover();
       }
     } catch (error) {
-      console.log("Error occured in update color api is:", error);
+     // console.log("Error occured in update color api is:", error);
     } finally {
       setRenameStageLoader(false);
     }
@@ -1037,19 +1037,19 @@ const Pipeline1 = () => {
         AuthToken = UserDetails.token;
       }
 
-      console.log("Auth token is :--", AuthToken);
+     // console.log("Auth token is :--", AuthToken);
 
       const formData = new FormData();
       formData.append("pipelineId", SelectedPipeline.id);
 
       for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
+       // console.log(`${key}: ${value}`);
       }
 
-      // console.log("data sending in api si:", ApiData);
+      //// console.log("data sending in api si:", ApiData);
       const ApiPath = Apis.deletePipeline;
 
-      console.log("Api path is:", ApiPath);
+     // console.log("Api path is:", ApiPath);
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -1059,7 +1059,7 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        console.log("Response of updates pipeline api is response :", response);
+       // console.log("Response of updates pipeline api is response :", response);
         if (response.data.status === true) {
           let updatedPipelines = [];
           setPipeLines(
@@ -1068,7 +1068,7 @@ const Pipeline1 = () => {
           updatedPipelines = PipeLines.filter(
             (pipeline) => pipeline.id !== SelectedPipeline.id
           );
-          console.log("Updated list of pipelines is:", updatedPipelines);
+         // console.log("Updated list of pipelines is:", updatedPipelines);
           setSelectedPipeline(updatedPipelines[0]);
           setStagesList(updatedPipelines[0].stages);
           setLeadsList(updatedPipelines[0].leads);
@@ -1077,7 +1077,7 @@ const Pipeline1 = () => {
         }
       }
     } catch (error) {
-      console.log("Error occured in delete pipeline api is:", error);
+     // console.log("Error occured in delete pipeline api is:", error);
     } finally {
       setDeletePipelineLoader(false);
     }
@@ -1116,16 +1116,16 @@ const Pipeline1 = () => {
         AuthToken = UserDetails.token;
       }
 
-      console.log("Auth token is :--", AuthToken);
+     // console.log("Auth token is :--", AuthToken);
 
       const ApiData = {
         sheetName: newSheetName,
         columns: inputs.map((columns) => columns.value),
       };
-      console.log("Data to send in api is:", ApiData);
+     // console.log("Data to send in api is:", ApiData);
 
       const ApiPath = Apis.addSmartList;
-      console.log("Api Path is", ApiPath);
+     // console.log("Api Path is", ApiPath);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -1135,13 +1135,13 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        console.log("Response of add new smart list api is :", response);
+       // console.log("Response of add new smart list api is :", response);
         if (response.data.status) {
           setShowAddNewSheetModal(false);
         }
       }
     } catch (error) {
-      console.error("Error occured in adding new list api is:", error);
+     // console.error("Error occured in adding new list api is:", error);
     } finally {
       setShowaddCreateListLoader(false);
     }
@@ -1162,7 +1162,7 @@ const Pipeline1 = () => {
       (item) => item.stageTitle === selectedValue
     );
 
-    console.log(`Index ${index} Selected Item:`, selectedItem);
+   // console.log(`Index ${index} Selected Item:`, selectedItem);
 
     // Update the selected next stage for the specific index
     setSelectedNextStage((prev) => ({
@@ -1173,7 +1173,7 @@ const Pipeline1 = () => {
 
   //code to rearrange stages list
   const handleReorder = async () => {
-    // console.log("Update stage test");
+    //// console.log("Update stage test");
     // return;
     try {
       setReorderStageLoader(true);
@@ -1182,7 +1182,7 @@ const Pipeline1 = () => {
         order: stage.order,
       }));
 
-      console.log("Updated stages order is :", updateStages);
+     // console.log("Updated stages order is :", updateStages);
 
       const ApiPath = Apis.reorderStages;
       let AuthToken = null;
@@ -1191,14 +1191,14 @@ const Pipeline1 = () => {
         const UserDetails = JSON.parse(LocalData);
         AuthToken = UserDetails.token;
       }
-      // console.log("Selected pipeline id is: ", selectedPipelineItem.id);
+      //// console.log("Selected pipeline id is: ", selectedPipelineItem.id);
       const ApiData = {
         pipelineId: SelectedPipeline.id,
         reorderedStages: updateStages,
       };
 
-      // console.log("Auth token is :", AuthToken);
-      console.log("Api data is :", ApiData);
+      //// console.log("Auth token is :", AuthToken);
+     // console.log("Api data is :", ApiData);
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -1208,7 +1208,7 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        console.log("Response of updated stages is:", response.data);
+       // console.log("Response of updated stages is:", response.data);
         if (response.data.status === true) {
           setShowStagesPopup(false);
           setShowReorderBtn(false);
@@ -1219,9 +1219,9 @@ const Pipeline1 = () => {
         }
       }
     } catch (error) {
-      console.error("Error occured in rearrange order api is:", error);
+     // console.error("Error occured in rearrange order api is:", error);
     } finally {
-      console.log("api call completed");
+     // console.log("api call completed");
       setReorderStageLoader(false);
     }
   };
@@ -1270,7 +1270,7 @@ const Pipeline1 = () => {
     const phoneNumber = parsePhoneNumberFromString(
       rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
     );
-    // console.log("Raw number is", rawNumber);
+    //// console.log("Raw number is", rawNumber);
     return phoneNumber
       ? phoneNumber.formatInternational()
       : "Invalid phone number";
@@ -1299,39 +1299,39 @@ const Pipeline1 = () => {
     if (item.status === "completed") {
       // Check for hotlead, humancalldrop, and dnd
       if (item.hotlead || item.humancalldrop || item.dnd) {
-        console.log(
-          "Status is completed with the following additional information:"
-        );
+       // console.log(
+        //   "Status is completed with the following additional information:"
+        // );
         if (item.hotlead === true) {
-          console.log("Hot Lead");
+         // console.log("Hot Lead");
           callStatus = "Hot Lead";
         }
         if (item.humancalldrop === true) {
-          console.log("Human Call Drop");
+         // console.log("Human Call Drop");
           callStatus = "Human Call Drop";
         }
         if (item.dnd === true) {
-          console.log("DND");
+         // console.log("DND");
           callStatus = "DND";
         }
         if (item.notinterested) {
-          console.log("Not interested");
+         // console.log("Not interested");
           callStatus = "Not Interested";
         }
       } else {
         callStatus = item.status;
-        console.log(
-          "Status is completed, but no special flags for lead ID:",
-          item.leadId
-        );
+       // console.log(
+        //   "Status is completed, but no special flags for lead ID:",
+        //   item.leadId
+        // );
       }
     } else {
-      console.log(
-        "Other status for lead ID:",
-        item.leadId,
-        "Status:",
-        item.status
-      );
+     // console.log(
+      //   "Other status for lead ID:",
+      //   item.leadId,
+      //   "Status:",
+      //   item.status
+      // );
       callStatus = item.status;
     }
     // });
@@ -1349,14 +1349,14 @@ const Pipeline1 = () => {
         AuthToken = UserDetails.token;
       }
 
-      console.log("Auth token is :--", AuthToken);
+     // console.log("Auth token is :--", AuthToken);
 
       const ApiData = {
         note: addNotesValue,
         leadId: selectedLeadsDetails.id,
       };
 
-      console.log("api data is:", ApiData);
+     // console.log("api data is:", ApiData);
 
       const ApiPath = Apis.addLeadNote;
       // return
@@ -1368,7 +1368,7 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        console.log("Response of add api is:", response);
+       // console.log("Response of add api is:", response);
         // setNoteDetails()
         if (response.data.status === true) {
           setShowAddNotes(false);
@@ -1377,7 +1377,7 @@ const Pipeline1 = () => {
         }
       }
     } catch (error) {
-      console.error("Error occured in add lead note api is:", error);
+     // console.error("Error occured in add lead note api is:", error);
     } finally {
       setAddLeadNoteLoader(false);
     }
@@ -1399,7 +1399,7 @@ const Pipeline1 = () => {
     });
     setLeadsList(updatedLeads);
 
-    console.log("Updated leads are", updatedLeads);
+   // console.log("Updated leads are", updatedLeads);
 
     const updatedPipelines = PipeLines.map((pipeline) => {
       return {
@@ -1420,9 +1420,9 @@ const Pipeline1 = () => {
       };
     });
 
-    console.log("Updated Pipelines ", updatedPipelines);
+   // console.log("Updated Pipelines ", updatedPipelines);
 
-    console.log("Selected pipeline is", SelectedPipeline);
+   // console.log("Selected pipeline is", SelectedPipeline);
 
     // let leadesList = [];
 
@@ -1433,9 +1433,9 @@ const Pipeline1 = () => {
 
   function HandleLeadAssignedTeam(team, lead) {
     //code to add team members to the lead data
-    console.log("Lead is", lead);
-    console.log("Item is", team);
-    console.log("Leads list is", LeadsList);
+   // console.log("Lead is", lead);
+   // console.log("Item is", team);
+   // console.log("Leads list is", LeadsList);
 
     const updatedLeadsList = LeadsList.map((item) =>
       item.leadId === lead.id
@@ -1449,7 +1449,7 @@ const Pipeline1 = () => {
         : item
     );
 
-    console.log("Updated leads list", updatedLeadsList);
+   // console.log("Updated leads list", updatedLeadsList);
 
     setLeadsList(updatedLeadsList);
   }
@@ -1457,16 +1457,16 @@ const Pipeline1 = () => {
   const handleDelLead = async () => {
     try {
       const leadToDelete = selectedLeadsDetails;
-      console.log("Lead to delete is", leadToDelete);
-      console.log("Leads list is", LeadsList);
-      console.log("Pipelines are", PipeLines);
+     // console.log("Lead to delete is", leadToDelete);
+     // console.log("Leads list is", LeadsList);
+     // console.log("Pipelines are", PipeLines);
       // return;
       const filteredLeads = LeadsList.filter((lead) => {
-        console.log(`Checking lead: ${lead.leadId} against ${leadToDelete.id}`);
+       // console.log(`Checking lead: ${lead.leadId} against ${leadToDelete.id}`);
         return lead.leadId !== leadToDelete.id;
       });
 
-      console.log("Filtered leads are", filteredLeads);
+     // console.log("Filtered leads are", filteredLeads);
 
       const filteredPipelines = PipeLines.map((pipeline) => {
         return {
@@ -1477,28 +1477,28 @@ const Pipeline1 = () => {
         };
       });
 
-      console.log("Filtered pipelines are", filteredPipelines);
-      // console.log("Filtered pipelines 12 are", fP)
+     // console.log("Filtered pipelines are", filteredPipelines);
+      //// console.log("Filtered pipelines 12 are", fP)
       setPipeLines(filteredPipelines);
       setLeadsList(filteredLeads);
       setShowDetailsModal(false);
     } catch (error) {
-      console.error("Error occuren in api is", error);
+     // console.error("Error occuren in api is", error);
     } finally {
-      console.log("Api call done");
+     // console.log("Api call done");
     }
   };
 
   function handldSearch(e) {
     let pipeline = SelectedPipeline;
     let search = e.target.value.toLowerCase();
-    console.log("Searching lead ", e.target.value);
+   // console.log("Searching lead ", e.target.value);
 
     if (search == "") {
       setLeadsList(pipeline.leads);
     } else {
       const filteredLeads = pipeline.leads.filter((lead) => {
-        // console.log(`Checking lead: ${lead.leadId} against ${leadToDelete.id}`);
+        //// console.log(`Checking lead: ${lead.leadId} against ${leadToDelete.id}`);
         let firstName = lead.lead.firstName.toLowerCase();
         let lastName = lead.lead.lastName.toLowerCase();
         let fullName = (firstName || "") + " " + (lastName || "");
@@ -1654,7 +1654,7 @@ const Pipeline1 = () => {
                       onClick={() => {
                         setShowRenamePipelinePopup(true);
                         setRenamePipeline(SelectedPipeline.title);
-                        console.log("Selected pipeline is:", SelectedPipeline);
+                       // console.log("Selected pipeline is:", SelectedPipeline);
                       }}
                     >
                       <Image
@@ -1822,12 +1822,12 @@ const Pipeline1 = () => {
                         variant="contained"
                         onClick={(evetn) => {
                           if (stage.identifier === "new_lead") {
-                            console.log("donotShow del btn");
+                           // console.log("donotShow del btn");
                             setShowDelBtn(true);
                           } else {
                             setShowDelBtn(false);
                           }
-                          console.log("Show del btn", stage);
+                         // console.log("Show del btn", stage);
                           handleShowStagePopover(evetn, stage);
                         }}
                         className="outline-none"
@@ -1863,7 +1863,7 @@ const Pipeline1 = () => {
                             style={styles.paragraph}
                             onClick={() => {
                               setShowRenamePopup(true);
-                              console.log("Selected stage is:", selectedStage);
+                             // console.log("Selected stage is:", selectedStage);
                               setRenameStage(selectedStage.stageTitle);
                               setUpdateStageColor(selectedStage.defaultColor);
                             }} //handleRenameStage
@@ -1937,10 +1937,10 @@ const Pipeline1 = () => {
                               className="text-red flex flex-row items-center gap-4 me-2 outline-none"
                               style={styles.paragraph}
                               onClick={() => {
-                                console.log(
-                                  "Selected stage is:",
-                                  selectedStage
-                                );
+                               // console.log(
+                                //   "Selected stage is:",
+                                //   selectedStage
+                                // );
                                 // setSelectedStage(item);
                                 setShowDelStageModal(true);
                               }}
@@ -1983,10 +1983,10 @@ const Pipeline1 = () => {
                                 <button
                                   className="flex flex-row items-center gap-3"
                                   onClick={() => {
-                                    console.log(
-                                      "Selected lead details are:",
-                                      lead
-                                    );
+                                   // console.log(
+                                    //   "Selected lead details are:",
+                                    //   lead
+                                    // );
                                     setShowDetailsModal(true);
                                     setSelectedLeadsDetails(lead.lead);
                                     setPipelineId(lead.lead.pipeline.id);
@@ -2135,10 +2135,10 @@ const Pipeline1 = () => {
                                               ) : (
                                                 <button
                                                   onClick={() => {
-                                                    console.log(
-                                                      "Tag value is",
-                                                      tagVal
-                                                    );
+                                                   // console.log(
+                                                    //   "Tag value is",
+                                                    //   tagVal
+                                                    // );
                                                     handleDelTag(tagVal, lead);
                                                     let updatedTags =
                                                       lead.lead.tags.filter(

@@ -19,7 +19,7 @@ let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
     ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
     : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
-console.log("Public key is ", stripePublickKey);
+// console.log("Public key is ", stripePublickKey);
 const stripePromise = loadStripe(stripePublickKey);
 
 const CreatAgent3 = ({ handleContinue }) => {
@@ -93,7 +93,7 @@ const CreatAgent3 = ({ handleContinue }) => {
     try {
       let planType = null;
 
-      // console.log("Selected plan is:", togglePlan);
+      //// console.log("Selected plan is:", togglePlan);
 
       if (togglePlan2 === 1) {
         planType = "Plan30";
@@ -105,7 +105,7 @@ const CreatAgent3 = ({ handleContinue }) => {
         planType = "Plan720";
       }
 
-      console.log("Current plan is", planType);
+     // console.log("Current plan is", planType);
 
       setSubscribePlanLoader(true);
       let AuthToken = null;
@@ -115,17 +115,17 @@ const CreatAgent3 = ({ handleContinue }) => {
         AuthToken = LocalDetails.token;
       }
 
-      console.log("Authtoken is", AuthToken);
+     // console.log("Authtoken is", AuthToken);
 
       const ApiData = {
         plan: planType,
         updateFuturePlan: true,
       };
 
-      console.log("Api data is", ApiData);
+     // console.log("Api data is", ApiData);
 
       const ApiPath = Apis.subscribePlan;
-      console.log("Apipath is", ApiPath);
+     // console.log("Apipath is", ApiPath);
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -135,7 +135,7 @@ const CreatAgent3 = ({ handleContinue }) => {
       });
 
       if (response) {
-        console.log("Response of subscribe plan api is", response);
+       // console.log("Response of subscribe plan api is", response);
         if (response.data.status === true) {
           // handleClose();
           const screenWidth = 1000;
@@ -145,16 +145,16 @@ const CreatAgent3 = ({ handleContinue }) => {
           const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
 
           if (screenWidth <= SM_SCREEN_SIZE) {
-            console.log("This is a small size screen");
+           // console.log("This is a small size screen");
             router.push("/createagent/desktop");
           } else {
-            console.log("This is a large size screen");
+           // console.log("This is a large size screen");
             handleContinue();
           }
         }
       }
     } catch (error) {
-      console.error("Error occured in api is:", error);
+     // console.error("Error occured in api is:", error);
       setSubscribePlanLoader(false);
     } finally {
       setSubscribePlanLoader(false);
@@ -950,9 +950,9 @@ const CreatAgent3 = ({ handleContinue }) => {
                       } else {
                         router.push("/createagent/desktop");
                       }
-                      console.log("This is a small size screen");
+                     // console.log("This is a small size screen");
                     } else {
-                      console.log("This is a large size screen");
+                     // console.log("This is a large size screen");
                       if (selectedPlan?.id === 1) {
                         setShowSubscribeplan2(true);
                       } else {

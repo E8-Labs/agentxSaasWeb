@@ -145,7 +145,7 @@ const SellerKycs = ({ handleContinue }) => {
 
     if (toggleClick === 1) {
       // Add to the "Needs" questions and auto-select the new question
-      console.log("Nee kycs questions list is:", needKYCQuestions);
+     // console.log("Nee kycs questions list is:", needKYCQuestions);
       if (
         needKYCQuestions.some(
           (item) =>
@@ -154,10 +154,10 @@ const SellerKycs = ({ handleContinue }) => {
         )
       ) {
         setShowErrorSnack("Question already exists!!!");
-        console.log("Question Already exists");
+       // console.log("Question Already exists");
         return;
       } else {
-        // console.log("New question");
+        //// console.log("New question");
         setNeedKYCQuestions((prevQuestions) => {
           const updatedQuestions = [...prevQuestions, newKYCQuestion];
           setSelectedNeedKYC((prevSelected) => [
@@ -176,7 +176,7 @@ const SellerKycs = ({ handleContinue }) => {
         )
       ) {
         setShowErrorSnack("Question already exists!!!");
-        console.log("Question Already exists");
+       // console.log("Question Already exists");
         return;
       } else {
         setMotivationKycQuestions((prevQuestions) => {
@@ -197,7 +197,7 @@ const SellerKycs = ({ handleContinue }) => {
         )
       ) {
         setShowErrorSnack("Question already exists!!!");
-        console.log("Question Already exists");
+       // console.log("Question Already exists");
         return;
       } else {
         setUrgencyKycQuestions((prevQuestions) => {
@@ -340,9 +340,9 @@ const SellerKycs = ({ handleContinue }) => {
       selectedUrgencyKyc.some((selectedItem) => selectedItem.id === question.id)
     );
 
-    // console.log("Selected Questions are: ", selectedNeedQuestions);
-    // console.log("Selected motivation questions are: ----", selectedMotivationQuestions);
-    // console.log("Selected urgency questions are: ----", selectedUrgencyQuestions);
+    //// console.log("Selected Questions are: ", selectedNeedQuestions);
+    //// console.log("Selected motivation questions are: ----", selectedMotivationQuestions);
+    //// console.log("Selected urgency questions are: ----", selectedUrgencyQuestions);
     // router.push("/buyerskycquestions")
     // handleContinue();
 
@@ -357,7 +357,7 @@ const SellerKycs = ({ handleContinue }) => {
         examples: item.sampleAnswers.filter((answer) => answer),
       });
     });
-    console.log("Kyc need", selectedNeedQuestions);
+   // console.log("Kyc need", selectedNeedQuestions);
     selectedMotivationQuestions.map((item) => {
       kycQuestions.push({
         question: item.question,
@@ -366,7 +366,7 @@ const SellerKycs = ({ handleContinue }) => {
         examples: item.sampleAnswers.filter((answer) => answer),
       });
     });
-    console.log("Kyc moti", selectedMotivationQuestions);
+   // console.log("Kyc moti", selectedMotivationQuestions);
     selectedUrgencyQuestions.map((item) => {
       kycQuestions.push({
         question: item.question,
@@ -375,7 +375,7 @@ const SellerKycs = ({ handleContinue }) => {
         examples: item.sampleAnswers.filter((answer) => answer),
       });
     });
-    console.log("Kyc urg", selectedUrgencyQuestions);
+   // console.log("Kyc urg", selectedUrgencyQuestions);
 
     setSellerKycLoader(true);
 
@@ -390,9 +390,9 @@ const SellerKycs = ({ handleContinue }) => {
       }
 
       if (agentDetails) {
-        console.log("trying");
+       // console.log("trying");
         const agentData = JSON.parse(agentDetails);
-        console.log("ActualAgent details are :--", agentData);
+       // console.log("ActualAgent details are :--", agentData);
         MyAgentData = agentData;
       }
 
@@ -403,10 +403,10 @@ const SellerKycs = ({ handleContinue }) => {
         kycQuestions: kycQuestions,
         mainAgentId: MyAgentData.id,
       };
-      // console.log("Data to send in api is", data);
+      //// console.log("Data to send in api is", data);
       ApiData = data;
 
-      console.log("APi data is :--", ApiData);
+     // console.log("APi data is :--", ApiData);
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -416,7 +416,7 @@ const SellerKycs = ({ handleContinue }) => {
       });
 
       if (response) {
-        console.log("Response of add KYC api is :--", response.data);
+       // console.log("Response of add KYC api is :--", response.data);
         if (response.data.status === true) {
           localStorage.setItem(
             "agentDetails",
@@ -428,7 +428,7 @@ const SellerKycs = ({ handleContinue }) => {
         }
       }
     } catch (error) {
-      console.error("Error occured in api is :--", error);
+     // console.error("Error occured in api is :--", error);
       setSellerKycLoader(false);
     } finally {
     }
@@ -474,7 +474,7 @@ const SellerKycs = ({ handleContinue }) => {
   function isMotivationKycSelected(kyc, selectedKycs) {
     let isSelected = false;
     for (const k of selectedKycs) {
-      console.log(`Comparing ${kyc.question} with ${k.question}\n\n\n`);
+     // console.log(`Comparing ${kyc.question} with ${k.question}\n\n\n`);
       if (kyc.question == k.question) {
         isSelected = true;
       }
@@ -635,17 +635,17 @@ const SellerKycs = ({ handleContinue }) => {
                   style={{ scrollbarWidth: "none" }}
                 >
                   {motivationKycQuestions.map((item, index) => {
-                    console.log(
-                      "########################### START ########################################"
-                    );
+                   // console.log(
+                    //   "########################### START ########################################"
+                    // );
                     let selected = isMotivationKycSelected(
                       item,
                       selectedMotivationKyc
                     );
-                    console.log(selected);
-                    console.log(
-                      "########################## END #########################################"
-                    );
+                   // console.log(selected);
+                   // console.log(
+                    //   "########################## END #########################################"
+                    // );
                     return (
                       <button
                         className="mb-4 border rounded-3xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full"

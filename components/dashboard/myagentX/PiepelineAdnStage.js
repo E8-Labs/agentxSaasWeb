@@ -19,7 +19,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
 
   useEffect(() => {
     if (selectedAgent.agentType !== "inbound") {
-      console.log("Trigered the get cadence api");
+     // console.log("Trigered the get cadence api");
       handleGetCadence();
     }
   }, []);
@@ -56,11 +56,11 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
       if (localData) {
         const Data = JSON.parse(localData);
         userDetails = Data;
-        console.log("Localdata recieved is :--", Data);
+       // console.log("Localdata recieved is :--", Data);
         AuthToken = Data.token;
       }
 
-      console.log("Auth token is:", AuthToken);
+     // console.log("Auth token is:", AuthToken);
 
       const ApiData = {
         mainAgentId: selectedAgent.mainAgentId,
@@ -71,8 +71,8 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
 
       const ApiPath = Apis.getAgentCadence;
 
-      console.log("Apipath is:", ApiPath);
-      console.log("Api data s:", ApiData);
+     // console.log("Apipath is:", ApiPath);
+     // console.log("Api data s:", ApiData);
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -82,14 +82,14 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
       });
 
       if (response) {
-        console.log(
-          "Response of get agent cadence api is:",
-          JSON.stringify(response.data)
-        );
+       // console.log(
+        //   "Response of get agent cadence api is:",
+        //   JSON.stringify(response.data)
+        // );
         setAgentCadence(response.data.data);
       }
     } catch (error) {
-      console.error("Error occured in get cadence api is:", error);
+     // console.error("Error occured in get cadence api is:", error);
     } finally {
       setInitialLoader(false);
     }

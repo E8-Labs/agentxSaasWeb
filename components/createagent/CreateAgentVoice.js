@@ -43,18 +43,18 @@ const CreateAgentVoice = ({ handleBack }) => {
   }, [selectedVoiceId]);
 
   useEffect(() => {
-    console.log("I m wrodf");
+   // console.log("I m wrodf");
     const localData = localStorage.getItem("agentDetails");
     if (localData) {
       const agentData = JSON.parse(localData);
-      console.log("Response of localagent dta", agentData);
+     // console.log("Response of localagent dta", agentData);
       setAgentDetails(agentData);
     }
   }, []);
 
   const handleToggleClick = (id, item) => {
     setToggleClick((prevId) => (prevId === id ? null : id));
-    // console.log("Selected voice is :", item.voice_id);
+    //// console.log("Selected voice is :", item.voice_id);
     setSelectedVoiceId(item.voice_id);
   };
 
@@ -66,29 +66,29 @@ const CreateAgentVoice = ({ handleBack }) => {
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-        console.log("Localdat recieved is :--", Data);
+       // console.log("Localdat recieved is :--", Data);
         AuthToken = Data.token;
       }
 
-      console.log("Auth token is ", AuthToken);
+     // console.log("Auth token is ", AuthToken);
 
       const mainAgentData = localStorage.getItem("agentDetails");
       if (mainAgentData) {
         const Data = JSON.parse(mainAgentData);
-        console.log("Localdat recieved is :--", Data);
+       // console.log("Localdat recieved is :--", Data);
         mainAgentId = Data.id;
       }
 
       const ApiPath = Apis.updateAgent;
       // const ApiData = {}
       const formData = new FormData();
-      console.log("selected voice id is:", selectedVoiceId);
+     // console.log("selected voice id is:", selectedVoiceId);
       formData.append("mainAgentId", mainAgentId);
       // return
       formData.append("voiceId", selectedVoiceId);
 
       for (let [key, value] of formData.entries()) {
-        console.log(`${key} : ${value}`);
+       // console.log(`${key} : ${value}`);
       }
       // return
       const response = await axios.post(ApiPath, formData, {
@@ -99,7 +99,7 @@ const CreateAgentVoice = ({ handleBack }) => {
       });
 
       if (response) {
-        console.log("Response of update api is :", response.data);
+       // console.log("Response of update api is :", response.data);
         if (response.data.status === true) {
           router.push("/sellerskycquestions");
           localStorage.removeItem("claimNumberData");
@@ -108,7 +108,7 @@ const CreateAgentVoice = ({ handleBack }) => {
         }
       }
     } catch (error) {
-      console.error("ERror occured in api is error0", error);
+     // console.error("ERror occured in api is error0", error);
       setVoicesLoader(false);
     } finally {
     }

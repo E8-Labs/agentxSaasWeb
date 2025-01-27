@@ -7,4 +7,4 @@ const formatPhoneNumber = (rawNumber) => {
 
 // Example
 const formattedNumber = formatPhoneNumber('+11234567890'); // Output: +1 123 456 7890
-console.log(formattedNumber);
+// console.log(formattedNumber);

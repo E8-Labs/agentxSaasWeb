@@ -56,8 +56,8 @@ const Page = () => {
   }, []);
 
   useEffect(() => {
-    console.log("Stats details ar", statsDetails);
-    console.log("Comparison details", statsComparisonDetails);
+    // console.log("Stats details ar", statsDetails);
+    // console.log("Comparison details", statsComparisonDetails);
   }, [statsDetails, statsComparisonDetails]);
 
   useEffect(() => {
@@ -83,7 +83,7 @@ const Page = () => {
     try {
       let response = await getProfileDetails();
 
-      console.log("Data recieved from get profile api", response);
+      // console.log("Data recieved from get profile api", response);
 
       if (response) {
         if (!response?.data?.data?.plan?.status === "cancelled") {
@@ -91,7 +91,7 @@ const Page = () => {
         }
       }
     } catch (error) {
-      console.error("Error occured in api is error", error);
+      // console.error("Error occured in api is error", error);
     }
   };
 
@@ -103,20 +103,20 @@ const Page = () => {
   function GetDashboardDataFromLocalStorage(api) {
     let d = localStorage.getItem(api);
     if (d) {
-      console.log("Data found for dashboard on local");
+      // console.log("Data found for dashboard on local");
       let json = JSON.parse(d);
       let stats = json.stats;
       let comp = json.statsComparison;
       setStatsDetails(stats);
       setStatsComparisonDetails(comp);
     } else {
-      console.log("No data for dashboard on local");
+      // console.log("No data for dashboard on local");
     }
   }
 
   const getDashboardData = async (duration) => {
     try {
-      console.log("Status of initial load is", isinItiallyLoaded);
+      // console.log("Status of initial load is", isinItiallyLoaded);
       let durationValue = 1;
 
       if (duration === "24 hrs") {
@@ -129,7 +129,7 @@ const Page = () => {
         durationValue = 365;
       }
 
-      console.log("details to show are:", durationValue);
+      // console.log("details to show are:", durationValue);
 
       const ApiPath = `${Apis.getDashboardData}?duration=${durationValue}`;
       GetDashboardDataFromLocalStorage(ApiPath);
@@ -141,16 +141,16 @@ const Page = () => {
       let AuthToken = null;
       if (localData) {
         const UserDetails = JSON.parse(localData);
-        console.log("User details are", UserDetails);
+        // console.log("User details are", UserDetails);
         setUserDetails(UserDetails.user);
         AuthToken = UserDetails.token;
       }
 
-      console.log("Auth token is :--", AuthToken);
+      // console.log("Auth token is :--", AuthToken);
 
       // let durationDetails = null;
 
-      console.log("Api path is:", ApiPath);
+      // console.log("Api path is:", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -160,9 +160,9 @@ const Page = () => {
       });
 
       if (response) {
-        console.log("Response of get Dashboard data api is:", response.data);
+        // console.log("Response of get Dashboard data api is:", response.data);
         if (response.data.status === true) {
-          console.log("Getting details are", response.data.data.stats);
+          // console.log("Getting details are", response.data.data.stats);
           setStatsDetails(response.data.data.stats);
           setStatsComparisonDetails(response.data.data.statsComparison);
 
@@ -170,9 +170,9 @@ const Page = () => {
         }
       }
     } catch (error) {
-      console.error("Error occured in api is", error);
+      // console.error("Error occured in api is", error);
     } finally {
-      console.log("Get dashb0ard api completed");
+      // console.log("Get dashb0ard api completed");
       setInitialLoader(false);
     }
   };

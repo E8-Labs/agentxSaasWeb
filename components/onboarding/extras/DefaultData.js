@@ -8,9 +8,9 @@ const DefaultData = ({ setServicesData }) => {
 
     const getDefaultData = async () => {
         try {
-            // console.log("Check 1 clear !!!");
+            //// console.log("Check 1 clear !!!");
             const ApiPath = Apis.defaultData;
-            console.log("Api link is:--", ApiPath);
+           // console.log("Api link is:--", ApiPath);
             const response = await axios.get(ApiPath, {
                 headers: {
                     "Content-Type": "application/json"
@@ -18,7 +18,7 @@ const DefaultData = ({ setServicesData }) => {
             });
 
             if (response) {
-                console.log("Response of api is : -----", response.data);
+               // console.log("Response of api is : -----", response.data);
                 setDefaultData(response.data.data);
                 setServicesData(response.data.data.agentServices);
             } else {
@@ -26,7 +26,7 @@ const DefaultData = ({ setServicesData }) => {
             }
 
         } catch (error) {
-            console.error("ERror occured in default data api is :----", error);
+           // console.error("ERror occured in default data api is :----", error);
         }
     }
 

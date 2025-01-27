@@ -19,12 +19,12 @@ const Page = ({ params }) => {
 
     // Function to proceed to the next step
     const handleContinue = () => {
-        console.log("Component indexchanged ", index);
+       // console.log("Component indexchanged ", index);
         setIndex(index + 1);
     };
 
     const handleBack = () => {
-        console.log("Component indexchanged ", index);
+       // console.log("Component indexchanged ", index);
         setIndex(index - 1);
     };
 

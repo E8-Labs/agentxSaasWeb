@@ -39,7 +39,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
             document.body.appendChild(mirrorDiv);
         }
         mirrorDivRef.current = mirrorDiv;
-        console.log("MirrorDiv", mirrorDiv.getBoundingClientRect());
+       // console.log("MirrorDiv", mirrorDiv.getBoundingClientRect());
 
         return () => {
             if (
@@ -62,7 +62,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
         if (textFieldRef.current) {
             const scrollTop = textFieldRef.current.scrollTop;
             const scrollLeft = textFieldRef.current.scrollLeft;
-            console.log("Scroll Offset - Top:", scrollTop, "Left:", scrollLeft);
+           // console.log("Scroll Offset - Top:", scrollTop, "Left:", scrollLeft);
             return { scrollTop, scrollLeft };
         }
         return { scrollTop: 0, scrollLeft: 0 };
@@ -122,11 +122,11 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
             popupTop = viewportHeight - popupHeight;
         }
 
-        console.log("Text Offset: ", textOffset);
-        console.log("Marker Rect: ", markerRect);
-        console.log("Input Rect: ", inputRect);
-        console.log("Popup Left: ", popupLeft);
-        console.log("Popup Top: ", popupTop);
+       // console.log("Text Offset: ", textOffset);
+       // console.log("Marker Rect: ", markerRect);
+       // console.log("Input Rect: ", inputRect);
+       // console.log("Popup Left: ", popupLeft);
+       // console.log("Popup Top: ", popupTop);
 
         setPopupPosition({ top: popupTop, left: popupLeft });
     };
@@ -134,8 +134,8 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
     let mergedArray = [];
 
     useEffect(() => {
-        console.log("Unique columns list is:", uniqueColumns);
-        console.log("Unique columns list2 is:", kycsList);
+       // console.log("Unique columns list is:", uniqueColumns);
+       // console.log("Unique columns list2 is:", kycsList);
 
         let questions = [];
         if (kycsList) {
@@ -143,7 +143,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
         }
         mergedArray = [...uniqueColumns, ...questions];
 
-        console.log("Merged array data is:", mergedArray);
+       // console.log("Merged array data is:", mergedArray);
     }, [])
 
     const handleKeyUp = (e) => {

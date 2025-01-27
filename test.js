@@ -190,7 +190,7 @@ function Page() {
     getUniquesColumn();
     getAvailabePhoneNumbers();
     let loc = getLocalLocation();
-    console.log("Location getting is", loc);
+   // console.log("Location getting is", loc);
     setCountryCode(loc);
     //////console.log("Setting scroll offset")
     const handleScroll = () => {
@@ -219,8 +219,8 @@ function Page() {
 
   //check if need to show the save btn or not
   useEffect(() => {
-    console.log("New tag  length", scriptTagInput?.length);
-    console.log("Old tag length", OldScriptTagInput?.length);
+   // console.log("New tag  length", scriptTagInput?.length);
+   // console.log("Old tag length", OldScriptTagInput?.length);
     //console.log("olde tag 3 length", scriptTagInput?.length)
     if (
       oldObjective !== objective ||
@@ -277,12 +277,12 @@ function Page() {
 
         // Compress the image
         const compressedFile = await imageCompression(file, options);
-        console.log("Comptessed is ", compressedFile);
+       // console.log("Comptessed is ", compressedFile);
         // Set the compressed image
         setSelectedImage2(compressedFile);
         updateAgentProfile(compressedFile);
       } catch (error) {
-        console.error("Error while compressing the image:", error);
+       // console.error("Error while compressing the image:", error);
       }
     }
 
@@ -294,7 +294,7 @@ function Page() {
     setDragging(false);
     const file = event.dataTransfer.files[0];
 
-    console.log("Selected file is", file);
+   // console.log("Selected file is", file);
 
     if (file && file.type.startsWith("image/")) {
       const imageUrl = URL.createObjectURL(file);
@@ -312,12 +312,12 @@ function Page() {
 
         // Compress the image
         const compressedFile = await imageCompression(file, options);
-        console.log("Comptessed is ", compressedFile);
+       // console.log("Comptessed is ", compressedFile);
         // Set the compressed image
         setSelectedImage2(compressedFile);
         updateAgentProfile(compressedFile);
       } catch (error) {
-        console.error("Error while compressing the image:", error);
+       // console.error("Error while compressing the image:", error);
       }
     }
 
@@ -348,7 +348,7 @@ function Page() {
 
       if (LocalData) {
         const userData = JSON.parse(LocalData);
-        console.log("Local data recieved is", userData);
+       // console.log("Local data recieved is", userData);
         AuthToken = userData.token;
       }
 
@@ -360,10 +360,10 @@ function Page() {
       formData.append("agentId", showDrawerSelectedAgent.id);
 
       for (let [key, value] of formData.entries()) {
-        console.log(`${key} :- ${value}`);
+       // console.log(`${key} :- ${value}`);
       }
 
-      console.log("Apipath is", ApiPath);
+     // console.log("Apipath is", ApiPath);
 
       // return
       const response = await axios.post(ApiPath, formData, {
@@ -373,7 +373,7 @@ function Page() {
       });
 
       if (response) {
-        console.log("Response of update agent api is", response);
+       // console.log("Response of update agent api is", response);
 
         if (response.data.status === true) {
           const localAgentsList = localStorage.getItem("localAgentDetails");
@@ -384,7 +384,7 @@ function Page() {
 
             const updateAgentData = response.data.data;
 
-            console.log("Agents list is", agentsList);
+           // console.log("Agents list is", agentsList);
 
             // const updatedArray = agentsList.map((localItem) => {
             //   const apiItem =
@@ -404,7 +404,7 @@ function Page() {
                     : subAgent; // Leave the others unchanged
                 });
 
-                console.log("Updated sub agents", updatedSubAgents);
+               // console.log("Updated sub agents", updatedSubAgents);
 
                 // Return the updated agent with the updated subAgents
                 return { ...localItem, agents: updatedSubAgents };
@@ -414,7 +414,8 @@ function Page() {
               return localItem;
             });
 
-            console.log("Updated agents list array is", updatedArray);
+
+           // console.log("Updated agents list array is", updatedArray);
             localStorage.setItem(
               "localAgentDetails",
               JSON.stringify(updatedArray)
@@ -423,11 +424,11 @@ function Page() {
             // agentsListDetails = updatedArray
           }
         } else if (response.data.status === false) {
-          console.log("Status is false");
+         // console.log("Status is false");
         }
       }
     } catch (error) {
-      console.error("Error occured in api is", error);
+     // console.error("Error occured in api is", error);
       setGlobalLoader(false);
     } finally {
       setGlobalLoader(false);
@@ -547,7 +548,7 @@ function Page() {
         }
       }
     } catch (error) {
-      console.error("Error occured in finde number api is :---", error);
+     // console.error("Error occured in finde number api is :---", error);
     } finally {
       setFindeNumberLoader(false);
     }
@@ -597,7 +598,7 @@ function Page() {
       });
 
       if (response) {
-        console.log("Respose of reassign api is:", response.data.data);
+       // console.log("Respose of reassign api is:", response.data.data);
         if (response.data.status === true) {
           setShowSuccessSnack(
             `Phone number assigned to ${
@@ -617,7 +618,7 @@ function Page() {
         });
         //Update the selected number agents also
 
-        //check jo add karna hy us mein kia karna hyy k api ka response console karwao aur us k badus k response ko examine karo
+        //check jo add karna hy us mein kia karna hyy k api ka response// console karwao aur us k badus k response ko examine karo
 
         //you will get 2 agents from api then 1 wo agnt 2 jis ko assign karwana hy agnt 1 jis ko null karna hy
 
@@ -641,7 +642,7 @@ function Page() {
         // );
 
         // Update the agent's phone number and ensure no other agents have the same phone number
-        console.log("Agents Content is ", agentsContent);
+       // console.log("Agents Content is ", agentsContent);
         let agents = [];
         let mainAgents = []; //Main agents not subagents list
 
@@ -649,17 +650,17 @@ function Page() {
           if (ag.phoneNumber == item.phoneNumber) {
             if (ag.agentType == "inbound") {
               ag.phoneNumber = "";
-              console.log("Removing phone number from ", ag.name);
+             // console.log("Removing phone number from ", ag.name);
             }
           } else {
             if (ag.id == showDrawerSelectedAgent.id) {
               ag.phoneNumber = item.phoneNumber;
-              console.log("Assigning phone number to ", ag.name);
+             // console.log("Assigning phone number to ", ag.name);
             }
           }
           agents.push(ag);
         }
-        console.log("Total agents after updating ", agents.length);
+       // console.log("Total agents after updating ", agents.length);
         setAgentsContent(agents);
         localStorage.setItem("localAgentDetails", JSON.stringify(agents));
 
@@ -689,7 +690,7 @@ function Page() {
         //   return agent;
         // });
 
-        console.log("Updated agent list is after changing phone", agents);
+       // console.log("Updated agent list is after changing phone", agents);
 
         // localStorage.setItem("localAgentDetails", JSON.stringify(UpdatedAgents));
 
@@ -735,7 +736,7 @@ function Page() {
         // }
       }
     } catch (error) {
-      console.error("Error occured in reassign the number api:", error);
+     // console.error("Error occured in reassign the number api:", error);
     } finally {
       setReassignLoader(null);
       //console.log("reassign api completed")
@@ -810,7 +811,7 @@ function Page() {
         }
       }
     } catch (error) {
-      console.error("Error occured in purchase number api is: --", error);
+     // console.error("Error occured in purchase number api is: --", error);
     } finally {
       setPurchaseLoader(false);
     }
@@ -846,12 +847,12 @@ function Page() {
       });
 
       if (response) {
-        console.log("Response of numbers api is :", response.data);
-        // console.log("PArsed data is ", response.data.data);
+       // console.log("Response of numbers api is :", response.data);
+        //// console.log("PArsed data is ", response.data.data);
         setPreviousNumber(response.data.data);
       }
     } catch (error) {
-      console.error("Error occured in: ", error);
+     // console.error("Error occured in: ", error);
     } finally {
       //console.log("Api cal completed")
     }
@@ -900,7 +901,7 @@ function Page() {
       }
 
       for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
+       // console.log(`${key}: ${value}`);
       }
       // return
       const response = await axios.post(ApiPath, formData, {
@@ -911,7 +912,7 @@ function Page() {
 
       if (response) {
         //console.log("Response of update api is :--", response.data);
-        console.log("Respons eof update api is", response.data.data);
+       // console.log("Respons eof update api is", response.data.data);
         setShowSuccessSnack(response.data.message);
         if (response.data.status === true) {
           setIsVisibleSnack(true);
@@ -923,7 +924,7 @@ function Page() {
           // if (localAgentsList) {
           //   const agentsList = JSON.parse(localAgentsList);
           //   agentsListDetails = agentsList;
-          //   console.log("Loooop is trigered for", agentsListDetails);
+          //  // console.log("Loooop is trigered for", agentsListDetails);
           //   let updatedAgent = response.data.data;
           //   for (let i = 0; i < agentsList?.length; i++) {
           //     let ag = agentsList[i];
@@ -948,7 +949,7 @@ function Page() {
           //     "localAgentDetails",
           //     JSON.stringify(agentsList)
           //   );
-          //   console.log("Agent update is", agentsList);
+          //  // console.log("Agent update is", agentsList);
           // }
 
           if (localAgentsList) {
@@ -964,7 +965,7 @@ function Page() {
               return apiItem ? { ...localItem, ...apiItem } : localItem;
             });
 
-            console.log("Updated agents list array is", updatedArray);
+           // console.log("Updated agents list array is", updatedArray);
             localStorage.setItem(
               "localAgentDetails",
               JSON.stringify(updatedArray)
@@ -986,13 +987,13 @@ function Page() {
 
           //update on localstorage
           // if (showScriptModal) {
-          //   console.log("It is trigered")
+          //  // console.log("It is trigered")
           //   agentsListDetails = agentsListDetails.map((agent) =>
           //     agent.id === response.data.data.agents[0].id
           //       ? { ...agent, ...response.data.data }
           //       : agent
           //   )
-          //   console.log("Script updated", agentsListDetails);
+          //  // console.log("Script updated", agentsListDetails);
           // }
 
           //update on main agent variable
@@ -1025,7 +1026,7 @@ function Page() {
         }
       }
     } catch (error) {
-      console.error("Error occured in api is", error);
+     // console.error("Error occured in api is", error);
       setGlobalLoader(false);
     } finally {
       //console.log("Api call completed");
@@ -1043,7 +1044,7 @@ function Page() {
 
   const AssignNumber = async (phoneNumber) => {
     try {
-      console.log("Updated number is", phoneNumber);
+     // console.log("Updated number is", phoneNumber);
 
       setGlobalLoader(true);
       let AuthToken = null;
@@ -1076,7 +1077,7 @@ function Page() {
       const ApiPath = Apis.asignPhoneNumber;
 
       for (let [key, value] of formData.entries()) {
-        console.log(`${key} ${value}`);
+       // console.log(`${key} ${value}`);
       }
 
       // return
@@ -1089,7 +1090,7 @@ function Page() {
 
       if (response) {
         //console.log("Response of assign number api is :", response.data)
-        console.log("Response of update number api is", response.data);
+       // console.log("Response of update number api is", response.data);
         if (response.data.status === true) {
           setShowSuccessSnack(
             `Phone number assigned to ${
@@ -1118,7 +1119,7 @@ function Page() {
 
             const updateAgentData = showDrawerSelectedAgent;
 
-            console.log("Agents list is", agentsList);
+           // console.log("Agents list is", agentsList);
 
             // const updatedArray = agentsList.map((localItem) => {
             //   const apiItem =
@@ -1135,7 +1136,7 @@ function Page() {
                     : subAgent;
                 });
 
-                console.log("Updated sub agents", updatedSubAgents);
+               // console.log("Updated sub agents", updatedSubAgents);
 
                 return { ...localItem, agents: updatedSubAgents };
               }
@@ -1143,10 +1144,10 @@ function Page() {
               return localItem;
             });
 
-            console.log(
-              "Updated agents list array with phone is",
-              updatedArray
-            );
+           // console.log(
+            //   "Updated agents list array with phone is",
+            //   updatedArray
+            // );
             localStorage.setItem(
               "localAgentDetails",
               JSON.stringify(updatedArray)
@@ -1172,7 +1173,7 @@ function Page() {
         }
       }
     } catch (error) {
-      console.error("Error occured in api is:", error);
+     // console.error("Error occured in api is:", error);
       setShowErrorSnack(response.data.message);
       setIsVisibleSnack2(true);
       setGlobalLoader(false);
@@ -1222,10 +1223,10 @@ function Page() {
     setKYCList(agentData[0].kyc);
 
     //console.log("Pipeline of selected agent", agentData[0].pipeline);
-    console.log("Received Agent ", agent);
+   // console.log("Received Agent ", agent);
     setMainAgentId(agentData[0].id);
     let firstAgent = agentData[0];
-    console.log("First Agent ", firstAgent);
+   // console.log("First Agent ", firstAgent);
     setUserPipeline(firstAgent.pipeline);
     // if (
     //   firstAgent.agents?.length === 2
@@ -1282,7 +1283,7 @@ function Page() {
         }
       }
     } catch (error) {
-      console.error("Error occured in getColumn is :", error);
+     // console.error("Error occured in getColumn is :", error);
     } finally {
       // setColumnloader(false)
     }
@@ -1316,9 +1317,9 @@ function Page() {
       const ApiData = {
         agentId: showDrawerSelectedAgent.id,
       };
-      console.log("Data sending in del agent api is:", ApiData);
+     // console.log("Data sending in del agent api is:", ApiData);
 
-      console.log("Current agent selected is", showDrawerSelectedAgent);
+     // console.log("Current agent selected is", showDrawerSelectedAgent);
 
       // return
       const ApiPath = Apis.DelAgent;
@@ -1332,7 +1333,7 @@ function Page() {
       });
 
       if (response) {
-        console.log("Response of del agent api is:", response);
+       // console.log("Response of del agent api is:", response);
         setAgentsContent(
           agentsContent.filter((item) => item.id !== showDrawerSelectedAgent.id)
         );
@@ -1364,7 +1365,7 @@ function Page() {
             return agentGroup; // Return the item as is if 'agents' is not an array
           });
 
-          console.log("Updated agents list array is", updatedAgentsList);
+         // console.log("Updated agents list array is", updatedAgentsList);
           localStorage.setItem(
             "localAgentDetails",
             JSON.stringify(updatedAgentsList)
@@ -1373,7 +1374,7 @@ function Page() {
         }
       }
     } catch (error) {
-      console.error("Error occured in del agent api is:", error);
+     // console.error("Error occured in del agent api is:", error);
     } finally {
       setDelLoader(false);
     }
@@ -1427,7 +1428,7 @@ function Page() {
         }
       }
     } catch (error) {
-      console.error("Error occured in test api is", error);
+     // console.error("Error occured in test api is", error);
     } finally {
       //console.log("Test ai call api done");
       setTestAIloader(false);
@@ -1475,7 +1476,7 @@ function Page() {
   //         // setLoading(false);
   //       });
   //     } catch (error) {
-  //       console.error("Error fetching location:", error);
+  //      // console.error("Error fetching location:", error);
   //       setLoading(true); // Stop loading if there’s an error
   //     } finally {
   //       setLocationLoader(false);
@@ -1514,10 +1515,10 @@ function Page() {
 
     if (agentLocalDetails) {
       const agentData = JSON.parse(agentLocalDetails);
-      console.log("Data on LocalStorage", agentData);
+     // console.log("Data on LocalStorage", agentData);
       setUserAgentsList(agentData);
     } else {
-      console.log("No data of agents");
+     // console.log("No data of agents");
     }
 
     const userData = localStorage.getItem("User");
@@ -1529,7 +1530,7 @@ function Page() {
         getAgents(userLocalData);
       }
     } catch (error) {
-      console.error("Error occured is :", error);
+     // console.error("Error occured is :", error);
     } finally {
       // setInitialLoader(false)
     }
@@ -1598,7 +1599,7 @@ function Page() {
       });
 
       if (response) {
-        console.log("Response of get agents api is:", response.data);
+       // console.log("Response of get agents api is:", response.data);
         localStorage.setItem(
           "localAgentDetails",
           JSON.stringify(response.data.data)
@@ -1606,7 +1607,7 @@ function Page() {
         setUserAgentsList(response.data.data);
       }
     } catch (error) {
-      console.error("Error occured in get Agents api is :", error);
+     // console.error("Error occured in get Agents api is :", error);
     } finally {
       setInitialLoader(false);
     }
@@ -1626,7 +1627,7 @@ function Page() {
   //code for popover
 
   const handlePopoverOpen = (event, item) => {
-    // console.log("Hovered index is", item);
+    //// console.log("Hovered index is", item);
     setActionInfoEl(event.currentTarget);
     setHoveredIndexStatus(item.status);
     setHoveredIndexAddress(item.address);
@@ -1643,7 +1644,7 @@ function Page() {
   useEffect(() => {
     let agents = [];
 
-    console.log("Again setting data in array");
+   // console.log("Again setting data in array");
 
     const localAgentsData = localStorage.getItem("localAgentDetails");
 
@@ -1704,11 +1705,11 @@ function Page() {
         AuthToken = UserDetails.token;
       }
 
-      console.log("Authtoken is:", AuthToken);
+     // console.log("Authtoken is:", AuthToken);
 
       const ApiPath = Apis.getCalenders;
 
-      console.log("Apipath is:", ApiPath);
+     // console.log("Apipath is:", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -1718,13 +1719,13 @@ function Page() {
       });
 
       if (response) {
-        console.log("Response of get calender api is:", response);
+       // console.log("Response of get calender api is:", response);
         setPreviousCalenders(response.data.data);
       }
     } catch (error) {
-      console.error("Error occured in the api is ", error);
+     // console.error("Error occured in the api is ", error);
     } finally {
-      console.log("Api cal for getting calenders done");
+     // console.log("Api cal for getting calenders done");
     }
   };
 
@@ -1980,10 +1981,10 @@ function Page() {
                             aria-owns={open ? "mouse-over-popover" : undefined}
                             aria-haspopup="true"
                             onMouseEnter={(event) => {
-                              console.log(
-                                "Agent hovered is",
-                                item.agentObjectiveId
-                              );
+                             // console.log(
+                              //   "Agent hovered is",
+                              //   item.agentObjectiveId
+                              // );
                               if (item.agentObjectiveId === 3) {
                                 handlePopoverOpen(event, item);
                               }
@@ -2006,7 +2007,7 @@ function Page() {
                       >
                         <button
                           onClick={() => {
-                            console.log("Grreting sending ", item);
+                           // console.log("Grreting sending ", item);
                             setGreetingTagInput(item.prompt.greeting);
                             setOldGreetingTagInput(item.prompt.greeting);
                             setScriptTagInput(item.prompt.callScript);
@@ -2034,7 +2035,7 @@ function Page() {
                           onClick={() => {
                             handleShowDrawer(item);
                             matchingAgent(item);
-                            console.log("Item details are", item);
+                           // console.log("Item details are", item);
                           }}
                         >
                           <div>More info</div>
@@ -2913,18 +2914,18 @@ function Page() {
                                   if (showReassignBtn && item?.claimedBy) {
                                     e.stopPropagation();
                                     setShowConfirmationModal(item);
-                                    console.log("Hit release number api");
+                                   // console.log("Hit release number api");
                                     // AssignNumber
                                   } else {
-                                    console.log("Hit reassign number api");
-                                    console.log(
-                                      "Should call assign number api"
-                                    );
+                                   // console.log("Hit reassign number api");
+                                   // console.log(
+                                    //   "Should call assign number api"
+                                    // );
                                     AssignNumber(item.phoneNumber);
-                                    console.log(
-                                      "Updated number is",
-                                      item.phoneNumber
-                                    );
+                                   // console.log(
+                                    //   "Updated number is",
+                                    //   item.phoneNumber
+                                    // );
                                   }
                                 }}
                                 style={{
@@ -2938,9 +2939,9 @@ function Page() {
                               {showReassignBtn && (
                                 <div
                                   onClick={(e) => {
-                                    console.log(
-                                      "Should open confirmation modal"
-                                    );
+                                   // console.log(
+                                    //   "Should open confirmation modal"
+                                    // );
                                     e.stopPropagation();
                                     setShowConfirmationModal(item);
                                   }}

@@ -41,7 +41,7 @@ const FocusArea = ({
     const focusData = localStorage.getItem(PersistanceKeys.RegisterDetails);
     if (focusData) {
       const FocusAreaDetails = JSON.parse(focusData);
-      console.log("Local details are :", FocusAreaDetails);
+     // console.log("Local details are :", FocusAreaDetails);
       setFocusArea(FocusAreaDetails.focusAreaId);
       setFocusAreaTitle(FocusAreaDetails.areaFocusTitle);
       if (FocusAreaDetails.userTypeTitle !== "RealEstateAgent") {
@@ -64,7 +64,7 @@ const FocusArea = ({
       let AgentTypeTitle = null;
       if (selectedServiceID) {
         const serviceIds = JSON.parse(selectedServiceID);
-        console.log("Userdetails are", serviceIds);
+       // console.log("Userdetails are", serviceIds);
         AgentTypeTitle = serviceIds.userTypeTitle;
       }
       const focusData = localStorage.getItem(PersistanceKeys.RegisterDetails);
@@ -75,9 +75,9 @@ const FocusArea = ({
           setFocusData(servicesLocal);
         }
 
-        console.log("Check 1 clear !!!");
+       // console.log("Check 1 clear !!!");
         const ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`;
-        console.log("Api link is:--", ApiPath);
+       // console.log("Api link is:--", ApiPath);
         const response = await axios.get(ApiPath, {
           headers: {
             "Content-Type": "application/json",
@@ -85,15 +85,15 @@ const FocusArea = ({
         });
 
         if (response) {
-          console.log("Response of api is : -----", response.data);
+         // console.log("Response of api is : -----", response.data);
 
-          // console.log("Registeration details", FocusAreaDetails);
+          //// console.log("Registeration details", FocusAreaDetails);
           if (FocusAreaDetails.userTypeTitle === "RecruiterAgent") {
-            // console.log("I am recruiter")
-            console.log("Recruiter", response?.data?.data?.userIndustry);
+            //// console.log("I am recruiter")
+           // console.log("Recruiter", response?.data?.data?.userIndustry);
             setFocusData(response?.data?.data?.userIndustry);
           } else {
-            // console.log("I am other")
+            //// console.log("I am other")
             setFocusData(response?.data?.data?.areaOfFocus);
           }
         }
@@ -101,14 +101,14 @@ const FocusArea = ({
         alert(response.data);
       }
     } catch (error) {
-      console.error("ERror occured in default data api is :----", error);
+     // console.error("ERror occured in default data api is :----", error);
     } finally {
       setLoader(false);
     }
   };
 
   useEffect(() => {
-    console.log("Focus area is :", focusArea);
+   // console.log("Focus area is :", focusArea);
     if (focusArea.length > 0 || otherType.length > 0) {
       setShouldContinue(false);
     } else if (focusArea.length === 0) {
@@ -121,7 +121,7 @@ const FocusArea = ({
 
     if (data) {
       const LocalDetails = JSON.parse(data);
-      console.log("Local details are", LocalDetails);
+     // console.log("Local details are", LocalDetails);
       let agentType = LocalDetails.userTypeTitle;
 
       let details = LocalDetails;
@@ -137,7 +137,7 @@ const FocusArea = ({
         details.focusAreaId = otherType.trim() ? [otherType] : [];
       }
 
-      console.log("Updated details are", details);
+     // console.log("Updated details are", details);
 
       // return
       localStorage.setItem(
@@ -153,7 +153,7 @@ const FocusArea = ({
       //     handleRecruiterAgentContinue,
       //     handleTaxAgentContinue,
 
-      console.log("Agent type is", agentType);
+     // console.log("Agent type is", agentType);
 
       if (agentType === "RealEstateAgent") {
         handleContinue();
@@ -392,7 +392,7 @@ const FocusArea = ({
 
                 if (data) {
                   const LocalDetails = JSON.parse(data);
-                  console.log("Local details are", LocalDetails);
+                 // console.log("Local details are", LocalDetails);
                   let agentType = LocalDetails.userTypeTitle;
 
                   let details = LocalDetails;
@@ -408,7 +408,7 @@ const FocusArea = ({
                     details.focusAreaId = otherType.trim() ? [otherType] : [];
                   }
 
-                  console.log("Updated details are", details);
+                 // console.log("Updated details are", details);
 
                   // return
                   localStorage.setItem(

@@ -120,7 +120,7 @@ const OtherDetails = ({
     inputsFields.current[0]?.focus();
     if (registerationDetails) {
       const registerationData = JSON.parse(registerationDetails);
-      console.log("User registeration data is :--", registerationData);
+     // console.log("User registeration data is :--", registerationData);
       setUserData(registerationData);
     } else {
       // alert("Add details to continue");
@@ -210,7 +210,7 @@ const OtherDetails = ({
 
   //select client type function
   const handleSelectClientType = (item) => {
-    console.log("Select client type", item);
+   // console.log("Select client type", item);
     setClientType(item.title);
   };
 
@@ -227,7 +227,7 @@ const OtherDetails = ({
   //code to get user location
 
   const getLocation = () => {
-    console.log("getlocation trigered");
+   // console.log("getlocation trigered");
     // let registerationData = null;
     setLocationLoader(true);
 
@@ -248,7 +248,7 @@ const OtherDetails = ({
           setLoading(false);
         });
       } catch (error) {
-        console.error("Error fetching location:", error);
+       // console.error("Error fetching location:", error);
         setLoading(true); // Stop loading if there’s an error
       } finally {
         setLocationLoader(false);
@@ -277,11 +277,11 @@ const OtherDetails = ({
       }
 
       // setCheckPhoneResponse(null);
-      console.log("Trigered");
+     // console.log("Trigered");
 
       timerRef.current = setTimeout(() => {
         checkPhoneNumber(phoneNumber);
-        console.log("I am hit now");
+       // console.log("I am hit now");
       }, 300);
     }
   };
@@ -314,9 +314,9 @@ const OtherDetails = ({
       let response = await SendVerificationCode(userDetails.phone, true);
       setResponse(response);
       setIsVisible(true);
-      console.log("Response recieved is", response);
+     // console.log("Response recieved is", response);
     } catch (error) {
-      console.error("Error occured", error);
+     // console.error("Error occured", error);
     } finally {
       setSendcodeLoader(false);
     }
@@ -382,7 +382,7 @@ const OtherDetails = ({
 
   //code for number verification
   const handleVerifyCode = () => {
-    console.log("Verify code is :", VerifyCode.join(""));
+   // console.log("Verify code is :", VerifyCode.join(""));
     setPhoneVerifiedSuccessSnack(true);
     handleRegister();
   };
@@ -441,20 +441,20 @@ const OtherDetails = ({
       );
       formData.append("verificationCode", VerifyCode.join(""));
 
-      console.log("Data for user registeration is :-----");
+     // console.log("Data for user registeration is :-----");
       for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
+       // console.log(`${key}: ${value}`);
       }
 
       // return;
       const response = await axios.post(ApiPath, formData);
       if (response) {
-        console.log("Response of register api is:--", response);
+       // console.log("Response of register api is:--", response);
         let result = response.data;
         setResponse(result);
         setIsVisible(true);
         if (response.data.status === true) {
-          console.log("Status is :---", response.data.status);
+         // console.log("Status is :---", response.data.status);
           localStorage.removeItem(PersistanceKeys.RegisterDetails);
           localStorage.setItem("User", JSON.stringify(response.data.data));
           //set cokie on locastorage to run middle ware
@@ -475,15 +475,15 @@ const OtherDetails = ({
 
           if (screenWidth <= SM_SCREEN_SIZE) {
             setCongratsPopup(true);
-            console.log("This is a small size screen");
+           // console.log("This is a small size screen");
           } else {
-            console.log("This is a large size screen");
+           // console.log("This is a large size screen");
             handleContinue();
           }
         }
       }
     } catch (error) {
-      console.error("Error occured in register api is: ", error);
+     // console.error("Error occured in register api is: ", error);
     } finally {
       setRegisterLoader(false);
     }
@@ -502,7 +502,7 @@ const OtherDetails = ({
         email: value,
       };
 
-      console.log("Api data is :", ApiData);
+     // console.log("Api data is :", ApiData);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -511,16 +511,16 @@ const OtherDetails = ({
       });
 
       if (response) {
-        console.log("Response of check email api is :", response);
+       // console.log("Response of check email api is :", response);
         if (response.data.status === true) {
-          console.log("Response message is :", response.data.message);
+         // console.log("Response message is :", response.data.message);
           setEmailCheckResponse(response.data);
         } else {
           setEmailCheckResponse(response.data);
         }
       }
     } catch (error) {
-      console.error("Error occured in check email api is :", error);
+     // console.error("Error occured in check email api is :", error);
     } finally {
       setEmailLoader(false);
     }
@@ -535,7 +535,7 @@ const OtherDetails = ({
         phone: value,
       };
 
-      console.log("Api data is :", ApiData);
+     // console.log("Api data is :", ApiData);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -544,16 +544,16 @@ const OtherDetails = ({
       });
 
       if (response) {
-        console.log("Response of check phone api is :", response);
+       // console.log("Response of check phone api is :", response);
         if (response.data.status === true) {
-          console.log("Response message is :", response.data.message);
+         // console.log("Response message is :", response.data.message);
           setCheckPhoneResponse(response.data);
         } else {
           setCheckPhoneResponse(response.data);
         }
       }
     } catch (error) {
-      console.error("Error occured in check phone api is :", error);
+     // console.error("Error occured in check phone api is :", error);
     } finally {
       setPhoneNumberLoader(false);
     }

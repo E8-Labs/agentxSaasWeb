@@ -42,8 +42,8 @@ function SheduledCalls() {
   //code to show popover
   const handleShowPopup = (event, item, agent) => {
     setAnchorEl(event.currentTarget);
-    console.log("Selected item details are ", item);
-    console.log("Selected agent  details are ", agent);
+   // console.log("Selected item details are ", item);
+   // console.log("Selected agent  details are ", agent);
     localStorage.setItem("curentCalllogItem", JSON.stringify(item));
     localStorage.setItem("currentCalllogAgent", JSON.stringify(agent));
     setSelectedAgent(agent);
@@ -59,8 +59,8 @@ function SheduledCalls() {
 
   //code for showing the selected agent leads
   const handleShowLeads = (agent, item) => {
-    console.log("Agent selected is:", agent);
-    console.log("Item selected is:", item);
+   // console.log("Agent selected is:", agent);
+   // console.log("Item selected is:", item);
     setSelectedAgent(agent);
     setSelectedItem(item);
     setSelectedLeadsList(item.leads);
@@ -71,7 +71,7 @@ function SheduledCalls() {
   //code to filter slected agent leads
   const handleLeadsSearchChange = (value) => {
     if (value.trim() === "") {
-      // console.log("Should reset to original");
+      //// console.log("Should reset to original");
       // Reset to original list when input is empty
       setFilteredSelectedLeadsList(selectedLeadsList);
       return;
@@ -100,23 +100,23 @@ function SheduledCalls() {
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-        console.log("Localdat recieved is :--", Data);
+       // console.log("Localdat recieved is :--", Data);
         AuthToken = Data.token;
       }
 
-      console.log("Auth token is:", AuthToken);
+     // console.log("Auth token is:", AuthToken);
 
       let mainAgent = null;
       const localAgent = localStorage.getItem("agentDetails");
       if (localAgent) {
         const agentDetails = JSON.parse(localAgent);
-        console.log("Check 1 cleear");
-        console.log("Agent details are:", agentDetails);
+       // console.log("Check 1 cleear");
+       // console.log("Agent details are:", agentDetails);
         mainAgent = agentDetails;
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
       const ApiPath = `${Apis.getSheduledCallLogs}?scheduled=true`;
-      console.log("Api path is: ", ApiPath);
+     // console.log("Api path is: ", ApiPath);
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -126,14 +126,14 @@ function SheduledCalls() {
       });
 
       if (response) {
-        console.log("Response of get Scheduled api is:", response.data.data);
+       // console.log("Response of get Scheduled api is:", response.data.data);
 
         setFilteredAgentsList(response.data.data);
         setCallDetails(response.data.data);
         setAgentsList(response.data.data);
       }
     } catch (error) {
-      console.error("Error occured in get Agents api is :", error);
+     // console.error("Error occured in get Agents api is :", error);
     } finally {
       setInitialLoader(false);
     }
@@ -142,11 +142,11 @@ function SheduledCalls() {
   //code to show call log details popup
 
   const handleShowDetails = () => {
-    // console.log("Details of item are:", SelectedItem)
+    //// console.log("Details of item are:", SelectedItem)
     // const AgentId = filteredAgentsList.map((item) => item.id);
-    // console.log("Agent id is:", AgentId);
-    // console.log("selected agent is:", SelectedAgent);
-    console.log("Call log details are :", callDetails);
+    //// console.log("Agent id is:", AgentId);
+    //// console.log("selected agent is:", SelectedAgent);
+   // console.log("Call log details are :", callDetails);
     let updatedCallDetails = callDetails.map((item) => item.agentCalls);
     let CallsArray = [];
 
@@ -156,7 +156,7 @@ function SheduledCalls() {
     //     }
     // });
 
-    // console.log("Calls of this agent are :", CallsArray);
+    //// console.log("Calls of this agent are :", CallsArray);
 
     const calls = SelectedItem.agentCalls.map((item) =>
       item.calls.map((item) => item.leadId)
@@ -171,8 +171,8 @@ function SheduledCalls() {
         );
       return lead;
     });
-    console.log("Leadcall matching data", matchingCallLeadsData);
-    console.log("Lead id are", calls);
+   // console.log("Leadcall matching data", matchingCallLeadsData);
+   // console.log("Lead id are", calls);
 
     setSheduledCalllogs(matchingCallLeadsData);
     setFilteredSheduledCallDetails(matchingCallLeadsData);
@@ -182,7 +182,7 @@ function SheduledCalls() {
   //code for details search field
   const handleDetailsSearchChange = (value) => {
     if (value.trim() === "") {
-      // console.log("Should reset to original");
+      //// console.log("Should reset to original");
       // Reset to original list when input is empty
       setFilteredSheduledCallDetails(sheduledCalllogs);
       return;
@@ -204,7 +204,7 @@ function SheduledCalls() {
 
   const handleSearchChange = (value) => {
     if (value.trim() === "") {
-      // console.log("Should reset to original");
+      //// console.log("Should reset to original");
       // Reset to original list when input is empty
       setFilteredAgentsList(agentsList);
       return;

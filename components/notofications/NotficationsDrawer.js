@@ -39,10 +39,10 @@ function NotficationsDrawer({ close }) {
     // let data = localStorage.getItem("User")
     // if(data){
     // let u = JSON.parse(data)
-    // console.log('object', object)
+    //// console.log('object', object)
     // }
     let data = await getProfileDetails();
-    console.log("user unread messages are ", data.data.data.unread);
+   // console.log("user unread messages are ", data.data.data.unread);
     setUnread(data.data.data.unread);
     // setUnread(12);
   };
@@ -55,7 +55,7 @@ function NotficationsDrawer({ close }) {
       const not = localStorage.getItem("userNotifications");
       if (not) {
         const D = JSON.parse(not);
-        console.log("Notification Local list is", D);
+       // console.log("Notification Local list is", D);
         setNotifications(D);
       }
 
@@ -72,7 +72,7 @@ function NotficationsDrawer({ close }) {
 
       if (user) {
         let u = JSON.parse(user);
-        console.log("user data from local is", u.user);
+       // console.log("user data from local is", u.user);
 
         // if (hasMore === true) {
         if (!notifications.length > 0 && !not) {
@@ -80,7 +80,7 @@ function NotficationsDrawer({ close }) {
         }
 
         const ApiPath = `${Apis.getNotifications}?offset=${offset}`;
-        console.log("Api path is", ApiPath);
+       // console.log("Api path is", ApiPath);
 
         const response = await axios.get(ApiPath, {
           headers: {
@@ -91,7 +91,7 @@ function NotficationsDrawer({ close }) {
         if (response) {
           setLoading(false);
           if (response.data.status === true) {
-            console.log("notifications list is", response.data.data);
+           // console.log("notifications list is", response.data.data);
             // setNotifications(response.data.data.notifications);
             localStorage.setItem(
               "userNotifications",
@@ -108,10 +108,10 @@ function NotficationsDrawer({ close }) {
             localStorage.setItem("User", JSON.stringify(u));
             setUnread(0);
             // setUnread(response.data.data.unread)
-            console.log(
-              "Length of notifications is",
-              response.data.data.notifications.length
-            );
+           // console.log(
+            //   "Length of notifications is",
+            //   response.data.data.notifications.length
+            // );
             if (response.data.data.notifications.length < 40) {
               localStorage.setItem(
                 "hasMoreNotification",
@@ -120,18 +120,18 @@ function NotficationsDrawer({ close }) {
               setHasMore(false);
             }
           } else {
-            console.log("notification api message is", response.data.message);
+           // console.log("notification api message is", response.data.message);
           }
         }
       }
     } catch (e) {
       setLoading(false);
-      console.log("error in get notifications is ", e);
+     // console.log("error in get notifications is ", e);
     }
   };
 
   useEffect(() => {
-    console.log("Has more status is", hasMore);
+   // console.log("Has more status is", hasMore);
   }, [hasMore]);
 
   //function to get support
@@ -412,8 +412,8 @@ function NotficationsDrawer({ close }) {
       return (
         <button
           onClick={() => {
-            console.log("Check 1 clear!!");
-            console.log("Lead details to show are", item);
+           // console.log("Check 1 clear!!");
+           // console.log("Lead details to show are", item);
             // setShowNotificationDrawer(false)
             if (
               item.pipelineId === null ||
@@ -809,7 +809,7 @@ function NotficationsDrawer({ close }) {
                   scrollableTarget="scrollableDiv1"
                   dataLength={notifications.length}
                   next={() => {
-                    console.log("Loading more data");
+                   // console.log("Loading more data");
                     getNotifications();
                   }} // Fetch more when scrolled
                   hasMore={hasMore} // Check if there's more data

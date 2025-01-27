@@ -53,7 +53,7 @@ const Page = ({ length = 6, onComplete }) => {
 
   useEffect(() => {
     if (params && params.username) {
-      console.log("Username is ", params.username);
+      // console.log("Username is ", params.username);
       if (typeof window !== "undefined") {
         localStorage.setItem(
           PersistanceKeys.LocalStorageCampaignee,
@@ -68,7 +68,7 @@ const Page = ({ length = 6, onComplete }) => {
   useEffect(() => {
     const localData = localStorage.getItem("User");
     if (localData) {
-      console.log("user login details are :", localData);
+      // console.log("user login details are :", localData);
       router.push("/dashboard");
     }
     const localLoc = localStorage.getItem("userLocation");
@@ -93,7 +93,7 @@ const Page = ({ length = 6, onComplete }) => {
   //action detects inner width
   useEffect(() => {
     if (typeof window !== "undefined") {
-      console.log("Window inner width is", window.innerWidth);
+      // console.log("Window inner width is", window.innerWidth);
       setInnerWidth(window.innerWidth);
     }
   }, [InnerWidth]);
@@ -118,7 +118,7 @@ const Page = ({ length = 6, onComplete }) => {
         setCountryCode(loc);
       }
     } catch (error) {
-      console.error("Error occured in get location", error);
+      // console.error("Error occured in get location", error);
     }
   };
 
@@ -141,7 +141,7 @@ const Page = ({ length = 6, onComplete }) => {
       }
 
       // setCheckPhoneResponse(null);
-      console.log("Trigered");
+      // console.log("Trigered");
 
       timerRef.current = setTimeout(() => {
         checkPhoneNumber(phoneNumber);
@@ -162,13 +162,13 @@ const Page = ({ length = 6, onComplete }) => {
     try {
       setSendcodeLoader(true);
       let response = await SendVerificationCode(userPhoneNumber, true);
-      console.log("Number for sending code is", userPhoneNumber);
+      // console.log("Number for sending code is", userPhoneNumber);
       // return
       setResponse(response);
       setIsVisible(true);
-      console.log("Response recieved is", response);
+      // console.log("Response recieved is", response);
     } catch (error) {
-      console.error("Error occured", error);
+      // console.error("Error occured", error);
     } finally {
       setSendcodeLoader(false);
     }
@@ -211,7 +211,7 @@ const Page = ({ length = 6, onComplete }) => {
             response.data.data.user.userType !== "RealEstateAgent" &&
             response.data.data.user.userRole !== "Invitee"
           ) {
-            console.log("Pushing user to wait list");
+            // console.log("Pushing user to wait list");
 
             const twoHoursFromNow = new Date();
             twoHoursFromNow.setTime(twoHoursFromNow.getTime() + 2 * 60 * 1000);
@@ -220,11 +220,11 @@ const Page = ({ length = 6, onComplete }) => {
               router.push("/onboarding/WaitList");
             }
           } else {
-            console.log("Here Else");
+            // console.log("Here Else");
             localStorage.setItem("User", JSON.stringify(response.data.data));
             //set cokie on locastorage to run middle ware
             if (typeof document !== "undefined") {
-              console.log("Here Not undefined");
+              // console.log("Here Not undefined");
 
               setCookie(response.data.data.user, document);
               let w = 1000;
@@ -232,20 +232,20 @@ const Page = ({ length = 6, onComplete }) => {
                 window.innerWidth;
               }
               if (w < 540) {
-                console.log("It is mobile view");
+                // console.log("It is mobile view");
                 router.push("/createagent/desktop");
               } else if (w > 540) {
-                console.log("It is desktop view");
+                // console.log("It is desktop view");
                 router.push("/dashboard/leads");
               }
             } else {
-              console.log("Here undefined");
+              // console.log("Here undefined");
             }
           }
         }
       }
     } catch (error) {
-      console.error("ERror occured in login api is :", error);
+      // console.error("ERror occured in login api is :", error);
     } finally {
       setLoginLoader(false);
     }
@@ -261,7 +261,7 @@ const Page = ({ length = 6, onComplete }) => {
         phone: value,
       };
 
-      console.log("Api data is :", ApiData);
+      // console.log("Api data is :", ApiData);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -270,16 +270,16 @@ const Page = ({ length = 6, onComplete }) => {
       });
 
       if (response) {
-        console.log("Response of check phone api is :", response);
+        // console.log("Response of check phone api is :", response);
         if (response.data.status === true) {
-          console.log("Response message is :", response.data.message);
+          // console.log("Response message is :", response.data.message);
           setCheckPhoneResponse(response.data.status);
         } else if (response.data.status === false) {
           setCheckPhoneResponse(response.data.status);
         }
       }
     } catch (error) {
-      console.error("Error occured in check phone api is :", error);
+      // console.error("Error occured in check phone api is :", error);
     } finally {
       setPhoneNumberLoader(false);
     }
@@ -365,7 +365,7 @@ const Page = ({ length = 6, onComplete }) => {
   };
 
   const handleVerifyCode = () => {
-    console.log("Verify code is :", VerifyCode.join(""));
+    // console.log("Verify code is :", VerifyCode.join(""));
     // setPhoneVerifiedSuccessSnack(true);
     handleLogin();
   };
