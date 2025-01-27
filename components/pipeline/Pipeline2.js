@@ -782,7 +782,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                       );
                     }}
                   >
-                    User Script Builder
+                    Use Script Builder
                     <ArrowUpRight size={20} color="white" />
                   </button>
                 </div>
