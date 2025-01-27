@@ -47,7 +47,10 @@ import LeadTeamsAssignedList from "../dashboard/leads/LeadTeamsAssignedList";
 import { getTeamsList } from "../onboarding/services/apisServices/ApiService";
 import { PersistanceKeys } from "@/constants/Constants";
 import { useRouter, useSearchParams } from "next/navigation";
-import { GetFormattedDateString } from "@/utilities/utility";
+import {
+  GetFormattedDateString,
+  GetFormattedTimeString,
+} from "@/utilities/utility";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
 
 const Pipeline1 = () => {
@@ -1220,7 +1223,6 @@ const Pipeline1 = () => {
     } finally {
       console.log("api call completed");
       setReorderStageLoader(false);
-      
     }
   };
 
@@ -2062,7 +2064,9 @@ const Pipeline1 = () => {
                                     style={{ filter: "opacity(50%)" }}
                                   />
                                   <p style={{ fontSize: 13, fontWeight: 500 }}>
-                                    {lead?.lead?.booking?.time}
+                                    {GetFormattedTimeString(
+                                      lead?.lead?.booking?.datetime
+                                    )}
                                   </p>
 
                                   {/* {moment(

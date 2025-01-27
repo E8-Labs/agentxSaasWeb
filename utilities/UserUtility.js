@@ -21,3 +21,12 @@ export const getSupportUrlFor = (user) => {
     );
   }
 };
+
+export function logout() {
+  // localStorage.removeItem("User");
+  // localStorage.removeItem("localAgentDetails");
+  if (typeof document !== "undefined") {
+    localStorage.clear();
+    document.cookie = "User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  }
+}
