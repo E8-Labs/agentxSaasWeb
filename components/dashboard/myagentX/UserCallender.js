@@ -199,14 +199,20 @@ const UserCalender = ({
             );
             setUserDetails(updatedArray);
             setShowAddNewCalender(false);
+            setShowAddNewCalender(false)
             // agentsListDetails = updatedArray
           }
         } else if (response.data.status === false) {
+          setIsVisible(true)
           setMessage("Calender not added");
+          setShowAddNewCalender(false)
           setType(SnackbarTypes.Error);
         }
       }
     } catch (error) {
+      setIsVisible(true)
+      setMessage(error);
+      setType(SnackbarTypes.Error);
       console.error("Error occured in api is:", error);
     } finally {
       setAddCalenderLoader(false);
@@ -257,7 +263,7 @@ const UserCalender = ({
         <AgentSelectSnackMessage
           type={type}
           message={message}
-          isVisible={isVisible2}
+          isVisible={true}
           hide={() => {
             setIsVisible2(false);
           }}

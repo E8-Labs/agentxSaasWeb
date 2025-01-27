@@ -96,12 +96,13 @@ const AddCalender = ({ handleContinue }) => {
 
       const ApiPath = Apis.getCalenders;
 
-      console.log("Apipath is:", ApiPath);
+      console.log("Apipath is for get calender ", ApiPath);
+
+      
 
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
         },
       });
 
