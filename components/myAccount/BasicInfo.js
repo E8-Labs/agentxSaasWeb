@@ -504,7 +504,7 @@ function BasicInfo() {
                     width: 74,
                     height: 74,
                     borderRadius: "50%",
-                    objectFit: "fill",
+                    objectFit: 'cover',
                   }}
                   alt="profileImage"
                 />

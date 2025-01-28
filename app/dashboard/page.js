@@ -84,8 +84,11 @@ const Page = () => {
       let response = await getProfileDetails();
 
       // console.log("Data recieved from get profile api", response);
-
       if (response) {
+        let user = response?.data?.data;
+        if (user) {
+          setUserDetails(user);
+        }
         if (!response?.data?.data?.plan?.status === "cancelled") {
           setShowPlansPopup(true);
         }

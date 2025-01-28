@@ -350,7 +350,7 @@ const ClaimNumber = ({
                           </div>
                         ) : (
                           <div className="text-xl font-[600] text-center mt-4">
-                            No result found. Try a new search
+                            Those numbers seem to be taken. Try a new search
                           </div>
                         )}
                       </div>

@@ -363,7 +363,7 @@ function Page() {
 
       if (LocalData) {
         const userData = JSON.parse(LocalData);
-       //// console.log("Local data recieved is", userData);
+        //// console.log("Local data recieved is", userData);
         AuthToken = userData.token;
       }
 
@@ -375,10 +375,10 @@ function Page() {
       formData.append("agentId", showDrawerSelectedAgent.id);
 
       for (let [key, value] of formData.entries()) {
-       //// console.log(`${key} :- ${value}`);
+        //// console.log(`${key} :- ${value}`);
       }
 
-     //// console.log("Apipath is", ApiPath);
+      //// console.log("Apipath is", ApiPath);
 
       // return
       const response = await axios.post(ApiPath, formData, {
@@ -388,7 +388,7 @@ function Page() {
       });
 
       if (response) {
-       //// console.log("Response of update agent api is", response);
+        //// console.log("Response of update agent api is", response);
 
         if (response.data.status === true) {
           const localAgentsList = localStorage.getItem(
@@ -401,7 +401,7 @@ function Page() {
 
             const updateAgentData = response.data.data;
 
-           //// console.log("Agents list is", agentsList);
+            //// console.log("Agents list is", agentsList);
 
             // const updatedArray = agentsList.map((localItem) => {
             //   const apiItem =
@@ -421,7 +421,7 @@ function Page() {
                     : subAgent; // Leave the others unchanged
                 });
 
-               //// console.log("Updated sub agents", updatedSubAgents);
+                //// console.log("Updated sub agents", updatedSubAgents);
 
                 // Return the updated agent with the updated subAgents
                 return { ...localItem, agents: updatedSubAgents };
@@ -431,7 +431,7 @@ function Page() {
               return localItem;
             });
 
-           //// console.log("Updated agents list array is", updatedArray);
+            //// console.log("Updated agents list array is", updatedArray);
             localStorage.setItem(
               PersistanceKeys.LocalStoredAgentsListMain,
               JSON.stringify(updatedArray)
@@ -440,11 +440,11 @@ function Page() {
             // agentsListDetails = updatedArray
           }
         } else if (response.data.status === false) {
-         //// console.log("Status is false");
+          //// console.log("Status is false");
         }
       }
     } catch (error) {
-     //// console.error("Error occured in api is", error);
+      //// console.error("Error occured in api is", error);
       setGlobalLoader(false);
     } finally {
       setGlobalLoader(false);
@@ -467,7 +467,7 @@ function Page() {
     //console.log("")
     setShowDrawerSelectedAgent(item);
     setSelectedImage(item?.thumb_profile_image);
-   //// console.log("Selected agent is:", item);
+    //// console.log("Selected agent is:", item);
     if (item.agentType === "inbound") {
       setShowReassignBtn(true);
       setShowGlobalBtn(false);
@@ -562,7 +562,7 @@ function Page() {
         }
       }
     } catch (error) {
-    // console.error("Error occured in finde number api is :---", error);
+      // console.error("Error occured in finde number api is :---", error);
     } finally {
       setFindeNumberLoader(false);
     }
@@ -571,7 +571,7 @@ function Page() {
   //code for reassigning the number api
   const handleReassignNumber = async (item) => {
     try {
-     //// console.log("Phonenumber is:", item);
+      //// console.log("Phonenumber is:", item);
       // return;
       setReassignLoader(item);
       let AuthToken = null;
@@ -599,7 +599,7 @@ function Page() {
       };
       //console.log("I a just trigered")
 
-     //// console.log("Data sending in api is:", ApiData);
+      //// console.log("Data sending in api is:", ApiData);
       //console.log("Api path is:", ApiPath);
       //console.log("Authtoken is:", AuthToken);
 
@@ -612,11 +612,10 @@ function Page() {
       });
 
       if (response) {
-       //// console.log("Respose of reassign api is:", response.data.data);
+        //// console.log("Respose of reassign api is:", response.data.data);
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -646,12 +645,12 @@ function Page() {
               if (ag.phoneNumber == item.phoneNumber) {
                 if (ag.agentType == "inbound") {
                   ag.phoneNumber = "";
-                 //// console.log("Removing phone number from ", ag.name);
+                  //// console.log("Removing phone number from ", ag.name);
                 }
               } else {
                 if (ag.id == showDrawerSelectedAgent.id) {
                   ag.phoneNumber = item.phoneNumber;
-                 //// console.log("Assigning phone number to ", ag.name);
+                  //// console.log("Assigning phone number to ", ag.name);
                 }
               }
               newAgents.push(ag);
@@ -675,7 +674,7 @@ function Page() {
         return;
 
         // Update the agent's phone number and ensure no other agents have the same phone number
-       //// console.log("Agents Content is ", agentsListSeparated);
+        //// console.log("Agents Content is ", agentsListSeparated);
         let agents = [];
         let mainAgents = []; //Main agents not subagents list
 
@@ -683,27 +682,27 @@ function Page() {
           if (ag.phoneNumber == item.phoneNumber) {
             if (ag.agentType == "inbound") {
               ag.phoneNumber = "";
-             //// console.log("Removing phone number from ", ag.name);
+              //// console.log("Removing phone number from ", ag.name);
             }
           } else {
             if (ag.id == showDrawerSelectedAgent.id) {
               ag.phoneNumber = item.phoneNumber;
-             //// console.log("Assigning phone number to ", ag.name);
+              //// console.log("Assigning phone number to ", ag.name);
             }
           }
           agents.push(ag);
         }
-       //// console.log("Total agents after updating ", agents.length);
+        //// console.log("Total agents after updating ", agents.length);
         setAgentsListSeparated(agents);
         localStorage.setItem(
           PersistanceKeys.LocalStoredAgentsListMain,
           JSON.stringify(agents)
         );
 
-       //// console.log("Updated agent list is after changing phone", agents);
+        //// console.log("Updated agent list is after changing phone", agents);
       }
     } catch (error) {
-     //// console.error("Error occured in reassign the number api:", error);
+      //// console.error("Error occured in reassign the number api:", error);
     } finally {
       setReassignLoader(null);
       //console.log("reassign api completed")
@@ -778,7 +777,7 @@ function Page() {
         }
       }
     } catch (error) {
-     //// console.error("Error occured in purchase number api is: --", error);
+      //// console.error("Error occured in purchase number api is: --", error);
     } finally {
       setPurchaseLoader(false);
     }
@@ -814,12 +813,12 @@ function Page() {
       });
 
       if (response) {
-       //// console.log("Response of numbers api is :", response.data);
+        //// console.log("Response of numbers api is :", response.data);
         ////// console.log("PArsed data is ", response.data.data);
         setPreviousNumber(response.data.data);
       }
     } catch (error) {
-     //// console.error("Error occured in: ", error);
+      //// console.error("Error occured in: ", error);
     } finally {
       //console.log("Api cal completed")
     }
@@ -868,7 +867,7 @@ function Page() {
       }
 
       for (let [key, value] of formData.entries()) {
-       //// console.log(`${key}: ${value}`);
+        //// console.log(`${key}: ${value}`);
       }
       // return
       const response = await axios.post(ApiPath, formData, {
@@ -879,7 +878,7 @@ function Page() {
 
       if (response) {
         //console.log("Response of update api is :--", response.data);
-       //// console.log("Respons eof update api is", response.data.data);
+        //// console.log("Respons eof update api is", response.data.data);
         setShowSuccessSnack(response.data.message);
         if (response.data.status === true) {
           setIsVisibleSnack(true);
@@ -915,7 +914,7 @@ function Page() {
               }
             }
 
-           //// console.log("Updated agents list array is", updatedArray);
+            //// console.log("Updated agents list array is", updatedArray);
             localStorage.setItem(
               PersistanceKeys.LocalStoredAgentsListMain,
               JSON.stringify(updatedArray)
@@ -934,7 +933,7 @@ function Page() {
         }
       }
     } catch (error) {
-     //// console.error("Error occured in api is", error);
+      //// console.error("Error occured in api is", error);
       setGlobalLoader(false);
     } finally {
       //console.log("Api call completed");
@@ -955,7 +954,7 @@ function Page() {
       return;
     }
     try {
-     //// console.log("Updated number is", phoneNumber);
+      //// console.log("Updated number is", phoneNumber);
 
       // setGlobalLoader(true);
       // setAssignLoader(true);
@@ -984,7 +983,7 @@ function Page() {
       const ApiPath = Apis.asignPhoneNumber;
 
       for (let [key, value] of formData.entries()) {
-       //// console.log(`${key} ${value}`);
+        //// console.log(`${key} ${value}`);
       }
 
       const response = await axios.post(ApiPath, formData, {
@@ -996,11 +995,10 @@ function Page() {
       // setAssignLoader(false);
       setShowPhoneLoader(false);
       if (response) {
-       //// console.log("Response of update number api is", response.data);
+        //// console.log("Response of update number api is", response.data);
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -1018,7 +1016,7 @@ function Page() {
             const agentsList = JSON.parse(localAgentsList);
             const updateAgentData = showDrawerSelectedAgent;
 
-           //// console.log("Agents list is", agentsList);
+            //// console.log("Agents list is", agentsList);
             const updatedArray = agentsList.map((localItem) => {
               if (updateAgentData.mainAgentId === localItem.id) {
                 const updatedSubAgents = localItem.agents.map((subAgent) => {
@@ -1027,16 +1025,16 @@ function Page() {
                     : subAgent;
                 });
 
-               //// console.log("Updated sub agents", updatedSubAgents);
+                //// console.log("Updated sub agents", updatedSubAgents);
 
                 return { ...localItem, agents: updatedSubAgents };
               }
 
               return localItem;
             });
-           //// console.log(
-              // "Updated agents list array with phone is",
-              // updatedArray
+            //// console.log(
+            // "Updated agents list array with phone is",
+            // updatedArray
             // );
             localStorage.setItem(
               PersistanceKeys.LocalStoredAgentsListMain,
@@ -1051,7 +1049,7 @@ function Page() {
         }
       }
     } catch (error) {
-     //// console.error("Error occured in api is:", error);
+      //// console.error("Error occured in api is:", error);
       setShowErrorSnack(response.data.message);
       setIsVisibleSnack2(true);
       setGlobalLoader(false);
@@ -1094,16 +1092,16 @@ function Page() {
 
   //function ot compare the selected agent wiith the main agents list
   const matchingAgent = (agent) => {
-   //// console.log();
+    //// console.log();
     const agentData = mainAgentsList.filter((prevAgent) => {
-     //// console.log(`Matching ${prevAgent.id} = ${agent.mainAgentId}`);
+      //// console.log(`Matching ${prevAgent.id} = ${agent.mainAgentId}`);
       if (prevAgent.id === agent.mainAgentId) {
         return true;
       } else {
         return false;
       }
     });
-   //// console.log("Agent Data in match ", agentData);
+    //// console.log("Agent Data in match ", agentData);
     if (typeof agentData == undefined || agentData == null) {
       return;
     }
@@ -1111,10 +1109,10 @@ function Page() {
     setKYCList(agentData[0].kyc);
 
     //console.log("Pipeline of selected agent", agentData[0].pipeline);
-   //// console.log("Received Agent ", agent);
+    //// console.log("Received Agent ", agent);
     setMainAgentId(agentData[0].id);
     let firstAgent = agentData[0];
-   //// console.log("First Agent ", firstAgent);
+    //// console.log("First Agent ", firstAgent);
     setUserPipeline(firstAgent.pipeline);
     // if (
     //   firstAgent.agents?.length === 2
@@ -1171,7 +1169,7 @@ function Page() {
         }
       }
     } catch (error) {
-     //// console.error("Error occured in getColumn is :", error);
+      //// console.error("Error occured in getColumn is :", error);
     } finally {
       // setColumnloader(false)
     }
@@ -1205,9 +1203,9 @@ function Page() {
       const ApiData = {
         agentId: showDrawerSelectedAgent.id,
       };
-     //// console.log("Data sending in del agent api is:", ApiData);
+      //// console.log("Data sending in del agent api is:", ApiData);
 
-     //// console.log("Current agent selected is", showDrawerSelectedAgent);
+      //// console.log("Current agent selected is", showDrawerSelectedAgent);
 
       // return
       const ApiPath = Apis.DelAgent;
@@ -1221,7 +1219,7 @@ function Page() {
       });
 
       if (response) {
-       //// console.log("Response of del agent api is:", response);
+        //// console.log("Response of del agent api is:", response);
         setAgentsListSeparated(
           agentsListSeparated.filter(
             (item) => item.id !== showDrawerSelectedAgent.id
@@ -1257,7 +1255,7 @@ function Page() {
             return agentGroup; // Return the item as is if 'agents' is not an array
           });
 
-         //// console.log("Updated agents list array is", updatedAgentsList);
+          //// console.log("Updated agents list array is", updatedAgentsList);
           localStorage.setItem(
             PersistanceKeys.LocalStoredAgentsListMain,
             JSON.stringify(updatedAgentsList)
@@ -1266,7 +1264,7 @@ function Page() {
         }
       }
     } catch (error) {
-     //// console.error("Error occured in del agent api is:", error);
+      //// console.error("Error occured in del agent api is:", error);
     } finally {
       setDelLoader(false);
     }
@@ -1320,7 +1318,7 @@ function Page() {
         }
       }
     } catch (error) {
-     //// console.error("Error occured in test api is", error);
+      //// console.error("Error occured in test api is", error);
     } finally {
       //console.log("Test ai call api done");
       setTestAIloader(false);
@@ -1368,10 +1366,10 @@ function Page() {
 
     if (agentLocalDetails) {
       const agentData = JSON.parse(agentLocalDetails);
-     //// console.log("Data on LocalStorage", agentData);
+      //// console.log("Data on LocalStorage", agentData);
       setMainAgentsList(agentData);
     } else {
-     //// console.log("No data of agents");
+      //// console.log("No data of agents");
     }
 
     const userData = localStorage.getItem("User");
@@ -1383,7 +1381,7 @@ function Page() {
         getAgents(userLocalData);
       }
     } catch (error) {
-     //// console.error("Error occured is :", error);
+      //// console.error("Error occured is :", error);
     } finally {
       setShowPhoneLoader(false);
 
@@ -1433,7 +1431,7 @@ function Page() {
       });
 
       if (response) {
-       //// console.log("Response of get agents api is:", response.data);
+        //// console.log("Response of get agents api is:", response.data);
         localStorage.setItem(
           PersistanceKeys.LocalStoredAgentsListMain,
           JSON.stringify(response.data.data)
@@ -1441,7 +1439,7 @@ function Page() {
         setMainAgentsList(response.data.data);
       }
     } catch (error) {
-     //// console.error("Error occured in get Agents api is :", error);
+      //// console.error("Error occured in get Agents api is :", error);
     } finally {
       setInitialLoader(false);
     }
@@ -1475,7 +1473,7 @@ function Page() {
   useEffect(() => {
     let agents = [];
 
-   //// console.log("Again setting data in array");
+    //// console.log("Again setting data in array");
 
     const localAgentsData = localStorage.getItem(
       PersistanceKeys.LocalStoredAgentsListMain
@@ -1538,11 +1536,11 @@ function Page() {
         AuthToken = UserDetails.token;
       }
 
-     //// console.log("Authtoken is:", AuthToken);
+      //// console.log("Authtoken is:", AuthToken);
 
       const ApiPath = Apis.getCalenders;
 
-     //// console.log("Apipath is:", ApiPath);
+      //// console.log("Apipath is:", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -1552,13 +1550,13 @@ function Page() {
       });
 
       if (response) {
-       //// console.log("Response of get calender api is:", response);
+        //// console.log("Response of get calender api is:", response);
         setPreviousCalenders(response.data.data);
       }
     } catch (error) {
-     //// console.error("Error occured in the api is ", error);
+      //// console.error("Error occured in the api is ", error);
     } finally {
-     //// console.log("Api cal for getting calenders done");
+      //// console.log("Api cal for getting calenders done");
     }
   };
 
@@ -1570,10 +1568,10 @@ function Page() {
 
     if (agentLocalDetails) {
       const agentData = JSON.parse(agentLocalDetails);
-     //// console.log("Data on LocalStorage", agentData);
+      //// console.log("Data on LocalStorage", agentData);
       setMainAgentsList(agentData);
     } else {
-     //// console.log("No data of agents");
+      //// console.log("No data of agents");
     }
   };
 
@@ -1830,7 +1828,7 @@ function Page() {
                             aria-owns={open ? "mouse-over-popover" : undefined}
                             aria-haspopup="true"
                             onMouseEnter={(event) => {
-                             //// console.log(
+                              //// console.log(
                               //   "Agent hovered is",
                               //   item.agentObjectiveId
                               // );
@@ -1856,7 +1854,7 @@ function Page() {
                       >
                         <button
                           onClick={() => {
-                           //// console.log("Grreting sending ", item);
+                            //// console.log("Grreting sending ", item);
                             setGreetingTagInput(item.prompt.greeting);
                             setOldGreetingTagInput(item.prompt.greeting);
                             setScriptTagInput(item.prompt.callScript);
@@ -1882,7 +1880,7 @@ function Page() {
 
                         <button
                           onClick={() => {
-                           //// console.log("Selected agen is", item);
+                            //// console.log("Selected agen is", item);
                             handleShowDrawer(item);
                             // matchingAgent(item);
                             ////// console.log("Item details are", item);
@@ -2231,7 +2229,7 @@ function Page() {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                  // defaultMask={loading ? 'Loading...' : undefined}
+                // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -2262,9 +2260,8 @@ function Page() {
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
-                        index === scriptKeys?.length - 1 ? "mb-16" : ""
-                      }`}
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
+                        }`}
                       style={{
                         ...styles.inputStyle,
                         border: "1px solid #00000010",
@@ -2464,7 +2461,7 @@ function Page() {
               name="Calls"
               value={
                 showDrawerSelectedAgent?.calls &&
-                showDrawerSelectedAgent?.calls > 0 ? (
+                  showDrawerSelectedAgent?.calls > 0 ? (
                   <div>{showDrawerSelectedAgent?.calls}</div>
                 ) : (
                   "-"
@@ -2478,7 +2475,7 @@ function Page() {
               name="Convos"
               value={
                 showDrawerSelectedAgent?.callsGt10 &&
-                showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
                   <div>{showDrawerSelectedAgent?.callsGt10}</div>
                 ) : (
                   "-"
@@ -2506,7 +2503,7 @@ function Page() {
               name="Mins Talked"
               value={
                 showDrawerSelectedAgent?.totalDuration &&
-                showDrawerSelectedAgent?.totalDuration > 0 ? (
+                  showDrawerSelectedAgent?.totalDuration > 0 ? (
                   // <div>{showDrawer?.totalDuration}</div>
                   <div>
                     {moment(
@@ -2528,11 +2525,10 @@ function Page() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${
-                  activeTab === tab
-                    ? "text-purple border-b-2 border-purple"
-                    : "text-black-500"
-                }`}
+                className={`${activeTab === tab
+                  ? "text-purple border-b-2 border-purple"
+                  : "text-black-500"
+                  }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >
                 {tab}
@@ -2768,7 +2764,7 @@ function Page() {
                             // onChange={handleSelectNumber}
                             onChange={(e) => {
                               let value = e.target.value;
-                             //// console.log("Assign number here");
+                              //// console.log("Assign number here");
                               // return;
                               setAssignNumber(value);
                               setOpenCalimNumDropDown(false);
@@ -2802,16 +2798,16 @@ function Page() {
                                     if (showReassignBtn && item?.claimedBy) {
                                       e.stopPropagation();
                                       setShowConfirmationModal(item);
-                                     //// console.log("Hit release number api");
+                                      //// console.log("Hit release number api");
                                       // AssignNumber
                                     } else {
-                                     //// console.log("Hit reassign number api");
-                                     //// console.log(
+                                      //// console.log("Hit reassign number api");
+                                      //// console.log(
                                       //   "Should call assign number api"
                                       // );
                                       // return;
                                       AssignNumber(item.phoneNumber);
-                                     //// console.log(
+                                      //// console.log(
                                       //   "Updated number is",
                                       //   item.phoneNumber
                                       // );
@@ -2829,7 +2825,7 @@ function Page() {
                                   <div
                                     className="w-full"
                                     onClick={(e) => {
-                                     //// console.log(
+                                      //// console.log(
                                       //   "Should open confirmation modal"
                                       // );
                                       e.stopPropagation();
@@ -2840,25 +2836,25 @@ function Page() {
                                       <div className="flex flex-row items-center gap-2">
                                         {showDrawerSelectedAgent?.name !==
                                           item.claimedBy.name && (
-                                          <div>
-                                            <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                            {reassignLoader === item ? (
-                                              <CircularProgress size={15} />
-                                            ) : (
-                                              <button
-                                                className="text-purple underline"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  setShowConfirmationModal(
-                                                    item
-                                                  );
-                                                }}
-                                              >
-                                                Reassign
-                                              </button>
-                                            )}
-                                          </div>
-                                        )}
+                                            <div>
+                                              <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                              {reassignLoader === item ? (
+                                                <CircularProgress size={15} />
+                                              ) : (
+                                                <button
+                                                  className="text-purple underline"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setShowConfirmationModal(
+                                                      item
+                                                    );
+                                                  }}
+                                                >
+                                                  Reassign
+                                                </button>
+                                              )}
+                                            </div>
+                                          )}
                                       </div>
                                     )}
                                   </div>
@@ -2870,8 +2866,8 @@ function Page() {
                               value={showGlobalBtn ? 14062040550 : ""}
                               disabled={!showGlobalBtn}
                               onClick={() => {
-                               //// console.log(
-                                  // "This triggers when user clicks on assigning global number"
+                                //// console.log(
+                                // "This triggers when user clicks on assigning global number"
                                 // );
                                 // return;
                                 AssignNumber(Constants.GlobalPhoneNumber);
@@ -2880,7 +2876,7 @@ function Page() {
                             >
                               {Constants.GlobalPhoneNumber}
                               {showGlobalBtn &&
-                                " (Our global phone number avail to first time users)"}
+                                " (to available for testing calls only)"}
                               {showGlobalBtn == false &&
                                 " (Only for outbound agents. You must buy a number)"}
                             </MenuItem>
@@ -3503,14 +3499,16 @@ function Page() {
                     </div>
 
                     <div className="w-full">
-                      <VideoCard
-                        duration={"13 min 56 sec"}
-                        horizontal={false}
-                        playVideo={() => {
-                          setIntroVideoModal(true);
-                        }}
-                        title="Learn how to customize your script"
-                      />
+                      <div className="w-5/12">
+                        <VideoCard
+                          duration={"13 min 56 sec"}
+                          horizontal={false}
+                          playVideo={() => {
+                            setIntroVideoModal(true);
+                          }}
+                          title="Learn how to customize your script"
+                        />
+                      </div>
 
                       {/* <div
                         className="mt-4"
@@ -3524,24 +3522,7 @@ function Page() {
                         className="flex flex-row items-center center w-full justify-between"
                       >
                         <div>Script</div>
-                        <div>
-                          <button
-                            className="flex flex-row items-center gap-2 h-[43px] rounded-md bg-purple text-white px-4"
-                            style={{
-                              fontWeight: "500",
-                              fontSize: 15,
-                            }}
-                            onClick={() => {
-                              window.open(
-                                "https://chatgpt.com/g/g-0O0jItKdk-agentx-script-builder",
-                                "_blank"
-                              );
-                            }}
-                          >
-                            Use Script Builder
-                            <ArrowUpRight size={20} color="white" />
-                          </button>
-                        </div>
+
                       </div>
 
                       <div className="flex flex-row items-center justify-between">
@@ -3551,6 +3532,23 @@ function Page() {
                         >
                           Greeting
                         </div>
+
+                        <button
+                          className="flex flex-row items-center gap-2 h-[43px] rounded-md bg-purple text-white px-4"
+                          style={{
+                            fontWeight: "500",
+                            fontSize: 15,
+                          }}
+                          onClick={() => {
+                            window.open(
+                              "https://chatgpt.com/g/g-0O0jItKdk-agentx-script-builder",
+                              "_blank"
+                            );
+                          }}
+                        >
+                          Use Script Builder
+                          <ArrowUpRight size={20} color="white" />
+                        </button>
                       </div>
 
                       <div className="mt-2">
