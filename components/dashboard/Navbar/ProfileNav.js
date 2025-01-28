@@ -305,20 +305,39 @@ const ProfileNav = () => {
       // console.log("Available seconds are", Data?.totalSecondsAvailable);
 
       if (response) {
+        
         if (
           // Data?.totalSecondsAvailable <= 120 ||
           Data?.plan == null ||
           (Data?.plan &&
             Data?.plan?.status !== "active" &&
-            Data?.totalSecondsAvailable <= 120) ||
+            Data?.totalSecondsAvailable <= 120
+          ) ||
           (Data?.plan &&
             Data?.plan?.status == "active" &&
-            Data?.totalSecondsAvailable <= 120)
+            Data?.totalSecondsAvailable <= 120
+          )
         ) {
           setShowPlansPopup(true);
         } else {
           setShowPlansPopup(false);
         }
+
+
+        let plan = response?.data?.data?.plan;
+        let togglePlan = plan?.type;
+        let planType = null;
+          if (togglePlan === "Plan30") {
+            planType = 1;
+          } else if (togglePlan === "Plan120") {
+            planType = 2;
+          } else if (togglePlan === "Plan360") {
+            planType = 3;
+          } else if (togglePlan === "Plan720") {
+            planType = 4;
+          }
+
+        setTogglePlan(planType);
       }
     } catch (error) {
       // console.error("Error occured in api is error", error);

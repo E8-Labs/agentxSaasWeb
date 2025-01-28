@@ -71,7 +71,7 @@ function Billing() {
     if (typeof window !== "undefined") {
       screenWidth = window.innerWidth;
     }
-   // console.log("Window width is", screenWidth);
+    // console.log("Window width is", screenWidth);
     setScreenWidth(screenWidth);
   }, []);
 
@@ -153,7 +153,7 @@ function Billing() {
     try {
       const localData = localStorage.getItem("User");
       let response = await getProfileDetails();
-     // console.log("Response of get progf", response);
+      // console.log("Response of get progf", response);
       if (response) {
         let plan = response?.data?.data?.plan;
         let togglePlan = plan?.type;
@@ -170,22 +170,22 @@ function Billing() {
           }
         }
         setUserLocalData(response?.data?.data);
-       // console.log("Get Profile Toggle plan is ", planType);
+        // console.log("Get Profile Toggle plan is ", planType);
         setTogglePlan(planType);
         setCurrentPlan(planType);
       }
     } catch (error) {
-     // console.error("Error in getprofile api is", error);
+      // console.error("Error in getprofile api is", error);
     }
   };
 
   useEffect(() => {
-   // console.log("User local data is", userLocalData);
+    // console.log("User local data is", userLocalData);
   }, [userLocalData]);
 
   //function to close the add card popup
   const handleClose = (data) => {
-   // console.log("Add card details are", data);
+    // console.log("Add card details are", data);
     if (data.status === true) {
       let newCard = data.data;
       setAddPaymentPopup(false);
@@ -207,13 +207,13 @@ function Billing() {
         AuthToken = Data.token;
       }
 
-     // console.log("Authtoken is", AuthToken);
+      // console.log("Authtoken is", AuthToken);
 
       //Talabat road
 
       const ApiPath = Apis.getCardsList;
 
-     // console.log("apipath for get cards list", ApiPath);
+      // console.log("apipath for get cards list", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -223,21 +223,24 @@ function Billing() {
       });
 
       if (response) {
-       // console.log("Response of get cards api is", response.data);
+        // console.log("Response of get cards api is", response.data);
         if (response.data.status === true) {
           setCards(response.data.data);
         }
       }
     } catch (error) {
-     // console.log("Error occured", error);
+      // console.log("Error occured", error);
     } finally {
-     // console.log("Get cards done");
+      // console.log("Get cards done");
       setGetCardLoader(false);
     }
   };
 
   //function to make default cards api
-  const makeDefaultCard = async () => {
+  const makeDefaultCard = async (item) => {
+    setSelectedCard(item)
+    // console.log('selectedCard', item.id)
+    // return
     try {
       setMakeDefaultCardLoader(true);
 
@@ -249,12 +252,15 @@ function Billing() {
         const Data = JSON.parse(localData);
         AuthToken = Data.token;
       }
+      // console.log('authToken', AuthToken)
 
       const ApiPath = Apis.makeDefaultCard;
 
       const ApiData = {
-        cardId: "",
+        paymentMethodId: item.id,
       };
+
+      // console.log('apiData', ApiData)
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -264,10 +270,20 @@ function Billing() {
       });
 
       if (response) {
-       // console.log("Response of make default card api is", response.data);
+        // console.log("Response of make default card api is", response.data);
+        if (response.data.status === true) {
+
+          let crds = cards.forEach((card, index) => {
+            if (card.isDefault) {
+              console.log('card.isDefault', card.isDefault)
+              cards[index].isDefault = false
+            }
+          })
+          item.isDefault = true
+        }
       }
     } catch (error) {
-     // console.error("Error occured in make default card api is", error);
+      // console.error("Error occured in make default card api is", error);
     } finally {
       setMakeDefaultCardLoader(false);
     }
@@ -305,7 +321,7 @@ function Billing() {
         planType = "Plan720";
       }
 
-     // console.log("Current plan is", planType);
+      // console.log("Current plan is", planType);
 
       setSubscribePlanLoader(true);
       let AuthToken = null;
@@ -316,24 +332,24 @@ function Billing() {
         localDetails = LocalDetails;
         AuthToken = LocalDetails.token;
         if (localDetails?.user?.cards?.length > 0) {
-         // console.log("Already have cards");
+          // console.log("Already have cards");
         } else {
           setErrorSnack("No payment method added");
           return;
         }
       }
 
-     // console.log("Authtoken is", AuthToken);
+      // console.log("Authtoken is", AuthToken);
 
       const ApiData = {
         plan: planType,
         payNow: true,
       };
 
-     // console.log("Api data is", ApiData);
+      // console.log("Api data is", ApiData);
 
       const ApiPath = Apis.subscribePlan;
-     // console.log("Apipath is", ApiPath);
+      // console.log("Apipath is", ApiPath);
 
       // return
 
@@ -345,10 +361,10 @@ function Billing() {
       });
 
       if (response) {
-       // console.log("Response of subscribe plan api is", response);
+        // console.log("Response of subscribe plan api is", response);
         if (response.data.status === true) {
           localDetails.user.plan = response.data.data;
-         // console.log("Data updated is", localDetails);
+          // console.log("Data updated is", localDetails);
           let response2 = await getProfileDetails();
           if (response2) {
             let togglePlan = response2?.data?.data?.plan?.type;
@@ -372,7 +388,7 @@ function Billing() {
         }
       }
     } catch (error) {
-     // console.error("Error occured in api is:", error);
+      // console.error("Error occured in api is:", error);
     } finally {
       setSubscribePlanLoader(false);
     }
@@ -402,13 +418,13 @@ function Billing() {
       });
 
       if (response) {
-       // console.log("Response of get payment history", response.data.data);
+        // console.log("Response of get payment history", response.data.data);
         if (response.data.status === true) {
           setPaymentHistoryData(response.data.data);
         }
       }
     } catch (error) {
-     // console.error("Error occured in get history api is", error);
+      // console.error("Error occured in get history api is", error);
     } finally {
       setHistoryLoader(false);
     }
@@ -429,10 +445,10 @@ function Billing() {
 
       const ApiPath = Apis.cancelPlan;
 
-     // console.log("Auth token ", AuthToken);
+      // console.log("Auth token ", AuthToken);
 
       //// console.log("Api data is", Apidata);
-     // console.log("Apipath is", ApiPath);
+      // console.log("Apipath is", ApiPath);
 
       const ApiData = {
         patanai: "Sari dunya",
@@ -447,9 +463,9 @@ function Billing() {
       });
 
       if (response) {
-       // console.log("Responmse fo cancel plan is", response.data);
+        // console.log("Responmse fo cancel plan is", response.data);
         if (response.data.status === true) {
-         // console.log("Response of cancel plan is true");
+          // console.log("Response of cancel plan is true");
           await getProfileDetails();
           setShowConfirmCancelPlanPopup(false);
           setGiftPopup(false);
@@ -462,7 +478,7 @@ function Billing() {
         }
       }
     } catch (error) {
-     // console.error("Eror occured in cancel plan api is", error);
+      // console.error("Eror occured in cancel plan api is", error);
     } finally {
       setCancelPlanLoader(false);
     }
@@ -495,9 +511,9 @@ function Billing() {
       });
 
       if (response) {
-       // console.log("Response of redeem api is", response.data);
+        // console.log("Response of redeem api is", response.data);
         let response2 = await getProfileDetails();
-       // console.log("Response if");
+        // console.log("Response if");
         if (response2) {
           let togglePlan = response2?.data?.data?.plan?.type;
           let planType = null;
@@ -522,7 +538,7 @@ function Billing() {
         }
       }
     } catch (error) {
-     // console.error("Error occurd in api is", error);
+      // console.error("Error occurd in api is", error);
     } finally {
       setRedeemLoader(false);
     }
@@ -553,7 +569,7 @@ function Billing() {
   const [cancelReasonLoader, setCancelReasonLoader] = useState(false);
   //function to select the cancel plan reason
   const handleSelectReason = async (item) => {
-   // console.log("Item is", item);
+    // console.log("Item is", item);
     setSelectReason(item.reason);
     if (item.reason === "Others") {
       setShowOtherReasonInput(true);
@@ -582,10 +598,10 @@ function Billing() {
         reason: otherReasonInput || selectReason,
       };
 
-     // console.log("Api data is", ApiData);
+      // console.log("Api data is", ApiData);
 
       const ApiPath = Apis.calcelPlanReason;
-     // console.log("Api Path is", ApiPath);
+      // console.log("Api Path is", ApiPath);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -595,7 +611,7 @@ function Billing() {
       });
 
       if (response) {
-       // console.log("Response of cancel plan reason api is", response);
+        // console.log("Response of cancel plan reason api is", response);
         if (response.data.status === true) {
           setShowConfirmCancelPlanPopup2(false);
           setSuccessSnack(response.data.message);
@@ -606,10 +622,10 @@ function Billing() {
     } catch (error) {
       setErrorSnack(error);
       setCancelReasonLoader(false);
-     // console.error("Error occured in api is ", error);
+      // console.error("Error occured in api is ", error);
     } finally {
       setCancelReasonLoader(false);
-     // console.log("Del reason api done");
+      // console.log("Del reason api done");
     }
   };
 
@@ -708,7 +724,7 @@ function Billing() {
                   <div className="flex-shrink-0 w-5/12" key={item.id}>
                     <button
                       className="w-full outline-none"
-                      onClick={() => setSelectedCard(item)}
+                      onClick={() => makeDefaultCard(item)}
                     >
                       <div
                         className={`flex items-start justify-between w-full p-4 border rounded-lg `}
@@ -745,14 +761,19 @@ function Billing() {
                               >
                                 ****{item.last4}
                               </div>
-                              {item.isDefault && (
-                                <div
-                                  className="flex px-2 py-1 rounded-full bg-purple text-white text-[10]"
-                                  style={{ fontSize: 11, fontWeight: "500" }}
-                                >
-                                  Default
-                                </div>
-                              )}
+                              {
+                              // makeDefaultCardLoader ? (
+                              //   <CircularProgress size={20} />
+                              // ) :
+
+                                item.isDefault && (
+                                  <div
+                                    className="flex px-2 py-1 rounded-full bg-purple text-white text-[10]"
+                                    style={{ fontSize: 11, fontWeight: "500" }}
+                                  >
+                                    Default
+                                  </div>
+                                )}
                             </div>
                             <div
                               style={{
@@ -1008,11 +1029,11 @@ function Billing() {
                     userLocalData?.isTrial === false &&
                     userLocalData?.cancelPlanRedemptions === 0
                   ) {
-                   // console.log("Show gift pop");
+                    // console.log("Show gift pop");
                     setGiftPopup(true);
                   } // if (userLocalData?.isTrial === true && userLocalData?.cancelPlanRedemptions !== 0)
                   else {
-                   // console.log("Show confirmation pop");
+                    // console.log("Show confirmation pop");
                     setShowConfirmCancelPlanPopup(true);
                   }
                   //// console.log("Show satus", userLocalData?.isTrial)
@@ -1152,7 +1173,7 @@ function Billing() {
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
                   togglePlan={""}
-                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>
@@ -1225,9 +1246,8 @@ function Billing() {
 
               <div className="flex flex-col items-center px-4 w-full">
                 <div
-                  className={`flex flex-row items-center gap-2 text-purple ${
-                    ScreenWidth < 1200 ? "mt-4" : "mt-6"
-                  }bg-[#402FFF10] py-2 px-4 rounded-full`}
+                  className={`flex flex-row items-center gap-2 text-purple ${ScreenWidth < 1200 ? "mt-4" : "mt-6"
+                    }bg-[#402FFF10] py-2 px-4 rounded-full`}
                   style={styles.gitTextStyle}
                 >
                   <Image
@@ -1399,7 +1419,7 @@ function Billing() {
                     outline: "none",
                   }}
                   onClick={handleCancelPlan}
-                  // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
+                // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
                 >
                   Yes. Cancel
                 </button>
@@ -1583,7 +1603,7 @@ function Billing() {
                       onClick={() => {
                         handleDelReason();
                       }}
-                      // disabled={!selectReason || !otherReasonInput || }
+                    // disabled={!selectReason || !otherReasonInput || }
                     >
                       Continue
                     </button>
