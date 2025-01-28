@@ -1,10 +1,10 @@
 export function setCookie(user, document, expiryDate = null) {
   if (typeof document === "undefined") {
-    return
+    return;
   }
   if (expiryDate) {
     document.cookie = `User=${encodeURIComponent(
-      response.data.data.user.id
+      user.id
     )}; path=/; expires=${expiryDate.toUTCString()}`;
   } else {
     document.cookie = `User=${encodeURIComponent(
