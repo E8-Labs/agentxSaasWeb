@@ -60,22 +60,22 @@ const Page = () => {
       size = window.innerWidth;
       setWindowSize(size);
     } else {
-      console.log("Window is undefined");
+      // console.log("Window is undefined");
     }
-    console.log("Window size is ", size);
+    // console.log("Window size is ", size);
   }, []);
 
   useEffect(() => {
-    console.log("Window size changed", windowSize);
+    // console.log("Window size changed", windowSize);
     const localData = localStorage.getItem("User");
 
     if (localData) {
       const Data = JSON.parse(localData);
-      console.log("Window size is", windowSize);
-      console.log("Data is", Data);
+      // console.log("Window size is", windowSize);
+      // console.log("Data is", Data);
       if (Data.user.plan) {
         if (windowSize < 640) {
-          console.log("Data should be set");
+          // console.log("Data should be set");
           setComponents([
             BuildAgentName,
             BuildAgentTask,
@@ -119,17 +119,17 @@ const Page = () => {
 
   // Function to proceed to the next step
   const handleContinue = () => {
-    console.log("Component indexchanged ", index);
+    // console.log("Component indexchanged ", index);
     setIndex(index + 1);
   };
 
   const handleBack = () => {
-    console.log("Component indexchanged ", index);
+    // console.log("Component indexchanged ", index);
     setIndex(index - 1);
   };
 
   const handleSkipAddPayment = () => {
-    console.log("Component indexchanged ", index);
+    // console.log("Component indexchanged ", index);
     setIndex(index + 2);
   };
 
@@ -141,10 +141,10 @@ const Page = () => {
   });
 
   const getAgentDetails = (agentName, agentRole, agentType) => {
-    console.log("I am hit");
-    console.log(
-      `"Agent Name is": ${agentName} ----- "Agent Role is" ${agentRole} ------ "Agent Type is" ${agentType}`
-    );
+    // console.log("I am hit");
+    // console.log(
+    //   `"Agent Name is": ${agentName} ----- "Agent Role is" ${agentRole} ------ "Agent Type is" ${agentType}`
+    // );
     setAgentDetails({
       name: agentName,
       agentRole: agentRole,

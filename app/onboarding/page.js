@@ -25,9 +25,9 @@ const Page = ({ params }) => {
   let windowSize = 1000;
   if (typeof window !== "undefined") {
     windowSize = window.innerWidth;
-    console.log("Window with ", windowSize);
+   // console.log("Window with ", windowSize);
   } else {
-    console.log("Window width is less");
+   // console.log("Window width is less");
   }
 
   const [components, setComponents] = useState([
@@ -53,7 +53,7 @@ const Page = ({ params }) => {
 
   //function stores the agentDetails
   const handleDetails = (userName, userEmail, userPhoneNumber) => {
-    console.log(`Agent name is`);
+   // console.log(`Agent name is`);
     setUserDetails({
       name: userName,
       email: userEmail,
@@ -103,87 +103,87 @@ const Page = ({ params }) => {
 
   // Function to proceed to the next step
   const handleContinue = () => {
-    console.log("Component indexchanged ", index);
+   // console.log("Component indexchanged ", index);
     setIndex(index + 1);
   };
 
   //sals dev
   const handleSalesAgentContinue = () => {
-    console.log("Component indexchanged ", index);
+   // console.log("Component indexchanged ", index);
     setIndex(index + 3);
   };
 
   const handleSalesAgentBack = () => {
-    console.log("Component indexchanged ", index);
+   // console.log("Component indexchanged ", index);
     setIndex(index - 3);
   };
 
   //solar rep
   const handleSolarAgentContinue = () => {
-    console.log("Component indexchanged ", index);
+   // console.log("Component indexchanged ", index);
     setIndex(index + 4);
   };
 
   const handleSolarAgentBack = () => {
-    console.log("Component indexchanged ", index);
+   // console.log("Component indexchanged ", index);
     setIndex(index - 4);
   };
 
   // insurance
   const handleInsuranceContinue = () => {
-    console.log("Component indexchanged ", index);
+   // console.log("Component indexchanged ", index);
     setIndex(index + 5);
   };
 
   const handleInsuranceBack = () => {
-    console.log("Component indexchanged ", index);
+   // console.log("Component indexchanged ", index);
     setIndex(index - 5);
   };
 
   // marketer
   const handleMarketerAgentContinue = () => {
-    console.log("Component indexchanged ", index);
+   // console.log("Component indexchanged ", index);
     setIndex(index + 6);
   };
 
   const handleMarketerAgentBack = () => {
-    console.log("Component indexchanged ", index);
+   // console.log("Component indexchanged ", index);
     setIndex(index - 6);
   };
 
   // website owners
   const handleWebsiteAgentContinue = () => {
-    console.log("Component indexchanged ", index);
+   // console.log("Component indexchanged ", index);
     setIndex(index + 7);
   };
 
   const handleWebsiteAgentBack = () => {
-    console.log("Component indexchanged ", index);
+   // console.log("Component indexchanged ", index);
     setIndex(index - 7);
   };
   // recruiter agent
   const handleRecruiterAgentContinue = () => {
-    console.log("Component indexchanged ", index);
+   // console.log("Component indexchanged ", index);
     setIndex(index + 8);
   };
 
   const handleRecruiterAgentBack = () => {
-    console.log("Component indexchanged ", index);
+   // console.log("Component indexchanged ", index);
     setIndex(index - 8);
   };
   // tax agent
   const handleTaxAgentContinue = () => {
-    console.log("Component indexchanged ", index);
+   // console.log("Component indexchanged ", index);
     setIndex(index + 9);
   };
 
   const handleTaxAgentBack = () => {
-    console.log("Component indexchanged ", index);
+   // console.log("Component indexchanged ", index);
     setIndex(index - 9);
   };
 
   const handleBack = () => {
-    console.log("Component indexchanged ", index);
+   // console.log("Component indexchanged ", index);
     setIndex(index - 1);
   };
 

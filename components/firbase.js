@@ -30,30 +30,30 @@ if (typeof window !== "undefined" && "serviceWorker" in navigator) {
     })
       .then((currentToken) => {
         if (currentToken) {
-          console.log("FCM Token is:", currentToken);
+         // console.log("FCM Token is:", currentToken);
           const apidata = {
             fcm_token: currentToken,
           };
-          console.log("Token sending in api is", apidata);
+         // console.log("Token sending in api is", apidata);
           UpdateProfile(apidata);
         } else {
-          console.log(
-            "No registration token available. Request permission to generate one."
-          );
+         // console.log(
+          //   "No registration token available. Request permission to generate one."
+          // );
         }
       })
       .catch((err) => {
-        console.log("Error while retrieving FCM token:", err);
+       // console.log("Error while retrieving FCM token:", err);
       })
       .finally(() => {
-        console.log("Token request completed.");
+       // console.log("Token request completed.");
       });
   };
 
   // Call requestToken to request notification permissions
   requestToken();
 } else {
-  console.log("FCM is not supported in this browser.");
+ // console.log("FCM is not supported in this browser.");
 }
 
 export { messaging, requestToken };

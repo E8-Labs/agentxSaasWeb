@@ -85,10 +85,10 @@ const ProfileNav = () => {
         );
 
         // if (response) {
-        //   console.log("Response of send not api is", response);
+        //  // console.log("Response of send not api is", response);
         // }
       } catch (error) {
-        console.error("Error occured in test not is"), error;
+       // console.error("Error occured in test not is"), error;
       }
     };
     testNot();
@@ -165,7 +165,7 @@ const ProfileNav = () => {
 
   useEffect(() => {
     const handleUpdateProfile = (event) => {
-      console.log("Update profile event received:", event.detail);
+     // console.log("Update profile event received:", event.detail);
       getUserProfile(); // Refresh the profile data
     };
 
@@ -181,15 +181,15 @@ const ProfileNav = () => {
       navigator.serviceWorker
         .register("/firebase-messaging-sw.js")
         .then((registration) => {
-          console.log(
-            "Service Worker registered with scope:",
-            registration.scope
-          );
+         // console.log(
+          //   "Service Worker registered with scope:",
+          //   registration.scope
+          // );
 
           // Firebase automatically uses this service worker for messaging
         })
         .catch((error) => {
-          console.error("Service Worker registration failed:", error);
+         // console.error("Service Worker registration failed:", error);
         });
     }
   }, []);
@@ -197,19 +197,19 @@ const ProfileNav = () => {
   //function to get the notification permissione
   const requestNotificationPermission = () => {
     // setShowNotificationLoader(true);
-    console.log("Check 1 clear");
-    console.log("Requesting permission...");
+   // console.log("Check 1 clear");
+   // console.log("Requesting permission...");
     Notification.requestPermission()
       .then((permission) => {
         if (permission === "granted") {
-          console.log("Notification permission granted.");
+         // console.log("Notification permission granted.");
           requestToken((FCMToken) => {
             if (FCMToken) {
-              console.log("Token for fcm is", FCMToken);
+             // console.log("Token for fcm is", FCMToken);
               const apidata = {
                 fcm_token: FCMToken,
               };
-              console.log("Token sending in api is", apidata);
+             // console.log("Token sending in api is", apidata);
               // UpdateProfile()
             } else {
               alert("FCM token not generated!!!");
@@ -220,7 +220,7 @@ const ProfileNav = () => {
         }
       })
       .catch((error) => {
-        console.error("Error occured in api is", error);
+       // console.error("Error occured in api is", error);
       })
       .finally(() => {
         // setShowNotificationLoader(false);
@@ -291,18 +291,18 @@ const ProfileNav = () => {
     try {
       let response = await getProfileDetails();
 
-      console.log("Data recieved from get profile api", response);
+     // console.log("Data recieved from get profile api", response);
 
       const userlocalData = localStorage.getItem("User");
       if (userlocalData) {
         const response = JSON.parse(userlocalData);
-        console.log("User FCM token is", response.user.fcm_token);
+       // console.log("User FCM token is", response.user.fcm_token);
       }
 
       let Data = response?.data?.data;
       // Data.totalSecondsAvailable  = 100
 
-      console.log("Available seconds are", Data?.totalSecondsAvailable);
+     // console.log("Available seconds are", Data?.totalSecondsAvailable);
 
       if (response) {
         if (
@@ -321,7 +321,7 @@ const ProfileNav = () => {
         }
       }
     } catch (error) {
-      console.error("Error occured in api is error", error);
+     // console.error("Error occured in api is error", error);
     }
   };
 
@@ -358,13 +358,13 @@ const ProfileNav = () => {
         AuthToken = Data.token;
       }
 
-      console.log("Authtoken is", AuthToken);
+     // console.log("Authtoken is", AuthToken);
 
       //Talabat road
 
       const ApiPath = Apis.getCardsList;
 
-      console.log("apipath for get cards list", ApiPath);
+     // console.log("apipath for get cards list", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -374,7 +374,7 @@ const ProfileNav = () => {
       });
 
       if (response) {
-        console.log("Response of get cards api is", response.data);
+       // console.log("Response of get cards api is", response.data);
         if (response.data.status === true) {
           if (response.data.data.length === 0) {
             setAddPaymentPopup(true);
@@ -382,9 +382,9 @@ const ProfileNav = () => {
         }
       }
     } catch (error) {
-      console.log("Error occured", error);
+     // console.log("Error occured", error);
     } finally {
-      console.log("Get cards done");
+     // console.log("Get cards done");
       // setGetCardLoader(false);
     }
   };
@@ -401,7 +401,7 @@ const ProfileNav = () => {
       // return;
       let planType = null;
 
-      // console.log("Selected plan is:", togglePlan);
+      //// console.log("Selected plan is:", togglePlan);
 
       if (togglePlan === 1) {
         planType = "Plan30";
@@ -413,7 +413,7 @@ const ProfileNav = () => {
         planType = "Plan720";
       }
 
-      console.log("Current plan is", planType);
+     // console.log("Current plan is", planType);
 
       setSubscribePlanLoader(true);
       let AuthToken = null;
@@ -429,17 +429,17 @@ const ProfileNav = () => {
       //   return;
       // }
 
-      console.log("Authtoken is", AuthToken);
+     // console.log("Authtoken is", AuthToken);
 
       const ApiData = {
         plan: planType,
         payNow: true,
       };
 
-      console.log("Api data is", ApiData);
+     // console.log("Api data is", ApiData);
 
       const ApiPath = Apis.subscribePlan;
-      console.log("Apipath is", ApiPath);
+     // console.log("Apipath is", ApiPath);
 
       // return
 
@@ -451,10 +451,10 @@ const ProfileNav = () => {
       });
 
       if (response) {
-        console.log("Response of subscribe plan api is", response);
+       // console.log("Response of subscribe plan api is", response);
         if (response.data.status === true) {
           localDetails.user.plan = response.data.data;
-          console.log("Data updated is", localDetails);
+         // console.log("Data updated is", localDetails);
           await getProfileDetails();
           localStorage.setItem("User", JSON.stringify(localDetails));
           setSuccessSnack(response.data.message);
@@ -467,14 +467,14 @@ const ProfileNav = () => {
         }
       }
     } catch (error) {
-      console.error("Error occured in api is:", error);
+     // console.error("Error occured in api is:", error);
     } finally {
       setSubscribePlanLoader(false);
     }
   };
 
   const handleClose = (data) => {
-    console.log("Add card details are", data);
+   // console.log("Add card details are", data);
     if (data.status === true) {
       let newCard = data.data;
       setAddPaymentPopup(false);

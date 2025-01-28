@@ -60,9 +60,9 @@ const AddCardDetails = ({
 
   // Autofocus the first field when the component mounts
   useEffect(() => {
-    console.log("Trying to focus check 2");
+   // console.log("Trying to focus check 2");
     if (cardNumberRef.current) {
-      console.log("Trying to focus check 1");
+     // console.log("Trying to focus check 1");
       cardNumberRef.current.focus();
     }
   }, []);
@@ -99,7 +99,7 @@ const AddCardDetails = ({
   //         // setIsHighScreen(window.innerHeight >= 640);
 
   //         // Log the updated state values for debugging (Optional)
-  //         console.log("isWideScreen: ", window.innerWidth >= 500);
+  //        // console.log("isWideScreen: ", window.innerWidth >= 500);
   //     };
 
   //     handleResize(); // Set initial state
@@ -132,7 +132,7 @@ const AddCardDetails = ({
   //code for adding card api
 
   // useEffect(()=>{
-  //     console.log("Selected Plan changed", selectedPlan)
+  //    // console.log("Selected Plan changed", selectedPlan)
   // }, [selectedPlan])
 
   // useEffect(() => {})
@@ -174,11 +174,11 @@ const AddCardDetails = ({
         setCredentialsErr(true);
         setAddCardLoader(false);
       } else if (tok.token.id) {
-        console.log("Token generating for card number :", tok.token.id);
+       // console.log("Token generating for card number :", tok.token.id);
         const tokenId = tok.token.id;
-        console.log("card number :");
+       // console.log("card number :");
         const ApiPath = Apis.addCard;
-        console.log("Api path is", ApiPath);
+       // console.log("Api path is", ApiPath);
 
         let AddCardData = null;
 
@@ -193,23 +193,23 @@ const AddCardDetails = ({
           };
         }
 
-        console.log("Data for card number :", AddCardData);
+       // console.log("Data for card number :", AddCardData);
         // return
         try {
           const LocalData = localStorage.getItem("User");
           const D = JSON.parse(LocalData);
-          console.log("Local data is", D);
+         // console.log("Local data is", D);
           const AuthToken = D.token;
           // const AuthToken = "bgabgakjhaslidfhgkerhiuhkmxvnidfuhgiehlmklhn";
-          console.log("Token for add card ", D.token);
+         // console.log("Token for add card ", D.token);
 
-          console.log("Data sending in api is :", AddCardData);
+         // console.log("Data sending in api is :", AddCardData);
           // return
 
           //can be useful when user want to add card from dashboard
 
           // const fromBuyStatus = localStorage.getItem("fromBuyScreen");
-          // console.log("Data of fromBuyscreen", JSON.parse(fromBuyStatus));
+          //// console.log("Data of fromBuyscreen", JSON.parse(fromBuyStatus));
           // let newTab = null;
           // if (fromBuyStatus) {
           //     newTab = window.open('about:blank'); // Open a new blank tab
@@ -222,7 +222,7 @@ const AddCardDetails = ({
             },
           });
           if (response) {
-            console.log("Response of add card api is", response.data);
+           // console.log("Response of add card api is", response.data);
           }
           if (response.status === 200) {
             // setAddCardDetails(response.data.message);
@@ -248,12 +248,12 @@ const AddCardDetails = ({
             setAddCardErrtxt("Some error occured !!!");
           }
         } catch (error) {
-          console.error("Error occured in adding user card api is :", error);
+         // console.error("Error occured in adding user card api is :", error);
           setAddCardLoader(false);
         } finally {
           setAddCardLoader(false);
           // if (fromBuildAiScreen) {
-          //     console.log("reached end");
+          //    // console.log("reached end");
           //     subscribeLoader(false);
           // }
         }
@@ -266,7 +266,7 @@ const AddCardDetails = ({
     try {
       let planType = null;
 
-      // console.log("Selected plan is:", togglePlan);
+      //// console.log("Selected plan is:", togglePlan);
 
       if (togglePlan === 1) {
         planType = "Plan30";
@@ -278,7 +278,7 @@ const AddCardDetails = ({
         planType = "Plan720";
       }
 
-      console.log("Current plan is", planType);
+     // console.log("Current plan is", planType);
 
       setAddCardLoader(true);
       let AuthToken = null;
@@ -288,16 +288,16 @@ const AddCardDetails = ({
         AuthToken = LocalDetails.token;
       }
 
-      console.log("Authtoken is", AuthToken);
+     // console.log("Authtoken is", AuthToken);
 
       const ApiData = {
         plan: planType,
       };
 
-      console.log("Api data is", ApiData);
+     // console.log("Api data is", ApiData);
 
       const ApiPath = Apis.subscribePlan;
-      console.log("Apipath is", ApiPath);
+     // console.log("Apipath is", ApiPath);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -307,17 +307,17 @@ const AddCardDetails = ({
       });
 
       if (response) {
-        console.log(
-          "Response of subscribe plan api is",
-          Object.keys(response.data)
-        );
+       // console.log(
+        //   "Response of subscribe plan api is",
+        //   Object.keys(response.data)
+        // );
         if (response.data.status === true) {
           handleClose(response.data);
           if (setAddPaymentSuccessPopUp) setAddPaymentSuccessPopUp(true);
         }
       }
     } catch (error) {
-      console.error("Error occured in api is:", error);
+     // console.error("Error occured in api is:", error);
     } finally {
       setAddCardLoader(false);
     }
@@ -370,7 +370,7 @@ const AddCardDetails = ({
             onChange={(event) => {
               handleFieldChange(event, cardExpiryRef);
               if (event.complete) {
-                console.log("Card Number is complete");
+               // console.log("Card Number is complete");
                 setCardAdded(true);
               } else {
                 setCardAdded(false);
@@ -413,7 +413,7 @@ const AddCardDetails = ({
               onChange={(event) => {
                 handleFieldChange(event, cardCvcRef);
                 if (event.complete) {
-                  console.log("Card expiry is complete");
+                 // console.log("Card expiry is complete");
                   setCardExpiry(true);
                 } else {
                   setCardExpiry(false);
@@ -458,7 +458,7 @@ const AddCardDetails = ({
               onChange={(event) => {
                 // handleFieldChange(event, cardCvcRef);
                 if (event.complete) {
-                  console.log("CVC is complete");
+                 // console.log("CVC is complete");
                   setCVC(true);
                 } else {
                   setCVC(false);

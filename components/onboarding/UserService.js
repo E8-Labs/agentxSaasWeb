@@ -28,7 +28,7 @@ const UserService = ({ handleContinue, handleBack }) => {
     );
     if (selectedServiceID) {
       const serviceIds = JSON.parse(selectedServiceID);
-      // console.log("Userdetails are", serviceIds);
+      //// console.log("Userdetails are", serviceIds);
       setServiceId(serviceIds.serviceID);
     }
   }, []);
@@ -40,13 +40,13 @@ const UserService = ({ handleContinue, handleBack }) => {
     //     // <DefaultData setServicesData={setServicesData} />
     //     // setServicesData(servicesData);
     // } else {
-    //     console.log("Default data already exists")
+    //    // console.log("Default data already exists")
     // }
   }, []);
 
   useEffect(() => {
     if (serviceId.length > 0) {
-      console.log("service id is ::", serviceId);
+     // console.log("service id is ::", serviceId);
       setShouldContinue(false);
     } else if (serviceId.length === 0) {
       setShouldContinue(true);
@@ -63,15 +63,15 @@ const UserService = ({ handleContinue, handleBack }) => {
       let AgentTypeTitle = null;
       if (selectedServiceID) {
         const serviceIds = JSON.parse(selectedServiceID);
-        console.log("Userdetails are", serviceIds);
+       // console.log("Userdetails are", serviceIds);
         AgentTypeTitle = serviceIds.userTypeTitle;
       }
       let servicesLocal = GetServicesForUser(AgentTypeTitle);
       setServicesData(servicesLocal);
 
-      console.log("Check 1 clear !!!");
+     // console.log("Check 1 clear !!!");
       const ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`;
-      console.log("Api link is:--", ApiPath);
+     // console.log("Api link is:--", ApiPath);
       const response = await axios.get(ApiPath, {
         headers: {
           "Content-Type": "application/json",
@@ -79,13 +79,13 @@ const UserService = ({ handleContinue, handleBack }) => {
       });
 
       if (response) {
-        console.log("Response of api is : -----", response.data);
+       // console.log("Response of api is : -----", response.data);
         setServicesData(response.data.data.agentServices);
       } else {
         // alert(response.data);
       }
     } catch (error) {
-      console.error("ERror occured in default data api is :----", error);
+     // console.error("ERror occured in default data api is :----", error);
     } finally {
       setLoader(false);
     }

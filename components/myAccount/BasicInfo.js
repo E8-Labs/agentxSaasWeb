@@ -63,7 +63,7 @@ function BasicInfo() {
     const LocalData = localStorage.getItem("User");
     if (LocalData) {
       const userData = JSON.parse(LocalData);
-      console.log("Should set data", userData?.user?.thumb_profile_image);
+     // console.log("Should set data", userData?.user?.thumb_profile_image);
       setUserDetails(userData.user);
       setName(userData?.user?.name);
       setSelectedImage(userData?.user?.thumb_profile_image);
@@ -120,14 +120,14 @@ function BasicInfo() {
 
         apidata.append("media", imageUrl);
 
-        console.log("Uploading image with apidata:");
+       // console.log("Uploading image with apidata:");
         for (let pair of apidata.entries()) {
-          console.log(`${pair[0]}:`, pair[1]); // Debug FormData contents
+         // console.log(`${pair[0]}:`, pair[1]); // Debug FormData contents
         }
         let path = Apis.updateProfileApi;
 
-        console.log("Authtoken is", u.token);
-        console.log("Api Data passsed is", apidata);
+       // console.log("Authtoken is", u.token);
+       // console.log("Api Data passsed is", apidata);
         // return
         const response = await axios.post(path, apidata, {
           headers: {
@@ -137,12 +137,12 @@ function BasicInfo() {
 
         if (response) {
           if (response.data.status === true) {
-            console.log("updateProfile data is", response.data);
+           // console.log("updateProfile data is", response.data);
             u.user = response.data.data;
 
-            // console.log('u', u)
+            //// console.log('u', u)
             localStorage.setItem("User", JSON.stringify(u));
-            console.log("trying to send event");
+           // console.log("trying to send event");
             window.dispatchEvent(
               new CustomEvent("UpdateProfile", { detail: { update: true } })
             );
@@ -151,7 +151,7 @@ function BasicInfo() {
         }
       }
     } catch (e) {
-      console.log("error in update profile is", e);
+     // console.log("error in update profile is", e);
     }
   };
 
@@ -160,7 +160,7 @@ function BasicInfo() {
     try {
       await getProfileDetails();
     } catch (error) {
-      console.error("Error occured in api is error", error);
+     // console.error("Error occured in api is error", error);
     }
   };
 
@@ -177,7 +177,7 @@ function BasicInfo() {
 
       uploadeImage(file);
     } catch (error) {
-      console.error("Error uploading image:", error);
+     // console.error("Error uploading image:", error);
     } finally {
       setloading5(false);
     }
@@ -255,10 +255,10 @@ function BasicInfo() {
       if (data) {
         let d = JSON.parse(data);
         let AgentTypeTitle = d.user.userType;
-        console.log("AgentTypeTitle is", AgentTypeTitle);
+       // console.log("AgentTypeTitle is", AgentTypeTitle);
 
         const ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`;
-        console.log("Api link is:--", ApiPath);
+       // console.log("Api link is:--", ApiPath);
         const response = await axios.get(ApiPath, {
           headers: {
             "Content-Type": "application/json",
@@ -266,7 +266,7 @@ function BasicInfo() {
         });
 
         if (response) {
-          console.log("Response of services api is : -----", response.data);
+         // console.log("Response of services api is : -----", response.data);
           setAgentServices(response.data.data.agentServices);
           setAgentAreasOfFocus(response.data.data.areaOfFocus);
         } else {
@@ -275,7 +275,7 @@ function BasicInfo() {
       }
     } catch (error) {
       setServiceLoader(false);
-      console.error("ERror occured in default data api is :----", error);
+     // console.error("ERror occured in default data api is :----", error);
     } finally {
       setServiceLoader(false);
     }
@@ -289,7 +289,7 @@ function BasicInfo() {
       setloading(false);
       setIsNameChanged(false);
     } catch (e) {
-      console.log("Error in updating", e);
+     // console.log("Error in updating", e);
     }
   };
 
@@ -304,7 +304,7 @@ function BasicInfo() {
       setloading2(false);
       setIsFarmChanged(false);
     } catch (e) {
-      console.log("error in updating", e);
+     // console.log("error in updating", e);
     }
   };
 
@@ -319,7 +319,7 @@ function BasicInfo() {
       setloading3(false);
       setIsBrokerageChanged(false);
     } catch (e) {
-      console.log("error in updating", e);
+     // console.log("error in updating", e);
     }
   };
 
@@ -334,7 +334,7 @@ function BasicInfo() {
 
       setIsTransactionChange(false);
     } catch (e) {
-      console.log("error in updating", e);
+     // console.log("error in updating", e);
     }
   };
 
@@ -353,8 +353,8 @@ function BasicInfo() {
   // };
 
   const handleserviceId = (id) => {
-    console.log("Id to ad is", id);
-    console.log("Old is are", serviceId);
+   // console.log("Id to ad is", id);
+   // console.log("Old is are", serviceId);
     let newIDs = [];
     if (serviceId.includes(id)) {
       // Unselect the item if it's already selected
@@ -365,12 +365,12 @@ function BasicInfo() {
     }
 
     setServiceId(newIDs);
-    console.log("New array is", newIDs);
+   // console.log("New array is", newIDs);
   };
 
   const handleAreaSelect = (id) => {
-    console.log("Id to ad is", id);
-    console.log("Old is are", selectedArea);
+   // console.log("Id to ad is", id);
+   // console.log("Old is are", selectedArea);
     let newIDs = [];
     if (selectedArea.includes(id)) {
       // Unselect the item if it's already selected
@@ -380,7 +380,7 @@ function BasicInfo() {
       newIDs = [...selectedArea, id];
     }
     setSelectedArea(newIDs);
-    console.log("New array is", newIDs);
+   // console.log("New array is", newIDs);
     return;
     setSelectedArea((prevIds) => {
       if (prevIds.includes(id)) {
@@ -394,7 +394,7 @@ function BasicInfo() {
   };
 
   useEffect(() => {
-    console.log("selected", selected);
+   // console.log("selected", selected);
   }, [selected]);
 
   const handleAreaChange = async () => {
@@ -403,14 +403,14 @@ function BasicInfo() {
       let data = {
         areaOfFocus: selectedArea, //[selectedArea.join()]
       };
-      console.log("data is", data);
+     // console.log("data is", data);
 
       // return
       await UpdateProfile(data);
       setOriginalSelectedArea([...selectedArea]);
       setAreaLoading(false);
     } catch (e) {
-      console.log("error in updating", e);
+     // console.log("error in updating", e);
     }
   };
 
@@ -420,14 +420,14 @@ function BasicInfo() {
       let data = {
         agentService: serviceId, //[serviceId.join()]
       };
-      console.log("Api data is", serviceId);
+     // console.log("Api data is", serviceId);
 
       // return
       await UpdateProfile(data);
       setOriginalSelectedService([...serviceId]);
       setServiceLoader(false);
     } catch (e) {
-      console.log("error in updating", e);
+     // console.log("error in updating", e);
     }
   };
 

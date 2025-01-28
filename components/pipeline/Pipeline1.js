@@ -57,7 +57,7 @@ const Pipeline1 = ({ handleContinue }) => {
   const [snackType, setSnackType] = useState(null);
 
   useEffect(() => {
-    console.log("Snack message is", reorderSuccessBarMessage);
+   // console.log("Snack message is", reorderSuccessBarMessage);
   }, [reorderSuccessBarMessage]);
 
   const [reorderLoader, setReorderLoader] = useState(false);
@@ -71,13 +71,13 @@ const Pipeline1 = ({ handleContinue }) => {
       if (Data.agents.length === 1 && Data.agents[0].agentType == "inbound") {
         return;
       } else {
-        console.log("Check 1 clear to go");
+       // console.log("Check 1 clear to go");
       }
     }
     const localCadences = localStorage.getItem("AddCadenceDetails");
     if (localCadences && localCadences != "null") {
       const localCadenceDetails = JSON.parse(localCadences);
-      console.log("Local cadences retrieved:", localCadences);
+     // console.log("Local cadences retrieved:", localCadences);
 
       // Set the selected pipeline item
       const storedPipelineItem = localCadenceDetails.pipelineID;
@@ -90,7 +90,7 @@ const Pipeline1 = ({ handleContinue }) => {
       );
 
       if (selectedPipeline) {
-        console.log("found selected pipeline");
+       // console.log("found selected pipeline");
         setSelectedPipelineItem(selectedPipeline);
         setSelectedPipelineStages(selectedPipeline.stages);
 
@@ -122,7 +122,7 @@ const Pipeline1 = ({ handleContinue }) => {
         setRowsByIndex(restoredRowsByIndex);
         setSelectedNextStage(restoredNextStage);
       } else {
-        console.log("not found selected pipeline", storedPipelineItem);
+       // console.log("not found selected pipeline", storedPipelineItem);
       }
       // });
     } else {
@@ -130,28 +130,28 @@ const Pipeline1 = ({ handleContinue }) => {
     }
   }, [pipelinesDetails]);
 
-  // console.log("selected pipelinestages array is:", selectedPipelineStages);
+  //// console.log("selected pipelinestages array is:", selectedPipelineStages);
 
   useEffect(() => {
     // const localCadences = localStorage.getItem("AddCadenceDetails");
     // if (localCadences) {
     //     const localCadenceDetails = JSON.parse(localCadences);
-    //     console.log("Local cadences recieved are :", localCadenceDetails);
+    //    // console.log("Local cadences recieved are :", localCadenceDetails);
     // }
     getPipelines();
   }, []);
 
   useEffect(() => {
     if (selectedPipelineItem && rowsByIndex) {
-      console.log("Should continue");
+     // console.log("Should continue");
       setShouldContinue(false);
       return;
     } else if (!selectedPipelineItem || !rowsByIndex) {
-      console.log("Should not continue");
+     // console.log("Should not continue");
       setShouldContinue(true);
     }
 
-    // console.log("selected pipelinestages array is:", selectedPipelineStages);
+    //// console.log("selected pipelinestages array is:", selectedPipelineStages);
   }, [selectedPipelineItem, selectedPipelineStages]);
 
   //code to raorder the stages list
@@ -160,8 +160,8 @@ const Pipeline1 = ({ handleContinue }) => {
     let previousStages = oldStages.map((item) => item.id);
     let updatedStages = selectedPipelineStages.map((item) => item.id);
 
-    console.log("Old stages list is reorder stages:", previousStages);
-    console.log("Updated stages list is reorder stages:", updatedStages);
+   // console.log("Old stages list is reorder stages:", previousStages);
+   // console.log("Updated stages list is reorder stages:", updatedStages);
 
     // Compare arrays
     const areArraysEqual =
@@ -169,9 +169,9 @@ const Pipeline1 = ({ handleContinue }) => {
       previousStages.every((item, index) => item === updatedStages[index]);
 
     if (areArraysEqual) {
-      console.log("Should not reorder stages");
+     // console.log("Should not reorder stages");
     } else {
-      console.log("Should reorder stages");
+     // console.log("Should reorder stages");
       // handleReorder();
     }
   }, [selectedPipelineStages]);
@@ -187,7 +187,7 @@ const Pipeline1 = ({ handleContinue }) => {
         AuthToken = UserDetails.token;
       }
 
-      console.log("Auth token is :", AuthToken);
+     // console.log("Auth token is :", AuthToken);
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -197,7 +197,7 @@ const Pipeline1 = ({ handleContinue }) => {
       });
 
       if (response) {
-        console.log("Response of getPipelines api is :--", response.data.data);
+       // console.log("Response of getPipelines api is :--", response.data.data);
         setPipelinesDetails(response.data.data);
         setSelectPipleLine(response.data.data[0].title);
         setSelectedPipelineItem(response.data.data[0]);
@@ -209,9 +209,9 @@ const Pipeline1 = ({ handleContinue }) => {
         );
       }
     } catch (error) {
-      console.error("Error occured in get pipelies api is :", error);
+     // console.error("Error occured in get pipelies api is :", error);
     } finally {
-      console.log("Api call completed");
+     // console.log("Api call completed");
     }
   };
 
@@ -260,10 +260,10 @@ const Pipeline1 = ({ handleContinue }) => {
   };
 
   const handleInputChange = (leadIndex, rowId, field, value) => {
-    console.log("Lead index is:", leadIndex);
-    console.log("Row id is:", rowId);
-    console.log("Field is:", field);
-    console.log("Value is", value);
+   // console.log("Lead index is:", leadIndex);
+   // console.log("Row id is:", rowId);
+   // console.log("Field is:", field);
+   // console.log("Value is", value);
     setRowsByIndex((prev) => ({
       ...prev,
       [leadIndex]: prev[leadIndex].map((row) =>
@@ -275,16 +275,16 @@ const Pipeline1 = ({ handleContinue }) => {
   const addRow = (index) => {
     setRowsByIndex((prev) => {
       let id = (prev[index]?.length || 0) + 1;
-      console.log(`Assigned Row Id `, id);
-      console.log(`Rows at ${index}`);
-      console.log(prev);
+     // console.log(`Assigned Row Id `, id);
+     // console.log(`Rows at ${index}`);
+     // console.log(prev);
       if ((prev[index]?.length || 0) > 0) {
         let array = prev[index];
-        console.log("Array is now ", array);
+       // console.log("Array is now ", array);
         let lastRow = array[array.length - 1];
         id = lastRow.id + 1;
       }
-      console.log(`Now Assigned Row Id `, id);
+     // console.log(`Now Assigned Row Id `, id);
 
       return {
         ...prev,
@@ -332,7 +332,7 @@ const Pipeline1 = ({ handleContinue }) => {
     const agentDetails = localStorage.getItem("agentDetails");
     if (agentDetails) {
       const agentData = JSON.parse(agentDetails);
-      console.log("Recieved from local storage are :--", agentData);
+     // console.log("Recieved from local storage are :--", agentData);
       if (
         agentData.agents.length === 1 &&
         agentData.agents[0].agentType === "inbound"
@@ -354,7 +354,7 @@ const Pipeline1 = ({ handleContinue }) => {
           ],
         };
       } else {
-        console.log("Might be outbound agent");
+       // console.log("Might be outbound agent");
         cadenceData = {
           pipelineID: selectedPipelineItem.id,
           cadenceDetails: cadence,
@@ -362,12 +362,12 @@ const Pipeline1 = ({ handleContinue }) => {
       }
     }
 
-    console.log("Cadence data for agent", cadenceData);
+   // console.log("Cadence data for agent", cadenceData);
 
-    console.log(
-      "Cadence data storing on local storage is :",
-      JSON.stringify(cadenceData)
-    );
+   // console.log(
+    //   "Cadence data storing on local storage is :",
+    //   JSON.stringify(cadenceData)
+    // );
 
     if (cadenceData) {
       localStorage.setItem("AddCadenceDetails", JSON.stringify(cadenceData));
@@ -375,10 +375,10 @@ const Pipeline1 = ({ handleContinue }) => {
     handleContinue();
 
     // try {
-    //     console.log("Check 1 clear");
+    //    // console.log("Check 1 clear");
 
-    //     // console.log("Ray to send in api :--", cadence);
-    //     // console.log("Assigned Leads Data:", allData);
+    //     //// console.log("Ray to send in api :--", cadence);
+    //     //// console.log("Assigned Leads Data:", allData);
 
     //     const localData = localStorage.getItem("User");
     //     let AuthToken = null;
@@ -392,13 +392,13 @@ const Pipeline1 = ({ handleContinue }) => {
     //     const agentDetails = localStorage.getItem("agentDetails");
     //     if (agentDetails) {
     //         const agentData = JSON.parse(agentDetails);
-    //         // console.log("Recieved from are :--", agentData);
+    //         //// console.log("Recieved from are :--", agentData);
     //         currentAgentDetails = agentData;
     //     }
-    //     console.log("My agent details are :--", currentAgentDetails);
+    //    // console.log("My agent details are :--", currentAgentDetails);
 
     //     const ApiPath = Apis.createPipeLineCadence;
-    //     console.log("Api path is :", ApiPath);
+    //    // console.log("Api path is :", ApiPath);
 
     //     const ApiData = {
     //         pipelineId: selectedPipelineItem.id,
@@ -406,9 +406,9 @@ const Pipeline1 = ({ handleContinue }) => {
     //         cadence: cadence
     //     }
 
-    //     console.log("Data sending in api is :--", ApiData);
+    //    // console.log("Data sending in api is :--", ApiData);
     //     // const JSONData = JSON.stringify(ApiData);
-    //     // console.log("Json data is", JSONData);
+    //     //// console.log("Json data is", JSONData);
     //     // return
     //     const response = await axios.post(ApiPath, ApiData, {
     //         headers: {
@@ -418,16 +418,16 @@ const Pipeline1 = ({ handleContinue }) => {
     //     });
 
     //     if (response) {
-    //         console.log("Response of create pipeline api is :---", response);
+    //        // console.log("Response of create pipeline api is :---", response);
     //         if(response.data.status === true){
     //             handleContinue();
     //         }
     //     }
 
     // } catch (error) {
-    //     console.error("Error occured in create pipeline is: ---", error);
+    //    // console.error("Error occured in create pipeline is: ---", error);
     // } finally {
-    //     console.log("Api call completed");
+    //    // console.log("Api call completed");
     //     setPipelineLoader(false);
     // }
   };
@@ -444,7 +444,7 @@ const Pipeline1 = ({ handleContinue }) => {
     const selectedItem = pipelinesDetails.find(
       (item) => item.title === selectedValue
     );
-    console.log("Selected Item:", selectedItem.stages);
+   // console.log("Selected Item:", selectedItem.stages);
     setSelectedPipelineItem(selectedItem);
     setSelectedPipelineStages(selectedItem.stages);
     setOldStages(selectedItem.stages);
@@ -455,7 +455,7 @@ const Pipeline1 = ({ handleContinue }) => {
   //     setNextStage(selectedValue);
   //     // Find the selected item from the pipelinesDetails array
   //     const selectedItem = selectedPipelineStages.find(item => item.stageTitle === selectedValue);
-  //     console.log('Selected Item:', selectedItem);
+  //    // console.log('Selected Item:', selectedItem);
   //     setSelectedNextStage(selectedItem);
   // }
 
@@ -473,7 +473,7 @@ const Pipeline1 = ({ handleContinue }) => {
       (item) => item.stageTitle === selectedValue
     );
 
-    console.log(`Index ${index} Selected Item:`, selectedItem);
+   // console.log(`Index ${index} Selected Item:`, selectedItem);
 
     // Update the selected next stage for the specific index
     setSelectedNextStage((prev) => ({
@@ -491,7 +491,7 @@ const Pipeline1 = ({ handleContinue }) => {
         order: stage.order,
       }));
 
-      console.log("Updated stages order is :", updateStages);
+     // console.log("Updated stages order is :", updateStages);
 
       const ApiPath = Apis.reorderStages;
       let AuthToken = null;
@@ -500,14 +500,14 @@ const Pipeline1 = ({ handleContinue }) => {
         const UserDetails = JSON.parse(LocalData);
         AuthToken = UserDetails.token;
       }
-      // console.log("Selected pipeline id is: ", selectedPipelineItem.id);
+      //// console.log("Selected pipeline id is: ", selectedPipelineItem.id);
       const ApiData = {
         pipelineId: selectedPipelineItem.id,
         reorderedStages: updateStages,
       };
 
-      // console.log("Auth token is :", AuthToken);
-      console.log("Api data is :", ApiData);
+      //// console.log("Auth token is :", AuthToken);
+     // console.log("Api data is :", ApiData);
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -517,7 +517,7 @@ const Pipeline1 = ({ handleContinue }) => {
       });
 
       if (response) {
-        console.log("Response of updated stages is:", response.data);
+       // console.log("Response of updated stages is:", response.data);
         if (response.data.status === true) {
           let type = SnackbarTypes.Success;
           setSnackType("Success");
@@ -530,9 +530,9 @@ const Pipeline1 = ({ handleContinue }) => {
         setIsVisibleSnack(true);
       }
     } catch (error) {
-      console.error("Error occured in rearrange order api is:", error);
+     // console.error("Error occured in rearrange order api is:", error);
     } finally {
-      console.log("api call completed");
+     // console.log("api call completed");
       setReorderLoader(false);
     }
   };

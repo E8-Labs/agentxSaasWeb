@@ -171,11 +171,11 @@ const BasicDetails = ({
       }
 
       // setCheckPhoneResponse(null);
-      console.log("Trigered");
+     // console.log("Trigered");
 
       timerRef.current = setTimeout(() => {
         checkPhoneNumber(phoneNumber);
-        console.log("I am hit now");
+       // console.log("I am hit now");
       }, 300);
     }
   };
@@ -204,9 +204,9 @@ const BasicDetails = ({
       let response = await SendVerificationCode(userPhoneNumber, true);
       setResponse(response);
       setIsVisible(true);
-      console.log("Response recieved is", response);
+     // console.log("Response recieved is", response);
     } catch (error) {
-      console.error("Error occured", error);
+     // console.error("Error occured", error);
     } finally {
       setSendcodeLoader(false);
     }
@@ -278,7 +278,7 @@ const BasicDetails = ({
 
   //code for number verification
   const handleVerifyCode = () => {
-    console.log("Verify code is :", VerifyCode.join(""));
+   // console.log("Verify code is :", VerifyCode.join(""));
     setPhoneVerifiedSuccessSnack(true);
     handleRegister();
   };
@@ -313,20 +313,20 @@ const BasicDetails = ({
       );
       formData.append("verificationCode", VerifyCode.join(""));
 
-      console.log("Data for user registeration is :-----");
+     // console.log("Data for user registeration is :-----");
       for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
+       // console.log(`${key}: ${value}`);
       }
 
       // return;
       const response = await axios.post(ApiPath, formData);
       if (response) {
-        console.log("Response of register api is:--", response);
+       // console.log("Response of register api is:--", response);
         let result = response.data;
         setResponse(result);
         setIsVisible(true);
         if (response.data.status === true) {
-          console.log("Status is :---", response.data.status);
+         // console.log("Status is :---", response.data.status);
           localStorage.removeItem(PersistanceKeys.RegisterDetails);
           localStorage.setItem("User", JSON.stringify(response.data.data));
           //set cokie on locastorage to run middle ware
@@ -350,15 +350,15 @@ const BasicDetails = ({
 
           if (screenWidth <= SM_SCREEN_SIZE) {
             setCongratsPopup(true);
-            console.log("This is a small size screen");
+           // console.log("This is a small size screen");
           } else {
-            console.log("This is a large size screen");
+           // console.log("This is a large size screen");
             handleContinue();
           }
         }
       }
     } catch (error) {
-      console.error("Error occured in register api is: ", error);
+     // console.error("Error occured in register api is: ", error);
     } finally {
       setRegisterLoader(false);
     }
@@ -377,7 +377,7 @@ const BasicDetails = ({
         email: value,
       };
 
-      console.log("Api data is :", ApiData);
+     // console.log("Api data is :", ApiData);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -386,16 +386,16 @@ const BasicDetails = ({
       });
 
       if (response) {
-        console.log("Response of check email api is :", response);
+       // console.log("Response of check email api is :", response);
         if (response.data.status === true) {
-          console.log("Response message is :", response.data.message);
+         // console.log("Response message is :", response.data.message);
           setEmailCheckResponse(response.data);
         } else {
           setEmailCheckResponse(response.data);
         }
       }
     } catch (error) {
-      console.error("Error occured in check email api is :", error);
+     // console.error("Error occured in check email api is :", error);
     } finally {
       setEmailLoader(false);
     }
@@ -410,7 +410,7 @@ const BasicDetails = ({
         phone: value,
       };
 
-      console.log("Api data is :", ApiData);
+     // console.log("Api data is :", ApiData);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -419,16 +419,16 @@ const BasicDetails = ({
       });
 
       if (response) {
-        console.log("Response of check phone api is :", response);
+       // console.log("Response of check phone api is :", response);
         if (response.data.status === true) {
-          console.log("Response message is :", response.data.message);
+         // console.log("Response message is :", response.data.message);
           setCheckPhoneResponse(response.data);
         } else {
           setCheckPhoneResponse(response.data);
         }
       }
     } catch (error) {
-      console.error("Error occured in check phone api is :", error);
+     // console.error("Error occured in check phone api is :", error);
     } finally {
       setPhoneNumberLoader(false);
     }
@@ -573,7 +573,7 @@ const BasicDetails = ({
                   // if (value) {
                   //   const timer = setTimeout(() => {
                   //     checkEmail(value);
-                  //     console.log("I am hit now")
+                  //    // console.log("I am hit now")
                   //   }, 1000);
                   //   return (() => clearTimeout(timer));
                   // } else {
@@ -587,16 +587,16 @@ const BasicDetails = ({
                   setEmailCheckResponse(null);
 
                   if (!value) {
-                    console.log("Should set the value to null");
+                   // console.log("Should set the value to null");
                     setValidEmail("");
                     return;
                   }
 
                   if (!validateEmail(value)) {
-                    console.log("Invalid pattern");
+                   // console.log("Invalid pattern");
                     setValidEmail("Invalid");
                   } else {
-                    console.log("No trigered");
+                   // console.log("No trigered");
                     if (value) {
                       // Set a new timeout
                       timerRef.current = setTimeout(() => {
@@ -626,7 +626,7 @@ const BasicDetails = ({
                         block: "center",
                       });
                       phoneInputRef.current.focus({ preventScroll: true });
-                      console.log("Focus set after scroll");
+                     // console.log("Focus set after scroll");
                     }, 200); // Slight delay to ensure component is rendered
                     return () => clearTimeout(timer);
                   }
@@ -739,7 +739,7 @@ const BasicDetails = ({
                   // onKeyDown={(e) => {
                   //   if (e.key === "Enter" || e.key === "Done") {
                   //     // inputsFields.current[3]?.focus(); // Move to the second input
-                  //     console.log("Phonenumber key down pressed")
+                  //    // console.log("Phonenumber key down pressed")
                   //     handleContinue();
                   //   }
                   // }}

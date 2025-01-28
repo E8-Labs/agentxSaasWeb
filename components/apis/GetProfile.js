@@ -9,12 +9,12 @@ const getProfileDetails = async () => {
 
         if (localData) {
             const Data = JSON.parse(localData);
-            console.log("User localdetails are", Data);
+           // console.log("User localdetails are", Data);
             localDetails = Data;
             Authtoken = Data.token;
         }
 
-        console.log("Auth otk is", Authtoken);
+       // console.log("Auth otk is", Authtoken);
 
         const ApiPath = Apis.getProfileData;
 
@@ -26,17 +26,17 @@ const getProfileDetails = async () => {
         });
 
         if (response) {
-            console.log("Response of get profile api is", response.data);
+           // console.log("Response of get profile api is", response.data);
             if(response?.data?.status === true){
                 localDetails.user = response.data.data;
-                console.log("Data to updated", localDetails);
+               // console.log("Data to updated", localDetails);
                 localStorage.setItem("User", JSON.stringify(localDetails));
                 return response;
             }
         }
 
     } catch (error) {
-        console.error("Error occured in get profile api is error", error);
+       // console.error("Error occured in get profile api is error", error);
     }
 }
 

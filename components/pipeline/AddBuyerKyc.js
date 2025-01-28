@@ -124,20 +124,20 @@ const AddBuyerKyc = ({
 
   //check for the save and continue btn
   useEffect(() => {
-    console.log("Should check btn status");
+   // console.log("Should check btn status");
     if (
       oldSelectedNeedKYC.length !== selectedNeedKYC.length ||
       selectedMotivationKyc.length !== oldSelectedMotivationKyc.length ||
       selectedUrgencyKyc.length !== oldSelectedUrgencyKyc.length
     ) {
-      console.log("Should show save btn");
+     // console.log("Should show save btn");
       setShouldSave(true);
     } else if (
       oldSelectedNeedKYC.length === selectedNeedKYC.length ||
       selectedMotivationKyc.length !== oldSelectedMotivationKyc.length ||
       selectedUrgencyKyc.length !== oldSelectedUrgencyKyc.length
     ) {
-      console.log("Should not show save btn");
+     // console.log("Should not show save btn");
       setShouldSave(false);
     }
   }, [
@@ -162,7 +162,7 @@ const AddBuyerKyc = ({
     }
 
     if (BuyerNeedData.length > 0) {
-      console.log("Data passed is", BuyerNeedData);
+     // console.log("Data passed is", BuyerNeedData);
       setNeedKYCQuestions((prevNeedKycs) => [
         ...prevNeedKycs.filter(
           (existing) =>
@@ -197,7 +197,7 @@ const AddBuyerKyc = ({
       ]);
     }
     if (BuyerMotivationData.length > 0) {
-      console.log("Data passed is", BuyerNeedData);
+     // console.log("Data passed is", BuyerNeedData);
       setMotivationKycQuestions((prevNeedKycs) => [
         ...prevNeedKycs.filter(
           (existing) =>
@@ -236,7 +236,7 @@ const AddBuyerKyc = ({
       ]);
     }
     if (BuyerUrgencyData.length > 0) {
-      console.log("Data passed is", BuyerNeedData);
+     // console.log("Data passed is", BuyerNeedData);
       setUrgencyKycQuestions((prevNeedKycs) => [
         ...prevNeedKycs.filter(
           (existing) =>
@@ -316,10 +316,10 @@ const AddBuyerKyc = ({
         )
       ) {
         setShowErrorSnack("Question already exists!!!");
-        console.log("Question Already exists");
+       // console.log("Question Already exists");
         return;
       } else {
-        // console.log("New question");
+        //// console.log("New question");
         setNeedKYCQuestions((prevQuestions) => {
           const updatedQuestions = [
             ...prevQuestions,
@@ -378,7 +378,7 @@ const AddBuyerKyc = ({
         )
       ) {
         setShowErrorSnack("Question already exists!!!");
-        console.log("Question Already exists");
+       // console.log("Question Already exists");
         return;
       } else {
         setUrgencyKycQuestions((prevQuestions) => {
@@ -489,10 +489,10 @@ const AddBuyerKyc = ({
       selectedUrgencyKyc.some((selectedItem) => selectedItem.id === question.id)
     );
 
-    console.log("Working");
-    // console.log("Selected Questions are: ", selectedNeedQuestions);
-    // console.log("Selected motivation questions are: ----", selectedMotivationQuestions);
-    // console.log("Selected urgency questions are: ----", selectedUrgencyQuestions);
+   // console.log("Working");
+    //// console.log("Selected Questions are: ", selectedNeedQuestions);
+    //// console.log("Selected motivation questions are: ----", selectedMotivationQuestions);
+    //// console.log("Selected urgency questions are: ----", selectedUrgencyQuestions);
     // router.push("/pipeline");
     // handleContinue();
 
@@ -512,9 +512,9 @@ const AddBuyerKyc = ({
       let AgentId = null;
 
       if (agentDetails) {
-        console.log("trying");
+       // console.log("trying");
         const agentData = JSON.parse(agentDetails);
-        console.log("ActualAgent details are :--", agentData);
+       // console.log("ActualAgent details are :--", agentData);
         MyAgentData = agentData;
       }
 
@@ -528,7 +528,7 @@ const AddBuyerKyc = ({
       let ApiData = [];
 
       // if (selectedNeedQuestions.length > 0) {
-      //     // console.log("#need Question details are :", selectedNeedQuestions);
+      //     //// console.log("#need Question details are :", selectedNeedQuestions);
       //     const data = {
       //         kycQuestions: selectedNeedQuestions.map(item => ({
       //             question: item.question,
@@ -538,10 +538,10 @@ const AddBuyerKyc = ({
       //         })),
       //         mainAgentId: MyAgentData.id
       //     };
-      //     // console.log("Data to send in api is", data);
+      //     //// console.log("Data to send in api is", data);
       //     ApiData = data;
       // } else if (selectedMotivationQuestions.length > 0) {
-      //     console.log("#motivation Question details are :", selectedMotivationQuestions);
+      //    // console.log("#motivation Question details are :", selectedMotivationQuestions);
       //     const data = {
       //         kycQuestions: selectedMotivationQuestions.map(item => ({
       //             question: item.question,
@@ -551,10 +551,10 @@ const AddBuyerKyc = ({
       //         })),
       //         mainAgentId: MyAgentData.id
       //     };
-      //     // console.log("Data to send in api is", data);
+      //     //// console.log("Data to send in api is", data);
       //     ApiData = data;
       // } else if (selectedUrgencyQuestions.length > 0) {
-      //     console.log("#urgency Question details are :", selectedUrgencyQuestions);
+      //    // console.log("#urgency Question details are :", selectedUrgencyQuestions);
       //     const data = {
       //         kycQuestions: selectedUrgencyQuestions.map(item => ({
       //             question: item.question,
@@ -564,7 +564,7 @@ const AddBuyerKyc = ({
       //         })),
       //         mainAgentId: MyAgentData.id
       //     };
-      //     // console.log("Data to send in api is", data);
+      //     //// console.log("Data to send in api is", data);
       //     ApiData = data;
       // }
 
@@ -587,11 +587,11 @@ const AddBuyerKyc = ({
         type: "buyer",
         mainAgentId: AgentId,
       };
-      console.log("Data to send in api is", data);
+     // console.log("Data to send in api is", data);
 
       ApiData = data;
 
-      console.log("APi data is :--", ApiData);
+     // console.log("APi data is :--", ApiData);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -601,7 +601,7 @@ const AddBuyerKyc = ({
       });
 
       if (response) {
-        console.log("Response of add KYC api is :--", response.data);
+       // console.log("Response of add KYC api is :--", response.data);
         if (response.data.status === true) {
           // router.push("/pipeline")
           handleCloseSellerKyc();
@@ -609,7 +609,7 @@ const AddBuyerKyc = ({
         }
       }
     } catch (error) {
-      console.error("Error occured in api is :--", error);
+     // console.error("Error occured in api is :--", error);
     } finally {
       setBuyerKycLoader(false);
     }

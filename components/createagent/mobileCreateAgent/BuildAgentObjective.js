@@ -50,7 +50,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
     setAddress(address?.label);
   }, [addressSelected]);
   // const [scollAddress, setScollAddress] = useState("");
-  // console.log("User address is:", address);
+  //// console.log("User address is:", address);
 
   //other objective
   const [showOtherObjective, setShowOtherObjective] = useState(false);
@@ -77,10 +77,10 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
   useEffect(() => {
     if (toggleClick) {
       setShouldContinue(false);
-      console.log("Should continue");
+     // console.log("Should continue");
     } else if (!toggleClick) {
       setShouldContinue(true);
-      console.log("Should Nott continue");
+     // console.log("Should Nott continue");
     }
   }, [agentName, agentRole, agentObjective, otherObjVal]);
 
@@ -93,7 +93,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
       setShowModal(true);
     }
     if (item.id === 100) {
-      console.log("Trigered");
+     // console.log("Trigered");
       // if (bottomRef.current) {
       //     bottomRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
       // }
@@ -191,14 +191,14 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
       let LocalDetails = null;
       if (localData) {
         const UserDetails = JSON.parse(localData);
-        console.log("Local agent details", UserDetails);
+       // console.log("Local agent details", UserDetails);
         AuthToken = UserDetails.token;
         LocalDetails = UserDetails;
       }
       // return
-      console.log("Auth token is :--", AuthToken);
+     // console.log("Auth token is :--", AuthToken);
       const ApiPath = Apis.buildAgent;
-      console.log("Api link for build agent is :--", ApiPath);
+     // console.log("Api link for build agent is :--", ApiPath);
       const formData = new FormData();
       formData.append("name", AgentDetails.name);
       formData.append("agentRole", AgentDetails.agentRole);
@@ -223,9 +223,9 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
         formData.append("agentObjectiveId", agentObjective.id);
       }
 
-      console.log("Build agent details are is :-----");
+     // console.log("Build agent details are is :-----");
       for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
+       // console.log(`${key}: ${value}`);
       }
 
       // return
@@ -236,24 +236,24 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
       });
 
       if (response) {
-        console.log("Response of build agent api  is :---", response.data);
+       // console.log("Response of build agent api  is :---", response.data);
         if (response.data.status === true) {
-          console.log("Status of build agent is :", response.data.status);
+         // console.log("Status of build agent is :", response.data.status);
           localStorage.setItem(
             "agentDetails",
             JSON.stringify(response.data.data)
           );
           // if (LocalDetails.plan) {
-          //     console.log("Should skip")
+          //    // console.log("Should skip")
           //     handleSkipAddPayment();
           // } else {
-          //     console.log("Should not skip")
+          //    // console.log("Should not skip")
           // }
           handleContinue();
         }
       }
     } catch (error) {
-      console.error("Error occured in build agent api is: ----", error);
+     // console.error("Error occured in build agent api is: ----", error);
     } finally {
       setBuildAgentLoader(false);
       setLoaderModal(false);
@@ -291,7 +291,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
     if (placesService) {
       placesService.getDetails({ placeId }, (details) => {
         setSelectedPlace(details);
-        console.log("Selected Place Details:", details);
+       // console.log("Selected Place Details:", details);
       });
     }
   };

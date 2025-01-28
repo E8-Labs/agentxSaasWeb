@@ -131,7 +131,7 @@ function Page() {
           setGetTeamLoader(false);
 
           if (response.data.status === true) {
-            console.log("get team api response is", response.data);
+           // console.log("get team api response is", response.data);
             let admin = response.data.admin;
             let adminMember = {
               invitingUser: admin,
@@ -148,20 +148,20 @@ function Page() {
             }
             setMyTeam(array);
           } else {
-            console.log("get team api message is", response.data.message);
+           // console.log("get team api message is", response.data.message);
           }
         }
       }
     } catch (e) {
       setGetTeamLoader(false);
 
-      console.log("error in get team api is", e);
+     // console.log("error in get team api is", e);
     }
   };
 
   //funcion to invitem tem member
   const inviteTeamMember = async (item) => {
-    console.log("data", item);
+   // console.log("data", item);
     // return
     if (!item.name || !item.email || !item.phone) {
       setShowError(true);
@@ -181,7 +181,7 @@ function Page() {
           phone: item.phone,
         };
 
-        console.log("apidata", apidata);
+       // console.log("apidata", apidata);
 
         const response = await axios.post(path, apidata, {
           headers: {
@@ -192,19 +192,19 @@ function Page() {
         if (response) {
           setInviteTeamLoader(false);
           if (response.data.status === true) {
-            console.log("invite team api response is", response.data.data);
+           // console.log("invite team api response is", response.data.data);
             let newMember = response.data.data;
-            console.log("newMember", newMember);
-            console.log("--------------------------------");
+           // console.log("newMember", newMember);
+           // console.log("--------------------------------");
             setMyTeam((prev) => {
-              console.log("previous member", prev);
-              console.log("--------------------------------");
+             // console.log("previous member", prev);
+             // console.log("--------------------------------");
               const isAlreadyPresent = prev.some(
                 (member) => member.id === newMember.id
               ); // Check by unique ID
-              console.log("isAlreadyPresant", isAlreadyPresent);
+             // console.log("isAlreadyPresant", isAlreadyPresent);
               if (isAlreadyPresent) {
-                console.log("member already presant");
+               // console.log("member already presant");
                 return prev;
               }
               return [...prev, newMember];
@@ -217,14 +217,14 @@ function Page() {
             setPhone("");
             // getMyteam()
           } else {
-            console.log("invite team api message is", response.data.message);
+           // console.log("invite team api message is", response.data.message);
           }
         }
       }
     } catch (e) {
       setInviteTeamLoader(false);
       setReInviteTeamLoader(false);
-      console.log("error in invite team api is", e);
+     // console.log("error in invite team api is", e);
     }
   };
 
@@ -253,7 +253,7 @@ function Page() {
         email: value,
       };
 
-      console.log("Api data is :", ApiData);
+     // console.log("Api data is :", ApiData);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -262,16 +262,16 @@ function Page() {
       });
 
       if (response) {
-        console.log("Response of check email api is :", response);
+       // console.log("Response of check email api is :", response);
         if (response.data.status === true) {
-          console.log("Response message is :", response.data.message);
+         // console.log("Response message is :", response.data.message);
           setEmailCheckResponse(response.data);
         } else {
           setEmailCheckResponse(response.data);
         }
       }
     } catch (error) {
-      console.error("Error occured in check email api is :", error);
+     // console.error("Error occured in check email api is :", error);
     } finally {
       setEmailLoader(false);
     }
@@ -308,7 +308,7 @@ function Page() {
       try {
         setCheckPhoneLoader("Checking...");
         let response = await checkPhoneNumber(phoneNumber);
-        console.log("Response of check number api is", response);
+       // console.log("Response of check number api is", response);
         // setErrorMessage(null)
         setCheckPhoneResponse(response.data);
         if (response.data.status === false) {
@@ -317,26 +317,26 @@ function Page() {
           setErrorMessage("Available");
         }
       } catch (error) {
-        console.error("Error occured in api is", error);
+       // console.error("Error occured in api is", error);
         setCheckPhoneLoader(null);
       } finally {
         setCheckPhoneLoader(null);
       }
 
       // setCheckPhoneResponse(null);
-      console.log("Trigered");
+     // console.log("Trigered");
     }
   };
 
   async function DeleteTeamMember(team) {
-    console.log("Deleting ", team);
+   // console.log("Deleting ", team);
     // return;
     let phoneNumber = team.phone;
     let apidata = {
       phone: phoneNumber,
     };
 
-    console.log("data to delete", apidata);
+   // console.log("data to delete", apidata);
     // return;
 
     try {
@@ -346,7 +346,7 @@ function Page() {
         let u = JSON.parse(data);
 
         let path = Apis.deleteTeamMember;
-        console.log("token ", u.token);
+       // console.log("token ", u.token);
         const response = await axios.post(path, apidata, {
           headers: {
             Authorization: "Bearer " + u.token,
@@ -356,7 +356,7 @@ function Page() {
         if (response) {
           setInviteTeamLoader(false);
           if (response.data.status === true) {
-            console.log("delete team api response is", response.data);
+           // console.log("delete team api response is", response.data);
             // let tea
             let teams = myTeam.filter((item) => item.id != team.id);
             setMyTeam(teams);
@@ -369,19 +369,19 @@ function Page() {
               router.push("/");
             }
           } else {
-            console.log("delete team api message is", response.data.message);
+           // console.log("delete team api message is", response.data.message);
           }
         }
       }
     } catch (e) {
       setInviteTeamLoader(false);
-      // console.log()
-      console.log("error in delete team api is", e);
+      //// console.log()
+     // console.log("error in delete team api is", e);
     }
   }
 
   const handleResendInvite = async (item) => {
-    console.log("item", item);
+   // console.log("item", item);
 
     let data = {
       name: item.name,
@@ -400,8 +400,8 @@ function Page() {
       user = JSON.parse(user);
       user = user.user;
     }
-    console.log("Current user role ", user);
-    console.log("team member is", team);
+   // console.log("Current user role ", user);
+   // console.log("team member is", team);
     if (user.userRole == "Invitee") {
       if (team.invitedUser.id == user.id) {
         return true; // show menu at own profile
@@ -436,31 +436,31 @@ function Page() {
     return true;
   }
   // function canShowInviteButton() {
-  //   console.log("PersistanceKeys.LocalStorageUser", PersistanceKeys.LocalStorageUser)
+  //  // console.log("PersistanceKeys.LocalStorageUser", PersistanceKeys.LocalStorageUser)
   //   if (typeof window !== "undefined") {
   //     let user = localStorage.getItem("User")
   //     if (user) {
   //       user = JSON.parse(user);
-  //       console.log('user.userRole', user.userRole)
+  //      // console.log('user.userRole', user.userRole)
   //       if (user.userRole == "AgentX") {
   //         return true;
   //       }
   //       return false;
   //     }else{
-  //       console.log('user is null')
+  //      // console.log('user is null')
   //     }
   //   }
   // }
 
   function canShowInviteButton() {
-    console.log("In show invite button");
+   // console.log("In show invite button");
     if (typeof localStorage != "undefined") {
       let user = localStorage.getItem(PersistanceKeys.LocalStorageUser);
       if (user) {
         user = JSON.parse(user);
         user = user.user;
       }
-      console.log("User is ", user.id);
+     // console.log("User is ", user.id);
       if (user.userRole == "AgentX") {
         return true;
       }
@@ -520,7 +520,7 @@ function Page() {
                 style={{ overflow: "auto", scrollbarWidth: "none" }}
               >
                 {myTeam.map((item, index) => {
-                  console.log("Team is ", item);
+                 // console.log("Team is ", item);
                   return (
                     <div key={item.id} className="relative">
                       <div className="p-4 flex flex-row gap-4 items-start border rounded-lg">
@@ -596,7 +596,7 @@ function Page() {
                           <div
                             className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-red-500"
                             onClick={() => {
-                              console.log("Deleting team member:", item);
+                             // console.log("Deleting team member:", item);
                               DeleteTeamMember(item);
                               setMoreDropdown(null);
                             }}
@@ -763,16 +763,16 @@ function Page() {
                   setEmailCheckResponse(null);
 
                   if (!value) {
-                    console.log("Should set the value to null");
+                   // console.log("Should set the value to null");
                     setValidEmail("");
                     return;
                   }
 
                   if (!validateEmail(value)) {
-                    console.log("Invalid pattern");
+                   // console.log("Invalid pattern");
                     setValidEmail("Invalid");
                   } else {
-                    console.log("No trigered");
+                   // console.log("No trigered");
                     if (value) {
                       // Set a new timeout
                       timerRef.current = setTimeout(() => {

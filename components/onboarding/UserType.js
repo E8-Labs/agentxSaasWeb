@@ -69,7 +69,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
       otherFocusArea: "",
     };
 
-    console.log("Data seting in api is", userData);
+   // console.log("Data seting in api is", userData);
 
     // return
 

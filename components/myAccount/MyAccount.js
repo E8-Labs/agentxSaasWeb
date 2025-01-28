@@ -62,7 +62,7 @@ function MyAccount() {
     useEffect(() => {
         const tab = searchParams.get("tab"); // Get the value of 'tab'
         let number = Number(tab) || 6;
-        console.log("Tab value is ", number);
+       // console.log("Tab value is ", number);
         setTabSelected(number);
         if (!tab) {
             setParamsInSearchBar(1);
@@ -77,7 +77,7 @@ function MyAccount() {
         // Push the updated URL
         router.push(`/dashboard/myAccount?${params.toString()}`);
 
-        console.log("Rerendering tab with selected tab: ", index);
+       // console.log("Rerendering tab with selected tab: ", index);
     };
 
     const renderComponent = () => {

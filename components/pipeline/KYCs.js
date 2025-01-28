@@ -15,7 +15,7 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
     const [kycsData, setKycsData] = useState([]);
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
-    console.log("Main agent id", mainAgentId)
+   // console.log("Main agent id", mainAgentId)
     const openBuyerKyc = Boolean(BuyerAnchor);
     const buyerId = openBuyerKyc ? 'buyer-popover' : undefined;
     const [selectedKyc, setSelectedKyc] = useState(null);
@@ -34,7 +34,7 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
     const [OpenSelerMotivation, setOpenSelerMotivation] = useState(false);
     const [OpenSellerUrgency, setOpenSellerUrgency] = useState(false);
 
-    console.log("Status of motivation", OpenSelerMotivation)
+   // console.log("Status of motivation", OpenSelerMotivation)
 
     //buyer kyc data
     const [BuyerNeedData, setBuyerNeedData] = useState([]);
@@ -55,7 +55,7 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
 
     //popover code here
     const handleOpenPopover = (event, item) => {
-        console.log("Item selected is", item);
+       // console.log("Item selected is", item);
         setAnchorEl(event.currentTarget);
         setSelectedKyc(item);
     };
@@ -77,7 +77,7 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
             const localData = localStorage.getItem("User");
             if (localData) {
                 const Data = JSON.parse(localData);
-                console.log("Localdat recieved is :--", Data);
+               // console.log("Localdat recieved is :--", Data);
                 AuthToken = Data.token;
             }
 
@@ -85,11 +85,11 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
             const mainAgentData = localStorage.getItem("agentDetails");
             if (mainAgentData) {
                 const Data = JSON.parse(mainAgentData);
-                console.log("Localdat recieved is :--", Data);
+               // console.log("Localdat recieved is :--", Data);
                 MainAgentData = Data.id;
             }
 
-            console.log("Auth token is :--", AuthToken);
+           // console.log("Auth token is :--", AuthToken);
 
             let ApiPath = null;
 
@@ -99,7 +99,7 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
                 ApiPath = `${Apis.getKYCs}?mainAgentId=${MainAgentData}`;
             }
 
-            console.log("Api path is :--", ApiPath);
+           // console.log("Api path is :--", ApiPath);
             // return
             const response = await axios.get(ApiPath, {
                 headers: {
@@ -109,41 +109,41 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
             });
 
             if (response) {
-                console.log("Response of get kycs api is :--", response);
+               // console.log("Response of get kycs api is :--", response);
                 kycsDetails(response.data.data);
                 setKycsData(response.data.data);
                 const filteredSellerQuestions = response.data.data.filter(item => item.type === 'seller');
                 const filteredBuyerQuestions = response.data.data.filter(item => item.type === 'buyer');
-                console.log("Seler kycs are :=--", filteredSellerQuestions);
-                console.log("Buyer Kycs are :--", filteredBuyerQuestions);
+               // console.log("Seler kycs are :=--", filteredSellerQuestions);
+               // console.log("Buyer Kycs are :--", filteredBuyerQuestions);
                 //code for seller kyc questions
                 const filteredSellerNeedQuestions = filteredSellerQuestions.filter(item => item.category === 'need');
                 const filteredSellerMotivationQuestions = filteredSellerQuestions.filter(item => item.category === 'motivation');
                 const filteredSellerUrgencyQuestions = filteredSellerQuestions.filter(item => item.category === 'urgency');
-                console.log("Need kycs are :--", filteredSellerNeedQuestions);
+               // console.log("Need kycs are :--", filteredSellerNeedQuestions);
                 setSellerNeedData(filteredSellerNeedQuestions);
-                console.log("Motivation KYCs are :--", filteredSellerMotivationQuestions);
+               // console.log("Motivation KYCs are :--", filteredSellerMotivationQuestions);
                 setSellerMotivationData(filteredSellerMotivationQuestions);
-                console.log("Urgency kycs are :---", filteredSellerUrgencyQuestions);
+               // console.log("Urgency kycs are :---", filteredSellerUrgencyQuestions);
                 setSellerUrgencyData(filteredSellerUrgencyQuestions);
                 //code for buyer kyc questions
                 const filteredBuyerNeedQuestions = filteredBuyerQuestions.filter(item => item.category === 'need');
                 const filteredBuyerMotivationQuestions = filteredBuyerQuestions.filter(item => item.category === 'motivation');
                 const filteredBuyerUrgencyQuestions = filteredBuyerQuestions.filter(item => item.category === 'urgency');
-                console.log("BuyerNeed kycs are :--", filteredSellerNeedQuestions);
+               // console.log("BuyerNeed kycs are :--", filteredSellerNeedQuestions);
                 setBuyerNeedData(filteredBuyerNeedQuestions);
-                console.log("BuyerMotivation KYCs are :--", filteredBuyerMotivationQuestions);
+               // console.log("BuyerMotivation KYCs are :--", filteredBuyerMotivationQuestions);
                 setBuyerMotivationData(filteredBuyerMotivationQuestions);
-                console.log("BuyerUrgency kycs are :---", filteredBuyerUrgencyQuestions);
+               // console.log("BuyerUrgency kycs are :---", filteredBuyerUrgencyQuestions);
                 setBuyerUrgencyData(filteredBuyerUrgencyQuestions);
 
             } else {
-                console.log("No data found")
+               // console.log("No data found")
             }
         } catch (error) {
-            console.error("Error occured in gett kyc api is :--", error);
+           // console.error("Error occured in gett kyc api is :--", error);
         } finally {
-            console.log("Get kycs api call completed");
+           // console.log("Get kycs api call completed");
         }
 
     }
@@ -154,8 +154,8 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
 
     //close add seller kyc modal
     const handleCloseSellerKyc = () => {
-        // console.log("Status of motivational data", OpenSelerMotivation);
-        // console.log("Status of urgency data", OpenSellerUrgency);
+        //// console.log("Status of motivational data", OpenSelerMotivation);
+        //// console.log("Status of urgency data", OpenSellerUrgency);
         setOpenSelerMotivation(false);
         setOpenSellerUrgency(false)
         setOpenSellerNeeds(false);
@@ -166,11 +166,11 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
     //getadd seller kyc data
     const handleAddSellerKycData = (data) => {
 
-        console.log("Data added in new kyc is :--", data.kyc);
+       // console.log("Data added in new kyc is :--", data.kyc);
         const categories = data.kyc;
         kycsDetails(data.kyc);
-        console.log("Categgory is :", categories);
-        console.log("Type is:", categories[0].type);
+       // console.log("Categgory is :", categories);
+       // console.log("Type is:", categories[0].type);
 
         // return
         // if (categories === "need") {
@@ -183,25 +183,25 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
 
         //code for seller kyc questions
         const filteredSellerQuestions = data.kyc.filter(item => item.type === 'seller');
-        console.log("Seler kycs are :=--", filteredSellerQuestions);
+       // console.log("Seler kycs are :=--", filteredSellerQuestions);
         const filteredSellerNeedQuestions = filteredSellerQuestions.filter(item => item.category === 'need');
         const filteredSellerMotivationQuestions = filteredSellerQuestions.filter(item => item.category === 'motivation');
         const filteredSellerUrgencyQuestions = filteredSellerQuestions.filter(item => item.category === 'urgency');
-        console.log("Need kycs are :--", filteredSellerNeedQuestions);
+       // console.log("Need kycs are :--", filteredSellerNeedQuestions);
         setSellerNeedData(filteredSellerNeedQuestions);
-        console.log("Motivation KYCs are :--", filteredSellerMotivationQuestions);
+       // console.log("Motivation KYCs are :--", filteredSellerMotivationQuestions);
         setSellerMotivationData(filteredSellerMotivationQuestions);
-        console.log("Urgency kycs are :---", filteredSellerUrgencyQuestions);
+       // console.log("Urgency kycs are :---", filteredSellerUrgencyQuestions);
         setSellerUrgencyData(filteredSellerUrgencyQuestions);
         //code for buyer kyc questions
     }
 
     //getadd buyer kyc data
     const handleAddBuyerKycData = (data) => {
-        console.log("Data added in new kyc is :--", data);
+       // console.log("Data added in new kyc is :--", data);
         const categories = data.kyc;
         kycsDetails(data.kyc);
-        console.log("Categgory is :", categories);
+       // console.log("Categgory is :", categories);
         // if (categories === "need") {
         //     setBuyerNeedData([...BuyerNeedData, ...data]);
         // } else if (categories === "motivation") {
@@ -212,16 +212,16 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
 
 
         const filteredBuyerQuestions = data.kyc.filter(item => item.type === 'buyer');
-        console.log("Buyer Kycs are :--", filteredBuyerQuestions);
+       // console.log("Buyer Kycs are :--", filteredBuyerQuestions);
 
         const filteredBuyerNeedQuestions = filteredBuyerQuestions.filter(item => item.category === 'need');
         const filteredBuyerMotivationQuestions = filteredBuyerQuestions.filter(item => item.category === 'motivation');
         const filteredBuyerUrgencyQuestions = filteredBuyerQuestions.filter(item => item.category === 'urgency');
-        console.log("BuyerNeed kycs are :--", filteredBuyerNeedQuestions);
+       // console.log("BuyerNeed kycs are :--", filteredBuyerNeedQuestions);
         setBuyerNeedData(filteredBuyerNeedQuestions);
-        console.log("BuyerMotivation KYCs are :--", filteredBuyerMotivationQuestions);
+       // console.log("BuyerMotivation KYCs are :--", filteredBuyerMotivationQuestions);
         setBuyerMotivationData(filteredBuyerMotivationQuestions);
-        console.log("BuyerUrgency kycs are :---", filteredBuyerUrgencyQuestions);
+       // console.log("BuyerUrgency kycs are :---", filteredBuyerUrgencyQuestions);
         setBuyerUrgencyData(filteredBuyerUrgencyQuestions);
 
     }
@@ -231,27 +231,27 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
     const filterKycs = (KycsList) => {
         const filteredSellerQuestions = KycsList.filter(item => item.type === 'seller');
         const filteredBuyerQuestions = KycsList.filter(item => item.type === 'buyer');
-        console.log("Seler kycs are :=--", filteredSellerQuestions);
-        console.log("Buyer Kycs are :--", filteredBuyerQuestions);
+       // console.log("Seler kycs are :=--", filteredSellerQuestions);
+       // console.log("Buyer Kycs are :--", filteredBuyerQuestions);
         //code for seller kyc questions
         const filteredSellerNeedQuestions = filteredSellerQuestions.filter(item => item.category === 'need');
         const filteredSellerMotivationQuestions = filteredSellerQuestions.filter(item => item.category === 'motivation');
         const filteredSellerUrgencyQuestions = filteredSellerQuestions.filter(item => item.category === 'urgency');
-        console.log("Need kycs are :--", filteredSellerNeedQuestions);
+       // console.log("Need kycs are :--", filteredSellerNeedQuestions);
         setSellerNeedData(filteredSellerNeedQuestions);
-        console.log("Motivation KYCs are :--", filteredSellerMotivationQuestions);
+       // console.log("Motivation KYCs are :--", filteredSellerMotivationQuestions);
         setSellerMotivationData(filteredSellerMotivationQuestions);
-        console.log("Urgency kycs are :---", filteredSellerUrgencyQuestions);
+       // console.log("Urgency kycs are :---", filteredSellerUrgencyQuestions);
         setSellerUrgencyData(filteredSellerUrgencyQuestions);
         //code for buyer kyc questions
         const filteredBuyerNeedQuestions = filteredBuyerQuestions.filter(item => item.category === 'need');
         const filteredBuyerMotivationQuestions = filteredBuyerQuestions.filter(item => item.category === 'motivation');
         const filteredBuyerUrgencyQuestions = filteredBuyerQuestions.filter(item => item.category === 'urgency');
-        console.log("BuyerNeed kycs are :--", filteredSellerNeedQuestions);
+       // console.log("BuyerNeed kycs are :--", filteredSellerNeedQuestions);
         setBuyerNeedData(filteredBuyerNeedQuestions);
-        console.log("BuyerMotivation KYCs are :--", filteredBuyerMotivationQuestions);
+       // console.log("BuyerMotivation KYCs are :--", filteredBuyerMotivationQuestions);
         setBuyerMotivationData(filteredBuyerMotivationQuestions);
-        console.log("BuyerUrgency kycs are :---", filteredBuyerUrgencyQuestions);
+       // console.log("BuyerUrgency kycs are :---", filteredBuyerUrgencyQuestions);
         setBuyerUrgencyData(filteredBuyerUrgencyQuestions);
     }
 
@@ -264,20 +264,20 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
             const localData = localStorage.getItem("User");
             if (localData) {
                 const Data = JSON.parse(localData);
-                console.log("Localdat recieved is :--", Data);
+               // console.log("Localdat recieved is :--", Data);
                 AuthToken = Data.token;
             }
 
-            console.log("Auth token is:", AuthToken);
+           // console.log("Auth token is:", AuthToken);
 
             const ApiData = {
                 kycId: selectedKyc.id
             }
 
             const ApiPath = Apis.deleteKyc;
-            console.log("Api path is:", ApiPath);
+           // console.log("Api path is:", ApiPath);
 
-            console.log("Api data is", ApiData);
+           // console.log("Api data is", ApiData);
 
             // return
             const response = await axios.post(ApiPath, ApiData, {
@@ -287,7 +287,7 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
             });
 
             if (response) {
-                console.log("resopnse of delete kyc api is ", response.data);
+               // console.log("resopnse of delete kyc api is ", response.data);
                 if (response.data.status === true) {
                     // kycsDetails()
                     filterKycs(response.data.data.kyc);
@@ -296,7 +296,7 @@ const KYCs = ({ kycsDetails, mainAgentId }) => {
             }
 
         } catch (error) {
-            console.error("Eror occured in", error);
+           // console.error("Eror occured in", error);
         } finally {
             setDelKycLoader(false);
         }

@@ -10,7 +10,7 @@ export function GetCampaigneeNameIfAvailable(window) {
 
 export const getSupportUrlFor = (user) => {
   if (user?.campaignee && user?.campaignee?.officeHoursUrl) {
-    console.log("Response", user.campaignee.officeHoursUrl);
+   // console.log("Response", user.campaignee.officeHoursUrl);
     let campaigneeLink = user.campaignee.officeHoursUrl;
     return campaigneeLink;
   } else {

@@ -11,7 +11,7 @@ export const PromptTagInput = ({
   tagValue,
   uniqueColumns,
 }) => {
-  // console.log("Scroll Offset Parent ", scrollOffset)
+  //// console.log("Scroll Offset Parent ", scrollOffset)
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
   const [options, setOptions] = useState([
@@ -30,7 +30,7 @@ export const PromptTagInput = ({
   //code for modal
   const [showScriptModal, setShowScriptModal] = useState(false);
 
-  console.log("Kycs list is:", kycsList);
+ // console.log("Kycs list is:", kycsList);
 
   useEffect(() => {
     let arr = [...options];
@@ -68,7 +68,7 @@ export const PromptTagInput = ({
       document.body.appendChild(mirrorDiv);
     }
     mirrorDivRef.current = mirrorDiv;
-    console.log("MirrorDiv", mirrorDiv.getBoundingClientRect());
+   // console.log("MirrorDiv", mirrorDiv.getBoundingClientRect());
 
     return () => {
       if (
@@ -91,7 +91,7 @@ export const PromptTagInput = ({
     if (textFieldRef.current) {
       const scrollTop = textFieldRef.current.scrollTop;
       const scrollLeft = textFieldRef.current.scrollLeft;
-      console.log("Scroll Offset - Top:", scrollTop, "Left:", scrollLeft);
+     // console.log("Scroll Offset - Top:", scrollTop, "Left:", scrollLeft);
       return { scrollTop, scrollLeft };
     }
     return { scrollTop: 0, scrollLeft: 0 };
@@ -141,7 +141,7 @@ export const PromptTagInput = ({
     const popupLeft = markerRect.left; // - inputRect.left + scrollOffset.scrollLeft;
     let maxLines = (markerRect.top - 1005) / 24 + 1;
     let distance = 35 + (markerRect.top - 1005);
-    console.log("Max Lines ", maxLines);
+   // console.log("Max Lines ", maxLines);
     // if(maxLines > 18){
     //     distance = 18 * 24 + 35;
     // }
@@ -149,12 +149,12 @@ export const PromptTagInput = ({
     let popupTop = distance - textOffset.scrollTop; //inputRect.top / markerRect.top * scrollOffset.scrollTop//markerRect.top - inputRect.top + scrollOffset.scrollTop - (markerRect.top - inputRect.top - scrollOffset.scrollTop) * 0.25;//490
     // markerRect.top - inputRect.top + scrollOffset.scrollTop + parseFloat(computedStyle.lineHeight);
 
-    console.log("Text Offset: ", textOffset);
-    console.log("Scroll Offset: ", scrollOffset);
-    console.log("Marker Rect: ", markerRect);
-    console.log("Input Rect: ", inputRect);
-    console.log("Popup Left: ", popupLeft);
-    console.log("Popup Top: ", popupTop);
+   // console.log("Text Offset: ", textOffset);
+   // console.log("Scroll Offset: ", scrollOffset);
+   // console.log("Marker Rect: ", markerRect);
+   // console.log("Input Rect: ", inputRect);
+   // console.log("Popup Left: ", popupLeft);
+   // console.log("Popup Top: ", popupTop);
 
     setPopupPosition({ top: popupTop, left: popupLeft });
   };
@@ -215,11 +215,11 @@ export const PromptTagInput = ({
       popupTop = viewportHeight - popupHeight;
     }
 
-    console.log("Text Offset: ", textOffset);
-    console.log("Marker Rect: ", markerRect);
-    console.log("Input Rect: ", inputRect);
-    console.log("Popup Left: ", popupLeft);
-    console.log("Popup Top: ", popupTop);
+   // console.log("Text Offset: ", textOffset);
+   // console.log("Marker Rect: ", markerRect);
+   // console.log("Input Rect: ", inputRect);
+   // console.log("Popup Left: ", popupLeft);
+   // console.log("Popup Top: ", popupTop);
 
     setPopupPosition({ top: popupTop, left: popupLeft });
   };
@@ -245,7 +245,7 @@ export const PromptTagInput = ({
             filtered.push(option.question);
           }
         });
-        console.log("Filered kyc ", filtered);
+       // console.log("Filered kyc ", filtered);
         setFilteredOptions(filtered);
       } else {
         filtered = options.filter((option) =>
@@ -287,10 +287,10 @@ export const PromptTagInput = ({
     if (e.key === "Backspace" || e.key === "Delete") {
       const textBeforeCursor = text.substring(0, cursorPos);
       const textAfterCursor = text.substring(cursorPos);
-      // console.log("Text Bef", text)
-      // console.log("Text Aft", textAfterCursor)
+      //// console.log("Text Bef", text)
+      //// console.log("Text Aft", textAfterCursor)
       let CharDel = text.substring(cursorPos - 1, cursorPos);
-      console.log("Char Del", CharDel);
+     // console.log("Char Del", CharDel);
       let t = text;
       //find the starting position of the text
       //if found } don't delete
@@ -302,37 +302,37 @@ export const PromptTagInput = ({
         indexOfStart -= 1;
         currentChar = t.substring(indexOfStart - 1, indexOfStart);
         if (currentChar == "}" && indexOfStart != cursorPos) {
-          console.log("Setting Should delete to false");
+         // console.log("Setting Should delete to false");
           ShouldDelete = false;
           return;
         }
-        console.log("Char is ", currentChar);
+       // console.log("Char is ", currentChar);
       }
-      console.log("Start Del from ", currentChar);
-      console.log("Start Del from Index ", indexOfStart);
-      console.log("Should del", ShouldDelete);
+     // console.log("Start Del from ", currentChar);
+     // console.log("Start Del from Index ", indexOfStart);
+     // console.log("Should del", ShouldDelete);
       if (ShouldDelete && indexOfStart > -1) {
         const firstOccurrenceEndChar = t.indexOf("}", indexOfStart); //}
         const startCharPositionBetween = t.indexOf("{", indexOfStart + 1);
         const firstOccurrenceOfStartChar = indexOfStart; //t.indexOf("{", indexOfStart); //{
 
-        console.log("First pos of start Char ", firstOccurrenceOfStartChar);
-        console.log("Second pos of start Char ", startCharPositionBetween);
-        console.log("First pos of end Char ", firstOccurrenceEndChar);
+       // console.log("First pos of start Char ", firstOccurrenceOfStartChar);
+       // console.log("Second pos of start Char ", startCharPositionBetween);
+       // console.log("First pos of end Char ", firstOccurrenceEndChar);
 
         const isTagInComplete =
           startCharPositionBetween >= firstOccurrenceOfStartChar &&
           startCharPositionBetween < firstOccurrenceEndChar;
-        console.log("Is tag completed ", isTagInComplete);
+       // console.log("Is tag completed ", isTagInComplete);
 
         if (
           firstOccurrenceEndChar > firstOccurrenceOfStartChar && // "{" should be ahead of "}"
           !isTagInComplete
         ) {
           //delete all until endCharPos
-          console.log("char delete falls bet {}");
+         // console.log("char delete falls bet {}");
           t = removeSubstring(t, indexOfStart - 1, firstOccurrenceEndChar);
-          console.log("New Text ", t);
+         // console.log("New Text ", t);
           e.preventDefault(); // Prevent the default Backspace or Delete action
 
           setText(t);
@@ -346,9 +346,9 @@ export const PromptTagInput = ({
           }, 0);
         } else {
           e.preventDefault();
-          console.log("char delete doesn't fall bet {}");
+         // console.log("char delete doesn't fall bet {}");
           t = removeSubstring(t, cursorPos - 1, cursorPos - 1);
-          console.log("New Text ", t);
+         // console.log("New Text ", t);
           setText(t);
           setTimeout(() => {
             input.focus();
@@ -371,10 +371,10 @@ export const PromptTagInput = ({
     const beforeBrace = textBeforeCursor.substring(0, lastOpenBraceIndex);
     const afterBrace = text.substring(cursorPosition);
 
-    console.log("Cursor Pos", cursorPosition);
-    console.log("LAst Pos {", lastOpenBraceIndex);
+   // console.log("Cursor Pos", cursorPosition);
+   // console.log("LAst Pos {", lastOpenBraceIndex);
 
-    console.log("After ", afterBrace);
+   // console.log("After ", afterBrace);
 
     const updatedText = `${beforeBrace}{${option}}${afterBrace}`;
     setText(updatedText);

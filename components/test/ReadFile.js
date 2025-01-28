@@ -20,7 +20,7 @@ const ReadFile = () => {
                 const sheet = workbook.Sheets[sheetName];
                 const data = XLSX.utils.sheet_to_json(sheet);
 
-                console.log("Parsed data:", data);
+               // console.log("Parsed data:", data);
             };
 
             // Read the file as binary string
