@@ -134,8 +134,8 @@ const UserType = ({ handleContinue, DefaultData }) => {
     },
     {
       id: 7,
-      title: "Recuiter Agent",
-      agentType: "Recuiter Agent",
+      title: "Recruiter Agentt",
+      agentType: "Recruiter Agent",
       icon: "/usertype/avt8.png",
       areaOfFocusTitle: "What industries do you specialize in?",
       userType: "RecruiterAgent",
