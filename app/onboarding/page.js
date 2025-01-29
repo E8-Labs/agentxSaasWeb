@@ -18,16 +18,21 @@ import { useRouter } from "next/navigation";
 import OtherDetails from "@/components/onboarding/mobileUI/OtherDetails";
 import BasicDetails from "@/components/onboarding/mobileUI/BasicDetails";
 import BackgroundVideo from "@/components/general/BackgroundVideo";
+import { Modal } from "@mui/material";
+import { UserTypes } from "@/constants/UserTypes";
+import { PersistanceKeys } from "@/constants/Constants";
 
 const Page = ({ params }) => {
   const router = useRouter();
+  const [congratsPopup, setCongratsPopup] = useState(false);
+  const [userType, setUserType] = useState(UserTypes.RealEstateAgent);
   const [index, setIndex] = useState(0);
   let windowSize = 1000;
   if (typeof window !== "undefined") {
     windowSize = window.innerWidth;
-   // console.log("Window with ", windowSize);
+    // console.log("Window with ", windowSize);
   } else {
-   // console.log("Window width is less");
+    // console.log("Window width is less");
   }
 
   const [components, setComponents] = useState([
@@ -53,7 +58,7 @@ const Page = ({ params }) => {
 
   //function stores the agentDetails
   const handleDetails = (userName, userEmail, userPhoneNumber) => {
-   // console.log(`Agent name is`);
+    // console.log(`Agent name is`);
     setUserDetails({
       name: userName,
       email: userEmail,
@@ -62,10 +67,12 @@ const Page = ({ params }) => {
   };
 
   useEffect(() => {
+    console.log("🔥 useEffect is running...");
     let screenWidth = 1000;
     if (typeof window !== "undefined") {
       screenWidth = window.innerWidth;
     }
+    let comps = getComponentToRender();
     if (screenWidth < 640) {
       setComponents([
         UserType,
@@ -80,22 +87,57 @@ const Page = ({ params }) => {
         // TaxAgentSignUp
       ]);
     } else {
-      setComponents([
-        UserType,
-        UserService,
-        FocusArea,
-        SignUpForm,
-        Congrats,
-        SalesDevAgent,
-        SolarRepAgentSignUp,
-        InsuranceAgentSignUp,
-        MarketerAgentSignUp,
-        WebOwnersAgentSignUp,
-        RecruiterAgentSignUp,
-        TaxAgentSignUp,
-      ]);
+      // console.log("Setting components", comps.length);
+      // console.log(
+      //   "🚀 Components from getComponentToRender:",
+      //   comps.map((c) => c?.name || "undefined")
+      // );
+      setComponents(comps.filter(Boolean));
     }
-  }, []);
+  }, [userType]);
+  // registerDetails	{"serviceID":[102],"focusAreaId":[406],"userType":4,"userTypeTitle":"InsuranceAgent","areaFocusTitle":"What area of insurance do you focus on?","otherFocusArea":""}
+  function getComponentToRender() {
+    console.log("Inside get components");
+
+    // let storedData = localStorage.getItem(PersistanceKeys.RegisterDetails);
+    // if (!storedData) {
+    //   return [UserType, UserService, FocusArea, SignUpForm, Congrats]; // Default
+    // }
+
+    // let userData = JSON.parse(storedData);
+    let agentTitle = userType; //userData?.userTypeTitle || null;
+    console.log("Agent title  = ", agentTitle);
+
+    const agentComponents = {
+      [UserTypes.RealEstateAgent]: SignUpForm,
+      [UserTypes.SalesDevRep]: SalesDevAgent,
+      [UserTypes.SolarRep]: SolarRepAgentSignUp,
+      [UserTypes.InsuranceAgent]: InsuranceAgentSignUp,
+      [UserTypes.MarketerAgent]: MarketerAgentSignUp,
+      [UserTypes.WebsiteAgent]: WebOwnersAgentSignUp,
+      [UserTypes.RecruiterAgent]: RecruiterAgentSignUp,
+      [UserTypes.TaxAgent]: TaxAgentSignUp,
+    };
+
+    const selectedComponent = agentComponents[agentTitle] || SignUpForm;
+    // console.log("Selected comp ", selectedComponent);
+
+    // 🚀 Ensure components are functions, not strings
+    const finalComponents = [
+      UserType,
+      UserService,
+      FocusArea,
+      selectedComponent,
+      Congrats,
+    ].filter(Boolean);
+
+    // console.log(
+    //   "✅ Returning components:",
+    //   finalComponents.map((c) => c?.name || "undefined")
+    // );
+
+    return finalComponents;
+  }
 
   let CurrentComp = components[index];
 
@@ -103,93 +145,98 @@ const Page = ({ params }) => {
 
   // Function to proceed to the next step
   const handleContinue = () => {
-   // console.log("Component indexchanged ", index);
+    console.log("Component indexchanged ", index + 1);
     setIndex(index + 1);
   };
 
   //sals dev
   const handleSalesAgentContinue = () => {
-   // console.log("Component indexchanged ", index);
+    // console.log("Component indexchanged ", index);
     setIndex(index + 3);
   };
 
   const handleSalesAgentBack = () => {
-   // console.log("Component indexchanged ", index);
+    // console.log("Component indexchanged ", index);
     setIndex(index - 3);
   };
 
   //solar rep
   const handleSolarAgentContinue = () => {
-   // console.log("Component indexchanged ", index);
+    // console.log("Component indexchanged ", index);
     setIndex(index + 4);
   };
 
   const handleSolarAgentBack = () => {
-   // console.log("Component indexchanged ", index);
+    // console.log("Component indexchanged ", index);
     setIndex(index - 4);
   };
 
   // insurance
   const handleInsuranceContinue = () => {
-   // console.log("Component indexchanged ", index);
+    // console.log("Component indexchanged ", index);
     setIndex(index + 5);
   };
 
   const handleInsuranceBack = () => {
-   // console.log("Component indexchanged ", index);
+    // console.log("Component indexchanged ", index);
     setIndex(index - 5);
   };
 
   // marketer
   const handleMarketerAgentContinue = () => {
-   // console.log("Component indexchanged ", index);
+    // console.log("Component indexchanged ", index);
     setIndex(index + 6);
   };
 
   const handleMarketerAgentBack = () => {
-   // console.log("Component indexchanged ", index);
+    // console.log("Component indexchanged ", index);
     setIndex(index - 6);
   };
 
   // website owners
   const handleWebsiteAgentContinue = () => {
-   // console.log("Component indexchanged ", index);
+    // console.log("Component indexchanged ", index);
     setIndex(index + 7);
   };
 
   const handleWebsiteAgentBack = () => {
-   // console.log("Component indexchanged ", index);
+    // console.log("Component indexchanged ", index);
     setIndex(index - 7);
   };
   // recruiter agent
   const handleRecruiterAgentContinue = () => {
-   // console.log("Component indexchanged ", index);
+    // console.log("Component indexchanged ", index);
     setIndex(index + 8);
   };
 
   const handleRecruiterAgentBack = () => {
-   // console.log("Component indexchanged ", index);
+    // console.log("Component indexchanged ", index);
     setIndex(index - 8);
   };
   // tax agent
   const handleTaxAgentContinue = () => {
-   // console.log("Component indexchanged ", index);
+    // console.log("Component indexchanged ", index);
     setIndex(index + 9);
   };
 
   const handleTaxAgentBack = () => {
-   // console.log("Component indexchanged ", index);
+    // console.log("Component indexchanged ", index);
     setIndex(index - 9);
   };
 
   const handleBack = () => {
-   // console.log("Component indexchanged ", index);
+    // console.log("Component indexchanged ", index);
     setIndex(index - 1);
   };
 
   //move other agent to wait list
   const handleWaitList = () => {
     router.push("/onboarding/WaitList");
+  };
+
+  const handleUserTypeChange = (userType) => {
+    console.log("User type has changed");
+    setUserType(userType);
   };
 
   const backgroundImage = {
@@ -233,18 +280,34 @@ const Page = ({ params }) => {
         handleWebsiteAgentContinue={handleWebsiteAgentContinue}
         handleRecruiterAgentContinue={handleRecruiterAgentContinue}
         handleTaxAgentContinue={handleTaxAgentContinue}
-        handleSalesAgentBack={handleSalesAgentBack}
-        handleSolarAgentBack={handleSolarAgentBack}
-        handleInsuranceBack={handleInsuranceBack}
-        handleMarketerAgentBack={handleMarketerAgentBack}
-        handleWebsiteAgentBack={handleWebsiteAgentBack}
-        handleRecruiterAgentBack={handleRecruiterAgentBack}
-        handleTaxAgentBack={handleTaxAgentBack}
+        handleSalesAgentBack={handleBack}
+        handleSolarAgentBack={handleBack}
+        handleInsuranceBack={handleBack}
+        handleMarketerAgentBack={handleBack}
+        handleWebsiteAgentBack={handleBack}
+        handleRecruiterAgentBack={handleBack}
+        handleTaxAgentBack={handleBack}
         //move other agents to wait list
         handleWaitList={handleWaitList}
         handleDetails={handleDetails}
         userDetails={userDetails}
+        setCongratsPopup={setCongratsPopup}
+        handleUserTypeChange={handleUserTypeChange}
       />
+      <Modal
+        open={congratsPopup}
+        // onClose={() => setAddKYCQuestion(false)}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: "#00000020",
+            ////backdropFilter: "blur(5px)"
+          },
+        }}
+      >
+        <Congrats />
+      </Modal>
     </div>
   );
 };

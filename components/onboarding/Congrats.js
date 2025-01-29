@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 // import Lottie from 'lottie-react';
 import congratsAnimation from "../../public/congratsanimation.json";
+import Link from "next/link";
 // const lottie = dynamic(() => import('lottie-react'), {
 //     ssr: false,
 // });
@@ -11,7 +12,8 @@ const Congrats = () => {
   const lottieRef = useRef();
   const router = useRouter();
 
-  const handleNext = () => {
+  const handleNext = (e) => {
+    e.preventDefault();
     router.push("/createagent");
   };
 
@@ -54,18 +56,21 @@ const Congrats = () => {
           >
             Your account is created!
           </div>
-          <button
-            className="rounded-xl text-white bg-purple mt-8"
-            style={{
-              fontWeight: "700",
-              fontSize: "16",
-              height: "50px",
-              width: "191px",
-            }}
-            onClick={handleNext}
-          >
-            Build AI Agent
-          </button>
+          <div className="rounded-xl text-white bg-purple mt-8 flex justify-center items-center">
+            <Link
+              href="/createagent"
+              className=" text-white flex justify-center items-center"
+              style={{
+                fontWeight: "700",
+                fontSize: "16",
+                height: "50px",
+                width: "191px",
+              }}
+              onClick={handleNext}
+            >
+              Build AI Agent
+            </Link>
+          </div>
         </div>
       </div>
     </div>

@@ -62,12 +62,12 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   useEffect(() => {
     const redirect = searchParams.get("redirect"); // Get the value of 'tab'
     // let number = Number(tab) || 6;
-   // console.log("redirect value is ", redirect);
+    // console.log("redirect value is ", redirect);
     setRedirect(redirect);
   }, []);
   useEffect(() => {
     if (params && params.username) {
-     // console.log("Username is ", params.username);
+      // console.log("Username is ", params.username);
       if (typeof window !== "undefined") {
         localStorage.setItem(
           PersistanceKeys.LocalStorageCampaignee,
@@ -80,14 +80,14 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   }, [params]);
 
   useEffect(() => {
-   // console.log("Country code is", countryCode);
+    // console.log("Country code is", countryCode);
   }, [countryCode]);
 
   useEffect(() => {
-   // console.log("User phone number is ", userPhoneNumber);
+    // console.log("User phone number is ", userPhoneNumber);
     const localData = localStorage.getItem("User");
     if (localData) {
-     // console.log("user login details are :", localData);
+      // console.log("user login details are :", localData);
       router.push("/dashboard");
     }
 
@@ -116,14 +116,14 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           const { latitude, longitude } = position.coords;
 
           try {
-           // console.log("Api Loc Check 1");
+            // console.log("Api Loc Check 1");
             // Fetch country code based on latitude and longitude
             const response = await fetch(
               `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
             );
-           // console.log("Api Loc Check 2");
+            // console.log("Api Loc Check 2");
             const data = await response.json();
-           // console.log("Api Loc Check 3");
+            // console.log("Api Loc Check 3");
 
             // Set the country code if the API returns it
             const locationData = {
@@ -133,50 +133,50 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               setCountryCode(data.countryCode.toLowerCase());
             }
 
-           // console.log("Api Loc Check 4");
+            // console.log("Api Loc Check 4");
             if (data && data.countryCode) {
               localStorage.setItem(
                 "userLocation",
                 JSON.stringify(locationData)
               );
-             // console.log("Api Loc Check 5");
+              // console.log("Api Loc Check 5");
             } else {
-             // console.error("Unable to fetch country code.");
+              // console.error("Unable to fetch country code.");
             }
           } catch (error) {
-           // console.error("Error fetching geolocation data:", error);
+            // console.error("Error fetching geolocation data:", error);
           } finally {
           }
         },
         (error) => {
-         // console.error("Geolocation error:", error.message);
+          // console.error("Geolocation error:", error.message);
         }
       );
     } else {
-     // console.error("Geolocation is not supported by this browser.");
+      // console.error("Geolocation is not supported by this browser.");
     }
   };
 
   useEffect(() => {
-   // console.log("Check 1111");
+    // console.log("Check 1111");
 
     const timer = setTimeout(() => {
       const loc = localStorage.getItem("userLocation");
 
       if (loc) {
-       // console.log("Check 1 clear");
+        // console.log("Check 1 clear");
         const L = JSON.parse(loc);
-       // console.log("Check 2 clear");
-       // console.log("Location received from local storage is", L);
-       // console.log("Check 3 clear");
+        // console.log("Check 2 clear");
+        // console.log("Location received from local storage is", L);
+        // console.log("Check 3 clear");
 
         if (userPhoneNumber == "") {
           setCountryCode(L.location);
         }
-       // console.log("Check 4 clear");
+        // console.log("Check 4 clear");
       }
 
-     // console.log("Stopped to load data");
+      // console.log("Stopped to load data");
     }, 300);
 
     return () => clearTimeout(timer);
@@ -185,7 +185,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   //action detects inner width
   useEffect(() => {
     if (typeof window !== "undefined") {
-     // console.log("Window inner width is", window.innerWidth);
+      // console.log("Window inner width is", window.innerWidth);
       setInnerWidth(window.innerWidth);
     }
   }, [InnerWidth]);
@@ -220,7 +220,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       }
 
       // setCheckPhoneResponse(null);
-     // console.log("Trigered");
+      // console.log("Trigered");
 
       timerRef.current = setTimeout(() => {
         checkPhoneNumber(phoneNumber);
@@ -242,11 +242,11 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       setShowVerifyPopup(true);
       setSendcodeLoader(true);
       let response = await SendVerificationCode(userPhoneNumber, true);
-     // console.log("Number for sending code is", userPhoneNumber);
+      // console.log("Number for sending code is", userPhoneNumber);
       // return
       // setResponse(response);
       setIsVisible(true);
-     // console.log("Response recieved is", response);
+      // console.log("Response recieved is", response);
 
       if (response.status === true) {
         setMsgType(SnackbarTypes.Success);
@@ -256,7 +256,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         setMsgType(SnackbarTypes.Error);
       }
     } catch (error) {
-     // console.error("Error occured", error);
+      // console.error("Error occured", error);
       setSnackMessage("Login failed");
       setMsgType(SnackbarTypes.Error);
     } finally {
@@ -279,7 +279,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         verificationCode: VerifyCode.join(""),
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       };
-     // console.log("Api data for login api is :", AipData);
+      // console.log("Api data for login api is :", AipData);
 
       const response = await axios.post(ApiPath, AipData, {
         headers: {
@@ -302,11 +302,12 @@ const LoginComponent = ({ length = 6, onComplete }) => {
 
         if (response.data.status === true) {
           setLoaderTitle("Redirecting to dashboard...");
-          if (
-            response.data.data.user.userType !== "RealEstateAgent" &&
-            response.data.data.user.userRole !== "Invitee"
-          ) {
-           // console.log("Pushing user to wait list");
+          // if (
+          //   response.data.data.user.userType !== "RealEstateAgent" &&
+          //   response.data.data.user.userRole !== "Invitee"
+          // ) {
+          if (response.data.data.user.waitlist) {
+            // console.log("Pushing user to wait list");
 
             const twoHoursFromNow = new Date();
             twoHoursFromNow.setTime(twoHoursFromNow.getTime() + 2 * 60 * 1000);
@@ -315,21 +316,21 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               router.push("/onboarding/WaitList");
             }
           } else {
-           // console.log("Here Else");
+            // console.log("Here Else");
             // let routeTo = ""
 
             localStorage.setItem("User", JSON.stringify(response.data.data));
             //set cokie on locastorage to run middle ware
             if (typeof document !== "undefined") {
-             // console.log("Here Not undefined");
+              // console.log("Here Not undefined");
 
               setCookie(response.data.data.user, document);
               let w = innerWidth;
               if (w < 540) {
-               // console.log("It is mobile view");
+                // console.log("It is mobile view");
                 router.push("/createagent/desktop");
               } else if (w > 540) {
-               // console.log("It is desktop view");
+                // console.log("It is desktop view");
 
                 if (redirect) {
                   router.push(redirect);
@@ -338,7 +339,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 }
               }
             } else {
-             // console.log("Here undefined");
+              // console.log("Here undefined");
             }
           }
         } else {
@@ -347,7 +348,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       }
     } catch (error) {
       setLoginLoader(false);
-     // console.error("ERror occured in login api is :", error);
+      // console.error("ERror occured in login api is :", error);
     } finally {
       // setLoginLoader(false);
     }
@@ -363,7 +364,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         phone: value,
       };
 
-     // console.log("Api data is :", ApiData);
+      // console.log("Api data is :", ApiData);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -372,16 +373,16 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       });
 
       if (response) {
-       // console.log("Response of check phone api is :", response);
+        // console.log("Response of check phone api is :", response);
         if (response.data.status === true) {
-         // console.log("Response message is :", response.data.message);
+          // console.log("Response message is :", response.data.message);
           setCheckPhoneResponse(response.data.status);
         } else if (response.data.status === false) {
           setCheckPhoneResponse(response.data.status);
         }
       }
     } catch (error) {
-     // console.error("Error occured in check phone api is :", error);
+      // console.error("Error occured in check phone api is :", error);
     } finally {
       setPhoneNumberLoader(false);
     }
@@ -467,7 +468,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   };
 
   const handleVerifyCode = () => {
-   // console.log("Verify code is :", VerifyCode.join(""));
+    // console.log("Verify code is :", VerifyCode.join(""));
     // setPhoneVerifiedSuccessSnack(true);
     handleLogin();
   };
