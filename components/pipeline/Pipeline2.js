@@ -38,7 +38,7 @@ import ReactMentions from "../test/ReactMentions";
 import DraftMentions from "../test/DraftMentions";
 import IntroVideoModal from "../createagent/IntroVideoModal";
 import VideoCard from "../createagent/VideoCard";
-import { HowtoVideos } from "@/constants/Constants";
+import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 
 const Pipeline2 = ({ handleContinue, handleBack }) => {
   const containerRef = useRef(null); // Ref to the scrolling container
@@ -52,6 +52,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
 
+  const [user, setUser] = useState(null);
   const [AgentDetails, setAgentDetails] = useState(null);
   const [introVideoModal, setIntroVideoModal] = useState(false);
   //code for tag inputs
@@ -122,9 +123,17 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
   const greetingInputRef = useRef(null); // Reference to the input element
 
   useEffect(() => {
+    let userData = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    if (userData) {
+      let u = JSON.parse(userData);
+      setUser(u);
+    }
+  }, []);
+
+  useEffect(() => {
     ////console.log("Setting scroll offset")
     const handleScroll = () => {
-     // console.log("Div scrolled", containerRef.current.scrollTop);
+      // console.log("Div scrolled", containerRef.current.scrollTop);
       if (containerRef.current) {
         setScrollOffset({
           scrollTop: containerRef.current.scrollTop,
@@ -146,6 +155,15 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       }
     };
   }, []);
+
+  function GetUserType() {
+    let type = UserTypes.RealEstateAgent;
+    if (user) {
+      let profile = user.user;
+      type = profile.userType;
+    }
+    return type;
+  }
 
   const handleInputChange = (e) => {
     const value = e.target.value;
@@ -200,7 +218,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
   const [promptCursorPosition, setPromptCursorPosition] = useState(0);
   const textFieldRef = useRef(null); // Reference to the TextField element
   //console.log("Tag value is :", scriptTagInput);
- // console.log("Window current height is:", window.innerHeight);
+  // console.log("Window current height is:", window.innerHeight);
   const tags1 = ["name", "Agent Name", "Brokerage Name", "Client Name"];
 
   const handlePromptChange = (e) => {
@@ -266,17 +284,17 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     const agentDetailsLocal = localStorage.getItem("agentDetails");
     if (agentDetailsLocal) {
       const localAgentData = JSON.parse(agentDetailsLocal);
-     // console.log("Locla agent details are :-", localAgentData);
+      // console.log("Locla agent details are :-", localAgentData);
       setAgentDetails(localAgentData);
       if (
         localAgentData.agents.length === 2 ||
         localAgentData.agents[0].agentType === "outbound"
       ) {
-       // console.log(
-          // "Check case for 2Agents",
-          // localAgentData.agents.filter((item) =>
-          //   item.agentType === "outbound" ? item : ""
-          // )
+        // console.log(
+        // "Check case for 2Agents",
+        // localAgentData.agents.filter((item) =>
+        //   item.agentType === "outbound" ? item : ""
+        // )
         // );
         const outBoundAgent = localAgentData.agents.filter((item) =>
           item.agentType === "outbound" ? item : ""
@@ -285,7 +303,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         setScriptTagInput(outBoundAgent[0]?.prompt?.callScript);
         setObjective(outBoundAgent[0]?.prompt?.objective);
       } else if (localAgentData.agents[0].agentType === "inbound") {
-       // console.log("Check case it is inbound data set");
+        // console.log("Check case it is inbound data set");
         setGreetingTagInput(localAgentData?.agents[0]?.prompt?.greeting);
         setScriptTagInput(localAgentData?.agents[0]?.prompt?.callScript);
         setObjective(localAgentData?.agents[0]?.prompt?.objective);
@@ -295,7 +313,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
   }, []);
 
   useEffect(() => {
-   // console.log("Value of script tag is:", scriptTagInput);
+    // console.log("Value of script tag is:", scriptTagInput);
   }, [scriptTagInput]);
 
   //code for getting uniqueCcolumns
@@ -322,13 +340,13 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       });
 
       if (response) {
-       // console.log("Response of getColumns api is:", response.data);
+        // console.log("Response of getColumns api is:", response.data);
         if (response.data.status === true) {
           setUniqueColumns(response.data.data);
         }
       }
     } catch (error) {
-     // console.error("Error occured in getColumn is :", error);
+      // console.error("Error occured in getColumn is :", error);
     } finally {
       setColumnloader(false);
     }
@@ -409,7 +427,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       const mainAgentData = localStorage.getItem("agentDetails");
       if (mainAgentData) {
         const Data = JSON.parse(mainAgentData);
-       // console.log("Local agent dat recieved is :--", Data);
+        // console.log("Local agent dat recieved is :--", Data);
         mainAgentId = Data.id;
         AgentObjective = Data.agents[0].agentObjective;
         AgentDescription = Data.agents[0].agentObjectiveDescription;
@@ -420,7 +438,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
           Data.agents.length === 2 ||
           Data.agents[0].agentType === "outbound"
         ) {
-         // console.log(
+          // console.log(
           //   "Check case for 2Agents",
           //   Data.agents.filter((item) =>
           //     item.agentType === "outbound" ? item : ""
@@ -462,7 +480,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
       ////console.log("Update agent details are is :-----");
       for (let [key, value] of formData.entries()) {
-       // console.log(`${key}: ${value}`);
+        // console.log(`${key}: ${value}`);
       }
       // return
       const response = await axios.post(ApiPath, formData, {
@@ -479,7 +497,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         }
       }
     } catch (error) {
-     // console.error("Error occured in update agent api is:", error);
+      // console.error("Error occured in update agent api is:", error);
       setLoader(false);
     } finally {
       ////console.log("update agent api completed");
@@ -547,7 +565,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         }
       }
     } catch (error) {
-     // console.error("Error occured in api is :", error);
+      // console.error("Error occured in api is :", error);
       setLoader(false);
     } finally {
     }
@@ -830,7 +848,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                   Advanced Settings
                 </button>
               </div>
-              <KYCs kycsDetails={setKycsData} />
+              <KYCs kycsDetails={setKycsData} user={user} />
               {/* <div className='mt-4' style={styles.headingStyle}>
                                 {`Agent's Objective`}
                             </div>
