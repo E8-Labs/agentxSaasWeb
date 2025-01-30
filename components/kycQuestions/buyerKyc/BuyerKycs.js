@@ -18,6 +18,7 @@ import { BuyerKycsQuestions } from "@/constants/Kycs";
 
 const BuyerKycs = ({ handleContinue }) => {
   const router = useRouter();
+  const [user, setUser] = useState(null);
   const [toggleClick, setToggleClick] = useState(1);
   const [addKYCQuestion, setAddKYCQuestion] = useState(false);
   const [introVideoModal, setIntroVideoModal] = useState(false);
