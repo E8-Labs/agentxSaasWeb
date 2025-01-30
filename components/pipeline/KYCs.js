@@ -95,6 +95,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user }) => {
 
       if (mainAgentId) {
         ApiPath = `${Apis.getKYCs}?mainAgentId=${mainAgentId}`;
+      
       } else {
         ApiPath = `${Apis.getKYCs}?mainAgentId=${MainAgentData}`;
       }
@@ -109,7 +110,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user }) => {
       });
 
       if (response) {
-        // console.log("Response of get kycs api is :--", response);
+        console.log("Response of get kycs api is :--", response.data.data);
         kycsDetails(response.data.data);
         setKycsData(response.data.data);
         const filteredSellerQuestions = response.data.data.filter(
@@ -211,7 +212,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user }) => {
     );
     // console.log("Need kycs are :--", filteredSellerNeedQuestions);
     setSellerNeedData(filteredSellerNeedQuestions);
-    // console.log("Motivation KYCs are :--", filteredSellerMotivationQuestions);
+    console.log("Motivation KYCs are :--", filteredSellerMotivationQuestions);
     setSellerMotivationData(filteredSellerMotivationQuestions);
     // console.log("Urgency kycs are :---", filteredSellerUrgencyQuestions);
     setSellerUrgencyData(filteredSellerUrgencyQuestions);
@@ -393,6 +394,8 @@ const KYCs = ({ kycsDetails, mainAgentId, user }) => {
     }
     return type;
   }
+
+  // console.log('canShowBuyerKycs', CanShowBuyerKycs())
 
   return (
     <div style={{ height: "100%", backgroundColor: "" }}>
