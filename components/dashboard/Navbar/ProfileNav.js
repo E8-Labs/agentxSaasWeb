@@ -305,7 +305,7 @@ const ProfileNav = () => {
       // console.log("Available seconds are", Data?.totalSecondsAvailable);
 
       if (response) {
-        
+
         if (
           // Data?.totalSecondsAvailable <= 120 ||
           Data?.plan == null ||
@@ -327,15 +327,15 @@ const ProfileNav = () => {
         let plan = response?.data?.data?.plan;
         let togglePlan = plan?.type;
         let planType = null;
-          if (togglePlan === "Plan30") {
-            planType = 1;
-          } else if (togglePlan === "Plan120") {
-            planType = 2;
-          } else if (togglePlan === "Plan360") {
-            planType = 3;
-          } else if (togglePlan === "Plan720") {
-            planType = 4;
-          }
+        if (togglePlan === "Plan30") {
+          planType = 1;
+        } else if (togglePlan === "Plan120") {
+          planType = 2;
+        } else if (togglePlan === "Plan360") {
+          planType = 3;
+        } else if (togglePlan === "Plan720") {
+          planType = 4;
+        }
 
         setTogglePlan(planType);
       }
@@ -670,15 +670,13 @@ const ProfileNav = () => {
                   justifyContent: 'center',
                 }}
               >
-                <Image
+                <img
                   src={userDetails?.user?.thumb_profile_image}
                   alt="*"
-                  height={32}
-                  width={32}
-                  // layout="fill" // Use fill to make the image cover the parent div
-                  objectFit="fill" // Ensures the image scales properly
+                  style={{height:'100%',width:"100%"}}
                 />
               </div>
+
             ) : (
               <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
                 {userDetails?.user?.name.slice(0, 1).toUpperCase()}
