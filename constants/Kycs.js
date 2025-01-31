@@ -173,7 +173,15 @@ export function GetKycQuestionsForUser(
       }
       //   return SellerKycsQuestions;
     } else {
-      return BuyerKycsQuestions;
+      if (category == "need") {
+        return DefaultBuyerKycsNeed;
+      }
+      if (category == "motivation") {
+        return DefaultBuyerKycsMotivation;
+      }
+      if (category == "urgency") {
+        return DefaultBuyerKycsUrgency;
+      }
     }
   } else {
     if (category == "need") {

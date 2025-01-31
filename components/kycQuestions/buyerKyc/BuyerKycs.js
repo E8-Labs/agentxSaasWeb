@@ -13,8 +13,8 @@ import { KycCategory } from "@/components/constants/constants";
 import AgentSelectSnackMessage from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import VideoCard from "@/components/createagent/VideoCard";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
-import { HowtoVideos } from "@/constants/Constants";
-import { BuyerKycsQuestions } from "@/constants/Kycs";
+import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
+import { BuyerKycsQuestions, GetKycQuestionsForUser } from "@/constants/Kycs";
 
 const BuyerKycs = ({ handleContinue }) => {
   const router = useRouter();
