@@ -3573,6 +3573,7 @@ function Page() {
                           uniqueColumns={uniqueColumns}
                           tagValue={setScriptTagInput}
                           scrollOffset={scrollOffset}
+                          showSaveChangesBtn = {showSaveChangesBtn}
                         />
 
                         {/* <DynamicDropdown /> */}

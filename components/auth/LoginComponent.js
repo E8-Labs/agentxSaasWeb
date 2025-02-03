@@ -18,7 +18,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { setCookie } from "@/utilities/cookies";
-import { PersistanceKeys } from "@/constants/Constants";
+import { PersistanceKeys, setUserType, userType } from "@/constants/Constants";
 import {
   getLocalLocation,
   getLocation,
@@ -87,8 +87,18 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     // console.log("User phone number is ", userPhoneNumber);
     const localData = localStorage.getItem("User");
     if (localData) {
-      // console.log("user login details are :", localData);
-      router.push("/dashboard");
+      let d = JSON.parse(localData)
+      // console.log("user login details are :", d.user.userType);
+
+      // set user type in global variable
+     setUserType(d.user.userType)
+
+      if (d.user.userType == "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
+
     }
 
     const localLoc = localStorage.getItem("userLocation");
@@ -335,7 +345,14 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 if (redirect) {
                   router.push(redirect);
                 } else {
-                  router.push("/dashboard/leads");
+// setUserType()
+                  if (response.data.data.user.userType == "admin") {
+                    router.push("/admin");
+
+                  } else {
+                    router.push("/dashboard/leads");
+
+                  }
                 }
               }
             } else {

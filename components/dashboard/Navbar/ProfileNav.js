@@ -31,7 +31,7 @@ import { UpdateProfile } from "@/components/apis/UpdateProfile";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
-import { PersistanceKeys } from "@/constants/Constants";
+import { PersistanceKeys, userType } from "@/constants/Constants";
 import { logout } from "@/utilities/UserUtility";
 
 let stripePublickKey =
@@ -56,6 +56,8 @@ const ProfileNav = () => {
   const [showsuccessSnack, setShowSuccessSnack] = useState(null);
   const [errorSnack, setErrorSnack] = useState(null);
   const [showerrorSnack, setShowErrorSnack] = useState(null);
+
+  const [userType, setUserType] = useState("")
 
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
   useEffect(() => {
@@ -286,6 +288,16 @@ const ProfileNav = () => {
     // },
   ];
 
+  const adminLinks = [
+    {
+      id: 1,
+      name: "Users",
+      href: "/dashboard/admin/users",
+      selected: "/svgIcons/selectdDashboardIcon.svg",
+      uneselected: "/svgIcons/unSelectedDashboardIcon.svg",
+    },
+  ]
+
   //function to getprofile
   const getProfile = async () => {
     try {
@@ -303,49 +315,53 @@ const ProfileNav = () => {
       // Data.totalSecondsAvailable  = 100
 
       console.log(
-        "Available seconds are Profile Nav",
+        // "Available seconds are Profile Nav",
         Data?.totalSecondsAvailable
       );
 
       if (response) {
-        console.log("Inside response ", response?.data?.status);
+        // console.log("Inside response ", response?.data?.status);
         if (response?.data?.status) {
-          console.log("User is logged in", response?.data?.status);
-          if (
-            // Data?.totalSecondsAvailable <= 120 ||
-            Data?.plan == null ||
-            (Data?.plan &&
-              Data?.plan?.status !== "active" &&
-              Data?.totalSecondsAvailable <= 120) ||
-            (Data?.plan &&
-              Data?.plan?.status == "active" &&
-              Data?.totalSecondsAvailable <= 120)
-          ) {
-            setShowPlansPopup(true);
-          } else {
-            setShowPlansPopup(false);
-          }
+          // console.log("User is logged in", response?.data?.status);
+          setUserType(response?.data?.data.userType)
+          if (response?.data?.data.userType != "admin") {
+            if (
+              // Data?.totalSecondsAvailable <= 120 ||
+              Data?.plan == null ||
+              (Data?.plan &&
+                Data?.plan?.status !== "active" &&
+                Data?.totalSecondsAvailable <= 120) ||
+              (Data?.plan &&
+                Data?.plan?.status == "active" &&
+                Data?.totalSecondsAvailable <= 120)
+            ) {
+              setShowPlansPopup(true);
+            } else {
+              setShowPlansPopup(false);
+            }
 
-          let plan = response?.data?.data?.plan;
-          let togglePlan = plan?.type;
-          let planType = null;
-          if (togglePlan === "Plan30") {
-            planType = 1;
-          } else if (togglePlan === "Plan120") {
-            planType = 2;
-          } else if (togglePlan === "Plan360") {
-            planType = 3;
-          } else if (togglePlan === "Plan720") {
-            planType = 4;
-          }
+            let plan = response?.data?.data?.plan;
+            let togglePlan = plan?.type;
+            let planType = null;
+            if (togglePlan === "Plan30") {
+              planType = 1;
+            } else if (togglePlan === "Plan120") {
+              planType = 2;
+            } else if (togglePlan === "Plan360") {
+              planType = 3;
+            } else if (togglePlan === "Plan720") {
+              planType = 4;
+            }
 
-          setTogglePlan(planType);
+            setTogglePlan(planType);
+          }
         } else {
           console.log("User is not available");
           //Logout user
           logout();
           router.push("/");
         }
+
       } else {
         console.log("No response");
       }
@@ -574,6 +590,14 @@ const ProfileNav = () => {
     },
   };
 
+  const showLinks = () =>{
+    if(userType&& userType == "admin"){
+      return adminLinks
+    }else{
+      return links
+    }
+  }
+
   return (
     <div>
       <AgentSelectSnackMessage
@@ -610,40 +634,40 @@ const ProfileNav = () => {
         </div>
 
         <div className="w-full mt-8 flex flex-col items-center gap-3">
-          {links.map((item) => (
-            <div key={item.id} className="w-9/12 flex flex-col gap-3 ">
-              <Link
-                sx={{ cursor: "pointer", textDecoration: "none" }}
-                href={item.href}
-                onClick={(e) => handleOnClick(e, item.href)}
-              >
-                <div
-                  className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
-                  style={{}}
+          {showLinks().map((item) => (
+              <div key={item.id} className="w-9/12 flex flex-col gap-3 ">
+                <Link
+                  sx={{ cursor: "pointer", textDecoration: "none" }}
+                  href={item.href}
+                  onClick={(e) => handleOnClick(e, item.href)}
                 >
-                  <Image
-                    src={
-                      pathname === item.href ? item.selected : item.uneselected
-                    }
-                    height={24}
-                    width={24}
-                    alt="icon"
-                  />
                   <div
-                    className={
-                      pathname === item.href ? "text-purple" : "text-black"
-                    }
-                    style={{
-                      fontSize: 15,
-                      fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
-                    }}
+                    className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
+                    style={{}}
                   >
-                    {item.name}
+                    <Image
+                      src={
+                        pathname === item.href ? item.selected : item.uneselected
+                      }
+                      height={24}
+                      width={24}
+                      alt="icon"
+                    />
+                    <div
+                      className={
+                        pathname === item.href ? "text-purple" : "text-black"
+                      }
+                      style={{
+                        fontSize: 15,
+                        fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
+                      }}
+                    >
+                      {item.name}
+                    </div>
                   </div>
-                </div>
-              </Link>
-            </div>
-          ))}
+                </Link>
+              </div>
+            ))}
         </div>
 
         {/* <div>
@@ -1039,7 +1063,7 @@ const ProfileNav = () => {
                     // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                     handleClose={handleClose}
                     togglePlan={togglePlan}
-                    // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>
               </div>

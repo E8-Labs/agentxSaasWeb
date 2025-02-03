@@ -21,12 +21,12 @@ export const metadata = {
     description: "Design and create custom AI agents with ease.",
     url: "https://ai.myagentx.com/createagent",
     images: [
-      {
-        url: "https://ai.myagentx.com/thumbOrb.png",
-        width: 1200,
-        height: 630,
-        alt: "Thumbnail Alt Text",
-      },
+      // {
+      //   url: "https://ai.myagentx.com/thumbOrb.png",
+      //   width: 1200,
+      //   height: 630,
+      //   alt: "Thumbnail Alt Text",
+      // },
       {
         url: "https://ai.myagentx.com/assets/colorCircle.png",
         width: 276,
@@ -44,6 +44,43 @@ export const metadata = {
   },
 };
 
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        {/* Code for popins */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Edu+AU+VIC+WA+NT+Arrows:wght@400..700&display=swap"
+          rel="stylesheet"
+        ></link>
+        {/* Code for inter */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        style={{ fontFamily: "Inter" }}
+      >
+        {children}
+      </body>
+    </html>
+  );
+}
 export default function RootLayout({ children }) {
   return (
     <html lang="en">

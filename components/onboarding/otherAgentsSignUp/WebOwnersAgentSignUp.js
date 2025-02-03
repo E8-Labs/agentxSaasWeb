@@ -22,7 +22,7 @@ import SnackMessages from "../services/AuthVerification/SnackMessages";
 import SendVerificationCode from "../services/AuthVerification/AuthService";
 import { getLocalLocation } from "../services/apisServices/ApiService";
 import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
-import { PersistanceKeys } from "@/constants/Constants";
+import { isValidUrl, PersistanceKeys } from "@/constants/Constants";
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
 const WebOwnersAgentSignUp = ({
@@ -72,6 +72,8 @@ const WebOwnersAgentSignUp = ({
 
   //web url
   const [websiteUrl, setWebsiteUrl] = useState("");
+  const [urlError,setUrlError] = useState(false);
+  const [urlErrorMessage,setUrlErrorMessage]= useState("")
 
   //get location
   useEffect(() => {
@@ -200,6 +202,27 @@ const WebOwnersAgentSignUp = ({
   const handleClose = () => {
     setShowVerifyPopup(false);
   };
+
+  //code for url validation 
+
+  useEffect(() => {
+    let timer = setTimeout(() => {
+      console.log('url timerfinished',isValidUrl(websiteUrl))
+      if (websiteUrl) {
+        if (isValidUrl(websiteUrl)) {
+          setUrlError(true)
+          setErrMessage("")
+        console.log('url valid')
+
+        }else{
+          setUrlErrorMessage("Invalid")
+          setUrlError(false)
+        }
+      }
+    }, 300);
+
+    return ()=> clearTimeout(timer)
+  },[websiteUrl])
 
   //code for handling verify code changes
 
@@ -663,6 +686,20 @@ const WebOwnersAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Website (URL)
               </div>
+              <div>
+                {
+                  urlErrorMessage && (
+                    <p style={{
+                      ...styles.errmsg,
+                      color: "red",
+                      textAlign:'right'
+                    }}>
+                      {urlErrorMessage}
+                    </p>
+                  )
+                }
+              </div>
+
               <input
                 placeholder="URL"
                 className="border border-[#00000010] rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0"
@@ -670,8 +707,12 @@ const WebOwnersAgentSignUp = ({
                 value={websiteUrl}
                 onChange={(e) => {
                   setWebsiteUrl(e.target.value);
+                  setUrlError(false)
+                  setUrlErrorMessage("")
                 }}
               />
+
+              
 
               <Modal
                 open={showVerifyPopup}

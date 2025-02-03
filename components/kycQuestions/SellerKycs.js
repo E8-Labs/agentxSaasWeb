@@ -63,7 +63,7 @@ const SellerKycs = ({ handleContinue }) => {
   }, []);
 
   useEffect(() => {
-    console.log("Here in user set");
+    // console.log("Here in user set");
     if (user) {
       GetTitleBasedOnUserType();
       let profile = user.user;

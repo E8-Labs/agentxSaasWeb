@@ -152,6 +152,9 @@ const Pipeline1 = () => {
   const [assignToMember, setAssignToMember] = useState("");
   const [assignLeadToMember, setAssignLeadToMember] = useState([]);
 
+
+  const [showDeletePipelinePopup,setShowDeletePiplinePopup] = useState(false)
+
   const handleChangeNextStage = (event) => {
     let value = event.target.value;
     //// console.log("Value to set is :", value);
@@ -1074,6 +1077,7 @@ const Pipeline1 = () => {
           setLeadsList(updatedPipelines[0].leads);
           // setSelectedPipeline(PipeLines)
           handlePipelineClosePopover();
+          setShowDeletePiplinePopup(false)
         }
       }
     } catch (error) {
@@ -1705,15 +1709,13 @@ const Pipeline1 = () => {
                       Rearrange Stage
                     </button>
                   </div>
-                  {deletePipelineLoader ? (
-                    <div className="mt-4 ms-6">
-                      <CircularProgress size={20} />
-                    </div>
-                  ) : (
+          
                     <button
                       className="text-red flex flex-row items-center gap-4 mt-4 me-2 outline-none"
                       style={styles.paragraph}
-                      onClick={handleDeletePipeline}
+                      onClick={()=>{
+                        setShowDeletePiplinePopup(true)
+                      }}
                     >
                       <Image
                         src={"/assets/delIcon.png"}
@@ -1723,9 +1725,13 @@ const Pipeline1 = () => {
                       />
                       Delete
                     </button>
-                  )}
+                  
                 </div>
               </Popover>
+
+
+
+
             </div>
             <div className="flex fex-row items-center gap-6">
               <div
@@ -2201,6 +2207,104 @@ const Pipeline1 = () => {
           </div>
         </div>
       )}
+
+
+      {/* code for delete pipeline modal */}
+
+      handleDeletePipeline
+
+        <Modal
+              open={showDeletePipelinePopup}
+              onClose={() => {
+                setShowDeletePiplinePopup(false);
+              }}
+              BackdropProps={{
+                timeout: 200,
+                sx: {
+                  backgroundColor: "#00000020",
+                  // //backdropFilter: "blur(20px)",
+                },
+              }}
+            >
+              <Box
+                className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
+                sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+              >
+                <div style={{ width: "100%" }}>
+                  <div
+                    className="max-h-[60vh] overflow-auto"
+                    style={{ scrollbarWidth: "none" }}
+                  >
+                    <div
+                      style={{
+                        width: "100%",
+                        direction: "row",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      {/* <div style={{ width: "20%" }} /> */}
+                      <div style={{ fontWeight: "500", fontSize: 17 }}>
+                        Delete Pipline
+                      </div>
+                      <div
+                        style={{
+                          direction: "row",
+                          display: "flex",
+                          justifyContent: "end",
+                        }}
+                      >
+                        <button
+                          onClick={() => {
+                            setShowDeletePiplinePopup(false);
+                          }}
+                          className="outline-none"
+                        >
+                          <Image
+                            src={"/assets/crossIcon.png"}
+                            height={40}
+                            width={40}
+                            alt="*"
+                          />
+                        </button>
+                      </div>
+                    </div>
+      
+                    <div className="mt-6" style={{ fontWeight: "700", fontSize: 22 }}>
+                    Are you sure you want to delete this pipeline?
+
+                    </div>
+                  </div>
+      
+                  <div className="flex flex-row items-center justify-center gap-4 mt-6">
+                    <button  className="w-1/2 mt-[13px]">Never mind</button>
+                    <div className="w-1/2">
+                      {deletePipelineLoader ? (
+                        <div className="flex flex-row items-center w-full mt-4">
+                          <CircularProgress size={25} />
+                        </div>
+                      ) : (
+                        <button
+                          className="mt-4 outline-none bg-red"
+                          style={{
+                            color: "white",
+                            height: "50px",
+                            borderRadius: "10px",
+                            width: "100%",
+                            fontWeight: 600,
+                            fontSize: "20",
+                          }}
+                          onClick={handleDeletePipeline}
+                        >
+                          Yes! Delete
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </Box>
+            </Modal>
 
       {/* Code for add stage modal */}
       <Modal
