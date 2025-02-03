@@ -18,10 +18,10 @@ function AdminLeads({selectedUser}) {
                 let d = JSON.parse(data)
     
                 let ApiPath = Apis.getLeads;
-                ApiPath = ApiPath + "?userId" + ""
+                ApiPath = ApiPath + "?userId=" + selectedUser.id
                 console.log('apiPath', ApiPath)
     
-                return
+                // return
                 const response = await axios.get(ApiPath, {
                     headers: {
                         Authorization: "Bearer " + d.token,
