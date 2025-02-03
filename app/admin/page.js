@@ -54,7 +54,11 @@ function Page() {
           selectedManu.name === "Users" ? (
             <AdminUsers />
 
-          ) : ""
+          ) : (
+            <div>
+              Comming soon...
+            </div>
+          )
         }
       </div>
 
