@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-const VideoCard = ({ playVideo, horizontal = true, title, duration = "2 mins" }) => {
+const VideoCard = ({ playVideo, horizontal = true, title, duration = "2 mins",width = "6vw",height = "10vh" }) => {
   return (
     <div
       className={`flex  ${
@@ -12,7 +12,7 @@ const VideoCard = ({ playVideo, horizontal = true, title, duration = "2 mins" })
     >
       {/* Video Thumbnail */}
       <div className="w-full flex flex-row items-end gap-2">
-        <div className={"relative w-[6vw] h-[10vh] flex-shrink-0"}>
+        <div className={`relative w-[${width}] h-[${height}] flex-shrink-0`}>
           <Image
             src="/assets/youtubeplay.png" // Replace with your image path
             alt="Video thumbnail"

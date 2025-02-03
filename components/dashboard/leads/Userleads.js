@@ -85,6 +85,9 @@ const Userleads = ({
 
   const [filtersSelected, setFiltersSelected] = useState([]);
 
+
+  const [noStageSelected,setNoStageSelected] = useState(false)
+
   useEffect(() => {
     //console.log("Filtered Leads changed", FilterLeads.length);
   }, [FilterLeads]);
@@ -195,7 +198,7 @@ const Userleads = ({
       (item) => item.title === selectedValue
     );
 
-   // console.log("Selected stages", selectedItem.stages);
+    // console.log("Selected stages", selectedItem.stages);
 
     setStagesList(selectedItem.stages);
   };
@@ -219,13 +222,13 @@ const Userleads = ({
       let found = false;
       SheetsList.map((sheet) => {
         if (sheet.id == newListAdded.id) {
-         // console.log("Id of new list is same");
+          // console.log("Id of new list is same");
           found = true;
         }
         sheets.push(sheet);
       });
       if (!found) {
-       // console.log("Id of new list is not same");
+        // console.log("Id of new list is not same");
         sheets.push(newListAdded);
       }
       setSelectedSheetId(newListAdded.id); // setSelectedSheetId(item.id);
@@ -252,7 +255,7 @@ const Userleads = ({
     setFilterLeads([]);
     setLeadsList([]);
     let filterText = getFilterText();
-   // console.log("Filters changed", filterText);
+    // console.log("Filters changed", filterText);
     handleFilterLeads(0, filterText);
     setShowNoLeadsLabel(false);
   }, [filtersSelected, SelectedSheetId]);
@@ -261,7 +264,7 @@ const Userleads = ({
   useEffect(() => {
     const sheet = searchParams.get("sheet"); // Get the value of 'tab'
     let number = Number(sheet) || 0;
-   // console.log("Tab value is ", number);
+    // console.log("Tab value is ", number);
     sheetIndexSelected = number;
     if (!sheet) {
       setParamsInSearchBar(1);
@@ -275,7 +278,7 @@ const Userleads = ({
     // Push the updated URL
     router.push(`/dashboard/leads?${params.toString()}`);
 
-   // console.log("Rerendering tab with selected tab: ", index);
+    // console.log("Rerendering tab with selected tab: ", index);
   };
 
   function SetSheetsToLocalStorage(data) {
@@ -285,7 +288,7 @@ const Userleads = ({
   function GetAndSetDataFromLocalStorage() {
     let d = localStorage.getItem("sheets");
     if (d) {
-     // console.log("Sheets cached");
+      // console.log("Sheets cached");
       let data = JSON.parse(d);
       let ind = 0;
       if (sheetIndexSelected < data.length) {
@@ -296,7 +299,7 @@ const Userleads = ({
       setSelectedSheetId(data[ind].id);
       return true; //
     } else {
-     // console.log("Sheets not in cache");
+      // console.log("Sheets not in cache");
       return false;
     }
   }
@@ -312,7 +315,7 @@ const Userleads = ({
         setUserLocalData(localData.user);
       }
     } catch (error) {
-     // console.error("Error occured in api is error", error);
+      // console.error("Error occured in api is error", error);
     }
   };
 
@@ -461,7 +464,7 @@ const Userleads = ({
         }
       }
     } catch (error) {
-     // console.error("Error occured in api is:", error);
+      // console.error("Error occured in api is:", error);
     } finally {
       setDelTagLoader(null);
     }
@@ -564,10 +567,10 @@ const Userleads = ({
         sheetId: selectedSmartList.id,
       };
 
-     // console.log("Apidata is:", ApiData);
+      // console.log("Apidata is:", ApiData);
 
       const ApiPath = Apis.delSmartList;
-     // console.log("Apipath is:", ApiPath);
+      // console.log("Apipath is:", ApiPath);
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -589,7 +592,7 @@ const Userleads = ({
         }
       }
     } catch (error) {
-     // console.error("ERror occured in del smart list api is:", error);
+      // console.error("ERror occured in del smart list api is:", error);
     } finally {
       setDelSmartListLoader(false);
     }
@@ -707,11 +710,14 @@ const Userleads = ({
       if (filterText) {
         //console.log("Filtered text is ", filterText);
         ApiPath = `${Apis.getLeads}?${filterText}`; //&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}`;
-      } else {
+        ApiPath = ApiPath+"&noStage="+noStageSelected
+      } 
+      
+      else {
         getLocallyCachedLeads();
         ApiPath = `${Apis.getLeads}?sheetId=${SelectedSheetId}&offset=${offset}`;
       }
-      ////console.log("Api path is :", ApiPath);
+      console.log("Api path is :", ApiPath);
 
       // return
       const response = await axios.get(ApiPath, {
@@ -722,7 +728,7 @@ const Userleads = ({
       });
 
       if (response) {
-       // console.log(
+        // console.log(
         //   "Response of get leads filter api is api is :",
         //   response.data
         // );
@@ -745,8 +751,8 @@ const Userleads = ({
               } else {
                 setShowNoLeadsLabel(true);
               }
-             // console.log("Saving Lcoal Data for sheet", SelectedSheetId);
-             // console.log("Sheet from Leads Obtained ", sheetId);
+              // console.log("Saving Lcoal Data for sheet", SelectedSheetId);
+              // console.log("Sheet from Leads Obtained ", sheetId);
               if (sheetId == SelectedSheetId) {
                 LeadsInSheet[SelectedSheetId] = response.data;
                 localStorage.setItem(
@@ -795,12 +801,12 @@ const Userleads = ({
               setHasMore(true);
             }
           } else {
-           // console.log("False api get leads resposne");
+            // console.log("False api get leads resposne");
           }
         }
       }
     } catch (error) {
-     // console.error("Error occured in api is :", error);
+      // console.error("Error occured in api is :", error);
     } finally {
       setMoreLeadsLoader(false);
       setSheetsLoader(false);
@@ -938,7 +944,7 @@ const Userleads = ({
         ////console.log("Leads data are", leadColumns);
       }
     } catch (error) {
-     // console.error("Error occured in api is :", error);
+      // console.error("Error occured in api is :", error);
     } finally {
       setSheetsLoader(false);
       ////console.log("ApiCall completed");
@@ -984,7 +990,7 @@ const Userleads = ({
         }
       }
     } catch (error) {
-     // console.error("Error occured in add lead note api is:", error);
+      // console.error("Error occured in add lead note api is:", error);
     } finally {
       setAddLeadNoteLoader(false);
     }
@@ -1122,7 +1128,7 @@ const Userleads = ({
           <button
             className="underline text-purple"
             onClick={() => {
-             // console.log("Selected item is", item);
+              // console.log("Selected item is", item);
               setSelectedLeadsDetails(item); // Pass selected lead data
               setNoteDetails(item.notes);
               setShowDetailsModal(true); // Show modal
@@ -1228,7 +1234,7 @@ const Userleads = ({
         }
       }
     } catch (error) {
-     // console.error("Error occured in api is :", error);
+      // console.error("Error occured in api is :", error);
     } finally {
       setInitialLoader(false);
       ////console.log("ApiCall completed");
@@ -1268,7 +1274,7 @@ const Userleads = ({
         }
       }
     } catch (error) {
-     // console.error("Error occured in api is", error);
+      // console.error("Error occured in api is", error);
     } finally {
       ////console.log("Get stages ai call done");
       setStagesLoader(false);
@@ -1312,7 +1318,7 @@ const Userleads = ({
         }
       }
     } catch (error) {
-     // console.error("Error occured in api is error", error);
+      // console.error("Error occured in api is error", error);
     } finally {
       ////console.log("Api call done");
     }
@@ -1338,8 +1344,8 @@ const Userleads = ({
     disSelectLeads,
   }) => {
     setAssignLeadModal(status);
-   // console.log("Show the snack status", showSnack);
-   // console.log("Disselect leads selected", disSelectLeads);
+    // console.log("Show the snack status", showSnack);
+    // console.log("Disselect leads selected", disSelectLeads);
     setSnackMessage(showSnack);
     if (disSelectLeads === true) {
       setToggleClick([]);
@@ -1391,8 +1397,8 @@ const Userleads = ({
   function HandleUpdateStage(stage) {
     // setShowDetailsModal(false);
 
-   // console.log("All Leads ", LeadsList);
-   // console.log("Filtered Leads ", FilterLeads);
+    // console.log("All Leads ", LeadsList);
+    // console.log("Filtered Leads ", FilterLeads);
     let selLead = selectedLeadsDetails;
     selLead.stage = stage;
     let newList = [];
@@ -1414,8 +1420,8 @@ const Userleads = ({
       }
     });
     setFilterLeads(filteredList);
-   // console.log("All Leads After  ", newList);
-   // console.log("Filtered Leads After", filteredList);
+    // console.log("All Leads After  ", newList);
+    // console.log("Filtered Leads After", filteredList);
 
     localStorage.setItem(
       `Leads${SelectedSheetId}`,
@@ -1478,7 +1484,7 @@ const Userleads = ({
         }
       }
     } catch (error) {
-     // console.error("Error occured in adding new list api is:", error);
+      // console.error("Error occured in adding new list api is:", error);
     } finally {
       setShowaddCreateListLoader(false);
     }
@@ -1784,7 +1790,7 @@ const Userleads = ({
                               ////console.log("Stage ids ", stages);
                               ////console.log("Date ", [fromDate, toDate]);
                               ////console.log("Pipeline ", pipeline);
-                             // console.log("Stages inheriting from", stages);
+                              // console.log("Stages inheriting from", stages);
                               setSelectedStage(stages);
                               setSelectedFromDate(fromDate);
                               setSelectedToDate(toDate);
@@ -1869,8 +1875,8 @@ const Userleads = ({
             <div
               className="flex flex-row items-center mt-8 gap-2"
               style={styles.paragraph}
-              // className="flex flex-row items-center mt-8 gap-2"
-              // style={{ ...styles.paragraph, overflowY: "hidden" }}
+            // className="flex flex-row items-center mt-8 gap-2"
+            // style={{ ...styles.paragraph, overflowY: "hidden" }}
             >
               <div
                 className="flex flex-row items-center gap-2 w-full"
@@ -1901,8 +1907,8 @@ const Userleads = ({
                         color: SelectedSheetId === item.id ? "#7902DF" : "",
                         whiteSpace: "nowrap", // Prevent text wrapping
                       }}
-                      // className='flex flex-row items-center gap-1 px-3'
-                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
+                    // className='flex flex-row items-center gap-1 px-3'
+                    // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
                     >
                       <button
                         style={styles.paragraph}
@@ -2071,11 +2077,10 @@ const Userleads = ({
                               return (
                                 <th
                                   key={index}
-                                  className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${
-                                    isMoreColumn
-                                      ? "sticky right-0 bg-white"
-                                      : ""
-                                  }`}
+                                  className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn
+                                    ? "sticky right-0 bg-white"
+                                    : ""
+                                    }`}
                                   // style={isMoreColumn ? { zIndex: 1 } : {}}
                                   style={{
                                     whiteSpace: "nowrap",
@@ -2102,11 +2107,10 @@ const Userleads = ({
                                   // <td key={colIndex} className="border-none px-4 py-2">
                                   <td
                                     key={colIndex}
-                                    className={`border-none px-4 py-2 ${
-                                      column.title === "More"
-                                        ? "sticky right-0 bg-white"
-                                        : ""
-                                    }`}
+                                    className={`border-none px-4 py-2 ${column.title === "More"
+                                      ? "sticky right-0 bg-white"
+                                      : ""
+                                      }`}
                                     style={{
                                       whiteSpace: "nowrap",
                                       // overflow: "hidden",
@@ -2409,20 +2413,31 @@ const Userleads = ({
                                 onClick={() => {
                                   handleSelectStage(item);
                                 }}
-                                className={`p-2 border border-[#00000020] ${
-                                  found >= 0 ? `bg-purple` : "bg-transparent"
-                                } px-6
-                                                                    ${
-                                                                      found >= 0
-                                                                        ? `text-white`
-                                                                        : "text-black"
-                                                                    } rounded-2xl`}
+                                className={`p-2 border border-[#00000020] ${found >= 0 ? `bg-purple` : "bg-transparent"
+                                  } px-6
+                              ${found >= 0
+                                    ? `text-white`
+                                    : "text-black"
+                                  } rounded-2xl`}
                               >
                                 {item.stageTitle}
                               </button>
                             </div>
                           );
                         })}
+
+                        {/* Add "No Stage" button after the list */}
+                        <div className="flex flex-row items-center mt-2 justify-start">
+                          <button
+                            onClick={() => {
+                              setNoStageSelected(!noStageSelected)
+                            }}
+                            className={`p-2 border border-[#00000020] ${noStageSelected ? `bg-purple text-white` : "bg-transparent text-black"
+                              } px-6 rounded-2xl`}
+                          >
+                            No Stage
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
