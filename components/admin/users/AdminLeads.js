@@ -21,7 +21,7 @@ function AdminLeads({selectedUser}) {
                 ApiPath = ApiPath + "?userId" + ""
                 console.log('apiPath', ApiPath)
     
-                // return
+                return
                 const response = await axios.get(ApiPath, {
                     headers: {
                         Authorization: "Bearer " + d.token,
