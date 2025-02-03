@@ -41,10 +41,10 @@ const FocusArea = ({
     const focusData = localStorage.getItem(PersistanceKeys.RegisterDetails);
     if (focusData) {
       const FocusAreaDetails = JSON.parse(focusData);
-      // console.log("Local details are :", FocusAreaDetails);
+      console.log("Local details are :", FocusAreaDetails);
       setFocusArea(FocusAreaDetails.focusAreaId);
       setFocusAreaTitle(FocusAreaDetails.areaFocusTitle);
-      if (FocusAreaDetails.userTypeTitle !== "RealEstateAgent") {
+      if (FocusAreaDetails.userTypeTitle !== "RealEstateAgent" && FocusAreaDetails.userTypeTitle !== "SolarRep") {
         setShowOtherInput(true);
       }
     }
@@ -240,7 +240,7 @@ const FocusArea = ({
             ) : (
               <div
                 className="mt-2 sm:mt-8 md:10/12 w-full lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
-                // style={{ scrollbarWidth: "none" }}
+              // style={{ scrollbarWidth: "none" }}
               >
                 {focusData.map((item, index) => (
                   <button

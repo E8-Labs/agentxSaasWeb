@@ -2115,10 +2115,10 @@ function Page() {
         <Box className="lg:w-4/12 sm:w-10/12 w-full" sx={styles.modalsStyle}>
           <div className="flex flex-row justify-center w-full max-h-[80vh]">
             <div
-              className="sm:w-full w-full px-10 py-8"
+              className="sm:w-full w-full px-10 py-8 overflow-auto"
               style={{
                 backgroundColor: "#ffffff",
-
+                scrollbarWidth: 'none',
                 borderRadius: "13px",
               }}
             >
@@ -3508,8 +3508,8 @@ function Page() {
                       <div className="w-5/12">
                         <VideoCard
                           duration={"13 min 56 sec"}
-                          width = "4vw"
-                          height="7vh"
+                          width="80"
+                          height="100"
                           horizontal={false}
                           playVideo={() => {
                             setIntroVideoModal(true);
@@ -3575,7 +3575,7 @@ function Page() {
                           uniqueColumns={uniqueColumns}
                           tagValue={setScriptTagInput}
                           scrollOffset={scrollOffset}
-                          showSaveChangesBtn = {showSaveChangesBtn}
+                          showSaveChangesBtn={showSaveChangesBtn}
                         />
 
                         {/* <DynamicDropdown /> */}
@@ -3729,7 +3729,7 @@ function Page() {
                     backgroundColor: "",
                   }}
                 >
-                  <KYCs kycsDetails={setKycsData} mainAgentId={MainAgentId} user={user&&user} />
+                  <KYCs kycsDetails={setKycsData} mainAgentId={MainAgentId} user={user && user} />
                 </div>
               )}
             </div>

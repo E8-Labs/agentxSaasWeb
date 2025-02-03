@@ -184,13 +184,13 @@ const allIntegrations = [
     icon: "/svgIcons/GHLIcon.svg",
   },{
     title: "Pipedrive",
-    url: "https://zapier.com/apps/leadconnector/integrations/myagentx",
+    url: "https://zapier.com/apps/pipedrive/integrations/myagentx",
     description:
       "Connect Pipedrive with AgentX for seamless deal tracking and smart sales automation.",
     icon: "/svgIcons/PipedriveIcon.svg",
   },{
     title: "Salesforce",
-    url: "https://zapier.com/apps/leadconnector/integrations/myagentx",
+    url: "https://zapier.com/apps/salesforce/integrations/myagentx",
     description:
       "Streamline Salesforce CRM with AgentX for effortless lead tracking and workflow automation.",
     icon: "/svgIcons/SalesforceIcon.svg",

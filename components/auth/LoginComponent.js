@@ -535,7 +535,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           </div>
         </div>
       </div> */}
-      <div className="w-11/12 flex flex-col items-center h-[90svh] ">
+      <div className="w-11/12 flex flex-col items-center h-[95svh] ">
         <div className="w-full gap-3 h-[10%] flex flex-row items-end">
           <Image
             className=""
@@ -547,7 +547,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           />
           {/* <Image className='hidden md:flex' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain" }} height={69} width={69} alt='*' /> */}
         </div>
-        <div className="w-full h-[80%] flex flex-row items-center justify-center">
+        <div className="w-full  h-[80%] flex flex-row items-center justify-center">
           <div className="w-full">
             <div className="flex flex-col w-full items-center gap-4 pb-6">
               <Image
@@ -696,7 +696,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         </div>
 
         <div
-          className="mt-6 h-[10%] flex flex-row items-end justify-end w-10/12 gap-2 overflow-auto flex-shrink-0 hidden sm:flex"
+          className="mt-6 h-[10%] flex flex-row items-end justify-end w-full gap-2 overflow-auto flex-shrink-0 hidden sm:flex"
           style={{ fontWeight: "500", fontSize: 11.6 }}
         >
           <div className="flex-shrink-0">
@@ -730,7 +730,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           </button>
         </div>
 
-        <div className="h-[10%] w-full flex flex-col items-center justify-center sm:hidden">
+        <div className="h-[10%]  w-full flex flex-col items-center justify-center sm:hidden">
           <div
             className="mt-6 flex flex-row items-center justify-end gap-2 overflow-auto flex-shrink-0"
             style={{ fontWeight: "500", fontSize: 11.6 }}

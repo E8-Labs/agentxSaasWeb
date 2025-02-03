@@ -97,7 +97,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
     {
       id: 2,
       title: "Sales Dev Agent",
-      agentType: "Sales Dev Agent",
+      agentType: "SDR/BDR Agent",
       icon: "/usertype/avt2.png",
       areaOfFocusTitle: "What area of sales do you focus on?",
       userType: "SalesDevRep",
@@ -174,11 +174,11 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       <div
         className="bg-white sm:rounded-2xl flex flex-col justify-between w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4"
         style={{ scrollbarWidth: "none" }}
-        //className='bg-white sm:rounded-2xl w-full sm:mx-2 sm:w-10/12 h-[100%] sm:h-[90%] py-4 flex flex-col' style={{ scrollbarWidth: "none" }}
+      //className='bg-white sm:rounded-2xl w-full sm:mx-2 sm:w-10/12 h-[100%] sm:h-[90%] py-4 flex flex-col' style={{ scrollbarWidth: "none" }}
       >
         <div
           className={`h-[90svh] sm:h-[80svh] `}
-          //84svh
+        //84svh
         >
           {/* header */}
           <div className="w-full h-[10%]">
@@ -206,11 +206,11 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
 
             <div
               className="flex flex-wrap md:w-11/12 sm:w-full lg:w-7/12 mt-8 h-[80%] overflow-auto scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
-              // style={{
-              //   scrollbarWidth: "none",
-              //   msOverflowStyle: "none",
-              //   WebkitOverflowScrolling: "none",
-              // }}
+            // style={{
+            //   scrollbarWidth: "none",
+            //   msOverflowStyle: "none",
+            //   WebkitOverflowScrolling: "none",
+            // }}
             >
               {userType.map((item, index) => (
                 <div key={item.id} className="flex w-6/12 md:w-4/12 p-2">
@@ -253,7 +253,23 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                   </div>
                 </div>
               ))}
+              <div className="flex flex-col gap-3 w-full pb-6 border-[2px] border-white rounded-xl items-center justify-center bg-[#FAF9FF]">
+                <Image src={"/svgIcons/halfOrb.svg"}
+                  height={282} width={282} alt="*"
+                />
+
+                <div style={{ fontSize: 15, fontWeight: '500', color: '#ADACAC' }}>
+                  More agents coming in the future
+                </div>
+
+                <Image src={"/svgIcons/blueThreeDots.svg"}
+                  height={9}
+                  width={37} alt="*"
+                />
+              </div>
             </div>
+
+
           </div>
         </div>
 
