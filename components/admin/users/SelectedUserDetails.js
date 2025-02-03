@@ -3,6 +3,7 @@ import { Box, Modal } from '@mui/material'
 import Image from 'next/image'
 import React, { useState } from 'react'
 import AdminLeads1 from './AdminLeads1'
+import AdminPipeline1 from './pipline/AdminPipeline1'
 
 function SelectedUserDetails({ open, close, selectedUser }) {
 
@@ -137,11 +138,15 @@ function SelectedUserDetails({ open, close, selectedUser }) {
 
                             </div>
 
-                            <div className='flex flex-col items-center justify-center bg-[#FBFCFF] pt-2 px-10 h-[70vh] overflow-hidden'>
+                            <div className='flex flex-col items-center justify-center bg-[#FBFCFF] pt-2 px-10 h-[70vh] overflow-hidden bg-white'>
                                 {
                                     selectedManu.name == "Leads" ? (
                                         <AdminLeads1 selectedUser={selectedUser} />
-                                    ) : ""
+                                    ) : (
+                                        selectedManu.name == "Pipeline"?(
+                                            <AdminPipeline1 selectedUser = {selectedUser} />
+                                        ):"Comming soon ..."
+                                    )
                                 }
                             </div>
                         </div>
