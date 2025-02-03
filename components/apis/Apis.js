@@ -100,6 +100,9 @@ const Apis = {
   calcelPlanReason: `${BasePath}api/user/addCancelPlanReason`,
   sendFeedbback: `${BasePath}api/user/sendFeedback`,
   getAiNot: `${BasePath}/api/agent/sendTestAiNotification`,
+
+
+  getUsers:`${BasePath}/api/admin/users`
 };
 
 export default Apis;

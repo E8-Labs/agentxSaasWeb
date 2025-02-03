@@ -938,7 +938,7 @@ const CreatAgent3 = ({ handleContinue }) => {
                   className="bg-purple text-white w-full rounded-xl mt-6 mb-6"
                   style={{ fontSize: 16, fontWeight: "700", height: "50px" }}
                   onClick={() => {
-                    const screenWidth = 1000;
+                    let screenWidth = 1000;
                     if (typeof window !== "undefined") {
                       screenWidth = window.innerWidth; // Get current screen width
                     }

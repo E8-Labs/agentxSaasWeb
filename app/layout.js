@@ -21,14 +21,14 @@ export const metadata = {
     description: "Design and create custom AI agents with ease.",
     url: "https://ai.myagentx.com/createagent",
     images: [
+      // {
+      //   url: "https://ai.myagentx.com/thumbOrb.png",
+      //   width: 1200,
+      //   height: 630,
+      //   alt: "Thumbnail Alt Text",
+      // },
       {
-        url: "https://ai.myagentx.com/thumbOrb.png",
-        width: 1200,
-        height: 630,
-        alt: "Thumbnail Alt Text",
-      },
-      {
-        url: "https://ai.myagentx.com/assets/colorCircle.png",
+        url: "https://ai.myagentx.com/thumbOrbSmall.png",
         width: 276,
         height: 276,
         alt: "Thumbnail Alt Text",

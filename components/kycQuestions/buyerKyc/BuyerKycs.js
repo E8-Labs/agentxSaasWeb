@@ -13,10 +13,12 @@ import { KycCategory } from "@/components/constants/constants";
 import AgentSelectSnackMessage from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import VideoCard from "@/components/createagent/VideoCard";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
-import { HowtoVideos } from "@/constants/Constants";
+import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
+import { BuyerKycsQuestions, GetKycQuestionsForUser } from "@/constants/Kycs";
 
 const BuyerKycs = ({ handleContinue }) => {
   const router = useRouter();
+  const [user, setUser] = useState(null);
   const [toggleClick, setToggleClick] = useState(1);
   const [addKYCQuestion, setAddKYCQuestion] = useState(false);
   const [introVideoModal, setIntroVideoModal] = useState(false);
@@ -38,61 +40,48 @@ const BuyerKycs = ({ handleContinue }) => {
   const [showErrorSnack, setShowErrorSnack] = useState(false);
 
   //needKYCQuestions
-  const [needKYCQuestions, setNeedKYCQuestions] = useState([
-    {
-      id: 1,
-      question: "What area are you looking in?",
-      sampleAnswers: [],
-    },
-    {
-      id: 2,
-      question:
-        "What type of home are you looking for? Single family, townhouse, condo, apartment, etc",
-      sampleAnswers: [],
-    },
-    {
-      id: 3,
-      question: "Are you a first time home buyer?",
-      sampleAnswers: [],
-    },
-  ]);
+  const [needKYCQuestions, setNeedKYCQuestions] = useState(
+    BuyerKycsQuestions.DefaultBuyerKycsNeed
+  );
 
-  const [motivationKycQuestions, setMotivationKycQuestions] = useState([
-    {
-      id: 1,
-      question: "Why is now the right time?",
-      sampleAnswers: [],
-    },
-    {
-      id: 2,
-      question: "Are you looking to downsize or upsize?",
-      sampleAnswers: [],
-    },
-    {
-      id: 3,
-      question: "Are you relocating for work?",
-      sampleAnswers: [],
-    },
-  ]);
+  const [motivationKycQuestions, setMotivationKycQuestions] = useState(
+    BuyerKycsQuestions.DefaultBuyerKycsMotivation
+  );
 
-  const [urgencyKycQuestions, setUrgencyKycQuestions] = useState([
-    {
-      id: 1,
-      question: "When do you expect to move into your new place?",
-      sampleAnswers: [],
-    },
-    {
-      id: 2,
-      question: "When do you plan on buying a home?",
-      sampleAnswers: [],
-    },
-    {
-      id: 3,
-      question: "When do you plan to move into your new home?",
-      sampleAnswers: [],
-    },
-  ]);
+  const [urgencyKycQuestions, setUrgencyKycQuestions] = useState(
+    BuyerKycsQuestions.DefaultBuyerKycsUrgency
+  );
   const [shouldContinue, setShouldContinue] = useState(true);
+
+  useEffect(() => {
+    let userData = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    if (userData) {
+      let u = JSON.parse(userData);
+      setUser(u);
+    }
+  }, []);
+
+  useEffect(() => {
+    // console.log("Here in user set");
+    if (user) {
+      // GetTitleBasedOnUserType();
+      let profile = user.user;
+      let kycsneed = GetKycQuestionsForUser(profile.userType, "buyer", "need");
+      setNeedKYCQuestions(kycsneed);
+      let kycsmotivation = GetKycQuestionsForUser(
+        profile.userType,
+        "buyer",
+        "motivation"
+      );
+      setMotivationKycQuestions(kycsmotivation);
+      let kycsurgency = GetKycQuestionsForUser(
+        profile.userType,
+        "buyer",
+        "urgency"
+      );
+      setUrgencyKycQuestions(kycsurgency);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (
@@ -148,7 +137,7 @@ const BuyerKycs = ({ handleContinue }) => {
         )
       ) {
         setShowErrorSnack("Question already exists!!!");
-       // console.log("Question Already exists");
+        // console.log("Question Already exists");
         return;
       } else {
         setNeedKYCQuestions((prevQuestions) => {
@@ -169,7 +158,7 @@ const BuyerKycs = ({ handleContinue }) => {
         )
       ) {
         setShowErrorSnack("Question already exists!!!");
-       // console.log("Question Already exists");
+        // console.log("Question Already exists");
         return;
       } else {
         setMotivationKycQuestions((prevQuestions) => {
@@ -190,7 +179,7 @@ const BuyerKycs = ({ handleContinue }) => {
         )
       ) {
         setShowErrorSnack("Question already exists!!!");
-       // console.log("Question Already exists");
+        // console.log("Question Already exists");
         return;
       } else {
         setUrgencyKycQuestions((prevQuestions) => {
@@ -295,7 +284,7 @@ const BuyerKycs = ({ handleContinue }) => {
       selectedUrgencyKyc.some((selectedItem) => selectedItem.id === question.id)
     );
 
-   // console.log("Working");
+    // console.log("Working");
     //// console.log("Selected Questions are: ", selectedNeedQuestions);
     //// console.log("Selected motivation questions are: ----", selectedMotivationQuestions);
     //// console.log("Selected urgency questions are: ----", selectedUrgencyQuestions);
@@ -342,9 +331,9 @@ const BuyerKycs = ({ handleContinue }) => {
       }
 
       if (agentDetails) {
-       // console.log("trying");
+        // console.log("trying");
         const agentData = JSON.parse(agentDetails);
-       // console.log("ActualAgent details are :--", agentData);
+        // console.log("ActualAgent details are :--", agentData);
         MyAgentData = agentData;
       }
 
@@ -358,7 +347,7 @@ const BuyerKycs = ({ handleContinue }) => {
 
       ApiData = data;
 
-     // console.log("APi data is :--", ApiData);
+      // console.log("APi data is :--", ApiData);
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -368,7 +357,7 @@ const BuyerKycs = ({ handleContinue }) => {
       });
 
       if (response) {
-       // console.log("Response of add KYC api is :--", response.data);
+        // console.log("Response of add KYC api is :--", response.data);
         if (response.data.status === true) {
           localStorage.setItem(
             "agentDetails",
@@ -380,7 +369,7 @@ const BuyerKycs = ({ handleContinue }) => {
         }
       }
     } catch (error) {
-     // console.error("Error occured in api is :--", error);
+      // console.error("Error occured in api is :--", error);
       setBuyerKycLoader(false);
     } finally {
     }

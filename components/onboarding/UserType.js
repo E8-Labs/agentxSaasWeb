@@ -9,7 +9,7 @@ import { localeData } from "moment";
 import styles from "../global.module.css";
 import { PersistanceKeys } from "@/constants/Constants";
 
-const UserType = ({ handleContinue, DefaultData }) => {
+const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
   const router = useRouter();
   const [value, setValue] = useState(8);
   const [SelectUserType, setSelectUserType] = useState(null);
@@ -39,6 +39,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
     if (localData) {
       const localDetails = JSON.parse(localData);
       setSelectUserType(localDetails.userType);
+      handleUserTypeChange(localDetails.userType);
       setSelectUserTypeTitle(localDetails.userTypeTitle);
       setSelectedFocusAreaTitle(localDetails.areaFocusTitle);
     }
@@ -48,6 +49,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
     setSelectUserType(item.id);
     setSelectUserTypeTitle(item.userType);
     setSelectedFocusAreaTitle(item.areaOfFocusTitle);
+    handleUserTypeChange(item.userType);
     // if (item.id === 1) {
     //     setSelectUserType(item.id);
     //     setSelectUserTypeTitle(item.title);
@@ -69,7 +71,7 @@ const UserType = ({ handleContinue, DefaultData }) => {
       otherFocusArea: "",
     };
 
-   // console.log("Data seting in api is", userData);
+    // console.log("Data seting in api is", userData);
 
     // return
 

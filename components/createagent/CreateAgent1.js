@@ -18,7 +18,8 @@ import IntroVideoModal from "./IntroVideoModal";
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../dashboard/leads/AgentSelectSnackMessage";
-import { HowtoVideos } from "@/constants/Constants";
+import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
+import { UserTypes } from "@/constants/UserTypes";
 
 const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   const addressKey = process.env.NEXT_PUBLIC_AddressPickerApiKey;
@@ -61,6 +62,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
 
+  const [user, setUser] = useState(null);
+
   //shows the modal for small screens only
   const [showAddressPickerModal, setShowAddressPickerModal] = useState(false);
 
@@ -87,6 +90,11 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
   //auto move to the bottom
   useEffect(() => {
+    let userData = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    if (userData) {
+      let d = JSON.parse(userData);
+      setUser(d);
+    }
     if (showOtherObjective && bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }
@@ -98,13 +106,13 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       (InBoundCalls === true && agentName && agentRole && toggleClick)
     ) {
       setShouldContinue(false);
-     // console.log("Should continue");
+      // console.log("Should continue");
     } else if (
       !OutBoundCalls ||
       (!InBoundCalls === true && !agentName && !agentRole && !toggleClick)
     ) {
       setShouldContinue(true);
-     // console.log("Should Nott continue");
+      // console.log("Should Nott continue");
     }
   }, [agentName, agentRole, agentObjective, otherObjVal]);
 
@@ -117,7 +125,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       setShowModal(true);
     }
     if (item.id === 100) {
-     // console.log("Trigered");
+      // console.log("Trigered");
       // if (bottomRef.current) {
       //     bottomRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
       // }
@@ -202,6 +210,14 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     },
   ];
 
+  function canShowObjectives() {
+    if (user && user.user.userType == UserTypes.RealEstateAgent) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   //code for selecting outbound calls
   const handleInboundCallClick = () => {
     // setOutBoundCalls(false);
@@ -224,14 +240,14 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       let LocalDetails = null;
       if (localData) {
         const UserDetails = JSON.parse(localData);
-       // console.log("Local agent details", UserDetails);
+        // console.log("Local agent details", UserDetails);
         AuthToken = UserDetails.token;
         LocalDetails = UserDetails;
       }
       // return
-     // console.log("Auth token is :--", AuthToken);
+      // console.log("Auth token is :--", AuthToken);
       const ApiPath = Apis.buildAgent;
-     // console.log("Api link for build agent is :--", ApiPath);
+      // console.log("Api link for build agent is :--", ApiPath);
       const formData = new FormData();
       formData.append("name", agentName);
       formData.append("agentRole", agentRole);
@@ -250,11 +266,18 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
         } else {
           formData.append("status", selectedStatus.title);
         }
+      } else {
       }
+      // return;
       if (addressValue) {
         formData.append("address", addressValue);
       }
-      if (agentObjective.id === 100) {
+      if (!canShowObjectives()) {
+        //if the user type is not real estate then we don't show objectives to user
+        formData.append("agentObjective", "others");
+        formData.append("agentObjectiveDescription", "");
+        formData.append("agentObjectiveId", 100);
+      } else if (agentObjective.id === 100) {
         formData.append("agentObjective", "others");
         formData.append("agentObjectiveDescription", otherObjVal);
         formData.append("agentObjectiveId", 100);
@@ -264,9 +287,9 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
         formData.append("agentObjectiveId", agentObjective.id);
       }
 
-     // console.log("Build agent details are is :-----");
+      // console.log("Build agent details are is :-----");
       for (let [key, value] of formData.entries()) {
-       // console.log(`${key}: ${value}`);
+        // console.log(`${key}: ${value}`);
       }
 
       // return
@@ -277,10 +300,10 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       });
 
       if (response) {
-       // console.log("Response of build agent api  is :---", response.data);
+        // console.log("Response of build agent api  is :---", response.data);
         setIsVisible(true);
         if (response.data.status === true) {
-         // console.log("Status of build agent is :", response.data.status);
+          // console.log("Status of build agent is :", response.data.status);
           setSnackMessage("Agent created successfully.");
           setMsgType(SnackbarTypes.Success);
           localStorage.setItem(
@@ -301,7 +324,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
         }
       }
     } catch (error) {
-     // console.error("Error occured in build agent api is: ----", error);
+      // console.error("Error occured in build agent api is: ----", error);
       setLoaderModal(false);
       setBuildAgentLoader(false);
     } finally {
@@ -339,7 +362,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     if (placesService) {
       placesService.getDetails({ placeId }, (details) => {
         setSelectedPlace(details);
-       // console.log("Selected Place Details:", details);
+        // console.log("Selected Place Details:", details);
       });
     }
   };
@@ -473,7 +496,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
             }}
           >
             <VideoCard
-              duration= "1 min 47 sec"
+              duration="1 min 47 sec"
               horizontal={false}
               playVideo={() => {
                 setIntroVideoModal(true);
@@ -649,61 +672,65 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 }}
               />
 
-              <div className="mt-2" style={styles.headingStyle}>
-                {`What's this agent's primary objective during the call`}
-              </div>
+              {canShowObjectives() && (
+                <div className="mt-2" style={styles.headingStyle}>
+                  {`What's this agent's primary objective during the call`}
+                </div>
+              )}
 
-              <div style={styles.inputStyle}>
-                Select only one. You can create new agents to dedicate them to
-                other objectives.
-              </div>
-
-              <div className="flex flex-wrap">
-                {AgentObjective.map((item) => (
-                  <div
-                    key={item.id}
-                    className="w-full text-start md:w-1/2 pe-2 flex py-4"
-                  >
-                    <button
-                      className="border-2 w-full rounded-2xl text-start p-4 h-full flex flex-col justify-between outline-none"
-                      onClick={() => {
-                        handleToggleClick(item);
-                      }}
-                      style={{
-                        borderColor: item.id === toggleClick ? "#7902DF" : "",
-                        backgroundColor:
-                          item.id === toggleClick ? "#402FFF10 " : "",
-                      }}
+              {canShowObjectives() && (
+                <div style={styles.inputStyle}>
+                  Select only one. You can create new agents to dedicate them to
+                  other objectives.
+                </div>
+              )}
+              {canShowObjectives() && (
+                <div className="flex flex-wrap">
+                  {AgentObjective.map((item) => (
+                    <div
+                      key={item.id}
+                      className="w-full text-start md:w-1/2 pe-2 flex py-4"
                     >
-                      {item.id === toggleClick ? (
-                        <Image
-                          src={item.focusIcn}
-                          height={30}
-                          width={30}
-                          alt="*"
-                        />
-                      ) : (
-                        <Image
-                          src={item.unFocusIcon}
-                          height={30}
-                          width={30}
-                          alt="*"
-                        />
-                      )}
-                      <div className="mt-8" style={styles.headingTitle}>
-                        {item.title}
-                      </div>
-                      <div
-                        className="mt-4"
-                        style={{ fontSize: 11, fontWeight: "300" }}
+                      <button
+                        className="border-2 w-full rounded-2xl text-start p-4 h-full flex flex-col justify-between outline-none"
+                        onClick={() => {
+                          handleToggleClick(item);
+                        }}
+                        style={{
+                          borderColor: item.id === toggleClick ? "#7902DF" : "",
+                          backgroundColor:
+                            item.id === toggleClick ? "#402FFF10 " : "",
+                        }}
                       >
-                        {item.details}
-                      </div>
-                    </button>
-                  </div>
-                ))}
-              </div>
-
+                        {item.id === toggleClick ? (
+                          <Image
+                            src={item.focusIcn}
+                            height={30}
+                            width={30}
+                            alt="*"
+                          />
+                        ) : (
+                          <Image
+                            src={item.unFocusIcon}
+                            height={30}
+                            width={30}
+                            alt="*"
+                          />
+                        )}
+                        <div className="mt-8" style={styles.headingTitle}>
+                          {item.title}
+                        </div>
+                        <div
+                          className="mt-4"
+                          style={{ fontSize: 11, fontWeight: "300" }}
+                        >
+                          {item.details}
+                        </div>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
               {showOtherObjective && (
                 <div>
                   <div style={styles.headingStyle}>{`Agent's Objective`}</div>

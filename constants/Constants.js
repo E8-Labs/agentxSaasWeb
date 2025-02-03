@@ -34,3 +34,15 @@ export const HowtoVideos = {
 export const Constants = {
   GlobalPhoneNumber: "+14062040550",
 };
+
+export const isValidUrl = (url) => {
+  const urlPattern = /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-./?%&=]*)?$/;
+  return urlPattern.test(url);
+};
+
+export let userType = "RealEstateAgent";
+
+export const setUserType = (newUserType) => {
+  userType = newUserType;
+};
+

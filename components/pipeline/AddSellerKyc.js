@@ -24,7 +24,9 @@ const AddSellerKyc = ({
   mainAgentId,
   allKYCs,
 }) => {
-  //// console.log("Satus of passed is", allKYCs)
+
+
+  console.log("Satus of passed is", allKYCs)
 
   const router = useRouter();
 
@@ -185,7 +187,7 @@ const AddSellerKyc = ({
     }
 
     if (SellerNeedData.length > 0) {
-     // console.log("Data passed is", SellerNeedData);
+     console.log("Data passed is", SellerNeedData);
       setNeedKYCQuestions((prevNeedKycs) => [
         ...prevNeedKycs.filter(
           (existing) =>

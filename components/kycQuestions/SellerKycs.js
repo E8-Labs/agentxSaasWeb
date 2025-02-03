@@ -13,9 +13,13 @@ import { KycCategory } from "../constants/constants";
 import AgentSelectSnackMessage from "../dashboard/leads/AgentSelectSnackMessage";
 import IntroVideoModal from "../createagent/IntroVideoModal";
 import VideoCard from "../createagent/VideoCard";
-import { HowtoVideos } from "@/constants/Constants";
+import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
+import { GetKycQuestionsForUser, SellerKycsQuestions } from "@/constants/Kycs";
+import { UserTypes } from "@/constants/UserTypes";
 
 const SellerKycs = ({ handleContinue }) => {
+  const [user, setUser] = useState(null);
+  const [pageTitle, setPageTitle] = useState("What would you like to ask ");
   const router = useRouter();
   const [toggleClick, setToggleClick] = useState(1);
   const [addKYCQuestion, setAddKYCQuestion] = useState(false);
@@ -38,65 +42,47 @@ const SellerKycs = ({ handleContinue }) => {
   const [showErrorSnack, setShowErrorSnack] = useState(false);
 
   //needKYCQuestions
-  const [needKYCQuestions, setNeedKYCQuestions] = useState([
-    {
-      id: 1,
-      question: "Why have you decided to sell your home?",
-      sampleAnswers: [],
-    },
-    // {
-    //     id: 2,
-    //     question: "Have you outgrown your current home, or is it too large now?",
-    //     sampleAnswers: []
-    // },
-    {
-      id: 2,
-      question:
-        "Are there any significant life changes prompting this decision, such as job relocation or changes in the family?",
-      sampleAnswers: [],
-    },
-  ]);
+  const [needKYCQuestions, setNeedKYCQuestions] = useState(
+    SellerKycsQuestions.DefaultSellerKycsNeed
+  );
 
-  const [motivationKycQuestions, setMotivationKycQuestions] = useState([
-    {
-      id: 1,
-      question:
-        "What's your primary motivation for selling now rather than waiting?", //Why is now the right time?
-      sampleAnswers: [],
-    },
-    {
-      id: 2,
-      question:
-        "How important is the selling price to you versus the speed of the sale?", //Are you looking to downsize or upsize?
-      sampleAnswers: [],
-    },
-    {
-      id: 3,
-      question:
-        "Are there any specific factors that would influence your decision to accept an offer or reject it?", //Are you relocating for work?
-      sampleAnswers: [],
-    },
-  ]);
+  const [motivationKycQuestions, setMotivationKycQuestions] = useState(
+    SellerKycsQuestions.DefaultSellerKycsUrgency
+  );
 
-  const [urgencyKycQuestions, setUrgencyKycQuestions] = useState([
-    {
-      id: 1,
-      question: "When do you hope to have your home sold?", //When do you expect to move into your new place?
-      sampleAnswers: [],
-    },
-    {
-      id: 2,
-      question:
-        "Are there any specific events or dates driving this timeline (e.g., starting a new job, school for kids, purchasing another property)?", //When do you plan on buying a home?
-      sampleAnswers: [],
-    },
-    {
-      id: 3,
-      question:
-        "How would it impact you if the sale took longer than anticipated?", //When do you plan to move into your new home?
-      sampleAnswers: [],
-    },
-  ]);
+  const [urgencyKycQuestions, setUrgencyKycQuestions] = useState(
+    SellerKycsQuestions.DefaultSellerKycsMotivation
+  );
+
+  useEffect(() => {
+    let userData = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    if (userData) {
+      let u = JSON.parse(userData);
+      setUser(u);
+    }
+  }, []);
+
+  useEffect(() => {
+    // console.log("Here in user set");
+    if (user) {
+      GetTitleBasedOnUserType();
+      let profile = user.user;
+      let kycsneed = GetKycQuestionsForUser(profile.userType, "seller", "need");
+      setNeedKYCQuestions(kycsneed);
+      let kycsmotivation = GetKycQuestionsForUser(
+        profile.userType,
+        "seller",
+        "motivation"
+      );
+      setMotivationKycQuestions(kycsmotivation);
+      let kycsurgency = GetKycQuestionsForUser(
+        profile.userType,
+        "seller",
+        "urgency"
+      );
+      setUrgencyKycQuestions(kycsurgency);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (
@@ -145,7 +131,7 @@ const SellerKycs = ({ handleContinue }) => {
 
     if (toggleClick === 1) {
       // Add to the "Needs" questions and auto-select the new question
-     // console.log("Nee kycs questions list is:", needKYCQuestions);
+      // console.log("Nee kycs questions list is:", needKYCQuestions);
       if (
         needKYCQuestions.some(
           (item) =>
@@ -154,7 +140,7 @@ const SellerKycs = ({ handleContinue }) => {
         )
       ) {
         setShowErrorSnack("Question already exists!!!");
-       // console.log("Question Already exists");
+        // console.log("Question Already exists");
         return;
       } else {
         //// console.log("New question");
@@ -176,7 +162,7 @@ const SellerKycs = ({ handleContinue }) => {
         )
       ) {
         setShowErrorSnack("Question already exists!!!");
-       // console.log("Question Already exists");
+        // console.log("Question Already exists");
         return;
       } else {
         setMotivationKycQuestions((prevQuestions) => {
@@ -197,7 +183,7 @@ const SellerKycs = ({ handleContinue }) => {
         )
       ) {
         setShowErrorSnack("Question already exists!!!");
-       // console.log("Question Already exists");
+        // console.log("Question Already exists");
         return;
       } else {
         setUrgencyKycQuestions((prevQuestions) => {
@@ -357,7 +343,7 @@ const SellerKycs = ({ handleContinue }) => {
         examples: item.sampleAnswers.filter((answer) => answer),
       });
     });
-   // console.log("Kyc need", selectedNeedQuestions);
+    // console.log("Kyc need", selectedNeedQuestions);
     selectedMotivationQuestions.map((item) => {
       kycQuestions.push({
         question: item.question,
@@ -366,7 +352,7 @@ const SellerKycs = ({ handleContinue }) => {
         examples: item.sampleAnswers.filter((answer) => answer),
       });
     });
-   // console.log("Kyc moti", selectedMotivationQuestions);
+    // console.log("Kyc moti", selectedMotivationQuestions);
     selectedUrgencyQuestions.map((item) => {
       kycQuestions.push({
         question: item.question,
@@ -375,24 +361,24 @@ const SellerKycs = ({ handleContinue }) => {
         examples: item.sampleAnswers.filter((answer) => answer),
       });
     });
-   // console.log("Kyc urg", selectedUrgencyQuestions);
+    // console.log("Kyc urg", selectedUrgencyQuestions);
 
     setSellerKycLoader(true);
 
     try {
       let AuthToken = null;
-      const LocalData = localStorage.getItem("User");
+      // const LocalData = localStorage.getItem("User");
       const agentDetails = localStorage.getItem("agentDetails");
       let MyAgentData = null;
-      if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
-        AuthToken = UserDetails.token;
+      if (user) {
+        // const UserDetails = JSON.parse(LocalData);
+        AuthToken = user.token;
       }
 
       if (agentDetails) {
-       // console.log("trying");
+        // console.log("trying");
         const agentData = JSON.parse(agentDetails);
-       // console.log("ActualAgent details are :--", agentData);
+        // console.log("ActualAgent details are :--", agentData);
         MyAgentData = agentData;
       }
 
@@ -406,7 +392,7 @@ const SellerKycs = ({ handleContinue }) => {
       //// console.log("Data to send in api is", data);
       ApiData = data;
 
-     // console.log("APi data is :--", ApiData);
+      // console.log("APi data is :--", ApiData);
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -416,19 +402,23 @@ const SellerKycs = ({ handleContinue }) => {
       });
 
       if (response) {
-       // console.log("Response of add KYC api is :--", response.data);
+        // console.log("Response of add KYC api is :--", response.data);
         if (response.data.status === true) {
           localStorage.setItem(
             "agentDetails",
             JSON.stringify(response.data.data)
           );
-          router.push("/buyerskycquestions");
+          if (GetUserType() == UserTypes.RealEstateAgent) {
+            router.push("/buyerskycquestions");
+          } else {
+            router.push("/pipeline");
+          }
         } else {
           setSellerKycLoader(false);
         }
       }
     } catch (error) {
-     // console.error("Error occured in api is :--", error);
+      // console.error("Error occured in api is :--", error);
       setSellerKycLoader(false);
     } finally {
     }
@@ -474,12 +464,31 @@ const SellerKycs = ({ handleContinue }) => {
   function isMotivationKycSelected(kyc, selectedKycs) {
     let isSelected = false;
     for (const k of selectedKycs) {
-     // console.log(`Comparing ${kyc.question} with ${k.question}\n\n\n`);
+      // console.log(`Comparing ${kyc.question} with ${k.question}\n\n\n`);
       if (kyc.question == k.question) {
         isSelected = true;
       }
     }
     return isSelected;
+  }
+
+  function GetTitleBasedOnUserType() {
+    let title = "What would you like to ask sellers?";
+    if (user) {
+      let profile = user.user;
+      if (profile.userType != UserTypes.RealEstateAgent) {
+        title = "What would you like to ask customers?";
+      }
+    }
+    setPageTitle(title);
+  }
+  function GetUserType() {
+    let type = UserTypes.RealEstateAgent;
+    if (user) {
+      let profile = user.user;
+      type = profile.userType;
+    }
+    return type;
   }
 
   return (
@@ -528,7 +537,7 @@ const SellerKycs = ({ handleContinue }) => {
                 className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
                 style={{ textAlign: "center" }}
               >
-                What would you like to ask sellers?
+                {pageTitle}
               </div>
               <div
                 className="mt-6 w-11/12 md:text-xl text-lg font-[400]"
@@ -635,15 +644,15 @@ const SellerKycs = ({ handleContinue }) => {
                   style={{ scrollbarWidth: "none" }}
                 >
                   {motivationKycQuestions.map((item, index) => {
-                   // console.log(
+                    // console.log(
                     //   "########################### START ########################################"
                     // );
                     let selected = isMotivationKycSelected(
                       item,
                       selectedMotivationKyc
                     );
-                   // console.log(selected);
-                   // console.log(
+                    // console.log(selected);
+                    // console.log(
                     //   "########################## END #########################################"
                     // );
                     return (

@@ -31,7 +31,8 @@ import { UpdateProfile } from "@/components/apis/UpdateProfile";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
-import { PersistanceKeys } from "@/constants/Constants";
+import { PersistanceKeys, userType } from "@/constants/Constants";
+import { logout } from "@/utilities/UserUtility";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -55,6 +56,8 @@ const ProfileNav = () => {
   const [showsuccessSnack, setShowSuccessSnack] = useState(null);
   const [errorSnack, setErrorSnack] = useState(null);
   const [showerrorSnack, setShowErrorSnack] = useState(null);
+
+  const [userType, setUserType] = useState("")
 
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
   useEffect(() => {
@@ -185,7 +188,6 @@ const ProfileNav = () => {
           //   "Service Worker registered with scope:",
           //   registration.scope
           // );
-
           // Firebase automatically uses this service worker for messaging
         })
         .catch((error) => {
@@ -286,6 +288,16 @@ const ProfileNav = () => {
     // },
   ];
 
+  const adminLinks = [
+    {
+      id: 1,
+      name: "Users",
+      href: "/dashboard/admin/users",
+      selected: "/svgIcons/selectdDashboardIcon.svg",
+      uneselected: "/svgIcons/unSelectedDashboardIcon.svg",
+    },
+  ]
+
   //function to getprofile
   const getProfile = async () => {
     try {
@@ -302,45 +314,59 @@ const ProfileNav = () => {
       let Data = response?.data?.data;
       // Data.totalSecondsAvailable  = 100
 
-      // console.log("Available seconds are", Data?.totalSecondsAvailable);
+      console.log(
+        // "Available seconds are Profile Nav",
+        Data?.totalSecondsAvailable
+      );
 
       if (response) {
-        
-        if (
-          // Data?.totalSecondsAvailable <= 120 ||
-          Data?.plan == null ||
-          (Data?.plan &&
-            Data?.plan?.status !== "active" &&
-            Data?.totalSecondsAvailable <= 120
-          ) ||
-          (Data?.plan &&
-            Data?.plan?.status == "active" &&
-            Data?.totalSecondsAvailable <= 120
-          )
-        ) {
-          setShowPlansPopup(true);
+        // console.log("Inside response ", response?.data?.status);
+        if (response?.data?.status) {
+          // console.log("User is logged in", response?.data?.status);
+          setUserType(response?.data?.data.userType)
+          if (response?.data?.data.userType != "admin") {
+            if (
+              // Data?.totalSecondsAvailable <= 120 ||
+              Data?.plan == null ||
+              (Data?.plan &&
+                Data?.plan?.status !== "active" &&
+                Data?.totalSecondsAvailable <= 120) ||
+              (Data?.plan &&
+                Data?.plan?.status == "active" &&
+                Data?.totalSecondsAvailable <= 120)
+            ) {
+              setShowPlansPopup(true);
+            } else {
+              setShowPlansPopup(false);
+            }
+
+            let plan = response?.data?.data?.plan;
+            let togglePlan = plan?.type;
+            let planType = null;
+            if (togglePlan === "Plan30") {
+              planType = 1;
+            } else if (togglePlan === "Plan120") {
+              planType = 2;
+            } else if (togglePlan === "Plan360") {
+              planType = 3;
+            } else if (togglePlan === "Plan720") {
+              planType = 4;
+            }
+
+            setTogglePlan(planType);
+          }
         } else {
-          setShowPlansPopup(false);
+          console.log("User is not available");
+          //Logout user
+          logout();
+          router.push("/");
         }
 
-
-        let plan = response?.data?.data?.plan;
-        let togglePlan = plan?.type;
-        let planType = null;
-          if (togglePlan === "Plan30") {
-            planType = 1;
-          } else if (togglePlan === "Plan120") {
-            planType = 2;
-          } else if (togglePlan === "Plan360") {
-            planType = 3;
-          } else if (togglePlan === "Plan720") {
-            planType = 4;
-          }
-
-        setTogglePlan(planType);
+      } else {
+        console.log("No response");
       }
     } catch (error) {
-      // console.error("Error occured in api is error", error);
+      console.error("Error occured in api is error", error);
     }
   };
 
@@ -564,6 +590,14 @@ const ProfileNav = () => {
     },
   };
 
+  const showLinks = () =>{
+    if(userType&& userType == "admin"){
+      return adminLinks
+    }else{
+      return links
+    }
+  }
+
   return (
     <div>
       <AgentSelectSnackMessage
@@ -600,40 +634,40 @@ const ProfileNav = () => {
         </div>
 
         <div className="w-full mt-8 flex flex-col items-center gap-3">
-          {links.map((item) => (
-            <div key={item.id} className="w-9/12 flex flex-col gap-3 ">
-              <Link
-                sx={{ cursor: "pointer", textDecoration: "none" }}
-                href={item.href}
-                onClick={(e) => handleOnClick(e, item.href)}
-              >
-                <div
-                  className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
-                  style={{}}
+          {showLinks().map((item) => (
+              <div key={item.id} className="w-9/12 flex flex-col gap-3 ">
+                <Link
+                  sx={{ cursor: "pointer", textDecoration: "none" }}
+                  href={item.href}
+                  onClick={(e) => handleOnClick(e, item.href)}
                 >
-                  <Image
-                    src={
-                      pathname === item.href ? item.selected : item.uneselected
-                    }
-                    height={24}
-                    width={24}
-                    alt="icon"
-                  />
                   <div
-                    className={
-                      pathname === item.href ? "text-purple" : "text-black"
-                    }
-                    style={{
-                      fontSize: 15,
-                      fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
-                    }}
+                    className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
+                    style={{}}
                   >
-                    {item.name}
+                    <Image
+                      src={
+                        pathname === item.href ? item.selected : item.uneselected
+                      }
+                      height={24}
+                      width={24}
+                      alt="icon"
+                    />
+                    <div
+                      className={
+                        pathname === item.href ? "text-purple" : "text-black"
+                      }
+                      style={{
+                        fontSize: 15,
+                        fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
+                      }}
+                    >
+                      {item.name}
+                    </div>
                   </div>
-                </div>
-              </Link>
-            </div>
-          ))}
+                </Link>
+              </div>
+            ))}
         </div>
 
         {/* <div>
@@ -657,34 +691,29 @@ const ProfileNav = () => {
             textDecoration: "none",
           }}
         >
-          {
-            userDetails?.user?.thumb_profile_image ? (
-              <div
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%', // Ensures circular shape
-                  overflow: 'hidden',  // Clips any overflow from the image
-                  display: 'flex',     // Centers the image if needed
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Image
-                  src={userDetails?.user?.thumb_profile_image}
-                  alt="*"
-                  height={32}
-                  width={32}
-                  // layout="fill" // Use fill to make the image cover the parent div
-                  objectFit="fill" // Ensures the image scales properly
-                />
-              </div>
-            ) : (
-              <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
-                {userDetails?.user?.name.slice(0, 1).toUpperCase()}
-              </div>
-            )
-          }
+          {userDetails?.user?.thumb_profile_image ? (
+            <div
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "50%", // Ensures circular shape
+                overflow: "hidden", // Clips any overflow from the image
+                display: "flex", // Centers the image if needed
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <img
+                src={userDetails?.user?.thumb_profile_image}
+                alt="*"
+                style={{ height: "100%", width: "100%" }}
+              />
+            </div>
+          ) : (
+            <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
+              {userDetails?.user?.name.slice(0, 1).toUpperCase()}
+            </div>
+          )}
 
           <div>
             <div

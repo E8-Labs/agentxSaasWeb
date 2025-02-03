@@ -606,7 +606,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       >
                         +14062040550
                         {showGlobalBtn &&
-                          " (Our global phone number avail to first time users)"}
+                          " (to available for testing calls only)"}
                         {showGlobalBtn == false &&
                           " (Only for outbound agents. You must buy a number)"}
                       </MenuItem>

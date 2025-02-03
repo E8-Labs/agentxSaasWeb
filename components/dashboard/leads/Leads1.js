@@ -1502,7 +1502,7 @@ const Leads1 = () => {
                           timeout: 1000,
                           sx: {
                             backgroundColor: "#00000020",
-                            // //backdropFilter: "blur(2px)",
+                            // //backdropFilter: "blur(5px)",
                           },
                         }}
                       >
@@ -1545,6 +1545,19 @@ const Leads1 = () => {
                           </div>
                         </Box>
                       </Modal>
+
+
+                      {/* <Modal 
+                          open = {ShowDelCol}
+                          onClose={()=>setShowDelCol(false)}
+
+                      >
+                        <div style={{height:50,width:50,backgroundColor:'red'}}>
+                              jioprjfdlkm
+                        </div>
+
+                      </Modal> */}
+
                     </div>
                   );
                 })}

@@ -555,8 +555,8 @@ function Page() {
                           </div>
                           <div
                             className={`text-sm font-medium ${item.status === "Pending"
-                                ? "text-red-500"
-                                : "text-green-500"
+                              ? "text-red-500"
+                              : "text-green-500"
                               }`}
                           >
                             {item.status}
@@ -730,7 +730,7 @@ function Page() {
                   </p>
                 ) : (
                   <div>
-                    {emailCheckResponse ? (
+                    {email && emailCheckResponse ? (
                       <p
                         style={{
                           ...styles.errmsg,

@@ -529,12 +529,7 @@ function SheduledCalls() {
                                   )}
                                 </div>
                                 <div className="w-2/12">
-                                  {/* {
-                                                                        item.startTime ?
-                                                                            <div style={styles.text2}>
-                                                                                {moment(item.startTime).format("MMM DD,YYYY - hh:mm A")}
-                                                                            </div> : "-"
-                                                                    } */}
+                                  
                                   {item.status}
                                 </div>
                                 <div className="w-1/12">

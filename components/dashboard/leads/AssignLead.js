@@ -740,7 +740,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                     }}
                   >
                     <CalendarDots size={32} weight="bold" />
-                    <div style={styles.title}>Shedule Call</div>
+                    <div style={styles.title}>Schedule Call</div>
                   </button>
                   {/* <div>
                                         {

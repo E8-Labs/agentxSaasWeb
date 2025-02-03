@@ -191,6 +191,11 @@ function Page() {
   //all calenders added by user
   const [previousCalenders, setPreviousCalenders] = useState([]);
 
+
+
+  const [user, setUser] = useState(null);
+
+
   //call get numbers list api
   useEffect(() => {
     if (showDrawerSelectedAgent === null) {
@@ -1147,6 +1152,7 @@ function Page() {
       let AuthToken = null;
       if (localData) {
         const UserDetails = JSON.parse(localData);
+        setUser(UserDetails)
         AuthToken = UserDetails.token;
       }
 
@@ -3567,6 +3573,7 @@ function Page() {
                           uniqueColumns={uniqueColumns}
                           tagValue={setScriptTagInput}
                           scrollOffset={scrollOffset}
+                          showSaveChangesBtn = {showSaveChangesBtn}
                         />
 
                         {/* <DynamicDropdown /> */}
@@ -3720,7 +3727,7 @@ function Page() {
                     backgroundColor: "",
                   }}
                 >
-                  <KYCs kycsDetails={setKycsData} mainAgentId={MainAgentId} />
+                  <KYCs kycsDetails={setKycsData} mainAgentId={MainAgentId} user={user&&user} />
                 </div>
               )}
             </div>

@@ -6,6 +6,7 @@ import { Box, CircularProgress, Modal, Popover } from "@mui/material";
 import moment from "moment";
 import { GetFormattedDateString } from "@/utilities/utility";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
+import { ShowConfirmationPopup } from "./CallActivties";
 
 function SheduledCalls() {
   const [searchValue, setSearchValue] = useState("");
@@ -34,6 +35,12 @@ function SheduledCalls() {
   );
   const [leadsSearchValue, setLeadsSearchValue] = useState("");
 
+  //variable for warningpopup
+  const [showConfirmationPopuup, setShowConfirmationPopup] = useState(null);
+  const [color, setColor] = useState(false);
+
+  const [PauseLoader, setPauseLoader] = useState(false);
+
   useEffect(() => {
     getAgents();
     // getSheduledCallLogs();
@@ -42,8 +49,8 @@ function SheduledCalls() {
   //code to show popover
   const handleShowPopup = (event, item, agent) => {
     setAnchorEl(event.currentTarget);
-   // console.log("Selected item details are ", item);
-   // console.log("Selected agent  details are ", agent);
+    // console.log("Selected item details are ", item);
+    // console.log("Selected agent  details are ", agent);
     localStorage.setItem("curentCalllogItem", JSON.stringify(item));
     localStorage.setItem("currentCalllogAgent", JSON.stringify(agent));
     setSelectedAgent(agent);
@@ -59,8 +66,8 @@ function SheduledCalls() {
 
   //code for showing the selected agent leads
   const handleShowLeads = (agent, item) => {
-   // console.log("Agent selected is:", agent);
-   // console.log("Item selected is:", item);
+    // console.log("Agent selected is:", agent);
+    // console.log("Item selected is:", item);
     setSelectedAgent(agent);
     setSelectedItem(item);
     setSelectedLeadsList(item.leads);
@@ -100,23 +107,23 @@ function SheduledCalls() {
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-       // console.log("Localdat recieved is :--", Data);
+        // console.log("Localdat recieved is :--", Data);
         AuthToken = Data.token;
       }
 
-     // console.log("Auth token is:", AuthToken);
+      // console.log("Auth token is:", AuthToken);
 
       let mainAgent = null;
       const localAgent = localStorage.getItem("agentDetails");
       if (localAgent) {
         const agentDetails = JSON.parse(localAgent);
-       // console.log("Check 1 cleear");
-       // console.log("Agent details are:", agentDetails);
+        // console.log("Check 1 cleear");
+        // console.log("Agent details are:", agentDetails);
         mainAgent = agentDetails;
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
       const ApiPath = `${Apis.getSheduledCallLogs}?scheduled=true`;
-     // console.log("Api path is: ", ApiPath);
+      // console.log("Api path is: ", ApiPath);
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -126,14 +133,14 @@ function SheduledCalls() {
       });
 
       if (response) {
-       // console.log("Response of get Scheduled api is:", response.data.data);
+        // console.log("Response of get Scheduled api is:", response.data.data);
 
         setFilteredAgentsList(response.data.data);
         setCallDetails(response.data.data);
         setAgentsList(response.data.data);
       }
     } catch (error) {
-     // console.error("Error occured in get Agents api is :", error);
+      // console.error("Error occured in get Agents api is :", error);
     } finally {
       setInitialLoader(false);
     }
@@ -146,7 +153,7 @@ function SheduledCalls() {
     // const AgentId = filteredAgentsList.map((item) => item.id);
     //// console.log("Agent id is:", AgentId);
     //// console.log("selected agent is:", SelectedAgent);
-   // console.log("Call log details are :", callDetails);
+    // console.log("Call log details are :", callDetails);
     let updatedCallDetails = callDetails.map((item) => item.agentCalls);
     let CallsArray = [];
 
@@ -171,8 +178,8 @@ function SheduledCalls() {
         );
       return lead;
     });
-   // console.log("Leadcall matching data", matchingCallLeadsData);
-   // console.log("Lead id are", calls);
+    // console.log("Leadcall matching data", matchingCallLeadsData);
+    // console.log("Lead id are", calls);
 
     setSheduledCalllogs(matchingCallLeadsData);
     setFilteredSheduledCallDetails(matchingCallLeadsData);
@@ -224,6 +231,133 @@ function SheduledCalls() {
     setFilteredAgentsList(filtered);
   };
 
+
+  //code to pause the agent
+  const pauseAgents = async () => {
+    // console.log("Selected agent is:", SelectedItem);
+
+    try {
+      setPauseLoader(true);
+      const ApiPath = Apis.pauseAgent;
+
+      // console.log("Api path is: ", ApiPath);
+
+      let AuthToken = null;
+      const localData = localStorage.getItem("User");
+      if (localData) {
+        const Data = JSON.parse(localData);
+        // console.log("Localdat recieved is :--", Data);
+        AuthToken = Data.token;
+      }
+
+      // console.log("Auth token is:", AuthToken);
+      const ApiData = {
+        // mainAgentId: SelectedItem.id
+        batchId: SelectedItem.id,
+      };
+      // console.log("Apidata is", ApiData);
+      // return
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response) {
+        // console.log("Response of get agents api is:", response.data);
+        if (response.data.status === true) {
+          setShowConfirmationPopup(null);
+          let currentStatus = filteredAgentsList.map((item) => {
+            if (item.id === SelectedItem.id) {
+              // Update the status for the matching item
+              return {
+                ...item,
+                status: "Paused",
+              };
+            }
+            // Return the item unchanged
+            return item;
+          });
+          // console.log("Current status is:", currentStatus);
+
+          setFilteredAgentsList(currentStatus);
+          handleClosePopup();
+        }
+        // setFilteredAgentsList(response.data.data);
+        // setAgentsList(response.data.data);
+      }
+    } catch (error) {
+      // console.error("Error occured in get Agents api is :", error);
+    } finally {
+      setPauseLoader(false);
+    }
+  };
+
+  //function to resume calls
+  const resumeCalls = async () => {
+    // console.log("Selected agent is:", SelectedItem);
+    // console.log("Resume call api trigered")
+    // return
+    try {
+      setPauseLoader(true);
+      const ApiPath = Apis.resumeCalls;
+
+      // console.log("Api path is: ", ApiPath);
+
+      let AuthToken = null;
+      const localData = localStorage.getItem("User");
+      if (localData) {
+        const Data = JSON.parse(localData);
+        // console.log("Localdat recieved is :--", Data);
+        AuthToken = Data.token;
+      }
+
+      // console.log("Auth token is:", AuthToken);
+      const ApiData = {
+        // mainAgentId: SelectedItem.id
+        batchId: SelectedItem.id,
+      };
+      // console.log("Apidata is", ApiData);
+      // return
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response) {
+        // console.log("Response of get agents api is:", response.data);
+        if (response.data.status === true) {
+          setShowConfirmationPopup(null);
+          let currentStatus = filteredAgentsList.map((item) => {
+            if (item.id === SelectedItem.id) {
+              // Update the status for the matching item
+              return {
+                ...item,
+                status: "Active",
+              };
+            }
+            // Return the item unchanged
+            return item;
+          });
+          // console.log("Current status is:", currentStatus);
+
+          setFilteredAgentsList(currentStatus);
+          handleClosePopup();
+        }
+        // setFilteredAgentsList(response.data.data);
+        // setAgentsList(response.data.data);
+      }
+    } catch (error) {
+      // console.error("Error occured in get Agents api is :", error);
+    } finally {
+      setPauseLoader(false);
+    }
+  };
+
+
   return (
     <div className="w-full items-start">
       <div className="flex w-full pl-10 flex-row items-start gap-3">
@@ -273,7 +407,7 @@ function SheduledCalls() {
           <div style={styles.text}>Scheduled on</div>
         </div>
         <div className="w-1/12">
-          <div style={styles.text} onClick={handleShowDetails}>
+          <div style={styles.text}>
             Action
           </div>
         </div>
@@ -407,6 +541,32 @@ function SheduledCalls() {
                                     className="p-2 flex flex-col gap-2"
                                     style={{ fontWeight: "500", fontSize: 15 }}
                                   >
+                                    <div>
+                                      {PauseLoader ? (
+                                        <CircularProgress size={18} />
+                                      ) : (
+                                        <button
+                                          className="text-start outline-none"
+                                          onClick={() => {
+
+                                            if (SelectedItem?.status == "Paused") {
+                                              //// console.log("Calls are paused")
+                                              setColor(true);
+                                              setShowConfirmationPopup("resume Calls")
+                                            } else {
+                                              //// console.log("Calls are active")
+                                              setShowConfirmationPopup("pause Calls")
+                                              setColor(false);
+                                            }
+                                            // console.log("Cha")
+                                          }}
+                                        >
+                                          {SelectedItem?.status == "Paused"
+                                            ? "Run Calls"
+                                            : "Pause Calls"}
+                                        </button>
+                                      )}
+                                    </div>
                                     <button
                                       className="text-start outline-none"
                                       onClick={() => {
@@ -418,6 +578,18 @@ function SheduledCalls() {
                                     {/* <div className="text-red">Delete</div> */}
                                   </div>
                                 </Popover>
+
+                                {/* Confirmation popup */}
+                                {showConfirmationPopuup && (
+                                  <ShowConfirmationPopup
+                                    showConfirmationPopuup={showConfirmationPopuup}
+                                    setShowConfirmationPopup={setShowConfirmationPopup}
+                                    pauseAgent={pauseAgents}
+                                    color={color}
+                                    PauseLoader={PauseLoader}
+                                    resumeCalls={resumeCalls}
+                                  />
+                                )}
                               </div>
                             </div>
                           </div>
