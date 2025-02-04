@@ -87,18 +87,17 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     // console.log("User phone number is ", userPhoneNumber);
     const localData = localStorage.getItem("User");
     if (localData) {
-      let d = JSON.parse(localData)
+      let d = JSON.parse(localData);
       // console.log("user login details are :", d.user.userType);
 
       // set user type in global variable
-     setUserType(d.user.userType)
+      setUserType(d.user.userType);
 
       if (d.user.userType == "admin") {
         router.push("/admin");
       } else {
         router.push("/dashboard");
       }
-
     }
 
     const localLoc = localStorage.getItem("userLocation");
@@ -280,7 +279,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   };
 
   //code to login
-  const handleLogin = async () => {
+  const handleLoginOld = async () => {
     try {
       setLoginLoader(true);
       const ApiPath = Apis.LogIn;
@@ -345,13 +344,11 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 if (redirect) {
                   router.push(redirect);
                 } else {
-// setUserType()
+                  // setUserType()
                   if (response.data.data.user.userType == "admin") {
                     router.push("/admin");
-
                   } else {
                     router.push("/dashboard/leads");
-
                   }
                 }
               }
@@ -368,6 +365,95 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       // console.error("ERror occured in login api is :", error);
     } finally {
       // setLoginLoader(false);
+    }
+  };
+
+  const handleLogin = async () => {
+    try {
+      const ApiData = {
+        phone: userPhoneNumber,
+        verificationCode: VerifyCode.join(""),
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      };
+      setLoginLoader(true);
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Ensures cookies (JWT) are stored securely
+        body: JSON.stringify(ApiData),
+      });
+      // setLoginLoader(false);
+      const data = await response.json();
+      console.log("Login api data is ", data);
+      if (response.ok) {
+        // console.log("Login successful:", data?.data?.token);
+        // Redirect user or update state as needed
+        let screenWidth = innerWidth;
+
+        if (screenWidth < 640) {
+          setMsgType(SnackbarTypes.Warning);
+          setSnackMessage("Access your AI on Desktop");
+        } else {
+          setMsgType(
+            data.status === true ? SnackbarTypes.Success : SnackbarTypes.Error
+          );
+          setSnackMessage(data.message);
+        }
+
+        setIsVisible(true);
+
+        if (data.status === true) {
+          setLoaderTitle("Redirecting to dashboard...");
+          // if (
+          //   response.data.data.user.userType !== "RealEstateAgent" &&
+          //   response.data.data.user.userRole !== "Invitee"
+          // ) {
+          if (data.data.user.waitlist) {
+            // console.log("Pushing user to wait list");
+
+            const twoHoursFromNow = new Date();
+            twoHoursFromNow.setTime(twoHoursFromNow.getTime() + 2 * 60 * 1000);
+            if (typeof document !== "undefined") {
+              setCookie(data.data.user, document, twoHoursFromNow);
+              router.push("/onboarding/WaitList");
+            }
+          } else {
+            // console.log("Here Else");
+            // let routeTo = ""
+
+            localStorage.setItem("User", JSON.stringify(data.data));
+            //set cokie on locastorage to run middle ware
+            if (typeof document !== "undefined") {
+              // console.log("Here Not undefined");
+
+              setCookie(data.data.user, document);
+              let w = innerWidth;
+              if (w < 540) {
+                // console.log("It is mobile view");
+                router.push("/createagent/desktop");
+              } else if (w > 540) {
+                // console.log("It is desktop view");
+
+                if (redirect) {
+                  router.push(redirect);
+                } else {
+                  router.push("/dashboard/leads");
+                }
+              }
+            } else {
+              // console.log("Here undefined");
+            }
+          }
+        } else {
+          setLoginLoader(false);
+        }
+      } else {
+        console.error("Login failed:", data.error);
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
     }
   };
 

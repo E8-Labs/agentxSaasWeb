@@ -161,7 +161,7 @@ const PipelineStages = ({
     try {
       let response = await getTeamsList();
       if (response) {
-       // console.log("Team Response recieved is", response);
+        // console.log("Team Response recieved is", response);
         let teams = [];
         if (response.admin) {
           let admin = response.admin;
@@ -180,20 +180,20 @@ const PipelineStages = ({
         setMyTeamAdmin(response.admin);
       }
     } catch (error) {
-     // console.error("Error occured in api is", error);
+      // console.error("Error occured in api is", error);
     }
   };
 
   //new teammeber
   const handleAssignTeamMember = (event) => {
     let value = event.target.value;
-   // console.log("Value to set is :", value);
+    // console.log("Value to set is :", value);
     setAssignToMember(event.target.value);
 
     const selectedItem = myTeamList.find(
       (item) => item?.invitedUser?.name === value
     );
-   // console.log("Selected teammeber is:", selectedItem);
+    // console.log("Selected teammeber is:", selectedItem);
     setAssignToMember(
       selectedItem?.invitedUser?.name || myTeamAdmin.invitedUser?.name
     ); //
@@ -202,7 +202,7 @@ const PipelineStages = ({
       selectedItem?.invitedUser?.id || myTeamAdmin.invitedUser?.id,
     ]); //
 
-   // console.log("Selected teammeber is:", selectedItem);
+    // console.log("Selected teammeber is:", selectedItem);
   };
 
   const handlePopoverClose = () => {
@@ -218,9 +218,9 @@ const PipelineStages = ({
     const agentDetails = localStorage.getItem("agentDetails");
     if (agentDetails) {
       const agentData = JSON.parse(agentDetails);
-     // console.log("Current Agent Details Recieved Are :--", agentData);
+      // console.log("Current Agent Details Recieved Are :--", agentData);
       if (agentData.agents?.length > 1) {
-       // console.log("Two agents");
+        // console.log("Two agents");
         setIsInboundAgent(false);
       } else {
         if (agentData.agents[0]?.agentType === "inbound") {
@@ -233,7 +233,7 @@ const PipelineStages = ({
   }, []);
 
   useEffect(() => {
-   // console.log("Stagesrecieved are :", stages);
+    // console.log("Stagesrecieved are :", stages);
     setPipelineStages(stages);
   }, [stages]);
 
@@ -253,7 +253,7 @@ const PipelineStages = ({
         AuthToken = UserDetails.token;
       }
 
-     // console.log("Auth token is :--", AuthToken);
+      // console.log("Auth token is :--", AuthToken);
 
       // const ApiData = {
       //     stageTitle: renameStage,
@@ -269,12 +269,12 @@ const PipelineStages = ({
       //// console.log("data sending in api si:", ApiData);
 
       for (let [key, value] of formData.entries()) {
-       // console.log(`${key}: ${value}`);
+        // console.log(`${key}: ${value}`);
       }
 
       const ApiPath = Apis.UpdateStage;
 
-     // console.log("Api path is:", ApiPath);
+      // console.log("Api path is:", ApiPath);
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -284,14 +284,14 @@ const PipelineStages = ({
       });
 
       if (response) {
-       // console.log("Response of updates stage api is response :", response);
+        // console.log("Response of updates stage api is response :", response);
         setPipelineStages(response.data.data.stages);
         setShowRenamePopup(false);
         // setSuccessSnack(response.data.message);
         // handleCloseStagePopover();
       }
     } catch (error) {
-     // console.log("Error occured in rename api is:", error);
+      // console.log("Error occured in rename api is:", error);
     } finally {
       setRenameStageLoader(false);
     }
@@ -310,15 +310,15 @@ const PipelineStages = ({
 
   //code for drag and drop stages
   const handleOnDragEnd = (result) => {
-   // console.log("Data passed in drag function", result);
+    // console.log("Data passed in drag function", result);
     const { source, destination } = result;
-   // console.log("Check 1");
+    // console.log("Check 1");
     // if (!destination) return;
     if (!destination || source.index === 0 || destination.index === 0) {
       setShowRearrangeErr("Cannot rearrange when stage is expanded.");
       setIsVisibleSnack(true);
       setSnackType("Error");
-     // console.log("Check 2 then return");
+      // console.log("Check 2 then return");
       return;
     }
 
@@ -327,18 +327,18 @@ const PipelineStages = ({
     //     return;
     // }
 
-   // console.log("Check 3");
+    // console.log("Check 3");
     const items = Array.from(pipelineStages);
     const [reorderedItem] = items.splice(source.index, 1);
     items.splice(destination.index, 0, reorderedItem);
 
-   // console.log("Check 4");
+    // console.log("Check 4");
     const updatedStages = items.map((stage, index) => ({
       ...stage,
       order: index + 1,
     }));
 
-   // console.log("Check 5 about to call the api");
+    // console.log("Check 5 about to call the api");
     setPipelineStages(updatedStages);
     onUpdateOrder(updatedStages);
     handleReOrder();
@@ -355,20 +355,20 @@ const PipelineStages = ({
     );
     setAssignNextStageId(selectedItem.id);
 
-   // console.log("Selected inext stage is:", selectedItem);
+    // console.log("Selected inext stage is:", selectedItem);
   };
 
   //code to delete stage
   const handleDeleteStage = async (value) => {
     try {
       if (value === "del2") {
-       // console.log("Loader 2", value);
+        // console.log("Loader 2", value);
         setDelStageLoader2(true);
       } else if (value === "del") {
-       // console.log("Loader 1", value);
+        // console.log("Loader 1", value);
         setDelStageLoader(true);
       }
-     // console.log("Selected pipeline is:", selectedPipelineItem);
+      // console.log("Selected pipeline is:", selectedPipelineItem);
       const localData = localStorage.getItem("User");
       let AuthToken = null;
       if (localData) {
@@ -377,7 +377,7 @@ const PipelineStages = ({
         //// console.log("Local details are :", UserDetails);
       }
 
-     // console.log("Auth token is :--", AuthToken);
+      // console.log("Auth token is :--", AuthToken);
 
       const ApiData = {
         // pipelineId: selectedPipelineItem.id,
@@ -387,10 +387,10 @@ const PipelineStages = ({
         moveToStageId: assignNextStageId,
       };
 
-     // console.log("Api dta is:", ApiData);
+      // console.log("Api dta is:", ApiData);
       // return
       const ApiPath = Apis.deleteStage;
-     // console.log("Apipath is:", ApiPath);
+      // console.log("Apipath is:", ApiPath);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -400,7 +400,7 @@ const PipelineStages = ({
       });
 
       if (response) {
-       // console.log("response of del stage api is:", response.data);
+        // console.log("response of del stage api is:", response.data);
         if (response.data.status === true) {
           setPipelineStages(response.data.data.stages);
           setSuccessSnack(response.data.message);
@@ -409,7 +409,7 @@ const PipelineStages = ({
         }
       }
     } catch (error) {
-     // console.error("Error occured in delstage api is:", error);
+      // console.error("Error occured in delstage api is:", error);
     } finally {
       setDelStageLoader(false);
     }
@@ -445,13 +445,13 @@ const PipelineStages = ({
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-       // console.log("Local details are :", UserDetails);
+        // console.log("Local details are :", UserDetails);
       }
 
-     // console.log("Auth token is :--", AuthToken);
+      // console.log("Auth token is :--", AuthToken);
 
       const ApiPath = Apis.addCustomStage;
-     // console.log("Api path is:", ApiPath);
+      // console.log("Api path is:", ApiPath);
 
       const ApiData = {
         stageTitle: newStageTitle,
@@ -463,7 +463,7 @@ const PipelineStages = ({
         teams: assignLeadToMember,
       };
 
-     // console.log("Data sending in api is:", ApiData);
+      // console.log("Data sending in api is:", ApiData);
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -473,7 +473,7 @@ const PipelineStages = ({
       });
 
       if (response) {
-       // console.log("Response of add stage title :", response);
+        // console.log("Response of add stage title :", response);
         if (response.data.status === true) {
           setPipelineStages(response.data.data.stages);
           handleCloseAddStage();
@@ -485,7 +485,7 @@ const PipelineStages = ({
         }
       }
     } catch (error) {
-     // console.error("Error occured inn adding new stage title api is", error);
+      // console.error("Error occured inn adding new stage title api is", error);
     } finally {
       setAddStageLoader(false);
     }
@@ -815,7 +815,9 @@ const PipelineStages = ({
                                           className="ms-4 mt-2"
                                           style={styles.inputStyle}
                                         >
-                                          {item.stageTitle === "Booked" && "before the meeting"}, then{" "}
+                                          {item.stageTitle === "Booked" &&
+                                            "before the meeting"}
+                                          , then{" "}
                                           <span style={{ fontWeight: "600" }}>
                                             Make Call
                                           </span>
@@ -845,7 +847,7 @@ const PipelineStages = ({
                                   style={styles.inputStyle}
                                   className="text-purple mt-4"
                                 >
-                                  + Add Call
+                                  + Add Call (If no answer)
                                 </button>
                               </div>
                               <div className="flex flex-row items-center gap-2 mt-4">
@@ -1267,13 +1269,13 @@ const PipelineStages = ({
                                             border: "1px solid #00000020", // Same border on hover
                                           },
                                           "& .MuiOutlinedInput-notchedOutline":
-                                          {
-                                            border: "none", // Remove the default outline
-                                          },
+                                            {
+                                              border: "none", // Remove the default outline
+                                            },
                                           "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                          {
-                                            border: "none", // Remove outline on focus
-                                          },
+                                            {
+                                              border: "none", // Remove outline on focus
+                                            },
                                           "&.MuiSelect-select": {
                                             py: 0, // Optional padding adjustments
                                           },
@@ -1773,9 +1775,9 @@ const PipelineStages = ({
                                   border: "none", // Remove the default outline
                                 },
                                 "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                                  {
+                                    border: "none", // Remove outline on focus
+                                  },
                                 "&.MuiSelect-select": {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -1811,7 +1813,11 @@ const PipelineStages = ({
                                       height={35}
                                       alt="*"
                                     /> */}
-                                    {getAgentsListImage(item?.invitedUser, 42, 42)}
+                                    {getAgentsListImage(
+                                      item?.invitedUser,
+                                      42,
+                                      42
+                                    )}
                                     {item.invitedUser?.name}
                                   </MenuItem>
                                 );
@@ -1871,7 +1877,7 @@ const PipelineStages = ({
                               fontWeight: 600,
                               fontSize: "20",
                             }}
-                          // onClick={handleAddNewStageTitle}
+                            // onClick={handleAddNewStageTitle}
                           >
                             Add Stage
                           </button>

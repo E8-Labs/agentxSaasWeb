@@ -73,10 +73,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     if (localData) {
       const claimNumberDetails = JSON.parse(localData);
 
-     // console.log("Claim number details are:", claimNumberDetails);
+      // console.log("Claim number details are:", claimNumberDetails);
 
       if (claimNumberDetails.officeNo) {
-       // console.log("Should work");
+        // console.log("Should work");
         setUseOfficeNumber(true);
         setShowOfficeNumberInput(true);
         setOfficeNumber(claimNumberDetails.officeNo);
@@ -91,7 +91,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     const localAgentsData = localStorage.getItem("agentDetails");
     if (localAgentsData) {
       const agetnDetails = JSON.parse(localAgentsData);
-     // console.log("Created agent details are :", agetnDetails);
+      // console.log("Created agent details are :", agetnDetails);
       setAgentData(agetnDetails.agents[0]);
       if (agetnDetails.agents.length === 2) {
         setShowReassignBtn(false);
@@ -103,11 +103,11 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   }, []);
 
   useEffect(() => {
-   // console.log("Main number is :", selectNumber);
-   // console.log("User selected number is :", userSelectedNumber);
-   // console.log("User callback number is :", callBackNumber);
-   // console.log("do not staus is :", toggleClick);
-   // console.log("User office number value is:", officeNumber);
+    // console.log("Main number is :", selectNumber);
+    // console.log("User selected number is :", userSelectedNumber);
+    // console.log("User callback number is :", callBackNumber);
+    // console.log("do not staus is :", toggleClick);
+    // console.log("User office number value is:", officeNumber);
     if (
       (selectNumber &&
         // callBackNumber ||
@@ -155,7 +155,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   };
 
   const handleSelectedNumberClick = (item) => {
-   // console.log("nuber is :", item);
+    // console.log("nuber is :", item);
     setOfficeNumber("");
     setShowOfficeNumberInput(false);
     setUseOfficeNumber(false);
@@ -180,7 +180,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   //code for reassigning the number api
   const handleReassignNumber = async (item) => {
     try {
-     // console.log("item is:", item);
+      // console.log("item is:", item);
 
       setReassignLoader(item);
       let AuthToken = null;
@@ -193,10 +193,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       }
 
       if (agentDetails) {
-       // console.log("trying");
+        // console.log("trying");
         setShowConfirmationModal(null);
         const agentData = JSON.parse(agentDetails);
-       // console.log("Agent details are :--", agentData);
+        // console.log("Agent details are :--", agentData);
         MyAgentData = agentData;
       }
 
@@ -207,11 +207,11 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         phoneNumber: item.phoneNumber,
         newAgentId: MyAgentData.agents[0].id,
       };
-     // console.log("I a just trigered");
+      // console.log("I a just trigered");
 
-     // console.log("Data sending in api is:", ApiData);
-     // console.log("Api path is:", ApiPath);
-     // console.log("Authtoken is:", AuthToken);
+      // console.log("Data sending in api is:", ApiData);
+      // console.log("Api path is:", ApiPath);
+      // console.log("Authtoken is:", AuthToken);
 
       // return
       const response = await axios.post(ApiPath, ApiData, {
@@ -222,7 +222,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       });
 
       if (response) {
-       // console.log("Respose of reassign api is:", response);
+        // console.log("Respose of reassign api is:", response);
         setSelectNumber(item.phoneNumber.slice(1));
         setOpenCalimNumDropDown(false);
         //code to close the dropdown
@@ -237,10 +237,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         // }
       }
     } catch (error) {
-     // console.error("Error occured in reassign the number api:", error);
+      // console.error("Error occured in reassign the number api:", error);
     } finally {
       setReassignLoader(null);
-     // console.log("reassign api completed");
+      // console.log("reassign api completed");
     }
   };
 
@@ -281,7 +281,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       }
 
       // setCheckPhoneResponse(null);
-     // console.log("Trigered");
+      // console.log("Trigered");
 
       timerRef.current = setTimeout(() => {
         // checkPhoneNumber(phoneNumber);
@@ -291,7 +291,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
   //code to select Purchase number
   const handlePurchaseNumberClick = (item, index) => {
-   // console.log("Item Selected is :---", item);
+    // console.log("Item Selected is :---", item);
     localStorage.setItem("numberPurchased", JSON.stringify(item));
     setSelectedPurchasedNumber((prevId) => (prevId === item ? null : item));
     setSelectedPurchasedIndex((prevId) => (prevId === index ? null : index));
@@ -308,9 +308,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         const UserDetails = JSON.parse(LocalData);
         AuthToken = UserDetails.token;
       }
-     // console.log("initial api authtoken is:", AuthToken);
+      // console.log("initial api authtoken is:", AuthToken);
       const ApiPath = Apis.userAvailablePhoneNumber;
-     // console.log("Apipath", ApiPath);
+      // console.log("Apipath", ApiPath);
 
       // return
       const response = await axios.get(ApiPath, {
@@ -320,19 +320,20 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       });
 
       if (response) {
-       // console.log("Response of api is :", response.data);
-       // console.log("PArsed data is ", response.data.data);
+        // console.log("Response of api is :", response.data);
+        // console.log("PArsed data is ", response.data.data);
         setPreviousNumber(response.data.data);
       }
     } catch (error) {
-     // console.error("Error occured in: ", error);
+      // console.error("Error occured in: ", error);
     } finally {
-     // console.log("Api cal completed");
+      // console.log("Api cal completed");
     }
   };
 
   //get main agent id
   const AssignNumber = async () => {
+    console.log("Calling assign number");
     try {
       setAssignLoader(true);
       let AuthToken = null;
@@ -345,9 +346,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       }
 
       if (agentDetails) {
-       // console.log("trying");
+        // console.log("trying");
         const agentData = JSON.parse(agentDetails);
-       // console.log("Agent details are :--", agentData);
+        // console.log("Agent details are :--", agentData);
         MyAgentData = agentData;
       }
 
@@ -365,10 +366,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       const ApiPath = Apis.asignPhoneNumber;
 
       for (let [key, value] of formData.entries()) {
-       // console.log(`${key} ${value}`);
+        console.log(`${key} ${value}`);
       }
 
-      // return
+      // return;
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -377,7 +378,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       });
 
       if (response) {
-       // console.log("Response of assign number api is :", response.data);
+        // console.log("Response of assign number api is :", response.data);
         if (response.data.status === true) {
           handleContinue();
           const calimNoData = {
@@ -390,9 +391,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         }
       }
     } catch (error) {
-     // console.error("Error occured in api is:", error);
+      console.error("Error occured in api is:", error);
     } finally {
-     // console.log("Assign Number Api call completed");
+      // console.log("Assign Number Api call completed");
       setAssignLoader(false);
     }
   };

@@ -33,7 +33,7 @@ const ClaimNumber = ({
 
   //code to select Purchase number
   const handlePurchaseNumberClick = (item, index) => {
-   // console.log("Item Selected is :---", item);
+    // console.log("Item Selected is :---", item);
     localStorage.setItem("numberPurchased", JSON.stringify(item));
     setSelectedPurchasedNumber((prevId) => (prevId === item ? null : item));
     setSelectedPurchasedIndex((prevId) => (prevId === index ? null : index));
@@ -52,17 +52,17 @@ const ClaimNumber = ({
         AuthToken = UserDetails.token;
       }
 
-     // console.log("Authtoken is:", AuthToken);
+      // console.log("Authtoken is:", AuthToken);
 
       if (agentDetails) {
-       // console.log("trying");
+        // console.log("trying");
         const agentData = JSON.parse(agentDetails);
-       // console.log("Agent details are :--", agentData);
+        // console.log("Agent details are :--", agentData);
         MyAgentData = agentData;
       }
 
       const ApiPath = Apis.purchaseNumber;
-     // console.log("Apipath is :--", ApiPath);
+      // console.log("Apipath is :--", ApiPath);
       //// console.log("Number selected is:", selectedPurchasedNumber);
       const formData = new FormData();
       formData.append("phoneNumber", selectedPurchasedNumber.phoneNumber);
@@ -73,7 +73,7 @@ const ClaimNumber = ({
       }
 
       for (let [key, value] of formData.entries()) {
-       // console.log(`${key} ${value} `);
+        // console.log(`${key} ${value} `);
       }
 
       //for testing
@@ -98,7 +98,7 @@ const ClaimNumber = ({
       });
 
       if (response) {
-       // console.log("Response of purchase number api is :--", response.data);
+        // console.log("Response of purchase number api is :--", response.data);
         if (response.data.status === true) {
           setOpenPurchaseSuccessModal(true);
           localStorage.setItem(
@@ -121,14 +121,16 @@ const ClaimNumber = ({
         }
       }
     } catch (error) {
-     // console.error("Error occured in purchase number api is: --", error);
+      // console.error("Error occured in purchase number api is: --", error);
     } finally {
       setPurchaseLoader(false);
     }
   };
 
   //function to fine numbers api
+  const requestCounter = useRef(0);
   const handleFindeNumbers = async (number) => {
+    const currentRequest = ++requestCounter.current;
     try {
       setFindeNumberLoader(true);
       const ApiPath = `${Apis.findPhoneNumber}?areaCode=${number}`;
@@ -139,8 +141,9 @@ const ClaimNumber = ({
         AuthToken = UserDetails.token;
       }
 
-     // console.log("Apipath is :--", ApiPath);
+      // console.log("Apipath is :--", ApiPath);
       // return
+
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: "Bearer " + AuthToken,
@@ -149,15 +152,22 @@ const ClaimNumber = ({
       });
 
       if (response) {
-       // console.log("Response of find number api is :--", response.data);
-        if (response.data.status === true) {
-          setFoundeNumbers(response.data.data);
+        // console.log("Response of find number api is :--", response.data);
+        // Only update state if this request is still the latest one
+        if (currentRequest === requestCounter.current) {
+          if (response?.data?.status) {
+            setFoundeNumbers(response.data.data);
+          } else {
+            setFoundeNumbers([]);
+          }
         }
       }
     } catch (error) {
-     // console.error("Error occured in finde number api is :---", error);
+      // console.error("Error occured in finde number api is :---", error);
     } finally {
-      setFindeNumberLoader(false);
+      if (requestCounter.current === currentRequest) {
+        setFindeNumberLoader(false);
+      }
     }
   };
 
@@ -270,7 +280,7 @@ const ClaimNumber = ({
                           handleFindeNumbers(value);
                         }, 300);
                       } else {
-                       // console.log("Should not search");
+                        // console.log("Should not search");
                         return;
                       }
                     }}

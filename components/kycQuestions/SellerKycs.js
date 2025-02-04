@@ -512,6 +512,7 @@ const SellerKycs = ({ handleContinue }) => {
               selectedSellerUrgencyKyc={selectedUrgencyKyc}
               shouldContinue={shouldContinue}
               hideIcon={true}
+              user={user}
             />
           </div>
           {/* Body */}
