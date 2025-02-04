@@ -155,23 +155,24 @@ const FocusArea = ({
 
       // console.log("Agent type is", agentType);
 
-      if (agentType === "RealEstateAgent") {
-        handleContinue();
-      } else if (agentType === "SalesDevRep") {
-        handleContinue();
-      } else if (agentType === "SolarRep") {
-        handleContinue();
-      } else if (agentType === "InsuranceAgent") {
-        handleContinue();
-      } else if (agentType === "MarketerAgent") {
-        handleContinue();
-      } else if (agentType === "WebsiteAgent") {
-        handleContinue();
-      } else if (agentType === "RecruiterAgent") {
-        handleContinue();
-      } else if (agentType === "TaxAgent") {
-        handleContinue();
-      }
+      handleContinue();
+      // if (agentType === "RealEstateAgent") {
+      //   handleContinue();
+      // } else if (agentType === "SalesDevRep") {
+      //   handleContinue();
+      // } else if (agentType === "SolarRep") {
+      //   handleContinue();
+      // } else if (agentType === "InsuranceAgent") {
+      //   handleContinue();
+      // } else if (agentType === "MarketerAgent") {
+      //   handleContinue();
+      // } else if (agentType === "WebsiteAgent") {
+      //   handleContinue();
+      // } else if (agentType === "RecruiterAgent") {
+      //   handleContinue();
+      // } else if (agentType === "TaxAgent") {
+      //   handleContinue();
+      // }
     }
 
     // if (data) {

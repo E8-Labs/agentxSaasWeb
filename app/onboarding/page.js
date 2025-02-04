@@ -118,7 +118,7 @@ const Page = ({ params }) => {
       [UserTypes.WebsiteAgent]: WebOwnersAgentSignUp,
       [UserTypes.RecruiterAgent]: RecruiterAgentSignUp,
       [UserTypes.TaxAgent]: TaxAgentSignUp,
-      [UserTypes.DebtCollectorAgent]:DebtCollectorAgentSignUp
+      [UserTypes.DebtCollectorAgent]: DebtCollectorAgentSignUp,
     };
 
     const selectedComponent = agentComponents[agentTitle] || SignUpForm;

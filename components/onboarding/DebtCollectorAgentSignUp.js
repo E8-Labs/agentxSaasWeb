@@ -372,7 +372,7 @@ const DebtCollectorAgentSignUp = ({
             setCongratsPopup(true);
             // console.log("This is a small size screen");
           } else {
-            // console.log("This is a large size screen");
+            console.log("This is a large size screen");
             handleContinue();
             // setCongratsPopup(true);
           }
