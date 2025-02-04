@@ -3141,15 +3141,6 @@ function Page() {
               className="max-h-[60vh] overflow-auto"
               style={{ scrollbarWidth: "none" }}
             >
-              {/* <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "end", alignItems: "center" }}>
-                <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
-                  <button onClick={() => {
-                    setShowWarningModal(false);
-                  }} className='outline-none'>
-                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
-                  </button>
-                </div>
-              </div> */}
 
               <div className="flex flex-row items-center justify-center gap-2 -mt-1">
                 <Image
