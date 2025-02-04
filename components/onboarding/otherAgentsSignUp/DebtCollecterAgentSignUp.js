@@ -18,15 +18,15 @@ import {
   Modal,
   Snackbar,
 } from "@mui/material";
-import SendVerificationCode from "./services/AuthVerification/AuthService";
-import SnackMessages from "./services/AuthVerification/SnackMessages";
-import { getLocalLocation } from "./services/apisServices/ApiService";
+import SendVerificationCode from "../services/AuthVerification/AuthService";
+import SnackMessages from "../services/AuthVerification/SnackMessages";
+import { getLocalLocation } from "../services/apisServices/ApiService";
 import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
 import { PersistanceKeys } from "@/constants/Constants";
 import { setCookie } from "@/utilities/cookies";
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
-const DebtCollectorAgentSignUp = ({
+const DebtCollerterAgentSignUp = ({
   handleContinue,
   handleWaitList,
   handleSolarAgentBack,
@@ -375,7 +375,7 @@ const DebtCollectorAgentSignUp = ({
             setCongratsPopup(true);
             // console.log("This is a small size screen");
           } else {
-            console.log("This is a large size screen");
+            // console.log("This is a large size screen");
             handleContinue();
             // setCongratsPopup(true);
           }
@@ -735,6 +735,7 @@ const DebtCollectorAgentSignUp = ({
 
               <div style={styles.headingStyle} className="mt-6">
                 Name of the company or collection agency you work with, if any.
+
               </div>
               <input
                 placeholder="Name"
@@ -750,7 +751,7 @@ const DebtCollectorAgentSignUp = ({
                 What is the typical balance size of debts you recover?
               </div>
               <input
-                placeholder="E.g., <$1,000, $1,000-$5,000, $5,000+.)"
+                placeholder="Type here"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={installationVolume}
@@ -774,6 +775,7 @@ const DebtCollectorAgentSignUp = ({
 
               <div style={styles.headingStyle} className="mt-6">
                 Typical Collection Strategy
+
               </div>
 
               {/* <div
@@ -805,21 +807,20 @@ const DebtCollectorAgentSignUp = ({
                             </div> */}
 
               <div
-                className="flex flex-wrap items-center gap-4"
+                className="flex w-full flex-wrap flex-row items-center gap-4 border"
                 style={{ marginTop: "8px" }}
               >
                 {primaryClientTypes.map((item, index) => {
                   return (
-                    <div key={index}>
+                    <div key={index} className="w-full">
                       <button
                         onClick={() => {
                           handleSelectClientType(item);
                         }}
-                        className="border border-[#00000010] rounded px-4 h-[70px] outline-none focus:outline-none focus:ring-0 w-auto"
+                        className="border border-[#00000010] rounded px-4 h-[70px] outline-none focus:outline-none focus:ring-0 w-full"
                         style={{
                           ...styles.inputStyle,
                           borderRadius: "30px",
-                          whiteSpace: "nowrap", // Ensure text stays in one line
                           paddingInline: index === 2 && "40px",
                           border:
                             ClientType === item.title
@@ -835,7 +836,6 @@ const DebtCollectorAgentSignUp = ({
                   );
                 })}
               </div>
-
 
               <Modal
                 open={showVerifyPopup}
@@ -989,4 +989,4 @@ const DebtCollectorAgentSignUp = ({
   );
 };
 
-export default DebtCollectorAgentSignUp;
+export default DebtCollerterAgentSignUp;
