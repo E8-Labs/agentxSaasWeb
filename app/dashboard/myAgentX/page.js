@@ -191,10 +191,7 @@ function Page() {
   //all calenders added by user
   const [previousCalenders, setPreviousCalenders] = useState([]);
 
-
-
   const [user, setUser] = useState(null);
-
 
   //call get numbers list api
   useEffect(() => {
@@ -620,7 +617,8 @@ function Page() {
         //// console.log("Respose of reassign api is:", response.data.data);
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -1003,7 +1001,8 @@ function Page() {
         //// console.log("Response of update number api is", response.data);
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -1152,7 +1151,7 @@ function Page() {
       let AuthToken = null;
       if (localData) {
         const UserDetails = JSON.parse(localData);
-        setUser(UserDetails)
+        setUser(UserDetails);
         AuthToken = UserDetails.token;
       }
 
@@ -1930,7 +1929,8 @@ function Page() {
                         } else {
                           setOpenTestAiModal(true);
                         }
-                        let callScript = item.prompt.callScript;
+                        let callScript =
+                          item.prompt.callScript + " " + item.prompt.greeting;
 
                         // //console.log("Keys extracted are", callScript);
 
@@ -1964,6 +1964,7 @@ function Page() {
                             "buyer_kyc",
                             "CU_address",
                             "CU_status",
+                            // "Address"
                           ];
                           if (
                             !defaultVariables.includes(match[1]) &&
@@ -2118,7 +2119,7 @@ function Page() {
               className="sm:w-full w-full px-10 py-8 overflow-auto"
               style={{
                 backgroundColor: "#ffffff",
-                scrollbarWidth: 'none',
+                scrollbarWidth: "none",
                 borderRadius: "13px",
               }}
             >
@@ -2235,7 +2236,7 @@ function Page() {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                // defaultMask={loading ? 'Loading...' : undefined}
+                  // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -2266,8 +2267,9 @@ function Page() {
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                        }`}
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
+                        index === scriptKeys?.length - 1 ? "mb-16" : ""
+                      }`}
                       style={{
                         ...styles.inputStyle,
                         border: "1px solid #00000010",
@@ -2467,7 +2469,7 @@ function Page() {
               name="Calls"
               value={
                 showDrawerSelectedAgent?.calls &&
-                  showDrawerSelectedAgent?.calls > 0 ? (
+                showDrawerSelectedAgent?.calls > 0 ? (
                   <div>{showDrawerSelectedAgent?.calls}</div>
                 ) : (
                   "-"
@@ -2481,7 +2483,7 @@ function Page() {
               name="Convos"
               value={
                 showDrawerSelectedAgent?.callsGt10 &&
-                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                showDrawerSelectedAgent?.callsGt10 > 0 ? (
                   <div>{showDrawerSelectedAgent?.callsGt10}</div>
                 ) : (
                   "-"
@@ -2509,7 +2511,7 @@ function Page() {
               name="Mins Talked"
               value={
                 showDrawerSelectedAgent?.totalDuration &&
-                  showDrawerSelectedAgent?.totalDuration > 0 ? (
+                showDrawerSelectedAgent?.totalDuration > 0 ? (
                   // <div>{showDrawer?.totalDuration}</div>
                   <div>
                     {moment(
@@ -2531,10 +2533,11 @@ function Page() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${activeTab === tab
-                  ? "text-purple border-b-2 border-purple"
-                  : "text-black-500"
-                  }`}
+                className={`${
+                  activeTab === tab
+                    ? "text-purple border-b-2 border-purple"
+                    : "text-black-500"
+                }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >
                 {tab}
@@ -2842,25 +2845,25 @@ function Page() {
                                       <div className="flex flex-row items-center gap-2">
                                         {showDrawerSelectedAgent?.name !==
                                           item.claimedBy.name && (
-                                            <div>
-                                              <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                              {reassignLoader === item ? (
-                                                <CircularProgress size={15} />
-                                              ) : (
-                                                <button
-                                                  className="text-purple underline"
-                                                  onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setShowConfirmationModal(
-                                                      item
-                                                    );
-                                                  }}
-                                                >
-                                                  Reassign
-                                                </button>
-                                              )}
-                                            </div>
-                                          )}
+                                          <div>
+                                            <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                            {reassignLoader === item ? (
+                                              <CircularProgress size={15} />
+                                            ) : (
+                                              <button
+                                                className="text-purple underline"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  setShowConfirmationModal(
+                                                    item
+                                                  );
+                                                }}
+                                              >
+                                                Reassign
+                                              </button>
+                                            )}
+                                          </div>
+                                        )}
                                       </div>
                                     )}
                                   </div>
@@ -3530,7 +3533,6 @@ function Page() {
                         className="flex flex-row items-center center w-full justify-between"
                       >
                         <div>Script</div>
-
                       </div>
 
                       <div className="flex flex-row items-center justify-between">
@@ -3729,7 +3731,11 @@ function Page() {
                     backgroundColor: "",
                   }}
                 >
-                  <KYCs kycsDetails={setKycsData} mainAgentId={MainAgentId} user={user && user} />
+                  <KYCs
+                    kycsDetails={setKycsData}
+                    mainAgentId={MainAgentId}
+                    user={user && user}
+                  />
                 </div>
               )}
             </div>
