@@ -1646,6 +1646,7 @@ const Leads1 = () => {
 
               <input
                 ref={addColRef}
+                type="text"
                 className="border outline-none rounded p-2 mt-2 w-full focus:ring-0"
                 value={updateColumnValue}
                 // onChange={(e) => { setUpdateColumnValue(e.target.value) }}

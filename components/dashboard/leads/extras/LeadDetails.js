@@ -1755,7 +1755,7 @@ const LeadDetails = ({
                                         color: "#15151560",
                                       }}
                                     >
-                                      {GetFormattedDateString(item?.createdAt)}
+                                      {GetFormattedDateString(item?.createdAt,true)}
                                     </div>
                                     <div className="w-full flex flex-row items-center gap-2 h-full">
                                       <div

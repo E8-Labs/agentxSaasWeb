@@ -86,7 +86,7 @@ const Userleads = ({
   const [filtersSelected, setFiltersSelected] = useState([]);
 
 
-  const [noStageSelected,setNoStageSelected] = useState(false)
+  const [noStageSelected, setNoStageSelected] = useState(false)
 
   useEffect(() => {
     //console.log("Filtered Leads changed", FilterLeads.length);
@@ -710,9 +710,9 @@ const Userleads = ({
       if (filterText) {
         //console.log("Filtered text is ", filterText);
         ApiPath = `${Apis.getLeads}?${filterText}`; //&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}`;
-        ApiPath = ApiPath+"&noStage="+noStageSelected
-      } 
-      
+        ApiPath = ApiPath + "&noStage=" + noStageSelected
+      }
+
       else {
         getLocallyCachedLeads();
         ApiPath = `${Apis.getLeads}?sheetId=${SelectedSheetId}&offset=${offset}`;
@@ -1710,7 +1710,7 @@ const Userleads = ({
               </div>
             </div>
             <div className="flex flex-row items-center justify-between w-full mt-4 w-full">
-              <div className="flex flex-row items-center gap-4 overflow-none flex-shrink-0 w-[90%]">
+              <div className="flex flex-row items-center gap-4 overflow-none flex-shrink-0 w-[80%]">
                 <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded pe-2">
                   <input
                     style={styles.paragraph}
@@ -1821,7 +1821,7 @@ const Userleads = ({
                 </div>
               </div>
 
-              <div className="flex flex-row items-center gap-2 w-[10%]">
+              <div className="flex flex-row items-center gap-2 w-[15%]">
                 {toggleClick.length > 0 && (
                   <div>
                     {toggleClick.length === FilterLeads.length ? (
@@ -1844,6 +1844,12 @@ const Userleads = ({
                             <div style={{ fontSize: "15", fontWeight: "600" }}>
                               Select All
                             </div>
+
+                            <div className="text-purple" style={{ fontSize: "15", fontWeight: "600" }}>
+                              {LeadsList.length}
+                            </div>
+
+
                           </div>
                         )}
                       </div>

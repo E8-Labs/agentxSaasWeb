@@ -617,8 +617,7 @@ function Page() {
         //// console.log("Respose of reassign api is:", response.data.data);
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -1001,8 +1000,7 @@ function Page() {
         //// console.log("Response of update number api is", response.data);
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -2236,7 +2234,7 @@ function Page() {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                  // defaultMask={loading ? 'Loading...' : undefined}
+                // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -2267,9 +2265,8 @@ function Page() {
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
-                        index === scriptKeys?.length - 1 ? "mb-16" : ""
-                      }`}
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
+                        }`}
                       style={{
                         ...styles.inputStyle,
                         border: "1px solid #00000010",
@@ -2469,7 +2466,7 @@ function Page() {
               name="Calls"
               value={
                 showDrawerSelectedAgent?.calls &&
-                showDrawerSelectedAgent?.calls > 0 ? (
+                  showDrawerSelectedAgent?.calls > 0 ? (
                   <div>{showDrawerSelectedAgent?.calls}</div>
                 ) : (
                   "-"
@@ -2483,7 +2480,7 @@ function Page() {
               name="Convos"
               value={
                 showDrawerSelectedAgent?.callsGt10 &&
-                showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
                   <div>{showDrawerSelectedAgent?.callsGt10}</div>
                 ) : (
                   "-"
@@ -2511,7 +2508,7 @@ function Page() {
               name="Mins Talked"
               value={
                 showDrawerSelectedAgent?.totalDuration &&
-                showDrawerSelectedAgent?.totalDuration > 0 ? (
+                  showDrawerSelectedAgent?.totalDuration > 0 ? (
                   // <div>{showDrawer?.totalDuration}</div>
                   <div>
                     {moment(
@@ -2533,11 +2530,10 @@ function Page() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${
-                  activeTab === tab
-                    ? "text-purple border-b-2 border-purple"
-                    : "text-black-500"
-                }`}
+                className={`${activeTab === tab
+                  ? "text-purple border-b-2 border-purple"
+                  : "text-black-500"
+                  }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >
                 {tab}
@@ -2845,25 +2841,25 @@ function Page() {
                                       <div className="flex flex-row items-center gap-2">
                                         {showDrawerSelectedAgent?.name !==
                                           item.claimedBy.name && (
-                                          <div>
-                                            <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                            {reassignLoader === item ? (
-                                              <CircularProgress size={15} />
-                                            ) : (
-                                              <button
-                                                className="text-purple underline"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  setShowConfirmationModal(
-                                                    item
-                                                  );
-                                                }}
-                                              >
-                                                Reassign
-                                              </button>
-                                            )}
-                                          </div>
-                                        )}
+                                            <div>
+                                              <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                              {reassignLoader === item ? (
+                                                <CircularProgress size={15} />
+                                              ) : (
+                                                <button
+                                                  className="text-purple underline"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setShowConfirmationModal(
+                                                      item
+                                                    );
+                                                  }}
+                                                >
+                                                  Reassign
+                                                </button>
+                                              )}
+                                            </div>
+                                          )}
                                       </div>
                                     )}
                                   </div>
@@ -3658,34 +3654,52 @@ function Page() {
                     <div style={{ height: "80%" }}>
                       <div style={{ marginTop: "40px", height: "80%" }}>
                         {/* {showScriptModal?.prompt?.objective} */}
-                        <textarea
-                          className="outline-none rounded-xl focus:ring-0"
-                          // ref={objective}
-                          value={objective}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            // if (value !== oldObjective) {
-                            //   setShowObjectionsSaveBtn(true);
-                            // }
-                            // if (value === oldObjective) {
-                            //   setShowObjectionsSaveBtn(false);
-                            // }
 
-                            setObjective(value);
-                          }}
-                          placeholder="Add Objective"
-                          style={{
-                            fontSize: "15px",
-                            padding: "15px",
-                            width: "100%",
-                            fontWeight: "500",
-                            height: "100%", // Initial height
-                            maxHeight: "100%", // Maximum height before scrolling
-                            overflowY: "auto", // Enable vertical scrolling when max-height is exceeded
-                            resize: "none", // Disable manual resizing
-                            border: "1px solid #00000020",
-                          }}
-                        />
+                        {
+                          objective ? (
+                            <textarea
+                              className="outline-none rounded-xl focus:ring-0"
+                              // ref={objective}
+                              value={objective}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                // if (value !== oldObjective) {
+                                //   setShowObjectionsSaveBtn(true);
+                                // }
+                                // if (value === oldObjective) {
+                                //   setShowObjectionsSaveBtn(false);
+                                // }
+
+                                setObjective(value);
+                              }}
+                              placeholder="Add Objective"
+                              style={{
+                                fontSize: "15px",
+                                padding: "15px",
+                                width: "100%",
+                                fontWeight: "500",
+                                height: "100%", // Initial height
+                                maxHeight: "100%", // Maximum height before scrolling
+                                overflowY: "auto", // Enable vertical scrolling when max-height is exceeded
+                                resize: "none", // Disable manual resizing
+                                border: "1px solid #00000020",
+                              }}
+                            />
+                          ) : (
+                            <div className='text-center text-2xl mt-6'>
+                              <div className='flex flex-col items-center justify-center h-[30vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
+                                {/* <div className='h-[100px] w-[100px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'> */}
+                                <Image className="grayscale" src={"/svgIcons/noObjectiveIcon.svg"} height={280} width={250} alt='*' />
+                                {/* </div> */}
+                                <div className=''
+                                  style={{ fontWeight: "500", fontSize: 15 }}>
+                                  {`You don’t have any objectives yett`}
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        }
+
                         <div>
                           {showObjectionsSaveBtn && (
                             <div>

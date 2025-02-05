@@ -58,12 +58,16 @@ function BasicInfo() {
   //user details
   const [UserDetails, setUserDetails] = useState(null);
 
+
+  const [userRole, setUserRole] = useState("")
+
   //fetching the data
   useEffect(() => {
     const LocalData = localStorage.getItem("User");
     if (LocalData) {
       const userData = JSON.parse(LocalData);
-     // console.log("Should set data", userData?.user?.thumb_profile_image);
+      console.log("Should set data", userData?.user);
+      setUserRole(userData?.user?.userRole)
       setUserDetails(userData.user);
       setName(userData?.user?.name);
       setSelectedImage(userData?.user?.thumb_profile_image);
@@ -120,14 +124,14 @@ function BasicInfo() {
 
         apidata.append("media", imageUrl);
 
-       // console.log("Uploading image with apidata:");
+        // console.log("Uploading image with apidata:");
         for (let pair of apidata.entries()) {
-         // console.log(`${pair[0]}:`, pair[1]); // Debug FormData contents
+          // console.log(`${pair[0]}:`, pair[1]); // Debug FormData contents
         }
         let path = Apis.updateProfileApi;
 
-       // console.log("Authtoken is", u.token);
-       // console.log("Api Data passsed is", apidata);
+        // console.log("Authtoken is", u.token);
+        // console.log("Api Data passsed is", apidata);
         // return
         const response = await axios.post(path, apidata, {
           headers: {
@@ -137,12 +141,12 @@ function BasicInfo() {
 
         if (response) {
           if (response.data.status === true) {
-           // console.log("updateProfile data is", response.data);
+            // console.log("updateProfile data is", response.data);
             u.user = response.data.data;
 
             //// console.log('u', u)
             localStorage.setItem("User", JSON.stringify(u));
-           // console.log("trying to send event");
+            // console.log("trying to send event");
             window.dispatchEvent(
               new CustomEvent("UpdateProfile", { detail: { update: true } })
             );
@@ -151,7 +155,7 @@ function BasicInfo() {
         }
       }
     } catch (e) {
-     // console.log("error in update profile is", e);
+      // console.log("error in update profile is", e);
     }
   };
 
@@ -160,7 +164,7 @@ function BasicInfo() {
     try {
       await getProfileDetails();
     } catch (error) {
-     // console.error("Error occured in api is error", error);
+      // console.error("Error occured in api is error", error);
     }
   };
 
@@ -177,7 +181,7 @@ function BasicInfo() {
 
       uploadeImage(file);
     } catch (error) {
-     // console.error("Error uploading image:", error);
+      // console.error("Error uploading image:", error);
     } finally {
       setloading5(false);
     }
@@ -255,10 +259,10 @@ function BasicInfo() {
       if (data) {
         let d = JSON.parse(data);
         let AgentTypeTitle = d.user.userType;
-       // console.log("AgentTypeTitle is", AgentTypeTitle);
+        // console.log("AgentTypeTitle is", AgentTypeTitle);
 
         const ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`;
-       // console.log("Api link is:--", ApiPath);
+        // console.log("Api link is:--", ApiPath);
         const response = await axios.get(ApiPath, {
           headers: {
             "Content-Type": "application/json",
@@ -266,7 +270,7 @@ function BasicInfo() {
         });
 
         if (response) {
-         // console.log("Response of services api is : -----", response.data);
+          // console.log("Response of services api is : -----", response.data);
           setAgentServices(response.data.data.agentServices);
           setAgentAreasOfFocus(response.data.data.areaOfFocus);
         } else {
@@ -275,7 +279,7 @@ function BasicInfo() {
       }
     } catch (error) {
       setServiceLoader(false);
-     // console.error("ERror occured in default data api is :----", error);
+      // console.error("ERror occured in default data api is :----", error);
     } finally {
       setServiceLoader(false);
     }
@@ -289,7 +293,7 @@ function BasicInfo() {
       setloading(false);
       setIsNameChanged(false);
     } catch (e) {
-     // console.log("Error in updating", e);
+      // console.log("Error in updating", e);
     }
   };
 
@@ -304,7 +308,7 @@ function BasicInfo() {
       setloading2(false);
       setIsFarmChanged(false);
     } catch (e) {
-     // console.log("error in updating", e);
+      // console.log("error in updating", e);
     }
   };
 
@@ -319,7 +323,7 @@ function BasicInfo() {
       setloading3(false);
       setIsBrokerageChanged(false);
     } catch (e) {
-     // console.log("error in updating", e);
+      // console.log("error in updating", e);
     }
   };
 
@@ -334,7 +338,7 @@ function BasicInfo() {
 
       setIsTransactionChange(false);
     } catch (e) {
-     // console.log("error in updating", e);
+      // console.log("error in updating", e);
     }
   };
 
@@ -353,8 +357,8 @@ function BasicInfo() {
   // };
 
   const handleserviceId = (id) => {
-   // console.log("Id to ad is", id);
-   // console.log("Old is are", serviceId);
+    // console.log("Id to ad is", id);
+    // console.log("Old is are", serviceId);
     let newIDs = [];
     if (serviceId.includes(id)) {
       // Unselect the item if it's already selected
@@ -365,12 +369,12 @@ function BasicInfo() {
     }
 
     setServiceId(newIDs);
-   // console.log("New array is", newIDs);
+    // console.log("New array is", newIDs);
   };
 
   const handleAreaSelect = (id) => {
-   // console.log("Id to ad is", id);
-   // console.log("Old is are", selectedArea);
+    // console.log("Id to ad is", id);
+    // console.log("Old is are", selectedArea);
     let newIDs = [];
     if (selectedArea.includes(id)) {
       // Unselect the item if it's already selected
@@ -380,7 +384,7 @@ function BasicInfo() {
       newIDs = [...selectedArea, id];
     }
     setSelectedArea(newIDs);
-   // console.log("New array is", newIDs);
+    // console.log("New array is", newIDs);
     return;
     setSelectedArea((prevIds) => {
       if (prevIds.includes(id)) {
@@ -394,7 +398,7 @@ function BasicInfo() {
   };
 
   useEffect(() => {
-   // console.log("selected", selected);
+    // console.log("selected", selected);
   }, [selected]);
 
   const handleAreaChange = async () => {
@@ -403,14 +407,14 @@ function BasicInfo() {
       let data = {
         areaOfFocus: selectedArea, //[selectedArea.join()]
       };
-     // console.log("data is", data);
+      // console.log("data is", data);
 
       // return
       await UpdateProfile(data);
       setOriginalSelectedArea([...selectedArea]);
       setAreaLoading(false);
     } catch (e) {
-     // console.log("error in updating", e);
+      // console.log("error in updating", e);
     }
   };
 
@@ -420,14 +424,14 @@ function BasicInfo() {
       let data = {
         agentService: serviceId, //[serviceId.join()]
       };
-     // console.log("Api data is", serviceId);
+      // console.log("Api data is", serviceId);
 
       // return
       await UpdateProfile(data);
       setOriginalSelectedService([...serviceId]);
       setServiceLoader(false);
     } catch (e) {
-     // console.log("error in updating", e);
+      // console.log("error in updating", e);
     }
   };
 
@@ -584,143 +588,157 @@ function BasicInfo() {
           ))}
       </div>
 
-      <div
-        style={{
-          fontSize: 16,
-          fontWeight: "700",
-          color: "#000",
-          marginTop: "4vh",
-        }}
-      >
-        Farm
-      </div>
-
-      <div
-        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-        style={{
-          border: `1px solid ${focusedFarm ? "#8a2be2" : "#00000010"}`,
-          transition: "border-color 0.3s ease",
-        }}
-      >
-        <input
-          className="w-11/12 outline-none focus:ring-0"
-          onFocus={() => setFocusedFarm(true)}
-          onBlur={() => setFocusedFarm(false)}
-          value={farm}
-          onChange={(event) => {
-            setFarm(event.target.value);
-            setIsFarmChanged(true);
-          }}
-          type="text"
-          placeholder="Farm"
-          style={{ border: "0px solid #000000", outline: "none" }}
-        />
-        {isFarmChanged &&
-          (loading2 ? (
-            <CircularProgress size={20} />
-          ) : (
-            <button
-              onClick={async () => {
-                handleFarmSave();
+      {
+        userRole && userRole != "Invitee" && (
+          <>
+            <div
+              style={{
+                fontSize: 16,
+                fontWeight: "700",
+                color: "#000",
+                marginTop: "4vh",
               }}
-              style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
             >
-              Save
-            </button>
-          ))}
-      </div>
+              Farm
+            </div>
 
-      <div
-        style={{
-          fontSize: 16,
-          fontWeight: "700",
-          color: "#000",
-          marginTop: "4vh",
-        }}
-      >
-        Brokerage
-      </div>
-
-      <div
-        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
-        style={{
-          border: `1px solid ${focusedBrokerage ? "#8a2be2" : "#00000010"}`,
-          transition: "border-color 0.3s ease",
-        }}
-      >
-        <input
-          className="w-11/12 outline-none focus:ring-0"
-          onFocus={() => setFocusedBrokerage(true)}
-          onBlur={() => setFocusedBrokerage(false)}
-          value={brokerAge}
-          onChange={(event) => {
-            setBrokerAge(event.target.value);
-            setIsBrokerageChanged(true);
-          }}
-          type="text"
-          placeholder="Brokerage"
-          style={{ border: "0px solid #000000", outline: "none" }}
-        />
-        {isBrokerageChanged &&
-          (loading3 ? (
-            <CircularProgress size={20} />
-          ) : (
-            <button
-              onClick={async () => {
-                handleBrokerAgeSave();
+            <div
+              className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+              style={{
+                border: `1px solid ${focusedFarm ? "#8a2be2" : "#00000010"}`,
+                transition: "border-color 0.3s ease",
               }}
-              style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
             >
-              Save
-            </button>
-          ))}
-      </div>
+              <input
+                className="w-11/12 outline-none focus:ring-0"
+                onFocus={() => setFocusedFarm(true)}
+                onBlur={() => setFocusedFarm(false)}
+                value={farm}
+                onChange={(event) => {
+                  setFarm(event.target.value);
+                  setIsFarmChanged(true);
+                }}
+                type="text"
+                placeholder="Farm"
+                style={{ border: "0px solid #000000", outline: "none" }}
+              />
+              {isFarmChanged &&
+                (loading2 ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <button
+                    onClick={async () => {
+                      handleFarmSave();
+                    }}
+                    style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
+                  >
+                    Save
+                  </button>
+                ))}
+            </div>
+          </>
+        )
+      }
 
-      <div
-        style={{
-          fontSize: 16,
-          fontWeight: "700",
-          color: "#000",
-          marginTop: "4vh",
-        }}
-      >
-        Average transaction volume per year
-      </div>
-
-      <div
-        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-        style={{
-          border: `1px solid ${focusedTransaction ? "#8a2be2" : "#00000010"}`,
-          transition: "border-color 0.3s ease",
-        }}
-      >
-        <input
-          type="number"
-          className="w-11/12 outline-none focus:ring-0"
-          onFocus={() => setFocusedTransaction(true)}
-          onBlur={() => setFocusedTransaction(false)}
-          value={transaction}
-          onChange={(event) => {
-            setTransaction(event.target.value);
-            setIsTransactionChange(true);
-          }}
-          placeholder="Value"
-          style={{ border: "0px solid #000000", outline: "none" }}
-        />
-        {isTransactionChanged &&
-          (loading4 ? (
-            <CircularProgress size={20} />
-          ) : (
-            <button
-              onClick={async () => {
-                handleTransactionSave();
+      {
+        userRole && userRole != "Invitee" && (
+          <>
+            <div
+              style={{
+                fontSize: 16,
+                fontWeight: "700",
+                color: "#000",
+                marginTop: "4vh",
               }}
-              style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
             >
-              Save
-            </button>
-          ))}
-      </div>
+              Brokerage
+            </div>
+
+            <div
+              className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
+              style={{
+                border: `1px solid ${focusedBrokerage ? "#8a2be2" : "#00000010"}`,
+                transition: "border-color 0.3s ease",
+              }}
+            >
+              <input
+                className="w-11/12 outline-none focus:ring-0"
+                onFocus={() => setFocusedBrokerage(true)}
+                onBlur={() => setFocusedBrokerage(false)}
+                value={brokerAge}
+                onChange={(event) => {
+                  setBrokerAge(event.target.value);
+                  setIsBrokerageChanged(true);
+                }}
+                type="text"
+                placeholder="Brokerage"
+                style={{ border: "0px solid #000000", outline: "none" }}
+              />
+              {isBrokerageChanged &&
+                (loading3 ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <button
+                    onClick={async () => {
+                      handleBrokerAgeSave();
+                    }}
+                    style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
+                  >
+                    Save
+                  </button>
+                ))}
+            </div>
+
+
+
+            <div
+              style={{
+                fontSize: 16,
+                fontWeight: "700",
+                color: "#000",
+                marginTop: "4vh",
+              }}
+            >
+              Average transaction volume per year
+            </div>
+
+            <div
+              className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+              style={{
+                border: `1px solid ${focusedTransaction ? "#8a2be2" : "#00000010"}`,
+                transition: "border-color 0.3s ease",
+              }}
+            >
+              <input
+                type="number"
+                className="w-11/12 outline-none focus:ring-0"
+                onFocus={() => setFocusedTransaction(true)}
+                onBlur={() => setFocusedTransaction(false)}
+                value={transaction}
+                onChange={(event) => {
+                  setTransaction(event.target.value);
+                  setIsTransactionChange(true);
+                }}
+                placeholder="Value"
+                style={{ border: "0px solid #000000", outline: "none" }}
+              />
+              {isTransactionChanged &&
+                (loading4 ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <button
+                    onClick={async () => {
+                      handleTransactionSave();
+                    }}
+                    style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
+                  >
+                    Save
+                  </button>
+                ))}
+            </div>
+
+          </>
+        )}
 
       <div
         style={{
@@ -791,139 +809,149 @@ function BasicInfo() {
         />
       </div>
 
-      <div className="w-full flex flex-row items-center justify-between">
-        <div
-          style={{
-            fontSize: 16,
-            fontWeight: "700",
-            color: "#000",
-            marginTop: "4vh",
-            marginBottom: "2vh",
-          }}
-        >
-          What would you like Agentx to help you with
-        </div>
-        {serviceId.length > 0 &&
-          hasServiceChanged() &&
-          (srviceLoader ? (
-            <CircularProgress size={20} />
-          ) : (
-            <button
-              onClick={async () => {
-                handleServiceChange();
-              }}
-              style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
-            >
-              Save
-            </button>
-          ))}
-      </div>
-
-      <div className="w-9/12 flex flex-row flex-wrap gap-2">
-        {agentServices.map((item, index) => (
-          <div
-            key={index}
-            className="w-5/12 p-4 flex flex-col gap-2 items-start rounded-2xl"
-            style={{
-              borderWidth: 2,
-              borderColor: serviceId.includes(item.id)
-                ? "#7902DF"
-                : "#00000008",
-              backgroundColor: serviceId.includes(item.id)
-                ? "#7902DF05"
-                : "transparent",
-              cursor: "pointer",
-            }}
-            onClick={() => {
-              handleserviceId(item.id);
-            }}
-          >
-            <div style={{ fontSize: 15, fontWeight: "700" }}>{item.title}</div>
-
-            <div style={{ fontSize: 14, fontWeight: "500" }}>
-              {item.description}
+      {
+        userRole && userRole != "Invitee" && (
+          <>
+            <div className="w-full flex flex-row items-center justify-between">
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  color: "#000",
+                  marginTop: "4vh",
+                  marginBottom: "2vh",
+                }}
+              >
+                What would you like Agentx to help you with
+              </div>
+              {serviceId.length > 0 &&
+                hasServiceChanged() &&
+                (srviceLoader ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <button
+                    onClick={async () => {
+                      handleServiceChange();
+                    }}
+                    style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
+                  >
+                    Save
+                  </button>
+                ))}
             </div>
-            <Image
-              src={
-                serviceId.includes(item.id)
-                  ? "/otherAssets/selectedTickBtn.png"
-                  : "/otherAssets/unselectedTickBtn.png"
-              }
-              height={24}
-              width={24}
-              alt="icon"
-              style={{ alignSelf: "flex-end" }}
-            />
-          </div>
-        ))}
-      </div>
 
-      <div className="w-full flex flex-row items-center justify-between">
-        <div
-          style={{
-            fontSize: 16,
-            fontWeight: "700",
-            color: "#000",
-            marginTop: "4vh",
-            marginBottom: "2vh",
-          }}
-        >
-          What area of real estate do you focus on?
-        </div>
-        {selectedArea.length > 0 &&
-          hasAreaFocusChanged() &&
-          (areaLoading ? (
-            <CircularProgress size={20} />
-          ) : (
-            <button
-              onClick={async () => {
-                handleAreaChange();
-              }}
-              style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
-            >
-              Save
-            </button>
-          ))}
-      </div>
+            <div className="w-9/12 flex flex-row flex-wrap gap-2">
+              {agentServices.map((item, index) => (
+                <div
+                  key={index}
+                  className="w-5/12 p-4 flex flex-col gap-2 items-start rounded-2xl"
+                  style={{
+                    borderWidth: 2,
+                    borderColor: serviceId.includes(item.id)
+                      ? "#7902DF"
+                      : "#00000008",
+                    backgroundColor: serviceId.includes(item.id)
+                      ? "#7902DF05"
+                      : "transparent",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    handleserviceId(item.id);
+                  }}
+                >
+                  <div style={{ fontSize: 15, fontWeight: "700" }}>{item.title}</div>
 
-      <div className="w-9/12 flex flex-row flex-wrap gap-2 ">
-        {agentAreasOfFocus.map((item, index) => (
-          <div
-            key={index}
-            className="w-5/12 p-4 flex flex-col justify-betweeen items-start rounded-2xl"
-            style={{
-              borderWidth: 2,
-              borderColor: selectedArea.includes(item.id)
-                ? "#7902DF"
-                : "#00000008",
-              backgroundColor: selectedArea.includes(item.id)
-                ? "#7902DF05"
-                : "transparent",
-              cursor: "pointer",
-            }}
-            onClick={() => {
-              handleAreaSelect(item.id);
-            }}
-          >
-            <div style={{ fontSize: 15, fontWeight: "700" }}>{item.title}</div>
-
-            <div style={{ fontSize: 14, fontWeight: "500" }}>
-              {item.description}
+                  <div style={{ fontSize: 14, fontWeight: "500" }}>
+                    {item.description}
+                  </div>
+                  <Image
+                    src={
+                      serviceId.includes(item.id)
+                        ? "/otherAssets/selectedTickBtn.png"
+                        : "/otherAssets/unselectedTickBtn.png"
+                    }
+                    height={24}
+                    width={24}
+                    alt="icon"
+                    style={{ alignSelf: "flex-end" }}
+                  />
+                </div>
+              ))}
             </div>
-            <Image
-              src={
-                selectedArea.includes(item.id)
-                  ? "/otherAssets/selectedTickBtn.png"
-                  : "/otherAssets/unselectedTickBtn.png"
-              }
-              height={24}
-              width={24}
-              alt="icon"
-              style={{ alignSelf: "flex-end" }}
-            />
-          </div>
-        ))}
-      </div>
+
+            <div className="w-full flex flex-row items-center justify-between">
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  color: "#000",
+                  marginTop: "4vh",
+                  marginBottom: "2vh",
+                }}
+              >
+                What area of real estate do you focus on?
+              </div>
+              {selectedArea.length > 0 &&
+                hasAreaFocusChanged() &&
+                (areaLoading ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <button
+                    onClick={async () => {
+                      handleAreaChange();
+                    }}
+                    style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
+                  >
+                    Save
+                  </button>
+                ))}
+            </div>
+
+            <div className="w-9/12 flex flex-row flex-wrap gap-2 ">
+              {agentAreasOfFocus.map((item, index) => (
+                <div
+                  key={index}
+                  className="w-5/12 p-4 flex flex-col justify-betweeen items-start rounded-2xl"
+                  style={{
+                    borderWidth: 2,
+                    borderColor: selectedArea.includes(item.id)
+                      ? "#7902DF"
+                      : "#00000008",
+                    backgroundColor: selectedArea.includes(item.id)
+                      ? "#7902DF05"
+                      : "transparent",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    handleAreaSelect(item.id);
+                  }}
+                >
+                  <div style={{ fontSize: 15, fontWeight: "700" }}>{item.title}</div>
+
+                  <div style={{ fontSize: 14, fontWeight: "500" }}>
+                    {item.description}
+                  </div>
+                  <Image
+                    src={
+                      selectedArea.includes(item.id)
+                        ? "/otherAssets/selectedTickBtn.png"
+                        : "/otherAssets/unselectedTickBtn.png"
+                    }
+                    height={24}
+                    width={24}
+                    alt="icon"
+                    style={{ alignSelf: "flex-end" }}
+                  />
+                </div>
+              ))}
+            </div>
+
+          </>
+        )
+      }
+
+
+
     </div>
   );
 }
