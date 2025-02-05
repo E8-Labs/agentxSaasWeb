@@ -274,7 +274,7 @@ function AllCalls({ selectedUser }) {
       //     ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}&stageIds=${stages}&offset=${offset}&limit=10`;
       // }
 
-      console.log("Api path for calls lod  is", ApiPath);
+      console.log("Api path for calls log  is", ApiPath);
 
       //// console.log("Auth token is:", AuthToken);
       // return
@@ -287,7 +287,7 @@ function AllCalls({ selectedUser }) {
 
       if (currentRequestVersion === requestVersion.current) {
         if (response) {
-          // console.log("response of get call logs api is :", response.data);
+          console.log("response of get call logs api is :", response.data);
           // setCallDetails(response.data.data);
           // setFilteredCallDetails(response.data.data);
 
@@ -303,7 +303,7 @@ function AllCalls({ selectedUser }) {
         }
       }
     } catch (error) {
-      // console.error("Error occured in gtting calls log api is:", error);
+      console.error("Error occured in gtting calls log api is:", error);
     } finally {
       setInitialLoader(false);
     }
