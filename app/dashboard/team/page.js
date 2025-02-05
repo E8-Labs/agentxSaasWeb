@@ -132,7 +132,7 @@ function Page() {
           setGetTeamLoader(false);
 
           if (response.data.status === true) {
-            console.log("get team api response is", response.data);
+            // console.log("get team api response is", response.data);
             let admin = response.data.admin;
             let adminMember = {
               invitingUser: admin,
@@ -403,12 +403,12 @@ function Page() {
     }
     // console.log("Current user role ", user);
     // console.log("team member is", team);
-    if (user.userRole == "Invitee") {
+    if (user?.userRole == "Invitee") {
       if (team.invitedUser.id == user.id) {
         return true; // show menu at own profile
       }
       return false;
-    } else if (user.userRole == "AgentX") {
+    } else if (user?.userRole == "AgentX") {
       if (team.invitedUser?.id == user.id) {
         return false; // don't show menu at own profile for admin
       }
@@ -469,7 +469,7 @@ function Page() {
         user = user.user;
       }
       // console.log("User is ", user.id);
-      if (user.userRole == "AgentX") {
+      if (user?.userRole == "AgentX") {
         return true;
       }
       return false;

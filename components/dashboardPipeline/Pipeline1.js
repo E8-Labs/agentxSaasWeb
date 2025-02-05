@@ -2119,16 +2119,16 @@ const Pipeline1 = () => {
                                               key={index}
                                               className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg"
                                             >
-                                              <div
+                                              <div 
                                                 className="text-purple" //1C55FF10
                                               >
                                                 {tagVal.length > 2 ? (
-                                                  <div>
+                                                  <div   style={{ fontSize: 13 }}>
                                                     {tagVal.slice(0, 6)}
                                                     {"..."}
                                                   </div>
                                                 ) : (
-                                                  <div style={{ fontsize: 13 }}>
+                                                  <div style={{ fontSize: 13 }}>
                                                     {tagVal}
                                                   </div>
                                                 )}
@@ -2246,7 +2246,7 @@ const Pipeline1 = () => {
                     >
                       {/* <div style={{ width: "20%" }} /> */}
                       <div style={{ fontWeight: "500", fontSize: 17 }}>
-                        Delete Pipline
+                        Delete Pipeline
                       </div>
                       <div
                         style={{

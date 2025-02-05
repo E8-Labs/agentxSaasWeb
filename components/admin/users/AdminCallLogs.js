@@ -61,4 +61,4 @@ function AdminCallLogs({selectedUser}) {
   )
 }
 
-export default AdminCallLogs;{selectedUser}
+export default AdminCallLogs;

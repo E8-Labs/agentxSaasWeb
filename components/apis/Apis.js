@@ -102,7 +102,13 @@ const Apis = {
   getAiNot: `${BasePath}/api/agent/sendTestAiNotification`,
 
 
-  getUsers:`${BasePath}/api/admin/users`
+  getUsers:`${BasePath}/api/admin/users`,
+
+  addAffiliate: `${BasePath}api/admin/addAffiliate`,
+  getAffiliate: `${BasePath}api/admin/getAffiliates`,
+  deleteAffiliate:`${BasePath}api/admin/deleteAffiliate`,
+
+
 };
 
 export default Apis;

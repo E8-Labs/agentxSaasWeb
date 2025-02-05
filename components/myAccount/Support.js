@@ -134,7 +134,7 @@ function Support() {
               color: hoverConsultation ? "#fff" : "#7902DF",
             }}
           >
-            Done-With-You AI Agent Setup
+           Done with you agent setup
           </div>
         </div>
         <div
