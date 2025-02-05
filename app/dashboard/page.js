@@ -650,7 +650,7 @@ const Page = () => {
                           let url = userDetails?.campaignee ? userDetails?.campaignee.officeHoursUrl :
                             PersistanceKeys.GlobalWebinarUrl
                           console.log("webinar url is", url)
-                          window.open(url,"_blank");
+                          window.open(url, "_blank");
                         }
                       }}
                     >
@@ -733,7 +733,7 @@ const Page = () => {
                             color: consultHover ? "white" : "#7902DF",
                           }}
                         >
-                          Done-With-You AI Agent Setup
+                          Done with you agent setup
                         </div>
                       </div>
                       <div
