@@ -242,7 +242,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
               {userType.map((item, index) => {
                 if (index == userType.length - 1) {
                   return (
-                    <div className="flex flex-col gap-3 w-full pb-6 border-[2px] border-white rounded-xl items-center justify-center bg-[#FAF9FF]">
+                    <div key={index} className="flex flex-col gap-3 w-full pb-6 border-[2px] border-white rounded-xl items-center justify-center bg-[#FAF9FF]">
                       <Image
                         src={"/svgIcons/halfOrb.svg"}
                         height={282}

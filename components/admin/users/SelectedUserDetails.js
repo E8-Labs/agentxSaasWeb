@@ -6,6 +6,7 @@ import AdminLeads1 from './AdminLeads1'
 import AdminPipeline1 from './pipline/AdminPipeline1'
 import AdminAgentX from './AdminAgentX'
 import AdminCallLogs from './AdminCallLogs'
+import AdminAffiliates from './AdminAffiliates'
 
 function SelectedUserDetails({ open, close, selectedUser }) {
 
@@ -49,6 +50,11 @@ function SelectedUserDetails({ open, close, selectedUser }) {
             unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg'
         }, {
             id: 8,
+            name: 'Affiliates',
+            selectedImage: '/svgIcons/selectedTeam.svg',
+            unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg'
+        }, {
+            id: 9,
             name: 'Personal Data',
             selectedImage: '/svgIcons/selectdDashboardIcon.svg',
             unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg'
@@ -145,13 +151,18 @@ function SelectedUserDetails({ open, close, selectedUser }) {
                                     selectedManu.name == "Leads" ? (
                                         <AdminLeads1 selectedUser={selectedUser} />
                                     ) : (
-                                        selectedManu.name == "Pipeline"?(
-                                            <AdminPipeline1 selectedUser = {selectedUser} />
-                                        ):selectedManu.name == "Agents" ? (
-                                            <AdminAgentX selectedUser = {selectedUser}/>
-                                        ): selectedManu.name == "Call Logs"? (
+                                        selectedManu.name == "Pipeline" ? (
+                                            <AdminPipeline1 selectedUser={selectedUser} />
+                                        ) : selectedManu.name == "Agents" ? (
+                                            <AdminAgentX selectedUser={selectedUser} />
+                                        ) : selectedManu.name == "Call Log" ? (
                                             <AdminCallLogs selectedUser={selectedUser} />
-                                        ):"Comming soon..."
+                                        ) :
+                                            selectedManu.name == "Affiliates" ? (
+                                                <AdminAffiliates selectedUser = {selectedUser} />
+                                            ) : (
+                                                "Comming soon..."
+                                            )
                                     )
                                 }
                             </div>
@@ -178,5 +189,5 @@ const styles = {
         borderRadius: 2,
         border: "none",
         outline: "none",
-      },
+    },
 }

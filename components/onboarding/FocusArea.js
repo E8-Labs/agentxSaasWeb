@@ -44,7 +44,7 @@ const FocusArea = ({
       console.log("Local details are :", FocusAreaDetails);
       setFocusArea(FocusAreaDetails.focusAreaId);
       setFocusAreaTitle(FocusAreaDetails.areaFocusTitle);
-      if (FocusAreaDetails.userTypeTitle !== "RealEstateAgent") {
+      if (FocusAreaDetails.userTypeTitle !== "RealEstateAgent" && FocusAreaDetails.userTypeTitle !== "SolarRep") {
         setShowOtherInput(true);
       }
     }

@@ -2246,7 +2246,7 @@ const AdminPipeline1 = ({selectedUser}) => {
                     >
                       {/* <div style={{ width: "20%" }} /> */}
                       <div style={{ fontWeight: "500", fontSize: 17 }}>
-                        Delete Pipline
+                        Delete Pipeline
                       </div>
                       <div
                         style={{
