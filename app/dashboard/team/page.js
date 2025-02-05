@@ -132,7 +132,7 @@ function Page() {
           setGetTeamLoader(false);
 
           if (response.data.status === true) {
-            // console.log("get team api response is", response.data);
+            console.log("get team api response is", response.data);
             let admin = response.data.admin;
             let adminMember = {
               invitingUser: admin,
@@ -532,16 +532,39 @@ function Page() {
                   return (
                     <div key={item.id} className="relative">
                       <div className="p-4 flex flex-row gap-4 items-start border rounded-lg">
-                        <div
-                          className="flex rounded-full justify-center items-center bg-black text-white text-md"
-                          style={{
-                            height: 37,
-                            width: 37,
-                            textTransform: "capitalize",
-                          }}
-                        >
-                          {item.name[0]}
-                        </div>
+                        {
+                          item.invitedUser?.thumb_profile_image ? (
+                            <div
+                            style={{
+                              width: "37px",
+                              height: "37px",
+                              borderRadius: "50%", // Ensures circular shape
+                              overflow: "hidden", // Clips any overflow from the image
+                              display: "flex", // Centers the image if needed
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <img
+                              src={item.invitedUser?.thumb_profile_image}
+                              alt="*"
+                              style={{ height: "100%", width: "100%" }}
+                            />
+                          </div>
+                          ) : (
+                            <div
+                              className="flex rounded-full justify-center items-center bg-black text-white text-md"
+                              style={{
+                                height: 37,
+                                width: 37,
+                                textTransform: "capitalize",
+                              }}
+                            >
+                              {item.name[0]}
+                            </div>
+                          )
+                        }
+
 
                         <div className="flex flex-wrap flex-col items-start gap-2 w-60">
                           <div className="text-lg font-medium text-black">

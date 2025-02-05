@@ -128,7 +128,7 @@ function SheduledCalls() {
       });
 
       if (response) {
-       // console.log("Response of get sheduled api is:", response.data.data);
+       console.log("Response of get sheduled api is:", response.data.data);
 
         setFilteredAgentsList(response.data.data);
         setCallDetails(response.data.data);

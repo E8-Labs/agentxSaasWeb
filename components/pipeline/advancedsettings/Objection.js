@@ -306,7 +306,7 @@ const Objection = ({ showTitle, selectedAgentId }) => {
       }
 
       {
-        ObjectionsList.length > 0 ?
+       ObjectionsList.length > 0 ?
           <div style={{ scrollbarWidth: "none", overflow: "auto", maxHeight: showTitle ? "60vh" : "40vh" }}>
             {ObjectionsList.map((item, index) => {
               const isExpanded = showDetails.some((detail) => detail.id === item.id);
@@ -383,14 +383,13 @@ const Objection = ({ showTitle, selectedAgentId }) => {
                   <CircularProgress size={25} />
                 </div> :
                 <div className='text-center text-2xl mt-6'>
-                  <div className='flex flex-col items-center justify-center h-[20vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
-                    <div className='h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'>
-                      <Image src={"/assets/notes.png"} height={24} width={24} alt='*' />
-                    </div>
-                    <div className='mt-4'>
-                      <i style={{ fontWeight: "500", fontsize: 15 }}>
-                        {`You don't have any objections added`}
-                      </i>
+                  <div className='flex flex-col items-center justify-center h-[30vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
+                    {/* <div className='h-[100px] w-[100px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'> */}
+                      <Image className='grayscale' src={"/svgIcons/noObjectionIcon.png"} height={280} width={250} alt='*' />
+                    {/* </div> */}
+                    <div className=''
+                       style={{ fontWeight: "500", fontSize: 15 }}>
+                        {`Looks like you've got no objections yet`}
                     </div>
                   </div>
                 </div>

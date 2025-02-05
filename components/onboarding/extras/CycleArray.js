@@ -1,143 +1,131 @@
 import React, { useState, useEffect } from "react";
 import agents from "./AgentsList";
 
-const shuffleAgents = agents;
+// Function to shuffle an array (Fisher-Yates shuffle)
+const shuffleArray = (array) => {
+  let shuffledArray = [...array];
+  for (let i = shuffledArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+  }
+  return shuffledArray;
+};
+
+// Shuffle the agents list once at the beginning
+const shuffledAgents = shuffleArray(agents);
 
 const AgentBox = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [showingAgent, setShowingAgent] = useState(shuffleAgents[0]);
-  const [isExiting, setIsExiting] = useState(false);
+  const initialIndex = Math.floor(Math.random() * shuffledAgents.length);
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [showingAgent, setShowingAgent] = useState(shuffledAgents[initialIndex]);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setIsExiting(true); // Start exiting the current agent
+      setIsAnimating(true); // Start exit animation
 
-      // Wait for a short time (no animation) before moving to the next agent
       setTimeout(() => {
         setCurrentIndex((prevIndex) => {
-          const nextIndex = (prevIndex + 1) % shuffleAgents.length;
-          setShowingAgent(shuffleAgents[nextIndex]); // Show the next agent
-          setIsExiting(false); // Reset the exit state
+          const nextIndex = (prevIndex + 1) % shuffledAgents.length;
+          setShowingAgent(shuffledAgents[nextIndex]);
+          setIsAnimating(false); // Reset animation
           return nextIndex;
         });
-      }, 100); // Short delay for removing the current capsule
-    }, 10000); // Change agent every 4 seconds
+      }, 500); // Ensure animation timing is smooth
+    }, 5000); // Change agent every 5 seconds
 
-    return () => clearInterval(interval); // Cleanup interval on unmount
+    return () => clearInterval(interval);
   }, []);
-
-  // Keyframe animations
-  useEffect(() => {
-    if (typeof document !== "undefined") {
-      const styleSheet = document.createElement("style");
-      styleSheet.type = "text/css";
-      styleSheet.innerHTML = `
-        @keyframes slideIn {
-          0% {
-            transform: translateY(100px);
-            opacity: 0;
-          }
-          100% {
-            transform: translateY(0);
-            opacity: 1;
-          }
-        }
-      `;
-      document.head.appendChild(styleSheet);
-
-      return () => {
-        document.head.removeChild(styleSheet); // Cleanup
-      };
-    }
-  }, []);
-
-  // Styles for the capsule
-  const agentBoxStyle = {
-    border: "none",
-    padding: "10px 20px",
-    width: "320px",
-    height: "80px",
-    textAlign: "start",
-    margin: "25% auto",
-    backgroundColor: "white",
-    boxShadow: "0px 4px 15px 0px rgba(0, 0, 0, 0.09)",
-    fontWeight: "500",
-    fontSize: 15,
-    fontStyle: "normal",
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    borderRadius: "50px", // Capsule shape
-    animation: isExiting
-      ? "none" // No animation for dismissal
-      : "slideIn 1s forwards", // Entry animation
-    overflow: "hidden",
-  };
-
-  // Styles for the image
-  const imageStyle = {
-    width: "40px",
-    height: "40px",
-    borderRadius: "50%",
-    border: "1px solid #e0e0e0", // Light gray border
-    objectFit: "cover",
-  };
-
-  // Styles for the text container
-  const textContainerStyle = {
-    flex: 1,
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    overflow: "hidden",
-  };
-
-  // Styles for the top text (name and location)
-  const topTextStyle = {
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    fontSize: "14px",
-    fontWeight: "medium",
-  };
-
-  // Styles for the bottom fixed text
-  const bottomTextStyle = {
-    fontSize: "13px",
-    color: "#888", // Light gray color for the fixed text
-    fontWeight: "normal",
-  };
 
   return (
     <div>
-      <div style={agentBoxStyle}>
-        {/* Image on the left */}
+      <style>
+        {`
+          @keyframes fadeInSlide {
+            0% {
+              transform: translateY(20px);
+              opacity: 0;
+            }
+            100% {
+              transform: translateY(0);
+              opacity: 1;
+            }
+          }
+
+          @keyframes fadeOutSlide {
+            0% {
+              transform: translateY(0);
+              opacity: 1;
+            }
+            100% {
+              transform: translateY(-20px);
+              opacity: 0;
+            }
+          }
+        `}
+      </style>
+
+      <div
+        key={showingAgent.Agent_Full_Name} // Ensure component re-renders on agent change
+        style={{
+          border: "none",
+          padding: "10px 20px",
+          width: "320px",
+          height: "80px",
+          textAlign: "start",
+          margin: "25% auto",
+          backgroundColor: "white",
+          boxShadow: "0px 4px 15px 0px rgba(0, 0, 0, 0.09)",
+          fontWeight: "500",
+          fontSize: 15,
+          fontStyle: "normal",
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          borderRadius: "50px",
+          animation: isAnimating ? "fadeOutSlide 0.5s forwards" : "fadeInSlide 0.5s forwards",
+          overflow: "hidden",
+        }}
+      >
+        {/* Image */}
         <img
-          src={showingAgent.image || "default-image.jpg"} // Use default image if not available
+          src={showingAgent.image || "default-image.jpg"}
           alt="Agent"
-          style={imageStyle}
+          style={{
+            width: "40px",
+            height: "40px",
+            borderRadius: "50%",
+            border: "1px solid #e0e0e0",
+            objectFit: "cover",
+          }}
         />
 
         {/* Text container */}
-        <div style={textContainerStyle}>
-          {/* Name and location on the same line */}
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            overflow: "hidden",
+          }}
+        >
+          {/* Name and location */}
           <div className="flex flex-row items-center">
-            <div style={{ ...topTextStyle, marginRight: "5px" }}>
+            <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginRight: "5px" }}>
               {showingAgent.Agent_Full_Name.length > 10
                 ? `${showingAgent.Agent_Full_Name.slice(0, 10)}...`
                 : showingAgent.Agent_Full_Name}
             </div>
             <div style={{ color: "#00000040", margin: "0 5px" }}>from</div>
-            <div style={{ ...topTextStyle, marginLeft: "5px" }}>
-              {showingAgent.City.length > 10
-                ? `${showingAgent.City.slice(0, 10)}...`
-                : `${showingAgent.City}`}
+            <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginLeft: "5px" }}>
+              {showingAgent.City.length > 10 ? `${showingAgent.City.slice(0, 10)}...` : `${showingAgent.City}`}
               , {showingAgent.State}
             </div>
           </div>
 
           {/* Fixed text below */}
-          <div style={bottomTextStyle}>Created an AgentX</div>
+          <div style={{ fontSize: "13px", color: "#888", fontWeight: "normal" }}>Created an AgentX</div>
         </div>
       </div>
     </div>

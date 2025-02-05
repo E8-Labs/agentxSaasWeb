@@ -390,14 +390,12 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
                   <CircularProgress size={25} />
                 </div> :
                 <div className='text-center text-2xl mt-6'>
-                  <div className='flex flex-col items-center justify-center h-[20vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
-                    <div className='h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'>
-                      <Image src={"/assets/notes.png"} height={24} width={24} alt='*' />
-                    </div>
-                    <div className='mt-4'>
-                      <i style={{ fontWeight: "500", fontsize: 15 }}>
-                        {`You don't have any guardrails added`}
-                      </i>
+                  <div className='flex flex-col items-center justify-center h-[30vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
+                      <Image className='grayscale'  src={"/svgIcons/noGuardiarlsIcon.svg"} height={200} width={237} alt='*' />
+                    <div className='' style={{ fontWeight: "500", fontSize: 15 }}>
+                      {/* <i style={{ fontWeight: "500", fontsize: 15 }}> */}
+                        {`Looks like you've got no Guardrails yet`}
+                      {/* </i> */}
                     </div>
                   </div>
                 </div>
