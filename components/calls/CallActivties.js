@@ -7,7 +7,7 @@ import moment from "moment";
 import { GetFormattedDateString } from "@/utilities/utility";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
 
-function SheduledCalls() {
+function SheduledCalls({selectedUser}) {
   const [searchValue, setSearchValue] = useState("");
   //code for agent details
   const [callDetails, setCallDetails] = useState([]);
@@ -118,6 +118,10 @@ function SheduledCalls() {
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
       const ApiPath = `${Apis.getSheduledCallLogs}?scheduled=false`;
+
+      if(selectedUser){
+        ApiPath = ApiPath+"userId=" + selectedUser.id
+      }
      // console.log("Api path is: ", ApiPath); //scheduled
       // return
       const response = await axios.get(ApiPath, {
@@ -457,10 +461,10 @@ function SheduledCalls() {
             <CircularProgress size={35} />
           </div>
         ) : (
-          <div style={{ scrollbarWidth: "none" }}>
+          <div className={`h-[${selectedUser?"43vh":"67vh"}] overflow-auto`}  style={{ scrollbarWidth: "none" }}>
             {
               filteredAgentsList.length > 0 ? (
-                <div className="overflow-auto max-h-[67svh]">
+                <div className={`h-[${selectedUser?"43vh":"67vh"}] overflow-auto`}>
                   {filteredAgentsList.map((item, index) => {
                     return (
                       <div key={index}>

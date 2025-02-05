@@ -1726,24 +1726,20 @@ function AdminAgentX({selectedUser}) {
 
       <div
         className="w-full flex flex-row justify-between items-center py-4 px-10"
-        style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
+        // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>My Agents</div>
-
-        <div>
-          <NotficationsDrawer />
-        </div>
       </div>
 
       <div className="w-9/12 items-center " style={{}}>
         {/* code for agents list */}
         {initialLoader ? (
-          <div className="h-[70vh] flex flex-row justify-center pt-32 gap-4">
+          <div className="h-[45vh] flex flex-row justify-center pt-32 gap-4">
             <CircularProgress size={45} />
           </div>
         ) : (
           <div
-            className="h-[75vh] overflow-auto flex flex-col gap-4 pt-10"
+            className="h-[45vh] overflow-auto flex flex-col gap-4 pt-10"
             style={{ scrollbarWidth: "none" }}
           >
             {agentsListSeparated.map((item, index) => (
