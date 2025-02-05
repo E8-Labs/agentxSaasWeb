@@ -359,7 +359,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
   //code for advance setting
   const handleAdvanceSettingToggleClick = (id) => {
-    setSettingToggleClick((prevId) => (prevId === id ? null : id));
+    setSettingToggleClick((prevId) => id);
   };
 
   // //code for getting the uniques columns

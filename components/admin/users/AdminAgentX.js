@@ -55,7 +55,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "@phosphor-icons/react";
 import VideoCard from "@/components/createagent/VideoCard";
 
-function Page() {
+function AdminAgentX({selectedUser}) {
   const timerRef = useRef();
   const fileInputRef = useRef([]);
   // const fileInputRef = useRef(null);
@@ -1413,7 +1413,7 @@ function Page() {
   };
 
   //code to get agents
-  const getAgents = async (userData) => {
+  const getAgents = async (userData,) => {
     try {
       const agentLocalDetails = localStorage.getItem(
         PersistanceKeys.LocalStoredAgentsListMain
@@ -1421,12 +1421,12 @@ function Page() {
       if (!agentLocalDetails) {
         setInitialLoader(true);
       }
-      const ApiPath = `${Apis.getAgents}`; //?agentType=outbound
+      const ApiPath = `${Apis.getAgents}?userId=${selectedUser.id}`; //?agentType=outbound
 
-      //console.log("Api path is: ", ApiPath);
+      console.log("Api path is: ", ApiPath);
 
       const AuthToken = userData.token;
-      //console.log("Auth token is", AuthToken);
+      console.log("Auth token is", AuthToken);
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -1436,7 +1436,7 @@ function Page() {
       });
 
       if (response) {
-        //// console.log("Response of get agents api is:", response.data);
+        console.log("Response of get agents api is:", response.data);
         localStorage.setItem(
           PersistanceKeys.LocalStoredAgentsListMain,
           JSON.stringify(response.data.data)
@@ -1444,7 +1444,7 @@ function Page() {
         setMainAgentsList(response.data.data);
       }
     } catch (error) {
-      //// console.error("Error occured in get Agents api is :", error);
+      console.error("Error occured in get Agents api is :", error);
     } finally {
       setInitialLoader(false);
     }
@@ -4036,4 +4036,4 @@ const Card = ({ name, value, icon, bgColor, iconColor }) => {
   );
 };
 
-export default Page;
+export default AdminAgentX;

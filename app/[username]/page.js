@@ -831,7 +831,11 @@ const Page = ({ length = 6, onComplete }) => {
         </Modal>
 
         <AgentSelectSnackMessage
-          type={SnackbarTypes.Success}
+          type={
+            response.status == true
+              ? SnackbarTypes.Success
+              : SnackbarTypes.Error
+          }
           message={response.message}
           isVisible={isVisible}
           hide={() => {

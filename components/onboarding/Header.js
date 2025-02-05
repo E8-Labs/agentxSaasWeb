@@ -2,6 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { UserTypes } from "@/constants/UserTypes";
 
 const Header = ({
   skipSellerKYC,
@@ -9,8 +10,16 @@ const Header = ({
   shouldContinue,
   showSkip,
   handleContinue,
+  user,
 }) => {
   const router = useRouter();
+
+  function getSkipPageForSellerKyc() {
+    if (user && user.userType != UserTypes.RealEstateAgent) {
+      return "/pipeline";
+    }
+    return "/buyerskycquestions";
+  }
 
   return (
     <div>
@@ -39,7 +48,7 @@ const Header = ({
           {skipSellerKYC && shouldContinue && (
             <Link
               className="underline h-full me-8"
-              href={"/buyerskycquestions"}
+              href={getSkipPageForSellerKyc()}
               style={{
                 fontSize: 15,
                 fontWeight: "600",
@@ -47,7 +56,7 @@ const Header = ({
               }}
               onClick={(e) => {
                 e.preventDefault();
-                router.push("/buyerskycquestions");
+                router.push(getSkipPageForSellerKyc());
               }}
             >
               Skip

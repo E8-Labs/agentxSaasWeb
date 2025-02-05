@@ -41,7 +41,7 @@ const FocusArea = ({
     const focusData = localStorage.getItem(PersistanceKeys.RegisterDetails);
     if (focusData) {
       const FocusAreaDetails = JSON.parse(focusData);
-      // console.log("Local details are :", FocusAreaDetails);
+      console.log("Local details are :", FocusAreaDetails);
       setFocusArea(FocusAreaDetails.focusAreaId);
       setFocusAreaTitle(FocusAreaDetails.areaFocusTitle);
       if (FocusAreaDetails.userTypeTitle !== "RealEstateAgent") {
@@ -155,23 +155,24 @@ const FocusArea = ({
 
       // console.log("Agent type is", agentType);
 
-      if (agentType === "RealEstateAgent") {
-        handleContinue();
-      } else if (agentType === "SalesDevRep") {
-        handleContinue();
-      } else if (agentType === "SolarRep") {
-        handleContinue();
-      } else if (agentType === "InsuranceAgent") {
-        handleContinue();
-      } else if (agentType === "MarketerAgent") {
-        handleContinue();
-      } else if (agentType === "WebsiteAgent") {
-        handleContinue();
-      } else if (agentType === "RecruiterAgent") {
-        handleContinue();
-      } else if (agentType === "TaxAgent") {
-        handleContinue();
-      }
+      handleContinue();
+      // if (agentType === "RealEstateAgent") {
+      //   handleContinue();
+      // } else if (agentType === "SalesDevRep") {
+      //   handleContinue();
+      // } else if (agentType === "SolarRep") {
+      //   handleContinue();
+      // } else if (agentType === "InsuranceAgent") {
+      //   handleContinue();
+      // } else if (agentType === "MarketerAgent") {
+      //   handleContinue();
+      // } else if (agentType === "WebsiteAgent") {
+      //   handleContinue();
+      // } else if (agentType === "RecruiterAgent") {
+      //   handleContinue();
+      // } else if (agentType === "TaxAgent") {
+      //   handleContinue();
+      // }
     }
 
     // if (data) {

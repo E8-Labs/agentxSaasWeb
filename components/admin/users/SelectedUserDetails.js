@@ -4,6 +4,8 @@ import Image from 'next/image'
 import React, { useState } from 'react'
 import AdminLeads1 from './AdminLeads1'
 import AdminPipeline1 from './pipline/AdminPipeline1'
+import AdminAgentX from './AdminAgentX'
+import AdminCallLogs from './AdminCallLogs'
 
 function SelectedUserDetails({ open, close, selectedUser }) {
 
@@ -145,7 +147,11 @@ function SelectedUserDetails({ open, close, selectedUser }) {
                                     ) : (
                                         selectedManu.name == "Pipeline"?(
                                             <AdminPipeline1 selectedUser = {selectedUser} />
-                                        ):"Comming soon ..."
+                                        ):selectedManu.name == "Agents" ? (
+                                            <AdminAgentX selectedUser = {selectedUser}/>
+                                        ): selectedManu.name == "Call Logs"? (
+                                            <AdminCallLogs selectedUser={selectedUser} />
+                                        ):"Comming soon..."
                                     )
                                 }
                             </div>

@@ -21,6 +21,8 @@ import BackgroundVideo from "@/components/general/BackgroundVideo";
 import { Modal } from "@mui/material";
 import { UserTypes } from "@/constants/UserTypes";
 import { PersistanceKeys } from "@/constants/Constants";
+import DebtCollectorAgentSignUp from "@/components/onboarding/DebtCollectorAgentSignUp";
+import DebtCollerterAgentSignUp from "@/components/onboarding/otherAgentsSignUp/DebtCollecterAgentSignUp";
 
 const Page = ({ params }) => {
   const router = useRouter();
@@ -78,8 +80,8 @@ const Page = ({ params }) => {
         UserType,
         UserService,
         FocusArea,
-        BasicDetails,
-        OtherDetails,
+        userType == UserTypes.DebtCollectorAgent ? DebtCollerterAgentSignUp :BasicDetails,
+        userType == UserTypes.DebtCollectorAgent ? DebtCollerterAgentSignUp : OtherDetails,
         Congrats,
         // SalesDevAgent, SolarRepAgentSignUp,
         // InsuranceAgentSignUp, MarketerAgentSignUp,
@@ -117,6 +119,7 @@ const Page = ({ params }) => {
       [UserTypes.WebsiteAgent]: WebOwnersAgentSignUp,
       [UserTypes.RecruiterAgent]: RecruiterAgentSignUp,
       [UserTypes.TaxAgent]: TaxAgentSignUp,
+      [UserTypes.DebtCollectorAgent]: DebtCollectorAgentSignUp,
     };
 
     const selectedComponent = agentComponents[agentTitle] || SignUpForm;

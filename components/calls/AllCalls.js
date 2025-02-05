@@ -27,7 +27,7 @@ import {
   GetFormattedTimeString,
 } from "@/utilities/utility";
 
-function AllCalls() {
+function AllCalls({ selectedUser }) {
   const [searchValue, setSearchValue] = useState("");
 
   const [callDetails, setCallDetails] = useState([]);
@@ -82,7 +82,7 @@ function AllCalls() {
     const selectedItem = pipelinesList.find(
       (item) => item.title === selectedValue
     );
-   // console.log("Selected Item:", selectedItem.stages);
+    // console.log("Selected Item:", selectedItem.stages);
     // setSelectedPipelineItem(selectedItem);
     setStagesList(selectedItem.stages);
     // setSelectedPipelineStages(selectedItem.stages);
@@ -170,19 +170,19 @@ function AllCalls() {
     // }
 
     try {
-     // console.log("Testing teh");
+      // console.log("Testing teh");
       getPipelines();
       const localCalls = localStorage.getItem("calldetails");
       if (localCalls) {
         const localCallData = JSON.parse(localCalls);
-       // console.log("Local cal details are", localCallData);
+        // console.log("Local cal details are", localCallData);
         setCallDetails(localCallData);
         setFilteredCallDetails(localCallData);
       } else {
         getCallLogs();
       }
     } catch (error) {
-     // console.error("Error ", error);
+      // console.error("Error ", error);
     } finally {
     }
   }, []);
@@ -190,7 +190,11 @@ function AllCalls() {
   //function for getting pipelines
   const getPipelines = async () => {
     try {
+
       const ApiPath = Apis.getPipelines;
+      if (selectedUser) {
+        ApiPath = ApiPath + "?userId="+selectedUser.id
+      }
       let AuthToken = null;
       const LocalData = localStorage.getItem("User");
       if (LocalData) {
@@ -198,7 +202,7 @@ function AllCalls() {
         AuthToken = UserDetails.token;
       }
 
-     // console.log("Auth token is :", AuthToken);
+      // console.log("Auth token is :", AuthToken);
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -208,7 +212,7 @@ function AllCalls() {
       });
 
       if (response) {
-       // console.log("Response of getPipelines api is :--", response.data.data);
+        // console.log("Response of getPipelines api is :--", response.data.data);
 
         if (response.data.status === true) {
           setPipelinesList(response.data.data);
@@ -217,28 +221,28 @@ function AllCalls() {
         }
       }
     } catch (error) {
-     // console.error("Error occured in get pipelies api is :", error);
+      // console.error("Error occured in get pipelies api is :", error);
     } finally {
-     // console.log("Api call completed");
+      // console.log("Api call completed");
     }
   };
 
   //code for getting call log details
   const getCallLogs = async (offset = null) => {
     const currentRequestVersion = ++requestVersion.current;
-   // console.log("Offset passed is ", offset);
+    // console.log("Offset passed is ", offset);
     try {
       setLoading(true);
       setInitialLoader(true);
-     // console.log("Check 1 ");
+      // console.log("Check 1 ");
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-       // console.log("Localdata recieved is :--", Data.token);
+        // console.log("Localdata recieved is :--", Data.token);
         AuthToken = Data.token;
       }
-     // console.log("Check 2");
+      // console.log("Check 2");
       let startDate = "";
       let endDate = "";
 
@@ -247,12 +251,12 @@ function AllCalls() {
         endDate = moment(selectedToDate).format("MM-DD-YYYY");
       }
 
-     // console.log("Check 3");
+      // console.log("Check 3");
       const stages = selectedStageIds.join(",");
-     // console.log("Sages selected are ", stages);
-     // console.log("Check 4");
+      // console.log("Sages selected are ", stages);
+      // console.log("Check 4");
       let ApiPath = null;
-     // console.log("Check 5");
+      // console.log("Check 5");
       if (offset == null) {
         offset = filteredCallDetails.length;
       }
@@ -262,11 +266,15 @@ function AllCalls() {
         ApiPath = `${Apis.getCallLogs}?offset=${offset}`; //Apis.getCallLogs;
       }
 
+      if (selectedUser) {
+        ApiPath = ApiPath + "&userId="+selectedUser.id
+      }
+
       // if (selectedFromDate && selectedToDate && stages.length > 0) {
       //     ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}&stageIds=${stages}&offset=${offset}&limit=10`;
       // }
 
-     // console.log("Api path is", ApiPath);
+      console.log("Api path for calls lod  is", ApiPath);
 
       //// console.log("Auth token is:", AuthToken);
       // return
@@ -279,7 +287,7 @@ function AllCalls() {
 
       if (currentRequestVersion === requestVersion.current) {
         if (response) {
-         // console.log("response of get call logs api is :", response.data);
+          // console.log("response of get call logs api is :", response.data);
           // setCallDetails(response.data.data);
           // setFilteredCallDetails(response.data.data);
 
@@ -295,7 +303,7 @@ function AllCalls() {
         }
       }
     } catch (error) {
-     // console.error("Error occured in gtting calls log api is:", error);
+      // console.error("Error occured in gtting calls log api is:", error);
     } finally {
       setInitialLoader(false);
     }
@@ -529,7 +537,7 @@ function AllCalls() {
             scrollableTarget="scrollableDiv1"
             dataLength={filteredCallDetails.length}
             next={() => {
-             // console.log("Loading more data");
+              // console.log("Loading more data");
               getCallLogs();
             }} // Fetch more when scrolled
             hasMore={hasMore} // Check if there's more data
@@ -599,7 +607,7 @@ function AllCalls() {
                     <div className="w-1/12">
                       <button
                         onClick={() => {
-                         // console.log("Selected item is", item);
+                          // console.log("Selected item is", item);
                           setselectedLeadsDetails(item);
                           setShowDetailsModal(true);
                         }}
@@ -888,18 +896,16 @@ function AllCalls() {
                           onClick={() => {
                             handleSelectStage(item);
                           }}
-                          className={`p-2 border border-[#00000020] ${
-                            selectedStageIds.includes(item.id)
+                          className={`p-2 border border-[#00000020] ${selectedStageIds.includes(item.id)
                               ? `bg-purple`
                               : "bg-transparent"
-                          } px-6
-                                                                ${
-                                                                  selectedStageIds.includes(
-                                                                    item.id
-                                                                  )
-                                                                    ? `text-white`
-                                                                    : "text-black"
-                                                                } rounded-2xl`}
+                            } px-6
+                                                                ${selectedStageIds.includes(
+                              item.id
+                            )
+                              ? `text-white`
+                              : "text-black"
+                            } rounded-2xl`}
                         >
                           {item.stageTitle}
                         </button>
@@ -935,12 +941,12 @@ function AllCalls() {
                       fontWeight: "600",
                       backgroundColor:
                         (selectedFromDate && selectedToDate) ||
-                        selectedStageIds.length > 0
+                          selectedStageIds.length > 0
                           ? ""
                           : "#00000050",
                     }}
                     onClick={() => {
-                     // console.log("Check 1");
+                      // console.log("Check 1");
                       if (
                         (selectedFromDate && selectedToDate) ||
                         selectedStageIds.length > 0
@@ -952,7 +958,7 @@ function AllCalls() {
                         setShowFilterModal(false);
                         // getCallLogs(0);
                       } else {
-                       // console.log("Cannot continue");
+                        // console.log("Cannot continue");
                       }
                     }}
                   >
