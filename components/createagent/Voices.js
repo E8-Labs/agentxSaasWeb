@@ -117,7 +117,7 @@ const voicesList = [
     Dialect: "Thoughtful, Empathetic, Late 20s | Londoner ",
   },
   {
-    voice_id: "Gcmr5NT3wNIhORAVGknrd",
+    voice_id: "Gcmr5NT3wNIhORAVGknr",
     name: "Elon",
     preview: "/voicesList/Elon.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/vjDLFGLODo1aXEe4wfjr/9ccd8c10-8dac-450c-8e81-b70ddd6b8972.mp3",
