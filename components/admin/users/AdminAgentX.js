@@ -55,7 +55,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "@phosphor-icons/react";
 import VideoCard from "@/components/createagent/VideoCard";
 
-function AdminAgentX({selectedUser}) {
+function AdminAgentX({ selectedUser }) {
   const timerRef = useRef();
   const fileInputRef = useRef([]);
   // const fileInputRef = useRef(null);
@@ -1413,7 +1413,7 @@ function AdminAgentX({selectedUser}) {
   };
 
   //code to get agents
-  const getAgents = async (userData,) => {
+  const getAgents = async (userData) => {
     try {
       const agentLocalDetails = localStorage.getItem(
         PersistanceKeys.LocalStoredAgentsListMain
@@ -1726,24 +1726,20 @@ function AdminAgentX({selectedUser}) {
 
       <div
         className="w-full flex flex-row justify-between items-center py-4 px-10"
-        style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
+        // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>My Agents</div>
-
-        <div>
-          <NotficationsDrawer />
-        </div>
       </div>
 
       <div className="w-9/12 items-center " style={{}}>
         {/* code for agents list */}
         {initialLoader ? (
-          <div className="h-[70vh] flex flex-row justify-center pt-32 gap-4">
+          <div className="h-[45vh] flex flex-row justify-center pt-32 gap-4">
             <CircularProgress size={45} />
           </div>
         ) : (
           <div
-            className="h-[75vh] overflow-auto flex flex-col gap-4 pt-10"
+            className="h-[45vh] overflow-auto flex flex-col gap-4 pt-10"
             style={{ scrollbarWidth: "none" }}
           >
             {agentsListSeparated.map((item, index) => (
@@ -2805,6 +2801,7 @@ function AdminAgentX({selectedUser}) {
                                 <div
                                   onClick={(e) => {
                                     if (showReassignBtn && item?.claimedBy) {
+                                      console.log("Assigned to ", item);
                                       e.stopPropagation();
                                       setShowConfirmationModal(item);
                                       //// console.log("Hit release number api");
@@ -3141,7 +3138,6 @@ function AdminAgentX({selectedUser}) {
               className="max-h-[60vh] overflow-auto"
               style={{ scrollbarWidth: "none" }}
             >
-
               <div className="flex flex-row items-center justify-center gap-2 -mt-1">
                 <Image
                   src={"/assets/warningFill.png"}
@@ -3421,7 +3417,7 @@ function AdminAgentX({selectedUser}) {
                   }}
                   onClick={handleShowAdvanceSeting}
                 >
-                  Advance Settings
+                  Advanced Settings
                 </button>
               </div>
 

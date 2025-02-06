@@ -44,7 +44,7 @@ const FocusArea = ({
       console.log("Local details are :", FocusAreaDetails);
       setFocusArea(FocusAreaDetails.focusAreaId);
       setFocusAreaTitle(FocusAreaDetails.areaFocusTitle);
-      if (FocusAreaDetails.userTypeTitle !== "RealEstateAgent" && FocusAreaDetails.userTypeTitle !== "SolarRep") {
+      if (FocusAreaDetails.userTypeTitle !== "RealEstateAgent") {
         setShowOtherInput(true);
       }
     }
@@ -240,7 +240,7 @@ const FocusArea = ({
               </div>
             ) : (
               <div
-                className="mt-2 sm:mt-8 md:10/12 w-full lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+                className="mt-2 sm:mt-8 pb-2 md:10/12 w-full lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
                 // style={{ scrollbarWidth: "none" }}
               >
                 {focusData.map((item, index) => (

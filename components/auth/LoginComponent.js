@@ -439,7 +439,12 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 if (redirect) {
                   router.push(redirect);
                 } else {
-                  router.push("/dashboard/leads");
+                  
+                  if (data.data.user.userType == "admin") {
+                    router.push("/admin");
+                  } else {
+                    router.push("/dashboard/leads");
+                  }
                 }
               }
             } else {
@@ -450,7 +455,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           setLoginLoader(false);
         }
       } else {
-        console.error("Login failed:", data.error);
+        // console.error("Login failed:", data.error);
       }
     } catch (error) {
       console.error("Error during login:", error);

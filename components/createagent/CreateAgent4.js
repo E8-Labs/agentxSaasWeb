@@ -606,8 +606,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         value={showGlobalBtn ? 14062040550 : ""}
                       >
                         +14062040550
-                        {showGlobalBtn &&
-                          " (to available for testing calls only)"}
+                        {showGlobalBtn && " (available for testing calls only)"}
                         {showGlobalBtn == false &&
                           " (Only for outbound agents. You must buy a number)"}
                       </MenuItem>
@@ -877,6 +876,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             handleBack={handleBack}
             registerLoader={assignLoader}
             shouldContinue={shouldContinue}
+            donotShowBack={true}
           />
         </div>
 

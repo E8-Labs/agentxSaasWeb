@@ -16,8 +16,8 @@ function AdminCallLogs({selectedUser}) {
 
 
   return (
-    <div className='w-full flex flex-col items-center'>
-      <div className=' w-full flex flex-row justify-between items-center py-4 px-10'
+    <div className='w-full flex flex-col items-start justify-start'>
+      <div className=' w-full flex flex-row justify-between items-center py-2 px-10'
         // style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
       >
         <div style={{ fontSize: 24, fontWeight: '600' }}>
@@ -26,7 +26,7 @@ function AdminCallLogs({selectedUser}) {
 
       </div>
 
-      <div className=" w-full flex mt-10  gap-8 pb-2 mb-4 pl-10">
+      <div className=" w-full flex mt-3  gap-8 pb-2 mb-4 pl-10">
         {["All Calls", "Call Activities", "Scheduled"].map((tab) => (
           <button
             key={tab}
@@ -45,12 +45,12 @@ function AdminCallLogs({selectedUser}) {
       <div className='w-full'>
         {
           activeTab === "All Calls" ? (
-            <AllCalls />
+            <AllCalls selectedUser={selectedUser} />
           ) : (
             activeTab === "Scheduled" ? (
-              <SheduledCalls />
+              <SheduledCalls selectedUser = {selectedUser} />
             ) : (
-              <CallActivities />
+              <CallActivities selectedUser = {selectedUser}/>
             )
           )
         }

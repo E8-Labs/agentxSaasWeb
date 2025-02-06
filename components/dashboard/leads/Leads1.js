@@ -304,7 +304,7 @@ const Leads1 = () => {
   //auto focus the add column input field
   useEffect(() => {
     if (showPopUp) {
-     // console.log("Should auto focus the field");
+      // console.log("Should auto focus the field");
       setTimeout(() => {
         if (addColRef.current) {
           addColRef.current.focus();
@@ -325,7 +325,7 @@ const Leads1 = () => {
         return () => clearTimeout(timer);
       }
     } catch (error) {
-     // console.error("Error occured in selecting file is :", error);
+      // console.error("Error occured in selecting file is :", error);
     } finally {
       setSelectedfileLoader(false);
     }
@@ -335,7 +335,7 @@ const Leads1 = () => {
     try {
       setInitialLoader(true);
     } catch (error) {
-     // console.error("Error occured in getVoices api is:", error);
+      // console.error("Error occured in getVoices api is:", error);
     } finally {
       setInitialLoader(false);
     }
@@ -395,9 +395,9 @@ const Leads1 = () => {
       defaultColumnsDbNames.includes(UpdateHeader.dbName)
     ) {
       isDefaultColumn = true;
-     // console.log("changing default column");
+      // console.log("changing default column");
     } else {
-     // console.log("changing extra column");
+      // console.log("changing extra column");
     }
     // return;
     //////console.log("Change column name here", UpdatedColumnName);
@@ -409,7 +409,7 @@ const Leads1 = () => {
     // ////console.log("Updated Col Name ", UpdatedColumnName);
     keys.forEach((key) => {
       let col = defaultColumns[key];
-     // console.log(
+      // console.log(
       //   `Matching ${col.UserFacingName} with ${UpdatedColumnName} OR ${col.dbName}`
       // );
       if (
@@ -428,14 +428,14 @@ const Leads1 = () => {
       if (isDefaultColumn) {
         // changing the default column
         if (dc) {
-         // console.log("Updated name is default column");
+          // console.log("Updated name is default column");
           let value = d[UpdateHeader.dbName];
           delete d[UpdateHeader.dbName];
           // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
           d[UpdatedColumnName] = value;
           pd[i] = d;
         } else {
-         // console.log("Updated name is not default column");
+          // console.log("Updated name is not default column");
           //mmove it to extra column
 
           let value = d[UpdateHeader.dbName];
@@ -459,7 +459,7 @@ const Leads1 = () => {
         // });
         //The updated name is in default column list
         if (dc) {
-         // console.log("Updated name is default column", UpdatedColumnName);
+          // console.log("Updated name is default column", UpdatedColumnName);
           let value =
             d.extraColumns[
               UpdateHeader.dbName
@@ -484,7 +484,7 @@ const Leads1 = () => {
             ? UpdateHeader.dbName
             : UpdateHeader.ColumnNameInSheet;
           let value = d.extraColumns[colName];
-         // console.log(`Value for colum ${colName} `, value);
+          // console.log(`Value for colum ${colName} `, value);
           delete d.extraColumns[colName];
           // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
           d.extraColumns[
@@ -527,7 +527,7 @@ const Leads1 = () => {
     // }
     // mappingList[i] = map;
     // }
-   // console.log(`Processed data changed`, pd);
+    // console.log(`Processed data changed`, pd);
     setProcessedData(pd);
     // setColumnMappingsList(mappingList);
     //////console.log("Mapping list changed", mappingList);
@@ -552,9 +552,9 @@ const Leads1 = () => {
     // return hasPhone && hasFullName;
     if (hasPhone && hasFullName) {
       handleAddLead();
-     // console.log("Al credentials valid");
+      // console.log("Al credentials valid");
     } else {
-     // console.log("Al credentials not valid");
+      // console.log("Al credentials not valid");
       if (!hasPhone) {
         setErrSnack(SnackMessageTitles.ErrorMessagePhoneRequiredLeadImport);
         setErrSnackTitle(SnackMessageTitles.ErrorTitlePhoneRequiredLeadImport);
@@ -607,7 +607,7 @@ const Leads1 = () => {
         let matched = [];
         headers.forEach((header) => {
           const matchedColumn = matchColumn(header, defaultColumns, allColumns);
-         // console.log(`Matched Col For Header ${header}`, matchedColumn);
+          // console.log(`Matched Col For Header ${header}`, matchedColumn);
           if (matchedColumn) {
             if (!matched.includes(matchedColumn)) {
               let col = defaultColumns[matchedColumn];
@@ -649,7 +649,7 @@ const Leads1 = () => {
             // });
           }
         });
-       // console.clear();
+        // console.clear();
         // columnMappings["extraColumns"] = extraColumns;
 
         // Transform data rows based on column mappings
@@ -725,7 +725,7 @@ const Leads1 = () => {
           return transformedRow;
         });
 
-       // console.log("Transformed data ", transformedData);
+        // console.log("Transformed data ", transformedData);
         // Update state
         setProcessedData(transformedData);
         // setColumnMappingsList(mappingsList);
@@ -778,7 +778,7 @@ const Leads1 = () => {
         // }
       });
     });
-   // console.log(pd);
+    // console.log(pd);
 
     ////console.log("New Columns");
     ////console.log(NewColumnsObtained);
@@ -805,7 +805,7 @@ const Leads1 = () => {
       };
 
       const ApiPath = Apis.createLead;
-     // console.log("Api data is :", JSON.stringify(ApiData));
+      // console.log("Api data is :", JSON.stringify(ApiData));
       // return
       //console.log("Apidata sending in Addlead api is :", ApiData);
       // return;
@@ -822,7 +822,7 @@ const Leads1 = () => {
           let sheet = response.data.data;
           let leads = response.data.leads;
           // let sheetsList =
-         // console.log("Response of add lead list api is:", response.data.data);
+          // console.log("Response of add lead list api is:", response.data.data);
           setShowUploadLeadModal(false);
           setSelectedFile(null);
           localStorage.setItem("userLeads", JSON.stringify(response.data.data));
@@ -835,7 +835,7 @@ const Leads1 = () => {
         }
       }
     } catch (error) {
-     // console.error("Error occured in add lead api is :", error);
+      // console.error("Error occured in add lead api is :", error);
     } finally {
       setLoader(false);
     }
@@ -923,16 +923,16 @@ const Leads1 = () => {
         AuthToken = UserDetails.token;
       }
 
-     // console.log("Auth token is :--", AuthToken);
+      // console.log("Auth token is :--", AuthToken);
 
       const ApiData = {
         sheetName: newSheetName,
         columns: inputs.map((columns) => columns.value),
       };
-     // console.log("Data to send in api is:", ApiData);
+      // console.log("Data to send in api is:", ApiData);
 
       const ApiPath = Apis.addSmartList;
-     // console.log("Api Path is", ApiPath);
+      // console.log("Api Path is", ApiPath);
 
       // return
 
@@ -944,7 +944,7 @@ const Leads1 = () => {
       });
 
       if (response) {
-       // console.log("Response of add new smart list api is :", response);
+        // console.log("Response of add new smart list api is :", response);
         if (response.data.status === true) {
           // setSheetsList([...SheetsList, response.data.data]);
           setUserLeads(response.data.data);
@@ -963,7 +963,7 @@ const Leads1 = () => {
         }
       }
     } catch (error) {
-     // console.error("Error occured in adding new list api is:", error);
+      // console.error("Error occured in adding new list api is:", error);
     } finally {
       setShowaddCreateListLoader(false);
     }
@@ -990,7 +990,7 @@ const Leads1 = () => {
         </div>
       ) : (
         <div className="w-full">
-          { userLeads ? (
+          {userLeads ? (
             <div className="h-screen w-full">
               <Userleads
                 handleShowAddLeadModal={handleShowAddLeadModal}
@@ -1402,8 +1402,8 @@ const Leads1 = () => {
                               // if (index > 4) {
                               setSelectedItem(index);
                               //////console.log("Selected index is", index);
-                             // console.log("Item selected is :", item);
-                             // console.log(
+                              // console.log("Item selected is :", item);
+                              // console.log(
                               //   "Array selected is :",
                               //   NewColumnsObtained
                               // );
@@ -1546,7 +1546,6 @@ const Leads1 = () => {
                         </Box>
                       </Modal>
 
-
                       {/* <Modal 
                           open = {ShowDelCol}
                           onClose={()=>setShowDelCol(false)}
@@ -1557,7 +1556,6 @@ const Leads1 = () => {
                         </div>
 
                       </Modal> */}
-
                     </div>
                   );
                 })}
@@ -1676,11 +1674,11 @@ const Leads1 = () => {
                         updateColumnValue?.toLowerCase()
                     )
                   ) {
-                   // console.log("Value matched from the array");
+                    // console.log("Value matched from the array");
                     // return
                     setWarningModal(true);
                   } else {
-                   // console.log("Value donot matches from the array");
+                    // console.log("Value donot matches from the array");
                     ChangeColumnName(updateColumnValue);
                   }
                 }}
@@ -1842,7 +1840,7 @@ const Leads1 = () => {
         onClose={() => setIntroVideoModal(false)}
         videoTitle="Learn how to add leads to your CRM"
         videoUrl={HowtoVideos.Leads}
-        duratuin = {11}
+        duratuin={11}
       />
       {/* Modal to add custom sheet */}
       <div>

@@ -1,13 +1,23 @@
-import Apis from '@/components/apis/Apis';
-import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
-import { Alert, Box, CircularProgress, Fade, Modal, Popover, Snackbar, TextareaAutosize } from '@mui/material';
-import { CaretDown, CaretUp, DotsThree } from '@phosphor-icons/react';
-import axios from 'axios';
-import Image from 'next/image';
-import React, { useEffect, useState } from 'react'
+import Apis from "@/components/apis/Apis";
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import {
+  Alert,
+  Box,
+  CircularProgress,
+  Fade,
+  Modal,
+  Popover,
+  Snackbar,
+  TextareaAutosize,
+} from "@mui/material";
+import { CaretDown, CaretUp, DotsThree } from "@phosphor-icons/react";
+import axios from "axios";
+import Image from "next/image";
+import React, { useEffect, useState } from "react";
 
 const Objection = ({ showTitle, selectedAgentId }) => {
-
   const [ObjectionsList, setObjectionsList] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
   const [showAddObjForm, setShowAddObjForm] = useState(false);
@@ -25,25 +35,25 @@ const Objection = ({ showTitle, selectedAgentId }) => {
   const [delLoader, setDelLoader] = useState(false);
 
   const open = Boolean(anchorEl);
-  const id = open ? 'simple-popover' : undefined;
+  const id = open ? "simple-popover" : undefined;
 
   //code for desnack bars
   const [showErrorSnack, setShowErrorSnack] = useState(null);
   const [showSuccessSnack, setShowSuccessSnack] = useState(null);
 
   useEffect(() => {
-   // console.log("Check 1 clear")
+    // console.log("Check 1 clear")
     const objectionsList = localStorage.getItem("ObjectionsList");
     if (objectionsList) {
-     // console.log("Should not call api");
+      // console.log("Should not call api");
       const objectionsData = JSON.parse(objectionsList);
-     // console.log("Objection details recieved from locastorage are :", objectionsData);
+      // console.log("Objection details recieved from locastorage are :", objectionsData);
       setObjectionsList(objectionsData);
     } else {
-     // console.log("calling api");
+      // console.log("calling api");
       getObjections();
     }
-  }, [])
+  }, []);
   //code for getting agent data
   const getObjections = async () => {
     try {
@@ -57,48 +67,49 @@ const Objection = ({ showTitle, selectedAgentId }) => {
       }
 
       let mainAgentId = null;
-     // console.log("Selected agent details are", selectedAgentId);
+      // console.log("Selected agent details are", selectedAgentId);
 
       if (selectedAgentId) {
-       // console.log("id sending in api is:", selectedAgentId);
-        mainAgentId = selectedAgentId.mainAgentId//selectedAgentId.id
+        // console.log("id sending in api is:", selectedAgentId);
+        mainAgentId = selectedAgentId.mainAgentId; //selectedAgentId.id
       } else {
-       // console.log("id sending in new local agent is:", mainAgentId);
+        // console.log("id sending in new local agent is:", mainAgentId);
         const localAgent = localStorage.getItem("agentDetails");
         if (localAgent) {
           const agentDetails = JSON.parse(localAgent);
-         // console.log("Agent details are:", agentDetails);
-          mainAgentId = agentDetails.id
+          // console.log("Agent details are:", agentDetails);
+          mainAgentId = agentDetails.id;
         }
       }
 
-     // console.log("Main agent id is:", mainAgentId)
+      // console.log("Main agent id is:", mainAgentId)
 
-
-     // console.log("Auth token is:", AuthToken);
+      // console.log("Auth token is:", AuthToken);
 
       const ApiPath = `${Apis.getObjectionGuardrial}?mainAgentId=${mainAgentId}`;
-     // console.log("Apipath is:", ApiPath);
+      // console.log("Apipath is:", ApiPath);
       // return
       const response = await axios.get(ApiPath, {
         headers: {
-          "Authorization": "Bearer " + AuthToken,
-          "Content-Type": "application/json"
-        }
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
-       // console.log("Response is:", response);
-        localStorage.setItem("ObjectionsList", JSON.stringify(response.data.data.objections));
+        // console.log("Response is:", response);
+        localStorage.setItem(
+          "ObjectionsList",
+          JSON.stringify(response.data.data.objections)
+        );
         setObjectionsList(response.data.data.objections);
       }
-
     } catch (error) {
-     // console.error("Error occured in get agents api is:", error);
+      // console.error("Error occured in get agents api is:", error);
     } finally {
       setInitialLoader(false);
     }
-  }
+  };
 
   //code for add objection guardrial api
   const addObjection = async () => {
@@ -115,15 +126,14 @@ const Objection = ({ showTitle, selectedAgentId }) => {
 
       let mainAgentId = null;
 
-
       if (selectedAgentId) {
-        mainAgentId = selectedAgentId.mainAgentId//selectedAgentId.id
+        mainAgentId = selectedAgentId.mainAgentId; //selectedAgentId.id
       } else {
         const localAgent = localStorage.getItem("agentDetails");
         if (localAgent) {
           const agentDetails = JSON.parse(localAgent);
-         // console.log("Agent details are:", agentDetails);
-          mainAgentId = agentDetails.id
+          // console.log("Agent details are:", agentDetails);
+          mainAgentId = agentDetails.id;
         }
       }
 
@@ -134,33 +144,36 @@ const Objection = ({ showTitle, selectedAgentId }) => {
         AuthToken = UserDetails.token;
       }
 
-     // console.log("Auth token is:", AuthToken);
+      // console.log("Auth token is:", AuthToken);
 
       const ApiData = {
         title: addObjTitle,
         description: addObjDescription,
         type: "objection",
-        mainAgentId: mainAgentId
-      }
+        mainAgentId: mainAgentId,
+      };
 
-     // console.log("Api data is :", ApiData);
+      // console.log("Api data is :", ApiData);
       // return
       const ApiPath = Apis.addObjectionGuardrial;
-     // console.log("Apipath is", ApiPath);
+      // console.log("Apipath is", ApiPath);
 
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          "Authorization": "Bearer " + AuthToken,
-          "Content-Type": "application/json"
-        }
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
-       // console.log("Response of add objection api is:", response);
+        // console.log("Response of add objection api is:", response);
         if (response.data.status === true) {
           setObjectionsList(response.data.data.objections);
-          localStorage.setItem("ObjectionsList", JSON.stringify(response.data.data.objections));
+          localStorage.setItem(
+            "ObjectionsList",
+            JSON.stringify(response.data.data.objections)
+          );
           setShowAddObjForm(false);
           setAddObjTitle("");
           setAddObjDescription("");
@@ -168,14 +181,12 @@ const Objection = ({ showTitle, selectedAgentId }) => {
           setShowErrorSnack(response.data.message);
         }
       }
-
     } catch (error) {
-     // console.error("Error occured in add objection:", error);
+      // console.error("Error occured in add objection:", error);
     } finally {
       setAddObjectionLoader(false);
     }
-  }
-
+  };
 
   //function to handle show details
   const handleShowDetails = (item) => {
@@ -189,11 +200,11 @@ const Objection = ({ showTitle, selectedAgentId }) => {
         return [...prevItems, item];
       }
     });
-  }
+  };
 
   //functions for del popover
   const handleClick = (event, item) => {
-   // console.log("Selected item is", item);
+    // console.log("Selected item is", item);
     setSelectedObjection(item);
     setAnchorEl(event.currentTarget);
   };
@@ -214,46 +225,45 @@ const Objection = ({ showTitle, selectedAgentId }) => {
         AuthToken = UserDetails.token;
       }
 
-     // console.log("Authtoken is", AuthToken);
+      // console.log("Authtoken is", AuthToken);
 
       const formData = new FormData();
       formData.append("id", SelectedObjection.id);
 
       for (let [key, value] of formData.entries()) {
-       // console.log(`${key}: ${value}`)
+        // console.log(`${key}: ${value}`)
       }
 
       const ApiPath = Apis.DelObjectGuard;
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
-          "Authorization": "Bearer " + AuthToken,
-          "Content-Type": "application/json"
-        }
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
-       // console.log("Response of del guardrails is", response);
+        // console.log("Response of del guardrails is", response);
         if (response.data.status === true) {
           setObjectionsList(response.data.data.objections);
           setShowSuccessSnack(response.data.message);
-          localStorage.setItem("ObjectionsList", JSON.stringify(response.data.data.objections));
+          localStorage.setItem(
+            "ObjectionsList",
+            JSON.stringify(response.data.data.objections)
+          );
           setAnchorEl(null);
         } else if (response.data.status === false) {
           setShowErrorSnack(response.data.message);
         }
       }
-
     } catch (error) {
-     // console.error("Error occured in api is", error);
+      // console.error("Error occured in api is", error);
     } finally {
       setDelLoader(false);
-     // console.log("Api call done");
+      // console.log("Api call done");
     }
-  }
-
-
-
+  };
 
   const styles = {
     modalsStyle: {
@@ -269,7 +279,7 @@ const Objection = ({ showTitle, selectedAgentId }) => {
     },
     title: {
       fontSize: 15,
-      fontWeight: "600"
+      fontWeight: "600",
     },
     inputStyle: {
       fontSize: 15,
@@ -280,137 +290,184 @@ const Objection = ({ showTitle, selectedAgentId }) => {
       width: "100%",
       marginTop: 10,
       padding: 5,
-      height: "50px"
-    }
-  }
+      height: "50px",
+    },
+  };
 
   return (
     <div>
-      <AgentSelectSnackMessage isVisible={showSuccessSnack == false || showSuccessSnack == null ? false : true} hide={() => setShowSuccessSnack(false)} message={showSuccessSnack} type={SnackbarTypes.Success} />
-      <AgentSelectSnackMessage isVisible={showErrorSnack == false || showErrorSnack == null ? false : true} hide={() => setShowErrorSnack(false)} message={showErrorSnack} type={SnackbarTypes.Error} />
+      <AgentSelectSnackMessage
+        isVisible={
+          showSuccessSnack == false || showSuccessSnack == null ? false : true
+        }
+        hide={() => setShowSuccessSnack(false)}
+        message={showSuccessSnack}
+        type={SnackbarTypes.Success}
+      />
+      <AgentSelectSnackMessage
+        isVisible={
+          showErrorSnack == false || showErrorSnack == null ? false : true
+        }
+        hide={() => setShowErrorSnack(false)}
+        message={showErrorSnack}
+        type={SnackbarTypes.Error}
+      />
 
-
-      {
-        showTitle && (
-          <div className='flex flex-row items-center justify-between mt-4 pb-3'>
-            <div style={{ fontWeight: "600", fontSize: 16.8 }}>
-            </div>
-            <button className='text-purple underline outline-none'
-              style={{ fontWeight: "500", fontSize: 15 }}
-              onClick={() => setShowAddObjForm(true)}
-            >
-              New Objection
-            </button>
-          </div>
-        )
-      }
-
-      {
-       ObjectionsList.length > 0 ?
-          <div style={{ scrollbarWidth: "none", overflow: "auto", maxHeight: showTitle ? "60vh" : "40vh" }}>
-            {ObjectionsList.map((item, index) => {
-              const isExpanded = showDetails.some((detail) => detail.id === item.id);
-              return (
-                <div className='p-3 rounded-xl mt-4' key={index} style={{ border: "1px solid #00000020" }}>
-                  <div className='flex flex-row items-center justify-between'>
-                    <div style={{ fontWeight: "600", fontSize: 15 }}>
-                      {item.title}
-                    </div>
-                    <button onClick={() => { handleShowDetails(item) }}>
-                      {
-                        isExpanded ?
-                          <CaretUp size={20} /> :
-                          <CaretDown size={20} />
-                      }
-                    </button>
-                  </div>
-                  {
-                    isExpanded && (
-                      <div className='flex flex-row items-start justify-between'>
-                        <div className='mt-2 bg-gray-100 p-2' style={{ fontWeight: "500", fontSize: 15 }}>
-                          {item.description}
-                        </div>
-                        <div>
-                          <button
-                            onClick={(event) => { handleClick(event, item) }}
-                          >
-                            <DotsThree weight='bold' size={35} />
-                          </button>
-                          <Popover
-                            id={id}
-                            open={open}
-                            anchorEl={anchorEl}
-                            onClose={handleClose}
-                            anchorOrigin={{
-                              vertical: 'bottom',
-                              horizontal: 'right',
-                            }}
-                            transformOrigin={{
-                              vertical: 'center',
-                              horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
-                            }}
-                            PaperProps={{
-                              elevation: 0, // This will remove the shadow
-                              style: {
-                                boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
-                                // borderRadius: "13px"
-                              },
-                            }}
-                          >
-                            {
-                              delLoader ?
-                                <CircularProgress size={20} /> :
-                                <button
-                                  onClick={() => { handleDelObjection() }}
-                                  className='text-red p-2 px-4'
-                                  style={{ fontsize: 15, fontWeight: "500", padding: 2 }}>
-                                  Delete
-                                </button>
-                            }
-                          </Popover>
-                        </div>
-                      </div>
-                    )
-                  }
-                </div>
-              )
-            })}
-          </div> :
-          <div>
-            {
-              initialLoader ?
-                <div className='w-full flex flex-row items-center justify-center mt-8'>
-                  <CircularProgress size={25} />
-                </div> :
-                <div className='text-center text-2xl mt-6'>
-                  <div className='flex flex-col items-center justify-center h-[30vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
-                    {/* <div className='h-[100px] w-[100px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'> */}
-                      <Image className='grayscale' src={"/svgIcons/noObjectionIcon.png"} height={280} width={250} alt='*' />
-                    {/* </div> */}
-                    <div className=''
-                       style={{ fontWeight: "500", fontSize: 15 }}>
-                        {`Looks like you've got no objections yet`}
-                    </div>
-                  </div>
-                </div>
-            }
-          </div>
-      }
-
-      {
-        !showTitle && (
-          <button className='text-purple mt-4 outline-none'
-            style={{ fontWeight: "700", fontSize: 16 }}
-            onClick={() => setShowAddObjForm(true)}>
-            Add New
+      {showTitle && (
+        <div className="flex flex-row items-center justify-between mt-4 pb-3">
+          <div style={{ fontWeight: "600", fontSize: 16.8 }}></div>
+          <button
+            className="text-purple underline outline-none"
+            style={{ fontWeight: "500", fontSize: 15 }}
+            onClick={() => setShowAddObjForm(true)}
+          >
+            New Objection
           </button>
-        )
-      }
+        </div>
+      )}
+
+      {ObjectionsList.length > 0 ? (
+        <div
+          style={{
+            scrollbarWidth: "none",
+            overflow: "auto",
+            maxHeight: showTitle ? "60vh" : "40vh",
+          }}
+        >
+          {ObjectionsList.map((item, index) => {
+            const isExpanded = showDetails.some(
+              (detail) => detail.id === item.id
+            );
+            return (
+              <div
+                className="p-3 rounded-xl mt-4"
+                key={index}
+                style={{ border: "1px solid #00000020" }}
+              >
+                <div className="flex flex-row items-center justify-between">
+                  <div style={{ fontWeight: "600", fontSize: 15 }}>
+                    {item.title}
+                  </div>
+                  <button
+                    onClick={() => {
+                      handleShowDetails(item);
+                    }}
+                  >
+                    {isExpanded ? (
+                      <CaretUp size={20} />
+                    ) : (
+                      <CaretDown size={20} />
+                    )}
+                  </button>
+                </div>
+                {isExpanded && (
+                  <div className="flex flex-row items-start justify-between">
+                    <div
+                      className="mt-2 bg-gray-100 p-2"
+                      style={{ fontWeight: "500", fontSize: 15 }}
+                    >
+                      {item.description}
+                    </div>
+                    <div>
+                      <button
+                        onClick={(event) => {
+                          handleClick(event, item);
+                        }}
+                      >
+                        <DotsThree weight="bold" size={35} />
+                      </button>
+                      <Popover
+                        id={id}
+                        open={open}
+                        anchorEl={anchorEl}
+                        onClose={handleClose}
+                        anchorOrigin={{
+                          vertical: "bottom",
+                          horizontal: "right",
+                        }}
+                        transformOrigin={{
+                          vertical: "center",
+                          horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+                        }}
+                        PaperProps={{
+                          elevation: 0, // This will remove the shadow
+                          style: {
+                            boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
+                            // borderRadius: "13px"
+                          },
+                        }}
+                      >
+                        {delLoader ? (
+                          <CircularProgress size={20} />
+                        ) : (
+                          <button
+                            onClick={() => {
+                              handleDelObjection();
+                            }}
+                            className="text-red p-2 px-4"
+                            style={{
+                              fontsize: 15,
+                              fontWeight: "500",
+                              padding: 2,
+                            }}
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </Popover>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div>
+          {initialLoader ? (
+            <div className="w-full flex flex-row items-center justify-center mt-8">
+              <CircularProgress size={25} />
+            </div>
+          ) : (
+            <div className="text-center text-2xl mt-6">
+              <div
+                className="flex flex-col items-center justify-center h-[30vh] w-full"
+                style={{ fontWeight: "500", fontsize: 15 }}
+              >
+                {/* <div className='h-[100px] w-[100px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'> */}
+                <Image
+                  className="grayscale"
+                  src={"/svgIcons/noObjectionIcon.png"}
+                  height={280}
+                  width={250}
+                  alt="*"
+                />
+                {/* </div> */}
+                <div className="" style={{ fontWeight: "500", fontSize: 15 }}>
+                  {`Looks like you haven't added objections yet`}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {!showTitle && (
+        <button
+          className="text-purple mt-4 outline-none"
+          style={{ fontWeight: "700", fontSize: 16 }}
+          onClick={() => setShowAddObjForm(true)}
+        >
+          Add New
+        </button>
+      )}
 
       {/* Modal for Adding new item in array */}
       <Modal
         open={showAddObjForm}
-        onClose={() => { setShowAddObjForm(false) }}
+        onClose={() => {
+          setShowAddObjForm(false);
+        }}
         BackdropProps={{
           timeout: 100,
           sx: {
@@ -419,51 +476,76 @@ const Objection = ({ showTitle, selectedAgentId }) => {
           },
         }}
       >
-        <Box sx={{ ...styles.modalsStyle, width: "30%", backgroundColor: 'white' }}>
-          <div style={{ width: "100%", }}>
-            <div className='w-full' style={{ direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Box
+          sx={{ ...styles.modalsStyle, width: "30%", backgroundColor: "white" }}
+        >
+          <div style={{ width: "100%" }}>
+            <div
+              className="w-full"
+              style={{
+                direction: "row",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <div style={{ fontWeight: "600", fontSize: 16.8 }}>
                 Add New Objection
               </div>
-              <button onClick={() => { setShowAddObjForm(false) }}>
-                <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+              <button
+                onClick={() => {
+                  setShowAddObjForm(false);
+                }}
+              >
+                <Image
+                  src={"/assets/crossIcon.png"}
+                  height={40}
+                  width={40}
+                  alt="*"
+                />
               </button>
             </div>
-            <div style={styles.title}>
-              {`What's the objection`}
-            </div>
+            <div style={styles.title}>{`What's the objection`}</div>
             <input
-              className='outline-none focus:outline-none focus:ring-0'
-              style={styles.inputStyle} placeholder='Add title'
+              className="outline-none focus:outline-none focus:ring-0"
+              style={styles.inputStyle}
+              placeholder="Add title"
               value={addObjTitle}
-              onChange={(event) => { setAddObjTitle(event.target.value) }}
+              onChange={(event) => {
+                setAddObjTitle(event.target.value);
+              }}
             />
-            <div style={{ ...styles.title, marginTop: 10 }}>
-              Response
-            </div>
+            <div style={{ ...styles.title, marginTop: 10 }}>Response</div>
             <TextareaAutosize
               maxRows={5}
-              className='outline-none focus:outline-none focus:ring-0'
-              style={styles.inputStyle} placeholder='Add description'
+              className="outline-none focus:outline-none focus:ring-0"
+              style={styles.inputStyle}
+              placeholder="Add description"
               value={addObjDescription}
-              onChange={(event) => { setAddObjDescription(event.target.value) }}
+              onChange={(event) => {
+                setAddObjDescription(event.target.value);
+              }}
             />
-            <div className='w-full'>
-              {
-                addObjectionLoader ?
-                  <div className='w-full flex flex-row items-center justify-center mt-8 h-[50px]'>
-                    <CircularProgress size={25} />
-                  </div> :
-                  <button className='text-white bg-purple h-[50px] rounded-xl w-full mt-8' onClick={addObjection} style={styles.title}>
-                    Save
-                  </button>
-              }
+            <div className="w-full">
+              {addObjectionLoader ? (
+                <div className="w-full flex flex-row items-center justify-center mt-8 h-[50px]">
+                  <CircularProgress size={25} />
+                </div>
+              ) : (
+                <button
+                  className="text-white bg-purple h-[50px] rounded-xl w-full mt-8"
+                  onClick={addObjection}
+                  style={styles.title}
+                >
+                  Save
+                </button>
+              )}
             </div>
           </div>
         </Box>
       </Modal>
     </div>
-  )
-}
+  );
+};
 
-export default Objection
+export default Objection;

@@ -91,7 +91,8 @@ const DebtCollerterAgentSignUp = ({
     {
       id: 3,
       title: "Hybrid Approach",
-    }, {
+    },
+    {
       id: 4,
       title: "Other",
     },
@@ -735,7 +736,6 @@ const DebtCollerterAgentSignUp = ({
 
               <div style={styles.headingStyle} className="mt-6">
                 Name of the company or collection agency you work with, if any.
-
               </div>
               <input
                 placeholder="Name"
@@ -775,7 +775,6 @@ const DebtCollerterAgentSignUp = ({
 
               <div style={styles.headingStyle} className="mt-6">
                 Typical Collection Strategy
-
               </div>
 
               {/* <div

@@ -267,14 +267,14 @@ function AllCalls({ selectedUser }) {
       }
 
       if (selectedUser) {
-        ApiPath = ApiPath + "&userId="+selectedUser.id
+        ApiPath = ApiPath + "&userId=155"//+selectedUser.id
       }
 
       // if (selectedFromDate && selectedToDate && stages.length > 0) {
       //     ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}&stageIds=${stages}&offset=${offset}&limit=10`;
       // }
 
-      console.log("Api path for calls lod  is", ApiPath);
+      console.log("Api path for calls log  is", ApiPath);
 
       //// console.log("Auth token is:", AuthToken);
       // return
@@ -287,7 +287,7 @@ function AllCalls({ selectedUser }) {
 
       if (currentRequestVersion === requestVersion.current) {
         if (response) {
-          // console.log("response of get call logs api is :", response.data);
+          console.log("response of get call logs api is :", response.data);
           // setCallDetails(response.data.data);
           // setFilteredCallDetails(response.data.data);
 
@@ -303,7 +303,7 @@ function AllCalls({ selectedUser }) {
         }
       }
     } catch (error) {
-      // console.error("Error occured in gtting calls log api is:", error);
+      console.error("Error occured in gtting calls log api is:", error);
     } finally {
       setInitialLoader(false);
     }
@@ -481,7 +481,7 @@ function AllCalls({ selectedUser }) {
         </div>
       </div>
 
-      <div className="w-full flex flex-row justify-between mt-10 px-10 mt-12">
+      <div className="w-full flex flex-row justify-between mt-2 px-10 mt-12">
         <div className="w-2/12">
           <div style={styles.text}>Name</div>
         </div>
@@ -509,12 +509,12 @@ function AllCalls({ selectedUser }) {
       </div>
 
       {initialLoader ? (
-        <div className="w-full flex flex-row items-center justify-center mt-12">
+        <div className={`flex flex-row items-center justify-center mt-12 h-[${selectedUser?"43vh":"67vh"}] overflow-auto`}>
           <CircularProgress size={35} thickness={2} />
         </div>
       ) : (
         <div
-          className="max-h-[67svh] overflow-auto"
+          className={`h-[${selectedUser?"43vh":"67vh"}] overflow-auto`}
           id="scrollableDiv1"
           style={{ scrollbarWidth: "none" }}
         >

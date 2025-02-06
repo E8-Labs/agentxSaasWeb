@@ -1,17 +1,27 @@
 import Image from "next/image";
 
-const VideoCard = ({ playVideo, horizontal = true, title, duration = "2 mins", width = "100", height = "150" }) => {
+const VideoCard = ({
+  playVideo,
+  horizontal = true,
+  title,
+  duration = "2 mins",
+  width = "80",
+  height = "150",
+}) => {
   return (
     <div
-      className={`flex ${horizontal ? "flex-row items-center" : "flex-col items-start"} 
+      className={`flex ${
+        horizontal ? "flex-row items-center" : "flex-col items-start"
+      } 
         p-4 bg-white rounded-lg border border-brdColor max-w-md cursor-pointer`}
       onClick={() => {
         playVideo();
       }}
     >
       {/* Video Thumbnail */}
-      <div className="flex flex-row items-center gap-4">
-        <div className="relative flex-shrink-0" //style={{ width: `${width}px`, height: `${height}px` }}
+      <div className="flex flex-row items-end gap-4">
+        <div
+          className="relative flex-shrink-0" //style={{ width: `${width}px`, height: `${height}px` }}
         >
           <Image
             src="/assets/youtubeplay.png"
@@ -30,7 +40,10 @@ const VideoCard = ({ playVideo, horizontal = true, title, duration = "2 mins", w
 
       {/* Content Section */}
       <div className="flex flex-col items-start mt-2">
-        <h3 className="font-medium text-gray-800 pt-1" style={{ fontSize: "15px" }}>
+        <h3
+          className="font-medium text-gray-800 pt-1"
+          style={{ fontSize: "15px" }}
+        >
           {title}
         </h3>
       </div>

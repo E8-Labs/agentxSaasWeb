@@ -614,10 +614,13 @@ function Page() {
       });
 
       if (response) {
+        getAvailabePhoneNumbers();
         //// console.log("Respose of reassign api is:", response.data.data);
         if (response.data.status === true) {
+          setAssignNumber(item.phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -815,7 +818,7 @@ function Page() {
       });
 
       if (response) {
-        //// console.log("Response of numbers api is :", response.data);
+        console.log("Response of numbers api is :", response.data);
         ////// console.log("PArsed data is ", response.data.data);
         setPreviousNumber(response.data.data);
       }
@@ -995,12 +998,15 @@ function Page() {
       });
 
       // setAssignLoader(false);
+      getAvailabePhoneNumbers();
       setShowPhoneLoader(false);
       if (response) {
         //// console.log("Response of update number api is", response.data);
         if (response.data.status === true) {
+          setAssignNumber(phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -2114,171 +2120,178 @@ function Page() {
         <Box className="lg:w-4/12 sm:w-10/12 w-full" sx={styles.modalsStyle}>
           <div className="flex flex-row justify-center w-full max-h-[80vh]">
             <div
-              className="sm:w-full w-full px-10 py-8 overflow-auto"
+              className="sm:w-full w-full px-10 py-8 h-full"
               style={{
                 backgroundColor: "#ffffff",
                 scrollbarWidth: "none",
                 borderRadius: "13px",
               }}
             >
-              <div className="flex flex-row justify-between">
-                <div className="flex flex-row gap-3">
-                  <Image
-                    src={"/otherAssets/testAiIcon.png"}
-                    height={19}
-                    width={19}
-                    alt="icon"
-                  />
-                  <div
-                    style={{ fontSize: 16, fontWeight: "500", color: "#000" }}
-                  >
-                    Test
-                  </div>
-
-                  {!selectedAgent?.phoneNumber && (
-                    <div className="flex flex-row items-center gap-2 -mt-1">
-                      <Image
-                        src={"/assets/warningFill.png"}
-                        height={20}
-                        width={20}
-                        alt="*"
-                      />
-                      <p>
-                        <i
-                          className="text-red"
-                          style={{
-                            fontSize: 12,
-                            fontWeight: "600",
-                          }}
-                        >
-                          No Phone number assigned
-                        </i>
-                      </p>
-                    </div>
-                  )}
-                </div>
-                <button
-                  onClick={() => {
-                    setOpenTestAiModal(false);
-                    setName("");
-                    setPhone("");
-                    setErrorMessage("");
-                  }}
-                >
-                  <Image
-                    src={"/otherAssets/crossIcon.png"}
-                    height={24}
-                    width={24}
-                    alt="*"
-                  />
-                </button>
-              </div>
-
-              <div
-                style={{
-                  fontSize: 24,
-                  fontWeight: "700",
-                  color: "#000",
-                  marginTop: 20,
-                }}
-              >
-                Tryout ({selectedAgent?.name.slice(0, 1).toUpperCase()}
-                {selectedAgent?.name.slice(1)})
-              </div>
-
-              <div className="pt-5" style={styles.headingStyle}>
-                Who are you calling
-              </div>
-              <input
-                placeholder="Name"
-                className="w-full rounded p-2 outline-none focus:outline-none focus:ring-0"
-                style={{ ...styles.inputStyle, border: "1px solid #00000010" }}
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                }}
-              />
-
-              <div className="pt-5" style={styles.headingStyle}>
-                Phone Number
-              </div>
-
-              <div style={{ marginTop: "8px" }}>
-                <PhoneInput
-                  className="border outline-none bg-white"
-                  country={countryCode} // Set the default country
-                  value={phone}
-                  onChange={handlePhoneNumberChange}
-                  placeholder={
-                    locationLoader ? "Loading location ..." : "Enter Number"
-                  }
-                  // disabled={loading} // Disable input if still loading
-                  style={{ borderRadius: "7px" }}
-                  inputStyle={{
-                    width: "100%",
-                    borderWidth: "0px",
-                    backgroundColor: "transparent",
-                    paddingLeft: "60px",
-                    paddingTop: "20px",
-                    paddingBottom: "20px",
-                  }}
-                  buttonStyle={{
-                    border: "none",
-                    backgroundColor: "transparent",
-                    // display: 'flex',
-                    // alignItems: 'center',
-                    // justifyContent: 'center',
-                  }}
-                  dropdownStyle={{
-                    maxHeight: "150px",
-                    overflowY: "auto",
-                  }}
-                  countryCodeEditable={true}
-                // defaultMask={loading ? 'Loading...' : undefined}
-                />
-              </div>
-
-              {errorMessage ? (
-                <p
-                  style={{
-                    ...styles.errmsg,
-                    color: errorMessage && "red",
-                    height: "20px",
-                  }}
-                >
-                  {errorMessage}
-                </p>
-              ) : (
-                ""
-              )}
-
-              <div
-                className="max-h-[37vh] overflow-auto"
-                style={{ scrollbarWidth: "none" }}
-              >
-                {scriptKeys?.map((key, index) => (
-                  <div key={index}>
-                    <div className="pt-5" style={styles.headingStyle}>
-                      {key[0]?.toUpperCase()}
-                      {key?.slice(1)}
-                    </div>
-                    <input
-                      placeholder="Type here"
-                      // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                        }`}
-                      style={{
-                        ...styles.inputStyle,
-                        border: "1px solid #00000010",
-                      }}
-                      value={inputValues[index] || ""} // Default to empty string if no value
-                      onChange={(e) => handleInputChange(index, e.target.value)}
+              <div className="h-[85%] overflow-auto">
+                <div className="flex flex-row justify-between">
+                  <div className="flex flex-row gap-3">
+                    <Image
+                      src={"/otherAssets/testAiIcon.png"}
+                      height={19}
+                      width={19}
+                      alt="icon"
                     />
-                  </div>
-                ))}
-              </div>
+                    <div
+                      style={{ fontSize: 16, fontWeight: "500", color: "#000" }}
+                    >
+                      Test
+                    </div>
 
-              <div className="w-full mt-6" style={{}}>
+                    {!selectedAgent?.phoneNumber && (
+                      <div className="flex flex-row items-center gap-2 -mt-1">
+                        <Image
+                          src={"/assets/warningFill.png"}
+                          height={20}
+                          width={20}
+                          alt="*"
+                        />
+                        <p>
+                          <i
+                            className="text-red"
+                            style={{
+                              fontSize: 12,
+                              fontWeight: "600",
+                            }}
+                          >
+                            No Phone number assigned
+                          </i>
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => {
+                      setOpenTestAiModal(false);
+                      setName("");
+                      setPhone("");
+                      setErrorMessage("");
+                    }}
+                  >
+                    <Image
+                      src={"/otherAssets/crossIcon.png"}
+                      height={24}
+                      width={24}
+                      alt="*"
+                    />
+                  </button>
+                </div>
+
+                <div
+                  style={{
+                    fontSize: 24,
+                    fontWeight: "700",
+                    color: "#000",
+                    marginTop: 20,
+                  }}
+                >
+                  Tryout ({selectedAgent?.name.slice(0, 1).toUpperCase()}
+                  {selectedAgent?.name.slice(1)})
+                </div>
+
+                <div className="pt-5" style={styles.headingStyle}>
+                  Who are you calling
+                </div>
+                <input
+                  placeholder="Name"
+                  className="w-full rounded p-2 outline-none focus:outline-none focus:ring-0"
+                  style={{
+                    ...styles.inputStyle,
+                    border: "1px solid #00000010",
+                  }}
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                  }}
+                />
+
+                <div className="pt-5" style={styles.headingStyle}>
+                  Phone Number
+                </div>
+
+                <div style={{ marginTop: "8px" }}>
+                  <PhoneInput
+                    className="border outline-none bg-white"
+                    country={countryCode} // Set the default country
+                    value={phone}
+                    onChange={handlePhoneNumberChange}
+                    placeholder={
+                      locationLoader ? "Loading location ..." : "Enter Number"
+                    }
+                    // disabled={loading} // Disable input if still loading
+                    style={{ borderRadius: "7px" }}
+                    inputStyle={{
+                      width: "100%",
+                      borderWidth: "0px",
+                      backgroundColor: "transparent",
+                      paddingLeft: "60px",
+                      paddingTop: "20px",
+                      paddingBottom: "20px",
+                    }}
+                    buttonStyle={{
+                      border: "none",
+                      backgroundColor: "transparent",
+                      // display: 'flex',
+                      // alignItems: 'center',
+                      // justifyContent: 'center',
+                    }}
+                    dropdownStyle={{
+                      maxHeight: "150px",
+                      overflowY: "auto",
+                    }}
+                    countryCodeEditable={true}
+                    // defaultMask={loading ? 'Loading...' : undefined}
+                  />
+                </div>
+
+                {errorMessage ? (
+                  <p
+                    style={{
+                      ...styles.errmsg,
+                      color: errorMessage && "red",
+                      height: "20px",
+                    }}
+                  >
+                    {errorMessage}
+                  </p>
+                ) : (
+                  ""
+                )}
+
+                <div
+                  className="max-h-[37vh] overflow-none"
+                  style={{ scrollbarWidth: "none" }}
+                >
+                  {scriptKeys?.map((key, index) => (
+                    <div key={index}>
+                      <div className="pt-5" style={styles.headingStyle}>
+                        {key[0]?.toUpperCase()}
+                        {key?.slice(1)}
+                      </div>
+                      <input
+                        placeholder="Type here"
+                        // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
+                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
+                          index === scriptKeys?.length - 1 ? "mb-16" : ""
+                        }`}
+                        style={{
+                          ...styles.inputStyle,
+                          border: "1px solid #00000010",
+                        }}
+                        value={inputValues[index] || ""} // Default to empty string if no value
+                        onChange={(e) =>
+                          handleInputChange(index, e.target.value)
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="w-full mt-6 h-[15%]" style={{}}>
                 {testAIloader ? (
                   <div className="flex flex-row items-center justify-center w-full p-3 mt-2">
                     <CircularProgress size={30} />
@@ -2424,8 +2437,8 @@ function Page() {
               <div className="flex flex-col gap-1 items-start ">
                 <div className="flex flex-row gap-2 items-center ">
                   <div style={{ fontSize: 22, fontWeight: "600" }}>
-                    {showDrawerSelectedAgent?.name.slice(0, 1).toUpperCase()}
-                    {showDrawerSelectedAgent?.name.slice(1)}
+                    {showDrawerSelectedAgent?.name?.slice(0, 1).toUpperCase()}
+                    {showDrawerSelectedAgent?.name?.slice(1)}
                   </div>
                   <div
                     className="text-purple"
@@ -2434,7 +2447,11 @@ function Page() {
                     {showDrawerSelectedAgent?.agentObjective}{" "}
                     <span className="text-[#00000060]">
                       {" "}
-                      | {showDrawerSelectedAgent?.agentType}
+                      |{" "}
+                      {showDrawerSelectedAgent?.agentType
+                        ?.slice(0, 1)
+                        .toUpperCase(0)}
+                      {showDrawerSelectedAgent?.agentType?.slice(1)}
                     </span>
                   </div>
                 </div>
@@ -2466,7 +2483,7 @@ function Page() {
               name="Calls"
               value={
                 showDrawerSelectedAgent?.calls &&
-                  showDrawerSelectedAgent?.calls > 0 ? (
+                showDrawerSelectedAgent?.calls > 0 ? (
                   <div>{showDrawerSelectedAgent?.calls}</div>
                 ) : (
                   "-"
@@ -2480,7 +2497,7 @@ function Page() {
               name="Convos"
               value={
                 showDrawerSelectedAgent?.callsGt10 &&
-                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                showDrawerSelectedAgent?.callsGt10 > 0 ? (
                   <div>{showDrawerSelectedAgent?.callsGt10}</div>
                 ) : (
                   "-"
@@ -2508,7 +2525,7 @@ function Page() {
               name="Mins Talked"
               value={
                 showDrawerSelectedAgent?.totalDuration &&
-                  showDrawerSelectedAgent?.totalDuration > 0 ? (
+                showDrawerSelectedAgent?.totalDuration > 0 ? (
                   // <div>{showDrawer?.totalDuration}</div>
                   <div>
                     {moment(
@@ -2530,10 +2547,11 @@ function Page() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${activeTab === tab
-                  ? "text-purple border-b-2 border-purple"
-                  : "text-black-500"
-                  }`}
+                className={`${
+                  activeTab === tab
+                    ? "text-purple border-b-2 border-purple"
+                    : "text-black-500"
+                }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >
                 {tab}
@@ -2769,10 +2787,10 @@ function Page() {
                             // onChange={handleSelectNumber}
                             onChange={(e) => {
                               let value = e.target.value;
-                              //// console.log("Assign number here");
+                              // console.log("Assign number here: Value changed",value);
                               // return;
                               setAssignNumber(value);
-                              setOpenCalimNumDropDown(false);
+                              // setOpenCalimNumDropDown(false);
                             }}
                             renderValue={(selected) => {
                               if (selected === "") {
@@ -2790,23 +2808,32 @@ function Page() {
                               margin: 0,
                             }}
                           >
-                            {previousNumber?.map((item, index) => (
-                              <MenuItem
-                                key={index}
-                                style={styles.dropdownMenu}
-                                value={item.phoneNumber.slice(1)}
-                                className="flex flex-row items-center gap-2"
-                                disabled={assignNumber === item.phoneNumber}
-                              >
-                                <div
+                            {previousNumber?.map((item, index) => {
+                              console.log("Assigned Number ", assignNumber);
+                              console.log("Item Number ", item.phoneNumber);
+                              return (
+                                <MenuItem
+                                  key={index}
+                                  style={styles.dropdownMenu}
+                                  value={item.phoneNumber.slice(1)}
+                                  className="flex flex-row items-center gap-2 "
+                                  disabled={
+                                    assignNumber.replace("+", "") ===
+                                    item.phoneNumber.replace("+", "")
+                                  }
                                   onClick={(e) => {
+                                    console.log("Menu item clicked ");
+                                    // return;
                                     if (showReassignBtn && item?.claimedBy) {
                                       e.stopPropagation();
                                       setShowConfirmationModal(item);
-                                      //// console.log("Hit release number api");
+                                      console.log(
+                                        "Hit release number api",
+                                        item
+                                      );
                                       // AssignNumber
                                     } else {
-                                      //// console.log("Hit reassign number api");
+                                      console.log("Hit reassign number api");
                                       //// console.log(
                                       //   "Should call assign number api"
                                       // );
@@ -2818,29 +2845,31 @@ function Page() {
                                       // );
                                     }
                                   }}
-                                  style={{
-                                    width: numberDropDownWidth(
-                                      item?.claimedBy?.name
-                                    ),
-                                  }}
                                 >
-                                  {item.phoneNumber}
-                                </div>
-                                {showReassignBtn && (
                                   <div
-                                    className="w-full"
-                                    onClick={(e) => {
-                                      //// console.log(
-                                      //   "Should open confirmation modal"
-                                      // );
-                                      e.stopPropagation();
-                                      setShowConfirmationModal(item);
+                                    style={{
+                                      width: numberDropDownWidth(
+                                        item?.claimedBy?.name
+                                      ),
                                     }}
                                   >
-                                    {item.claimedBy && (
-                                      <div className="flex flex-row items-center gap-2">
-                                        {showDrawerSelectedAgent?.name !==
-                                          item.claimedBy.name && (
+                                    {item.phoneNumber}
+                                  </div>
+                                  {showReassignBtn && (
+                                    <div
+                                      className="w-full"
+                                      // onClick={(e) => {
+                                      //   console.log(
+                                      //     "Should open confirmation modal"
+                                      //   );
+                                      //   e.stopPropagation();
+                                      //   setShowConfirmationModal(item);
+                                      // }}
+                                    >
+                                      {item.claimedBy && (
+                                        <div className="flex flex-row items-center gap-2">
+                                          {showDrawerSelectedAgent?.name !==
+                                            item.claimedBy.name && (
                                             <div>
                                               <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
                                               {reassignLoader === item ? (
@@ -2860,12 +2889,13 @@ function Page() {
                                               )}
                                             </div>
                                           )}
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
-                              </MenuItem>
-                            ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </MenuItem>
+                              );
+                            })}
                             <MenuItem
                               style={styles.dropdownMenu}
                               value={showGlobalBtn ? 14062040550 : ""}
@@ -2881,7 +2911,7 @@ function Page() {
                             >
                               {Constants.GlobalPhoneNumber}
                               {showGlobalBtn &&
-                                " (to available for testing calls only)"}
+                                " (available for testing calls only)"}
                               {showGlobalBtn == false &&
                                 " (Only for outbound agents. You must buy a number)"}
                             </MenuItem>
@@ -3137,7 +3167,6 @@ function Page() {
               className="max-h-[60vh] overflow-auto"
               style={{ scrollbarWidth: "none" }}
             >
-
               <div className="flex flex-row items-center justify-center gap-2 -mt-1">
                 <Image
                   src={"/assets/warningFill.png"}
@@ -3294,6 +3323,7 @@ function Page() {
                 }}
                 onClick={() => {
                   setShowClaimPopup(null);
+                  setShowConfirmationModal(false);
                 }}
               >
                 Discard
@@ -3417,7 +3447,7 @@ function Page() {
                   }}
                   onClick={handleShowAdvanceSeting}
                 >
-                  Advance Settings
+                  Advanced Settings
                 </button>
               </div>
 
@@ -3655,50 +3685,59 @@ function Page() {
                       <div style={{ marginTop: "40px", height: "80%" }}>
                         {/* {showScriptModal?.prompt?.objective} */}
 
-                        {
-                          objective ? (
-                            <textarea
-                              className="outline-none rounded-xl focus:ring-0"
-                              // ref={objective}
-                              value={objective}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                // if (value !== oldObjective) {
-                                //   setShowObjectionsSaveBtn(true);
-                                // }
-                                // if (value === oldObjective) {
-                                //   setShowObjectionsSaveBtn(false);
-                                // }
+                        {objective ? (
+                          <textarea
+                            className="outline-none rounded-xl focus:ring-0"
+                            // ref={objective}
+                            value={objective}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              // if (value !== oldObjective) {
+                              //   setShowObjectionsSaveBtn(true);
+                              // }
+                              // if (value === oldObjective) {
+                              //   setShowObjectionsSaveBtn(false);
+                              // }
 
-                                setObjective(value);
-                              }}
-                              placeholder="Add Objective"
-                              style={{
-                                fontSize: "15px",
-                                padding: "15px",
-                                width: "100%",
-                                fontWeight: "500",
-                                height: "100%", // Initial height
-                                maxHeight: "100%", // Maximum height before scrolling
-                                overflowY: "auto", // Enable vertical scrolling when max-height is exceeded
-                                resize: "none", // Disable manual resizing
-                                border: "1px solid #00000020",
-                              }}
-                            />
-                          ) : (
-                            <div className='text-center text-2xl mt-6'>
-                              <div className='flex flex-col items-center justify-center h-[30vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
-                                {/* <div className='h-[100px] w-[100px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'> */}
-                                <Image className="grayscale" src={"/svgIcons/noObjectiveIcon.svg"} height={280} width={250} alt='*' />
-                                {/* </div> */}
-                                <div className=''
-                                  style={{ fontWeight: "500", fontSize: 15 }}>
-                                  {`You don’t have any objectives yett`}
-                                </div>
+                              setObjective(value);
+                            }}
+                            placeholder="Add Objective"
+                            style={{
+                              fontSize: "15px",
+                              padding: "15px",
+                              width: "100%",
+                              fontWeight: "500",
+                              height: "100%", // Initial height
+                              maxHeight: "100%", // Maximum height before scrolling
+                              overflowY: "auto", // Enable vertical scrolling when max-height is exceeded
+                              resize: "none", // Disable manual resizing
+                              border: "1px solid #00000020",
+                            }}
+                          />
+                        ) : (
+                          <div className="text-center text-2xl mt-6">
+                            <div
+                              className="flex flex-col items-center justify-center h-[30vh] w-full"
+                              style={{ fontWeight: "500", fontsize: 15 }}
+                            >
+                              {/* <div className='h-[100px] w-[100px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'> */}
+                              <Image
+                                className="grayscale"
+                                src={"/svgIcons/noObjectiveIcon.svg"}
+                                height={280}
+                                width={250}
+                                alt="*"
+                              />
+                              {/* </div> */}
+                              <div
+                                className=""
+                                style={{ fontWeight: "500", fontSize: 15 }}
+                              >
+                                {`You don’t have any objectives yett`}
                               </div>
                             </div>
-                          )
-                        }
+                          </div>
+                        )}
 
                         <div>
                           {showObjectionsSaveBtn && (

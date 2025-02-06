@@ -25,7 +25,7 @@ export function GetFormattedDateString(
     return dateString;
   }
   let formatted = "";
-  console.log("Created At before", dateString);
+  // console.log("Created At before", dateString);
   let dateFormat = RequiredDateFormat ? RequiredDateFormat : "MMM DD, YYYY";
   if (time) {
     dateFormat = RequiredDateFormat
