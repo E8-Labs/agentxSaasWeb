@@ -2052,7 +2052,7 @@ const Userleads = ({
                         color: "#00000060",
                       }}
                     >
-                      You're all caught up
+                      {`You're all caught up`}
                     </p>
                   }
                   scrollableTarget="scrollableDiv1"
