@@ -32,10 +32,10 @@ function SendFeedback() {
         feedback: feedbackDescription,
       };
 
-     // console.log("ApiData is", ApiData);
+      // console.log("ApiData is", ApiData);
 
       const ApiPath = Apis.sendFeedbback;
-     // console.log("Apipath is", ApiPath);
+      // console.log("Apipath is", ApiPath);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -45,7 +45,7 @@ function SendFeedback() {
       });
 
       if (response) {
-       // console.log("Response of api is", response);
+        // console.log("Response of api is", response);
         if (response.data.status === true) {
           setFeedbackTitle("");
           setFeedbackDescription("");
@@ -57,11 +57,11 @@ function SendFeedback() {
         }
       }
     } catch (error) {
-     // console.error("Error occuredd in api is", error);
+      // console.error("Error occuredd in api is", error);
       setFeedBackLoader(false);
     } finally {
       setFeedBackLoader(false);
-     // console.log("Send feedback done");
+      // console.log("Send feedback done");
     }
   };
 
@@ -171,7 +171,6 @@ function SendFeedback() {
                         : "white",
                   }}
                 >
-                  {/* Test AI */}
                   Send Feedback
                 </div>
               </button>

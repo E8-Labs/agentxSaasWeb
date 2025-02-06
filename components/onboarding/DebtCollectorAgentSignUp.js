@@ -9,7 +9,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import Apis from "@/components/apis/Apis";
-import axios from "axios";
+import axios, { all } from "axios";
 import {
   Alert,
   Box,
@@ -24,6 +24,7 @@ import { getLocalLocation } from "./services/apisServices/ApiService";
 import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
 import { PersistanceKeys } from "@/constants/Constants";
 import { setCookie } from "@/utilities/cookies";
+import { preinit } from "react-dom";
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
 const DebtCollectorAgentSignUp = ({
@@ -76,7 +77,7 @@ const DebtCollectorAgentSignUp = ({
   const [companyName, setCompanyName] = useState("");
   const [installationVolume, setInstallationVolume] = useState("");
   const [projectSize, setProjectSize] = useState("");
-  const [ClientType, setClientType] = useState(null);
+  const [ClientType, setClientType] = useState([]);
 
   //array for the primary client types
   const primaryClientTypes = [
@@ -91,9 +92,10 @@ const DebtCollectorAgentSignUp = ({
     {
       id: 3,
       title: "Hybrid Approach",
-    }, {
-      id: 4,
-      title: "Other",
+    },
+    {
+      id: 100,
+      title: "All",
     },
   ];
 
@@ -176,8 +178,24 @@ const DebtCollectorAgentSignUp = ({
 
   ///function to select client type
   const handleSelectClientType = (item) => {
-    // console.log("Select client type", item);
-    setClientType(item.title);
+    if (item.id == 100) {
+      if (ClientType.length == primaryClientTypes.length) {
+        setClientType([]);
+      } else {
+        let allTypes = primaryClientTypes.map((item) => item.title);
+        setClientType(allTypes);
+      }
+    } else {
+      setClientType((prev) => {
+        if (prev.includes(item.title)) {
+          return prev.filter(
+            (prevItem) => prevItem !== item.title && prevItem != "All"
+          ); // ✅ Compare strings directly
+        } else {
+          return [...prev, item.title]; // ✅ Append only the title as a string
+        }
+      });
+    }
   };
 
   // Function to validate phone number
@@ -346,6 +364,8 @@ const DebtCollectorAgentSignUp = ({
         "timeZone",
         Intl.DateTimeFormat().resolvedOptions().timeZone
       );
+
+      formData.append("collectionStrategies", JSON.stringify(ClientType));
 
       // console.log("Data for user registeration is :-----");
       for (let [key, value] of formData.entries()) {
@@ -821,10 +841,9 @@ const DebtCollectorAgentSignUp = ({
                           borderRadius: "30px",
                           whiteSpace: "nowrap", // Ensure text stays in one line
                           paddingInline: index === 2 && "40px",
-                          border:
-                            ClientType === item.title
-                              ? "2px solid #7902DF"
-                              : "",
+                          border: ClientType.includes(item.title)
+                            ? "2px solid #7902DF"
+                            : "",
                           backgroundColor:
                             ClientType === item.title ? "#402FFF20" : "",
                         }}
@@ -835,7 +854,6 @@ const DebtCollectorAgentSignUp = ({
                   );
                 })}
               </div>
-
 
               <Modal
                 open={showVerifyPopup}

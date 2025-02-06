@@ -57,7 +57,7 @@ const ProfileNav = () => {
   const [errorSnack, setErrorSnack] = useState(null);
   const [showerrorSnack, setShowErrorSnack] = useState(null);
 
-  const [userType, setUserType] = useState("")
+  const [userType, setUserType] = useState("");
 
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
   useEffect(() => {
@@ -154,12 +154,12 @@ const ProfileNav = () => {
   }, []);
 
   const getUserProfile = async () => {
-    await getProfile();
     const data = localStorage.getItem("User");
     if (data) {
       const LocalData = JSON.parse(data);
       setUserDetails(LocalData);
     }
+    await getProfile();
   };
 
   useEffect(() => {
@@ -296,7 +296,7 @@ const ProfileNav = () => {
       selected: "/svgIcons/selectdDashboardIcon.svg",
       uneselected: "/svgIcons/unSelectedDashboardIcon.svg",
     },
-  ]
+  ];
 
   //function to getprofile
   const getProfile = async () => {
@@ -323,7 +323,7 @@ const ProfileNav = () => {
         // console.log("Inside response ", response?.data?.status);
         if (response?.data?.status) {
           // console.log("User is logged in", response?.data?.status);
-          setUserType(response?.data?.data.userType)
+          setUserType(response?.data?.data.userType);
           if (response?.data?.data.userType != "admin") {
             if (
               // Data?.totalSecondsAvailable <= 120 ||
@@ -361,7 +361,6 @@ const ProfileNav = () => {
           logout();
           router.push("/");
         }
-
       } else {
         console.log("No response");
       }
@@ -590,13 +589,13 @@ const ProfileNav = () => {
     },
   };
 
-  const showLinks = () =>{
-    if(userType&& userType == "admin"){
-      return adminLinks
-    }else{
-      return links
+  const showLinks = () => {
+    if (userType && userType == "admin") {
+      return adminLinks;
+    } else {
+      return links;
     }
-  }
+  };
 
   return (
     <div>
@@ -635,39 +634,39 @@ const ProfileNav = () => {
 
         <div className="w-full mt-8 flex flex-col items-center gap-3">
           {showLinks().map((item) => (
-              <div key={item.id} className="w-9/12 flex flex-col gap-3 ">
-                <Link
-                  sx={{ cursor: "pointer", textDecoration: "none" }}
-                  href={item.href}
-                  onClick={(e) => handleOnClick(e, item.href)}
+            <div key={item.id} className="w-9/12 flex flex-col gap-3 ">
+              <Link
+                sx={{ cursor: "pointer", textDecoration: "none" }}
+                href={item.href}
+                onClick={(e) => handleOnClick(e, item.href)}
+              >
+                <div
+                  className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
+                  style={{}}
                 >
+                  <Image
+                    src={
+                      pathname === item.href ? item.selected : item.uneselected
+                    }
+                    height={24}
+                    width={24}
+                    alt="icon"
+                  />
                   <div
-                    className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
-                    style={{}}
+                    className={
+                      pathname === item.href ? "text-purple" : "text-black"
+                    }
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
+                    }}
                   >
-                    <Image
-                      src={
-                        pathname === item.href ? item.selected : item.uneselected
-                      }
-                      height={24}
-                      width={24}
-                      alt="icon"
-                    />
-                    <div
-                      className={
-                        pathname === item.href ? "text-purple" : "text-black"
-                      }
-                      style={{
-                        fontSize: 15,
-                        fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
-                      }}
-                    >
-                      {item.name}
-                    </div>
+                    {item.name}
                   </div>
-                </Link>
-              </div>
-            ))}
+                </div>
+              </Link>
+            </div>
+          ))}
         </div>
 
         {/* <div>
@@ -1063,7 +1062,7 @@ const ProfileNav = () => {
                     // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                     handleClose={handleClose}
                     togglePlan={togglePlan}
-                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                    // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>
               </div>

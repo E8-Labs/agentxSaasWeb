@@ -1,13 +1,23 @@
-import Apis from '@/components/apis/Apis';
-import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
-import { Alert, Box, CircularProgress, Fade, Modal, Popover, Snackbar, TextareaAutosize } from '@mui/material';
-import { CaretDown, CaretUp, DotsThree } from '@phosphor-icons/react';
-import axios from 'axios';
-import Image from 'next/image';
-import React, { useEffect, useState } from 'react'
+import Apis from "@/components/apis/Apis";
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import {
+  Alert,
+  Box,
+  CircularProgress,
+  Fade,
+  Modal,
+  Popover,
+  Snackbar,
+  TextareaAutosize,
+} from "@mui/material";
+import { CaretDown, CaretUp, DotsThree } from "@phosphor-icons/react";
+import axios from "axios";
+import Image from "next/image";
+import React, { useEffect, useState } from "react";
 
 const GuardianSetting = ({ showTitle, selectedAgentId }) => {
-
   const [guardrailsList, setGuardrailsList] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
   const [showAddObjForm, setShowAddObjForm] = useState(false);
@@ -25,7 +35,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
   const [delLoader, setDelLoader] = useState(false);
 
   const open = Boolean(anchorEl);
-  const id = open ? 'simple-popover' : undefined;
+  const id = open ? "simple-popover" : undefined;
 
   //code for desnack bars
   const [showErrorSnack, setShowErrorSnack] = useState(null);
@@ -34,12 +44,12 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
   useEffect(() => {
     const guadrailsList = localStorage.getItem("GuadrailsList");
     if (guadrailsList) {
-     // console.log("Should not call api");
+      // console.log("Should not call api");
       const guardrailsData = JSON.parse(guadrailsList);
-     // console.log("guardrails details recieved from locastorage are :", guardrailsData);
+      // console.log("guardrails details recieved from locastorage are :", guardrailsData);
       setGuardrailsList(guardrailsData);
     } else {
-     // console.log("calling api");
+      // console.log("calling api");
       getGuadrails();
     }
   }, []);
@@ -69,40 +79,42 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
       let mainAgentId = null;
 
       if (selectedAgentId) {
-        mainAgentId = selectedAgentId.mainAgentId //selectedAgentId.id
+        mainAgentId = selectedAgentId.mainAgentId; //selectedAgentId.id
       } else {
         const localAgent = localStorage.getItem("agentDetails");
         if (localAgent) {
           const agentDetails = JSON.parse(localAgent);
-         // console.log("Agent details are:", agentDetails);
-          mainAgentId = agentDetails.id
+          // console.log("Agent details are:", agentDetails);
+          mainAgentId = agentDetails.id;
         }
       }
 
-     // console.log("Auth token is:", AuthToken);
+      // console.log("Auth token is:", AuthToken);
 
       const ApiPath = `${Apis.getObjectionGuardrial}?mainAgentId=${mainAgentId}`;
-     // console.log("Apipath is:", ApiPath);
+      // console.log("Apipath is:", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {
-          "Authorization": "Bearer " + AuthToken,
-          "Content-Type": "application/json"
-        }
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
-       // console.log("Response is:", response);
+        // console.log("Response is:", response);
         setGuardrailsList(response.data.data.guardrails);
-        localStorage.setItem("GuadrailsList", JSON.stringify(response.data.data.guardrails));
+        localStorage.setItem(
+          "GuadrailsList",
+          JSON.stringify(response.data.data.guardrails)
+        );
       }
-
     } catch (error) {
-     // console.error("Error occured in get agents api is:", error);
+      // console.error("Error occured in get agents api is:", error);
     } finally {
       setInitialLoader(false);
     }
-  }
+  };
 
   //code for add objection guardrial api
   const addGuadrial = async () => {
@@ -120,13 +132,13 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
       let mainAgentId = null;
 
       if (selectedAgentId) {
-        mainAgentId = selectedAgentId.mainAgentId //selectedAgentId.id
+        mainAgentId = selectedAgentId.mainAgentId; //selectedAgentId.id
       } else {
         const localAgent = localStorage.getItem("agentDetails");
         if (localAgent) {
           const agentDetails = JSON.parse(localAgent);
-         // console.log("Agent details are:", agentDetails);
-          mainAgentId = agentDetails.id
+          // console.log("Agent details are:", agentDetails);
+          mainAgentId = agentDetails.id;
         }
       }
 
@@ -137,33 +149,36 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
         AuthToken = UserDetails.token;
       }
 
-     // console.log("Auth token is:", AuthToken);
+      // console.log("Auth token is:", AuthToken);
 
       const ApiData = {
         title: addObjTitle,
         description: addObjDescription,
         type: "guardrail",
-        mainAgentId: mainAgentId
-      }
+        mainAgentId: mainAgentId,
+      };
 
-     // console.log("Api data is :", ApiData);
+      // console.log("Api data is :", ApiData);
 
       const ApiPath = Apis.addObjectionGuardrial;
-     // console.log("Apipath is", ApiPath);
+      // console.log("Apipath is", ApiPath);
 
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          "Authorization": "Bearer " + AuthToken,
-          "Content-Type": "application/json"
-        }
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
-       // console.log("Response of add guardrails api is:", response);
+        // console.log("Response of add guardrails api is:", response);
         if (response.data.status === true) {
           setGuardrailsList(response.data.data.guardrails);
-          localStorage.setItem("GuadrailsList", JSON.stringify(response.data.data.guardrails));
+          localStorage.setItem(
+            "GuadrailsList",
+            JSON.stringify(response.data.data.guardrails)
+          );
           setShowAddObjForm(false);
           setAddObjTitle("");
           setAddObjDescription("");
@@ -171,13 +186,12 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
           setShowErrorSnack(response.data.message);
         }
       }
-
     } catch (error) {
-     // console.error("Error occured in add objection:", error);
+      // console.error("Error occured in add objection:", error);
     } finally {
       setAddObjectionLoader(false);
     }
-  }
+  };
 
   //function to handle show details
   const handleShowDetails = (item) => {
@@ -191,12 +205,11 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
         return [...prevItems, item];
       }
     });
-  }
-
+  };
 
   //functions for del popover
   const handleClick = (event, item) => {
-   // console.log("Selected item is", item);
+    // console.log("Selected item is", item);
     setSelectedGuardrail(item);
     setAnchorEl(event.currentTarget);
   };
@@ -218,45 +231,45 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
         AuthToken = UserDetails.token;
       }
 
-     // console.log("Authtoken is", AuthToken);
+      // console.log("Authtoken is", AuthToken);
 
       const formData = new FormData();
       formData.append("id", SelectedGuardrail.id);
 
       for (let [key, value] of formData.entries()) {
-       // console.log(`${key}: ${value}`)
+        // console.log(`${key}: ${value}`)
       }
 
       const ApiPath = Apis.DelObjectGuard;
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
-          "Authorization": "Bearer " + AuthToken,
-          "Content-Type": "application/json"
-        }
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response) {
-       // console.log("Response of del guardrails is", response);
+        // console.log("Response of del guardrails is", response);
         if (response.data.status === true) {
           setGuardrailsList(response.data.data.guardrails);
           setShowSuccessSnack(response.data.message);
-          localStorage.setItem("GuadrailsList", JSON.stringify(response.data.data.guardrails))
+          localStorage.setItem(
+            "GuadrailsList",
+            JSON.stringify(response.data.data.guardrails)
+          );
           setAnchorEl(null);
         } else if (response.data.status === false) {
           setShowErrorSnack(response.data.message);
         }
       }
-
     } catch (error) {
-     // console.error("Error occured in api is", error);
+      // console.error("Error occured in api is", error);
     } finally {
       setDelLoader(false);
-     // console.log("Api call done");
+      // console.log("Api call done");
     }
-  }
-
-
+  };
 
   const styles = {
     modalsStyle: {
@@ -272,7 +285,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
     },
     title: {
       fontSize: 15,
-      fontWeight: "600"
+      fontWeight: "600",
     },
     inputStyle: {
       fontSize: 15,
@@ -283,140 +296,186 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
       width: "100%",
       marginTop: 10,
       padding: 5,
-      height: "50px"
-    }
-  }
+      height: "50px",
+    },
+  };
 
   return (
     <div>
-      <AgentSelectSnackMessage isVisible={showSuccessSnack == false || showSuccessSnack == null ? false : true} hide={() => setShowSuccessSnack(false)} message={showSuccessSnack} type={SnackbarTypes.Success} />
-      <AgentSelectSnackMessage isVisible={showErrorSnack == false || showErrorSnack == null ? false : true} hide={() => setShowErrorSnack(false)} message={showErrorSnack} type={SnackbarTypes.Error} />
+      <AgentSelectSnackMessage
+        isVisible={
+          showSuccessSnack == false || showSuccessSnack == null ? false : true
+        }
+        hide={() => setShowSuccessSnack(false)}
+        message={showSuccessSnack}
+        type={SnackbarTypes.Success}
+      />
+      <AgentSelectSnackMessage
+        isVisible={
+          showErrorSnack == false || showErrorSnack == null ? false : true
+        }
+        hide={() => setShowErrorSnack(false)}
+        message={showErrorSnack}
+        type={SnackbarTypes.Error}
+      />
 
+      {showTitle && (
+        <div className="flex flex-row items-center justify-between mt-4 pb-3">
+          <div style={{ fontWeight: "600", fontSize: 16.8 }}></div>
+          <button
+            className="text-purple underline outline-none"
+            style={{ fontWeight: "500", fontSize: 15 }}
+            onClick={() => setShowAddObjForm(true)}
+          >
+            New Guardrail
+          </button>
+        </div>
+      )}
 
-      {
-        showTitle && (
-          <div className='flex flex-row items-center justify-between mt-4 pb-3'>
-            <div style={{ fontWeight: "600", fontSize: 16.8 }}>
-            </div>
-            <button className='text-purple underline outline-none'
-              style={{ fontWeight: "500", fontSize: 15 }}
-              onClick={() => setShowAddObjForm(true)}
-            >
-              New Guardrail
-            </button>
-          </div>
-        )
-      }
-
-      {
-        guardrailsList.length > 0 ?
-          <div style={{ scrollbarWidth: "none", overflow: "auto", maxHeight: showTitle ? "60vh" : "40vh" }}>
-            {guardrailsList.map((item, index) => {
-              const isExpanded = showDetails.some((detail) => detail.id === item.id);
-              return (
-                <div className='p-3 rounded-xl mt-4' key={index} style={{ border: "1px solid #00000020" }}>
-                  <div className='flex flex-row items-center justify-between'>
-                    <div style={{ fontWeight: "600", fontSize: 15 }}>
-                      {item.title}
+      {guardrailsList.length > 0 ? (
+        <div
+          style={{
+            scrollbarWidth: "none",
+            overflow: "auto",
+            maxHeight: showTitle ? "60vh" : "40vh",
+          }}
+        >
+          {guardrailsList.map((item, index) => {
+            const isExpanded = showDetails.some(
+              (detail) => detail.id === item.id
+            );
+            return (
+              <div
+                className="p-3 rounded-xl mt-4"
+                key={index}
+                style={{ border: "1px solid #00000020" }}
+              >
+                <div className="flex flex-row items-center justify-between">
+                  <div style={{ fontWeight: "600", fontSize: 15 }}>
+                    {item.title}
+                  </div>
+                  <button
+                    className="outline-none"
+                    onClick={() => {
+                      handleShowDetails(item);
+                    }}
+                  >
+                    {isExpanded ? (
+                      <CaretUp size={20} />
+                    ) : (
+                      <CaretDown size={20} />
+                    )}
+                  </button>
+                </div>
+                {isExpanded && (
+                  <div className="flex flex-row items-start justify-between">
+                    <div
+                      className="mt-2 bg-gray-100 p-2"
+                      style={{ fontWeight: "500", fontSize: 15 }}
+                    >
+                      {item.description}
                     </div>
                     <button
-                      className='outline-none'
-                      onClick={() => {
-                        handleShowDetails(item)
+                      aria-describedby={id}
+                      variant="contained"
+                      onClick={(event) => {
+                        handleClick(event, item);
+                      }}
+                      className="p-2 px-3"
+                    >
+                      <DotsThree weight="bold" size={35} />
+                    </button>
+                    <Popover
+                      id={id}
+                      open={open}
+                      anchorEl={anchorEl}
+                      onClose={handleClose}
+                      anchorOrigin={{
+                        vertical: "bottom",
+                        horizontal: "right",
+                      }}
+                      transformOrigin={{
+                        vertical: "center",
+                        horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+                      }}
+                      PaperProps={{
+                        elevation: 0, // This will remove the shadow
+                        style: {
+                          boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
+                          // borderRadius: "13px"
+                        },
                       }}
                     >
-                      {
-                        isExpanded ?
-                          <CaretUp size={20} /> :
-                          <CaretDown size={20} />
-                      }
-                    </button>
-                  </div>
-                  {
-                    isExpanded && (
-                      <div className='flex flex-row items-start justify-between'>
-                        <div className='mt-2 bg-gray-100 p-2' style={{ fontWeight: "500", fontSize: 15 }}>
-                          {item.description}
-                        </div>
+                      {delLoader ? (
+                        <CircularProgress size={20} />
+                      ) : (
                         <button
-                          aria-describedby={id} variant="contained" onClick={(event) => { handleClick(event, item) }}
-                          className='p-2 px-3'
+                          onClick={() => {
+                            handleDelGuadrail();
+                          }}
+                          className="text-red p-2 px-4"
+                          style={{
+                            fontsize: 15,
+                            fontWeight: "500",
+                            padding: 2,
+                          }}
                         >
-                          <DotsThree weight='bold' size={35} />
+                          Delete
                         </button>
-                        <Popover
-                          id={id}
-                          open={open}
-                          anchorEl={anchorEl}
-                          onClose={handleClose}
-                          anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'right',
-                          }}
-                          transformOrigin={{
-                            vertical: 'center',
-                            horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
-                          }}
-                          PaperProps={{
-                            elevation: 0, // This will remove the shadow
-                            style: {
-                              boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
-                              // borderRadius: "13px"
-                            },
-                          }}
-                        >
-                          {
-                            delLoader ?
-                              <CircularProgress size={20} /> :
-                              <button
-                                onClick={() => { handleDelGuadrail() }}
-                                className='text-red p-2 px-4'
-                                style={{ fontsize: 15, fontWeight: "500", padding: 2 }}>
-                                Delete
-                              </button>
-                          }
-                        </Popover>
-                      </div>
-                    )
-                  }
-                </div>
-              )
-            })}
-          </div> :
-          <div>
-            {
-              initialLoader ?
-                <div className='w-full flex flex-row items-center justify-center mt-8'>
-                  <CircularProgress size={25} />
-                </div> :
-                <div className='text-center text-2xl mt-6'>
-                  <div className='flex flex-col items-center justify-center h-[30vh] w-full' style={{ fontWeight: "500", fontsize: 15 }}>
-                      <Image className='grayscale'  src={"/svgIcons/noGuardiarlsIcon.svg"} height={200} width={237} alt='*' />
-                    <div className='' style={{ fontWeight: "500", fontSize: 15 }}>
-                      {/* <i style={{ fontWeight: "500", fontsize: 15 }}> */}
-                        {`Looks like you've got no Guardrails yet`}
-                      {/* </i> */}
-                    </div>
+                      )}
+                    </Popover>
                   </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div>
+          {initialLoader ? (
+            <div className="w-full flex flex-row items-center justify-center mt-8">
+              <CircularProgress size={25} />
+            </div>
+          ) : (
+            <div className="text-center text-2xl mt-6">
+              <div
+                className="flex flex-col items-center justify-center h-[30vh] w-full"
+                style={{ fontWeight: "500", fontsize: 15 }}
+              >
+                <Image
+                  className="grayscale"
+                  src={"/svgIcons/noGuardiarlsIcon.svg"}
+                  height={200}
+                  width={237}
+                  alt="*"
+                />
+                <div className="" style={{ fontWeight: "500", fontSize: 15 }}>
+                  {/* <i style={{ fontWeight: "500", fontsize: 15 }}> */}
+                  {`Looks like you haven't added guardrails yet`}
+                  {/* </i> */}
                 </div>
-            }
-          </div>
-      }
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
-      {
-        !showTitle && (
-          <button className='text-purple mt-4 outline-none'
-            style={{ fontWeight: "700", fontSize: 16 }}
-            onClick={() => setShowAddObjForm(true)}>
-            Add New
-          </button>
-        )
-      }
+      {!showTitle && (
+        <button
+          className="text-purple mt-4 outline-none"
+          style={{ fontWeight: "700", fontSize: 16 }}
+          onClick={() => setShowAddObjForm(true)}
+        >
+          Add New
+        </button>
+      )}
 
       {/* Modal for Adding new item in array */}
       <Modal
         open={showAddObjForm}
-        onClose={() => { setShowAddObjForm(false) }}
+        onClose={() => {
+          setShowAddObjForm(false);
+        }}
         BackdropProps={{
           timeout: 100,
           sx: {
@@ -425,51 +484,76 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
           },
         }}
       >
-        <Box sx={{ ...styles.modalsStyle, width: "30%", backgroundColor: 'white' }}>
-          <div style={{ width: "100%", }}>
-            <div className='w-full' style={{ direction: "row", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Box
+          sx={{ ...styles.modalsStyle, width: "30%", backgroundColor: "white" }}
+        >
+          <div style={{ width: "100%" }}>
+            <div
+              className="w-full"
+              style={{
+                direction: "row",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <div style={{ fontWeight: "600", fontSize: 16.8 }}>
                 Add New Guardrail
               </div>
-              <button onClick={() => { setShowAddObjForm(false) }}>
-                <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+              <button
+                onClick={() => {
+                  setShowAddObjForm(false);
+                }}
+              >
+                <Image
+                  src={"/assets/crossIcon.png"}
+                  height={40}
+                  width={40}
+                  alt="*"
+                />
               </button>
             </div>
-            <div style={styles.title}>
-              {`What's the guardrail`}
-            </div>
+            <div style={styles.title}>{`What's the guardrail`}</div>
             <input
-              className='outline-none focus:outline-none focus:ring-0'
-              style={styles.inputStyle} placeholder='Add title'
+              className="outline-none focus:outline-none focus:ring-0"
+              style={styles.inputStyle}
+              placeholder="Add title"
               value={addObjTitle}
-              onChange={(event) => { setAddObjTitle(event.target.value) }}
+              onChange={(event) => {
+                setAddObjTitle(event.target.value);
+              }}
             />
-            <div style={{ ...styles.title, marginTop: 10 }}>
-              Description
-            </div>
+            <div style={{ ...styles.title, marginTop: 10 }}>Description</div>
             <TextareaAutosize
               maxRows={5}
-              className='outline-none focus:outline-none focus:ring-0'
-              style={styles.inputStyle} placeholder='Add description'
+              className="outline-none focus:outline-none focus:ring-0"
+              style={styles.inputStyle}
+              placeholder="Add description"
               value={addObjDescription}
-              onChange={(event) => { setAddObjDescription(event.target.value) }} />
-            <div className='w-full'>
-              {
-                addObjectionLoader ?
-                  <div className='w-full flex flex-row items-center justify-center mt-8 h-[50px]'>
-                    <CircularProgress size={25} />
-                  </div> :
-                  <button className='text-white bg-purple h-[50px] rounded-xl w-full mt-8' onClick={addGuadrial} style={styles.title}>
-                    Save
-                  </button>
-              }
+              onChange={(event) => {
+                setAddObjDescription(event.target.value);
+              }}
+            />
+            <div className="w-full">
+              {addObjectionLoader ? (
+                <div className="w-full flex flex-row items-center justify-center mt-8 h-[50px]">
+                  <CircularProgress size={25} />
+                </div>
+              ) : (
+                <button
+                  className="text-white bg-purple h-[50px] rounded-xl w-full mt-8"
+                  onClick={addGuadrial}
+                  style={styles.title}
+                >
+                  Save
+                </button>
+              )}
             </div>
           </div>
         </Box>
       </Modal>
-
     </div>
-  )
-}
+  );
+};
 
-export default GuardianSetting
+export default GuardianSetting;

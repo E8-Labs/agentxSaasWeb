@@ -55,7 +55,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "@phosphor-icons/react";
 import VideoCard from "@/components/createagent/VideoCard";
 
-function AdminAgentX({selectedUser}) {
+function AdminAgentX({ selectedUser }) {
   const timerRef = useRef();
   const fileInputRef = useRef([]);
   // const fileInputRef = useRef(null);
@@ -1413,7 +1413,7 @@ function AdminAgentX({selectedUser}) {
   };
 
   //code to get agents
-  const getAgents = async (userData,) => {
+  const getAgents = async (userData) => {
     try {
       const agentLocalDetails = localStorage.getItem(
         PersistanceKeys.LocalStoredAgentsListMain
@@ -2801,6 +2801,7 @@ function AdminAgentX({selectedUser}) {
                                 <div
                                   onClick={(e) => {
                                     if (showReassignBtn && item?.claimedBy) {
+                                      console.log("Assigned to ", item);
                                       e.stopPropagation();
                                       setShowConfirmationModal(item);
                                       //// console.log("Hit release number api");
@@ -3137,7 +3138,6 @@ function AdminAgentX({selectedUser}) {
               className="max-h-[60vh] overflow-auto"
               style={{ scrollbarWidth: "none" }}
             >
-
               <div className="flex flex-row items-center justify-center gap-2 -mt-1">
                 <Image
                   src={"/assets/warningFill.png"}
@@ -3417,7 +3417,7 @@ function AdminAgentX({selectedUser}) {
                   }}
                   onClick={handleShowAdvanceSeting}
                 >
-                  Advance Settings
+                  Advanced Settings
                 </button>
               </div>
 

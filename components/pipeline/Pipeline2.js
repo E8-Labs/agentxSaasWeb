@@ -273,7 +273,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     }, 0);
   };
 
-  //function to close advance settings
+  //function to close Advanced Settings
   const handleCloseAdvanceSettings = () => {
     setAdvancedSettingModal(false);
     localStorage.removeItem("GuadrailsList");
@@ -941,7 +941,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                   className="text-center mt-2"
                   style={{ fontWeight: "700", fontSize: 24 }}
                 >
-                  Advance Settings
+                  Advanced Settings
                 </div>
 
                 <div className="flex flex-col items-center gap-2">

@@ -75,6 +75,7 @@ const Userleads = ({
   const [leadColumns, setLeadColumns] = useState([]);
   const [SelectedSheetId, setSelectedSheetId] = useState(null);
   const [toggleClick, setToggleClick] = useState([]);
+  const [selectedAll, setSelectedAll] = useState(false);
   const [AssignLeadModal, setAssignLeadModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [selectedFromDate, setSelectedFromDate] = useState(null);
@@ -85,11 +86,10 @@ const Userleads = ({
 
   const [filtersSelected, setFiltersSelected] = useState([]);
 
-
-  const [noStageSelected, setNoStageSelected] = useState(false)
+  const [noStageSelected, setNoStageSelected] = useState(false);
 
   useEffect(() => {
-    //console.log("Filtered Leads changed", FilterLeads.length);
+    console.log("Filtered Leads changed", FilterLeads.length);
   }, [FilterLeads]);
   /*
  
@@ -641,27 +641,28 @@ const Userleads = ({
   }
 
   function getLocallyCachedLeads() {
-    //console.log("Getting local data for", SelectedSheetId);
+    // return;
+    // console.log("Getting local data for", SelectedSheetId);
     const id = SelectedSheetId;
     //Set leads in cache
     let leadsData = LeadsInSheet[SelectedSheetId] || null;
-    //console.log("Found this ", leadsData);
+    // console.log("Found this ", leadsData);
     if (!leadsData) {
-      //console.log("Data not cached so looking for localstorage");
+      // console.log("Data not cached so looking for localstorage");
       let d = localStorage.getItem(`Leads${SelectedSheetId}`);
       if (d) {
-        //console.log("Data found in localstorage");
         leadsData = JSON.parse(d);
+        // console.log("Data found in localstorage", leadsData);
       }
     }
-    //console.log("Here  1");
-    let leads = leadsData?.data;
-    let leadColumns = leadsData?.columns;
+    // console.log("Here  1");
+    let leads = leadsData?.data || [];
+    let leadColumns = leadsData?.columns || [];
     // setSelectedSheetId(item.id);
     // setLeadsList([]);
     // setFilterLeads([]);
-    if (leads && leadColumns) {
-      // ////console.log("Leads already cached for sheet", id)
+    if (leads && leads.length > 0 && leadColumns && leadColumns.length > 0) {
+      // console.log("Leads already cached for sheet", id);
       setLeadsList((prevDetails) => [...prevDetails, ...leads]);
       setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
       let dynamicColumns = [];
@@ -676,10 +677,11 @@ const Userleads = ({
         ];
       }
       // setLeadColumns(response.data.columns);
+      // console.log("Dynamic columns ", dynamicColumns);
       setLeadColumns(dynamicColumns);
       // return
     } else {
-      //console.log("leads not already cached for sheet ", SelectedSheetId);
+      // console.log("leads not already cached for sheet ", SelectedSheetId);
     }
   }
 
@@ -710,10 +712,8 @@ const Userleads = ({
       if (filterText) {
         //console.log("Filtered text is ", filterText);
         ApiPath = `${Apis.getLeads}?${filterText}`; //&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}`;
-        ApiPath = ApiPath + "&noStage=" + noStageSelected
-      }
-
-      else {
+        ApiPath = ApiPath + "&noStage=" + noStageSelected;
+      } else {
         getLocallyCachedLeads();
         ApiPath = `${Apis.getLeads}?sheetId=${SelectedSheetId}&offset=${offset}`;
       }
@@ -795,7 +795,7 @@ const Userleads = ({
               ////console.log("leads not already cached for sheet ", id);
             }
 
-            if (data.length < 500) {
+            if (data.length < 100) {
               setHasMore(false);
             } else {
               setHasMore(true);
@@ -1068,11 +1068,13 @@ const Userleads = ({
   const getColumnData = (column, item) => {
     const { title } = column;
 
-    // ////console.log("Colums of the list are:", column);
-    // ////console.log("Comparing items---", item.stage);
+    // console.log("Colums of the list are:", column);
+    // console.log("Comparing items---", item.id);
 
+    // return <div>Salman</div>;
     switch (title) {
       case "Name":
+        // console.log("In name");
         return (
           <div>
             <div className="w-full flex flex-row items-center gap-2 truncate">
@@ -1110,12 +1112,14 @@ const Userleads = ({
           </div>
         );
       case "Phone":
+        // console.log("In phone");
         return (
           <button onClick={() => handleToggleClick(item.id)}>
             {item.phone ? item.phone : "-"}
           </button>
         );
       case "Stage":
+        // console.log("In stage");
         return (
           <button onClick={() => handleToggleClick(item.id)}>
             {item.stage ? item.stage.stageTitle : "No Stage"}
@@ -1124,6 +1128,7 @@ const Userleads = ({
       // case "Date":
       //     return item.createdAt ? moment(item.createdAt).format('MMM DD, YYYY') : "-";
       case "More":
+        // console.log("In more");
         return (
           <button
             className="underline text-purple"
@@ -1139,9 +1144,10 @@ const Userleads = ({
           </button>
         );
       default:
-        const value = item[title];
+        let value = item[title];
+        // console.log("In default", value);
         if (typeof value === "object" && value !== null) {
-          JSON.stringify(value);
+          value = JSON.stringify(value);
         }
         return (
           <div
@@ -1640,7 +1646,7 @@ const Userleads = ({
       <div className="w-[95%] pe-12 mt-2">
         {initialLoader ? (
           <div className="w-full h-screen flex flex-row justify-center mt-12">
-            <CircularProgress size={35} />
+            <CircularProgress size={35} sx={{ color: "#7902DF" }} />
           </div>
         ) : (
           <div>
@@ -1832,6 +1838,7 @@ const Userleads = ({
                               className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
                               onClick={() => {
                                 setToggleClick([]);
+                                setSelectedAll(false);
                               }}
                             >
                               <Image
@@ -1845,11 +1852,12 @@ const Userleads = ({
                               Select All
                             </div>
 
-                            <div className="text-purple" style={{ fontSize: "15", fontWeight: "600" }}>
+                            <div
+                              className="text-purple"
+                              style={{ fontSize: "15", fontWeight: "600" }}
+                            >
                               {LeadsList.length}
                             </div>
-
-
                           </div>
                         )}
                       </div>
@@ -1859,6 +1867,7 @@ const Userleads = ({
                           className="h-[20px] w-[20px] border-2 rounded outline-none"
                           onClick={() => {
                             setToggleClick(FilterLeads.map((item) => item.id));
+                            setSelectedAll(true);
                           }}
                         ></button>
                         <div style={{ fontSize: "15", fontWeight: "600" }}>
@@ -1881,8 +1890,8 @@ const Userleads = ({
             <div
               className="flex flex-row items-center mt-8 gap-2"
               style={styles.paragraph}
-            // className="flex flex-row items-center mt-8 gap-2"
-            // style={{ ...styles.paragraph, overflowY: "hidden" }}
+              // className="flex flex-row items-center mt-8 gap-2"
+              // style={{ ...styles.paragraph, overflowY: "hidden" }}
             >
               <div
                 className="flex flex-row items-center gap-2 w-full"
@@ -1913,8 +1922,8 @@ const Userleads = ({
                         color: SelectedSheetId === item.id ? "#7902DF" : "",
                         whiteSpace: "nowrap", // Prevent text wrapping
                       }}
-                    // className='flex flex-row items-center gap-1 px-3'
-                    // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
+                      // className='flex flex-row items-center gap-1 px-3'
+                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
                     >
                       <button
                         style={styles.paragraph}
@@ -1965,7 +1974,10 @@ const Userleads = ({
                           style={{ fontWeight: "500", fontSize: 15 }}
                         >
                           {delSmartListLoader ? (
-                            <CircularProgress size={15} />
+                            <CircularProgress
+                              size={15}
+                              sx={{ color: "#7902DF" }}
+                            />
                           ) : (
                             <button
                               className="text-red flex flex-row items-center gap-1"
@@ -2019,136 +2031,109 @@ const Userleads = ({
 
             {sheetsLoader ? (
               <div className="w-full flex flex-row justify-center mt-12">
-                <CircularProgress size={30} />
+                <CircularProgress sx={{ color: "#7902DF" }} />
+              </div>
+            ) : LeadsList.length > 0 ? (
+              <div
+                className="h-[70svh] overflow-auto pb-[100px] mt-6"
+                id="scrollableDiv1"
+                style={{ scrollbarWidth: "none" }}
+              >
+                <InfiniteScroll
+                  className="lg:flex hidden flex-col w-full"
+                  endMessage={
+                    <p
+                      style={{
+                        textAlign: "center",
+                        paddingTop: "10px",
+                        fontWeight: "400",
+                        fontFamily: "inter",
+                        fontSize: 16,
+                        color: "#00000060",
+                      }}
+                    >
+                      You're all caught up
+                    </p>
+                  }
+                  scrollableTarget="scrollableDiv1"
+                  dataLength={FilterLeads.length}
+                  next={() => {
+                    let filterText = getFilterText();
+                    handleFilterLeads(FilterLeads.length, filterText);
+                  }}
+                  hasMore={hasMore}
+                  loader={
+                    <div className="w-full flex flex-row justify-center mt-8">
+                      {moreLeadsLoader && (
+                        <CircularProgress size={35} sx={{ color: "#7902DF" }} />
+                      )}
+                    </div>
+                  }
+                  style={{ overflow: "unset" }}
+                >
+                  <table className="table-auto w-full border-collapse border border-none">
+                    <thead>
+                      <tr style={{ fontWeight: "500" }}>
+                        {leadColumns.map((column, index) => {
+                          const isMoreColumn = column.title === "More";
+                          const columnWidth = isMoreColumn ? "200px" : "150px";
+                          return (
+                            <th
+                              key={index}
+                              className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${
+                                isMoreColumn ? "sticky right-0 bg-white" : ""
+                              }`}
+                              style={{
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                zIndex: isMoreColumn ? 1 : "auto",
+                                maxWidth: columnWidth,
+                              }}
+                            >
+                              {column.title.charAt(0).toUpperCase() +
+                                column.title.slice(1)}
+                            </th>
+                          );
+                        })}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {FilterLeads.map((item, index) => (
+                        <tr key={index} className="hover:bg-gray-50">
+                          {leadColumns.map((column, colIndex) => (
+                            <td
+                              key={colIndex}
+                              className={`border-none px-4 py-2 ${
+                                column.title === "More"
+                                  ? "sticky right-0 bg-white"
+                                  : ""
+                              }`}
+                              style={{
+                                whiteSpace: "nowrap",
+                                zIndex: column.title === "More" ? 1 : "auto",
+                                width: "200px",
+                              }}
+                            >
+                              {getColumnData(column, item)}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </InfiniteScroll>
+              </div>
+            ) : showNoLeadsLabel ? (
+              <div className="text-xl text-center mt-8 font-bold text-[22px]">
+                No leads found
               </div>
             ) : (
-              <div>
-                {LeadsList.length > 0 ? (
-                  <div
-                    className="h-[70svh] overflow-auto pb-[100px] mt-6" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
-                    id="scrollableDiv1"
-                    style={{ scrollbarWidth: "none" }}
-                  >
-                    <InfiniteScroll
-                      className="lg:flex hidden flex-col w-full"
-                      endMessage={
-                        <p
-                          style={{
-                            textAlign: "center",
-                            paddingTop: "10px",
-                            fontWeight: "400",
-                            fontFamily: "inter",
-                            fontSize: 16,
-                            color: "#00000060",
-                          }}
-                        >
-                          {`You're all caught up`}
-                        </p>
-                      }
-                      scrollableTarget="scrollableDiv1"
-                      dataLength={FilterLeads.length}
-                      next={() => {
-                        ////console.log("Loading more data");
-                        let filterText = getFilterText();
-                        handleFilterLeads(FilterLeads.length, filterText);
-                        // getLeads();
-                      }} // Fetch more when scrolled
-                      hasMore={hasMore} // Check if there's more data
-                      loader={
-                        <div className="w-full flex flex-row justify-center mt-8">
-                          {moreLeadsLoader && <CircularProgress size={35} />}
-                        </div>
-                      }
-                      style={{ overflow: "unset" }}
-                    >
-                      <table className="table-auto w-full border-collapse border border-none">
-                        <thead>
-                          <tr style={{ fontWeight: "500" }}>
-                            {/* {leadColumns.map((column, index) => (
-                                                                    // <th key={index} className="border-none px-4 py-2 text-left text-[#00000060]">
-                                                                    <th
-                                                                        key={index}
-                                                                        className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${column.title === "More" ? "sticky right-0 bg-white" : ""
-                                                                            }`}
-                                                                        style={column.title === "More" ? { zIndex: 1 } : {}}
-                                                                    >
-                                                                        {column.title.slice(0, 1).toUpperCase()}{column.title.slice(1)}
-                                                                    </th>
-                                                                ))} */}
-                            {leadColumns.map((column, index) => {
-                              const isMoreColumn = column.title === "More";
-                              const isDateColumn = column.title === "Date";
-                              const columnWidth =
-                                column.title === "More" ? "200px" : "150px";
-                              return (
-                                <th
-                                  key={index}
-                                  className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn
-                                    ? "sticky right-0 bg-white"
-                                    : ""
-                                    }`}
-                                  // style={isMoreColumn ? { zIndex: 1 } : {}}
-                                  style={{
-                                    whiteSpace: "nowrap",
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                    zIndex:
-                                      isMoreColumn === "More" ? 1 : "auto",
-                                    maxWidth: columnWidth,
-                                  }}
-                                >
-                                  {column.title.slice(0, 1).toUpperCase()}
-                                  {column.title.slice(1)}
-                                </th>
-                              );
-                            })}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {FilterLeads.map((item, index) => {
-                            ////console.log("Lead showing ", item.firstName);
-                            return (
-                              <tr key={index} className="hover:bg-gray-50">
-                                {leadColumns.map((column, colIndex) => (
-                                  // <td key={colIndex} className="border-none px-4 py-2">
-                                  <td
-                                    key={colIndex}
-                                    className={`border-none px-4 py-2 ${column.title === "More"
-                                      ? "sticky right-0 bg-white"
-                                      : ""
-                                      }`}
-                                    style={{
-                                      whiteSpace: "nowrap",
-                                      // overflow: "hidden",
-                                      // textOverflow: "ellipsis",
-                                      // maxWidth: "150px",
-                                      zIndex:
-                                        column.title === "More" ? 1 : "auto",
-                                      width: "200px",
-                                    }}
-                                  >
-                                    {getColumnData(column, item)}
-                                  </td>
-                                ))}
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </InfiniteScroll>
-                  </div>
-                ) : (
-                  <div
-                    className="text-xl text-center mt-8"
-                    style={{ fontWeight: "700", fontSize: 22 }}
-                  >
-                    {showNoLeadsLabel == true ? "No leads found" : "Loading..."}
-                  </div>
-                )}
+              <div className="w-full flex justify-center items-center">
+                <CircularProgress size={35} sx={{ color: "#7902DF" }} />
               </div>
             )}
 
-            {/* <div> */}
             <Modal
               open={showFilterModal}
               closeAfterTransition
@@ -2219,11 +2204,6 @@ const Userleads = ({
                           <div>
                             {showFromDatePicker && (
                               <div>
-                                {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
-                                                                    <button>
-                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
-                                                                    </button>
-                                                                </div> */}
                                 <Calendar
                                   onChange={handleFromDateChange}
                                   value={selectedFromDate}
@@ -2403,7 +2383,7 @@ const Userleads = ({
 
                     {stagesLoader ? (
                       <div className="w-full flex flex-row justify-center mt-8">
-                        <CircularProgress size={25} />
+                        <CircularProgress size={25} sx={{ color: "#7902DF" }} />
                       </div>
                     ) : (
                       <div className="w-full flex flex-wrap gap-4">
@@ -2419,12 +2399,12 @@ const Userleads = ({
                                 onClick={() => {
                                   handleSelectStage(item);
                                 }}
-                                className={`p-2 border border-[#00000020] ${found >= 0 ? `bg-purple` : "bg-transparent"
-                                  } px-6
-                              ${found >= 0
-                                    ? `text-white`
-                                    : "text-black"
-                                  } rounded-2xl`}
+                                className={`p-2 border border-[#00000020] ${
+                                  found >= 0 ? `bg-purple` : "bg-transparent"
+                                } px-6
+                              ${
+                                found >= 0 ? `text-white` : "text-black"
+                              } rounded-2xl`}
                               >
                                 {item.stageTitle}
                               </button>
@@ -2436,10 +2416,13 @@ const Userleads = ({
                         <div className="flex flex-row items-center mt-2 justify-start">
                           <button
                             onClick={() => {
-                              setNoStageSelected(!noStageSelected)
+                              setNoStageSelected(!noStageSelected);
                             }}
-                            className={`p-2 border border-[#00000020] ${noStageSelected ? `bg-purple text-white` : "bg-transparent text-black"
-                              } px-6 rounded-2xl`}
+                            className={`p-2 border border-[#00000020] ${
+                              noStageSelected
+                                ? `bg-purple text-white`
+                                : "bg-transparent text-black"
+                            } px-6 rounded-2xl`}
                           >
                             No Stage
                           </button>
@@ -2464,7 +2447,7 @@ const Userleads = ({
                       Reset
                     </button>
                     {sheetsLoader ? (
-                      <CircularProgress size={25} />
+                      <CircularProgress size={25} sx={{ color: "#7902DF" }} />
                     ) : (
                       <button
                         className="bg-purple h-[45px] w-[140px] bg-purple text-white rounded-xl outline-none"
@@ -2648,7 +2631,10 @@ const Userleads = ({
                     <div className="w-full pb-8">
                       {showaddCreateListLoader ? (
                         <div className="flex flex-row items-center justify-center w-full h-[50px]">
-                          <CircularProgress size={25} />
+                          <CircularProgress
+                            size={25}
+                            sx={{ color: "#7902DF" }}
+                          />
                         </div>
                       ) : (
                         <button
@@ -2754,7 +2740,7 @@ const Userleads = ({
               </div>
               <div className="w-full mt-4 h-[20%] flex flex-row justify-center">
                 {addLeadNoteLoader ? (
-                  <CircularProgress size={25} />
+                  <CircularProgress size={25} sx={{ color: "#7902DF" }} />
                 ) : (
                   <button
                     className="bg-purple h-[50px] rounded-xl text-white rounded-xl w-6/12"

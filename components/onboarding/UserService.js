@@ -46,7 +46,7 @@ const UserService = ({ handleContinue, handleBack }) => {
 
   useEffect(() => {
     if (serviceId.length > 0) {
-     // console.log("service id is ::", serviceId);
+      // console.log("service id is ::", serviceId);
       setShouldContinue(false);
     } else if (serviceId.length === 0) {
       setShouldContinue(true);
@@ -63,15 +63,15 @@ const UserService = ({ handleContinue, handleBack }) => {
       let AgentTypeTitle = null;
       if (selectedServiceID) {
         const serviceIds = JSON.parse(selectedServiceID);
-       // console.log("Userdetails are", serviceIds);
+        // console.log("Userdetails are", serviceIds);
         AgentTypeTitle = serviceIds.userTypeTitle;
       }
       let servicesLocal = GetServicesForUser(AgentTypeTitle);
       setServicesData(servicesLocal);
 
-     // console.log("Check 1 clear !!!");
+      // console.log("Check 1 clear !!!");
       const ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`;
-     // console.log("Api link is:--", ApiPath);
+      // console.log("Api link is:--", ApiPath);
       const response = await axios.get(ApiPath, {
         headers: {
           "Content-Type": "application/json",
@@ -79,13 +79,13 @@ const UserService = ({ handleContinue, handleBack }) => {
       });
 
       if (response) {
-       // console.log("Response of api is : -----", response.data);
+        // console.log("Response of api is : -----", response.data);
         setServicesData(response.data.data.agentServices);
       } else {
         // alert(response.data);
       }
     } catch (error) {
-     // console.error("ERror occured in default data api is :----", error);
+      // console.error("ERror occured in default data api is :----", error);
     } finally {
       setLoader(false);
     }
@@ -168,8 +168,8 @@ const UserService = ({ handleContinue, handleBack }) => {
               </div>
             ) : (
               <div
-                className="mt-2 sm:mt-8 w-full md:w-10/12 lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
-              // style={{ scrollbarWidth: "none" }}
+                className="mt-2 pb-2 sm:mt-8 w-full md:w-10/12 lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+                // style={{ scrollbarWidth: "none" }}
               >
                 {servicesData.map((item, index) => (
                   <button
@@ -203,7 +203,9 @@ const UserService = ({ handleContinue, handleBack }) => {
                             {item.title}
                           </div>
 
-                          <div className="mt-2 " style={{textAlign:'start'}}>{item.description}</div>
+                          <div className="mt-2 " style={{ textAlign: "start" }}>
+                            {item.description}
+                          </div>
                         </div>
 
                         {serviceId.includes(item.id) ? (
