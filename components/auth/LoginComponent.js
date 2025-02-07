@@ -769,7 +769,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               className="flex flex-row items-center justify-center gap-1 mt-[40px]"
               style={{ fontWeight: "500", fontSize: 15 }}
             >
-              <div onClick={() => setShowVerifyPopup(true)}>
+              <div //onClick={() => setShowVerifyPopup(true)}
+              >
                 {`Don't have an account?`}
               </div>
               <Link

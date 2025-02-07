@@ -193,6 +193,9 @@ function Page() {
 
   const [user, setUser] = useState(null);
 
+
+  const [showRenameAgentPopup,setShowRenameAgentPopup] = useState(false)
+
   //call get numbers list api
   useEffect(() => {
     if (showDrawerSelectedAgent === null) {
@@ -619,8 +622,7 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(item.phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -1005,8 +1007,7 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -1814,16 +1815,22 @@ function Page() {
                             handleShowDrawer(item);
                           }}
                         >
-                          <div
-                            style={{
-                              fontSize: 24,
-                              fontWeight: "600",
-                              color: "#000",
-                            }}
-                          >
-                            {/* {item.name?.slice(0, 1).toUpperCase(0)}{item.name?.slice(1)} */}
-                            {formatName(item)}
+                            <div
+                              style={{
+                                fontSize: 24,
+                                fontWeight: "600",
+                                color: "#000",
+                              }}
+                            >
+                              {/* {item.name?.slice(0, 1).toUpperCase(0)}{item.name?.slice(1)} */}
+                              {formatName(item)}
                           </div>
+                        </button>
+
+                        <button>
+                          <Image src={"/svgIcons/editPen.svg"}
+                            height={24} width={24} alt="*"
+                          />
                         </button>
                         <div
                           style={{
@@ -2098,6 +2105,110 @@ function Page() {
         </Link>
       </div>
 
+
+      {/* Modal to rename the agent */}
+            <Modal
+              open={showRenameAgentPopup}
+              onClose={() => {
+                showRenameAgentPopup(false);
+              }}
+              BackdropProps={{
+                timeout: 100,
+                sx: {
+                  backgroundColor: "#00000020",
+                  // //backdropFilter: "blur(20px)",
+                },
+              }}
+            >
+              <Box
+                className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
+                sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+              >
+                <div style={{ width: "100%" }}>
+                  <div
+                    className="max-h-[60vh] overflow-auto"
+                    style={{ scrollbarWidth: "none" }}
+                  >
+                    <div
+                      style={{
+                        width: "100%",
+                        direction: "row",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      {/* <div style={{ width: "20%" }} /> */}
+                      <div style={{ fontWeight: "700", fontSize: 22 }}>
+                        Rename Agent
+                      </div>
+                      <div
+                        style={{
+                          direction: "row",
+                          display: "flex",
+                          justifyContent: "end",
+                        }}
+                      >
+                        <button
+                          onClick={() => {
+                            setShowRenameAgentPopup(false);
+                          }}
+                          className="outline-none"
+                        >
+                          <Image
+                            src={"/assets/crossIcon.png"}
+                            height={40}
+                            width={40}
+                            alt="*"
+                          />
+                        </button>
+                      </div>
+                    </div>
+      
+                    <div>
+                      <div
+                        className="mt-4"
+                        style={{ fontWeight: "600", fontSize: 12, paddingBottom: 5 }}
+                      >
+                        Agent Title
+                      </div>
+                      <input
+                        value={renamePipeline}
+                        onChange={(e) => {
+                          setRenamePipeline(e.target.value);
+                        }}
+                        placeholder="Enter Agent title"
+                        className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
+                        style={{ border: "1px solid #00000020" }}
+                      />
+                    </div>
+                  </div>
+      
+                  {renamePipelineLoader ? (
+                    <div className="flex flex-row iems-center justify-center w-full mt-4">
+                      <CircularProgress size={25} />
+                    </div>
+                  ) : (
+                    <button
+                      className="mt-4 outline-none"
+                      style={{
+                        backgroundColor: "#7902DF",
+                        color: "white",
+                        height: "50px",
+                        borderRadius: "10px",
+                        width: "100%",
+                        fontWeight: 600,
+                        fontSize: "20",
+                      }}
+                      // onClick={handleRenamePipeline}
+                    >
+                      Update
+                    </button>
+                  )}
+                </div>
+              </Box>
+            </Modal>
+
       {/* Test ai modal */}
 
       <Modal
@@ -2244,7 +2355,7 @@ function Page() {
                       overflowY: "auto",
                     }}
                     countryCodeEditable={true}
-                    // defaultMask={loading ? 'Loading...' : undefined}
+                  // defaultMask={loading ? 'Loading...' : undefined}
                   />
                 </div>
 
@@ -2275,9 +2386,8 @@ function Page() {
                       <input
                         placeholder="Type here"
                         // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
-                          index === scriptKeys?.length - 1 ? "mb-16" : ""
-                        }`}
+                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
+                          }`}
                         style={{
                           ...styles.inputStyle,
                           border: "1px solid #00000010",
@@ -2483,7 +2593,7 @@ function Page() {
               name="Calls"
               value={
                 showDrawerSelectedAgent?.calls &&
-                showDrawerSelectedAgent?.calls > 0 ? (
+                  showDrawerSelectedAgent?.calls > 0 ? (
                   <div>{showDrawerSelectedAgent?.calls}</div>
                 ) : (
                   "-"
@@ -2497,7 +2607,7 @@ function Page() {
               name="Convos"
               value={
                 showDrawerSelectedAgent?.callsGt10 &&
-                showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
                   <div>{showDrawerSelectedAgent?.callsGt10}</div>
                 ) : (
                   "-"
@@ -2525,7 +2635,7 @@ function Page() {
               name="Mins Talked"
               value={
                 showDrawerSelectedAgent?.totalDuration &&
-                showDrawerSelectedAgent?.totalDuration > 0 ? (
+                  showDrawerSelectedAgent?.totalDuration > 0 ? (
                   // <div>{showDrawer?.totalDuration}</div>
                   <div>
                     {moment(
@@ -2547,11 +2657,10 @@ function Page() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${
-                  activeTab === tab
+                className={`${activeTab === tab
                     ? "text-purple border-b-2 border-purple"
                     : "text-black-500"
-                }`}
+                  }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >
                 {tab}
@@ -2858,37 +2967,37 @@ function Page() {
                                   {showReassignBtn && (
                                     <div
                                       className="w-full"
-                                      // onClick={(e) => {
-                                      //   console.log(
-                                      //     "Should open confirmation modal"
-                                      //   );
-                                      //   e.stopPropagation();
-                                      //   setShowConfirmationModal(item);
-                                      // }}
+                                    // onClick={(e) => {
+                                    //   console.log(
+                                    //     "Should open confirmation modal"
+                                    //   );
+                                    //   e.stopPropagation();
+                                    //   setShowConfirmationModal(item);
+                                    // }}
                                     >
                                       {item.claimedBy && (
                                         <div className="flex flex-row items-center gap-2">
                                           {showDrawerSelectedAgent?.name !==
                                             item.claimedBy.name && (
-                                            <div>
-                                              <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                              {reassignLoader === item ? (
-                                                <CircularProgress size={15} />
-                                              ) : (
-                                                <button
-                                                  className="text-purple underline"
-                                                  onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setShowConfirmationModal(
-                                                      item
-                                                    );
-                                                  }}
-                                                >
-                                                  Reassign
-                                                </button>
-                                              )}
-                                            </div>
-                                          )}
+                                              <div>
+                                                <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                                {reassignLoader === item ? (
+                                                  <CircularProgress size={15} />
+                                                ) : (
+                                                  <button
+                                                    className="text-purple underline"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      setShowConfirmationModal(
+                                                        item
+                                                      );
+                                                    }}
+                                                  >
+                                                    Reassign
+                                                  </button>
+                                                )}
+                                              </div>
+                                            )}
                                         </div>
                                       )}
                                     </div>
