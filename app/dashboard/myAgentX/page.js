@@ -195,6 +195,8 @@ function Page() {
 
 
   const [showRenameAgentPopup,setShowRenameAgentPopup] = useState(false)
+  const [renameAgent,setRenameAgent] = useState("")
+  const [renameAgentLoader,setRenameAgentLoader] = useState(false)
 
   //call get numbers list api
   useEffect(() => {
@@ -832,6 +834,124 @@ function Page() {
   };
 
   //code for update agent api
+  const handleRenameAgent = async (vocieId) => {
+    try {
+      setUpdateAgentLoader(true);
+      // setGlobalLoader(true);
+      // getAgents()
+      let AuthToken = null;
+      const localData = localStorage.getItem("User");
+      if (localData) {
+        const Data = JSON.parse(localData);
+        //////console.log("Localdat recieved is :--", Data);
+        AuthToken = Data.token;
+      }
+
+      const ApiPath = Apis.updateAgent;
+
+      const formData = new FormData();
+
+      // //console.log("Agent to update is:", showScriptModal);
+
+      if (showScriptModal) {
+        if (showScriptModal.agentType === "inbound") {
+          //console.log("Is inbound true");
+          formData.append("inboundGreeting", greetingTagInput);
+          formData.append("inboundPrompt", scriptTagInput);
+          formData.append("inboundObjective", objective);
+        } else {
+          formData.append("prompt", scriptTagInput);
+          formData.append("greeting", greetingTagInput);
+          formData.append("outboundObjective", objective);
+        }
+        formData.append("mainAgentId", MainAgentId);
+      }
+
+      if (vocieId) {
+        formData.append("voiceId", vocieId);
+      }
+
+      if (showDrawerSelectedAgent) {
+        formData.append("mainAgentId", showDrawerSelectedAgent.mainAgentId);
+      }
+
+      for (let [key, value] of formData.entries()) {
+        //// console.log(`${key}: ${value}`);
+      }
+      // return
+      const response = await axios.post(ApiPath, formData, {
+        headers: {
+          Authorization: "Bearer " + AuthToken,
+        },
+      });
+
+      if (response) {
+        //console.log("Response of update api is :--", response.data);
+        //// console.log("Respons eof update api is", response.data.data);
+        setShowSuccessSnack(response.data.message);
+        if (response.data.status === true) {
+          setIsVisibleSnack(true);
+
+          const localAgentsList = localStorage.getItem(
+            PersistanceKeys.LocalStoredAgentsListMain
+          );
+
+          let agentsListDetails = [];
+
+          if (localAgentsList) {
+            const agentsList = JSON.parse(localAgentsList);
+            // agentsListDetails = agentsList;
+
+            const updateAgentData = response.data.data;
+
+            const updatedArray = agentsList.map((localItem) => {
+              const apiItem =
+                updateAgentData.id === localItem.id ? updateAgentData : null;
+
+              return apiItem ? { ...localItem, ...apiItem } : localItem;
+            });
+            // let updatedSubAgent = null
+            if (updateAgentData.agents.length > 0 && showDrawerSelectedAgent) {
+              if (updateAgentData.agents[0].id == showDrawerSelectedAgent.id) {
+                setShowDrawerSelectedAgent(updateAgentData.agents[0]);
+              } else if (updateAgentData.agents.length > 1) {
+                if (
+                  updateAgentData.agents[1].id == showDrawerSelectedAgent.id
+                ) {
+                  setShowDrawerSelectedAgent(updateAgentData.agents[1]);
+                }
+              }
+            }
+
+            //// console.log("Updated agents list array is", updatedArray);
+            localStorage.setItem(
+              PersistanceKeys.LocalStoredAgentsListMain,
+              JSON.stringify(updatedArray)
+            );
+            setMainAgentsList(updatedArray);
+            // agentsListDetails = updatedArray
+          }
+
+          setGreetingTagInput("");
+          setScriptTagInput("");
+          setShowScriptModal(null);
+          setShowScript(false);
+          setSeledtedScriptKYC(false);
+          setSeledtedScriptAdvanceSetting(false);
+          // setShowDrawer(null);
+        }
+      }
+    } catch (error) {
+      //// console.error("Error occured in api is", error);
+      setGlobalLoader(false);
+    } finally {
+      //console.log("Api call completed");
+      setUpdateAgentLoader(false);
+      setGlobalLoader(false);
+    }
+  };
+
+
   const updateAgent = async (vocieId) => {
     try {
       setUpdateAgentLoader(true);
@@ -2173,9 +2293,9 @@ function Page() {
                         Agent Title
                       </div>
                       <input
-                        value={renamePipeline}
+                        value={renameAgent}
                         onChange={(e) => {
-                          setRenamePipeline(e.target.value);
+                          setRenameAgent(e.target.value);
                         }}
                         placeholder="Enter Agent title"
                         className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
@@ -2184,7 +2304,7 @@ function Page() {
                     </div>
                   </div>
       
-                  {renamePipelineLoader ? (
+                  {renameAgentLoader ? (
                     <div className="flex flex-row iems-center justify-center w-full mt-4">
                       <CircularProgress size={25} />
                     </div>
