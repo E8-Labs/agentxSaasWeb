@@ -8,6 +8,9 @@ import CallActivities from '@/components/calls/CallActivties';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer';
+import AdminAllCalls from './callLog/AdminAllCalls';
+import AdminScheduledCalls from './callLog/AdminScheduledCalls';
+import AdminActiveCalls from './callLog/AdminActiveCalls';
 
 
 function AdminCallLogs({selectedUser}) {
@@ -45,12 +48,12 @@ function AdminCallLogs({selectedUser}) {
       <div className='w-full'>
         {
           activeTab === "All Calls" ? (
-            <AllCalls selectedUser={selectedUser} />
+            <AdminAllCalls selectedUser={selectedUser} />
           ) : (
             activeTab === "Scheduled" ? (
-              <SheduledCalls selectedUser = {selectedUser} />
+              <AdminScheduledCalls selectedUser = {selectedUser} />
             ) : (
-              <CallActivities selectedUser = {selectedUser}/>
+              <AdminActiveCalls selectedUser = {selectedUser}/>
             )
           )
         }

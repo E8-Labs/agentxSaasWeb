@@ -16,7 +16,7 @@ function Page() {
 
 
   return (
-    <div className='w-full flex flex-col items-center'>
+    <div className='w-full flex flex-col items-center overflow-hidden'>
       <div className=' w-full flex flex-row justify-between items-center py-4 px-10'
         style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
       >

@@ -107,6 +107,8 @@ const Pipeline1 = () => {
     { id: 3, value: "", placeholder: "Yeah, how much is my home worth today?" },
   ]);
   const [action, setAction] = useState("");
+
+  
   //code for popover
   const [actionInfoEl, setActionInfoEl] = React.useState(null);
   const [assigntoActionInfoEl, setAssigntoActionInfoEl] = React.useState(null);

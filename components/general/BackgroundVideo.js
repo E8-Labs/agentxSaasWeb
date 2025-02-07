@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react";
 
-export default function BackgroundVideo() {
+export default function BackgroundVideo({
+  showImageOnly = false,
+  imageUrl = "/assets/background.png",
+}) {
   const [isVideoSupported, setIsVideoSupported] = useState(false);
 
   useEffect(() => {
     const checkVideoAutoplaySupport = async () => {
+      // if (showImageOnly) {
+      //   setIsVideoSupported(false);
+      //   return;
+      // }
       const video = document.createElement("video");
       video.src = "/banerVideo.mp4"; // Replace with your video path
       video.muted = true; // Autoplay requires the video to be muted
@@ -14,11 +21,11 @@ export default function BackgroundVideo() {
         await video.play();
         video.remove(); // Remove the test video element
         setIsVideoSupported(true); // Autoplay supported
-       // console.log("Video is supported");
+        // console.log("Video is supported");
       } catch {
         video.remove();
         setIsVideoSupported(false); // Autoplay not supported
-       // console.log("Video is not supported");
+        // console.log("Video is not supported");
       }
     };
 
@@ -27,7 +34,7 @@ export default function BackgroundVideo() {
 
   return (
     <div className="relative w-full h-screen overflow-hidden ">
-      {isVideoSupported ? (
+      {!showImageOnly && isVideoSupported ? (
         <video
           autoPlay
           muted
@@ -41,7 +48,7 @@ export default function BackgroundVideo() {
         <div
           className="absolute inset-0 w-full h-full bg-cover bg-center"
           style={{
-            backgroundImage: "url('/assets/background.png')", // Replace with your image path
+            backgroundImage: `url('${imageUrl}')`, // Replace with your image path
           }}
         />
       )}
