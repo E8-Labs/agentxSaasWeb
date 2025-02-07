@@ -1,12 +1,13 @@
-import { Modal } from '@mui/material'
-import React from 'react'
+import Dashboard from "@/components/admin/dashboard/dashboard";
+import { Modal } from "@mui/material";
+import React from "react";
 
 function Page() {
-    return (
-        <div>
-            page
-        </div>
-    )
+  return (
+    <div>
+      <Dashboard />
+    </div>
+  );
 }
 
-export default Page
+export default Page;

@@ -101,14 +101,12 @@ const Apis = {
   sendFeedbback: `${BasePath}api/user/sendFeedback`,
   getAiNot: `${BasePath}/api/agent/sendTestAiNotification`,
 
-
-  getUsers:`${BasePath}/api/admin/users`,
+  getUsers: `${BasePath}/api/admin/users`,
 
   addAffiliate: `${BasePath}api/admin/addAffiliate`,
   getAffiliate: `${BasePath}api/admin/getAffiliates`,
-  deleteAffiliate:`${BasePath}api/admin/deleteAffiliate`,
-
-
+  deleteAffiliate: `${BasePath}api/admin/deleteAffiliate`,
+  adminStats: `${BasePath}api/admin/adminStats`,
 };
 
 export default Apis;
