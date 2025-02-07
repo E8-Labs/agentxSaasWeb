@@ -20,14 +20,16 @@ import "react-calendar/dist/Calendar.css";
 import "./CalendarOverrides.css";
 import parsePhoneNumberFromString from "libphonenumber-js";
 import InfiniteScroll from "react-infinite-scroll-component";
-import LeadDetails from "../dashboard/leads/extras/LeadDetails";
+import LeadDetails from "@/components/dashboard/leads/extras/LeadDetails";
 import {
   convertUTCToTimezone,
   GetFormattedDateString,
   GetFormattedTimeString,
 } from "@/utilities/utility";
 
-function AllCalls({ }) {
+function AdminAllCalls({ selectedUser }) {
+
+  console.log('selectedUser', selectedUser)
 
   const [searchValue, setSearchValue] = useState("");
 
@@ -193,7 +195,9 @@ function AllCalls({ }) {
     try {
 
       const ApiPath = Apis.getPipelines;
-      
+      if (selectedUser) {
+        ApiPath = ApiPath + "?userId="+selectedUser.id
+      }
       let AuthToken = null;
       const LocalData = localStorage.getItem("User");
       if (LocalData) {
@@ -265,6 +269,9 @@ function AllCalls({ }) {
         ApiPath = `${Apis.getCallLogs}?offset=${offset}`; //Apis.getCallLogs;
       }
 
+      if (selectedUser) {
+        ApiPath = ApiPath + "&userId=155"//+selectedUser.id
+      }
 
       // if (selectedFromDate && selectedToDate && stages.length > 0) {
       //     ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}&stageIds=${stages}&offset=${offset}&limit=10`;
@@ -439,7 +446,7 @@ function AllCalls({ }) {
                 >
                   {getFilterTitle(filter)}
                   <button
-                    className="outline-none "
+                    className="outline-none"
                     onClick={() => {
                       if (filter.key == "date") {
                         setSelectedFromDate(null);
@@ -505,12 +512,12 @@ function AllCalls({ }) {
       </div>
 
       {initialLoader ? (
-        <div className={`flex flex-row items-center justify-center mt-12 h-[67vh] overflow-auto`}>
+        <div className={`flex flex-row items-center justify-center mt-12 h-[${selectedUser?"43vh":"67vh"}] overflow-auto`}>
           <CircularProgress size={35} thickness={2} />
         </div>
       ) : (
         <div
-          className={`h-[67vh] overflow-auto`}
+          className={`h-[${selectedUser?"43vh":"67vh"}] overflow-auto`}
           id="scrollableDiv1"
           style={{ scrollbarWidth: "none" }}
         >
@@ -550,8 +557,8 @@ function AllCalls({ }) {
               <div>
                 {filteredCallDetails.map((item) => (
                   <div
-                    key={item.id} style={{cursor:'pointer'}}
-                    className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
+                    key={item.id}
+                    className="w-full flex flex-row justify-between items-center mt-10 px-10"
                   >
                     <div className="w-2/12 flex flex-row gap-2 items-center">
                       <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
@@ -983,7 +990,7 @@ function AllCalls({ }) {
   );
 }
 
-export default AllCalls;
+export default AdminAllCalls;
 
 //styles
 const styles = {

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import Apis from "../apis/Apis";
+import Apis from "@/components/apis/Apis";
 import axios from "axios";
 import { Box, CircularProgress, Modal, Popover } from "@mui/material";
 import moment from "moment";
 import { GetFormattedDateString } from "@/utilities/utility";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
 
-function SheduledCalls({}) {
+function AdminScheduledCalls({selectedUser}) {
   const [searchValue, setSearchValue] = useState("");
   //code for agent details
   const [callDetails, setCallDetails] = useState([]);
@@ -119,6 +119,9 @@ function SheduledCalls({}) {
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
       const ApiPath = `${Apis.getSheduledCallLogs}?scheduled=false`;
 
+      if(selectedUser){
+        ApiPath = ApiPath+"userId=" + selectedUser.id
+      }
      // console.log("Api path is: ", ApiPath); //scheduled
       // return
       const response = await axios.get(ApiPath, {
@@ -458,10 +461,10 @@ function SheduledCalls({}) {
             <CircularProgress size={35} />
           </div>
         ) : (
-          <div className={`h-["67vh"] overflow-auto`}  style={{ scrollbarWidth: "none" }}>
+          <div className={`h-[${selectedUser?"43vh":"67vh"}] overflow-auto`}  style={{ scrollbarWidth: "none" }}>
             {
               filteredAgentsList.length > 0 ? (
-                <div className={`h-["67vh] overflow-auto`}>
+                <div className={`h-[${selectedUser?"43vh":"67vh"}] overflow-auto`}>
                   {filteredAgentsList.map((item, index) => {
                     return (
                       <div key={index}>
@@ -1034,7 +1037,7 @@ function SheduledCalls({}) {
   );
 }
 
-export default SheduledCalls;
+export default AdminScheduledCalls;
 const styles = {
   text: {
     fontSize: 15,
