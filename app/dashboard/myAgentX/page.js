@@ -194,8 +194,9 @@ function Page() {
   const [user, setUser] = useState(null);
 
 
-  const [showRenameAgentPopup, setShowRenameAgentPopup] = useState(null)
+  const [showRenameAgentPopup, setShowRenameAgentPopup] = useState(false)
   const [renameAgent, setRenameAgent] = useState("")
+  const [selectedRenameAgent, setSelectedRenameAgent] = useState("")
   const [renameAgentLoader, setRenameAgentLoader] = useState(false)
 
   //call get numbers list api
@@ -847,9 +848,13 @@ function Page() {
 
         const ApiPath = Apis.updateAgent;
 
+        console.log('selectedRenameAgent', selectedRenameAgent)
+
         let apidata = {
-          name:showRenameAgentPopup?.name
+          mainAgentId:selectedRenameAgent.mainAgentId,
+          name:selectedRenameAgent?.name
         }
+        console.log('apidata', apidata)
 
         const response = await axios.post(ApiPath, apidata, {
           headers: {
@@ -858,7 +863,7 @@ function Page() {
         });
 
         if (response) {
-          setShowRenameAgentPopup(null)
+          setShowRenameAgentPopup(false)
           console.log("Response of update api is :--", response.data);
           // console.log("Respons eof update api is", response.data.data);
           setShowSuccessSnack(response.data.message);
@@ -1903,7 +1908,9 @@ function Page() {
                         </button>
 
                         <button onClick={() => {
-                          setShowRenameAgentPopup(item)
+                          setShowRenameAgentPopup(true)
+                          setSelectedRenameAgent(item)
+                          setRenameAgent(item.name)
                         }}>
                           <Image src={"/svgIcons/editPen.svg"}
                             height={24} width={24} alt="*"
@@ -2185,9 +2192,9 @@ function Page() {
 
       {/* Modal to rename the agent */}
       <Modal
-        open={showRenameAgentPopup != null}
+        open={showRenameAgentPopup}
         onClose={() => {
-          showRenameAgentPopup(null);
+          showRenameAgentPopup(false);
         }}
         BackdropProps={{
           timeout: 100,
@@ -2228,7 +2235,7 @@ function Page() {
                 >
                   <button
                     onClick={() => {
-                      setShowRenameAgentPopup(false);
+                      setShowRenameAgentPopup(null);
                     }}
                     className="outline-none"
                   >
@@ -2251,10 +2258,11 @@ function Page() {
                 </div>
                 <input
                   value={renameAgent}
+                  // value = {showRenameAgentPopup?.name}
                   onChange={(e) => {
                     setRenameAgent(e.target.value);
                   }}
-                  placeholder="Enter Agent title"
+                  placeholder={selectedRenameAgent?.name?selectedRenameAgent.name:"Enter agent title" }
                   className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
                   style={{ border: "1px solid #00000020" }}
                 />
