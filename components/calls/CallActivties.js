@@ -13,6 +13,7 @@ function SheduledCalls({}) {
   const Limit = 30;
   const [user, setUser] = useState(null);
   const [leadsLoading, setLeadsLoading] = useState(false);
+  const [hasMoreLeads, setHasMoreLeads] = useState(true);
   const [callsLoading, setCallsLoading] = useState(false);
   const [hasMoreCalls, setHasMoreCalls] = useState(true);
   const [searchValue, setSearchValue] = useState("");
@@ -348,26 +349,31 @@ function SheduledCalls({}) {
   const fetchLeadsInBatch = async (batch) => {
     console.log("Get leads for batch", batch);
     try {
+      let firstCall = false;
       setLeadsLoading(true);
       let leadsInBatchLocalData = localStorage.getItem(
         PersistanceKeys.LeadsInBatch + `${batch.id}`
       );
-      if (leadsInBatchLocalData) {
-        console.log("Data in localStorage for leads batch");
-        let leads = JSON.parse(leadsInBatchLocalData);
-        console.log("Leads ", leads.length);
-        setSelectedLeadsList(leads);
-        setFilteredSelectedLeadsList(leads);
-        setLeadsLoading(false);
-        // return;
-      } else {
-        console.log("No data in local storage lead batch");
+      if (selectedLeadsList.length == 0) {
+        firstCall = false;
+        if (leadsInBatchLocalData) {
+          console.log("Data in localStorage for leads batch");
+          let leads = JSON.parse(leadsInBatchLocalData);
+          console.log("Leads ", leads.length);
+          setSelectedLeadsList(leads);
+          setFilteredSelectedLeadsList(leads);
+          setLeadsLoading(false);
+          // return;
+        } else {
+          console.log("No data in local storage lead batch");
+        }
       }
 
       const token = user.token; // Extract JWT token
 
       const response = await fetch(
-        "/api/calls/leadsInABatch" + `?batchId=${batch.id}`,
+        "/api/calls/leadsInABatch" +
+          `?batchId=${batch.id}&offset=${selectedLeadsList.length}`,
         {
           method: "GET",
           headers: {
@@ -381,12 +387,32 @@ function SheduledCalls({}) {
 
       if (response.ok) {
         console.log("Leads In Batch:", data);
-        setSelectedLeadsList(data.data);
-        setFilteredSelectedLeadsList(data.data);
-        localStorage.setItem(
-          PersistanceKeys.LeadsInBatch + `${batch.id}`,
-          JSON.stringify(data.data)
-        );
+        // setSelectedLeadsList(data.data);
+        // setFilteredSelectedLeadsList(data.data);
+        // localStorage.setItem(
+        //   PersistanceKeys.LeadsInBatch + `${batch.id}`,
+        //   JSON.stringify(data.data)
+        // );
+
+        if (firstCall) {
+          setSelectedLeadsList(data.data);
+          setFilteredSelectedLeadsList(data.data);
+          localStorage.setItem(
+            PersistanceKeys.LeadsInBatch + `${batch.id}`,
+            JSON.stringify(data.data)
+          );
+        } else {
+          setSelectedLeadsList((prev) => [...prev, ...data.data]);
+          setFilteredSelectedLeadsList((prev) => [...prev, ...data.data]);
+        }
+
+        // setShowDetailsModal(true);
+
+        if (data.data.length < Limit) {
+          setHasMoreLeads(false);
+        } else {
+          setHasMoreLeads(true);
+        }
         // setStats(data.stats.data);
       } else {
         console.error("Failed to fetch leads in batch:", data.message);
@@ -698,7 +724,7 @@ function SheduledCalls({}) {
         )}
       </div>
 
-      {/* Modals goes here */}
+      {/* Calls List modal goes here */}
       <Modal
         open={showDetailsModal}
         onClose={() => setShowDetailsModal(false)}
@@ -920,7 +946,7 @@ function SheduledCalls({}) {
         </Box>
       </Modal>
 
-      {/* Modals goes here */}
+      {/* Leads list modal goes here */}
       <Modal
         open={showLeadDetailsModal}
         onClose={() => setShowLeadDetailsModal(false)}
@@ -1017,81 +1043,124 @@ function SheduledCalls({}) {
                       <div className="w-2/12">Status</div>
                     </div>
 
-                    {filteredSelectedLeadsList.length > 0 ? (
-                      <div className="w-full">
-                        {filteredSelectedLeadsList.map((item, index) => (
-                          <div
-                            key={index}
-                            className="w-full mt-4"
-                            style={{
-                              fontSize: 15,
-                              fontWeight: 500,
-                              scrollbarWidth: "none",
+                    <div
+                      className="h-[70svh] overflow-auto pb-[100px] mt-6"
+                      id="scrollableDiv1"
+                      style={{ scrollbarWidth: "none" }}
+                    >
+                      {filteredSelectedLeadsList.length > 0 ? (
+                        <div className="w-full">
+                          <InfiniteScroll
+                            className="lg:flex hidden flex-col w-full"
+                            endMessage={
+                              <p
+                                style={{
+                                  textAlign: "center",
+                                  paddingTop: "10px",
+                                  fontWeight: "400",
+                                  fontFamily: "inter",
+                                  fontSize: 16,
+                                  color: "#00000060",
+                                }}
+                              >
+                                {`You're all caught up`}
+                              </p>
+                            }
+                            scrollableTarget="scrollableDiv1"
+                            dataLength={filteredSelectedLeadsList.length}
+                            next={() => {
+                              fetchLeadsInBatch(SelectedItem);
                             }}
-                          >
-                            <div
-                              className="flex flex-row items-center mt-4"
-                              style={{ fontSize: 15, fontWeight: 500 }}
-                            >
-                              <div className="w-3/12 flex flex-row items-center gap-2 truncate">
-                                <div className="h-[40px] w-[40px] rounded-full bg-black flex items-center justify-center text-white flex-shrink-0">
-                                  {item?.firstName?.charAt(0).toUpperCase()}
-                                </div>
-                                <div>
-                                  <div className="truncate w-[100px]">
-                                    {item?.firstName} {item?.lastName}
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="w-2/12 truncate">
-                                {item?.phone || "-"}
-                              </div>
-                              <div className="w-3/12 truncate">
-                                {item?.address || "-"}
-                              </div>
-                              <div className="w-2/12">
-                                {item.tags.length > 0 ? (
-                                  <div className="w-full truncate flex flex-row items-center gap-1">
-                                    {item.tags.slice(0, 1).map((tag, index) => (
-                                      <div
-                                        key={index}
-                                        className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg text-purple"
-                                      >
-                                        {tag}
-                                      </div>
-                                    ))}
-                                    {item.tags.length > 1 && (
-                                      <div
-                                        className="text-purple underline cursor-pointer"
-                                        onClick={() => {
-                                          setExtraTagsModal(true);
-                                          setOtherTags(item.tags);
-                                        }}
-                                      >
-                                        +{item.tags.length - 1}
-                                      </div>
-                                    )}
-                                  </div>
-                                ) : (
-                                  "-"
+                            hasMore={hasMoreLeads}
+                            loader={
+                              <div className="w-full flex flex-row justify-center mt-8">
+                                {leadsLoading && (
+                                  <CircularProgress
+                                    size={35}
+                                    sx={{ color: "#7902DF" }}
+                                  />
                                 )}
                               </div>
-                              <div className="w-2/12 truncate">
-                                {item?.status || "-"}
+                            }
+                            style={{ overflow: "unset" }}
+                          >
+                            {filteredSelectedLeadsList.map((item, index) => (
+                              <div
+                                key={index}
+                                className="w-full mt-4"
+                                style={{
+                                  fontSize: 15,
+                                  fontWeight: 500,
+                                  scrollbarWidth: "none",
+                                }}
+                              >
+                                <div
+                                  className="flex flex-row items-center mt-4"
+                                  style={{ fontSize: 15, fontWeight: 500 }}
+                                >
+                                  <div className="w-3/12 flex flex-row items-center gap-2 truncate">
+                                    <div className="h-[40px] w-[40px] rounded-full bg-black flex items-center justify-center text-white flex-shrink-0">
+                                      {item?.firstName?.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div>
+                                      <div className="truncate w-[100px]">
+                                        {item?.firstName} {item?.lastName}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="w-2/12 truncate">
+                                    {item?.phone || "-"}
+                                  </div>
+                                  <div className="w-3/12 truncate">
+                                    {item?.address || "-"}
+                                  </div>
+                                  <div className="w-2/12">
+                                    {item.tags.length > 0 ? (
+                                      <div className="w-full truncate flex flex-row items-center gap-1">
+                                        {item.tags
+                                          .slice(0, 1)
+                                          .map((tag, index) => (
+                                            <div
+                                              key={index}
+                                              className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg text-purple"
+                                            >
+                                              {tag}
+                                            </div>
+                                          ))}
+                                        {item.tags.length > 1 && (
+                                          <div
+                                            className="text-purple underline cursor-pointer"
+                                            onClick={() => {
+                                              setExtraTagsModal(true);
+                                              setOtherTags(item.tags);
+                                            }}
+                                          >
+                                            +{item.tags.length - 1}
+                                          </div>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      "-"
+                                    )}
+                                  </div>
+                                  <div className="w-2/12 truncate">
+                                    {item?.status || "-"}
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : !leadsLoading ? (
-                      <div className="text-center mt-6 text-3xl">
-                        No Call Found
-                      </div>
-                    ) : (
-                      <div className="text-center mt-6 text-3xl">
-                        Loading...
-                      </div>
-                    )}
+                            ))}
+                          </InfiniteScroll>
+                        </div>
+                      ) : !leadsLoading ? (
+                        <div className="text-center mt-6 text-3xl">
+                          No Call Found
+                        </div>
+                      ) : (
+                        <div className="text-center mt-6 text-3xl">
+                          Loading...
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
