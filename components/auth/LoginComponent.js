@@ -247,6 +247,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   //code to show verify popup
 
   const handleVerifyPopup = async () => {
+    console.log('button clicked')
     try {
       setShowVerifyPopup(true);
       setSendcodeLoader(true);
@@ -486,6 +487,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           // console.log("Response message is :", response.data.message);
           setCheckPhoneResponse(response.data.status);
         } else if (response.data.status === false) {
+          console.log('response.data.message', response.data.message)
           setCheckPhoneResponse(response.data.status);
         }
       }
@@ -719,6 +721,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                         handleVerifyPopup();
                       }
                       // setShowVerifyPopup(true)
+                      // handleVerifyPopup();
+
                     }}
                   >
                     <ArrowRight size={20} weight="bold" />
