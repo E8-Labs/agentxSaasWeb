@@ -52,6 +52,7 @@ const Userleads = ({
   shouldSet,
   setSetData,
 }) => {
+  const LimitPerPage = 30;
   const bottomRef = useRef(null);
 
   //Sheet Caching related
@@ -795,7 +796,7 @@ const Userleads = ({
               ////console.log("leads not already cached for sheet ", id);
             }
 
-            if (data.length < 100) {
+            if (data.length < LimitPerPage) {
               setHasMore(false);
             } else {
               setHasMore(true);

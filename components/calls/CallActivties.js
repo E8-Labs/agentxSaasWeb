@@ -6,8 +6,15 @@ import { Box, CircularProgress, Modal, Popover } from "@mui/material";
 import moment from "moment";
 import { GetFormattedDateString } from "@/utilities/utility";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
+import { PersistanceKeys } from "@/constants/Constants";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 function SheduledCalls({}) {
+  const Limit = 30;
+  const [user, setUser] = useState(null);
+  const [leadsLoading, setLeadsLoading] = useState(false);
+  const [callsLoading, setCallsLoading] = useState(false);
+  const [hasMoreCalls, setHasMoreCalls] = useState(true);
   const [searchValue, setSearchValue] = useState("");
   //code for agent details
   const [callDetails, setCallDetails] = useState([]);
@@ -40,14 +47,19 @@ function SheduledCalls({}) {
 
   useEffect(() => {
     getAgents();
+    let localD = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    if (localD) {
+      let d = JSON.parse(localD);
+      setUser(d);
+    }
     // getSheduledCallLogs();
   }, []);
 
   //code to show popover
   const handleShowPopup = (event, item, agent) => {
     setAnchorEl(event.currentTarget);
-   // console.log("Selected item details are ", item);
-   // console.log("Selected agent  details are ", agent);
+    // console.log("Selected item details are ", item);
+    // console.log("Selected agent  details are ", agent);
     setSelectedAgent(agent);
     setSelectedItem(item);
   };
@@ -61,12 +73,12 @@ function SheduledCalls({}) {
 
   //code for showing the selected agent leads
   const handleShowLeads = (agent, item) => {
-   // console.log("Agent selected is:", agent);
-   // console.log("Item selected is:", item);
+    // console.log("Agent selected is:", agent);
+    // console.log("Item selected is:", item);
     setSelectedAgent(agent);
     setSelectedItem(item);
-    setSelectedLeadsList(item.leads);
-    setFilteredSelectedLeadsList(item.leads);
+    // setSelectedLeadsList([]);
+    // setFilteredSelectedLeadsList([]);
     setShowLeadDetailsModal(true);
   };
 
@@ -102,24 +114,24 @@ function SheduledCalls({}) {
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-       // console.log("Localdat recieved is :--", Data);
+        // console.log("Localdat recieved is :--", Data);
         AuthToken = Data.token;
       }
 
-     // console.log("Auth token is:", AuthToken);
+      // console.log("Auth token is:", AuthToken);
 
       let mainAgent = null;
       const localAgent = localStorage.getItem("agentDetails");
       if (localAgent) {
         const agentDetails = JSON.parse(localAgent);
-       // console.log("Check 1 cleear");
-       // console.log("Agent details are:", agentDetails);
+        // console.log("Check 1 cleear");
+        // console.log("Agent details are:", agentDetails);
         mainAgent = agentDetails;
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
       const ApiPath = `${Apis.getSheduledCallLogs}?scheduled=false`;
 
-     // console.log("Api path is: ", ApiPath); //scheduled
+      // console.log("Api path is: ", ApiPath); //scheduled
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -129,14 +141,14 @@ function SheduledCalls({}) {
       });
 
       if (response) {
-       console.log("Response of get sheduled api is:", response.data.data);
+        console.log("Response of get sheduled api is:", response.data.data);
 
         setFilteredAgentsList(response.data.data);
         setCallDetails(response.data.data);
         setAgentsList(response.data.data);
       }
     } catch (error) {
-     // console.error("Error occured in get Agents api is :", error);
+      // console.error("Error occured in get Agents api is :", error);
     } finally {
       setInitialLoader(false);
     }
@@ -145,32 +157,17 @@ function SheduledCalls({}) {
   //code to show call log details popup
 
   const handleShowDetails = () => {
-   // console.log("Details of item are:", SelectedItem)
-    // const AgentId = filteredAgentsList.map((item) => item.id);
-    //// console.log("Agent id is:", AgentId);
-   // console.log("selected agent is:", SelectedAgent);
-   // console.log("Call log details are :", callDetails);
-    let updatedCallDetails = callDetails.map((item) => item.agentCalls);
-    let CallsArray = [];
-
-    // updatedCallDetails.forEach((item) => {
-    //     if (item.agentId === SelectedItem.id) {
-    //         CallsArray.push(item);
-    //     }
+    fetchCallsInBatch(SelectedItem);
+    // let updatedCallDetails = callDetails.map((item) => item.agentCalls);
+    // let CallsArray = [];
+    // let matchingPastCallsLeads = SelectedItem.leads.filter((lead) => {
+    //   lead.id === SelectedItem.pastCalls.map((item) => item.leadId);
+    //   return lead;
     // });
 
-    //// console.log("Calls of this agent are :", CallsArray);
-
-    let matchingPastCallsLeads = SelectedItem.leads.filter((lead) => {
-      lead.id === SelectedItem.pastCalls.map((item) => item.leadId);
-      return lead;
-    });
-
-   // console.log("Matching lead with the past call", SelectedItem.pastCalls);
-
-    setSheduledCalllogs(SelectedItem.pastCalls);
-    setFilteredSheduledCalllogs(SelectedItem.pastCalls);
-    setShowDetailsModal(true);
+    // setSheduledCalllogs(SelectedItem.pastCalls);
+    // setFilteredSheduledCalllogs(SelectedItem.pastCalls);
+    // setShowDetailsModal(true);
   };
 
   //code to filter slected agent leads
@@ -225,28 +222,28 @@ function SheduledCalls({}) {
   const [PauseLoader, setPauseLoader] = useState(false);
   //code to pause the agent
   const pauseAgents = async () => {
-   // console.log("Selected agent is:", SelectedItem);
+    // console.log("Selected agent is:", SelectedItem);
 
     try {
       setPauseLoader(true);
       const ApiPath = Apis.pauseAgent;
 
-     // console.log("Api path is: ", ApiPath);
+      // console.log("Api path is: ", ApiPath);
 
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-       // console.log("Localdat recieved is :--", Data);
+        // console.log("Localdat recieved is :--", Data);
         AuthToken = Data.token;
       }
 
-     // console.log("Auth token is:", AuthToken);
+      // console.log("Auth token is:", AuthToken);
       const ApiData = {
         // mainAgentId: SelectedItem.id
         batchId: SelectedItem.id,
       };
-     // console.log("Apidata is", ApiData);
+      // console.log("Apidata is", ApiData);
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -256,7 +253,7 @@ function SheduledCalls({}) {
       });
 
       if (response) {
-       // console.log("Response of get agents api is:", response.data);
+        // console.log("Response of get agents api is:", response.data);
         if (response.data.status === true) {
           setShowConfirmationPopup(null);
           let currentStatus = filteredAgentsList.map((item) => {
@@ -270,7 +267,7 @@ function SheduledCalls({}) {
             // Return the item unchanged
             return item;
           });
-         // console.log("Current status is:", currentStatus);
+          // console.log("Current status is:", currentStatus);
 
           setFilteredAgentsList(currentStatus);
           handleClosePopup();
@@ -279,7 +276,7 @@ function SheduledCalls({}) {
         // setAgentsList(response.data.data);
       }
     } catch (error) {
-     // console.error("Error occured in get Agents api is :", error);
+      // console.error("Error occured in get Agents api is :", error);
     } finally {
       setPauseLoader(false);
     }
@@ -287,29 +284,29 @@ function SheduledCalls({}) {
 
   //function to resume calls
   const resumeCalls = async () => {
-   // console.log("Selected agent is:", SelectedItem);
-   // console.log("Resume call api trigered")
+    // console.log("Selected agent is:", SelectedItem);
+    // console.log("Resume call api trigered")
     // return
     try {
       setPauseLoader(true);
       const ApiPath = Apis.resumeCalls;
 
-     // console.log("Api path is: ", ApiPath);
+      // console.log("Api path is: ", ApiPath);
 
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-       // console.log("Localdat recieved is :--", Data);
+        // console.log("Localdat recieved is :--", Data);
         AuthToken = Data.token;
       }
 
-     // console.log("Auth token is:", AuthToken);
+      // console.log("Auth token is:", AuthToken);
       const ApiData = {
         // mainAgentId: SelectedItem.id
         batchId: SelectedItem.id,
       };
-     // console.log("Apidata is", ApiData);
+      // console.log("Apidata is", ApiData);
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -319,7 +316,7 @@ function SheduledCalls({}) {
       });
 
       if (response) {
-       // console.log("Response of get agents api is:", response.data);
+        // console.log("Response of get agents api is:", response.data);
         if (response.data.status === true) {
           setShowConfirmationPopup(null);
           let currentStatus = filteredAgentsList.map((item) => {
@@ -333,7 +330,7 @@ function SheduledCalls({}) {
             // Return the item unchanged
             return item;
           });
-         // console.log("Current status is:", currentStatus);
+          // console.log("Current status is:", currentStatus);
 
           setFilteredAgentsList(currentStatus);
           handleClosePopup();
@@ -342,11 +339,144 @@ function SheduledCalls({}) {
         // setAgentsList(response.data.data);
       }
     } catch (error) {
-     // console.error("Error occured in get Agents api is :", error);
+      // console.error("Error occured in get Agents api is :", error);
     } finally {
       setPauseLoader(false);
     }
   };
+
+  const fetchLeadsInBatch = async (batch) => {
+    console.log("Get leads for batch", batch);
+    try {
+      setLeadsLoading(true);
+      let leadsInBatchLocalData = localStorage.getItem(
+        PersistanceKeys.LeadsInBatch + `${batch.id}`
+      );
+      if (leadsInBatchLocalData) {
+        console.log("Data in localStorage for leads batch");
+        let leads = JSON.parse(leadsInBatchLocalData);
+        console.log("Leads ", leads.length);
+        setSelectedLeadsList(leads);
+        setFilteredSelectedLeadsList(leads);
+        setLeadsLoading(false);
+        // return;
+      } else {
+        console.log("No data in local storage lead batch");
+      }
+
+      const token = user.token; // Extract JWT token
+
+      const response = await fetch(
+        "/api/calls/leadsInABatch" + `?batchId=${batch.id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      setLeadsLoading(false);
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Leads In Batch:", data);
+        setSelectedLeadsList(data.data);
+        setFilteredSelectedLeadsList(data.data);
+        localStorage.setItem(
+          PersistanceKeys.LeadsInBatch + `${batch.id}`,
+          JSON.stringify(data.data)
+        );
+        // setStats(data.stats.data);
+      } else {
+        console.error("Failed to fetch leads in batch:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching leads in batch:", error);
+    }
+  };
+
+  const fetchCallsInBatch = async (batch) => {
+    console.log("Get calls for batch", batch);
+    try {
+      let firstCall = false;
+      setCallsLoading(true);
+      if (sheduledCalllogs.length == 0) {
+        firstCall = true;
+        // let leadsInBatchLocalData = localStorage.getItem(
+        //   PersistanceKeys.CallsInBatch + `${batch.id}`
+        // );
+        // if (leadsInBatchLocalData) {
+        //   // console.log("Data in localStorage for leads batch");
+        //   let calls = JSON.parse(leadsInBatchLocalData);
+        //   console.log("Leads ", calls.length);
+        //   setSheduledCalllogs(calls);
+        //   setFilteredSheduledCalllogs(calls);
+        //   setShowDetailsModal(true);
+        //   setCallsLoading(false);
+        //   // return;
+        // } else {
+        //   console.log("No data in local storage lead batch");
+        // }
+      }
+
+      const token = user.token; // Extract JWT token
+      console.log("Here");
+      const response = await fetch(
+        "/api/calls/callsInABatch" +
+          `?batchId=${batch.id}&offset=${sheduledCalllogs.length}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("Here 2", response);
+      setCallsLoading(false);
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Calls In Batch:", data);
+        if (firstCall) {
+          setSheduledCalllogs(data.data.pastCalls);
+          setFilteredSheduledCalllogs(data.data.pastCalls);
+          localStorage.setItem(
+            PersistanceKeys.CallsInBatch + `${batch.id}`,
+            JSON.stringify(data.data.pastCalls)
+          );
+        } else {
+          setSheduledCalllogs((prev) => [...prev, ...data.data.pastCalls]);
+          setFilteredSheduledCalllogs((prev) => [
+            ...prev,
+            ...data.data.pastCalls,
+          ]);
+        }
+
+        // setShowDetailsModal(true);
+
+        if (data.data.pastCalls.length < Limit) {
+          setHasMoreCalls(false);
+        } else {
+          setHasMoreCalls(true);
+        }
+        // setStats(data.stats.data);
+      } else {
+        console.error("Failed to fetch leads in batch:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching leads in batch:", error);
+    }
+  };
+
+  function GetLoadingOrNoCallsView() {
+    if (callsLoading) {
+      return <div className="text-center mt-6 text-3xl">Loading...</div>;
+    } else if (!callsLoading && sheduledCalllogs.length == 0) {
+      return <div className="text-center mt-6 text-3xl">No Call Found</div>;
+    }
+  }
 
   return (
     <div className="w-full items-start overflow-hidden">
@@ -383,22 +513,19 @@ function SheduledCalls({}) {
               <button
                 className="text-start outline-none"
                 onClick={() => {
-
                   if (SelectedItem?.status == "Paused") {
                     //// console.log("Calls are paused")
                     setColor(true);
-                    setShowConfirmationPopup("resume Calls")
+                    setShowConfirmationPopup("resume Calls");
                   } else {
                     //// console.log("Calls are active")
-                    setShowConfirmationPopup("pause Calls")
+                    setShowConfirmationPopup("pause Calls");
                     setColor(false);
                   }
-                 // console.log("Cha")
+                  // console.log("Cha")
                 }}
               >
-                {SelectedItem?.status == "Paused"
-                  ? "Run Calls"
-                  : "Pause Calls"}
+                {SelectedItem?.status == "Paused" ? "Run Calls" : "Pause Calls"}
               </button>
             )}
           </div>
@@ -406,7 +533,10 @@ function SheduledCalls({}) {
           <button
             className="text-start outline-none"
             onClick={() => {
-              handleShowDetails();
+              setShowDetailsModal(true);
+              setHasMoreCalls(true);
+              fetchCallsInBatch(SelectedItem);
+              // handleShowDetails();
             }}
           >
             View Details
@@ -426,8 +556,7 @@ function SheduledCalls({}) {
         />
       )}
 
-      <div className="flex w-full pl-10 flex-row items-start gap-3 overflow-hidden">
-      </div>
+      <div className="flex w-full pl-10 flex-row items-start gap-3 overflow-hidden"></div>
 
       <div className="w-full flex flex-row justify-between mt-10 px-10">
         <div className="w-3/12">
@@ -446,9 +575,7 @@ function SheduledCalls({}) {
           <div style={styles.text}>Call Status</div>
         </div>
         <div className="w-1/12">
-          <div style={styles.text}>
-            Action
-          </div>
+          <div style={styles.text}>Action</div>
         </div>
       </div>
 
@@ -458,22 +585,24 @@ function SheduledCalls({}) {
             <CircularProgress size={35} />
           </div>
         ) : (
-          <div className={`h-["67vh"] overflow-auto`}  style={{ scrollbarWidth: "none" }}>
-            {
-              filteredAgentsList.length > 0 ? (
-                <div className={`h-["67vh] overflow-auto`}>
-                  {filteredAgentsList.map((item, index) => {
-                    return (
-                      <div key={index}>
-                        {item.agents.map((agent, index) => {
-                          return (
-                            <div key={index}>
-                              <div
-                                className="w-full flex flex-row items-center justify-between mt-10 px-10"
-                                key={index}
-                              >
-                                <div className="w-3/12 flex flex-row gap-4 items-center">
-                                  {/* {agent?.agents[0]?.thumb_profile_image ? (
+          <div
+            className={`h-["67vh"] overflow-auto`}
+            style={{ scrollbarWidth: "none" }}
+          >
+            {filteredAgentsList.length > 0 ? (
+              <div className={`h-["67vh] overflow-auto`}>
+                {filteredAgentsList.map((item, index) => {
+                  return (
+                    <div key={index}>
+                      {item.agents.map((agent, index) => {
+                        return (
+                          <div key={index}>
+                            <div
+                              className="w-full flex flex-row items-center justify-between mt-10 px-10"
+                              key={index}
+                            >
+                              <div className="w-3/12 flex flex-row gap-4 items-center">
+                                {/* {agent?.agents[0]?.thumb_profile_image ? (
                                     <Image
                                       className="rounded-full"
                                       src={agent?.agents[0].thumb_profile_image}
@@ -492,77 +621,79 @@ function SheduledCalls({}) {
                                     </div>
                                   )} */}
 
-                                  <div>
-                                    {getAgentsListImage(agent?.agents[0])}
-                                  </div>
+                                <div>
+                                  {getAgentsListImage(agent?.agents[0])}
+                                </div>
 
-                                  <div style={styles.text2}>{agent.name}</div>
-                                </div>
-                                <div className="w-2/12 ">
-                                  {agent?.agents[0]?.agentObjective ? (
-                                    <div style={styles.text2}>
-                                      {agent.agents[0]?.agentObjective}
-                                    </div>
-                                  ) : (
-                                    "-"
-                                  )}
-                                </div>
-                                <div className="w-1/12">
-                                  <button
-                                    style={styles.text2}
-                                    className="text-purple underline outline-none"
-                                    onClick={() => {
-                                      handleShowLeads(agent, item);
-                                    }}
-                                  >
-                                    {item?.totalLeads}
-                                  </button>
-                                </div>
-                                <div className="w-1/12">
-                                  {item?.createdAt ? (
-                                    <div style={styles.text2}>
-                                      {GetFormattedDateString(
-                                        item?.createdAt
-                                      )}
-                                    </div>
-                                  ) : (
-                                    "-"
-                                  )}
-                                </div>
-                                <div className="w-2/12">
-                                  
-                                  {item.status}
-                                </div>
-                                <div className="w-1/12">
-                                  <button
-                                    aria-describedby={id}
-                                    variant="contained"
-                                    onClick={(event) => {
-                                      handleShowPopup(event, item, agent);
-                                    }}
-                                  >
-                                    <Image
-                                      src={"/otherAssets/threeDotsIcon.png"}
-                                      height={24}
-                                      width={24}
-                                      alt="icon"
-                                    />
-                                  </button>
-                                </div>
+                                <div style={styles.text2}>{agent.name}</div>
+                              </div>
+                              <div className="w-2/12 ">
+                                {agent?.agents[0]?.agentObjective ? (
+                                  <div style={styles.text2}>
+                                    {agent.agents[0]?.agentObjective}
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
+                              </div>
+                              <div className="w-1/12">
+                                <button
+                                  style={styles.text2}
+                                  className="text-purple underline outline-none"
+                                  onClick={() => {
+                                    fetchLeadsInBatch(item);
+                                    handleShowLeads(agent, item);
+                                  }}
+                                >
+                                  {item?.totalLeads}
+                                </button>
+                              </div>
+                              <div className="w-1/12">
+                                {item?.createdAt ? (
+                                  <div style={styles.text2}>
+                                    {GetFormattedDateString(item?.createdAt)}
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
+                              </div>
+                              <div className="w-2/12">{item.status}</div>
+                              <div className="w-1/12">
+                                <button
+                                  aria-describedby={id}
+                                  variant="contained"
+                                  onClick={(event) => {
+                                    handleShowPopup(event, item, agent);
+                                  }}
+                                >
+                                  <Image
+                                    src={"/otherAssets/threeDotsIcon.png"}
+                                    height={24}
+                                    width={24}
+                                    alt="icon"
+                                  />
+                                </button>
                               </div>
                             </div>
-                          );
-                        })}
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div style={{ fontWeight: "600", fontSize: 24, textAlign: "center", marginTop: 20 }}>
-                  No Call Activity Found
-                </div>
-              )
-            }
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div
+                style={{
+                  fontWeight: "600",
+                  fontSize: 24,
+                  textAlign: "center",
+                  marginTop: 20,
+                }}
+              >
+                No Call Activity Found
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -576,175 +707,211 @@ function SheduledCalls({}) {
           timeout: 100,
           sx: {
             backgroundColor: "#00000020",
-            // //backdropFilter: "blur(20px)",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100svh",
           },
         }}
       >
         <Box
-          className="sm:w-10/12 lg:w-10/12 xl:w-8/12 w-11/12"
-          sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
+          className="flex flex-col justify-center items-center w-full h-[100svh] "
+          sx={{ scrollbarWidth: "none" }}
         >
-          <div className="flex flex-row justify-center w-full max-h-[80svh]">
-            <div
-              className="sm:w-10/12 w-full"
-              style={{
-                backgroundColor: "#ffffff",
-                padding: 20,
-                borderRadius: "13px",
-              }}
-            >
+          <div className="flex flex-row justify-center w-full h-[90svh] ">
+            <div className="sm:w-10/12 lg:w-9/12 xl:w-6/12 w-9/12 bg-white p-5 rounded-lg">
               <div className="flex flex-row justify-end">
                 <button
                   onClick={() => {
                     setShowDetailsModal(false);
+                    setSheduledCalllogs([]);
+                    setFilteredSheduledCalllogs([]);
+                    setHasMoreCalls(true);
                   }}
                 >
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src="/assets/crossIcon.png"
                     height={40}
                     width={40}
                     alt="*"
                   />
                 </button>
               </div>
-              <div>
+              <div className="overflow-hidden">
                 {AgentCallLogLoader ? (
                   <div className="flex flex-row items-center justify-center h-full">
                     <CircularProgress size={35} />
                   </div>
                 ) : (
-                  <div>
-                    <div>
-                      {SelectedAgent?.name.slice(0, 1).toUpperCase() +
-                        SelectedAgent?.name.slice(1)}{" "}
-                      call activity
+                  <div className="flex flex-col h-full overflow-hidden">
+                    <div className="flex flex-col h-[20%] flex-shrink-0">
+                      <div>
+                        {SelectedAgent?.name
+                          ? SelectedAgent.name.charAt(0).toUpperCase() +
+                            SelectedAgent.name.slice(1)
+                          : ""}{" "}
+                        call activity
+                      </div>
+                      <div className="flex w-full items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm mt-6">
+                        <input
+                          type="text"
+                          placeholder="Search by name or phone"
+                          className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0"
+                          value={detailsFilterSearchValue}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            handleDetailsSearchChange(value);
+                            setDetailsFilterSearchValue(value);
+                          }}
+                        />
+                        <img
+                          src="/otherAssets/searchIcon.png"
+                          alt="Search"
+                          width={20}
+                          height={20}
+                        />
+                      </div>
                     </div>
-
-                    <div className="flex w-full items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm mt-6">
-                      <input
-                        type="text"
-                        placeholder="Search by name or phone"  //, email
-                        className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0"
-                        value={detailsFilterSearchValue}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          handleDetailsSearchChange(value);
-                          setDetailsFilterSearchValue(e.target.value);
-                        }}
-                      />
-                      <img
-                        src={"/otherAssets/searchIcon.png"}
-                        alt="Search"
-                        width={20}
-                        height={20}
-                      />
-                    </div>
-
                     <div
-                      className="flex flex-row items-center mt-6"
-                      style={{
-                        fontSize: 15,
-                        fontWeight: "500",
-                        color: "#00000070",
-                      }}
+                      className="overflow-auto pb-4 flex-grow max-h-[74vh]"
+                      id="scrollableDiv1"
+                      style={{ scrollbarWidth: "none" }}
                     >
-                      <div className="w-3/12">Name</div>
-                      <div className="w-2/12">Phone Number</div>
-                      <div className="w-3/12">Address</div>
-                      <div className="w-2/12">Tag</div>
-                      <div className="w-2/12">Status</div>
-                    </div>
-
-                    {sheduledCalllogs.length > 0 ? (
-                      <div
-                        className="w-full max-h[92%] overflow-auto"
-                        style={{
-                          scrollbarWidth: "none"
+                      <InfiniteScroll
+                        className="flex flex-col "
+                        endMessage={
+                          <p
+                            style={{
+                              textAlign: "center",
+                              paddingTop: "10px",
+                              fontWeight: "400",
+                              fontFamily: "inter",
+                              fontSize: 16,
+                              color: "#00000060",
+                            }}
+                          >
+                            {`You're all caught up`}
+                          </p>
+                        }
+                        scrollableTarget="scrollableDiv1"
+                        dataLength={filteredSheduledCalllogs.length}
+                        next={() => {
+                          console.log("Fetch more calls here");
+                          fetchCallsInBatch(SelectedItem);
                         }}
+                        hasMore={hasMoreCalls}
+                        loader={
+                          <div className="w-full flex flex-row justify-center mt-8">
+                            {callsLoading && (
+                              <CircularProgress
+                                size={35}
+                                sx={{ color: "#7902DF" }}
+                              />
+                            )}
+                          </div>
+                        }
+                        style={{ overflow: "unset" }}
                       >
-                        {filteredSheduledCalllogs.map((item, index) => {
-                          return (
-                            <div
-                              key={index}
-                              className="w-full mt-4"
-                              style={{
-                                fontSize: 15,
-                                fontWeight: "500",
-                                scrollbarWidth: "none",
-                              }}
-                            >
+                        <div
+                          className="flex flex-row items-center mt-6"
+                          style={{
+                            fontSize: 15,
+                            fontWeight: "500",
+                            color: "#00000070",
+                          }}
+                        >
+                          <div className="w-3/12">Name</div>
+                          <div className="w-2/12">Phone Number</div>
+                          <div className="w-3/12">Address</div>
+                          <div className="w-2/12">Tag</div>
+                          <div className="w-2/12">Status</div>
+                        </div>
+                        {filteredSheduledCalllogs.length > 0 ? (
+                          <div
+                            className="w-full "
+                            style={{ scrollbarWidth: "none" }}
+                          >
+                            {filteredSheduledCalllogs.map((item, index) => (
                               <div
-                                className="flex flex-row items-center mt-4"
-                                style={{ fontSize: 15, fontWeight: "500" }}
+                                key={index}
+                                className="w-full mt-4"
+                                style={{
+                                  fontSize: 15,
+                                  fontWeight: "500",
+                                  scrollbarWidth: "none",
+                                }}
                               >
-                                <div className="w-3/12 flex flex-row items-center gap-2 truncate">
-                                  <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white flex-shrink-0">
-                                    {item?.LeadModel.firstName.slice(0, 1).toUpperCase()}
-                                  </div>
-                                  <div className="truncate" style={{
-                                    width: "100px",
-                                    textOverflow: "ellipsis"
-                                  }}>
-                                    {item?.LeadModel.firstName} {item?.LeadModel.lastName}
-                                  </div>
-                                  {/* <div style={{ fontSize: 11, fontWeight: "500", color: "#00000060" }}>
-                                                                                        {item?.email}
-                                                                                    </div> */}
-                                </div>
-                                <div className="w-2/12 truncate">
-                                  {item?.LeadModel.phone}
-                                </div>
-                                <div className="w-3/12 truncate">
-                                  {item?.LeadModel.address || "-"}
-                                </div>
-                                <div className="w-2/12 truncate flex flex-row items-center gap-2">
-                                  {item?.tags?.length > 0 ? (
-                                    <div className="flex flex-row gap-2">
-                                      {item?.tags?.slice(0, 2).map((tag, index) => {
-                                        return (
-                                          <div
-                                            key={index}
-                                            className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg text-purple"
-                                          >
-                                            {tag}
-                                          </div>
-                                        );
-                                      })}
+                                <div
+                                  className="flex flex-row items-center mt-4"
+                                  style={{ fontSize: 15, fontWeight: "500" }}
+                                >
+                                  <div className="w-3/12 flex flex-row items-center gap-2 truncate">
+                                    <div className="h-[40px] w-[40px] rounded-full bg-black flex items-center justify-center text-white flex-shrink-0">
+                                      {item?.LeadModel?.firstName
+                                        ?.charAt(0)
+                                        .toUpperCase()}
                                     </div>
-                                  ) : (
-                                    "-"
-                                  )
-                                  }
-                                  {item?.tags?.length > 1 && (
                                     <div
-                                      key={index}
-                                      className="text-purple underline cursor-pointer"
+                                      className="truncate"
                                       style={{
-                                        fontWeight: "500",
-                                        fontSize: 13,
-                                      }}
-                                      onClick={() => {
-                                        setExtraTagsModal(true);
-                                        setOtherTags(item?.tags);
+                                        width: "100px",
+                                        textOverflow: "ellipsis",
                                       }}
                                     >
-                                      {item.tags.length - 1}
+                                      {item?.LeadModel.firstName}{" "}
+                                      {item?.LeadModel.lastName}
                                     </div>
-                                  )}
-                                </div>
-                                <div className="w-2/12 truncate">
-                                  {item?.status}
+                                  </div>
+                                  <div className="w-2/12 truncate">
+                                    {item?.LeadModel.phone || "-"}
+                                  </div>
+                                  <div className="w-3/12 truncate">
+                                    {item?.LeadModel.address || "-"}
+                                  </div>
+                                  <div className="w-2/12 truncate flex flex-row items-center gap-2">
+                                    {item?.tags?.length > 0 ? (
+                                      <div className="flex flex-row gap-2">
+                                        {item?.tags
+                                          .slice(0, 2)
+                                          .map((tag, idx) => (
+                                            <div
+                                              key={idx}
+                                              className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg text-purple"
+                                            >
+                                              {tag}
+                                            </div>
+                                          ))}
+                                      </div>
+                                    ) : (
+                                      "-"
+                                    )}
+                                    {item?.tags?.length > 2 && (
+                                      <div
+                                        className="text-purple underline cursor-pointer"
+                                        style={{
+                                          fontWeight: "500",
+                                          fontSize: 13,
+                                        }}
+                                        onClick={() => {
+                                          setExtraTagsModal(true);
+                                          setOtherTags(item?.tags);
+                                        }}
+                                      >
+                                        +{item.tags.length - 2}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="w-2/12 truncate">
+                                    {item?.status || "-"}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div className="text-center mt-6 text-3xl">
-                        No Call Found
-                      </div>
-                    )}
+                            ))}
+                          </div>
+                        ) : (
+                          GetLoadingOrNoCallsView()
+                        )}
+                      </InfiniteScroll>
+                    </div>
                   </div>
                 )}
               </div>
@@ -806,7 +973,7 @@ function SheduledCalls({}) {
               <div
                 className="max-h-[92%] overflow-auto"
                 style={{
-                  scrollbarWidth: "none"
+                  scrollbarWidth: "none",
                 }}
               >
                 {AgentCallLogLoader ? (
@@ -852,83 +1019,77 @@ function SheduledCalls({}) {
 
                     {filteredSelectedLeadsList.length > 0 ? (
                       <div className="w-full">
-                        {filteredSelectedLeadsList.map((item, index) => {
-                          return (
+                        {filteredSelectedLeadsList.map((item, index) => (
+                          <div
+                            key={index}
+                            className="w-full mt-4"
+                            style={{
+                              fontSize: 15,
+                              fontWeight: 500,
+                              scrollbarWidth: "none",
+                            }}
+                          >
                             <div
-                              key={index}
-                              className="w-full mt-4"
-                              style={{
-                                fontSize: 15,
-                                fontWeight: "500",
-                                scrollbarWidth: "none",
-                              }}
+                              className="flex flex-row items-center mt-4"
+                              style={{ fontSize: 15, fontWeight: 500 }}
                             >
-                              <div
-                                className="flex flex-row items-center mt-4"
-                                style={{ fontSize: 15, fontWeight: "500" }}
-                              >
-                                <div className="w-3/12 flex flex-row items-center gap-2 truncate">
-                                  <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white flex-shrink-0">
-                                    {item?.firstName?.slice(0, 1).toUpperCase()}
+                              <div className="w-3/12 flex flex-row items-center gap-2 truncate">
+                                <div className="h-[40px] w-[40px] rounded-full bg-black flex items-center justify-center text-white flex-shrink-0">
+                                  {item?.firstName?.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                  <div className="truncate w-[100px]">
+                                    {item?.firstName} {item?.lastName}
                                   </div>
-                                  <div>
-                                    <div className="truncate w-[100px]">
-                                      {item?.firstName} {item?.lastName}
-                                    </div>
-                                    {/* <div style={{ fontSize: 11, fontWeight: "500", color: "#00000060" }}>
-                                                                                        {item?.email}
-                                                                                    </div> */}
-                                  </div>
-                                </div>
-                                <div className="w-2/12 truncate">
-                                  {item?.phone}
-                                </div>
-                                <div className="w-3/12 truncate">
-                                  {item?.address}
-                                </div>
-                                <div className="w-2/12">
-                                  {
-                                    item.tags.length > 0 ? (
-                                      <div className="w-full truncate flex flex-row items-center gap-1">
-                                        {item.tags.slice(0, 1).map((tag, index) => {
-                                          return (
-                                            <div
-                                              key={index}
-                                              // className="bg-[#1C55FF10] text-[#1C55FF] rounded p-2"
-                                              className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg text-purple"
-                                            >
-                                              {tag}
-                                            </div>
-                                          );
-                                        })}
-                                        {item.tags.length > 1 && (
-                                          <div
-                                            className="text-purple underline cursor-pointer"
-                                            onClick={() => {
-                                              setExtraTagsModal(true);
-                                              setOtherTags(item.tags);
-                                            }}
-                                          >
-                                            +{item.tags.length - 1}
-                                          </div>
-                                        )}
-                                      </div>
-                                    ) : (
-                                      "-"
-                                    )
-                                  }
-                                </div>
-                                <div className="w-2/12 truncate">
-                                  {SelectedItem?.status}
                                 </div>
                               </div>
+                              <div className="w-2/12 truncate">
+                                {item?.phone || "-"}
+                              </div>
+                              <div className="w-3/12 truncate">
+                                {item?.address || "-"}
+                              </div>
+                              <div className="w-2/12">
+                                {item.tags.length > 0 ? (
+                                  <div className="w-full truncate flex flex-row items-center gap-1">
+                                    {item.tags.slice(0, 1).map((tag, index) => (
+                                      <div
+                                        key={index}
+                                        className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg text-purple"
+                                      >
+                                        {tag}
+                                      </div>
+                                    ))}
+                                    {item.tags.length > 1 && (
+                                      <div
+                                        className="text-purple underline cursor-pointer"
+                                        onClick={() => {
+                                          setExtraTagsModal(true);
+                                          setOtherTags(item.tags);
+                                        }}
+                                      >
+                                        +{item.tags.length - 1}
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
+                              </div>
+                              <div className="w-2/12 truncate">
+                                {item?.status || "-"}
+                              </div>
                             </div>
-                          );
-                        })}
+                          </div>
+                        ))}
+                      </div>
+                    ) : !leadsLoading ? (
+                      <div className="text-center mt-6 text-3xl">
+                        No Call Found
                       </div>
                     ) : (
                       <div className="text-center mt-6 text-3xl">
-                        No Call Found
+                        Loading...
                       </div>
                     )}
                   </div>
@@ -952,10 +1113,7 @@ function SheduledCalls({}) {
           },
         }}
       >
-        <Box
-          className="lg:w-3/12 sm:w-full w-4/12"
-          sx={styles.modalsStyle}
-        >
+        <Box className="lg:w-3/12 sm:w-full w-4/12" sx={styles.modalsStyle}>
           <div className="flex flex-row justify-center w-full">
             <div
               className="sm:w-full w-full"
@@ -1029,7 +1187,6 @@ function SheduledCalls({}) {
           </div>
         </Box>
       </Modal>
-
     </div>
   );
 }
@@ -1051,7 +1208,8 @@ const styles = {
     textOverflow: "ellipsis", // Add ellipsis for overflow text
   },
   modalsStyle: {
-    height: "auto",
+    // height: "auto",
+    // height: "90svh",
     bgcolor: "transparent",
     // p: 2,
     mx: "auto",
@@ -1069,7 +1227,7 @@ export const ShowConfirmationPopup = ({
   PauseLoader,
   pauseAgent,
   resumeCalls,
-  color
+  color,
 }) => {
   return (
     <div>
@@ -1117,7 +1275,8 @@ export const ShowConfirmationPopup = ({
                   style={{
                     fontSize: 16,
                     fontWeight: "600",
-                  }}>
+                  }}
+                >
                   Are you sure you want to {showConfirmationPopuup}
                 </p>
               </div>
@@ -1149,13 +1308,14 @@ export const ShowConfirmationPopup = ({
                     }}
                     onClick={() => {
                       if (color === true) {
-                        resumeCalls()
+                        resumeCalls();
                       } else {
-                        pauseAgent()
+                        pauseAgent();
                       }
                     }}
                   >
-                    Yes! {showConfirmationPopuup[0].toUpperCase()}{showConfirmationPopuup.slice(1)}
+                    Yes! {showConfirmationPopuup[0].toUpperCase()}
+                    {showConfirmationPopuup.slice(1)}
                   </button>
                 )}
               </div>

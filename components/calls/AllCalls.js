@@ -27,7 +27,8 @@ import {
   GetFormattedTimeString,
 } from "@/utilities/utility";
 
-function AllCalls({ }) {
+function AllCalls({}) {
+  const LimitPerPage = 30;
 
   const [searchValue, setSearchValue] = useState("");
 
@@ -191,9 +192,8 @@ function AllCalls({ }) {
   //function for getting pipelines
   const getPipelines = async () => {
     try {
-
       const ApiPath = Apis.getPipelines;
-      
+
       let AuthToken = null;
       const LocalData = localStorage.getItem("User");
       if (LocalData) {
@@ -265,7 +265,6 @@ function AllCalls({ }) {
         ApiPath = `${Apis.getCallLogs}?offset=${offset}`; //Apis.getCallLogs;
       }
 
-
       // if (selectedFromDate && selectedToDate && stages.length > 0) {
       //     ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}&stageIds=${stages}&offset=${offset}&limit=10`;
       // }
@@ -292,7 +291,7 @@ function AllCalls({ }) {
           setCallDetails((prevDetails) => [...prevDetails, ...data]);
           setFilteredCallDetails((prevDetails) => [...prevDetails, ...data]);
 
-          if (data.length < 50) {
+          if (data.length < LimitPerPage) {
             setHasMore(false);
           }
           // setOffset((prevOffset) => prevOffset + 5);
@@ -505,7 +504,9 @@ function AllCalls({ }) {
       </div>
 
       {initialLoader ? (
-        <div className={`flex flex-row items-center justify-center mt-12 h-[67vh] overflow-auto`}>
+        <div
+          className={`flex flex-row items-center justify-center mt-12 h-[67vh] overflow-auto`}
+        >
           <CircularProgress size={35} thickness={2} />
         </div>
       ) : (
@@ -550,7 +551,8 @@ function AllCalls({ }) {
               <div>
                 {filteredCallDetails.map((item) => (
                   <div
-                    key={item.id} style={{cursor:'pointer'}}
+                    key={item.id}
+                    style={{ cursor: "pointer" }}
                     className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                   >
                     <div className="w-2/12 flex flex-row gap-2 items-center">
@@ -894,16 +896,18 @@ function AllCalls({ }) {
                           onClick={() => {
                             handleSelectStage(item);
                           }}
-                          className={`p-2 border border-[#00000020] ${selectedStageIds.includes(item.id)
+                          className={`p-2 border border-[#00000020] ${
+                            selectedStageIds.includes(item.id)
                               ? `bg-purple`
                               : "bg-transparent"
-                            } px-6
-                                                                ${selectedStageIds.includes(
-                              item.id
-                            )
-                              ? `text-white`
-                              : "text-black"
-                            } rounded-2xl`}
+                          } px-6
+                                                                ${
+                                                                  selectedStageIds.includes(
+                                                                    item.id
+                                                                  )
+                                                                    ? `text-white`
+                                                                    : "text-black"
+                                                                } rounded-2xl`}
                         >
                           {item.stageTitle}
                         </button>
@@ -939,7 +943,7 @@ function AllCalls({ }) {
                       fontWeight: "600",
                       backgroundColor:
                         (selectedFromDate && selectedToDate) ||
-                          selectedStageIds.length > 0
+                        selectedStageIds.length > 0
                           ? ""
                           : "#00000050",
                     }}

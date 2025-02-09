@@ -40,6 +40,9 @@ const Apis = {
   CheckEmail: `${BasePath}api/user/checkEmailExists`,
   CheckPhone: `${BasePath}api/user/checkPhoneNumber`,
   getCallLogs: `${BasePath}api/leads/callLogs`,
+  getCallsInBatch: `${BasePath}api/pipeline/getCallsInABatch`,
+  getLeadsInBatch: `${BasePath}api/pipeline/leadsInBatch`,
+
   getSheduledCallLogs: `${BasePath}api/pipeline/getScheduledCalls`,
   getAgentCallLogs: `${BasePath}api/agent/getAgentCallActivity`,
   pauseAgent: `${BasePath}api/pipeline/pauseAgentCadence`,
