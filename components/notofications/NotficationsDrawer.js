@@ -407,7 +407,7 @@ function NotficationsDrawer({ close }) {
   const getNotificationBtn = (item) => {
     if (
       item.type === NotificationTypes.Hotlead ||
-      item.type === NotificationTypes.MeetingBooked
+      item.type === NotificationTypes.MeetingBooked || item.type === NotificationTypes.LeadCalledBack
     ) {
       return (
         <button

@@ -194,9 +194,10 @@ function Page() {
   const [user, setUser] = useState(null);
 
 
-  const [showRenameAgentPopup,setShowRenameAgentPopup] = useState(false)
-  const [renameAgent,setRenameAgent] = useState("")
-  const [renameAgentLoader,setRenameAgentLoader] = useState(false)
+  const [showRenameAgentPopup, setShowRenameAgentPopup] = useState(false)
+  const [renameAgent, setRenameAgent] = useState("")
+  const [selectedRenameAgent, setSelectedRenameAgent] = useState("")
+  const [renameAgentLoader, setRenameAgentLoader] = useState(false)
 
   //call get numbers list api
   useEffect(() => {
@@ -834,120 +835,79 @@ function Page() {
   };
 
   //code for update agent api
-  const handleRenameAgent = async (vocieId) => {
+  const handleRenameAgent = async () => {
     try {
-      setUpdateAgentLoader(true);
-      // setGlobalLoader(true);
-      // getAgents()
+      setRenameAgentLoader(true);
+
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-        //////console.log("Localdat recieved is :--", Data);
         AuthToken = Data.token;
-      }
 
-      const ApiPath = Apis.updateAgent;
 
-      const formData = new FormData();
+        const ApiPath = Apis.updateAgent;
 
-      // //console.log("Agent to update is:", showScriptModal);
+        console.log('selectedRenameAgent', selectedRenameAgent)
 
-      if (showScriptModal) {
-        if (showScriptModal.agentType === "inbound") {
-          //console.log("Is inbound true");
-          formData.append("inboundGreeting", greetingTagInput);
-          formData.append("inboundPrompt", scriptTagInput);
-          formData.append("inboundObjective", objective);
-        } else {
-          formData.append("prompt", scriptTagInput);
-          formData.append("greeting", greetingTagInput);
-          formData.append("outboundObjective", objective);
+        let apidata = {
+          mainAgentId:selectedRenameAgent.mainAgentId,
+          name:selectedRenameAgent?.name
         }
-        formData.append("mainAgentId", MainAgentId);
-      }
+        console.log('apidata', apidata)
 
-      if (vocieId) {
-        formData.append("voiceId", vocieId);
-      }
+        const response = await axios.post(ApiPath, apidata, {
+          headers: {
+            Authorization: "Bearer " + AuthToken,
+          },
+        });
 
-      if (showDrawerSelectedAgent) {
-        formData.append("mainAgentId", showDrawerSelectedAgent.mainAgentId);
-      }
+        if (response) {
+          setShowRenameAgentPopup(false)
+          console.log("Response of update api is :--", response.data);
+          // console.log("Respons eof update api is", response.data.data);
+          setShowSuccessSnack(response.data.message);
+          if (response.data.status === true) {
+            setIsVisibleSnack(true);
 
-      for (let [key, value] of formData.entries()) {
-        //// console.log(`${key}: ${value}`);
-      }
-      // return
-      const response = await axios.post(ApiPath, formData, {
-        headers: {
-          Authorization: "Bearer " + AuthToken,
-        },
-      });
-
-      if (response) {
-        //console.log("Response of update api is :--", response.data);
-        //// console.log("Respons eof update api is", response.data.data);
-        setShowSuccessSnack(response.data.message);
-        if (response.data.status === true) {
-          setIsVisibleSnack(true);
-
-          const localAgentsList = localStorage.getItem(
-            PersistanceKeys.LocalStoredAgentsListMain
-          );
-
-          let agentsListDetails = [];
-
-          if (localAgentsList) {
-            const agentsList = JSON.parse(localAgentsList);
-            // agentsListDetails = agentsList;
-
-            const updateAgentData = response.data.data;
-
-            const updatedArray = agentsList.map((localItem) => {
-              const apiItem =
-                updateAgentData.id === localItem.id ? updateAgentData : null;
-
-              return apiItem ? { ...localItem, ...apiItem } : localItem;
-            });
-            // let updatedSubAgent = null
-            if (updateAgentData.agents.length > 0 && showDrawerSelectedAgent) {
-              if (updateAgentData.agents[0].id == showDrawerSelectedAgent.id) {
-                setShowDrawerSelectedAgent(updateAgentData.agents[0]);
-              } else if (updateAgentData.agents.length > 1) {
-                if (
-                  updateAgentData.agents[1].id == showDrawerSelectedAgent.id
-                ) {
-                  setShowDrawerSelectedAgent(updateAgentData.agents[1]);
-                }
-              }
-            }
-
-            //// console.log("Updated agents list array is", updatedArray);
-            localStorage.setItem(
-              PersistanceKeys.LocalStoredAgentsListMain,
-              JSON.stringify(updatedArray)
+            const localAgentsList = localStorage.getItem(
+              PersistanceKeys.LocalStoredAgentsListMain
             );
-            setMainAgentsList(updatedArray);
-            // agentsListDetails = updatedArray
-          }
 
-          setGreetingTagInput("");
-          setScriptTagInput("");
-          setShowScriptModal(null);
-          setShowScript(false);
-          setSeledtedScriptKYC(false);
-          setSeledtedScriptAdvanceSetting(false);
-          // setShowDrawer(null);
+
+            if (localAgentsList) {
+              const agentsList = JSON.parse(localAgentsList);
+              // agentsListDetails = agentsList;
+
+              const updateAgentData = response.data.data;
+
+              const updatedArray = agentsList.map((localItem) => {
+                const apiItem =
+                  updateAgentData.id === localItem.id ? updateAgentData : null;
+
+                return apiItem ? { ...localItem, ...apiItem } : localItem;
+              });
+              // let updatedSubAgent = null
+            
+
+              //// console.log("Updated agents list array is", updatedArray);
+              localStorage.setItem(
+                PersistanceKeys.LocalStoredAgentsListMain,
+                JSON.stringify(updatedArray)
+              );
+              setMainAgentsList(updatedArray);
+              // agentsListDetails = updatedArray
+            }
+            // setShowDrawer(null);
+          }
         }
       }
     } catch (error) {
       //// console.error("Error occured in api is", error);
-      setGlobalLoader(false);
+      setRenameAgentLoader(false);
     } finally {
       //console.log("Api call completed");
-      setUpdateAgentLoader(false);
-      setGlobalLoader(false);
+      setRenameAgentLoader(false);
     }
   };
 
@@ -1935,19 +1895,23 @@ function Page() {
                             handleShowDrawer(item);
                           }}
                         >
-                            <div
-                              style={{
-                                fontSize: 24,
-                                fontWeight: "600",
-                                color: "#000",
-                              }}
-                            >
-                              {/* {item.name?.slice(0, 1).toUpperCase(0)}{item.name?.slice(1)} */}
-                              {formatName(item)}
+                          <div
+                            style={{
+                              fontSize: 24,
+                              fontWeight: "600",
+                              color: "#000",
+                            }}
+                          >
+                            {/* {item.name?.slice(0, 1).toUpperCase(0)}{item.name?.slice(1)} */}
+                            {formatName(item)}
                           </div>
                         </button>
 
-                        <button>
+                        <button onClick={() => {
+                          setShowRenameAgentPopup(true)
+                          setSelectedRenameAgent(item)
+                          setRenameAgent(item.name)
+                        }}>
                           <Image src={"/svgIcons/editPen.svg"}
                             height={24} width={24} alt="*"
                           />
@@ -2227,107 +2191,108 @@ function Page() {
 
 
       {/* Modal to rename the agent */}
-            <Modal
-              open={showRenameAgentPopup}
-              onClose={() => {
-                showRenameAgentPopup(false);
-              }}
-              BackdropProps={{
-                timeout: 100,
-                sx: {
-                  backgroundColor: "#00000020",
-                  // //backdropFilter: "blur(20px)",
-                },
-              }}
+      <Modal
+        open={showRenameAgentPopup}
+        onClose={() => {
+          showRenameAgentPopup(false);
+        }}
+        BackdropProps={{
+          timeout: 100,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(20px)",
+          },
+        }}
+      >
+        <Box
+          className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
+          sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+        >
+          <div style={{ width: "100%" }}>
+            <div
+              className="max-h-[60vh] overflow-auto"
+              style={{ scrollbarWidth: "none" }}
             >
-              <Box
-                className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
-                sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+              <div
+                style={{
+                  width: "100%",
+                  direction: "row",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
               >
-                <div style={{ width: "100%" }}>
-                  <div
-                    className="max-h-[60vh] overflow-auto"
-                    style={{ scrollbarWidth: "none" }}
-                  >
-                    <div
-                      style={{
-                        width: "100%",
-                        direction: "row",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      {/* <div style={{ width: "20%" }} /> */}
-                      <div style={{ fontWeight: "700", fontSize: 22 }}>
-                        Rename Agent
-                      </div>
-                      <div
-                        style={{
-                          direction: "row",
-                          display: "flex",
-                          justifyContent: "end",
-                        }}
-                      >
-                        <button
-                          onClick={() => {
-                            setShowRenameAgentPopup(false);
-                          }}
-                          className="outline-none"
-                        >
-                          <Image
-                            src={"/assets/crossIcon.png"}
-                            height={40}
-                            width={40}
-                            alt="*"
-                          />
-                        </button>
-                      </div>
-                    </div>
-      
-                    <div>
-                      <div
-                        className="mt-4"
-                        style={{ fontWeight: "600", fontSize: 12, paddingBottom: 5 }}
-                      >
-                        Agent Title
-                      </div>
-                      <input
-                        value={renameAgent}
-                        onChange={(e) => {
-                          setRenameAgent(e.target.value);
-                        }}
-                        placeholder="Enter Agent title"
-                        className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
-                        style={{ border: "1px solid #00000020" }}
-                      />
-                    </div>
-                  </div>
-      
-                  {renameAgentLoader ? (
-                    <div className="flex flex-row iems-center justify-center w-full mt-4">
-                      <CircularProgress size={25} />
-                    </div>
-                  ) : (
-                    <button
-                      className="mt-4 outline-none"
-                      style={{
-                        backgroundColor: "#7902DF",
-                        color: "white",
-                        height: "50px",
-                        borderRadius: "10px",
-                        width: "100%",
-                        fontWeight: 600,
-                        fontSize: "20",
-                      }}
-                      // onClick={handleRenamePipeline}
-                    >
-                      Update
-                    </button>
-                  )}
+                {/* <div style={{ width: "20%" }} /> */}
+                <div style={{ fontWeight: "700", fontSize: 22 }}>
+                  Rename Agent
                 </div>
-              </Box>
-            </Modal>
+                <div
+                  style={{
+                    direction: "row",
+                    display: "flex",
+                    justifyContent: "end",
+                  }}
+                >
+                  <button
+                    onClick={() => {
+                      setShowRenameAgentPopup(null);
+                    }}
+                    className="outline-none"
+                  >
+                    <Image
+                      src={"/assets/crossIcon.png"}
+                      height={40}
+                      width={40}
+                      alt="*"
+                    />
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <div
+                  className="mt-4"
+                  style={{ fontWeight: "600", fontSize: 12, paddingBottom: 5 }}
+                >
+                  Agent Title
+                </div>
+                <input
+                  value={renameAgent}
+                  // value = {showRenameAgentPopup?.name}
+                  onChange={(e) => {
+                    setRenameAgent(e.target.value);
+                  }}
+                  placeholder={selectedRenameAgent?.name?selectedRenameAgent.name:"Enter agent title" }
+                  className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
+                  style={{ border: "1px solid #00000020" }}
+                />
+              </div>
+            </div>
+
+            {renameAgentLoader ? (
+              <div className="flex flex-row iems-center justify-center w-full mt-4">
+                <CircularProgress size={25} />
+              </div>
+            ) : (
+              <button
+                className="mt-4 outline-none"
+                style={{
+                  backgroundColor: "#7902DF",
+                  color: "white",
+                  height: "50px",
+                  borderRadius: "10px",
+                  width: "100%",
+                  fontWeight: 600,
+                  fontSize: "20",
+                }}
+                onClick={handleRenameAgent}
+              >
+                Update
+              </button>
+            )}
+          </div>
+        </Box>
+      </Modal>
 
       {/* Test ai modal */}
 
@@ -2778,8 +2743,8 @@ function Page() {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`${activeTab === tab
-                    ? "text-purple border-b-2 border-purple"
-                    : "text-black-500"
+                  ? "text-purple border-b-2 border-purple"
+                  : "text-black-500"
                   }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >

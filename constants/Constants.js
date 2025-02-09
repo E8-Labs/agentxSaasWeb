@@ -1,5 +1,7 @@
 export const PersistanceKeys = {
   LocalStorageUser: "User",
+  LeadsInBatch: "LeadsInBatch",
+  CallsInBatch: "CallsInBatch",
   LocalStorageCampaignee: "CampaigneeSaved",
   LocalStoragePipelines: "LocalStoragePipelines",
   RegisterDetails: "registerDetails",
@@ -9,7 +11,7 @@ export const PersistanceKeys = {
   GlobalConsultationUrl:
     "https://api.leadconnectorhq.com/widget/booking/F1DtpvAR8fNf3RJM1akZ",
   GlobalWebinarUrl:
-  "https://api.leadconnectorhq.com/widget/booking/SMTp2AfgjdTcjLOIUBkR",
+    "https://api.leadconnectorhq.com/widget/booking/SMTp2AfgjdTcjLOIUBkR",
   ExternalCalendarLink:
     "https://api.leadconnectorhq.com/widget/bookings/agentx/enterprise-plan",
   // LocalStoredAgentsList
@@ -27,8 +29,8 @@ export const HowtoVideos = {
     "https://www.blindcircle.com/agentx/uploads/howtos/2025-01-20_ddcecf9b-f489-43d3-bd7f-b0d13cf98644_howtos_LetsTalkDigits",
   Pipeline:
     "https://www.blindcircle.com/agentx/uploads/howtos/2025-01-20_497e2da3-8f32-44f2-b9ee-7231fa31e4cf_howtos_Pipeline",
-    script:
-    "https://www.blindcircle.com/agentx/uploads/howtos/2025-01-26_3ba0f5f5-3e15-4c6e-a9ce-1470fc0539b7_howtos_Leads"
+  script:
+    "https://www.blindcircle.com/agentx/uploads/howtos/2025-01-26_3ba0f5f5-3e15-4c6e-a9ce-1470fc0539b7_howtos_Leads",
 };
 
 export const Constants = {
@@ -45,4 +47,3 @@ export let userType = "RealEstateAgent";
 export const setUserType = (newUserType) => {
   userType = newUserType;
 };
-
