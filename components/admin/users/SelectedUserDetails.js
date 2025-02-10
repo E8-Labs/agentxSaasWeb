@@ -6,7 +6,8 @@ import AdminLeads1 from './AdminLeads1'
 import AdminPipeline1 from './pipline/AdminPipeline1'
 import AdminAgentX from './AdminAgentX'
 import AdminCallLogs from './AdminCallLogs'
-import AdminAffiliates from './AdminAffiliates'
+import AdminAffiliates from '../affiliates/AdminAffiliates'
+import AdminDashboard from './AdminDashboard'
 
 function SelectedUserDetails({ open, close, selectedUser }) {
 
@@ -161,7 +162,9 @@ function SelectedUserDetails({ open, close, selectedUser }) {
                                             selectedManu.name == "Affiliates" ? (
                                                 <AdminAffiliates selectedUser = {selectedUser} />
                                             ) : (
-                                                "Comming soon..."
+                                                selectedManu.name == "Dashboard" ?(
+                                                    <AdminDashboard selectedUser={selectedUser} />
+                                                ):"Comming soon..."
                                             )
                                     )
                                 }

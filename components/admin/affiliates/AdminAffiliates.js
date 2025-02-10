@@ -346,7 +346,6 @@ function AdminAffiliates({ selectedUser }) {
                 console.log("delete team api response is", response.data);
                 // let tea
                 let teams = affiliatsList.filter((affiliate) => affiliate.id !== item.id);
-                setAffiliatesList(teams);
                 // getMyteam()
                 setSnackTitle("Affiliate removed");
                 setShowSnak(true);
