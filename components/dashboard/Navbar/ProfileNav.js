@@ -62,8 +62,10 @@ const ProfileNav = () => {
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
   useEffect(() => {
     let pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
+    // requestNotificationPermission();
+    UpdateProfile({});
     // FacebookPixel.initFacebookPixel(pixelId); //initFacebookPixel(pixed_id);
-  });
+  }, []);
   useEffect(() => {
     const testNot = async () => {
       try {
@@ -208,10 +210,18 @@ const ProfileNav = () => {
           requestToken((FCMToken) => {
             if (FCMToken) {
               // console.log("Token for fcm is", FCMToken);
-              const apidata = {
+              let apidata = {
                 fcm_token: FCMToken,
               };
-              // console.log("Token sending in api is", apidata);
+              let SavedLocation = localStorage.getItem(
+                PersistanceKeys.LocalStorageCompleteLocation
+              );
+              if (SavedLocation) {
+                let parsedLocation = JSON.parse(SavedLocation);
+                apidata.lat = parsedLocation.latitude;
+                apidata.lang = parsedLocation.longitude;
+              }
+              console.log("Token sending in api is", apidata);
               // UpdateProfile()
             } else {
               alert("FCM token not generated!!!");
