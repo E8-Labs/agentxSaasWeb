@@ -1,5 +1,7 @@
 export const PersistanceKeys = {
   LocalStorageUser: "User",
+  LocalStorageUserLocation: "userLocation",
+  LocalStorageCompleteLocation: "CompleteLocation",
   LeadsInBatch: "LeadsInBatch",
   CallsInBatch: "CallsInBatch",
   LocalStorageCampaignee: "CampaigneeSaved",

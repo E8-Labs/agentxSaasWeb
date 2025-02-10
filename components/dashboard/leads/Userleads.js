@@ -711,11 +711,14 @@ const Userleads = ({
       //   ////console.log("Sages selected are ", stages);
       let ApiPath = null;
       if (filterText) {
-        //console.log("Filtered text is ", filterText);
+        console.log("Filtered text is ", filterText);
         ApiPath = `${Apis.getLeads}?${filterText}`; //&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}`;
         ApiPath = ApiPath + "&noStage=" + noStageSelected;
+        ApiPath = ApiPath + `&offset=${offset}`;
       } else {
-        getLocallyCachedLeads();
+        if (offset == 0) {
+          getLocallyCachedLeads();
+        }
         ApiPath = `${Apis.getLeads}?sheetId=${SelectedSheetId}&offset=${offset}`;
       }
       console.log("Api path is :", ApiPath);
@@ -736,6 +739,7 @@ const Userleads = ({
         if (currentRequestVersion === requestVersion.current) {
           if (response.data.status === true) {
             setShowFilterModal(false);
+            console.log("Leads Found ", response.data.data);
             // setLeadsList(response.data.data);
             // setFilterLeads(response.data.data);
             let allLeads;
@@ -763,37 +767,36 @@ const Userleads = ({
                 setLeadsList(data);
                 setFilterLeads(data);
               }
+              let leads = data;
+              let leadColumns = response.data.columns;
+              //   setSelectedSheetId(item.id);
+              //   setLeadsList([]);
+              //   setFilterLeads([]);
+              if (leads && leadColumns) {
+                // ////console.log("Leads already cached for sheet", id)
+                // setLeadsList((prevDetails) => [...prevDetails, ...leads]);
+                // setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
+                let dynamicColumns = [];
+                if (leads.length > 0) {
+                  dynamicColumns = [
+                    ...leadColumns,
+                    // { title: "Tag" },
+                    {
+                      title: "More",
+                      idDefault: false,
+                    },
+                  ];
+                }
+                // setLeadColumns(response.data.columns);
+                setLeadColumns(dynamicColumns);
+                // return
+              } else {
+                ////console.log("leads not already cached for sheet ", id);
+              }
             } else {
               setShowNoLeadsLabel(false);
               setLeadsList((prevDetails) => [...prevDetails, ...data]);
               setFilterLeads((prevDetails) => [...prevDetails, ...data]);
-            }
-
-            let leads = data;
-            let leadColumns = response.data.columns;
-            //   setSelectedSheetId(item.id);
-            //   setLeadsList([]);
-            //   setFilterLeads([]);
-            if (leads && leadColumns) {
-              // ////console.log("Leads already cached for sheet", id)
-              // setLeadsList((prevDetails) => [...prevDetails, ...leads]);
-              // setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
-              let dynamicColumns = [];
-              if (leads.length > 0) {
-                dynamicColumns = [
-                  ...leadColumns,
-                  // { title: "Tag" },
-                  {
-                    title: "More",
-                    idDefault: false,
-                  },
-                ];
-              }
-              // setLeadColumns(response.data.columns);
-              setLeadColumns(dynamicColumns);
-              // return
-            } else {
-              ////console.log("leads not already cached for sheet ", id);
             }
 
             if (data.length < LimitPerPage) {

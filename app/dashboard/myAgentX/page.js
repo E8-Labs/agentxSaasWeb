@@ -3722,8 +3722,8 @@ function Page() {
                       <div className="w-5/12">
                         <VideoCard
                           duration={"13 min 56 sec"}
-                          width="80"
-                          height="100"
+                          width="60"
+                          height="40"
                           horizontal={false}
                           playVideo={() => {
                             setIntroVideoModal(true);

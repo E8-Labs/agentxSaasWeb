@@ -42,6 +42,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   let [response, setResponse] = useState({});
   const [countryCode, setCountryCode] = useState(""); // Default country
   const [userPhoneNumber, setUserPhoneNumber] = useState("");
+  const userPhoneNumberRef = useRef("");
   const [sendcodeLoader, setSendcodeLoader] = useState(false);
   const [SendCodeMessage, setSendCodeMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -65,6 +66,11 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     // console.log("redirect value is ", redirect);
     setRedirect(redirect);
   }, []);
+
+  useEffect(() => {
+    console.log("User Phone changed ", userPhoneNumber);
+    userPhoneNumberRef.current = userPhoneNumber;
+  }, [userPhoneNumber]);
   useEffect(() => {
     if (params && params.username) {
       // console.log("Username is ", params.username);
@@ -100,9 +106,11 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       }
     }
 
-    const localLoc = localStorage.getItem("userLocation");
+    const localLoc = localStorage.getItem(
+      PersistanceKeys.LocalStorageUserLocation
+    );
     if (!localLoc) {
-      getLocation();
+      // getLocation();
       getLocation2();
     } else if (localLoc) {
       // const L = JSON.parse(localLoc);
@@ -115,81 +123,93 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   }, []);
 
   //get location
-  const getLocation2 = () => {
+  const getLocation2 = async () => {
     // setLocationLoader(true);
-
-    // Check if geolocation is available in the browser
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-
-          try {
-            // console.log("Api Loc Check 1");
-            // Fetch country code based on latitude and longitude
-            const response = await fetch(
-              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
-            );
-            // console.log("Api Loc Check 2");
-            const data = await response.json();
-            // console.log("Api Loc Check 3");
-
-            // Set the country code if the API returns it
-            const locationData = {
-              location: data.countryCode.toLowerCase(),
-            };
-            if (userPhoneNumber == "") {
-              setCountryCode(data.countryCode.toLowerCase());
-            }
-
-            // console.log("Api Loc Check 4");
-            if (data && data.countryCode) {
-              localStorage.setItem(
-                "userLocation",
-                JSON.stringify(locationData)
-              );
-              // console.log("Api Loc Check 5");
-            } else {
-              // console.error("Unable to fetch country code.");
-            }
-          } catch (error) {
-            // console.error("Error fetching geolocation data:", error);
-          } finally {
-          }
-        },
-        (error) => {
-          // console.error("Geolocation error:", error.message);
-        }
+    try {
+      console.log("Before getCurrentLocation: ", userPhoneNumber);
+      const location = await getCurrentLocation();
+      console.log("After getCurrentLocation: ", userPhoneNumber);
+      const { latitude, longitude } = location;
+      localStorage.setItem("CompleteLocation", JSON.stringify(location));
+      const response = await fetch(
+        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
       );
-    } else {
-      // console.error("Geolocation is not supported by this browser.");
+      const data = await response.json();
+      console.log("Location Decoded Data ", data);
+      localStorage.setItem(
+        PersistanceKeys.LocalStorageCompleteLocation,
+        JSON.stringify(data)
+      );
+      const locationData = {
+        location: data.countryCode.toLowerCase(),
+      };
+      if (userPhoneNumberRef.current === "") {
+        console.log(
+          "User Phone Number is in location",
+          userPhoneNumberRef.current
+        );
+
+        setCountryCode(data.countryCode.toLowerCase());
+      }
+
+      // console.log("Api Loc Check 4");
+      if (data && data.countryCode) {
+        localStorage.setItem("userLocation", JSON.stringify(locationData));
+        // console.log("Api Loc Check 5");
+      } else {
+        // console.error("Unable to fetch country code.");
+      }
+
+      console.log("Location Data:", data);
+      return data; // Return the fetched data
+    } catch (error) {
+      console.log("Error getting location");
+      return null;
     }
   };
 
-  useEffect(() => {
-    // console.log("Check 1111");
-
-    const timer = setTimeout(() => {
-      const loc = localStorage.getItem("userLocation");
-
-      if (loc) {
-        // console.log("Check 1 clear");
-        const L = JSON.parse(loc);
-        // console.log("Check 2 clear");
-        // console.log("Location received from local storage is", L);
-        // console.log("Check 3 clear");
-
-        if (userPhoneNumber == "") {
-          setCountryCode(L.location);
-        }
-        // console.log("Check 4 clear");
+  const getCurrentLocation = () => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error("Geolocation is not supported by this browser."));
+      } else {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            resolve({
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            });
+          },
+          (error) => reject(error)
+        );
       }
+    });
+  };
 
-      // console.log("Stopped to load data");
-    }, 300);
+  // useEffect(() => {
+  //   // console.log("Check 1111");
 
-    return () => clearTimeout(timer);
-  }, []);
+  //   const timer = setTimeout(() => {
+  //     const loc = localStorage.getItem("userLocation");
+
+  //     if (loc) {
+  //       // console.log("Check 1 clear");
+  //       const L = JSON.parse(loc);
+  //       // console.log("Check 2 clear");
+  //       // console.log("Location received from local storage is", L);
+  //       // console.log("Check 3 clear");
+
+  //       // if (userPhoneNumber == "") {
+  //       //   setCountryCode(L.location);
+  //       // }
+  //       // console.log("Check 4 clear");
+  //     }
+
+  //     // console.log("Stopped to load data");
+  //   }, 300);
+
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   //action detects inner width
   useEffect(() => {
@@ -200,6 +220,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   }, [InnerWidth]);
 
   const handlePhoneNumberChange = (phone) => {
+    // console.log("Phone number changed ", phone);
     setUserPhoneNumber(phone);
     validatePhoneNumber(phone);
     setCheckPhoneResponse(null);
@@ -247,7 +268,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   //code to show verify popup
 
   const handleVerifyPopup = async () => {
-    console.log('button clicked')
+    console.log("button clicked");
     try {
       setShowVerifyPopup(true);
       setSendcodeLoader(true);
@@ -440,7 +461,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 if (redirect) {
                   router.push(redirect);
                 } else {
-                  
                   if (data.data.user.userType == "admin") {
                     router.push("/admin");
                   } else {
@@ -487,7 +507,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           // console.log("Response message is :", response.data.message);
           setCheckPhoneResponse(response.data.status);
         } else if (response.data.status === false) {
-          console.log('response.data.message', response.data.message)
+          console.log("response.data.message", response.data.message);
           setCheckPhoneResponse(response.data.status);
         }
       }
@@ -722,7 +742,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                       }
                       // setShowVerifyPopup(true)
                       // handleVerifyPopup();
-
                     }}
                   >
                     <ArrowRight size={20} weight="bold" />

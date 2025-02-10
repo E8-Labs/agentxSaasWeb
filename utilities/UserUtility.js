@@ -10,7 +10,7 @@ export function GetCampaigneeNameIfAvailable(window) {
 
 export const getSupportUrlFor = (user) => {
   if (user?.campaignee && user?.campaignee?.officeHoursUrl) {
-   // console.log("Response", user.campaignee.officeHoursUrl);
+    // console.log("Response", user.campaignee.officeHoursUrl);
     let campaigneeLink = user.campaignee.officeHoursUrl;
     return campaigneeLink;
   } else {
@@ -26,7 +26,17 @@ export function logout() {
   // localStorage.removeItem("User");
   // localStorage.removeItem("localAgentDetails");
   if (typeof document !== "undefined") {
+    let userLocation = localStorage.getItem(
+      PersistanceKeys.LocalStorageUserLocation
+    );
+    console.log("User location is ", userLocation);
     localStorage.clear();
+    console.log("Setting back user location", userLocation);
+
+    localStorage.setItem(
+      PersistanceKeys.LocalStorageUserLocation,
+      userLocation
+    );
     document.cookie = "User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   }
 }
