@@ -67,8 +67,12 @@ function AllCalls({}) {
   const [loading, setLoading] = useState(false);
   const requestVersion = useRef(0);
 
+  const filterRef = useRef(null);
+
   useEffect(() => {
+    console.log("Search value changed", searchValue);
     // if ((selectedFromDate && selectedToDate) || selectedStageIds.length > 0) {
+    setHasMore(true);
     setCallDetails([]);
     setFilteredCallDetails([]);
     setInitialLoader(true);
@@ -76,6 +80,19 @@ function AllCalls({}) {
     // }
   }, [selectedToDate, selectedFromDate, selectedStageIds]);
 
+  useEffect(() => {
+    if (filterRef.current) {
+      clearTimeout(filterRef.current);
+    }
+    filterRef.current = setTimeout(() => {
+      console.log("Timer clicked", searchValue);
+      setHasMore(true);
+      setCallDetails([]);
+      setFilteredCallDetails([]);
+      setInitialLoader(true);
+      getCallLogs(0);
+    }, 400);
+  }, [searchValue]);
   //select pipeline
   const handleChangePipeline = (event) => {
     const selectedValue = event.target.value;
@@ -264,6 +281,9 @@ function AllCalls({}) {
       } else {
         ApiPath = `${Apis.getCallLogs}?offset=${offset}`; //Apis.getCallLogs;
       }
+      if (searchValue && searchValue.length > 0) {
+        ApiPath = `${ApiPath}&name=${searchValue}`;
+      }
 
       // if (selectedFromDate && selectedToDate && stages.length > 0) {
       //     ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}&stageIds=${stages}&offset=${offset}&limit=10`;
@@ -279,6 +299,7 @@ function AllCalls({}) {
           "Content-Type": "application/json",
         },
       });
+      setLoading(false);
 
       if (currentRequestVersion === requestVersion.current) {
         if (response) {
@@ -394,8 +415,8 @@ function AllCalls({}) {
             value={searchValue}
             onChange={(e) => {
               const value = e.target.value;
-              handleSearchChange(value);
-              setSearchValue(e.target.value);
+              // handleSearchChange(value);
+              setSearchValue(value);
             }}
           />
           <img
@@ -503,7 +524,7 @@ function AllCalls({}) {
         </div>
       </div>
 
-      {initialLoader ? (
+      {initialLoader && filteredCallDetails.length == 0 ? (
         <div
           className={`flex flex-row items-center justify-center mt-12 h-[67vh] overflow-auto`}
         >
@@ -511,7 +532,7 @@ function AllCalls({}) {
         </div>
       ) : (
         <div
-          className={`h-[67vh] overflow-auto`}
+          className={`h-[75vh] overflow-auto`}
           id="scrollableDiv1"
           style={{ scrollbarWidth: "none" }}
         >
@@ -534,9 +555,9 @@ function AllCalls({}) {
             scrollableTarget="scrollableDiv1"
             dataLength={filteredCallDetails.length}
             next={() => {
-              console.log("Loading more data");
+              console.log("Loading more data", { loading, hasMore });
               if (!loading && hasMore) {
-                getCallLogs(offset);
+                getCallLogs(filteredCallDetails.length);
               }
             }} // Fetch more when scrolled
             hasMore={hasMore} // Check if there's more data
