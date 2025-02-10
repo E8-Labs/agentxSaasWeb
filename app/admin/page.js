@@ -4,6 +4,7 @@ import Image from "next/image";
 import AdminUsers from "@/components/admin/users/AdminUsers";
 import Dashboard from "@/components/admin/dashboard/dashboard";
 import BackgroundVideo from "@/components/general/BackgroundVideo";
+import AdminAffiliates from "@/components/admin/affiliates/AdminAffiliates";
 
 function Page() {
   const manuBar = [
@@ -14,6 +15,9 @@ function Page() {
     {
       id: 2,
       name: "Users",
+    }, {
+      id: 3,
+      name: "Affiliates",
     },
   ];
 
@@ -44,10 +48,9 @@ function Page() {
               setSelectedManu(item);
             }}
             className={`flex flex-row items-center gap-3 p-2 items-center 
-                      ${
-                        selectedManu.id == item.id &&
-                        "border-b-[2px] border-purple"
-                      }`}
+                      ${selectedManu.id == item.id &&
+              "border-b-[2px] border-purple"
+              }`}
           >
             <div
               style={{
@@ -65,7 +68,9 @@ function Page() {
       <div className="w-full">
         {selectedManu.name === "Users" ? (
           <AdminUsers />
-        ) : (
+        ) : (selectedManu.name === "Affiliates" ? (
+          <AdminAffiliates />
+        ) :
           <div>
             <Dashboard />
           </div>
