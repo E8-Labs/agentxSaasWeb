@@ -711,9 +711,10 @@ const Userleads = ({
       //   ////console.log("Sages selected are ", stages);
       let ApiPath = null;
       if (filterText) {
-        //console.log("Filtered text is ", filterText);
+        console.log("Filtered text is ", filterText);
         ApiPath = `${Apis.getLeads}?${filterText}`; //&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}`;
         ApiPath = ApiPath + "&noStage=" + noStageSelected;
+        ApiPath = ApiPath + `&offset=${offset}`;
       } else {
         getLocallyCachedLeads();
         ApiPath = `${Apis.getLeads}?sheetId=${SelectedSheetId}&offset=${offset}`;
