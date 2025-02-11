@@ -93,10 +93,10 @@ const DebtCollectorAgentSignUp = ({
       id: 3,
       title: "Hybrid Approach",
     },
-    {
-      id: 100,
-      title: "All",
-    },
+    // {
+    //   id: 100,
+    //   title: "All",
+    // },
   ];
 
   // Function to get the user's location and set the country code

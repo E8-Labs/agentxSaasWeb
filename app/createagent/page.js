@@ -1,6 +1,7 @@
 "use client";
 
 import BackgroundVideo from "@/components/general/BackgroundVideo.js";
+import { PersistanceKeys } from "@/constants/Constants.js";
 import dynamic from "next/dynamic.js";
 import { useEffect, useState } from "react";
 
@@ -37,6 +38,7 @@ function EmptyPage() {
 }
 
 const Page = () => {
+  const [user, setUser] = useState(null);
   const [index, setIndex] = useState(0);
   const [components, setComponents] = useState([
     EmptyPage,
@@ -61,6 +63,11 @@ const Page = () => {
       setWindowSize(size);
     } else {
       // console.log("Window is undefined");
+    }
+    let user = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    if (user) {
+      let parsed = JSON.parse(user);
+      setUser(parsed);
     }
     // console.log("Window size is ", size);
   }, []);
@@ -188,6 +195,7 @@ const Page = () => {
         handleSkipAddPayment={handleSkipAddPayment}
         getAgentDetails={getAgentDetails}
         AgentDetails={AgentDetails}
+        user={user}
       />
     </div>
   );

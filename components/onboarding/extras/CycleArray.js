@@ -14,10 +14,12 @@ const shuffleArray = (array) => {
 // Shuffle the agents list once at the beginning
 const shuffledAgents = shuffleArray(agents);
 
-const AgentBox = () => {
+const AgentBox = ({ user }) => {
   const initialIndex = Math.floor(Math.random() * shuffledAgents.length);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  const [showingAgent, setShowingAgent] = useState(shuffledAgents[initialIndex]);
+  const [showingAgent, setShowingAgent] = useState(
+    shuffledAgents[initialIndex]
+  );
   const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
@@ -83,7 +85,9 @@ const AgentBox = () => {
           alignItems: "center",
           gap: "10px",
           borderRadius: "50px",
-          animation: isAnimating ? "fadeOutSlide 0.5s forwards" : "fadeInSlide 0.5s forwards",
+          animation: isAnimating
+            ? "fadeOutSlide 0.5s forwards"
+            : "fadeInSlide 0.5s forwards",
           overflow: "hidden",
         }}
       >
@@ -112,20 +116,40 @@ const AgentBox = () => {
         >
           {/* Name and location */}
           <div className="flex flex-row items-center">
-            <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginRight: "5px" }}>
+            <div
+              style={{
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                marginRight: "5px",
+              }}
+            >
               {showingAgent.Agent_Full_Name.length > 10
                 ? `${showingAgent.Agent_Full_Name.slice(0, 10)}...`
                 : showingAgent.Agent_Full_Name}
             </div>
             <div style={{ color: "#00000040", margin: "0 5px" }}>from</div>
-            <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginLeft: "5px" }}>
-              {showingAgent.City.length > 10 ? `${showingAgent.City.slice(0, 10)}...` : `${showingAgent.City}`}
+            <div
+              style={{
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                marginLeft: "5px",
+              }}
+            >
+              {showingAgent.City.length > 10
+                ? `${showingAgent.City.slice(0, 10)}...`
+                : `${showingAgent.City}`}
               , {showingAgent.State}
             </div>
           </div>
 
           {/* Fixed text below */}
-          <div style={{ fontSize: "13px", color: "#888", fontWeight: "normal" }}>Created an AgentX</div>
+          <div
+            style={{ fontSize: "13px", color: "#888", fontWeight: "normal" }}
+          >
+            Created an AgentX
+          </div>
         </div>
       </div>
     </div>

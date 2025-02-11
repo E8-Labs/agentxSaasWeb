@@ -54,6 +54,7 @@ import Link from "next/link";
 
 import { ArrowUpRight } from "@phosphor-icons/react";
 import VideoCard from "@/components/createagent/VideoCard";
+import { UserTypes } from "@/constants/UserTypes";
 
 function Page() {
   const timerRef = useRef();
@@ -193,11 +194,10 @@ function Page() {
 
   const [user, setUser] = useState(null);
 
-
-  const [showRenameAgentPopup, setShowRenameAgentPopup] = useState(false)
-  const [renameAgent, setRenameAgent] = useState("")
-  const [selectedRenameAgent, setSelectedRenameAgent] = useState("")
-  const [renameAgentLoader, setRenameAgentLoader] = useState(false)
+  const [showRenameAgentPopup, setShowRenameAgentPopup] = useState(false);
+  const [renameAgent, setRenameAgent] = useState("");
+  const [selectedRenameAgent, setSelectedRenameAgent] = useState("");
+  const [renameAgentLoader, setRenameAgentLoader] = useState(false);
 
   //call get numbers list api
   useEffect(() => {
@@ -625,7 +625,8 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(item.phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -845,16 +846,15 @@ function Page() {
         const Data = JSON.parse(localData);
         AuthToken = Data.token;
 
-
         const ApiPath = Apis.updateAgent;
 
-        console.log('selectedRenameAgent', selectedRenameAgent)
+        console.log("selectedRenameAgent", selectedRenameAgent);
 
         let apidata = {
-          mainAgentId:selectedRenameAgent.mainAgentId,
-          name:selectedRenameAgent?.name
-        }
-        console.log('apidata', apidata)
+          mainAgentId: selectedRenameAgent.mainAgentId,
+          name: selectedRenameAgent?.name,
+        };
+        console.log("apidata", apidata);
 
         const response = await axios.post(ApiPath, apidata, {
           headers: {
@@ -863,7 +863,7 @@ function Page() {
         });
 
         if (response) {
-          setShowRenameAgentPopup(false)
+          setShowRenameAgentPopup(false);
           console.log("Response of update api is :--", response.data);
           // console.log("Respons eof update api is", response.data.data);
           setShowSuccessSnack(response.data.message);
@@ -873,7 +873,6 @@ function Page() {
             const localAgentsList = localStorage.getItem(
               PersistanceKeys.LocalStoredAgentsListMain
             );
-
 
             if (localAgentsList) {
               const agentsList = JSON.parse(localAgentsList);
@@ -888,7 +887,6 @@ function Page() {
                 return apiItem ? { ...localItem, ...apiItem } : localItem;
               });
               // let updatedSubAgent = null
-            
 
               //// console.log("Updated agents list array is", updatedArray);
               localStorage.setItem(
@@ -910,7 +908,6 @@ function Page() {
       setRenameAgentLoader(false);
     }
   };
-
 
   const updateAgent = async (vocieId) => {
     try {
@@ -1087,7 +1084,8 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -1907,13 +1905,18 @@ function Page() {
                           </div>
                         </button>
 
-                        <button onClick={() => {
-                          setShowRenameAgentPopup(true)
-                          setSelectedRenameAgent(item)
-                          setRenameAgent(item.name)
-                        }}>
-                          <Image src={"/svgIcons/editPen.svg"}
-                            height={24} width={24} alt="*"
+                        <button
+                          onClick={() => {
+                            setShowRenameAgentPopup(true);
+                            setSelectedRenameAgent(item);
+                            setRenameAgent(item.name);
+                          }}
+                        >
+                          <Image
+                            src={"/svgIcons/editPen.svg"}
+                            height={24}
+                            width={24}
+                            alt="*"
                           />
                         </button>
                         <div
@@ -1932,6 +1935,7 @@ function Page() {
                               //   "Agent hovered is",
                               //   item.agentObjectiveId
                               // );
+
                               if (item.agentObjectiveId === 3) {
                                 handlePopoverOpen(event, item);
                               }
@@ -1939,8 +1943,13 @@ function Page() {
                             onMouseLeave={handlePopoverClose}
                             style={{ cursor: "pointer" }}
                           >
-                            {item.agentObjective?.slice(0, 1).toUpperCase()}
-                            {item.agentObjective?.slice(1)}
+                            {user.userType == UserTypes.RealEstateAgent
+                              ? `${item.agentObjective
+                                  ?.slice(0, 1)
+                                  .toUpperCase()}${item.agentObjective?.slice(
+                                  1
+                                )}`
+                              : `${item.agentRole}`}
                           </div>
                           <div>
                             | {item.agentType?.slice(0, 1).toUpperCase(0)}
@@ -1962,11 +1971,6 @@ function Page() {
                             setShowScriptModal(item);
                             matchingAgent(item);
                             setShowScript(true);
-                            if (item?.prompt?.objective) {
-                              setObjective(item?.prompt?.objective);
-                              setOldObjective(item?.prompt?.objective);
-                            }
-
                             if (item?.prompt?.objective) {
                               setObjective(item?.prompt?.objective);
                               setOldObjective(item?.prompt?.objective);
@@ -2189,7 +2193,6 @@ function Page() {
         </Link>
       </div>
 
-
       {/* Modal to rename the agent */}
       <Modal
         open={showRenameAgentPopup}
@@ -2262,7 +2265,11 @@ function Page() {
                   onChange={(e) => {
                     setRenameAgent(e.target.value);
                   }}
-                  placeholder={selectedRenameAgent?.name?selectedRenameAgent.name:"Enter agent title" }
+                  placeholder={
+                    selectedRenameAgent?.name
+                      ? selectedRenameAgent.name
+                      : "Enter agent title"
+                  }
                   className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
                   style={{ border: "1px solid #00000020" }}
                 />
@@ -2440,7 +2447,7 @@ function Page() {
                       overflowY: "auto",
                     }}
                     countryCodeEditable={true}
-                  // defaultMask={loading ? 'Loading...' : undefined}
+                    // defaultMask={loading ? 'Loading...' : undefined}
                   />
                 </div>
 
@@ -2471,8 +2478,9 @@ function Page() {
                       <input
                         placeholder="Type here"
                         // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                          }`}
+                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
+                          index === scriptKeys?.length - 1 ? "mb-16" : ""
+                        }`}
                         style={{
                           ...styles.inputStyle,
                           border: "1px solid #00000010",
@@ -2678,7 +2686,7 @@ function Page() {
               name="Calls"
               value={
                 showDrawerSelectedAgent?.calls &&
-                  showDrawerSelectedAgent?.calls > 0 ? (
+                showDrawerSelectedAgent?.calls > 0 ? (
                   <div>{showDrawerSelectedAgent?.calls}</div>
                 ) : (
                   "-"
@@ -2692,7 +2700,7 @@ function Page() {
               name="Convos"
               value={
                 showDrawerSelectedAgent?.callsGt10 &&
-                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                showDrawerSelectedAgent?.callsGt10 > 0 ? (
                   <div>{showDrawerSelectedAgent?.callsGt10}</div>
                 ) : (
                   "-"
@@ -2720,7 +2728,7 @@ function Page() {
               name="Mins Talked"
               value={
                 showDrawerSelectedAgent?.totalDuration &&
-                  showDrawerSelectedAgent?.totalDuration > 0 ? (
+                showDrawerSelectedAgent?.totalDuration > 0 ? (
                   // <div>{showDrawer?.totalDuration}</div>
                   <div>
                     {moment(
@@ -2742,10 +2750,11 @@ function Page() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${activeTab === tab
-                  ? "text-purple border-b-2 border-purple"
-                  : "text-black-500"
-                  }`}
+                className={`${
+                  activeTab === tab
+                    ? "text-purple border-b-2 border-purple"
+                    : "text-black-500"
+                }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >
                 {tab}
@@ -3052,37 +3061,37 @@ function Page() {
                                   {showReassignBtn && (
                                     <div
                                       className="w-full"
-                                    // onClick={(e) => {
-                                    //   console.log(
-                                    //     "Should open confirmation modal"
-                                    //   );
-                                    //   e.stopPropagation();
-                                    //   setShowConfirmationModal(item);
-                                    // }}
+                                      // onClick={(e) => {
+                                      //   console.log(
+                                      //     "Should open confirmation modal"
+                                      //   );
+                                      //   e.stopPropagation();
+                                      //   setShowConfirmationModal(item);
+                                      // }}
                                     >
                                       {item.claimedBy && (
                                         <div className="flex flex-row items-center gap-2">
                                           {showDrawerSelectedAgent?.name !==
                                             item.claimedBy.name && (
-                                              <div>
-                                                <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                {reassignLoader === item ? (
-                                                  <CircularProgress size={15} />
-                                                ) : (
-                                                  <button
-                                                    className="text-purple underline"
-                                                    onClick={(e) => {
-                                                      e.stopPropagation();
-                                                      setShowConfirmationModal(
-                                                        item
-                                                      );
-                                                    }}
-                                                  >
-                                                    Reassign
-                                                  </button>
-                                                )}
-                                              </div>
-                                            )}
+                                            <div>
+                                              <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                              {reassignLoader === item ? (
+                                                <CircularProgress size={15} />
+                                              ) : (
+                                                <button
+                                                  className="text-purple underline"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setShowConfirmationModal(
+                                                      item
+                                                    );
+                                                  }}
+                                                >
+                                                  Reassign
+                                                </button>
+                                              )}
+                                            </div>
+                                          )}
                                         </div>
                                       )}
                                     </div>
@@ -3879,7 +3888,7 @@ function Page() {
                       <div style={{ marginTop: "40px", height: "80%" }}>
                         {/* {showScriptModal?.prompt?.objective} */}
 
-                        {objective ? (
+                        {
                           <textarea
                             className="outline-none rounded-xl focus:ring-0"
                             // ref={objective}
@@ -3908,30 +3917,7 @@ function Page() {
                               border: "1px solid #00000020",
                             }}
                           />
-                        ) : (
-                          <div className="text-center text-2xl mt-6">
-                            <div
-                              className="flex flex-col items-center justify-center h-[30vh] w-full"
-                              style={{ fontWeight: "500", fontsize: 15 }}
-                            >
-                              {/* <div className='h-[100px] w-[100px] rounded-full bg-[#00000020] flex flex-row items-center justify-center'> */}
-                              <Image
-                                className="grayscale"
-                                src={"/svgIcons/noObjectiveIcon.svg"}
-                                height={280}
-                                width={250}
-                                alt="*"
-                              />
-                              {/* </div> */}
-                              <div
-                                className=""
-                                style={{ fontWeight: "500", fontSize: 15 }}
-                              >
-                                {`You don’t have any objectives yett`}
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                        }
 
                         <div>
                           {showObjectionsSaveBtn && (
