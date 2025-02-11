@@ -33,6 +33,9 @@ const AdminLeads1 = ({selectedUser}) => {
   const addColRef = useRef(null);
   const bottomRef = useRef(null);
 
+  // console.log('selected User user leads screen', selectedUser)
+  
+
   //code for the new ui add lead modal
   const [addNewLeadModal, setAddNewLeadModal] = useState(false);
 
@@ -300,7 +303,7 @@ const AdminLeads1 = ({selectedUser}) => {
 
   useEffect(() => {
     getUserLeads();
-  }, []);
+  }, [selectedUser]);
 
   //auto focus the add column input field
   useEffect(() => {

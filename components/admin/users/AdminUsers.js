@@ -11,6 +11,7 @@ function AdminUsers() {
   const [loading, setLoading] = useState(false)
   const [anchorEl, setAnchorEl] = useState(null) // For menu position
   const [selectedUser, setSelectedUser] = useState(null) // To know which user is selected for action
+  const [index,setIndex] = useState(0)
 
   const [showUserDetails, setShowUserDetails] = useState(false)
 
@@ -99,6 +100,7 @@ function AdminUsers() {
                   onClick={() => {
                     console.log('selected item', item)
                     setSelectedUser(item)
+                    setIndex(index)
                     // setShowUserDetails(true)
                   }}
                 >
@@ -140,7 +142,15 @@ function AdminUsers() {
         { selectedUser &&
           <SelectedUserDetails open={selectedUser?true:false} close={() => {
             setSelectedUser(null)
-          }} selectedUser={selectedUser} />
+          }} selectedUser={users[index]}  users = {users} handleNext = {()=>{
+            setIndex(index+1)
+          }}
+
+          handleBack = {()=>{
+            setIndex(index-1)
+          }}
+          
+          />
 
         }
       </div>

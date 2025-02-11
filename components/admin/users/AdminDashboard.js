@@ -67,7 +67,7 @@ const AdminDashboard = ({selectedUser}) => {
     console.log(`User's timezone: ${timezone}`);
     getDashboardData();
     getProfile();
-  }, []);
+  }, [selectedUser]);
 
   //function for tootip
 

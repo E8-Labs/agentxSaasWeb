@@ -1392,7 +1392,7 @@ function AdminAgentX({ selectedUser }) {
 
       // setInitialLoder(false)
     }
-  }, []);
+  }, [selectedUser]);
 
   const handleSelectProfileImg = (index) => {
     fileInputRef.current[index]?.click();

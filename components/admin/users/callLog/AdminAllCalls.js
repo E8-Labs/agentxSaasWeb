@@ -27,9 +27,8 @@ import {
   GetFormattedTimeString,
 } from "@/utilities/utility";
 
-function AdminAllCalls({ selectedUser }) {
-
-  console.log('selectedUser', selectedUser)
+function AdminAllCalls({selectedUser}) {
+  const LimitPerPage = 30;
 
   const [searchValue, setSearchValue] = useState("");
 
@@ -68,15 +67,32 @@ function AdminAllCalls({ selectedUser }) {
   const [loading, setLoading] = useState(false);
   const requestVersion = useRef(0);
 
+  const filterRef = useRef(null);
+
   useEffect(() => {
+    console.log("Search value changed", searchValue);
     // if ((selectedFromDate && selectedToDate) || selectedStageIds.length > 0) {
+    setHasMore(true);
     setCallDetails([]);
     setFilteredCallDetails([]);
     setInitialLoader(true);
     getCallLogs(0);
     // }
-  }, [selectedToDate, selectedFromDate, selectedStageIds]);
+  }, [selectedToDate, selectedFromDate, selectedStageIds,selectedUser]);
 
+  useEffect(() => {
+    if (filterRef.current) {
+      clearTimeout(filterRef.current);
+    }
+    filterRef.current = setTimeout(() => {
+      console.log("Timer clicked", searchValue);
+      setHasMore(true);
+      setCallDetails([]);
+      setFilteredCallDetails([]);
+      setInitialLoader(true);
+      getCallLogs(0);
+    }, 400);
+  }, [searchValue]);
   //select pipeline
   const handleChangePipeline = (event) => {
     const selectedValue = event.target.value;
@@ -193,11 +209,8 @@ function AdminAllCalls({ selectedUser }) {
   //function for getting pipelines
   const getPipelines = async () => {
     try {
-
       const ApiPath = Apis.getPipelines;
-      if (selectedUser) {
-        ApiPath = ApiPath + "?userId="+selectedUser.id
-      }
+
       let AuthToken = null;
       const LocalData = localStorage.getItem("User");
       if (LocalData) {
@@ -268,10 +281,11 @@ function AdminAllCalls({ selectedUser }) {
       } else {
         ApiPath = `${Apis.getCallLogs}?offset=${offset}`; //Apis.getCallLogs;
       }
-
-      if (selectedUser) {
-        ApiPath = ApiPath + "&userId=155"//+selectedUser.id
+      if (searchValue && searchValue.length > 0) {
+        ApiPath = `${ApiPath}&name=${searchValue}`;
       }
+
+      ApiPath = ApiPath+"&userId="+selectedUser.id
 
       // if (selectedFromDate && selectedToDate && stages.length > 0) {
       //     ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}&stageIds=${stages}&offset=${offset}&limit=10`;
@@ -287,6 +301,7 @@ function AdminAllCalls({ selectedUser }) {
           "Content-Type": "application/json",
         },
       });
+      setLoading(false);
 
       if (currentRequestVersion === requestVersion.current) {
         if (response) {
@@ -299,7 +314,7 @@ function AdminAllCalls({ selectedUser }) {
           setCallDetails((prevDetails) => [...prevDetails, ...data]);
           setFilteredCallDetails((prevDetails) => [...prevDetails, ...data]);
 
-          if (data.length < 50) {
+          if (data.length < LimitPerPage) {
             setHasMore(false);
           }
           // setOffset((prevOffset) => prevOffset + 5);
@@ -402,8 +417,8 @@ function AdminAllCalls({ selectedUser }) {
             value={searchValue}
             onChange={(e) => {
               const value = e.target.value;
-              handleSearchChange(value);
-              setSearchValue(e.target.value);
+              // handleSearchChange(value);
+              setSearchValue(value);
             }}
           />
           <img
@@ -446,7 +461,7 @@ function AdminAllCalls({ selectedUser }) {
                 >
                   {getFilterTitle(filter)}
                   <button
-                    className="outline-none"
+                    className="outline-none "
                     onClick={() => {
                       if (filter.key == "date") {
                         setSelectedFromDate(null);
@@ -511,13 +526,15 @@ function AdminAllCalls({ selectedUser }) {
         </div>
       </div>
 
-      {initialLoader ? (
-        <div className={`flex flex-row items-center justify-center mt-12 h-[${selectedUser?"43vh":"67vh"}] overflow-auto`}>
+      {initialLoader && filteredCallDetails.length == 0 ? (
+        <div
+          className={`flex flex-row items-center justify-center mt-12 h-[50vh] overflow-auto`}
+        >
           <CircularProgress size={35} thickness={2} />
         </div>
       ) : (
         <div
-          className={`h-[${selectedUser?"43vh":"67vh"}] overflow-auto`}
+          className={`h-[41vh] overflow-auto`}
           id="scrollableDiv1"
           style={{ scrollbarWidth: "none" }}
         >
@@ -540,9 +557,9 @@ function AdminAllCalls({ selectedUser }) {
             scrollableTarget="scrollableDiv1"
             dataLength={filteredCallDetails.length}
             next={() => {
-              console.log("Loading more data");
+              console.log("Loading more data", { loading, hasMore });
               if (!loading && hasMore) {
-                getCallLogs(offset);
+                getCallLogs(filteredCallDetails.length);
               }
             }} // Fetch more when scrolled
             hasMore={hasMore} // Check if there's more data
@@ -558,7 +575,8 @@ function AdminAllCalls({ selectedUser }) {
                 {filteredCallDetails.map((item) => (
                   <div
                     key={item.id}
-                    className="w-full flex flex-row justify-between items-center mt-10 px-10"
+                    style={{ cursor: "pointer" }}
+                    className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                   >
                     <div className="w-2/12 flex flex-row gap-2 items-center">
                       <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
@@ -901,16 +919,18 @@ function AdminAllCalls({ selectedUser }) {
                           onClick={() => {
                             handleSelectStage(item);
                           }}
-                          className={`p-2 border border-[#00000020] ${selectedStageIds.includes(item.id)
+                          className={`p-2 border border-[#00000020] ${
+                            selectedStageIds.includes(item.id)
                               ? `bg-purple`
                               : "bg-transparent"
-                            } px-6
-                                                                ${selectedStageIds.includes(
-                              item.id
-                            )
-                              ? `text-white`
-                              : "text-black"
-                            } rounded-2xl`}
+                          } px-6
+                                                                ${
+                                                                  selectedStageIds.includes(
+                                                                    item.id
+                                                                  )
+                                                                    ? `text-white`
+                                                                    : "text-black"
+                                                                } rounded-2xl`}
                         >
                           {item.stageTitle}
                         </button>
@@ -946,7 +966,7 @@ function AdminAllCalls({ selectedUser }) {
                       fontWeight: "600",
                       backgroundColor:
                         (selectedFromDate && selectedToDate) ||
-                          selectedStageIds.length > 0
+                        selectedStageIds.length > 0
                           ? ""
                           : "#00000050",
                     }}

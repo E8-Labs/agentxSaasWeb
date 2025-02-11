@@ -8,8 +8,11 @@ import AdminAgentX from './AdminAgentX'
 import AdminCallLogs from './AdminCallLogs'
 import AdminAffiliates from '../affiliates/AdminAffiliates'
 import AdminDashboard from './AdminDashboard'
+import AdminIntegration from './AdminIntegration'
+import AdminTeam from './AdminTeams'
+import AdminProfileData from './AdminProfileData'
 
-function SelectedUserDetails({ open, close, selectedUser }) {
+function SelectedUserDetails({ open, close, selectedUser,handleNext,handleBack }) {
 
     console.log('selectedUser on user details modal is', selectedUser)
 
@@ -95,10 +98,10 @@ function SelectedUserDetails({ open, close, selectedUser }) {
                             <div className='flex flex-row items-center justify-between w-full px-10 pt-8'>
                                 <div className='flex flex-row gap-2 items-center justify-start'>
                                     <div className='flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white'>
-                                        A
+                                        {selectedUser.name[0]}
                                     </div>
                                     <h4>
-                                        Ali
+                                        {selectedUser.name}
                                     </h4>
 
                                     <Image src={'/svgIcons/arrowboxIcon.svg'}
@@ -108,14 +111,17 @@ function SelectedUserDetails({ open, close, selectedUser }) {
 
                                 <div className='flex flex-row gap-5 items-center'>
                                     <button className='flex p-3 rounded-full border'
-                                        onClick={close}
+                                        onClick={handleBack}
                                     >
                                         <Image src={"/svgIcons/reverseArrow.svg"}
                                             height={24} width={24} alt='*'
                                         />
                                     </button>
 
-                                    <button className='flex p-3 rounded-full border'>
+                                    <button className='flex p-3 rounded-full border'
+                                        onClick={handleNext}
+                                    
+                                    >
                                         <Image src={"/svgIcons/farwordArrow.svg"}
                                             height={24} width={24} alt='*'
                                         />
@@ -164,7 +170,20 @@ function SelectedUserDetails({ open, close, selectedUser }) {
                                             ) : (
                                                 selectedManu.name == "Dashboard" ?(
                                                     <AdminDashboard selectedUser={selectedUser} />
-                                                ):"Comming soon..."
+                                                ):(
+                                                    selectedManu.name == "Integration"?(
+                                                        <AdminIntegration selectedUser={selectedUser} />
+                                                    ):(
+                                                        selectedManu.name == "Staff" ?(
+                                                            <AdminTeam selectedUser={selectedUser} />
+                                                        ):(
+                                                            selectedManu.name == "Personal Data" ?(
+                                                                <AdminProfileData selectedUser = {selectedUser} />
+                                                            ):"Comming soon..."
+                                                        )
+                                                    )
+                                                )
+                                                //""
                                             )
                                     )
                                 }

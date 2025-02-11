@@ -279,7 +279,7 @@ const AdminPipeline1 = ({selectedUser}) => {
     if (!pipelineIndex) {
       setParamsInSearchBar(number);
     }
-  }, []);
+  }, [selectedUser]);
 
   const setParamsInSearchBar = (index = 0) => {
     // Create a new URLSearchParams object to modify
@@ -423,7 +423,7 @@ const AdminPipeline1 = ({selectedUser}) => {
 
   useEffect(() => {
     getPipelines();
-  }, []);
+  }, [selectedUser]);
 
   useEffect(() => {
    // console.log("Update stage UseEffect", stageColorUpdate);
