@@ -16,8 +16,9 @@ import axios from "axios";
 import { CircularProgress, Modal } from "@mui/material";
 import voicesList from "./Voices";
 import { PauseCircle, PlayCircle } from "@phosphor-icons/react";
+import { UserTypes } from "@/constants/UserTypes";
 
-const CreateAgentVoice = ({ handleBack }) => {
+const CreateAgentVoice = ({ handleBack, user }) => {
   let synthKey = process.env.NEXT_PUBLIC_SynthFlowApiKey;
 
   const router = useRouter();
@@ -43,11 +44,11 @@ const CreateAgentVoice = ({ handleBack }) => {
   }, [selectedVoiceId]);
 
   useEffect(() => {
-   // console.log("I m wrodf");
+    // console.log("I m wrodf");
     const localData = localStorage.getItem("agentDetails");
     if (localData) {
       const agentData = JSON.parse(localData);
-     // console.log("Response of localagent dta", agentData);
+      // console.log("Response of localagent dta", agentData);
       setAgentDetails(agentData);
     }
   }, []);
@@ -59,6 +60,7 @@ const CreateAgentVoice = ({ handleBack }) => {
   };
 
   const handleContinue = async () => {
+    // e.preventDefaults();
     try {
       setVoicesLoader(true);
       let AuthToken = null;
@@ -66,29 +68,29 @@ const CreateAgentVoice = ({ handleBack }) => {
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-       // console.log("Localdat recieved is :--", Data);
+        // console.log("Localdat recieved is :--", Data);
         AuthToken = Data.token;
       }
 
-     // console.log("Auth token is ", AuthToken);
+      // console.log("Auth token is ", AuthToken);
 
       const mainAgentData = localStorage.getItem("agentDetails");
       if (mainAgentData) {
         const Data = JSON.parse(mainAgentData);
-       // console.log("Localdat recieved is :--", Data);
+        // console.log("Localdat recieved is :--", Data);
         mainAgentId = Data.id;
       }
 
       const ApiPath = Apis.updateAgent;
       // const ApiData = {}
       const formData = new FormData();
-     // console.log("selected voice id is:", selectedVoiceId);
+      // console.log("selected voice id is:", selectedVoiceId);
       formData.append("mainAgentId", mainAgentId);
       // return
       formData.append("voiceId", selectedVoiceId);
 
       for (let [key, value] of formData.entries()) {
-       // console.log(`${key} : ${value}`);
+        // console.log(`${key} : ${value}`);
       }
       // return
       const response = await axios.post(ApiPath, formData, {
@@ -99,16 +101,23 @@ const CreateAgentVoice = ({ handleBack }) => {
       });
 
       if (response) {
-       // console.log("Response of update api is :", response.data);
+        // console.log("Response of update api is :", response.data);
         if (response.data.status === true) {
-          router.push("/sellerskycquestions");
+          if (user.userType == UserTypes.RealEstateAgent) {
+            console.log("Routing to seller kyc");
+            router.push("/sellerskycquestions");
+          } else {
+            console.log("Routing to customer kyc");
+            router.push("/customerkycquestions");
+          }
+
           localStorage.removeItem("claimNumberData");
         } else {
           setVoicesLoader(false);
         }
       }
     } catch (error) {
-     // console.error("ERror occured in api is error0", error);
+      // console.error("ERror occured in api is error0", error);
       setVoicesLoader(false);
     } finally {
     }
@@ -174,87 +183,87 @@ const CreateAgentVoice = ({ handleBack }) => {
 
   const getImageHeight = (item) => {
     if (item.name === "Ava") {
-      return 50
+      return 50;
     } else if (item.name === "Zane") {
-      return 50
+      return 50;
     } else if (item.name === "Trinity") {
-      return 30
+      return 30;
     } else if (item.name === "Dax") {
-      return 70
+      return 70;
     } else if (item.name === "Mia") {
-      return 30
+      return 30;
     } else if (item.name === "Kaia") {
-      return 30
+      return 30;
     } else if (item.name === "Axel") {
-      return 30
+      return 30;
     } else if (item.name === "Aria") {
-      return 60
-    }else if (item.name === "Luna") {
-      return 50
+      return 60;
+    } else if (item.name === "Luna") {
+      return 50;
     }
 
-    return 70
-  }
+    return 70;
+  };
   const getImageWidth = (item) => {
     if (item.name === "Ava") {
-      return 50
+      return 50;
     } else if (item.name === "Zane") {
-      return 50
+      return 50;
     } else if (item.name === "Trinity") {
-      return 55
+      return 55;
     } else if (item.name === "Dax") {
-      return 60
+      return 60;
     } else if (item.name === "Mia") {
-      return 55
+      return 55;
     } else if (item.name === "Kaia") {
-      return 50
+      return 50;
     } else if (item.name === "Axel") {
-      return 55
+      return 55;
     } else if (item.name === "Aria") {
-      return 58
+      return 58;
     } else if (item.name === "Luna") {
-      return 50
+      return 50;
     }
 
-    return 60
-  }
+    return 60;
+  };
 
   const addMarginTop = (item) => {
     if (item.name === "Trinity") {
-      return 5
+      return 5;
     } else if (item.name === "Dax") {
-      return 3
+      return 3;
     } else if (item.name === "Axel") {
-      return 7
+      return 7;
     } else if (item.name === "Niko") {
-      return 5
+      return 5;
     } else if (item.name === "Lex") {
-      return 2
+      return 2;
     } else if (item.name === "Xen") {
-      return 6
+      return 6;
     } else if (item.name === "Elon") {
-      return 8
+      return 8;
     } else if (item.name === "Aria") {
-      return 12
+      return 12;
     }
 
-    return 0
-  }
+    return 0;
+  };
 
   const addMariginLeft = (item) => {
     if (item.name === "Niko") {
-      return 4
+      return 4;
     } else if (item.name === "Lex") {
-      return 4
+      return 4;
     } else if (item.name === "Dax") {
-      return 3
+      return 3;
     } else if (item.name === "Xen") {
-      return 6
+      return 6;
     } else if (item.name === "Elon") {
-      return 5
+      return 5;
     }
-    return 0
-  }
+    return 0;
+  };
 
   return (
     <div
@@ -316,8 +325,9 @@ const CreateAgentVoice = ({ handleBack }) => {
                           width={getImageWidth(item)}
                           style={{
                             // backgroundColor:'red',
-                            borderRadius: '50%', marginTop: addMarginTop(item),
-                            marginLeft: addMariginLeft(item)
+                            borderRadius: "50%",
+                            marginTop: addMarginTop(item),
+                            marginLeft: addMariginLeft(item),
                           }}
                           alt="*"
                         />
