@@ -50,7 +50,7 @@ function AdminUsers() {
       </div>
 
       {/* Scrollable Table Container */}
-      <div className="w-full items-center overflow-x-auto" style={{ scrollbarWidth: "thin", WebkitOverflowScrolling: "touch" }}>
+      <div className="w-full items-center overflow-x-auto">
         <div className="min-w-[1400px] w-full items-center">
           {/* Table Headers */}
           <div className="flex items-center justify-center flex-nowrap p-4 text-sm font-semibold text-gray-600">
@@ -77,7 +77,7 @@ function AdminUsers() {
             ) : (
               users.map((item, index) => (
                 <div key={index} className="flex flex-nowrap text-sm text-gray-900 items-center justify-start">
-                  
+
                   {/* Name & Profile */}
                   <div className="w-[10vw] flex flex-row items-center gap-3 py-2">
                     {item.thumb_profile_image ? (
@@ -95,9 +95,11 @@ function AdminUsers() {
                   <div className="w-[6vw] p-2 truncate-cell">{item.leads || '0'}</div>
                   <div className="w-[6vw] p-2 truncate-cell">{item.plan || '-'}</div>
                   <div className="w-[6vw] p-2 truncate-cell">{item.team || '-'}</div>
-                  <div className="w-[6vw] p-2 truncate-cell">${item.totalSpent || '0.00'}</div>
+                  <div className="w-[6vw] p-2 truncate-cell">${item.totalSpent || '0'}</div>
                   <div className="w-[6vw] p-2 truncate-cell">{item.minutesUsed || '0'} mins</div>
-                  <div className="w-[6vw] p-2 truncate-cell">{item.totalSecondsAvailable || '0'} mins</div>
+                  <div className="w-[6vw] p-2 truncate-cell">
+                    {parseFloat((item.totalSecondsAvailable / 60).toFixed(2))} mins
+                  </div>
                   <div className="w-[6vw] p-2 truncate-cell">{GetFormattedDateString(item.nextChargeDate)}</div>
                   <div className="w-[6vw] p-2 truncate-cell">{item.agents || '-'}</div>
                   <div className="w-[8vw] p-2 truncate-cell">{item.campaignee || '-'}</div>
