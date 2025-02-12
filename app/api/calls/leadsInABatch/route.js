@@ -13,6 +13,7 @@ export async function GET(req) {
     const token = authHeader.split(" ")[1];
     const { searchParams } = new URL(req.url);
     const batchId = searchParams.get("batchId");
+    const offset = searchParams.get("offset");
 
     if (!batchId) {
       return NextResponse.json(
@@ -21,13 +22,17 @@ export async function GET(req) {
       );
     }
     // Fetch admin stats from backend API
-    const response = await fetch(Apis.getLeadsInBatch + `?batchId=${batchId}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+
+    const response = await fetch(
+      Apis.getLeadsInBatch + `?batchId=${batchId}&offset=${offset}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     const data = await response.json();
 

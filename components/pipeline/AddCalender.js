@@ -18,7 +18,9 @@ import timeZones from "@/utilities/Timezones";
 import VideoCard from "../createagent/VideoCard";
 import IntroVideoModal from "../createagent/IntroVideoModal";
 import { HowtoVideos } from "@/constants/Constants";
-import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from "../dashboard/leads/AgentSelectSnackMessage";
 
 const AddCalender = ({ handleContinue }) => {
   const [calenderLoader, setAddCalenderLoader] = useState(false);
@@ -37,7 +39,7 @@ const AddCalender = ({ handleContinue }) => {
   const [introVideoModal, setIntroVideoModal] = useState(false);
   const [calendarSelected, setCalendarSelected] = useState(null);
 
-  const [showSnack, setShowSnak] = useState(false)
+  const [showSnack, setShowSnak] = useState(false);
 
   //code for the IANA time zone lists
 
@@ -63,14 +65,14 @@ const AddCalender = ({ handleContinue }) => {
 
   function isEnabled() {
     if (calendarSelected) {
-     // console.log("True because calenarSelected");
+      // console.log("True because calenarSelected");
       return true;
     }
     if (calenderTitle && calenderApiKey && eventId && selectTimeZone) {
-     // console.log("True because all values are there");
+      // console.log("True because all values are there");
       return true;
     } else {
-     // console.log("false calenarSelected");
+      // console.log("false calenarSelected");
       return false;
     }
   }
@@ -92,13 +94,11 @@ const AddCalender = ({ handleContinue }) => {
         AuthToken = UserDetails.token;
       }
 
-     // console.log("Authtoken is:", AuthToken);
+      // console.log("Authtoken is:", AuthToken);
 
       const ApiPath = Apis.getCalenders;
 
-     // console.log("Apipath is for get calender ", ApiPath);
-
-      
+      // console.log("Apipath is for get calender ", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -107,11 +107,11 @@ const AddCalender = ({ handleContinue }) => {
       });
 
       if (response) {
-       // console.log("Response of get calender api is:", response);
+        // console.log("Response of get calender api is:", response);
         setPreviousCalenders(response.data.data);
       }
     } catch (error) {
-     // console.error("Error occured in the api is ", error);
+      // console.error("Error occured in the api is ", error);
     } finally {
       setInitialLoader(false);
     }
@@ -134,13 +134,13 @@ const AddCalender = ({ handleContinue }) => {
       const agentDetails = localStorage.getItem("agentDetails");
       if (agentDetails) {
         const agentData = JSON.parse(agentDetails);
-       // console.log("Recieved from are :--", agentData);
+        // console.log("Recieved from are :--", agentData);
         currentAgentDetails = agentData;
       }
 
-     // console.log("Auth token is:", AuthToken);
+      // console.log("Auth token is:", AuthToken);
       const ApiPath = Apis.addCalender;
-     // console.log("Api path is:", ApiPath);
+      // console.log("Api path is:", ApiPath);
 
       const formData = new FormData();
 
@@ -168,7 +168,7 @@ const AddCalender = ({ handleContinue }) => {
       // }
 
       for (let [key, value] of formData.entries()) {
-       // console.log(`${key}: ${value}`);
+        // console.log(`${key}: ${value}`);
       }
 
       // return
@@ -179,15 +179,15 @@ const AddCalender = ({ handleContinue }) => {
       });
 
       if (response) {
-       // console.log("Response of add calender api is:", response.data.data);
+        // console.log("Response of add calender api is:", response.data.data);
 
         if (response.data.status === true) {
-          setShowSnak(true)
+          setShowSnak(true);
           handleContinue();
         }
       }
     } catch (error) {
-     // console.error("Error occured in api is:", error);
+      // console.error("Error occured in api is:", error);
     } finally {
       setAddCalenderLoader(false);
     }
@@ -222,14 +222,14 @@ const AddCalender = ({ handleContinue }) => {
       style={{ width: "100%" }}
       className="overflow-y-none flex flex-row justify-center items-center"
     >
-
       <AgentSelectSnackMessage
         type={SnackbarTypes.Success}
         message={"Calendar added successfully!"}
         isVisible={showSnack}
         hide={() => {
           setShowSnak(false);
-        }} />
+        }}
+      />
       <div className="bg-white rounded-2xl w-10/12 h-[91vh] py-4 flex flex-col">
         <div className="h-[100%]">
           <div className="h-[87%]">
@@ -242,7 +242,7 @@ const AddCalender = ({ handleContinue }) => {
             </div>
 
             <div
-              className="-ml-4 lg:flex hidden lg:w-2/12 xl:w-3/12"
+              className="-ml-4 lg:flex hidden  xl:w-[350px] lg:w-[350px]"
               style={{
                 position: "absolute",
                 // left: "18%",
@@ -265,7 +265,7 @@ const AddCalender = ({ handleContinue }) => {
             <div>
               <div
                 style={{ fontWeight: "700", fontSize: 38, textAlign: "center" }}
-              // onClick={() => { handleAddCalender() }}
+                // onClick={() => { handleAddCalender() }}
               >
                 Add a Calendar
               </div>
@@ -350,7 +350,7 @@ const AddCalender = ({ handleContinue }) => {
                             <button
                               className="w-full text-start"
                               onClick={() => {
-                               // console.log("Selected calender is:", item);
+                                // console.log("Selected calender is:", item);
                                 setCalendarSelected(item);
                                 // setCalenderTitle(item.title);
                                 // setCalenderApiKey(item.apiKey);
@@ -367,7 +367,7 @@ const AddCalender = ({ handleContinue }) => {
                         <button
                           className="text-purple underline w-full text-start"
                           onClick={() => {
-                           // console.log("Show show the modal");
+                            // console.log("Show show the modal");
                             setCalendarSelected(null);
                             // setCalenderTitle("");
                             // setCalenderApiKey("");
@@ -430,9 +430,9 @@ const AddCalender = ({ handleContinue }) => {
 
         <Modal
           open={showAddNewCalender}
-        // onClose={() => {
-        // setShowAddNewCalender(false);
-        // }}
+          // onClose={() => {
+          // setShowAddNewCalender(false);
+          // }}
         >
           <Box
             className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
@@ -595,7 +595,7 @@ const AddCalender = ({ handleContinue }) => {
                             >
                               <button
                                 onClick={() => {
-                                 // console.log("Selected time zone is:", item);
+                                  // console.log("Selected time zone is:", item);
                                 }}
                               >
                                 {item}

@@ -15,7 +15,7 @@ const Header = ({
   const router = useRouter();
 
   function getSkipPageForSellerKyc() {
-    if (user && user.userType != UserTypes.RealEstateAgent) {
+    if (user && user.user.userType != UserTypes.RealEstateAgent) {
       return "/pipeline";
     }
     return "/buyerskycquestions";

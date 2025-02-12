@@ -1842,7 +1842,7 @@ const Leads1 = () => {
         videoUrl={HowtoVideos.Leads}
         duratuin={11}
       />
-      {/* Modal to add custom sheet */}
+      {/* Modal to add custom sheet When no leads are added */}
       <div>
         <Modal
           open={showAddNewSheetModal}
@@ -1886,9 +1886,9 @@ const Leads1 = () => {
                     }}
                   >
                     <Image
-                      src={"/assets/cross.png"}
-                      height={15}
-                      width={15}
+                      src={"/assets/crossIcon.png"}
+                      height={40}
+                      width={40}
                       alt="*"
                     />
                   </button>
@@ -1996,12 +1996,17 @@ const Leads1 = () => {
                   </div>
                 ) : (
                   <button
-                    className="bg-purple h-[50px] rounded-xl text-white w-full"
+                    className={`h-[50px] rounded-xl w-full ${
+                      newSheetName && newSheetName.length > 0
+                        ? "bg-purple text-white"
+                        : "bg-btngray text-gray-600 cursor-not-allowed" // Disabled state styling
+                    }`}
                     style={{
                       fontWeight: "600",
                       fontSize: 16.8,
                     }}
                     onClick={handleAddSheetNewList}
+                    disabled={newSheetName == null || newSheetName === ""}
                   >
                     Create List
                   </button>

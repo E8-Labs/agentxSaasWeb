@@ -2511,8 +2511,8 @@ const Userleads = ({
                 </div>
               </Box>
             </Modal>
-            {/* </div> */}
 
+            {/* When Thre are leads and user choose to add SmartList */}
             <div>
               <Modal
                 open={showAddNewSheetModal}
@@ -2667,10 +2667,15 @@ const Userleads = ({
                         </div>
                       ) : (
                         <button
-                          className="bg-purple h-[50px] rounded-xl text-white w-full"
+                          className={` h-[50px] rounded-xl text-white w-full ${
+                            newSheetName && newSheetName.length > 0
+                              ? "bg-red"
+                              : ""
+                          }`}
                           style={{
                             fontWeight: "600",
                             fontSize: 16.8,
+                            // backgroundColor: newSheetName ? "" : ""
                           }}
                           onClick={handleAddSheetNewList}
                         >

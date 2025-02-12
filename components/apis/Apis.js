@@ -31,6 +31,7 @@ const Apis = {
   getAgentCadence: `${BasePath}api/pipeline/getAgentCadence`,
   deletePipeline: `${BasePath}api/pipeline/deletePipeline`,
   updateAgent: `${BasePath}api/agent/updateAgent`,
+  updateSubAgent: `${BasePath}api/agent/updateSubAgent`,
   createLead: `${BasePath}api/leads/addLeads`,
   getLeads: `${BasePath}api/leads/getLeads`,
   getSheets: `${BasePath}api/leads/getSheets`,

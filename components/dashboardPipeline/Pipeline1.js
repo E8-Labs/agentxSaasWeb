@@ -2201,7 +2201,7 @@ const Pipeline1 = () => {
         </div>
       )}
       {/* code for delete pipeline modal */}
-      handleDeletePipeline
+
       <Modal
         open={showDeletePipelinePopup}
         onClose={() => {
