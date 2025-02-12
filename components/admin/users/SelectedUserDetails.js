@@ -12,7 +12,7 @@ import AdminIntegration from './AdminIntegration'
 import AdminTeam from './AdminTeams'
 import AdminProfileData from './AdminProfileData'
 
-function SelectedUserDetails({ open, close, selectedUser,handleNext,handleBack }) {
+function SelectedUserDetails({ open, close, selectedUser, handleNext, handleBack }) {
 
     console.log('selectedUser on user details modal is', selectedUser)
 
@@ -54,11 +54,6 @@ function SelectedUserDetails({ open, close, selectedUser,handleNext,handleBack }
             unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg'
         }, {
             id: 8,
-            name: 'Affiliates',
-            selectedImage: '/svgIcons/selectedTeam.svg',
-            unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg'
-        }, {
-            id: 9,
             name: 'Personal Data',
             selectedImage: '/svgIcons/selectdDashboardIcon.svg',
             unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg'
@@ -120,7 +115,7 @@ function SelectedUserDetails({ open, close, selectedUser,handleNext,handleBack }
 
                                     <button className='flex p-3 rounded-full border'
                                         onClick={handleNext}
-                                    
+
                                     >
                                         <Image src={"/svgIcons/farwordArrow.svg"}
                                             height={24} width={24} alt='*'
@@ -164,27 +159,24 @@ function SelectedUserDetails({ open, close, selectedUser,handleNext,handleBack }
                                             <AdminAgentX selectedUser={selectedUser} />
                                         ) : selectedManu.name == "Call Log" ? (
                                             <AdminCallLogs selectedUser={selectedUser} />
-                                        ) :
-                                            selectedManu.name == "Affiliates" ? (
-                                                <AdminAffiliates selectedUser = {selectedUser} />
+                                        ) : (
+                                            selectedManu.name == "Dashboard" ? (
+                                                <AdminDashboard selectedUser={selectedUser} />
                                             ) : (
-                                                selectedManu.name == "Dashboard" ?(
-                                                    <AdminDashboard selectedUser={selectedUser} />
-                                                ):(
-                                                    selectedManu.name == "Integration"?(
-                                                        <AdminIntegration selectedUser={selectedUser} />
-                                                    ):(
-                                                        selectedManu.name == "Staff" ?(
-                                                            <AdminTeam selectedUser={selectedUser} />
-                                                        ):(
-                                                            selectedManu.name == "Personal Data" ?(
-                                                                <AdminProfileData selectedUser = {selectedUser} />
-                                                            ):"Comming soon..."
-                                                        )
+                                                selectedManu.name == "Integration" ? (
+                                                    <AdminIntegration selectedUser={selectedUser} />
+                                                ) : (
+                                                    selectedManu.name == "Staff" ? (
+                                                        <AdminTeam selectedUser={selectedUser} />
+                                                    ) : (
+                                                        selectedManu.name == "Personal Data" ? (
+                                                            <AdminProfileData selectedUser={selectedUser} />
+                                                        ) : "Comming soon..."
                                                     )
                                                 )
-                                                //""
                                             )
+                                            //""
+                                        )
                                     )
                                 }
                             </div>
