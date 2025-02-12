@@ -110,11 +110,11 @@ function AdminBilling({selectedUser}) {
     },
     {
       id: 4,
-      mints: 600,
+      mints: 720,
       calls: "10k",
       details: "Ideal for teams and reaching new GCI goals. ",
       originalPrice: "1200",
-      discountPrice: "480",
+      discountPrice: "600",
       planStatus: "60%",
       status: "Best Value",
     },
