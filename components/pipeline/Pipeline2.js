@@ -655,7 +655,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
           {/* Body */}
           {/* Code for side video */}
           <div
-            className="-ml-4 lg:flex hidden lg:w-2/12 xl:w-3/12"
+            className="-ml-4 lg:flex hidden  xl:w-[350px] lg:w-[350px] "
             style={{
               position: "absolute",
               // left: "18%",

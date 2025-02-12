@@ -238,7 +238,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
     },
     {
       id: 4,
-      mints: 720,
+      mints: 600,
       isTrial: false,
       calls: "10k",
       details: "Ideal for teams and reaching new GCI goals.  ",
@@ -285,7 +285,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
     },
     {
       id: 4,
-      mints: 720,
+      mints: 600,
       isTrial: false,
       calls: "10k",
       details: "Ideal for teams and reaching new GCI goals.  ",

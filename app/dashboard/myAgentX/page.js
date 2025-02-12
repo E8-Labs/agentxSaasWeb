@@ -846,13 +846,13 @@ function Page() {
         const Data = JSON.parse(localData);
         AuthToken = Data.token;
 
-        const ApiPath = Apis.updateAgent;
+        const ApiPath = Apis.updateSubAgent;
 
         console.log("selectedRenameAgent", selectedRenameAgent);
 
         let apidata = {
-          mainAgentId: selectedRenameAgent.mainAgentId,
-          name: selectedRenameAgent?.name,
+          agentId: selectedRenameAgent.id,
+          name: renameAgent, //selectedRenameAgent?.name,
         };
         console.log("apidata", apidata);
 
@@ -1943,7 +1943,7 @@ function Page() {
                             onMouseLeave={handlePopoverClose}
                             style={{ cursor: "pointer" }}
                           >
-                            {user.userType == UserTypes.RealEstateAgent
+                            {user.user.userType == UserTypes.RealEstateAgent
                               ? `${item.agentObjective
                                   ?.slice(0, 1)
                                   .toUpperCase()}${item.agentObjective?.slice(
@@ -2257,7 +2257,7 @@ function Page() {
                   className="mt-4"
                   style={{ fontWeight: "600", fontSize: 12, paddingBottom: 5 }}
                 >
-                  Agent Title
+                  Agent Name
                 </div>
                 <input
                   value={renameAgent}

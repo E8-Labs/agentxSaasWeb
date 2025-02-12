@@ -15,6 +15,7 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const batchId = searchParams.get("batchId");
     const offset = searchParams.get("offset");
+    const search = searchParams.get("search");
 
     if (!batchId) {
       return NextResponse.json(
@@ -23,16 +24,17 @@ export async function GET(req) {
       );
     }
     // Fetch admin stats from backend API
-    const response = await fetch(
-      Apis.getCallsInBatch + `?batchId=${batchId}&offset=${offset}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    let url = Apis.getCallsInBatch + `?batchId=${batchId}&offset=${offset}`;
+    if (search && search.length > 0) {
+      url = `${url}&search=${search}`;
+    }
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
     const data = await response.json();
 

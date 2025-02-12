@@ -132,7 +132,7 @@ const ProfileNav = () => {
     },
     {
       id: 4,
-      mints: 720,
+      mints: 600,
       calls: "10k",
       details: "Ideal for teams and reaching new GCI goals.  ",
       originalPrice: "1200",
@@ -312,6 +312,13 @@ const ProfileNav = () => {
   const getProfile = async () => {
     try {
       let response = await getProfileDetails();
+      console.log("Response of profile api ", response.status);
+      if (response.status == 404) {
+        console.log("User has been deleted");
+        // logout();
+        // router.push("/");
+        return;
+      }
 
       // console.log("Data recieved from get profile api", response);
 
@@ -380,6 +387,7 @@ const ProfileNav = () => {
   };
 
   const handleOnClick = (e, href) => {
+    e.preventDefault();
     localStorage.removeItem("openBilling");
 
     // if (!userDetails.user.plan) {
@@ -387,7 +395,7 @@ const ProfileNav = () => {
     // }
 
     // e.preventDefault();
-    // router.push(href);
+    router.push(href);
   };
 
   //function to subsscribe plan
@@ -509,7 +517,7 @@ const ProfileNav = () => {
         if (response.data.status === true) {
           localDetails.user.plan = response.data.data;
           // console.log("Data updated is", localDetails);
-          await getProfileDetails();
+          // getProfile();
           localStorage.setItem("User", JSON.stringify(localDetails));
           setSuccessSnack(response.data.message);
           setShowSuccessSnack(true);

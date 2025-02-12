@@ -441,7 +441,7 @@ const BuyerKycs = ({ handleContinue }) => {
               videoUrl={HowtoVideos.KycQuestions}
             />
             <div className="flex flex-row w-full justify-center h-[100%]">
-              <div className="hidden lg:inline w-2/12 -ml-4 mt-12">
+              <div className="hidden lg:inline  xl:w-[270px] lg:w-[270px] -ml-4 mt-12">
                 <VideoCard
                   duration="1 min 38 sec"
                   horizontal={false}

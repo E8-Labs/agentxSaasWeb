@@ -212,7 +212,7 @@ function AdminSubscriptions() {
                                 <div className='flex flex-row items-center gap-'>
                                     <div className='h-[13px] w-[13px] rounded-full shadow-md bg-[#FF2222] border border-white'></div>
                                     <p style={{ fontSize: 15, fontWeight: '500', color: "#000" }}>
-                                        720mins
+                                        600mins
                                     </p>
                                 </div>
 

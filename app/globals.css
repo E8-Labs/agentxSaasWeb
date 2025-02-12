@@ -65,3 +65,11 @@
   }
 }
 
+.truncate-cell {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%; /* Ensures it fits within its column */
+  display: block;
+}
+

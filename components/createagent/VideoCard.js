@@ -13,16 +13,14 @@ const VideoCard = ({
       className={`flex ${
         horizontal ? "flex-row items-center" : "flex-col items-start"
       } 
-        p-4 bg-white rounded-lg border border-brdColor max-w-md cursor-pointer`}
+    p-4 rounded-lg border border-brdColor max-w-md cursor-pointer bg-white`}
       onClick={() => {
         playVideo();
       }}
     >
       {/* Video Thumbnail */}
       <div className="flex flex-row items-end gap-4">
-        <div
-          className="relative flex-shrink-0" //style={{ width: `${width}px`, height: `${height}px` }}
-        >
+        <div className="relative flex-shrink-0">
           <Image
             src="/assets/youtubeplay.png"
             alt="Video thumbnail"
@@ -33,8 +31,9 @@ const VideoCard = ({
           />
         </div>
 
-        <div className="flex px-2 py-1 flex-col justify-center items-center rounded-full border border-brdColor">
-          <p className="text-sm text-gray-600">{duration}</p>
+        {/* Duration div */}
+        <div className="flex px-2 py-1 flex-col justify-center items-center rounded-full border border-brdColor lg:block hidden min-w-[80px]">
+          <p className="text-sm md:text-xs text-gray-600">{duration}</p>
         </div>
       </div>
 

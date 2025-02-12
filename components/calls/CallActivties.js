@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Apis from "../apis/Apis";
 import axios from "axios";
@@ -46,6 +46,22 @@ function SheduledCalls({}) {
   const [extraTagsModal, setExtraTagsModal] = useState(false);
   const [otherTags, setOtherTags] = useState([]);
 
+  const filterTimerRef = useRef(null);
+  useEffect(() => {
+    if (filterTimerRef.current) {
+      clearTimeout(filterTimerRef.current);
+    }
+    filterTimerRef.current = setTimeout(() => {
+      console.log("Timer clicked", detailsFilterSearchValue);
+      if (detailsFilterSearchValue && detailsFilterSearchValue.length > 0) {
+        setHasMoreCalls(true);
+        setFilteredSheduledCalllogs([]);
+        setSheduledCalllogs([]);
+        fetchCallsInBatch(SelectedItem, 0);
+      }
+    }, 400);
+  }, [detailsFilterSearchValue]);
+
   useEffect(() => {
     getAgents();
     let localD = localStorage.getItem(PersistanceKeys.LocalStorageUser);
@@ -78,9 +94,11 @@ function SheduledCalls({}) {
     // console.log("Item selected is:", item);
     setSelectedAgent(agent);
     setSelectedItem(item);
-    // setSelectedLeadsList([]);
-    // setFilteredSelectedLeadsList([]);
+    setSelectedLeadsList([]);
+    setFilteredSelectedLeadsList([]);
+    setHasMoreLeads(true);
     setShowLeadDetailsModal(true);
+    fetchLeadsInBatch(item);
   };
 
   //code to filter slected agent leads
@@ -157,8 +175,17 @@ function SheduledCalls({}) {
 
   //code to show call log details popup
 
-  const handleShowDetails = () => {
-    fetchCallsInBatch(SelectedItem);
+  const handleShowBatchCalls = (item, agent, event) => {
+    if (event) {
+      setAnchorEl(event.currentTarget);
+    }
+    // console.log("Selected item details are ", item);
+    // console.log("Selected agent  details are ", agent);
+    setSelectedAgent(agent);
+    setSelectedItem(item);
+    setShowDetailsModal(true);
+    setHasMoreCalls(true);
+    fetchCallsInBatch(item, 0);
     // let updatedCallDetails = callDetails.map((item) => item.agentCalls);
     // let CallsArray = [];
     // let matchingPastCallsLeads = SelectedItem.leads.filter((lead) => {
@@ -346,34 +373,38 @@ function SheduledCalls({}) {
     }
   };
 
-  const fetchLeadsInBatch = async (batch) => {
+  const fetchLeadsInBatch = async (batch, offset = 0) => {
     console.log("Get leads for batch", batch);
     try {
-      let firstCall = false;
+      let firstApiCall = false;
       setLeadsLoading(true);
       let leadsInBatchLocalData = localStorage.getItem(
         PersistanceKeys.LeadsInBatch + `${batch.id}`
       );
       if (selectedLeadsList.length == 0) {
-        firstCall = false;
+        firstApiCall = true;
         if (leadsInBatchLocalData) {
-          console.log("Data in localStorage for leads batch");
+          console.log("Data in localStorage for leads batch", batch.id);
           let leads = JSON.parse(leadsInBatchLocalData);
-          console.log("Leads ", leads.length);
-          setSelectedLeadsList(leads);
-          setFilteredSelectedLeadsList(leads);
+          console.log("Leads Local ", leads.length);
+          // setSelectedLeadsList(leads);
+          // setFilteredSelectedLeadsList(leads);
           setLeadsLoading(false);
           // return;
         } else {
           console.log("No data in local storage lead batch");
         }
+      } else {
+        console.log("Leads length ", selectedLeadsList.length);
       }
 
       const token = user.token; // Extract JWT token
-
+      console.log(
+        "Api Call Leads : ",
+        "/api/calls/leadsInABatch" + `?batchId=${batch.id}&offset=${offset}`
+      );
       const response = await fetch(
-        "/api/calls/leadsInABatch" +
-          `?batchId=${batch.id}&offset=${selectedLeadsList.length}`,
+        "/api/calls/leadsInABatch" + `?batchId=${batch.id}&offset=${offset}`,
         {
           method: "GET",
           headers: {
@@ -386,7 +417,7 @@ function SheduledCalls({}) {
       const data = await response.json();
 
       if (response.ok) {
-        console.log("Leads In Batch:", data);
+        console.log(`Leads In Batch ${batch.id}:`, data);
         // setSelectedLeadsList(data.data);
         // setFilteredSelectedLeadsList(data.data);
         // localStorage.setItem(
@@ -394,7 +425,7 @@ function SheduledCalls({}) {
         //   JSON.stringify(data.data)
         // );
 
-        if (firstCall) {
+        if (firstApiCall) {
           setSelectedLeadsList(data.data);
           setFilteredSelectedLeadsList(data.data);
           localStorage.setItem(
@@ -422,8 +453,9 @@ function SheduledCalls({}) {
     }
   };
 
-  const fetchCallsInBatch = async (batch) => {
-    console.log("Get calls for batch", batch);
+  const fetchCallsInBatch = async (batch, offset = 0) => {
+    console.log(`Get calls for batch ${SelectedAgent?.name}`, batch);
+
     try {
       let firstCall = false;
       setCallsLoading(true);
@@ -448,17 +480,19 @@ function SheduledCalls({}) {
 
       const token = user.token; // Extract JWT token
       console.log("Here");
-      const response = await fetch(
-        "/api/calls/callsInABatch" +
-          `?batchId=${batch.id}&offset=${sheduledCalllogs.length}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      let url =
+        "/api/calls/callsInABatch" + `?batchId=${batch.id}&offset=${offset}`;
+      if (detailsFilterSearchValue && detailsFilterSearchValue.length > 0) {
+        url = `${url}&search=${detailsFilterSearchValue}`;
+      }
+      console.log("Url is ", url);
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
       console.log("Here 2", response);
       setCallsLoading(false);
       const data = await response.json();
@@ -559,10 +593,10 @@ function SheduledCalls({}) {
           <button
             className="text-start outline-none"
             onClick={() => {
-              setShowDetailsModal(true);
-              setHasMoreCalls(true);
-              fetchCallsInBatch(SelectedItem);
-              // handleShowDetails();
+              // handleShowLeads(SelectedAgent, SelectedItem);
+
+              // fetchCallsInBatch(SelectedItem);
+              handleShowBatchCalls(SelectedItem);
             }}
           >
             View Details
@@ -666,9 +700,14 @@ function SheduledCalls({}) {
                                 <button
                                   style={styles.text2}
                                   className="text-purple underline outline-none"
-                                  onClick={() => {
-                                    fetchLeadsInBatch(item);
-                                    handleShowLeads(agent, item);
+                                  onClick={(event) => {
+                                    // handleShowPopup(event, item, agent);
+                                    // fetchLeadsInBatch(item);
+                                    // handleShowLeads(agent, item);
+                                    // setShowDetailsModal(true);
+                                    // setHasMoreCalls(true);
+                                    // fetchCallsInBatch(SelectedItem);
+                                    handleShowBatchCalls(item, agent, null);
                                   }}
                                 >
                                   {item?.totalLeads}
@@ -785,7 +824,7 @@ function SheduledCalls({}) {
                           value={detailsFilterSearchValue}
                           onChange={(e) => {
                             const value = e.target.value;
-                            handleDetailsSearchChange(value);
+                            // handleDetailsSearchChange(value);
                             setDetailsFilterSearchValue(value);
                           }}
                         />
@@ -822,7 +861,10 @@ function SheduledCalls({}) {
                         dataLength={filteredSheduledCalllogs.length}
                         next={() => {
                           console.log("Fetch more calls here");
-                          fetchCallsInBatch(SelectedItem);
+                          fetchCallsInBatch(
+                            SelectedItem,
+                            filteredSheduledCalllogs.length
+                          );
                         }}
                         hasMore={hasMoreCalls}
                         loader={
@@ -1016,7 +1058,7 @@ function SheduledCalls({}) {
                         value={leadsSearchValue}
                         onChange={(e) => {
                           const value = e.target.value;
-                          handleLeadsSearchChange(value);
+                          // handleLeadsSearchChange(value);
                           setLeadsSearchValue(e.target.value);
                         }}
                       />
@@ -1069,7 +1111,10 @@ function SheduledCalls({}) {
                             scrollableTarget="scrollableDiv1"
                             dataLength={filteredSelectedLeadsList.length}
                             next={() => {
-                              fetchLeadsInBatch(SelectedItem);
+                              fetchLeadsInBatch(
+                                SelectedItem,
+                                filteredSelectedLeadsList.length
+                              );
                             }}
                             hasMore={hasMoreLeads}
                             loader={
