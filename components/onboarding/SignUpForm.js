@@ -26,7 +26,7 @@ import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
 import { getLocalLocation } from "./services/apisServices/ApiService";
 import { PersistanceKeys } from "@/constants/Constants";
 
-const SignUpForm = ({ handleContinue, handleBack, length = 7, onComplete }) => {
+const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
 

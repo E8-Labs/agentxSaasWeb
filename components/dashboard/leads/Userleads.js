@@ -189,6 +189,7 @@ const Userleads = ({
   //pipelines dropdown
   // const [selectedPipeline, setSelectedPipeline] = useState("");
   const [selectedPipeline, setSelectedPipeline] = useState("");
+  const filterRef = useRef(null);
 
   const handleChange = (event) => {
     const selectedValue = event.target.value;
@@ -203,6 +204,22 @@ const Userleads = ({
 
     setStagesList(selectedItem.stages);
   };
+
+  useEffect(() => {
+    if (filterRef.current) {
+      clearTimeout(filterRef.current);
+    }
+    filterRef.current = setTimeout(() => {
+      console.log("Timer clicked", searchLead);
+      setHasMore(true);
+      setFilterLeads([]);
+      setLeadsList([]);
+      let filterText = getFilterText();
+      console.log("Filters changed", filterText);
+      handleFilterLeads(0, filterText);
+      setShowNoLeadsLabel(false);
+    }, 400);
+  }, [searchLead]);
 
   useEffect(() => {
     // getLeads();
@@ -612,10 +629,14 @@ const Userleads = ({
 
   function getFilterText() {
     //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}
-    if (filtersSelected.length == 0) {
-      return null;
-    }
     let string = `sheetId=${SelectedSheetId}`;
+    if (filtersSelected.length == 0) {
+      if (searchLead && searchLead.length > 0) {
+        string = `${string}&search=${searchLead}`;
+      }
+      return string;
+    }
+
     let stageIds = "";
     let stageSeparator = "";
     filtersSelected.map((filter) => {
@@ -633,6 +654,9 @@ const Userleads = ({
         // stageSeparator = ","
       }
     });
+    if (searchLead && searchLead.length > 0) {
+      string = `${string}&search=${searchLead}`;
+    }
     // string = `${string}&stageIds=${stageIds}`;
     if (stageIds.length > 0) {
       string = `${string}&stageIds=${stageIds}`;
@@ -1370,6 +1394,7 @@ const Userleads = ({
 
   //code for handle search change
   const handleSearchChange = (value) => {
+    return;
     if (value.trim() === "") {
       // ////console.log("Should reset to original");
       // Reset to original list when input is empty

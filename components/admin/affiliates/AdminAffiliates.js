@@ -70,7 +70,7 @@ function AdminAffiliates({ selectedUser }) {
             setCountryCode(loc);
             getAffiliates();
         }
-    }, []);
+    }, [selectedUser]);
 
 
     useEffect(() => {

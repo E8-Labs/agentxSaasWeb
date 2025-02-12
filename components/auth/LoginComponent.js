@@ -940,30 +940,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 Enter code that was sent to number ending with *
                 {userPhoneNumber.slice(-4)}.
               </div>
-              {/* <VerificationCodeInput /> */}
-              {/* <div className='mt-8' style={{ display: 'flex', gap: '8px' }}>
-                {Array.from({ length }).map((_, index) => (
-                  <input
-                    key={index}
-                    ref={(el) => (verifyInputRef.current[index] = el)}
-                    type="text"
-                    maxLength="1"
-                    value={VerifyCode[index]}
-                    onChange={(e) => handleVerifyInputChange(e, index)}
-                    onKeyDown={(e) => handleBackspace(e, index)}
-                    onPaste={handlePaste}
-                    placeholder='-'
-                    style={{
-                      width: '40px',
-                      height: '40px',
-                      textAlign: 'center',
-                      fontSize: '20px',
-                      border: '1px solid #ccc',
-                      borderRadius: '5px',
-                    }}
-                  />
-                ))}
-              </div> */}
+
               <div
                 className="mt-8 w-ful flex flex-row items-center gap-2 overflow-auto"
                 style={{ display: "flex", gap: "8px" }}

@@ -2,9 +2,6 @@
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { CircularProgress, duration } from '@mui/material';
-import AllCalls from '@/components/calls/AllCalls';
-import SheduledCalls from '@/components/calls/SheduledCalls';
-import CallActivities from '@/components/calls/CallActivties';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer';
@@ -19,8 +16,8 @@ function AdminCallLogs({selectedUser}) {
 
 
   return (
-    <div className='w-full flex flex-col items-start justify-start'>
-      <div className=' w-full flex flex-row justify-between items-center py-2 px-10'
+    <div className='w-full flex flex-col items-center overflow-hidden'>
+      <div className=' w-full flex flex-row justify-between items-center py-4 px-10'
         // style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
       >
         <div style={{ fontSize: 24, fontWeight: '600' }}>
@@ -29,7 +26,7 @@ function AdminCallLogs({selectedUser}) {
 
       </div>
 
-      <div className=" w-full flex mt-3  gap-8 pb-2 mb-4 pl-10">
+      <div className=" w-full flex mt-4  gap-8 pb-2 mb-4 pl-10">
         {["All Calls", "Call Activities", "Scheduled"].map((tab) => (
           <button
             key={tab}
@@ -48,12 +45,12 @@ function AdminCallLogs({selectedUser}) {
       <div className='w-full'>
         {
           activeTab === "All Calls" ? (
-            <AdminAllCalls selectedUser={selectedUser} />
+            <AdminAllCalls selectedUser = {selectedUser} />
           ) : (
             activeTab === "Scheduled" ? (
-              <AdminScheduledCalls selectedUser = {selectedUser} />
+              <AdminScheduledCalls   selectedUser = {selectedUser} />
             ) : (
-              <AdminActiveCalls selectedUser = {selectedUser}/>
+              <AdminActiveCalls  selectedUser = {selectedUser}  />
             )
           )
         }

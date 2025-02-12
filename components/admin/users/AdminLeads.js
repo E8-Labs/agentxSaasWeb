@@ -211,7 +211,7 @@ const AdminLeads = ({
     getProfile();
     getPipelines();
     getSheets();
-  }, []);
+  }, [selectedUser]);
 
   useEffect(() => {
     if (shouldSet === true) {
@@ -256,7 +256,7 @@ const AdminLeads = ({
    // console.log("Filters changed", filterText);
     handleFilterLeads(0, filterText);
     setShowNoLeadsLabel(false);
-  }, [filtersSelected, SelectedSheetId]);
+  }, [filtersSelected, SelectedSheetId,selectedUser]);
 
   //Caching & refresh logic
   useEffect(() => {
