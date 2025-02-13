@@ -40,7 +40,102 @@ let stripePublickKey =
     : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = loadStripe(stripePublickKey);
 
+let plansWithoutTrial = [
+  {
+    id: 1,
+    mints: 30,
+    calls: 250,
+    details: "Great for trying out AI sales agents.",
+    originalPrice: "",
+    discountPrice: "45",
+    planStatus: "",
+    status: "",
+  },
+  {
+    id: 2,
+    mints: 120,
+    calls: "1k",
+    details: "Perfect for lead updates and engagement.",
+    originalPrice: "165",
+    discountPrice: "99",
+    planStatus: "40%",
+    status: "",
+  },
+  {
+    id: 3,
+    mints: 360,
+    calls: "3k",
+    details: "Perfect for lead reactivation and prospecting.",
+    originalPrice: "540",
+    discountPrice: "370",
+    planStatus: "50%",
+    status: "Popular",
+  },
+  {
+    id: 4,
+    mints: 720,
+    calls: "10k",
+    details: "Ideal for teams and reaching new GCI goals.  ",
+    originalPrice: "1200",
+    discountPrice: "600",
+    planStatus: "60%",
+    status: "Best Value",
+  },
+];
+
+let plansWitTrial = [
+  {
+    id: 1,
+    startFreeLabel: "Free",
+    mints: 30,
+    calls: 250,
+    isTrial: true,
+    trial: "7 Day Trial",
+    details: "Perfect to start for free, then $45 to continue.",
+    originalPrice: "45",
+    discountPrice: "Free Trial",
+    planStatus: "Free",
+    status: "",
+  },
+  {
+    id: 2,
+    mints: 120,
+    isTrial: false,
+    calls: "1k",
+    details: "Perfect for lead updates and engagement.", // "Perfect for lead updates and engagement.",
+    originalPrice: "165",
+    discountPrice: "99",
+    planStatus: "40%",
+    status: "",
+  },
+  {
+    id: 3,
+    mints: 360,
+    isTrial: false,
+    calls: "3k",
+    details: "Perfect for lead reactivation and prospecting.",
+    originalPrice: "540",
+    discountPrice: "370",
+    planStatus: "50%",
+    status: "Popular",
+  },
+  {
+    id: 4,
+    mints: 720,
+    isTrial: false,
+    calls: "10k",
+    details: "Ideal for teams and reaching new GCI goals.  ",
+    originalPrice: "1200",
+    discountPrice: "600",
+    planStatus: "60%",
+    status: "Best Value",
+  },
+];
+
 const ProfileNav = () => {
+  // const [user, setUser] = useState(null)
+
+  const [plans, setPlans] = useState(plansWithoutTrial);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -99,49 +194,6 @@ const ProfileNav = () => {
     testNot();
   }, []);
 
-  const plans = [
-    {
-      id: 1,
-      mints: 30,
-      calls: 250,
-      details: "Great for trying out AI sales agents.",
-      originalPrice: "",
-      discountPrice: "45",
-      planStatus: "",
-      status: "",
-    },
-    {
-      id: 2,
-      mints: 120,
-      calls: "1k",
-      details: "Perfect for lead updates and engagement.",
-      originalPrice: "165",
-      discountPrice: "99",
-      planStatus: "40%",
-      status: "",
-    },
-    {
-      id: 3,
-      mints: 360,
-      calls: "3k",
-      details: "Perfect for lead reactivation and prospecting.",
-      originalPrice: "540",
-      discountPrice: "370",
-      planStatus: "50%",
-      status: "Popular",
-    },
-    {
-      id: 4,
-      mints: 720,
-      calls: "10k",
-      details: "Ideal for teams and reaching new GCI goals.  ",
-      originalPrice: "1200",
-      discountPrice: "600",
-      planStatus: "60%",
-      status: "Best Value",
-    },
-  ];
-
   //useeffect that redirect the user back to the main screen for mobile view
   useEffect(() => {
     let windowWidth = 1000;
@@ -160,6 +212,10 @@ const ProfileNav = () => {
     if (data) {
       const LocalData = JSON.parse(data);
       setUserDetails(LocalData);
+      if (LocalData.user.plan == null) {
+        // user haven't subscribed to any plan
+        setPlans(plansWitTrial);
+      }
     }
     await getProfile();
   };
@@ -929,10 +985,15 @@ const ProfileNav = () => {
                               }}
                               className="flex flex-row items-center gap-2"
                             >
-                              {item.mints} mins | {item.calls} calls*
+                              {item.startFreeLabel
+                                ? `${item.startFreeLabel} `
+                                : ""}
+                              {item.mints}mins
+                              {item.trial ? ` ${item.trial} ` : "  "}|{" "}
+                              {item.calls} Calls*
                               {item.status && (
                                 <div
-                                  className="flex px-2 py-1 bg-purple rounded-full text-white"
+                                  className="flex hidden sm:flex px-2 py-1 bg-purple rounded-full text-white"
                                   style={{ fontSize: 11.6, fontWeight: "500" }}
                                 >
                                   {item.status}
