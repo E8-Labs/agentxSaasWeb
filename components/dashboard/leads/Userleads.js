@@ -2069,7 +2069,7 @@ const Userleads = ({
                 style={{ scrollbarWidth: "none" }}
               >
                 <InfiniteScroll
-                  className="lg:flex hidden flex-col w-full"
+                  className="flex flex-col w-full"
                   endMessage={
                     <p
                       style={{
