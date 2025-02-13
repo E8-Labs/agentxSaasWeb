@@ -307,7 +307,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           setSnackMessage("Agent created successfully.");
           setMsgType(SnackbarTypes.Success);
           localStorage.setItem(
-            "agentDetails",
+            PersistanceKeys.LocalSavedAgentDetails,
             JSON.stringify(response.data.data)
           );
           // if (LocalDetails.plan) {
