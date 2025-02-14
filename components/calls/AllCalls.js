@@ -27,7 +27,7 @@ import {
   GetFormattedTimeString,
 } from "@/utilities/utility";
 
-function AllCalls({}) {
+function AllCalls({ user }) {
   const LimitPerPage = 30;
 
   const [searchValue, setSearchValue] = useState("");

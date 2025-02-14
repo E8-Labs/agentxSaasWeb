@@ -454,7 +454,7 @@ function SubscriptionsStatsComponent({ stats }) {
       {/* Plan 720 */}
       <Card className="cursor-pointer border-none shadow-none w-[11vw]">
         <CardHeader>
-          <CardTitle>$480 Plan</CardTitle>
+          <CardTitle>$600 Plan</CardTitle>
         </CardHeader>
         <CardContent>
           <h2 className="cursor-pointer text-3xl font-regular">

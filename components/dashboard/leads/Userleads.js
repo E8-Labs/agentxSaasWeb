@@ -44,6 +44,7 @@ import AgentSelectSnackMessage, {
 } from "./AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
 import { useRouter, useSearchParams } from "next/navigation";
+import { fromJSON } from "postcss";
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -74,8 +75,9 @@ const Userleads = ({
   const [searchLead, setSearchLead] = useState("");
   const [FilterLeads, setFilterLeads] = useState([]);
   const [leadColumns, setLeadColumns] = useState([]);
+  const [totalLeads, setTotalLeads] = useState(0);
   const [SelectedSheetId, setSelectedSheetId] = useState(null);
-  const [toggleClick, setToggleClick] = useState([]);
+  const [selectedLeadsList, setSelectedLeadsList] = useState([]);
   const [selectedAll, setSelectedAll] = useState(false);
   const [AssignLeadModal, setAssignLeadModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
@@ -92,6 +94,10 @@ const Userleads = ({
   useEffect(() => {
     console.log("Filtered Leads changed", FilterLeads.length);
   }, [FilterLeads]);
+
+  useEffect(() => {
+    console.log("Total Leads", totalLeads);
+  }, [totalLeads]);
   /*
  
   [
@@ -211,13 +217,15 @@ const Userleads = ({
     }
     filterRef.current = setTimeout(() => {
       console.log("Timer clicked", searchLead);
-      setHasMore(true);
-      setFilterLeads([]);
-      setLeadsList([]);
-      let filterText = getFilterText();
-      console.log("Filters changed", filterText);
-      handleFilterLeads(0, filterText);
-      setShowNoLeadsLabel(false);
+      if (SelectedSheetId) {
+        setHasMore(true);
+        setFilterLeads([]);
+        setLeadsList([]);
+        let filterText = getFilterText();
+        console.log("Filters changed", filterText);
+        handleFilterLeads(0, filterText);
+        setShowNoLeadsLabel(false);
+      }
     }, 400);
   }, [searchLead]);
 
@@ -238,7 +246,7 @@ const Userleads = ({
       ////console.log("Adding the new sheet is:", newListAdded);
       let sheets = [];
       let found = false;
-      SheetsList.map((sheet) => {
+      SheetsList.map((sheet, index) => {
         if (sheet.id == newListAdded.id) {
           // console.log("Id of new list is same");
           found = true;
@@ -282,11 +290,11 @@ const Userleads = ({
   useEffect(() => {
     const sheet = searchParams.get("sheet"); // Get the value of 'tab'
     let number = Number(sheet) || 0;
-    // console.log("Tab value is ", number);
+    console.log("Sheet value is ", number);
     sheetIndexSelected = number;
-    if (!sheet) {
-      setParamsInSearchBar(1);
-    }
+    // if (!sheet) {
+    setParamsInSearchBar(number);
+    // }
   }, []);
   const setParamsInSearchBar = (index = 1) => {
     // Create a new URLSearchParams object to modify
@@ -315,6 +323,7 @@ const Userleads = ({
       setSheetsList(data);
       setCurrentSheet(data[ind]);
       setSelectedSheetId(data[ind].id);
+      setParamsInSearchBar(ind);
       return true; //
     } else {
       // console.log("Sheets not in cache");
@@ -602,7 +611,7 @@ const Userleads = ({
           setSheetsList((prevSheetsList) =>
             prevSheetsList.filter((sheet) => sheet.id !== selectedSmartList.id)
           );
-          setToggleClick([]);
+          setSelectedLeadsList([]);
           setFilterLeads([]);
           setLeadsList([]);
           setShowNoLeadsLabel(true);
@@ -663,6 +672,52 @@ const Userleads = ({
     }
 
     return string;
+  }
+
+  function getFiltersObject() {
+    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}
+    let filters = {};
+    let string = `sheetId=${SelectedSheetId}`;
+    if (SelectedSheetId) {
+      filters["sheetId"] = SelectedSheetId;
+    }
+    // if (filtersSelected.length == 0) {
+    if (searchLead && searchLead.length > 0) {
+      string = `${string}&search=${searchLead}`;
+      filters["search"] = searchLead;
+    }
+    // return string;
+    // }
+
+    let stageIds = "";
+    let stageSeparator = "";
+    filtersSelected.map((filter) => {
+      if (filter.key == "date") {
+        const formtFromDate = moment(filter.values[0]).format("MM/DD/YYYY");
+        const formtToDate = moment(filter.values[1]).format("MM/DD/YYYY");
+        // string = `${string}&fromDate=${formtFromDate}&toDate=${formtToDate}`;
+        filters["fromDate"] = fromDate;
+        filters["toDate"] = toDate;
+      }
+      if (filter.key == "stage") {
+        stageIds = `${stageIds}${stageSeparator}${filter.values[0].id}`;
+        stageSeparator = ",";
+      }
+      if (filter.key == "pipeline") {
+        // string = `${string}&pipelineId=${selectedPipeline}`
+        // stageSeparator = ","
+      }
+    });
+    // if (searchLead && searchLead.length > 0) {
+    // string = `${string}&search=${searchLead}`;
+    // }
+    // string = `${string}&stageIds=${stageIds}`;
+    if (stageIds.length > 0) {
+      // string = `${string}&stageIds=${stageIds}`;
+      filters["stageIds"] = stageIds;
+    }
+
+    return filters;
   }
 
   function getLocallyCachedLeads() {
@@ -764,6 +819,7 @@ const Userleads = ({
           if (response.data.status === true) {
             setShowFilterModal(false);
             console.log("Leads Found ", response.data.data);
+            setTotalLeads(response.data.leadCount);
             // setLeadsList(response.data.data);
             // setFilterLeads(response.data.data);
             let allLeads;
@@ -827,6 +883,7 @@ const Userleads = ({
               setHasMore(false);
             } else {
               setHasMore(true);
+              // handleFilterLeads(offset + 30, filterText);
             }
           } else {
             // console.log("False api get leads resposne");
@@ -1095,6 +1152,21 @@ const Userleads = ({
 
   const getColumnData = (column, item) => {
     const { title } = column;
+    let canShowSelected = false;
+    if (selectedAll) {
+      //check if item.id is in the toggle list or not
+      if (selectedLeadsList.includes(item.id)) {
+        canShowSelected = false;
+      } else {
+        canShowSelected = true;
+      }
+    } else {
+      if (selectedLeadsList.includes(item.id)) {
+        canShowSelected = true;
+      } else {
+        canShowSelected = false;
+      }
+    }
 
     // console.log("Colums of the list are:", column);
     // console.log("Comparing items---", item.id);
@@ -1106,10 +1178,12 @@ const Userleads = ({
         return (
           <div>
             <div className="w-full flex flex-row items-center gap-2 truncate">
-              {toggleClick.includes(item.id) ? (
+              {canShowSelected ? (
                 <button
                   className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
-                  onClick={() => handleToggleClick(item.id)}
+                  onClick={() => {
+                    handleToggleClick(item.id);
+                  }}
                 >
                   <Image
                     src={"/assets/whiteTick.png"}
@@ -1262,6 +1336,7 @@ const Userleads = ({
             }
             setCurrentSheet(response.data.data[ind]);
             setSelectedSheetId(response.data.data[ind].id);
+            // setParamsInSearchBar(ind);
           }
 
           //   getLeads(response.data.data[0], 0);
@@ -1359,16 +1434,25 @@ const Userleads = ({
   };
 
   //code for toggle click
-  const handleToggleClick = (id) => {
-    setToggleClick((prevSelectedItems) => {
-      if (prevSelectedItems.includes(id)) {
-        // Remove the ID if it's already selected
-        return prevSelectedItems.filter((itemId) => itemId !== id);
+  const handleToggleClick = (id, selectedAll) => {
+    if (selectedAll) {
+      // setSelectedAll(false);
+      if (selectedLeadsList.includes(id)) {
+        setSelectedLeadsList((prev) => prev.filter((item) => item.id != id));
       } else {
-        // Add the ID to the selected items
-        return [...prevSelectedItems, id];
+        setSelectedLeadsList((prev) => [...prev, id]);
       }
-    });
+    } else {
+      setSelectedLeadsList((prevSelectedItems) => {
+        if (prevSelectedItems.includes(id)) {
+          // Remove the ID if it's already selected
+          return prevSelectedItems.filter((itemId) => itemId !== id);
+        } else {
+          // Add the ID to the selected items
+          return [...prevSelectedItems, id];
+        }
+      });
+    }
   };
 
   //close assign lead modal
@@ -1382,7 +1466,7 @@ const Userleads = ({
     // console.log("Disselect leads selected", disSelectLeads);
     setSnackMessage(showSnack);
     if (disSelectLeads === true) {
-      setToggleClick([]);
+      setSelectedLeadsList([]);
       setShowSnackMessage(true);
       setMessageType(SnackbarTypes.Success);
     } else if (disSelectLeads === false) {
@@ -1619,6 +1703,14 @@ const Userleads = ({
     setFiltersSelected(filters);
   }
 
+  function getLeadSelectedCount() {
+    if (selectedAll) {
+      return totalLeads - selectedLeadsList.length;
+    } else {
+      return selectedLeadsList.length;
+    }
+  }
+
   return (
     <div className="w-full flex flex-col items-center">
       <AgentSelectSnackMessage
@@ -1635,8 +1727,8 @@ const Userleads = ({
         <div className="flex fex-row items-center gap-6">
           <button
             style={{
-              backgroundColor: toggleClick.length > 0 ? "#7902DF" : "",
-              color: toggleClick.length > 0 ? "white" : "#000000",
+              backgroundColor: selectedLeadsList.length > 0 ? "#7902DF" : "",
+              color: selectedLeadsList.length > 0 ? "white" : "#000000",
             }}
             className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
             onClick={() => {
@@ -1648,9 +1740,9 @@ const Userleads = ({
                 setMessageType(SnackbarTypes.Warning);
               }
             }}
-            disabled={!toggleClick.length > 0}
+            disabled={!selectedLeadsList.length > 0}
           >
-            {toggleClick.length > 0 ? (
+            {selectedLeadsList.length > 0 ? (
               <Image
                 src={"/assets/callBtnFocus.png"}
                 height={17}
@@ -1728,11 +1820,14 @@ const Userleads = ({
                         </div>
                         <div className="w-full">
                           <AssignLead
-                            selectedLead={toggleClick}
+                            selectedLead={selectedLeadsList}
                             handleCloseAssignLeadModal={
                               handleCloseAssignLeadModal //(false, showSnack, disSelectLeads)
                             }
-                            leadIs={toggleClick}
+                            leadIs={selectedLeadsList}
+                            selectedAll={selectedAll}
+                            filters={getFiltersObject()}
+                            totalLeads={totalLeads}
                           />
                         </div>
 
@@ -1857,45 +1952,46 @@ const Userleads = ({
               </div>
 
               <div className="flex flex-row items-center gap-2 w-[15%]">
-                {toggleClick.length > 0 && (
+                {selectedLeadsList.length >= 0 && (
                   <div>
-                    {toggleClick.length === FilterLeads.length ? (
+                    {selectedAll ? (
                       <div>
-                        {LeadsList.length > 0 && (
-                          <div className="flex flex-row items-center gap-2">
-                            <button
-                              className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
-                              onClick={() => {
-                                setToggleClick([]);
-                                setSelectedAll(false);
-                              }}
-                            >
-                              <Image
-                                src={"/assets/whiteTick.png"}
-                                height={10}
-                                width={10}
-                                alt="*"
-                              />
-                            </button>
-                            <div style={{ fontSize: "15", fontWeight: "600" }}>
-                              Select All
-                            </div>
-
-                            <div
-                              className="text-purple"
-                              style={{ fontSize: "15", fontWeight: "600" }}
-                            >
-                              {LeadsList.length}
-                            </div>
+                        <div className="flex flex-row items-center gap-2">
+                          <button
+                            className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
+                            onClick={() => {
+                              setSelectedLeadsList([]);
+                              setSelectedAll(false);
+                            }}
+                          >
+                            <Image
+                              src={"/assets/whiteTick.png"}
+                              height={10}
+                              width={10}
+                              alt="*"
+                            />
+                          </button>
+                          <div style={{ fontSize: "15", fontWeight: "600" }}>
+                            Select All
                           </div>
-                        )}
+
+                          <div
+                            className="text-purple"
+                            style={{ fontSize: "15", fontWeight: "600" }}
+                          >
+                            {/* {LeadsList.length} */}
+                            {getLeadSelectedCount()}
+                          </div>
+                        </div>
                       </div>
                     ) : (
                       <div className="flex flex-row items-center gap-2">
                         <button
                           className="h-[20px] w-[20px] border-2 rounded outline-none"
                           onClick={() => {
-                            setToggleClick(FilterLeads.map((item) => item.id));
+                            //if select all then in the selectedLeads, we include the leads that are excluded
+                            //if selected all is false then in selected Leads we include the included leads
+                            setSelectedLeadsList([]); // setToggleClick(FilterLeads.map((item) => item.id));
                             setSelectedAll(true);
                           }}
                         ></button>
@@ -1960,7 +2056,8 @@ const Userleads = ({
                         onClick={() => {
                           setSearchLead("");
                           setSelectedSheetId(item.id);
-                          setToggleClick([]);
+                          setParamsInSearchBar(index);
+                          setSelectedLeadsList([]);
                           //   getLeads(item, 0);
                         }}
                       >
@@ -2069,7 +2166,7 @@ const Userleads = ({
                 style={{ scrollbarWidth: "none" }}
               >
                 <InfiniteScroll
-                  className="lg:flex hidden flex-col w-full"
+                  className="flex flex-col w-full"
                   endMessage={
                     <p
                       style={{
@@ -2491,17 +2588,6 @@ const Userleads = ({
                           // setFilterLeads([]);
                           setShowFilterModal(false);
                           setFiltersFromSelection();
-
-                          // let filterText = getFilterText();
-                          // handleFilterLeads(0, filterText);
-                          // if (selectedFromDate && selectedToDate && selectedStage.length > 0) {
-                          //     ////console.log("Can continue");
-                          //     setLeadsList([]);
-                          //     setFilterLeads([]);
-                          //     handleFilterLeads(0)
-                          // } else {
-                          //     ////console.log("Cannot continue");
-                          // }
                         }}
                       >
                         Apply Filter

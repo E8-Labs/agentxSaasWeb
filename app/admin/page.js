@@ -15,7 +15,8 @@ function Page() {
     {
       id: 2,
       name: "Users",
-    }, {
+    },
+    {
       id: 3,
       name: "Affiliates",
     },
@@ -24,7 +25,7 @@ function Page() {
   const [selectedManu, setSelectedManu] = useState(manuBar[0]);
 
   return (
-    <div className="w-full flex flex-col items-center h-[100svh] overflow-hidden">
+    <div className="w-full flex flex-col items-center h-[100svh] overflow-hidden ">
       <div
         style={{
           position: "absolute",
@@ -48,9 +49,10 @@ function Page() {
               setSelectedManu(item);
             }}
             className={`flex flex-row items-center gap-3 p-2 items-center 
-                      ${selectedManu.id == item.id &&
-              "border-b-[2px] border-purple"
-              }`}
+                      ${
+                        selectedManu.id == item.id &&
+                        "border-b-[2px] border-purple"
+                      }`}
           >
             <div
               style={{
@@ -68,9 +70,10 @@ function Page() {
       <div className="w-full">
         {selectedManu.name === "Users" ? (
           <AdminUsers />
-        ) : (selectedManu.name === "Affiliates" ? (
+        ) : // <div> </div>
+        selectedManu.name === "Affiliates" ? (
           <AdminAffiliates />
-        ) :
+        ) : (
           <div>
             <Dashboard />
           </div>

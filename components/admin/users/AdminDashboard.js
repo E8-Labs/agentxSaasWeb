@@ -19,10 +19,9 @@ import { useRouter } from "next/navigation";
 import BackgroundVideo from "@/components/general/BackgroundVideo";
 import { Constants, PersistanceKeys } from "@/constants/Constants";
 
-const AdminDashboard = ({selectedUser}) => {
+const AdminDashboard = ({ selectedUser }) => {
   const router = useRouter();
 
-  
   //variable stores screenWidth
   const [screenWidth, setScreenWidth] = useState(null);
   const [screenHeight, setScreenHeight] = useState(null);
@@ -54,6 +53,7 @@ const AdminDashboard = ({selectedUser}) => {
       setScreenWidth(screnW);
       setScreenHeight(screnH);
     }
+    setUserDetails(selectedUser);
   }, []);
 
   useEffect(() => {
@@ -66,7 +66,7 @@ const AdminDashboard = ({selectedUser}) => {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     console.log(`User's timezone: ${timezone}`);
     getDashboardData();
-    getProfile();
+    // getProfile();
   }, [selectedUser]);
 
   //function for tootip
@@ -120,7 +120,7 @@ const AdminDashboard = ({selectedUser}) => {
 
   const getDashboardData = async (duration) => {
     try {
-    //   console.log("Status of initial load is", isinItiallyLoaded);
+      //   console.log("Status of initial load is", isinItiallyLoaded);
       let durationValue = 1;
 
       if (duration === "24 hrs") {
@@ -136,9 +136,9 @@ const AdminDashboard = ({selectedUser}) => {
       // console.log("details to show are:", durationValue);
 
       let ApiPath = `${Apis.getDashboardData}?duration=${durationValue}`;
-      ApiPath = ApiPath+"&userId="+selectedUser.id
+      ApiPath = ApiPath + "&userId=" + selectedUser.id;
 
-      console.log('selectedUser.id', selectedUser.id)
+      console.log("selectedUser.id", selectedUser.id);
       GetDashboardDataFromLocalStorage(ApiPath);
       // if (isinItiallyLoaded === false) {
       // setInitialLoader(true);
@@ -167,9 +167,9 @@ const AdminDashboard = ({selectedUser}) => {
       });
 
       if (response) {
-        // console.log("Response of get Dashboard data api is:", response.data);
+        console.log("Response of get Dashboard data api is:", response.data);
         if (response.data.status === true) {
-        //   console.log("Getting details are", response.data.data.stats);
+          console.log("Getting details are", response.data.data.stats);
           setStatsDetails(response.data.data.stats);
           setStatsComparisonDetails(response.data.data.statsComparison);
 
@@ -177,7 +177,7 @@ const AdminDashboard = ({selectedUser}) => {
         }
       }
     } catch (error) {
-    //   console.error("Error occured in api is", error);
+      console.error("Error occured in api is", error);
     } finally {
       // console.log("Get dashb0ard api completed");
       setInitialLoader(false);
@@ -313,12 +313,11 @@ const AdminDashboard = ({selectedUser}) => {
         </div>
       ) : (
         <div className="flex flex-col mt-12 items-center w-full h-[100%]">
-        
           <div className="w-9/12 flex flex-col items-center h-[100%]">
             {/* <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
  Good to have you back, <span className='text-[#00000090]'>{userDetails?.name}</span>
  </div> */}
-           
+
             <div className="h-[95%] w-11/12 flex flex-row justify-center bg-white rounded-xl">
               <div className="w-11/12 h-[100%]">
                 <div className="w-full flex flex-row items-center justify-between h-[30%]">
@@ -339,8 +338,8 @@ const AdminDashboard = ({selectedUser}) => {
                           screenHeight < 640
                             ? 35
                             : screenHeight < 800
-                              ? 50
-                              : 75,
+                            ? 50
+                            : 75,
                         fontWeight: "700",
                         color: "#000",
                       }}
@@ -487,7 +486,7 @@ const AdminDashboard = ({selectedUser}) => {
                             }}
                           >
                             {convertTime(
-                              userDetails?.totalSecondsAvailable || 0
+                              selectedUser?.totalSecondsAvailable || 0
                             )}
                           </div>
                         </div>
@@ -542,8 +541,8 @@ const AdminDashboard = ({selectedUser}) => {
                       rate={
                         statsComparisonDetails?.callsGt10Change
                           ? `${statsComparisonDetails?.callsGt10Change.toFixed(
-                            2
-                          )}%`
+                              2
+                            )}%`
                           : "-"
                       }
                       borderSide="border-b-2"
@@ -558,8 +557,8 @@ const AdminDashboard = ({selectedUser}) => {
                       rate={
                         statsComparisonDetails?.hotLeadsChange
                           ? `${statsComparisonDetails?.hotLeadsChange.toFixed(
-                            2
-                          )}%`
+                              2
+                            )}%`
                           : "-"
                       }
                       borderSide="border-l-2 border-b-2"
@@ -582,8 +581,8 @@ const AdminDashboard = ({selectedUser}) => {
                       rate={
                         statsComparisonDetails?.bookingChange
                           ? `${statsComparisonDetails?.bookingChange.toFixed(
-                            2
-                          )}%`
+                              2
+                            )}%`
                           : "-"
                       }
                       borderSide="border-l-2 border-b-2"
@@ -628,11 +627,11 @@ const AdminDashboard = ({selectedUser}) => {
                         setAIWebinarhover(false);
                       }}
                       onClick={() => {
-
                         if (typeof window !== "undefined") {
-                          let url = userDetails?.campaignee ? userDetails?.campaignee.officeHoursUrl :
-                            PersistanceKeys.GlobalWebinarUrl
-                          console.log("webinar url is", url)
+                          let url = userDetails?.campaignee
+                            ? userDetails?.campaignee.officeHoursUrl
+                            : PersistanceKeys.GlobalWebinarUrl;
+                          console.log("webinar url is", url);
                           window.open(url, "_blank");
                         }
                       }}

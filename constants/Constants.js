@@ -1,5 +1,6 @@
 export const PersistanceKeys = {
   LocalStorageUser: "User",
+  LocalSavedAgentDetails: "agentDetails",
   LocalStorageUserLocation: "userLocation",
   LocalStorageCompleteLocation: "CompleteLocation",
   LeadsInBatch: "LeadsInBatch",

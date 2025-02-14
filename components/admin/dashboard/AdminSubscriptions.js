@@ -56,7 +56,7 @@ function AdminSubscriptions() {
         { name: "$45", value: 27, percentage: "27%", count: "23,910" },
         { name: "$99", value: 15 },
         { name: "$270", value: 20 },
-        { name: "$480", value: 5 },
+        { name: "$600", value: 5 },
     ];
 
 
@@ -212,7 +212,7 @@ function AdminSubscriptions() {
                                 <div className='flex flex-row items-center gap-'>
                                     <div className='h-[13px] w-[13px] rounded-full shadow-md bg-[#FF2222] border border-white'></div>
                                     <p style={{ fontSize: 15, fontWeight: '500', color: "#000" }}>
-                                        600mins
+                                        720mins
                                     </p>
                                 </div>
 

@@ -16,7 +16,13 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs"; // Import Day.js
 import { getAgentImage } from "@/utilities/agentUtilities";
 
-const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
+const AssignLead = ({
+  leadIs,
+  handleCloseAssignLeadModal,
+  selectedAll = false,
+  filters = null,
+  totalLeads = 0,
+}) => {
   const [initialLoader, setInitialLoader] = useState(false);
   const [agentsList, setAgentsList] = useState([]);
   const [stages, setStages] = useState([]);
@@ -72,14 +78,14 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
   }, [SelectedAgents]);
 
   useEffect(() => {
-   // console.log("Leads asigned are :", leadIs);
+    // console.log("Leads asigned are :", leadIs);
 
     let agentsList = [];
 
     const localAgents = localStorage.getItem("localAgentDetails");
     if (localAgents) {
       agentsList = JSON.parse(localAgents);
-     // console.log("Agents got from local host are", agentsList);
+      // console.log("Agents got from local host are", agentsList);
       let newAgenstList = [];
 
       newAgenstList = agentsList.filter((mainAgent) => {
@@ -96,19 +102,19 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
         return hasOutbound && (!hasInbound || hasInbound);
       });
 
-     // console.log("Filtered agents list is", newAgenstList);
+      // console.log("Filtered agents list is", newAgenstList);
 
       setAgentsList(newAgenstList);
       setStages(newAgenstList.stages);
     }
     // else {
-   // console.log("Agents got from api");
+    // console.log("Agents got from api");
     getAgents();
     // }
   }, []);
 
   useEffect(() => {
-   // console.log("Assigned agent is", SelectedAgents);
+    // console.log("Assigned agent is", SelectedAgents);
   }, [SelectedAgents]);
 
   //get agents api
@@ -123,10 +129,10 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-       // console.log("USer details are :", UserDetails);
+        // console.log("USer details are :", UserDetails);
       }
 
-     // console.log("Auth token is :--", AuthToken);
+      // console.log("Auth token is :--", AuthToken);
 
       const ApiPath = Apis.getAgents;
       // return
@@ -138,7 +144,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
       });
 
       if (response) {
-       // console.log("Response of get agents api is:", response.data);
+        // console.log("Response of get agents api is:", response.data);
         localStorage.setItem(
           "localAgentDetails",
           JSON.stringify(response.data.data)
@@ -162,16 +168,16 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
         setStages(filterredAgentsList.stages);
       }
     } catch (error) {
-     // console.error("ERrror occured in agents api is :", error);
+      // console.error("ERrror occured in agents api is :", error);
     } finally {
       setInitialLoader(false);
-     // console.log("Api call completed");
+      // console.log("Api call completed");
     }
   };
 
   //can assign stage or not
   const canAssignStage = (item) => {
-   // console.log("Id selected is:", item);
+    // console.log("Id selected is:", item);
     //0 unselected
     //1 selected
     //2 can not assign
@@ -182,7 +188,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
 
     if (isAlreadySelected) {
       // Remove the item if it's already selected
-     // console.log("Cheak 1");
+      // console.log("Cheak 1");
       return 1;
       // return prevSelectedItems.filter((selectedItem) => selectedItem.id !== item.id);
     } else {
@@ -207,11 +213,11 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
       }
 
       if (canAssignStage == 0) {
-       // console.log("Pipeline matches");
+        // console.log("Pipeline matches");
       } else {
-       // console.log("Pipeline does not match");
+        // console.log("Pipeline does not match");
         if (!errorMessage) {
-          setErrTitle("Pipeline Confilict")
+          setErrTitle("Pipeline Confilict");
           setErrorMessage(
             "You can’t assign leads to agents in different pipelines"
           );
@@ -219,21 +225,21 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
         return 2;
       }
 
-     // console.log("Previously selected items are :", SelectedAgents);
+      // console.log("Previously selected items are :", SelectedAgents);
 
       // Check if any of the selected items have a matching stageTitle
 
-     // console.log("All agents stages are :", allSelectedAgentStages);
-     // console.log("Item.stages ==..", item.stages);
+      // console.log("All agents stages are :", allSelectedAgentStages);
+      // console.log("Item.stages ==..", item.stages);
 
       if (item.stages) {
         item.stages.map((stage) => {
           allSelectedAgentStages.map((selectedStage) => {
             //// console.log(Matchin stage ${stage.id} with ${JSON.stringify(selectedStage)})
             if (stage.id == selectedStage.id) {
-             // console.log("Agents in same stage so can not assign");
+              // console.log("Agents in same stage so can not assign");
               if (!errorMessage) {
-                setErrTitle("Conflicting Agents")
+                setErrTitle("Conflicting Agents");
                 setErrorMessage(
                   "You can’t assign leads to agents in the same stage"
                 );
@@ -282,21 +288,33 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
         const minutes = differenceInMilliseconds / (1000 * 60); // Convert ms to minutes
         timer = minutes.toFixed(0); // Round to nearest integer
 
-       // console.log("Current Date:", currentDate);
-       // console.log("Future Date:", futureDate);
-       // console.log("Difference in Minutes:", timer);
+        // console.log("Current Date:", currentDate);
+        // console.log("Future Date:", futureDate);
+        // console.log("Difference in Minutes:", timer);
       }
 
-      const Apidata = {
+      let Apidata = {
         pipelineId: SelectedAgents[0].pipeline.id,
         mainAgentIds: SelectedAgents.map((item) => item.id),
         leadIds: leadIs,
         startTimeDifFromNow: timer,
         batchSize: batchSize,
+        selectedAll: selectedAll,
       };
+      if (filters && selectedAll) {
+        Apidata = {
+          pipelineId: SelectedAgents[0].pipeline.id,
+          mainAgentIds: SelectedAgents.map((item) => item.id),
+          leadIds: leadIs,
+          startTimeDifFromNow: timer,
+          batchSize: batchSize,
+          selectedAll: selectedAll,
+          ...filters,
+        };
+      }
 
-     // console.log("Data sending in api is:", Apidata);
-      // return
+      console.log("Data sending in api is:", Apidata);
+      // return;
       const localData = localStorage.getItem("User");
       let AuthToken = null;
       if (localData) {
@@ -304,11 +322,11 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
         AuthToken = UserDetails.token;
       }
 
-     // console.log("Auth token is :--", AuthToken);
+      // console.log("Auth token is :--", AuthToken);
 
       const ApiPath = Apis.assignLeadToPipeLine;
 
-     // console.log("Data sending in api is :", Apidata);
+      // console.log("Data sending in api is :", Apidata);
 
       const response = await axios.post(ApiPath, Apidata, {
         headers: {
@@ -318,12 +336,12 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
       });
 
       if (response) {
-       // console.log("Response of api is:", response);
+        // console.log("Response of api is:", response);
         if (response.data.status === true) {
           handleCloseAssignLeadModal({
             status: false,
             showSnack: "Lead assigned",
-            disSelectLeads: true
+            disSelectLeads: true,
           });
           setLastStepModal(false);
           // window.location.reload();
@@ -331,12 +349,12 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
           handleCloseAssignLeadModal({
             status: true,
             showSnack: "Error assigning lead",
-            disSelectLeads: false
+            disSelectLeads: false,
           });
         }
       }
     } catch (error) {
-     // console.error("Error occured in api is", error);
+      // console.error("Error occured in api is", error);
     } finally {
       setLoader(false);
     }
@@ -346,12 +364,12 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
 
   const handleDateChange = (date) => {
     if (!date) {
-     // console.log("No date selected");
+      // console.log("No date selected");
       return;
     }
 
     // Print in the desired format
-   // console.log("Selected date and time:", date.format("DD/MM/YYYY HH:mm"));
+    // console.log("Selected date and time:", date.format("DD/MM/YYYY HH:mm"));
 
     // Save the selected date
     setSelectedDateTime(date);
@@ -361,6 +379,14 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
     setSelectedFromDate(date); // Set the selected date
     setShowFromDatePicker(false);
   };
+
+  function getLeadSelectedCount() {
+    if (selectedAll) {
+      return totalLeads - leadIs.length;
+    } else {
+      return leadIs.length;
+    }
+  }
 
   const styles = {
     heading: {
@@ -406,7 +432,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
       <div className="flex flex-row items-center justify-between mt-4">
         <div style={{ fontSize: 24, fontWeight: "700" }}>Select your Agent</div>
         <div className="text-purple" style={styles.paragraph}>
-          {leadIs.length} Contacts Selected
+          {getLeadSelectedCount()} Contacts Selected
         </div>
       </div>
       <div
@@ -430,7 +456,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
         >
           {agentsList.map((item, index) => {
             const noNumberWarning = (mainAgent) => {
-             // console.log(
+              // console.log(
               //   "Agent passed is",
               //   mainAgent?.agents?.map((item) => item.phoneNumber)
               // );
@@ -484,13 +510,13 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                   let canAssign = canAssignStage(item);
                   if (canAssign == 0) {
                     //push to the array
-                   // console.log("Cheak 1 at 0");
+                    // console.log("Cheak 1 at 0");
                     setSelectedAgents([...SelectedAgents, item]);
                     // setLastStepModal(true);//loader
                     setShouldContinue(false);
                   } else if (canAssign == 1) {
                     //remove from the array
-                   // console.log("Cheak 2");
+                    // console.log("Cheak 2");
                     let agents = SelectedAgents.filter(
                       (selectedItem) => selectedItem.id !== item.id
                     );
@@ -646,7 +672,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                   className="text-purple"
                   style={{ fontSize: 12, fontWeight: "600" }}
                 >
-                  {leadIs.length} Contacts Selected
+                  {getLeadSelectedCount()} Contacts Selected
                 </div>
               </div>
 
@@ -688,7 +714,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                     setCustomLeadsToSend("");
                   }}
                 >
-                  All {leadIs.length}
+                  All {getLeadSelectedCount()}
                 </button>
               </div>
 
@@ -707,7 +733,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
                   }}
                   onClick={() => {
                     const currentDateTime = new Date();
-                   // console.log(
+                    // console.log(
                     //   "Current data is:",
                     //   currentDateTime.toLocaleString()
                     // );
@@ -909,7 +935,7 @@ const AssignLead = ({ leadIs, handleCloseAssignLeadModal }) => {
               ) : (
                 <div className="w-full">
                   {(NoOfLeadsToSend || customLeadsToSend) &&
-                    (CallNow || CallLater) ? (
+                  (CallNow || CallLater) ? (
                     <button
                       className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {
