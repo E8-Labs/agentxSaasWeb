@@ -78,7 +78,7 @@ let plansWithoutTrial = [
     details: "Ideal for teams and reaching new GCI goals.  ",
     originalPrice: "1200",
     discountPrice: "600",
-    planStatus: "60%",
+    planStatus: "50%",
     status: "Best Value",
   },
 ];
@@ -127,7 +127,7 @@ let plansWitTrial = [
     details: "Ideal for teams and reaching new GCI goals.  ",
     originalPrice: "1200",
     discountPrice: "600",
-    planStatus: "60%",
+    planStatus: "50%",
     status: "Best Value",
   },
 ];

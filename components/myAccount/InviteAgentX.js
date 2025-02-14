@@ -24,7 +24,7 @@ function InviteAgentX() {
     if (localData) {
       const Data = JSON.parse(localData);
 
-     // console.log("Local details are", Data);
+      // console.log("Local details are", Data);
       setUserDetails(Data.user);
     }
   }, []);
@@ -67,7 +67,7 @@ function InviteAgentX() {
       details: "Ideal for teams and reaching new GCI goals.  ",
       originalPrice: "1200",
       discountPrice: "600",
-      planStatus: "60%",
+      planStatus: "50%",
       status: "Best Value",
     },
   ];
@@ -104,7 +104,7 @@ function InviteAgentX() {
         planType = "Plan720";
       }
 
-     // console.log("Current plan is", planType);
+      // console.log("Current plan is", planType);
 
       setSubscribePlanLoader(true);
       let AuthToken = null;
@@ -114,17 +114,17 @@ function InviteAgentX() {
         AuthToken = LocalDetails.token;
       }
 
-     // console.log("Authtoken is", AuthToken);
+      // console.log("Authtoken is", AuthToken);
 
       const ApiData = {
         plan: planType,
         payNow: true,
       };
 
-     // console.log("Api data is", ApiData);
+      // console.log("Api data is", ApiData);
 
       const ApiPath = Apis.subscribePlan;
-     // console.log("Apipath is", ApiPath);
+      // console.log("Apipath is", ApiPath);
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -134,7 +134,7 @@ function InviteAgentX() {
       });
 
       if (response) {
-       // console.log("Response of subscribe plan api is", response);
+        // console.log("Response of subscribe plan api is", response);
         if (response.data.status === true) {
           setSuccessSnack(response?.data?.message);
           let response2 = await getProfileDetails();
@@ -144,7 +144,7 @@ function InviteAgentX() {
         }
       }
     } catch (error) {
-     // console.error("Error occured in api is:", error);
+      // console.error("Error occured in api is:", error);
     } finally {
       setSubscribePlanLoader(false);
     }
