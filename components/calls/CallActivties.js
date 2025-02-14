@@ -49,6 +49,9 @@ function SheduledCalls({ user }) {
 
   const filterTimerRef = useRef(null);
   useEffect(() => {
+    getScheduledOrOngoingActivityCalls();
+  }, []);
+  useEffect(() => {
     if (filterTimerRef.current) {
       clearTimeout(filterTimerRef.current);
     }
@@ -116,7 +119,7 @@ function SheduledCalls({ user }) {
   };
 
   //code to get agents
-  const getAgents = async () => {
+  const getScheduledOrOngoingActivityCalls = async () => {
     try {
       setInitialLoader(true);
 
@@ -680,12 +683,12 @@ function SheduledCalls({ user }) {
                               </div>
                               <div className="w-2/12 ">
                                 {user.user.userType == UserTypes.RealEstateAgent
-                                  ? `${agent?.agentObjective
+                                  ? `${agent?.agents[0]?.agentObjective
                                       ?.slice(0, 1)
-                                      .toUpperCase()}${agent?.agentObjective?.slice(
+                                      .toUpperCase()}${agent?.agents[0]?.agentObjective?.slice(
                                       1
                                     )}`
-                                  : `${agent?.agentRole}`}
+                                  : `${agent?.agents[0]?.agentRole}`}
                               </div>
                               <div className="w-1/12">
                                 <button

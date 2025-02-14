@@ -244,7 +244,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
       details: "Ideal for teams and reaching new GCI goals.  ",
       originalPrice: "1200",
       discountPrice: "600",
-      planStatus: "60%",
+      planStatus: "50%",
       status: "Best Value",
     },
   ];
@@ -285,13 +285,13 @@ const CreatAgent3 = ({ handleContinue, user }) => {
     },
     {
       id: 4,
-      mints: 600,
+      mints: 720,
       isTrial: false,
       calls: "10k",
       details: "Ideal for teams and reaching new GCI goals.  ",
       originalPrice: "1200",
-      discountPrice: "480",
-      planStatus: "60%",
+      discountPrice: "600",
+      planStatus: "50%",
       status: "Best Value",
     },
   ];

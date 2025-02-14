@@ -114,7 +114,7 @@ function Billing() {
       details: "Ideal for teams and reaching new GCI goals. ",
       originalPrice: "1200",
       discountPrice: "600",
-      planStatus: "60%",
+      planStatus: "50%",
       status: "Best Value",
     },
   ];
@@ -238,7 +238,7 @@ function Billing() {
 
   //function to make default cards api
   const makeDefaultCard = async (item) => {
-    setSelectedCard(item)
+    setSelectedCard(item);
     // console.log('selectedCard', item.id)
     // return
     try {
@@ -272,14 +272,13 @@ function Billing() {
       if (response) {
         // console.log("Response of make default card api is", response.data);
         if (response.data.status === true) {
-
           let crds = cards.forEach((card, index) => {
             if (card.isDefault) {
-              console.log('card.isDefault', card.isDefault)
-              cards[index].isDefault = false
+              console.log("card.isDefault", card.isDefault);
+              cards[index].isDefault = false;
             }
-          })
-          item.isDefault = true
+          });
+          item.isDefault = true;
         }
       }
     } catch (error) {
@@ -762,9 +761,9 @@ function Billing() {
                                 ****{item.last4}
                               </div>
                               {
-                              // makeDefaultCardLoader ? (
-                              //   <CircularProgress size={20} />
-                              // ) :
+                                // makeDefaultCardLoader ? (
+                                //   <CircularProgress size={20} />
+                                // ) :
 
                                 item.isDefault && (
                                   <div
@@ -773,7 +772,8 @@ function Billing() {
                                   >
                                     Default
                                   </div>
-                                )}
+                                )
+                              }
                             </div>
                             <div
                               style={{
@@ -1173,7 +1173,7 @@ function Billing() {
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
                   togglePlan={""}
-                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>
@@ -1246,8 +1246,9 @@ function Billing() {
 
               <div className="flex flex-col items-center px-4 w-full">
                 <div
-                  className={`flex flex-row items-center gap-2 text-purple ${ScreenWidth < 1200 ? "mt-4" : "mt-6"
-                    }bg-[#402FFF10] py-2 px-4 rounded-full`}
+                  className={`flex flex-row items-center gap-2 text-purple ${
+                    ScreenWidth < 1200 ? "mt-4" : "mt-6"
+                  }bg-[#402FFF10] py-2 px-4 rounded-full`}
                   style={styles.gitTextStyle}
                 >
                   <Image
@@ -1419,7 +1420,7 @@ function Billing() {
                     outline: "none",
                   }}
                   onClick={handleCancelPlan}
-                // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
+                  // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
                 >
                   Yes. Cancel
                 </button>
@@ -1603,7 +1604,7 @@ function Billing() {
                       onClick={() => {
                         handleDelReason();
                       }}
-                    // disabled={!selectReason || !otherReasonInput || }
+                      // disabled={!selectReason || !otherReasonInput || }
                     >
                       Continue
                     </button>
