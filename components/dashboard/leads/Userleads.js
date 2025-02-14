@@ -1727,8 +1727,12 @@ const Userleads = ({
         <div className="flex fex-row items-center gap-6">
           <button
             style={{
-              backgroundColor: selectedLeadsList.length > 0 ? "#7902DF" : "",
-              color: selectedLeadsList.length > 0 ? "white" : "#000000",
+              backgroundColor:
+                selectedLeadsList.length > 0 || selectedAll ? "#7902DF" : "",
+              color:
+                selectedLeadsList.length > 0 || selectedAll
+                  ? "white"
+                  : "#000000",
             }}
             className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
             onClick={() => {
@@ -1740,9 +1744,9 @@ const Userleads = ({
                 setMessageType(SnackbarTypes.Warning);
               }
             }}
-            disabled={!selectedLeadsList.length > 0}
+            disabled={!(selectedLeadsList.length > 0 || selectedAll)}
           >
-            {selectedLeadsList.length > 0 ? (
+            {selectedLeadsList.length > 0 || selectedAll ? (
               <Image
                 src={"/assets/callBtnFocus.png"}
                 height={17}
@@ -2057,6 +2061,8 @@ const Userleads = ({
                           setSearchLead("");
                           setSelectedSheetId(item.id);
                           setParamsInSearchBar(index);
+                          setSelectedLeadsList([]);
+                          setSelectedAll(false);
                           setSelectedLeadsList([]);
                           //   getLeads(item, 0);
                         }}
