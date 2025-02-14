@@ -7,8 +7,9 @@ import moment from "moment";
 import { GetFormattedDateString } from "@/utilities/utility";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
 import { ShowConfirmationPopup } from "./CallActivties";
+import { UserTypes } from "@/constants/UserTypes";
 
-function SheduledCalls({}) {
+function SheduledCalls({ user }) {
   const [searchValue, setSearchValue] = useState("");
   //code for agent details
   const [callDetails, setCallDetails] = useState([]);
@@ -123,7 +124,7 @@ function SheduledCalls({}) {
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
       const ApiPath = `${Apis.getSheduledCallLogs}?scheduled=true`;
-    
+
       // console.log("Api path is: ", ApiPath);
       // return
       const response = await axios.get(ApiPath, {
@@ -231,7 +232,6 @@ function SheduledCalls({}) {
 
     setFilteredAgentsList(filtered);
   };
-
 
   //code to pause the agent
   const pauseAgents = async () => {
@@ -358,7 +358,6 @@ function SheduledCalls({}) {
     }
   };
 
-
   return (
     <div className="w-full items-start">
       <div className="flex w-full pl-10 flex-row items-start gap-3">
@@ -408,9 +407,7 @@ function SheduledCalls({}) {
           <div style={styles.text}>Scheduled on</div>
         </div>
         <div className="w-1/12">
-          <div style={styles.text}>
-            Action
-          </div>
+          <div style={styles.text}>Action</div>
         </div>
       </div>
 
@@ -420,11 +417,12 @@ function SheduledCalls({}) {
             <CircularProgress size={35} />
           </div>
         ) : (
-          <div className={`h-[67vh] overflow-auto`} style={{ scrollbarWidth: "none" }}>
+          <div
+            className={`h-[67vh] overflow-auto`}
+            style={{ scrollbarWidth: "none" }}
+          >
             {filteredAgentsList.length > 0 ? (
-              <div               
-              className={`h-[67vh] overflow-auto`}>
-
+              <div className={`h-[67vh] overflow-auto`}>
                 {filteredAgentsList.map((item, index) => {
                   return (
                     <div key={index}>
@@ -436,7 +434,6 @@ function SheduledCalls({}) {
                               key={index}
                             >
                               <div className="w-3/12 flex flex-row gap-4 items-center">
-
                                 {/* {agent?.agents[0]?.thumb_profile_image ? (
                                   <Image
                                     className="rounded-full"
@@ -462,13 +459,13 @@ function SheduledCalls({}) {
                                 <div style={styles.text2}>{agent.name}</div>
                               </div>
                               <div className="w-2/12 ">
-                                {agent?.agents[0]?.agentObjective ? (
-                                  <div style={styles.text2}>
-                                    {agent.agents[0]?.agentObjective}
-                                  </div>
-                                ) : (
-                                  "-"
-                                )}
+                                {user.user.userType == UserTypes.RealEstateAgent
+                                  ? `${agent?.agents[0]?.agentObjective
+                                      ?.slice(0, 1)
+                                      .toUpperCase()}${agent?.agents[0]?.agentObjective?.slice(
+                                      1
+                                    )}`
+                                  : `${agent?.agents[0]?.agentRole}`}
                               </div>
                               <div className="w-1/12">
                                 <button
@@ -484,9 +481,7 @@ function SheduledCalls({}) {
                               <div className="w-1/12">
                                 {item?.createdAt ? (
                                   <div style={styles.text2}>
-                                    {GetFormattedDateString(
-                                      item?.createdAt
-                                    )}
+                                    {GetFormattedDateString(item?.createdAt)}
                                   </div>
                                 ) : (
                                   "-"
@@ -534,7 +529,8 @@ function SheduledCalls({}) {
                                   PaperProps={{
                                     elevation: 0, // This will remove the shadow
                                     style: {
-                                      boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
+                                      boxShadow:
+                                        "0px 0px 10px rgba(0, 0, 0, 0.05)",
                                       borderRadius: "10px",
                                       width: "120px",
                                     },
@@ -551,14 +547,19 @@ function SheduledCalls({}) {
                                         <button
                                           className="text-start outline-none"
                                           onClick={() => {
-
-                                            if (SelectedItem?.status == "Paused") {
+                                            if (
+                                              SelectedItem?.status == "Paused"
+                                            ) {
                                               //// console.log("Calls are paused")
                                               setColor(true);
-                                              setShowConfirmationPopup("resume Calls")
+                                              setShowConfirmationPopup(
+                                                "resume Calls"
+                                              );
                                             } else {
                                               //// console.log("Calls are active")
-                                              setShowConfirmationPopup("pause Calls")
+                                              setShowConfirmationPopup(
+                                                "pause Calls"
+                                              );
                                               setColor(false);
                                             }
                                             // console.log("Cha")
@@ -585,8 +586,12 @@ function SheduledCalls({}) {
                                 {/* Confirmation popup */}
                                 {showConfirmationPopuup && (
                                   <ShowConfirmationPopup
-                                    showConfirmationPopuup={showConfirmationPopuup}
-                                    setShowConfirmationPopup={setShowConfirmationPopup}
+                                    showConfirmationPopuup={
+                                      showConfirmationPopuup
+                                    }
+                                    setShowConfirmationPopup={
+                                      setShowConfirmationPopup
+                                    }
                                     pauseAgent={pauseAgents}
                                     color={color}
                                     PauseLoader={PauseLoader}
@@ -603,11 +608,17 @@ function SheduledCalls({}) {
                 })}
               </div>
             ) : (
-              <div style={{ fontWeight: "600", fontSize: 24, textAlign: "center", marginTop: 20 }}>
+              <div
+                style={{
+                  fontWeight: "600",
+                  fontSize: 24,
+                  textAlign: "center",
+                  marginTop: 20,
+                }}
+              >
                 No Call Scheduled
               </div>
-            )
-            }
+            )}
           </div>
         )}
       </div>
@@ -722,12 +733,16 @@ function SheduledCalls({}) {
                                 style={{ fontSize: 15, fontWeight: "500" }}
                               >
                                 <div className="w-3/12 flex flex-row items-center gap-2 truncate">
-                                  <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white" style={{ flexShrink: 0 }}>
+                                  <div
+                                    className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white"
+                                    style={{ flexShrink: 0 }}
+                                  >
                                     {item?.firstName.slice(0, 1).toUpperCase()}
                                   </div>
                                   <div className="truncate">
-                                    <div className="truncate w-[100px]"
-                                    // style={{ textOverflow: "ellipsis" }}
+                                    <div
+                                      className="truncate w-[100px]"
+                                      // style={{ textOverflow: "ellipsis" }}
                                     >
                                       {item?.firstName} {item?.lastName}
                                     </div>

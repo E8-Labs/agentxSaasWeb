@@ -8,10 +8,11 @@ import { GetFormattedDateString } from "@/utilities/utility";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
 import { PersistanceKeys } from "@/constants/Constants";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { UserTypes } from "@/constants/UserTypes";
 
-function SheduledCalls({}) {
+function SheduledCalls({ user }) {
   const Limit = 30;
-  const [user, setUser] = useState(null);
+  // const [user, setUser] = useState(null);
   const [leadsLoading, setLeadsLoading] = useState(false);
   const [hasMoreLeads, setHasMoreLeads] = useState(true);
   const [callsLoading, setCallsLoading] = useState(false);
@@ -61,16 +62,6 @@ function SheduledCalls({}) {
       }
     }, 400);
   }, [detailsFilterSearchValue]);
-
-  useEffect(() => {
-    getAgents();
-    let localD = localStorage.getItem(PersistanceKeys.LocalStorageUser);
-    if (localD) {
-      let d = JSON.parse(localD);
-      setUser(d);
-    }
-    // getSheduledCallLogs();
-  }, []);
 
   //code to show popover
   const handleShowPopup = (event, item, agent) => {
@@ -688,13 +679,13 @@ function SheduledCalls({}) {
                                 <div style={styles.text2}>{agent.name}</div>
                               </div>
                               <div className="w-2/12 ">
-                                {agent?.agents[0]?.agentObjective ? (
-                                  <div style={styles.text2}>
-                                    {agent.agents[0]?.agentObjective}
-                                  </div>
-                                ) : (
-                                  "-"
-                                )}
+                                {user.user.userType == UserTypes.RealEstateAgent
+                                  ? `${agent?.agentObjective
+                                      ?.slice(0, 1)
+                                      .toUpperCase()}${agent?.agentObjective?.slice(
+                                      1
+                                    )}`
+                                  : `${agent?.agentRole}`}
                               </div>
                               <div className="w-1/12">
                                 <button

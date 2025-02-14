@@ -1,11 +1,15 @@
 import Apis from "@/components/apis/Apis";
+import { PersistanceKeys } from "@/constants/Constants";
 import { CircularProgress } from "@mui/material";
 import { CaretDown, CaretUp } from "@phosphor-icons/react";
 import axios from "axios";
+import { Router } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
+  const router = useRouter();
   const [expandedStages, setExpandedStages] = useState([]);
   const [StagesList, setStagesList] = useState([
     { id: 1, title: "s1", description: "Testing the stage1" },
@@ -19,7 +23,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
 
   useEffect(() => {
     if (selectedAgent.agentType !== "inbound") {
-     // console.log("Trigered the get cadence api");
+      // console.log("Trigered the get cadence api");
       handleGetCadence();
     }
   }, []);
@@ -56,11 +60,11 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
       if (localData) {
         const Data = JSON.parse(localData);
         userDetails = Data;
-       // console.log("Localdata recieved is :--", Data);
+        // console.log("Localdata recieved is :--", Data);
         AuthToken = Data.token;
       }
 
-     // console.log("Auth token is:", AuthToken);
+      // console.log("Auth token is:", AuthToken);
 
       const ApiData = {
         mainAgentId: selectedAgent.mainAgentId,
@@ -71,8 +75,8 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
 
       const ApiPath = Apis.getAgentCadence;
 
-     // console.log("Apipath is:", ApiPath);
-     // console.log("Api data s:", ApiData);
+      // console.log("Apipath is:", ApiPath);
+      // console.log("Api data s:", ApiData);
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -82,14 +86,14 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
       });
 
       if (response) {
-       // console.log(
+        // console.log(
         //   "Response of get agent cadence api is:",
         //   JSON.stringify(response.data)
         // );
         setAgentCadence(response.data.data);
       }
     } catch (error) {
-     // console.error("Error occured in get cadence api is:", error);
+      // console.error("Error occured in get cadence api is:", error);
     } finally {
       setInitialLoader(false);
     }
@@ -123,8 +127,24 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
 
       {selectedAgent?.agentType !== "inbound" && (
         <div className="w-full">
-          <div className="mt-4" style={{ fontWeight: "700", fontSize: 16.8 }}>
-            Stages
+          <div className="flex flex-row justify-between">
+            <div className="mt-4" style={{ fontWeight: "700", fontSize: 16.8 }}>
+              Stages
+            </div>
+            <div
+              className="mt-4 cursor-pointer"
+              style={{ fontWeight: "700", fontSize: 16.8 }}
+              onClick={() => {
+                console.log("Main agent is ", mainAgent);
+                localStorage.setItem(
+                  PersistanceKeys.LocalSavedAgentDetails,
+                  JSON.stringify(mainAgent)
+                );
+                router.push("/pipeline");
+              }}
+            >
+              Edit
+            </div>
           </div>
           {initialLoader ? (
             <div className="w-full flex flex-row items-center justify-center">
