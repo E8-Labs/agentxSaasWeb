@@ -443,7 +443,6 @@ const ProfileNav = () => {
   };
 
   const handleOnClick = (e, href) => {
-    e.preventDefault();
     localStorage.removeItem("openBilling");
 
     // if (!userDetails.user.plan) {
@@ -451,7 +450,7 @@ const ProfileNav = () => {
     // }
 
     // e.preventDefault();
-    router.push(href);
+    // router.push(href);
   };
 
   //function to subsscribe plan
@@ -712,7 +711,7 @@ const ProfileNav = () => {
               <Link
                 sx={{ cursor: "pointer", textDecoration: "none" }}
                 href={item.href}
-                onClick={(e) => handleOnClick(e, item.href)}
+                // onClick={(e) => handleOnClick(e, item.href)}
               >
                 <div
                   className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
