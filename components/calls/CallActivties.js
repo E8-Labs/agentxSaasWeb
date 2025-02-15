@@ -57,12 +57,14 @@ function SheduledCalls({ user }) {
     }
     filterTimerRef.current = setTimeout(() => {
       console.log("Timer clicked", detailsFilterSearchValue);
-      if (detailsFilterSearchValue && detailsFilterSearchValue.length > 0) {
+      // if (detailsFilterSearchValue && detailsFilterSearchValue.length > 0) {
+      if (SelectedItem) {
         setHasMoreCalls(true);
         setFilteredSheduledCalllogs([]);
         setSheduledCalllogs([]);
         fetchCallsInBatch(SelectedItem, 0);
       }
+      // }
     }, 400);
   }, [detailsFilterSearchValue]);
 

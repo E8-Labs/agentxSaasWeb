@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Apis from "../apis/Apis";
 import axios from "axios";
@@ -49,11 +49,28 @@ function SheduledCalls({ user }) {
   const [sheduledCalllogs, setSheduledCalllogs] = useState([]);
   const [filteredSheduledCalllogs, setFilteredSheduledCalllogs] = useState([]);
   const [detailsFilterSearchValue, setDetailsFilterSearchValue] = useState("");
-
+  const filterTimerRef = useRef(null);
   useEffect(() => {
     getAgents();
     // getSheduledCallLogs();
   }, []);
+
+  useEffect(() => {
+    if (filterTimerRef.current) {
+      clearTimeout(filterTimerRef.current);
+    }
+    filterTimerRef.current = setTimeout(() => {
+      console.log("Timer clicked", detailsFilterSearchValue);
+
+      if (SelectedItem) {
+        setSelectedLeadsList([]);
+        setFilteredSelectedLeadsList([]);
+        setHasMoreLeads(true);
+        // setShowLeadDetailsModal(true);
+        fetchLeadsInBatch(SelectedItem, 0);
+      }
+    }, 400);
+  }, [leadsSearchValue]);
 
   const handleShowLeads = (agent, item) => {
     // console.log("Agent selected is:", agent);
@@ -465,7 +482,7 @@ function SheduledCalls({ user }) {
       let leadsInBatchLocalData = localStorage.getItem(
         PersistanceKeys.LeadsInBatch + `${batch.id}`
       );
-      if (selectedLeadsList.length == 0) {
+      if (offset == 0) {
         firstApiCall = true;
         if (leadsInBatchLocalData) {
           console.log("Data in localStorage for leads batch", batch.id);
@@ -479,35 +496,29 @@ function SheduledCalls({ user }) {
           console.log("No data in local storage lead batch");
         }
       } else {
-        console.log("Leads length ", selectedLeadsList.length);
+        console.log("Leads length ", offset);
       }
 
       const token = user.token; // Extract JWT token
-      console.log(
-        "Api Call Leads : ",
-        "/api/calls/leadsInABatch" + `?batchId=${batch.id}&offset=${offset}`
-      );
-      const response = await fetch(
-        "/api/calls/leadsInABatch" + `?batchId=${batch.id}&offset=${offset}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+
+      let url =
+        "/api/calls/leadsInABatch" + `?batchId=${batch.id}&offset=${offset}`;
+      if (leadsSearchValue && leadsSearchValue.length > 0) {
+        url = `${url}&search=${leadsSearchValue}`;
+      }
+      console.log("Url is ", url);
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
       setLeadsLoading(false);
       const data = await response.json();
 
       if (response.ok) {
         console.log(`Leads In Batch ${batch.id}:`, data);
-        // setSelectedLeadsList(data.data);
-        // setFilteredSelectedLeadsList(data.data);
-        // localStorage.setItem(
-        //   PersistanceKeys.LeadsInBatch + `${batch.id}`,
-        //   JSON.stringify(data.data)
-        // );
 
         if (firstApiCall) {
           setSelectedLeadsList(data.data);
