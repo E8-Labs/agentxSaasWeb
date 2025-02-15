@@ -180,16 +180,6 @@ function SheduledCalls({ user }) {
     setShowDetailsModal(true);
     setHasMoreCalls(true);
     fetchCallsInBatch(item, 0);
-    // let updatedCallDetails = callDetails.map((item) => item.agentCalls);
-    // let CallsArray = [];
-    // let matchingPastCallsLeads = SelectedItem.leads.filter((lead) => {
-    //   lead.id === SelectedItem.pastCalls.map((item) => item.leadId);
-    //   return lead;
-    // });
-
-    // setSheduledCalllogs(SelectedItem.pastCalls);
-    // setFilteredSheduledCalllogs(SelectedItem.pastCalls);
-    // setShowDetailsModal(true);
   };
 
   //code to filter slected agent leads
@@ -656,25 +646,6 @@ function SheduledCalls({ user }) {
                               key={index}
                             >
                               <div className="w-3/12 flex flex-row gap-4 items-center">
-                                {/* {agent?.agents[0]?.thumb_profile_image ? (
-                                    <Image
-                                      className="rounded-full"
-                                      src={agent?.agents[0].thumb_profile_image}
-                                      height={40}
-                                      width={40}
-                                      style={{
-                                        height: "40px",
-                                        width: "40px",
-                                        resize: "cover",
-                                      }}
-                                      alt="*"
-                                    />
-                                  ) : (
-                                    <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                      {agent.name.slice(0, 1).toUpperCase()}
-                                    </div>
-                                  )} */}
-
                                 <div>
                                   {getAgentsListImage(agent?.agents[0])}
                                 </div>
