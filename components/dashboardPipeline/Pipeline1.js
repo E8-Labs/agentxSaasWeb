@@ -2849,9 +2849,9 @@ const Pipeline1 = () => {
               </div>
             ) : (
               <button
-                className="mt-4 outline-none"
+                className="mt-4 outline-none  bg-purple"
                 style={{
-                  backgroundColor: "#402FFF",
+                  // backgroundColor: "#402FFF",
                   color: "white",
                   height: "50px",
                   borderRadius: "10px",

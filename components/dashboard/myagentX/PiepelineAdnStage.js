@@ -140,7 +140,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
                   PersistanceKeys.LocalSavedAgentDetails,
                   JSON.stringify(mainAgent)
                 );
-                router.push("/pipeline");
+                router.push("/pipeline/update");
               }}
             >
               Edit
