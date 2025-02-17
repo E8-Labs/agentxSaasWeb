@@ -820,7 +820,7 @@ const ProfileNav = () => {
       <div>
         {/* Subscribe Plan modal */}
         <Modal
-          open={true}
+          open={showPlansPopup}
           closeAfterTransition
           BackdropProps={{
             timeout: 100,
@@ -915,7 +915,7 @@ const ProfileNav = () => {
                     paddingBottom: "20px", // Add space for the fixed buttons
                   }}
                 >
-                  {plansWitTrial.map((item, index) => (
+                  {plans.map((item, index) => (
                     <button
                       key={item.id}
                       className="w-full mt-4"
