@@ -2149,7 +2149,9 @@ function Page() {
                       value={
                         item.totalDuration && item.totalDuration > 0 ? (
                           <div>
-                            {moment(item.totalDuration * 1000).format("mm:ss")}
+                            {moment
+                              .utc((item?.totalDuration || 0) * 1000)
+                              .format("HH:mm:ss")}
                           </div>
                         ) : (
                           "-"
@@ -2731,9 +2733,9 @@ function Page() {
                 showDrawerSelectedAgent?.totalDuration > 0 ? (
                   // <div>{showDrawer?.totalDuration}</div>
                   <div>
-                    {moment(
-                      showDrawerSelectedAgent.totalDuration * 1000
-                    ).format("mm:ss")}
+                    {moment
+                      .utc((showDrawerSelectedAgent?.totalDuration || 0) * 1000)
+                      .format("HH:mm:ss")}
                   </div>
                 ) : (
                   "-"

@@ -7,6 +7,10 @@ import { CircularProgress } from "@mui/material";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { GetFormattedDateString } from "@/utilities/utility";
 import SelectedUserDetails from "./SelectedUserDetails";
+import { UserFilterModal } from "./UserFilterModal";
+
+import Modal, { Box } from "@mui/material";
+import moment from "moment";
 
 function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -15,11 +19,24 @@ function AdminUsers() {
   const [anchorEl, setAnchorEl] = useState(null); // For menu position
   const [selectedUser, setSelectedUser] = useState(null); // To know which user is selected for action
 
+  const [filters, setFilters] = useState({});
+  const [showFilterModal, setShowFilterModal] = useState(false);
+
   const [search, setSearch] = useState("");
   const filterRef = useRef(null);
   const [showUserDetails, setShowUserDetails] = useState(false);
 
+  const [leadsSort, setLeadsSort] = useState(false);
+  const [minsSort, setMinsSort] = useState(false);
+  const [spentSort, setSpentSort] = useState(false);
+  const [balanceSort, setBalanceSort] = useState(false);
+
+  const [selectedSort, setSelectedSort] = useState(null);
+  const [selectedSortOrder, setSelectedSortOrder] = useState("ASC");
+
   const LimitPerLoad = 30;
+
+  let sortData = { sort: "", sortOrder: "" };
 
   useEffect(() => {
     getUsersList();
@@ -33,11 +50,18 @@ function AdminUsers() {
       console.log("Timer clicked", search);
       setHasMore(true);
       setUsers([]);
-      getUsersList(0);
+      let sortData = {
+        sort: selectedSort,
+        sortOrder: selectedSortOrder,
+      };
+
+      getUsersList(0, filters, sortData);
+      // getUsersList();
     }, 400);
   }, [search]);
 
-  const getUsersList = async (offset = 0) => {
+  const getUsersList = async (offset = 0, filters = null, sortData = null) => {
+    console.log("filters in function are", filters);
     try {
       setLoading(true);
       const data = localStorage.getItem("User");
@@ -48,7 +72,61 @@ function AdminUsers() {
           apiPath = `${apiPath}&search=${search}`;
         }
 
+        if (filters) {
+          if (filters.agent) {
+            apiPath += `&minAgents=${filters.agent[0]}&maxAgents=${filters.agent[1]}`;
+          }
+          if (filters.balance) {
+            apiPath += `&minBalance=${filters.balance[0]}&maxBalance=${filters.balance[1]}`;
+          }
+          if (filters.minsUsed) {
+            apiPath += `&minMinsUsed=${filters.minsUsed[0]}&maxMinsUsed=${filters.minsUsed[1]}`;
+          }
+          if (filters.teams) {
+            apiPath += `&minTeams=${filters.teams[0]}&maxTeams=${filters.teams[1]}`;
+          }
+          if (filters.totalSpent) {
+            apiPath += `&minSpent=${filters.totalSpent[0]}&maxSpent=${filters.totalSpent[1]}`;
+          }
+          if (filters.renewalFromDate) {
+            apiPath += `&fromChargeDate=${moment(
+              filters.renewalFromDate
+            ).format("YYYY-MM-DD")}`;
+          }
+          if (filters.renewalToDate) {
+            apiPath += `&toChargeDate=${moment(filters.renewalToDate).format(
+              "YYYY-MM-DD"
+            )}`;
+          }
+          if (filters.selectedCreatedFromDate) {
+            apiPath += `&fromCreatedDate=${moment(
+              filters.selectedCreatedFromDate
+            ).format("YYYY-MM-DD")}`;
+          }
+          if (filters.selectedCreatedToDate) {
+            apiPath += `&toCreatedDate=${moment(
+              filters.selectedCreatedToDate
+            ).format("YYYY-MM-DD")}`;
+          }
+          if (filters.selectedPlans && filters.selectedPlans.length > 0) {
+            const planString = filters.selectedPlans.join(",");
+            apiPath += `&plan=${planString}`;
+          }
+          if (
+            filters.selectedAffiliates &&
+            filters.selectedAffiliates.length > 0
+          ) {
+            const affiliates = filters.selectedAffiliates.join(",");
+            apiPath += `&closer=${affiliates}`;
+          }
+        }
+
+        if (sortData) {
+          apiPath = `${apiPath}&sort=${sortData.sort}&sortOrder=${sortData.sortOrder}`;
+        }
+
         console.log("Url ", apiPath);
+        // return
         const response = await axios.get(apiPath, {
           headers: {
             Authorization: "Bearer " + u.token,
@@ -76,10 +154,27 @@ function AdminUsers() {
 
   return (
     <div className="flex flex-col items-center w-full">
-      {/* Header */}
-      <div className="flex flex-row items-center justify-between px-10 mt-4 pb-4 border-b border-gray-200 w-full">
-        <h1 className="text-lg font-bold">Users</h1>
-      </div>
+      <UserFilterModal
+        showFilterModal={showFilterModal}
+        filters={{}}
+        updateFilters={(filter) => {
+          console.log("Filters selected", filter);
+          // let f = { ...filters, filter }
+          setFilters(filter);
+          if (filter?.finalUpdate === true) {
+            let sortData = {
+              sort: selectedSort,
+              sortOrder: selectedSortOrder,
+            };
+
+            getUsersList(0, filters, sortData);
+            setShowFilterModal(false);
+          }
+        }}
+        onDismissCallback={() => {
+          setShowFilterModal(false);
+        }}
+      />
 
       <div className="flex flex-row justify-start items-center gap-4 p-6 w-full">
         <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded pe-2">
@@ -102,7 +197,12 @@ function AdminUsers() {
             />
           </button>
         </div>
-        <button className="outline-none flex-shrink-0">
+        <button
+          className="outline-none flex-shrink-0"
+          onClick={() => {
+            setShowFilterModal(true);
+          }}
+        >
           <Image
             src={"/assets/filterIcon.png"}
             height={16}
@@ -113,7 +213,7 @@ function AdminUsers() {
       </div>
       {/* Scrollable Table Wrapper */}
       <div
-        className="h-[90svh] overflow-auto pb-[100px] mt-6 w-full"
+        className="h-[90svh] overflow-auto pb-[100px] w-full"
         id="scrollableDiv1"
         style={{ scrollbarWidth: "none" }}
       >
@@ -137,7 +237,12 @@ function AdminUsers() {
           dataLength={users.length}
           next={() => {
             console.log("Load more leads");
-            getUsersList(users.length);
+            let sortData = {
+              sort: selectedSort,
+              sortOrder: selectedSortOrder,
+            };
+
+            getUsersList(users.length, filters, sortData);
           }}
           hasMore={hasMore}
           loader={
@@ -155,18 +260,145 @@ function AdminUsers() {
               <tr className="bg-gray-100 text-sm font-semibold text-gray-600">
                 <th className="px-4 py-2 text-left">Name</th>
                 <th className="px-4 py-2 text-left">Email</th>
-                <th className="px-4 py-2 text-left">Leads</th>
+                <th className=" py-2 text-left flex flex-row gap-2 w-[110px]">
+                  <button
+                    onClick={() => {
+                      // setLeadsSort(!leadsSort);
+                      // setBalanceSort(false);
+                      // setMinsSort(false);
+                      // setSpentSort(false);
+                      let sortOrder = selectedSortOrder;
+                      if (selectedSort == "Leads") {
+                        sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                      }
+
+                      setSelectedSortOrder(sortOrder);
+
+                      sortData = {
+                        sort: "Leads",
+                        sortOrder: sortOrder,
+                      };
+                      setSelectedSort("Leads");
+                      getUsersList(0, filters, sortData);
+                    }}
+                  >
+                    Leads
+                    {selectedSort === "Leads" && (
+                      <Image
+                        src={
+                          selectedSortOrder == "DESC"
+                            ? "/downArrow.png"
+                            : "/upArrow.png"
+                        }
+                        height={10}
+                        width={10}
+                        alt="*"
+                      />
+                    )}
+                  </button>
+                </th>
                 <th className="px-4 py-2 text-left">Plan</th>
-                <th className="px-4 py-2 text-left">Teams</th>
-                <th className="px-4 py-2 text-left">Total Spent</th>
-                <th className="px-4 py-2 text-left">Mins Used</th>
-                <th className="px-4 py-2 text-left">Mins Balance</th>
-                <th className="px-4 py-2 text-left">Renewal</th>
-                <th className="px-4 py-2 text-left">Agents</th>
-                <th className="px-4 py-2 text-left">Referred by</th>
-                <th className="px-4 py-2 text-left">Closer</th>
-                <th className="px-4 py-2 text-left">Source</th>
-                <th className="px-4 py-2 text-left">Created</th>
+                <th className="px-4 py-2 text-left w-[100px]">Teams</th>
+                <th className=" py-2 text-left  w-[150px]">
+                  <button
+                    onClick={() => {
+                      let sortOrder = selectedSortOrder;
+                      if (selectedSort == "TotalSpent") {
+                        sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                      }
+                      setSelectedSortOrder(sortOrder);
+                      sortData = {
+                        sort: "TotalSpent",
+                        sortOrder: sortOrder,
+                      };
+                      setSelectedSort("TotalSpent");
+                      getUsersList(0, filters, sortData);
+                    }}
+                  >
+                    Total Spents
+                    {selectedSort === "TotalSpent" && (
+                      <Image
+                        src={
+                          selectedSortOrder == "DESC"
+                            ? "/downArrow.png"
+                            : "/upArrow.png"
+                        }
+                        height={10}
+                        width={10}
+                        alt="*"
+                      />
+                    )}
+                  </button>
+                </th>
+                <th className=" py-2 text-left w-[150px] flex-row">
+                  <button
+                    onClick={() => {
+                      let sortOrder = selectedSortOrder;
+                      if (selectedSort == "MinutesUsed") {
+                        sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                      }
+                      setSelectedSortOrder(sortOrder);
+                      sortData = {
+                        sort: "MinutesUsed",
+                        sortOrder: sortOrder,
+                      };
+                      getUsersList(0, filters, sortData);
+                      setSelectedSort("MinutesUsed");
+                    }}
+                  >
+                    Mins Used
+                    {selectedSort === "MinutesUsed" && (
+                      <Image
+                        src={
+                          selectedSortOrder == "DESC"
+                            ? "/downArrow.png"
+                            : "/upArrow.png"
+                        }
+                        height={10}
+                        width={10}
+                        alt="*"
+                      />
+                    )}
+                  </button>
+                </th>
+                <th className=" py-2 text-left  w-[150px]">
+                  <button
+                    onClick={() => {
+                      let sortOrder = selectedSortOrder;
+                      if (selectedSort == "MinutesBalance") {
+                        sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                      }
+                      setSelectedSortOrder(sortOrder);
+                      sortData = {
+                        sort: "MinutesBalance",
+                        sortOrder: sortOrder,
+                      };
+                      setSelectedSort("MinutesBalance");
+
+                      getUsersList(0, filters, sortData);
+                    }}
+                  >
+                    Mins Balance
+                    {selectedSort === "MinutesBalance" && (
+                      <Image
+                        src={
+                          selectedSortOrder == "DESC"
+                            ? "/downArrow.png"
+                            : "/upArrow.png"
+                        }
+                        height={10}
+                        width={10}
+                        alt="*"
+                      />
+                    )}
+                  </button>
+                </th>
+                <th className="px-4 py-2 text-left w-[150px]">Renewal</th>
+                <th className="px-4 py-2 text-left w-[150px]">Agents</th>
+                <th className="px-4 py-2 text-left w-[150px]">Referred by</th>
+                <th className="px-4 py-2 text-left w-[150px]">Closer</th>
+                <th className="px-4 py-2 text-left w-[150px]">Source</th>
+                <th className="px-4 py-2 text-left w-[150px]">Created</th>
               </tr>
             </thead>
 
@@ -207,7 +439,9 @@ function AdminUsers() {
                   <td className="px-4 py-2">{item.plan || "-"}</td>
                   <td className="px-4 py-2">{item.team || "-"}</td>
                   <td className="px-4 py-2">${item.totalSpent || "0"}</td>
-                  <td className="px-4 py-2">{item.minutesUsed || "0"} mins</td>
+                  <td className="px-4 py-2">
+                    {parseFloat((item.minutesUsed || 0) / 60).toFixed(2)} mins
+                  </td>
                   <td className="px-4 py-2">
                     {parseFloat((item.totalSecondsAvailable / 60).toFixed(2))}{" "}
                     mins

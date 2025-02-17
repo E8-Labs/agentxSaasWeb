@@ -38,7 +38,9 @@ function Page() {
           zIndex: -1, // Ensure the video stays behind content
         }}
       >
-        <BackgroundVideo showImageOnly={true} imageUrl="/adminbg.png" />
+        {selectedManu.id === 1 && (
+          <BackgroundVideo showImageOnly={true} imageUrl="/adminbg.png" />
+        )}
       </div>
 
       <div className="flex w-[100vw] flex-row items-center justify-start gap-3 px-10 pt-2">

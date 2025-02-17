@@ -485,6 +485,7 @@ function Billing() {
 
   //function to call redeem api
   const handleRedeemPlan = async () => {
+    console.log("Trying to redeem plan");
     try {
       setRedeemLoader(true);
 
