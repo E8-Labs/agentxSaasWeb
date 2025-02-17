@@ -218,6 +218,36 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     }
   }
 
+  function canContinue() {
+    if (!user) {
+      return false;
+    }
+    console.log("Details ", {
+      agentName,
+      agentRole,
+      agentObjective,
+      InBoundCalls,
+      OutBoundCalls,
+    });
+    if (user.user.userType == UserTypes.RealEstateAgent) {
+      if (
+        agentName &&
+        agentRole &&
+        agentObjective &&
+        (InBoundCalls || OutBoundCalls)
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      if (agentName && agentRole && (InBoundCalls || OutBoundCalls)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   //code for selecting outbound calls
   const handleInboundCallClick = () => {
     // setOutBoundCalls(false);
@@ -773,7 +803,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
             handleContinue={handleBuildAgent}
             donotShowBack={true}
             registerLoader={buildAgentLoader}
-            shouldContinue={shouldContinue}
+            shouldContinue={!canContinue()}
           />
         </div>
       </div>
