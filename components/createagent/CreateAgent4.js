@@ -530,6 +530,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       // onChange={handleSelectNumber}
                       onChange={(e) => {
                         let value = e.target.value;
+                        console.log("Changing phone here", e.target.value);
                         setSelectNumber(value);
                         setOpenCalimNumDropDown(false);
                       }}
@@ -551,7 +552,11 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         <MenuItem
                           key={index}
                           style={styles.dropdownMenu}
-                          value={item.phoneNumber.slice(1)}
+                          value={
+                            item.startsWith("+")
+                              ? item.phoneNumber.slice(1)
+                              : item.phoneNumber
+                          }
                           className="flex flex-row items-center gap-2"
                         >
                           <div
