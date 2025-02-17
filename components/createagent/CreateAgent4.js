@@ -223,7 +223,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
       if (response) {
         // console.log("Respose of reassign api is:", response);
-        setSelectNumber(item.phoneNumber.slice(1));
+        setSelectNumber(
+          item.startsWith("+") ? item.phoneNumber.slice(1) : item.phoneNumber
+        );
         setOpenCalimNumDropDown(false);
         //code to close the dropdown
         if (selectRef.current) {
