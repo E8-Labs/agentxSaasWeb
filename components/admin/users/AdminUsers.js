@@ -26,16 +26,16 @@ function AdminUsers() {
   const filterRef = useRef(null);
   const [showUserDetails, setShowUserDetails] = useState(false);
 
-  const [leadsSort, setLeadsSort] = useState(false)
-  const [minsSort, setMinsSort] = useState(false)
-  const [spentSort, setSpentSort] = useState(false)
-  const [balanceSort, setBalanceSort] = useState(false)
+  const [leadsSort, setLeadsSort] = useState(false);
+  const [minsSort, setMinsSort] = useState(false);
+  const [spentSort, setSpentSort] = useState(false);
+  const [balanceSort, setBalanceSort] = useState(false);
 
-  const [selectedSort, setSelectedSort] = useState(null)
+  const [selectedSort, setSelectedSort] = useState(null);
 
   const LimitPerLoad = 30;
 
-  let sortData = { sort: "", sortOrder: "" }
+  let sortData = { sort: "", sortOrder: "" };
 
   useEffect(() => {
     getUsersList();
@@ -54,8 +54,7 @@ function AdminUsers() {
   }, [search]);
 
   const getUsersList = async (offset = 0, filters = null, sortData = null) => {
-
-    console.log('filters in function are', filters)
+    console.log("filters in function are", filters);
     try {
       setLoading(true);
       const data = localStorage.getItem("User");
@@ -83,33 +82,41 @@ function AdminUsers() {
             apiPath += `&minSpent=${filters.totalSpent[0]}&maxSpent=${filters.totalSpent[1]}`;
           }
           if (filters.renewalFromDate) {
-            apiPath += `&fromChargeDate=${moment(filters.renewalFromDate).format("YYYY-MM-DD")}`;
+            apiPath += `&fromChargeDate=${moment(
+              filters.renewalFromDate
+            ).format("YYYY-MM-DD")}`;
           }
           if (filters.renewalToDate) {
-            apiPath += `&toChargeDate=${moment(filters.renewalToDate).format("YYYY-MM-DD")}`;
+            apiPath += `&toChargeDate=${moment(filters.renewalToDate).format(
+              "YYYY-MM-DD"
+            )}`;
           }
           if (filters.selectedCreatedFromDate) {
-            apiPath += `&fromCreatedDate=${moment(filters.selectedCreatedFromDate).format("YYYY-MM-DD")}`;
+            apiPath += `&fromCreatedDate=${moment(
+              filters.selectedCreatedFromDate
+            ).format("YYYY-MM-DD")}`;
           }
           if (filters.selectedCreatedToDate) {
-            apiPath += `&toCreatedDate=${moment(filters.selectedCreatedToDate).format("YYYY-MM-DD")}`;
+            apiPath += `&toCreatedDate=${moment(
+              filters.selectedCreatedToDate
+            ).format("YYYY-MM-DD")}`;
           }
           if (filters.selectedPlans && filters.selectedPlans.length > 0) {
             const planString = filters.selectedPlans.join(",");
             apiPath += `&plan=${planString}`;
           }
-          if (filters.selectedAffiliates && filters.selectedAffiliates.length > 0) {
+          if (
+            filters.selectedAffiliates &&
+            filters.selectedAffiliates.length > 0
+          ) {
             const affiliates = filters.selectedAffiliates.join(",");
             apiPath += `&closer=${affiliates}`;
           }
-
         }
 
         if (sortData) {
-          apiPath = `${apiPath}&sort=${sortData.sort}&sortOrder=${sortData.sortOrder}`
+          apiPath = `${apiPath}&sort=${sortData.sort}&sortOrder=${sortData.sortOrder}`;
         }
-
-
 
         console.log("Url ", apiPath);
         // return
@@ -148,9 +155,8 @@ function AdminUsers() {
           // let f = { ...filters, filter }
           setFilters(filter);
           if (filter?.finalUpdate === true) {
-            getUsersList(0, filter)
+            getUsersList(0, filter);
             setShowFilterModal(false);
-
           }
         }}
         onDismissCallback={() => {
@@ -238,84 +244,110 @@ function AdminUsers() {
                 <th className="px-4 py-2 text-left">Name</th>
                 <th className="px-4 py-2 text-left">Email</th>
                 <th className=" py-2 text-left flex flex-row gap-2 w-[80px]">
-                  <button onClick={() => {
-                    setLeadsSort(!leadsSort)
-                    setBalanceSort(false)
-                    setMinsSort(false)
-                    setSpentSort(false)
-                    sortData = {
-                      sort: "Leads",
-                      sortOrder: leadsSort ? "asc" : "desc"
-                    }
-                    setSelectedSort("Leads")
-                    getUsersList(0, null, sortData)
-                  }}>Leads
-                    {
-                      selectedSort === "Leads" && (
-                        <Image src={leadsSort ? "/downArrow.png" : "/upArrow.png"} height={10} width={10} alt="*" />
-                      )
-                    }
+                  <button
+                    onClick={() => {
+                      setLeadsSort(!leadsSort);
+                      setBalanceSort(false);
+                      setMinsSort(false);
+                      setSpentSort(false);
+                      sortData = {
+                        sort: "Leads",
+                        sortOrder: leadsSort ? "asc" : "desc",
+                      };
+                      setSelectedSort("Leads");
+                      getUsersList(0, filters, sortData);
+                    }}
+                  >
+                    Leads
+                    {selectedSort === "Leads" && (
+                      <Image
+                        src={leadsSort ? "/downArrow.png" : "/upArrow.png"}
+                        height={10}
+                        width={10}
+                        alt="*"
+                      />
+                    )}
                   </button>
                 </th>
                 <th className="px-4 py-2 text-left">Plan</th>
                 <th className="px-4 py-2 text-left">Teams</th>
                 <th className=" py-2 text-left  w-[100px]">
-                  <button onClick={() => {
-                    setLeadsSort(false)
-                    setBalanceSort(false)
-                    setMinsSort(false)
-                    setSpentSort(!spentSort)
-                    let sortData = {
-                      sort: "TotalSpent",
-                      sortOrder: spentSort ? "asc" : "desc"
-                    }
-                    setSelectedSort("TotalSpent")
-                    getUsersList(0, null, sortData)
-                  }}>Total Spents
-                    {
-                      selectedSort === "TotalSpent" && (
-                        <Image src={spentSort ? "/downArrow.png" : "/upArrow.png"} height={10} width={10} alt="*" />
-                      )}
+                  <button
+                    onClick={() => {
+                      setLeadsSort(false);
+                      setBalanceSort(false);
+                      setMinsSort(false);
+                      setSpentSort(!spentSort);
+                      let sortData = {
+                        sort: "TotalSpent",
+                        sortOrder: spentSort ? "asc" : "desc",
+                      };
+                      setSelectedSort("TotalSpent");
+                      getUsersList(0, filters, sortData);
+                    }}
+                  >
+                    Total Spents
+                    {selectedSort === "TotalSpent" && (
+                      <Image
+                        src={spentSort ? "/downArrow.png" : "/upArrow.png"}
+                        height={10}
+                        width={10}
+                        alt="*"
+                      />
+                    )}
                   </button>
                 </th>
                 <th className=" py-2 text-left w-[100px] flex-row">
-                  <button onClick={() => {
-                    setLeadsSort(false)
-                    setBalanceSort(false)
-                    setMinsSort(!minsSort)
-                    setSpentSort(false)
-                    let sortData = {
-                      sort: "MinutesUsed",
-                      sortOrder: minsSort ? "asc" : "desc"
-                    }
-                    getUsersList(0, null, sortData)
-                    setSelectedSort("MinutesUsed")
-
-                  }}>Mins Used
-                    {
-                      selectedSort === "MinutesUsed" && (
-                        <Image src={minsSort ? "/downArrow.png" : "/upArrow.png"} height={10} width={10} alt="*" />
-                      )}
+                  <button
+                    onClick={() => {
+                      setLeadsSort(false);
+                      setBalanceSort(false);
+                      setMinsSort(!minsSort);
+                      setSpentSort(false);
+                      let sortData = {
+                        sort: "MinutesUsed",
+                        sortOrder: minsSort ? "asc" : "desc",
+                      };
+                      getUsersList(0, filters, sortData);
+                      setSelectedSort("MinutesUsed");
+                    }}
+                  >
+                    Mins Used
+                    {selectedSort === "MinutesUsed" && (
+                      <Image
+                        src={minsSort ? "/downArrow.png" : "/upArrow.png"}
+                        height={10}
+                        width={10}
+                        alt="*"
+                      />
+                    )}
                   </button>
                 </th>
                 <th className=" py-2 text-left  w-[100px]">
-                  <button onClick={() => {
-                    setLeadsSort(false)
-                    setBalanceSort(balanceSort)
-                    setMinsSort(false)
-                    setSpentSort(false)
-                    let sortData = {
-                      sort: "MinutesBalance",
-                      sortOrder: balanceSort ? "asc" : "desc"
-                    }
-                    setSelectedSort("MinutesBalance")
+                  <button
+                    onClick={() => {
+                      setLeadsSort(false);
+                      setBalanceSort(balanceSort);
+                      setMinsSort(false);
+                      setSpentSort(false);
+                      let sortData = {
+                        sort: "MinutesBalance",
+                        sortOrder: balanceSort ? "asc" : "desc",
+                      };
+                      setSelectedSort("MinutesBalance");
 
-                    getUsersList(0, null, sortData)
-                  }}>Mins Balance
-                    {
-                      selectedSort === "MinutesBalance" && (
-                        <Image src={balanceSort ? "/downArrow.png" : "/upArrow.png"} height={10} width={10} alt="*" />
-                      )}
+                      getUsersList(0, filters, sortData);
+                    }}
+                  >
+                    Mins Balance
+                    {selectedSort === "MinutesBalance" && (
+                      <Image
+                        src={balanceSort ? "/downArrow.png" : "/upArrow.png"}
+                        height={10}
+                        width={10}
+                        alt="*"
+                      />
+                    )}
                   </button>
                 </th>
                 <th className="px-4 py-2 text-left">Renewal</th>
@@ -332,8 +364,9 @@ function AdminUsers() {
               {users.map((item, index) => (
                 <tr
                   key={index}
-                  className={`hover:bg-gray-50 text-sm text-gray-900 border-b cursor-pointer ${index % 2 == 0 ? "bg-gray-100" : ""
-                    }`}
+                  className={`hover:bg-gray-50 text-sm text-gray-900 border-b cursor-pointer ${
+                    index % 2 == 0 ? "bg-gray-100" : ""
+                  }`}
                   onClick={() => {
                     console.log("selected item", item);
                     setSelectedUser(item);
