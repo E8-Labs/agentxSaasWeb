@@ -32,6 +32,7 @@ function AdminUsers() {
   const [balanceSort, setBalanceSort] = useState(false);
 
   const [selectedSort, setSelectedSort] = useState(null);
+  const [selectedSortOrder, setSelectedSortOrder] = useState("ASC");
 
   const LimitPerLoad = 30;
 
@@ -49,7 +50,13 @@ function AdminUsers() {
       console.log("Timer clicked", search);
       setHasMore(true);
       setUsers([]);
-      getUsersList();
+      let sortData = {
+        sort: selectedSort,
+        sortOrder: selectedSortOrder,
+      };
+
+      getUsersList(0, filters, sortData);
+      // getUsersList();
     }, 400);
   }, [search]);
 
@@ -155,7 +162,12 @@ function AdminUsers() {
           // let f = { ...filters, filter }
           setFilters(filter);
           if (filter?.finalUpdate === true) {
-            getUsersList(0, filter);
+            let sortData = {
+              sort: selectedSort,
+              sortOrder: selectedSortOrder,
+            };
+
+            getUsersList(0, filters, sortData);
             setShowFilterModal(false);
           }
         }}
@@ -225,7 +237,12 @@ function AdminUsers() {
           dataLength={users.length}
           next={() => {
             console.log("Load more leads");
-            getUsersList(users.length);
+            let sortData = {
+              sort: selectedSort,
+              sortOrder: selectedSortOrder,
+            };
+
+            getUsersList(users.length, filters, sortData);
           }}
           hasMore={hasMore}
           loader={
@@ -243,16 +260,23 @@ function AdminUsers() {
               <tr className="bg-gray-100 text-sm font-semibold text-gray-600">
                 <th className="px-4 py-2 text-left">Name</th>
                 <th className="px-4 py-2 text-left">Email</th>
-                <th className=" py-2 text-left flex flex-row gap-2 w-[80px]">
+                <th className=" py-2 text-left flex flex-row gap-2 w-[110px]">
                   <button
                     onClick={() => {
-                      setLeadsSort(!leadsSort);
-                      setBalanceSort(false);
-                      setMinsSort(false);
-                      setSpentSort(false);
+                      // setLeadsSort(!leadsSort);
+                      // setBalanceSort(false);
+                      // setMinsSort(false);
+                      // setSpentSort(false);
+                      let sortOrder = selectedSortOrder;
+                      if (selectedSort == "Leads") {
+                        sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                      }
+
+                      setSelectedSortOrder(sortOrder);
+
                       sortData = {
                         sort: "Leads",
-                        sortOrder: leadsSort ? "asc" : "desc",
+                        sortOrder: sortOrder,
                       };
                       setSelectedSort("Leads");
                       getUsersList(0, filters, sortData);
@@ -261,7 +285,11 @@ function AdminUsers() {
                     Leads
                     {selectedSort === "Leads" && (
                       <Image
-                        src={leadsSort ? "/downArrow.png" : "/upArrow.png"}
+                        src={
+                          selectedSortOrder == "DESC"
+                            ? "/downArrow.png"
+                            : "/upArrow.png"
+                        }
                         height={10}
                         width={10}
                         alt="*"
@@ -270,17 +298,18 @@ function AdminUsers() {
                   </button>
                 </th>
                 <th className="px-4 py-2 text-left">Plan</th>
-                <th className="px-4 py-2 text-left">Teams</th>
-                <th className=" py-2 text-left  w-[100px]">
+                <th className="px-4 py-2 text-left w-[100px]">Teams</th>
+                <th className=" py-2 text-left  w-[150px]">
                   <button
                     onClick={() => {
-                      setLeadsSort(false);
-                      setBalanceSort(false);
-                      setMinsSort(false);
-                      setSpentSort(!spentSort);
-                      let sortData = {
+                      let sortOrder = selectedSortOrder;
+                      if (selectedSort == "TotalSpent") {
+                        sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                      }
+                      setSelectedSortOrder(sortOrder);
+                      sortData = {
                         sort: "TotalSpent",
-                        sortOrder: spentSort ? "asc" : "desc",
+                        sortOrder: sortOrder,
                       };
                       setSelectedSort("TotalSpent");
                       getUsersList(0, filters, sortData);
@@ -289,7 +318,11 @@ function AdminUsers() {
                     Total Spents
                     {selectedSort === "TotalSpent" && (
                       <Image
-                        src={spentSort ? "/downArrow.png" : "/upArrow.png"}
+                        src={
+                          selectedSortOrder == "DESC"
+                            ? "/downArrow.png"
+                            : "/upArrow.png"
+                        }
                         height={10}
                         width={10}
                         alt="*"
@@ -297,16 +330,17 @@ function AdminUsers() {
                     )}
                   </button>
                 </th>
-                <th className=" py-2 text-left w-[100px] flex-row">
+                <th className=" py-2 text-left w-[150px] flex-row">
                   <button
                     onClick={() => {
-                      setLeadsSort(false);
-                      setBalanceSort(false);
-                      setMinsSort(!minsSort);
-                      setSpentSort(false);
-                      let sortData = {
+                      let sortOrder = selectedSortOrder;
+                      if (selectedSort == "MinutesUsed") {
+                        sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                      }
+                      setSelectedSortOrder(sortOrder);
+                      sortData = {
                         sort: "MinutesUsed",
-                        sortOrder: minsSort ? "asc" : "desc",
+                        sortOrder: sortOrder,
                       };
                       getUsersList(0, filters, sortData);
                       setSelectedSort("MinutesUsed");
@@ -315,7 +349,11 @@ function AdminUsers() {
                     Mins Used
                     {selectedSort === "MinutesUsed" && (
                       <Image
-                        src={minsSort ? "/downArrow.png" : "/upArrow.png"}
+                        src={
+                          selectedSortOrder == "DESC"
+                            ? "/downArrow.png"
+                            : "/upArrow.png"
+                        }
                         height={10}
                         width={10}
                         alt="*"
@@ -323,16 +361,17 @@ function AdminUsers() {
                     )}
                   </button>
                 </th>
-                <th className=" py-2 text-left  w-[100px]">
+                <th className=" py-2 text-left  w-[150px]">
                   <button
                     onClick={() => {
-                      setLeadsSort(false);
-                      setBalanceSort(balanceSort);
-                      setMinsSort(false);
-                      setSpentSort(false);
-                      let sortData = {
+                      let sortOrder = selectedSortOrder;
+                      if (selectedSort == "MinutesBalance") {
+                        sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                      }
+                      setSelectedSortOrder(sortOrder);
+                      sortData = {
                         sort: "MinutesBalance",
-                        sortOrder: balanceSort ? "asc" : "desc",
+                        sortOrder: sortOrder,
                       };
                       setSelectedSort("MinutesBalance");
 
@@ -342,7 +381,11 @@ function AdminUsers() {
                     Mins Balance
                     {selectedSort === "MinutesBalance" && (
                       <Image
-                        src={balanceSort ? "/downArrow.png" : "/upArrow.png"}
+                        src={
+                          selectedSortOrder == "DESC"
+                            ? "/downArrow.png"
+                            : "/upArrow.png"
+                        }
                         height={10}
                         width={10}
                         alt="*"
@@ -350,12 +393,12 @@ function AdminUsers() {
                     )}
                   </button>
                 </th>
-                <th className="px-4 py-2 text-left">Renewal</th>
-                <th className="px-4 py-2 text-left">Agents</th>
-                <th className="px-4 py-2 text-left">Referred by</th>
-                <th className="px-4 py-2 text-left">Closer</th>
-                <th className="px-4 py-2 text-left">Source</th>
-                <th className="px-4 py-2 text-left">Created</th>
+                <th className="px-4 py-2 text-left w-[150px]">Renewal</th>
+                <th className="px-4 py-2 text-left w-[150px]">Agents</th>
+                <th className="px-4 py-2 text-left w-[150px]">Referred by</th>
+                <th className="px-4 py-2 text-left w-[150px]">Closer</th>
+                <th className="px-4 py-2 text-left w-[150px]">Source</th>
+                <th className="px-4 py-2 text-left w-[150px]">Created</th>
               </tr>
             </thead>
 
