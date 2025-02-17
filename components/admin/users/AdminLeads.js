@@ -89,29 +89,7 @@ const AdminLeads = ({
   useEffect(() => {
     //console.log("Filtered Leads changed", FilterLeads.length);
   }, [FilterLeads]);
-  /*
  
-  [
-    {
-        key: date,
-        values: ["date or value"]
-    },
-   
-    {
-        key: stage,
-        values: ["stageId"]
-    },
-    {
-        key: pipeline,
-        values: ["pipeline"]
-    },
-    {
-        key: status,
-        values: ["status"]
-    }
-  ]
- 
-  */
 
   const [LeadsInSheet, setLeadsInSheet] = useState({});
 
@@ -1641,12 +1619,6 @@ const AdminLeads = ({
           <div>
             <div className="flex flex-row items-center justify-end">
               <div className="flex flex-row items-center gap-6">
-                {/* <div className='flex flex-row items-center gap-2'>
-                                        <Image src={"/assets/buyLeadIcon.png"} height={24} width={24} alt='*' />
-                                        <span className='text-purple' style={styles.paragraph}>
-                                            Buy Lead
-                                        </span>
-                                    </div> */}
 
                 <Modal
                   open={AssignLeadModal}

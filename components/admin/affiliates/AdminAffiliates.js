@@ -30,11 +30,7 @@ import {
 function AdminAffiliates({ selectedUser }) {
   const timerRef = useRef(null);
   const router = useRouter();
-  const [teamDropdown, setteamDropdown] = useState(null);
-  const [openTeamDropdown, setOpenTeamDropdown] = useState(false);
-  const [moreDropdown, setMoreDropdown] = useState(null);
-  const [openMoreDropdown, setOpenMoreDropdown] = useState(false);
-  const [selectedItem, setSelectedItem] = useState("Noah's Team");
+ 
   const [openAffiliatePopup, setOpenAffiliatePopup] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -48,10 +44,7 @@ function AdminAffiliates({ selectedUser }) {
 
   const [getAffeliatesLoader, setGetAffiliatesLoader] = useState(false);
   const [addAffiliateLoader, setAddAffiliateLoader] = useState(false);
-  const [reInviteTeamLoader, setReInviteTeamLoader] = useState(false);
 
-  const [emailLoader, setEmailLoader] = useState(false);
-  const [emailCheckResponse, setEmailCheckResponse] = useState(null);
   const [validEmail, setValidEmail] = useState("");
 
   const [showSnak, setShowSnak] = useState(false);
@@ -59,12 +52,14 @@ function AdminAffiliates({ selectedUser }) {
 
   //variables for phone number err messages and checking
   const [errorMessage, setErrorMessage] = useState(null);
-  const [checkPhoneLoader, setCheckPhoneLoader] = useState(null);
   const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
   const [countryCode, setCountryCode] = useState(""); // Default country
 
   const [urlError, setUrlError] = useState("");
   const [urlError2, setUrlError2] = useState("");
+  const [search,setSearch] = useState("")
+  const [filteredAffiliates, setFilteredAffiliates] = useState([]);
+
 
   useEffect(() => {});
 
@@ -133,6 +128,7 @@ function AdminAffiliates({ selectedUser }) {
 
           if (response.data.status === true) {
             setAffiliatesList(response.data.data);
+            setFilteredAffiliates(response.data.data);
           } else {
             console.log("get team api message is", response.data.message);
           }
@@ -236,37 +232,6 @@ function AdminAffiliates({ selectedUser }) {
     return emailPattern.test(email);
   };
 
-  //check email
-  const checkEmail = async (value) => {
-    // try {
-    //   setValidEmail("");
-    //   setEmailLoader(true);
-    //   const ApiPath = Apis.CheckEmail;
-    //   const ApiData = {
-    //     email: value,
-    //   };
-    //   // console.log("Api data is :", ApiData);
-    //   const response = await axios.post(ApiPath, ApiData, {
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //   });
-    //   if (response) {
-    //     // console.log("Response of check email api is :", response);
-    //     if (response.data.status === true) {
-    //       // console.log("Response message is :", response.data.message);
-    //       setEmailCheckResponse(response.data);
-    //     } else {
-    //       setEmailCheckResponse(response.data);
-    //     }
-    //   }
-    // } catch (error) {
-    //   // console.error("Error occured in check email api is :", error);
-    // } finally {
-    //   setEmailLoader(false);
-    // }
-  };
-
   //phone input change
   const handlePhoneNumberChange = (phone) => {
     setPhone(phone);
@@ -319,57 +284,31 @@ function AdminAffiliates({ selectedUser }) {
     // }
   };
 
-  async function deleteAffiliate(item) {
-    console.log("Deleting ", item);
-    // return; let phoneNumber = team.phone;
-    let apidata = {
-      id: item.id,
-    };
 
-    console.log("data to delete", apidata);
-    // return;
-
-    try {
-      const data = localStorage.getItem("User");
-      //   setInviteTeamLoader(true);
-      if (data) {
-        let u = JSON.parse(data);
-
-        let path = Apis.deleteAffiliate;
-        // console.log("token ", u.token);
-        const response = await axios.post(path, apidata, {
-          headers: {
-            Authorization: "Bearer " + u.token,
-          },
-        });
-
-        if (response) {
-          //   setInviteTeamLoader(false);
-          if (response.data.status === true) {
-            console.log("delete team api response is", response.data);
-            // let tea
-            let teams = affiliatsList.filter(
-              (affiliate) => affiliate.id !== item.id
-            );
-            // getMyteam()
-            setSnackTitle("Affiliate removed");
-            setShowSnak(true);
-            // if (u.user.id == team.invitedUser.id) {
-            //   //if current user deleted himself from the team then logout
-            //   logout();
-            //   router.push("/");
-            // }
-          } else {
-            console.log("delete team api message is", response.data);
-          }
-        }
-      }
-    } catch (e) {
-      //   setInviteTeamLoader(false);
-      //// console.log()
-      // console.log("error in delete team api is", e);
+  const handleSearch = (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    setSearch(searchTerm);
+  
+    if (!searchTerm) {
+      setFilteredAffiliates(affiliatsList); // Reset to original data
+      return;
     }
-  }
+  
+    const filtered = affiliatsList.filter((item) => {
+      const name = item.name.toLowerCase();
+      const email = item.email?.toLowerCase() || "";
+      const phone = item.phone || "";
+  
+      return (
+        name.includes(searchTerm) ||
+        email.includes(searchTerm) ||
+        phone.includes(searchTerm)
+      );
+    });
+  
+    setFilteredAffiliates(filtered);
+  };
+
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -395,10 +334,7 @@ function AdminAffiliates({ selectedUser }) {
                   className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
                   placeholder="Search by name, email or phone"
                   value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    // Handle search input
-                  }}
+                  onChange={handleSearch}
                 />
                 <button className="outline-none border-none">
                   <Image
@@ -465,10 +401,10 @@ function AdminAffiliates({ selectedUser }) {
             </div>
           ) : affiliatsList.length > 0 ? (
             <div
-              className="flex flex-col h-[88vh] w-full"
+              className="flex flex-col h-[76vh] w-full"
               style={{ overflow: "auto", scrollbarWidth: "none" }}
             >
-              {affiliatsList.map((item) => (
+              {filteredAffiliates.map((item) => (
                 <div
                   key={item.id}
                   style={{ cursor: "pointer" }}

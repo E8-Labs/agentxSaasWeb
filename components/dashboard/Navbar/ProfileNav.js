@@ -659,6 +659,7 @@ const ProfileNav = () => {
       fontWeight: "bold",
       fontSize: 18,
       marginLeft: "10px",
+       whiteSpace: 'nowrap', 
     },
   };
 
@@ -819,7 +820,7 @@ const ProfileNav = () => {
       <div>
         {/* Subscribe Plan modal */}
         <Modal
-          open={showPlansPopup}
+          open={true}
           closeAfterTransition
           BackdropProps={{
             timeout: 100,
@@ -914,7 +915,7 @@ const ProfileNav = () => {
                     paddingBottom: "20px", // Add space for the fixed buttons
                   }}
                 >
-                  {plans.map((item, index) => (
+                  {plansWitTrial.map((item, index) => (
                     <button
                       key={item.id}
                       className="w-full mt-4"
