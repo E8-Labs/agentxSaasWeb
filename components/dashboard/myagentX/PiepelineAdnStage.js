@@ -7,8 +7,12 @@ import { Router } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from "../leads/AgentSelectSnackMessage";
 
 const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
+  const [message, setMessage] = useState(null);
   const router = useRouter();
   const [expandedStages, setExpandedStages] = useState([]);
   const [StagesList, setStagesList] = useState([
@@ -108,6 +112,12 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
 
   return (
     <div>
+      <AgentSelectSnackMessage
+        type={message?.type}
+        isVisible={message != null}
+        message={message?.message}
+        hide={() => setMessage(null)}
+      />
       <div className="w-full flex flex-row items-center justify-between">
         <div className="flex flex-row items-center gap-2">
           <p
@@ -135,6 +145,14 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
               className="mt-4 cursor-pointer"
               style={{ fontWeight: "700", fontSize: 16.8 }}
               onClick={() => {
+                if ((mainAgent.currentOngoingCadence || 0) > 0) {
+                  setMessage({
+                    message:
+                      "This agent is assigned to leads, can’t update at this time.",
+                    type: SnackbarTypes.Warning,
+                  });
+                  return;
+                }
                 console.log("Main agent is ", mainAgent);
                 localStorage.setItem(
                   PersistanceKeys.LocalSavedAgentDetails,
@@ -143,7 +161,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
                 router.push("/pipeline/update");
               }}
             >
-              Edit
+              Update
             </div>
           </div>
           {initialLoader ? (

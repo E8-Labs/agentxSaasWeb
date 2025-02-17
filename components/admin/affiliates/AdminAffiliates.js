@@ -22,7 +22,10 @@ import { formatPhoneNumber } from "@/utilities/agentUtilities";
 import { isValidUrl, PersistanceKeys } from "@/constants/Constants";
 import { logout } from "@/utilities/UserUtility";
 import { useRouter } from "next/navigation";
-import { GetFormattedDateString, GetFormattedTimeString } from "@/utilities/utility";
+import {
+  GetFormattedDateString,
+  GetFormattedTimeString,
+} from "@/utilities/utility";
 
 function AdminAffiliates({ selectedUser }) {
   const timerRef = useRef(null);
@@ -63,7 +66,7 @@ function AdminAffiliates({ selectedUser }) {
   const [urlError, setUrlError] = useState("");
   const [urlError2, setUrlError2] = useState("");
 
-  useEffect(() => { });
+  useEffect(() => {});
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -378,21 +381,45 @@ function AdminAffiliates({ selectedUser }) {
           type={SnackbarTypes.Success}
         />
       )}
-      <div
-        className=" w-full flex flex-row justify-between items-center py-4 px-10"
-      // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
-      >
-        <div style={{ fontSize: 24, fontWeight: "600" }}>Affiliates</div>
-      </div>
+
       <div
         className="flex w-full justify-center overflow-auto pb-50"
         style={{ scrollbarWidth: "none" }}
       >
-
         <div className="w-11/12 flex flex-col items-start">
-          <div className="w-full flex flex-row items-center justify-end">
+          <div className="w-full flex flex-row items-center justify-between">
+            <div className="flex flex-row justify-start items-center gap-4 p-6 w-full">
+              <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded pe-2">
+                <input
+                  // style={styles.paragraph}
+                  className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
+                  placeholder="Search by name, email or phone"
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    // Handle search input
+                  }}
+                />
+                <button className="outline-none border-none">
+                  <Image
+                    src={"/assets/searchIcon.png"}
+                    height={24}
+                    width={24}
+                    alt="*"
+                  />
+                </button>
+              </div>
+              <button className="outline-none flex-shrink-0">
+                <Image
+                  src={"/assets/filterIcon.png"}
+                  height={16}
+                  width={16}
+                  alt="*"
+                />
+              </button>
+            </div>
             <button
-              className="rounded-lg text-white bg-purple mt-4"
+              className="rounded-lg text-white bg-purple"
               style={{
                 fontWeight: "500",
                 fontSize: "16",
@@ -405,8 +432,7 @@ function AdminAffiliates({ selectedUser }) {
             </button>
           </div>
 
-
-          <div className="w-full flex flex-row  mt-12">
+          <div className="w-full flex flex-row  mt-4">
             <div className="w-3/12">
               <div style={styles.text}>Name</div>
             </div>
@@ -437,75 +463,65 @@ function AdminAffiliates({ selectedUser }) {
             <div className="w-full pt-[100px] flex flex-col items-center">
               <CircularProgress size={40} />
             </div>
-          ) : (
-            affiliatsList.length > 0 ? (
-              <div
-                className="flex flex-col h-[68vh] w-full"
-                style={{ overflow: "auto", scrollbarWidth: "none" }}
-              >
-                {affiliatsList.map((item) => (
-                  <div
-                    key={item.id}
-                    style={{ cursor: "pointer" }}
-                    className="w-full flex flex-row items-center mt-5 hover:bg-[#402FFF05]"
-                  >
-                    <div className="w-3/12 flex flex-row gap-2 items-center">
-                      <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                        {item.name.slice(0, 1).toUpperCase()}
-                      </div>
-                      <div style={styles.text2}>
-                        {item.name}
-                      </div>
+          ) : affiliatsList.length > 0 ? (
+            <div
+              className="flex flex-col h-[88vh] w-full"
+              style={{ overflow: "auto", scrollbarWidth: "none" }}
+            >
+              {affiliatsList.map((item) => (
+                <div
+                  key={item.id}
+                  style={{ cursor: "pointer" }}
+                  className="w-full flex flex-row items-center mt-5 hover:bg-[#402FFF05]"
+                >
+                  <div className="w-3/12 flex flex-row gap-2 items-center">
+                    <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                      {item.name.slice(0, 1).toUpperCase()}
                     </div>
-                    <div className="w-2/12">
-                      <div style={styles.text2}>
-                        {item.email}
-                      </div>
-                    </div>
-                    <div className="w-2/12">
-                      {/* (item.LeadModel?.phone) */}
-                      <div style={styles.text2}>
-                        {item.phone ? (
-                          <div>{formatPhoneNumber(item?.phone)}</div>
-                        ) : (
-                          "-"
-                        )}
-                      </div>
-                    </div>
-                    <div className="w-2/12">
-                      <div style={styles.text2}>
-                        {item.uniqueUrl
-                          ? item.uniqueUrl
-                          : "-"}
-                      </div>
-                    </div>
-                    <div className="w-1/12">
-                      <div style={styles.text2}>
-                        {item.totalUsers}
-                      </div>
-
-                    </div>
-                    <div className="w-1/12">
-                      <div style={styles.text2}>
-                        {item.totalSpent ? (`$${item.totalSpent}`) : "-"}
-                      </div>
-                    </div>
-
-                    <div className="w-1/12">
-                      <div style={styles.text2}>
-                        {GetFormattedDateString(item.createdAt)}
-                      </div>
+                    <div style={styles.text2}>{item.name}</div>
+                  </div>
+                  <div className="w-2/12">
+                    <div style={styles.text2}>{item.email}</div>
+                  </div>
+                  <div className="w-2/12">
+                    {/* (item.LeadModel?.phone) */}
+                    <div style={styles.text2}>
+                      {item.phone ? (
+                        <div>{formatPhoneNumber(item?.phone)}</div>
+                      ) : (
+                        "-"
+                      )}
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="h-[68vh] w-full flex flex-col items-center justify-center">
-                <div style={{ fontSize: 15, fontWeight: "500" }}>
-                  No affiliates found
+                  <div className="w-2/12">
+                    <div style={styles.text2}>
+                      {item.uniqueUrl ? item.uniqueUrl : "-"}
+                    </div>
+                  </div>
+                  <div className="w-1/12">
+                    <div style={styles.text2}>{item.totalUsers}</div>
+                  </div>
+                  <div className="w-1/12">
+                    <div style={styles.text2}>
+                      {item.totalSpent ? `$${item.totalSpent}` : "-"}
+                    </div>
+                  </div>
+
+                  <div className="w-1/12">
+                    <div style={styles.text2}>
+                      {GetFormattedDateString(item.createdAt)}
+                    </div>
+                  </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div className="h-[68vh] w-full flex flex-col items-center justify-center">
+              <div style={{ fontSize: 15, fontWeight: "500" }}>
+                No affiliates found
               </div>
-            ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -558,7 +574,6 @@ function AdminAffiliates({ selectedUser }) {
                 </button>
               </div>
 
-
               <div className="pt-5" style={styles.headingStyle}>
                 Name
               </div>
@@ -577,7 +592,6 @@ function AdminAffiliates({ selectedUser }) {
                 Email Address
               </div>
               <div className="text-end">
-
                 <div style={{ ...styles.errmsg, color: "red" }}>
                   {validEmail}
                 </div>
@@ -592,7 +606,6 @@ function AdminAffiliates({ selectedUser }) {
                   setEmail(value);
                   setShowError(false);
 
-
                   if (!value) {
                     // console.log("Should set the value to null");
                     setValidEmail("");
@@ -602,11 +615,10 @@ function AdminAffiliates({ selectedUser }) {
                   if (!validateEmail(value)) {
                     // console.log("Invalid pattern");
                     setValidEmail("Invalid");
-                  }else{
-                    setValidEmail("")
+                  } else {
+                    setValidEmail("");
                   }
-                }
-                }
+                }}
               />
 
               <div className="pt-5" style={styles.headingStyle}>
@@ -627,7 +639,6 @@ function AdminAffiliates({ selectedUser }) {
                     </div>
                   )}
                 </div>
-  
               </div>
               <div className="flex flex-row items-center justify-center gap-2 w-full mt-3">
                 <div className="flex flex-row items-center gap-2 border rounded-lg w-full justify-between pe-4">
@@ -668,7 +679,7 @@ function AdminAffiliates({ selectedUser }) {
                         overflowY: "auto",
                       }}
                       countryCodeEditable={true}
-                    // defaultMask={locationLoader ? "Loading..." : undefined}
+                      // defaultMask={locationLoader ? "Loading..." : undefined}
                     />
                   </div>
                 </div>
@@ -725,14 +736,14 @@ function AdminAffiliates({ selectedUser }) {
                     marginTop: 20,
                     backgroundColor:
                       !name ||
-                        !email ||
-                        !phone ||
-                        //   emailCheckResponse?.status !== true ||
-                        //   checkPhoneResponse?.status !== true ||
-                        !!urlError ||
-                        //   !!urlError2 ||
-                        !uniqueUrl ||
-                        !officeHourUrl
+                      !email ||
+                      !phone ||
+                      //   emailCheckResponse?.status !== true ||
+                      //   checkPhoneResponse?.status !== true ||
+                      !!urlError ||
+                      //   !!urlError2 ||
+                      !uniqueUrl ||
+                      !officeHourUrl
                         ? "#00000020"
                         : "",
                   }}
@@ -766,8 +777,8 @@ function AdminAffiliates({ selectedUser }) {
                       color:
                         !name || !email || !phone
                           ? // emailCheckResponse?.status !== true ||
-                          // checkPhoneResponse?.status !== true
-                          "#000000"
+                            // checkPhoneResponse?.status !== true
+                            "#000000"
                           : "#ffffff",
                     }}
                   >

@@ -7,6 +7,9 @@ import { CircularProgress } from "@mui/material";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { GetFormattedDateString } from "@/utilities/utility";
 import SelectedUserDetails from "./SelectedUserDetails";
+import { UserFilterModal } from "./UserFilterModal";
+
+import Modal, { Box } from "@mui/material";
 
 function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -14,6 +17,9 @@ function AdminUsers() {
   const [hasMore, setHasMore] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null); // For menu position
   const [selectedUser, setSelectedUser] = useState(null); // To know which user is selected for action
+
+  const [filters, setFilters] = useState({});
+  const [showFilterModal, setShowFilterModal] = useState(false);
 
   const [search, setSearch] = useState("");
   const filterRef = useRef(null);
@@ -76,10 +82,17 @@ function AdminUsers() {
 
   return (
     <div className="flex flex-col items-center w-full">
-      {/* Header */}
-      <div className="flex flex-row items-center justify-between px-10 mt-4 pb-4 border-b border-gray-200 w-full">
-        <h1 className="text-lg font-bold">Users</h1>
-      </div>
+      <UserFilterModal
+        showFilterModal={showFilterModal}
+        filters={{}}
+        updateFilters={(filters) => {
+          console.log("Filters selected", filters);
+          setFilters(filters);
+        }}
+        onDismissCallback={() => {
+          setShowFilterModal(false);
+        }}
+      />
 
       <div className="flex flex-row justify-start items-center gap-4 p-6 w-full">
         <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded pe-2">
@@ -102,7 +115,12 @@ function AdminUsers() {
             />
           </button>
         </div>
-        <button className="outline-none flex-shrink-0">
+        <button
+          className="outline-none flex-shrink-0"
+          onClick={() => {
+            setShowFilterModal(true);
+          }}
+        >
           <Image
             src={"/assets/filterIcon.png"}
             height={16}
@@ -113,7 +131,7 @@ function AdminUsers() {
       </div>
       {/* Scrollable Table Wrapper */}
       <div
-        className="h-[90svh] overflow-auto pb-[100px] mt-6 w-full"
+        className="h-[90svh] overflow-auto pb-[100px] w-full"
         id="scrollableDiv1"
         style={{ scrollbarWidth: "none" }}
       >
@@ -207,7 +225,9 @@ function AdminUsers() {
                   <td className="px-4 py-2">{item.plan || "-"}</td>
                   <td className="px-4 py-2">{item.team || "-"}</td>
                   <td className="px-4 py-2">${item.totalSpent || "0"}</td>
-                  <td className="px-4 py-2">{item.minutesUsed || "0"} mins</td>
+                  <td className="px-4 py-2">
+                    {parseFloat((item.minutesUsed || 0) / 60).toFixed(2)} mins
+                  </td>
                   <td className="px-4 py-2">
                     {parseFloat((item.totalSecondsAvailable / 60).toFixed(2))}{" "}
                     mins
