@@ -710,7 +710,7 @@ const AssignLead = ({
                     height: "50px",
                   }}
                   onClick={() => {
-                    setNoOfLeadsToSend(leadIs.length);
+                    setNoOfLeadsToSend(totalLeads);
                     setCustomLeadsToSend("");
                   }}
                 >

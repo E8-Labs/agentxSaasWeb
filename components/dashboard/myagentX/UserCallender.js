@@ -58,16 +58,16 @@ const UserCalender = ({
   // const [timeZones, setTimeZones] = useState([]);
   useEffect(() => {
     setAllCalendars(previousCalenders);
-   // console.log("Calender details passed are", selectedAgent?.calendar?.title);
+    // console.log("Calender details passed are", selectedAgent?.calendar?.title);
     if (selectedAgent?.calendar) {
-     // console.log("Selectd agent is", selectedAgent);
+      // console.log("Selectd agent is", selectedAgent);
       setSelectCalender(selectedAgent.calendar.title);
     }
     // getCalenders();
   }, []);
 
   useEffect(() => {
-   // console.log("Selected calendear is", selectCalender);
+    // console.log("Selected calendear is", selectCalender);
   }, [selectCalender]);
 
   // useEffect(() => {
@@ -80,14 +80,14 @@ const UserCalender = ({
 
   function isEnabled() {
     if (calendarSelected) {
-     // console.log("True because calenarSelected");
+      // console.log("True because calenarSelected");
       return true;
     }
     if (calenderTitle && calenderApiKey && eventId && selectTimeZone) {
-     // console.log("True because all values are there");
+      // console.log("True because all values are there");
       return true;
     } else {
-     // console.log("false  calenarSelected");
+      // console.log("false  calenarSelected");
       return false;
     }
   }
@@ -115,13 +115,13 @@ const UserCalender = ({
       const agentDetails = localStorage.getItem("agentDetails");
       if (agentDetails) {
         const agentData = JSON.parse(agentDetails);
-       // console.log("Recieved from are :--", agentData);
+        // console.log("Recieved from are :--", agentData);
         currentAgentDetails = agentData;
       }
 
-     // console.log("Auth token is:", AuthToken);
+      // console.log("Auth token is:", AuthToken);
       const ApiPath = Apis.addCalender;
-     // console.log("Api path is:", ApiPath);
+      // console.log("Api path is:", ApiPath);
 
       const formData = new FormData();
 
@@ -140,7 +140,7 @@ const UserCalender = ({
       formData.append("agentId", selectedAgent.id);
 
       for (let [key, value] of formData.entries()) {
-       // console.log(`${key}: ${value}`);
+        // console.log(`${key}: ${value}`);
       }
 
       // return
@@ -151,7 +151,7 @@ const UserCalender = ({
       });
 
       if (response) {
-       // console.log("Response of add calender api is:", response);
+        // console.log("Response of add calender api is:", response);
         if (calendar) {
           setIsVisible2(true);
         } else {
@@ -175,7 +175,7 @@ const UserCalender = ({
 
             for (let i = 0; i < agentsList.length; i++) {
               let ag = agentsList[i];
-             // console.log(
+              // console.log(
               //   `Comparing ${ag.id} = ${newCalendarData.mainAgentId}`
               // );
               if (ag.agents.length > 0) {
@@ -192,28 +192,28 @@ const UserCalender = ({
               updatedArray.push(ag);
             }
 
-           // console.log("Updated agents list array is", updatedArray);
+            // console.log("Updated agents list array is", updatedArray);
             localStorage.setItem(
               "localAgentDetails",
               JSON.stringify(updatedArray)
             );
             setUserDetails(updatedArray);
             setShowAddNewCalender(false);
-            setShowAddNewCalender(false)
+            setShowAddNewCalender(false);
             // agentsListDetails = updatedArray
           }
         } else if (response.data.status === false) {
-          setIsVisible(true)
+          setIsVisible(true);
           setMessage("Calender not added");
-          setShowAddNewCalender(false)
+          setShowAddNewCalender(false);
           setType(SnackbarTypes.Error);
         }
       }
     } catch (error) {
-      setIsVisible(true)
+      setIsVisible(true);
       setMessage(error);
       setType(SnackbarTypes.Error);
-     // console.error("Error occured in api is:", error);
+      // console.error("Error occured in api is:", error);
     } finally {
       setAddCalenderLoader(false);
     }
@@ -341,7 +341,7 @@ const UserCalender = ({
                           <button
                             className="w-full text-start"
                             onClick={() => {
-                             // console.log("Selected calender is:", item);
+                              // console.log("Selected calender is:", item);
                               setCalendarSelected(item);
                               handleAddCalender(item);
                               // setCalenderTitle(item.title);
@@ -359,7 +359,7 @@ const UserCalender = ({
                       <button
                         className="text-purple underline w-full text-start"
                         onClick={() => {
-                         // console.log("Show show the modal");
+                          // console.log("Show show the modal");
                           setCalendarSelected(null);
                           // setCalenderTitle("");
                           // setCalenderApiKey("");
@@ -397,8 +397,9 @@ const UserCalender = ({
           </div>
         ) : (
           <NoCalendarView
+            showVideo={true}
             addCalendarAction={() => {
-             // console.log("Add New Calendar here hamza. Show popup");
+              // console.log("Add New Calendar here hamza. Show popup");
               setShowAddNewCalender(true);
             }}
           />
@@ -567,7 +568,7 @@ const UserCalender = ({
                             >
                               <button
                                 onClick={() => {
-                                 // console.log("Selected time zone is:", item);
+                                  // console.log("Selected time zone is:", item);
                                 }}
                               >
                                 {item}
