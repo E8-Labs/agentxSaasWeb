@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import ProfileNav from "@/components/dashboard/Navbar/ProfileNav";
 
 const shouldShowServiceBanner =
-  process.env.NEXT_PUBLIC_REACT_APP_DOWN_TIME !== "Yes";
+  process.env.NEXT_PUBLIC_REACT_APP_DOWN_TIME === "Yes";
 
 export default function DashboardLayout({ children }) {
   const message =
