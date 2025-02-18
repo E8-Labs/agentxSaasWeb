@@ -200,6 +200,8 @@ function AdminUsers() {
         <button
           className="outline-none flex-shrink-0"
           onClick={() => {
+            // console.log('filter modal trigered 12')
+
             setShowFilterModal(true);
           }}
         >
@@ -407,9 +409,8 @@ function AdminUsers() {
               {users.map((item, index) => (
                 <tr
                   key={index}
-                  className={`hover:bg-gray-50 text-sm text-gray-900 border-b cursor-pointer ${
-                    index % 2 == 0 ? "bg-gray-100" : ""
-                  }`}
+                  className={`hover:bg-gray-50 text-sm text-gray-900 border-b cursor-pointer ${index % 2 == 0 ? "bg-gray-100" : ""
+                    }`}
                   onClick={() => {
                     console.log("selected item", item);
                     setSelectedUser(item);

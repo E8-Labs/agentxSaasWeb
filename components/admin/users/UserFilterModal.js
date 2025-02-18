@@ -12,14 +12,8 @@ import {
   Slider,
   Chip,
 } from "@mui/material";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+
 import { CalendarPicker } from "./CalendarPicker";
-import { filter } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
 
@@ -77,6 +71,7 @@ const styles = {
   }
 };
 
+// console.log('filter modal trigered')
 
 
 export function UserFilterModal({
@@ -100,9 +95,9 @@ export function UserFilterModal({
   const [loading, setLoading] = useState(false);
 
   const [affiliatesList, setAffiliatesList] = useState([]);
-  const [selectedAffiliates, setSelectedAffiliates] = useState(filters.selectedAffiliates || []); 
-  
-  
+  const [selectedAffiliates, setSelectedAffiliates] = useState(filters.selectedAffiliates || []);
+
+
   const planOptions = ["Trial", "plan30", "plan120", "plan360", "plan720"];
 
   const togglePlanSelection = (plan) => {
@@ -135,7 +130,7 @@ export function UserFilterModal({
   };
 
   useEffect(() => {
-      getAffiliates();
+    getAffiliates();
   }, []);
 
 
@@ -384,36 +379,34 @@ export function UserFilterModal({
 
 
             <FormControl fullWidth>
-            <Select
-              multiple
-              value={selectedAffiliates}
-              onChange={handleAffiliateChange}
-              renderValue={(selected) => (
-                <div>
-                  {
-                  selected.map((value) => (
-                    <Chip key={value} label={value} sx={{ margin: 0.5 }} />
-                  ))
-                  }
-                  {
-                    selected?.length === 0 && (
-                      <div style={{ color: "#aaa" }}>Select Closer</div>
-                    )
-                  }
+              <Select
+                multiple
+                value={selectedAffiliates}
+                onChange={handleAffiliateChange}
+                renderValue={(selected) => (
+                  <div>
+                    {
+                      selected.map((value) => (
+                        <Chip key={value} label={value} sx={{ margin: 0.5 }} />
+                      ))
+                    }
+                    {
+                      selected?.length === 0 && (
+                        <div style={{ color: "#aaa" }}>Select Closer</div>
+                      )
+                    }
 
-                  
-                  
-                </div>
+                  </div>
 
-              )}
-            >
-              {affiliatesList.map((affiliate) => (
-                <MenuItem key={affiliate.id} value={affiliate.id}>
-                  {affiliate.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+                )}
+              >
+                {affiliatesList.map((affiliate) => (
+                  <MenuItem key={affiliate.id} value={affiliate.id}>
+                    {affiliate.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
             <div className="mt-2 w-full">
               <label className="block text-gray-600 mt-4">Plan</label>

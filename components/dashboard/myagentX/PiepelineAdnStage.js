@@ -1,9 +1,9 @@
 import Apis from "@/components/apis/Apis";
 import { PersistanceKeys } from "@/constants/Constants";
 import { CircularProgress } from "@mui/material";
-import { CaretDown, CaretUp } from "@phosphor-icons/react";
+import { ArrowUpRight, CaretDown, CaretUp } from "@phosphor-icons/react";
 import axios from "axios";
-import { Router } from "lucide-react";
+import { EditIcon, Router } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -137,11 +137,39 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
 
       {selectedAgent?.agentType !== "inbound" && (
         <div className="w-full">
-          <div className="flex flex-row justify-between">
-            <div className="mt-4" style={{ fontWeight: "700", fontSize: 16.8 }}>
+          <div className="flex flex-row justify-between items-center mt-4">
+            <div className="" style={{ fontWeight: "700", fontSize: 16.8 }}>
               Stages
             </div>
-            <div
+
+            <button
+              className="flex flex-row items-center gap-2 h-[35px] rounded-md bg-purple text-white px-4"
+              style={{
+                fontWeight: "500",
+                fontSize: 15,
+              }}
+              onClick={() => {
+                if ((mainAgent.currentOngoingCadence || 0) > 0) {
+                  setMessage({
+                    message:
+                      "This agent is assigned to leads, can’t update at this time.",
+                    type: SnackbarTypes.Warning,
+                  });
+                  return;
+                }
+                console.log("Main agent is ", mainAgent);
+                localStorage.setItem(
+                  PersistanceKeys.LocalSavedAgentDetails,
+                  JSON.stringify(mainAgent)
+                );
+                router.push("/pipeline/update");
+              }}
+            >
+              Update
+              <EditIcon size={20} color="white" />
+            </button>
+            {/* Old Update Button */}
+            {/* <div
               className="mt-4 cursor-pointer"
               style={{ fontWeight: "700", fontSize: 16.8 }}
               onClick={() => {
@@ -162,7 +190,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
               }}
             >
               Update
-            </div>
+            </div> */}
           </div>
           {initialLoader ? (
             <div className="w-full flex flex-row items-center justify-center">

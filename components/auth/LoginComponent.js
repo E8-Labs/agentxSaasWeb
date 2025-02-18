@@ -40,7 +40,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   const [snackMessage, setSnackMessage] = useState("");
   const [msgType, setMsgType] = useState(null);
   let [response, setResponse] = useState({});
-  const [countryCode, setCountryCode] = useState(""); // Default country
+  const [countryCode, setCountryCode] = useState("us"); // Default country
   const [userPhoneNumber, setUserPhoneNumber] = useState("");
   const userPhoneNumberRef = useRef("");
   const [sendcodeLoader, setSendcodeLoader] = useState(false);

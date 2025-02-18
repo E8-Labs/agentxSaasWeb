@@ -1,8 +1,21 @@
-import React from "react";
+import IntroVideoModal from "@/components/createagent/IntroVideoModal";
+import VideoCard from "@/components/createagent/VideoCard";
+import { HowtoVideos } from "@/constants/Constants";
+import React, { useState } from "react";
 
-export default function NoCalendarView({ addCalendarAction }) {
+export default function NoCalendarView({
+  addCalendarAction,
+  showVideo = false,
+}) {
+  const [introVideoModal, setIntroVideoModal] = useState(false);
   return (
     <div className="flex flex-col items-center justify-center h-[20] ">
+      <IntroVideoModal
+        open={introVideoModal}
+        onClose={() => setIntroVideoModal(false)}
+        videoTitle="Learn how to add a calendar"
+        videoUrl={HowtoVideos.Calendar}
+      />
       {/* Icon Section */}
       <div className="flex items-center justify-center w-24 h-24   rounded-lg">
         <img
@@ -45,6 +58,28 @@ export default function NoCalendarView({ addCalendarAction }) {
         </svg>
         Add Calendar
       </button>
+      {showVideo && (
+        <div
+          className="-ml-4 flex  justify-center mt-2  xl:w-[350px] lg:w-[350px]"
+          style={{
+            position: "",
+            // left: "18%",
+            // translate: "-50%",
+            // left: "14%",
+            // top: "20%",
+            // backgroundColor: "red"
+          }}
+        >
+          <VideoCard
+            duration="2 min 42 sec"
+            horizontal={false}
+            playVideo={() => {
+              setIntroVideoModal(true);
+            }}
+            title="Learn how to add a calendar"
+          />
+        </div>
+      )}
     </div>
   );
 }

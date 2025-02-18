@@ -1649,7 +1649,7 @@ const Leads1 = () => {
                 value={updateColumnValue}
                 // onChange={(e) => { setUpdateColumnValue(e.target.value) }}
                 onChange={(e) => {
-                  const regex = /^[a-zA-Z_ ]*$/; // Allow only alphabets
+                  const regex = /^[a-zA-Z0-9_ ]*$/; // Allow only alphabets
                   if (regex.test(e.target.value)) {
                     setUpdateColumnValue(e.target.value);
                   }
