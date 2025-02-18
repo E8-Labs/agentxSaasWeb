@@ -31,7 +31,7 @@ export default function DashboardLayout({ children }) {
           <p className=" text-md font-bold text-center">
             🚧 Maintenance Notice 🚧
           </p>
-          <p className="typing-animation text-md font-medium mt-2 text-center">
+          <p className="typing-animation text-md font-medium text-center">
             {typedMessage}
           </p>
         </div>
