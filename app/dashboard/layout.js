@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import ProfileNav from "@/components/dashboard/Navbar/ProfileNav";
 
 const shouldShowServiceBanner =
-  process.env.NEXT_PUBLIC_REACT_APP_DOWN_TIME === "Yes";
+  process.env.NEXT_PUBLIC_REACT_APP_DOWN_TIME !== "Yes";
 
 export default function DashboardLayout({ children }) {
   const message =
@@ -31,7 +31,7 @@ export default function DashboardLayout({ children }) {
           <p className=" text-md font-bold text-center">
             🚧 Maintenance Notice 🚧
           </p>
-          <p className="typing-animation text-md font-medium mt-2 text-center">
+          <p className="typing-animation text-md font-medium text-center">
             {typedMessage}
           </p>
         </div>
