@@ -23,6 +23,12 @@ import { UserTypes } from "@/constants/UserTypes";
 import { PersistanceKeys } from "@/constants/Constants";
 import DebtCollectorAgentSignUp from "@/components/onboarding/DebtCollectorAgentSignUp";
 import DebtCollerterAgentSignUp from "@/components/onboarding/otherAgentsSignUp/DebtCollecterAgentSignUp";
+import MedSpaAgentSignUp from "@/components/onboarding/otherAgentsSignUp/MedSpaAgentSignUp";
+import LawAgentSignUp from "@/components/onboarding/otherAgentsSignUp/LawAgentSignUp";
+import LoanOfficerSignUp from "@/components/onboarding/otherAgentsSignUp/LoanOfficerSignUp";
+import MedSpaAgentSignUpMobile from "@/components/onboarding/mobileUI/MedSpaAgentSignUpMobile";
+import LoanOfficerSignUpMobile from "@/components/onboarding/mobileUI/LoanOfficerSignUpMobile";
+import LawAgentSignUpMobile from "@/components/onboarding/mobileUI/LawAgentSignUpMobile";
 
 const Page = ({ params }) => {
   const router = useRouter();
@@ -80,7 +86,11 @@ const Page = ({ params }) => {
         UserType,
         UserService,
         FocusArea,
-        userType == UserTypes.DebtCollectorAgent ? DebtCollerterAgentSignUp :BasicDetails,
+        userType == UserTypes.DebtCollectorAgent ? DebtCollerterAgentSignUp :(
+        userType == UserTypes.LawAgent ? LawAgentSignUpMobile :(
+          userType == UserTypes.MedSpaAgent ? MedSpaAgentSignUpMobile :(
+            userType == UserTypes.LoanOfficerAgent && LoanOfficerSignUpMobile )
+        )),
         userType == UserTypes.DebtCollectorAgent ? DebtCollerterAgentSignUp : OtherDetails,
         Congrats,
         // SalesDevAgent, SolarRepAgentSignUp,
@@ -120,6 +130,10 @@ const Page = ({ params }) => {
       [UserTypes.RecruiterAgent]: RecruiterAgentSignUp,
       [UserTypes.TaxAgent]: TaxAgentSignUp,
       [UserTypes.DebtCollectorAgent]: DebtCollectorAgentSignUp,
+      [UserTypes.MedSpaAgent] : MedSpaAgentSignUp,
+      [UserTypes.LawAgent] : LawAgentSignUp,
+      [UserTypes.LoanOfficerAgent] : LoanOfficerSignUp,
+
     };
 
     const selectedComponent = agentComponents[agentTitle] || SignUpForm;

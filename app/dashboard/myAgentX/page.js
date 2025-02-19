@@ -2748,7 +2748,7 @@ function Page() {
           </div>
 
           <div className="flex gap-8 pb-2 mb-4">
-            {["Agent Info", "Calendar", "Pipeline | Stages"].map((tab) => (
+            {["Agent Info", "Calendar", "Pipeline | Stages" ,].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}

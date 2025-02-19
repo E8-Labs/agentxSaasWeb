@@ -26,7 +26,7 @@ import { PersistanceKeys } from "@/constants/Constants";
 import { setCookie } from "@/utilities/cookies";
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
-const SolarRepAgentSignUp = ({
+const LoanOfficeSugnUpMobile = ({
   handleContinue,
   handleWaitList,
   handleSolarAgentBack,
@@ -78,19 +78,44 @@ const SolarRepAgentSignUp = ({
   const [projectSize, setProjectSize] = useState("");
   const [ClientType, setClientType] = useState(null);
 
+  const [otherType,setOtherType] = useState("")
+
   //array for the primary client types
   const primaryClientTypes = [
     {
       id: 1,
-      title: "Residential clients",
+      title: "First-Time Homebuyers",
     },
     {
       id: 2,
-      title: "Commercial clients",
+      title: "Investors & Property Developers",
     },
     {
       id: 3,
-      title: "Both",
+      title: "Veterans & Active Military",
+    }, {
+      id: 3,
+      title: "Luxury Homebuyers",
+    }, {
+      id: 5,
+      title: "Self-Employed & Entrepreneurs",
+    }, {
+      id: 6,
+      title: "Other (type here)",
+    },
+  ];
+  const ConsultationFormat = [
+    {
+      id: 1,
+      title: "In-Person Consultations",
+    },
+    {
+      id: 2,
+      title: "Virtual Consultations",
+    },
+    {
+      id: 3,
+      title: "Virtual Consultationsr",
     },
   ];
 
@@ -109,7 +134,7 @@ const SolarRepAgentSignUp = ({
       customerService &&
       companyName &&
       installationVolume &&
-      projectSize &&
+      // projectSize &&
       ClientType &&
       emailCheckResponse?.status === true &&
       checkPhoneResponse?.status === true
@@ -125,7 +150,7 @@ const SolarRepAgentSignUp = ({
       customerService ||
       companyName ||
       installationVolume ||
-      projectSize ||
+      // projectSize ||
       ClientType ||
       userTransaction ||
       checkPhoneResponse?.status === false ||
@@ -334,8 +359,8 @@ const SolarRepAgentSignUp = ({
       formData.append("userType", agentTitle);
       formData.append("areaOfService", customerService);
       formData.append("company", companyName);
-      formData.append("projectsPerYear", installationVolume);
-      formData.append("projectSizeKw", projectSize);
+      formData.append("projectSizeKw", installationVolume);
+      formData.append("projectsPerYear", projectSize);
       formData.append("primaryClientType", clienttype);
       formData.append("login", false);
       formData.append("verificationCode", VerifyCode.join(""));
@@ -461,7 +486,7 @@ const SolarRepAgentSignUp = ({
       fontWeight: "600",
     },
     inputStyle: {
-      fontSize: 15,
+      fontSize: 13,
       fontWeight: "500",
       borderRadius: "7px",
     },
@@ -718,7 +743,7 @@ const SolarRepAgentSignUp = ({
               </div>
 
               <div style={styles.headingStyle} className="mt-6">
-                Where do you primarily operate or serve customers
+                Where do you primarily serve clients?
               </div>
               <input
                 placeholder="Specific cities, counties, or regions"
@@ -731,7 +756,7 @@ const SolarRepAgentSignUp = ({
               />
 
               <div style={styles.headingStyle} className="mt-6">
-                Company
+                Name of the mortgage lender, bank, or brokerage you work with, if any.
               </div>
               <input
                 placeholder="Name"
@@ -744,7 +769,7 @@ const SolarRepAgentSignUp = ({
               />
 
               <div style={styles.headingStyle} className="mt-6">
-                Installation Volume per Year
+                How many clients do you typically see per month?
               </div>
               <input
                 placeholder="Type here"
@@ -756,53 +781,14 @@ const SolarRepAgentSignUp = ({
                 }}
               />
 
-              <div style={styles.headingStyle} className="mt-6">
-                Average Project Size (kW)
-              </div>
-              <input
-                placeholder="Type here"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-                style={{ ...styles.inputStyle, marginTop: "8px" }}
-                value={projectSize}
-                onChange={(e) => {
-                  setProjectSize(e.target.value);
-                }}
-              />
 
               <div style={styles.headingStyle} className="mt-6">
-                Primary Client Type
+                Client Type
               </div>
 
-              {/* <div
-                                className='flex flex-row items-center gap-4'
-                                style={{
-                                    marginTop: "8px"
-                                }}
-                            >
-                                {
-                                    primaryClientTypes.map((item, index) => {
-                                        return (
-                                            <div key={index} className="w-full">
-                                                <button
-                                                    onClick={() => { handleSelectClientType(item) }}
-                                                    className='border border-[#00000010] rounded px-4 bg-[#402DFF20] h-[70px] outline-none focus:outline-none focus:ring-0 w-full'
-                                                    style={{
-                                                        ...styles.inputStyle, borderRadius: "30px",
-                                                        paddingInline: index === 2 && "40px",
-                                                        border: ClientType === item ? "2px solid #7902DF" : "",
-                                                        backgroundColor: ClientType === item ? "red" : " green"
-                                                    }}
-                                                >
-                                                    {item.title}
-                                                </button>
-                                            </div>
-                                        )
-                                    })
-                                }
-                            </div> */}
 
               <div
-                className="flex flex-row items-center gap-4"
+                className="flex w-full flex-wrap flex-row items-center gap-2"
                 style={{ marginTop: "8px" }}
               >
                 {primaryClientTypes.map((item, index) => {
@@ -812,7 +798,7 @@ const SolarRepAgentSignUp = ({
                         onClick={() => {
                           handleSelectClientType(item);
                         }}
-                        className="border border-[#00000010] rounded px-4 h-[70px] outline-none focus:outline-none focus:ring-0 w-full"
+                        className="border border-[#00000010] rounded px-4 h-[74px] w-full outline-none focus:outline-none focus:ring-0"
                         style={{
                           ...styles.inputStyle,
                           borderRadius: "30px",
@@ -827,10 +813,27 @@ const SolarRepAgentSignUp = ({
                       >
                         {item.title}
                       </button>
+                      {
+                        ClientType === "Other (type here)" && item.id === 6 && (
+                          <input
+                          placeholder="Type here"
+                          className=" w-full border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                          style={{ ...styles.inputStyle, marginTop: "8px" }}
+                          value={otherType}
+                          onChange={(e) => {
+                            setOtherType(e.target.value);
+                          }}
+                        />
+                        )
+                      }
+                     
                     </div>
                   );
                 })}
               </div>
+
+
+
 
               <Modal
                 open={showVerifyPopup}
@@ -984,4 +987,4 @@ const SolarRepAgentSignUp = ({
   );
 };
 
-export default SolarRepAgentSignUp;
+export default LoanOfficeSugnUpMobile;
