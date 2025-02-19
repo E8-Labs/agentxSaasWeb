@@ -9,31 +9,29 @@ export default function DashboardLayout({ children }) {
   const message =
     "Our voice system is currently undergoing maintenance. Adding a few updates.";
 
-  const [typedMessage, setTypedMessage] = useState("");
+  const [typedMessage, setTypedMessage] = useState(message);
   const [charIndex, setCharIndex] = useState(0);
 
-  useEffect(() => {
-    if (shouldShowServiceBanner && charIndex < message.length) {
-      const timeout = setTimeout(() => {
-        setTypedMessage((prev) => prev + message[charIndex]);
-        setCharIndex((prev) => prev + 1);
-      }, 50); // Typing speed
+  //   useEffect(() => {
+  //     if (shouldShowServiceBanner && charIndex < message.length) {
+  //       const timeout = setTimeout(() => {
+  //         setTypedMessage((prev) => prev + message[charIndex]);
+  //         setCharIndex((prev) => prev + 1);
+  //       }, 50); // Typing speed
 
-      return () => clearTimeout(timeout);
-    }
-  }, [charIndex, shouldShowServiceBanner]);
+  //       return () => clearTimeout(timeout);
+  //     }
+  //   }, [charIndex, shouldShowServiceBanner]);
 
   return (
     <div className="flex flex-col w-full">
       {/* Service Banner */}
       {shouldShowServiceBanner && (
-        <div className="pt-2 fixed top-0 left-0 w-full h-[6vh] bg-purple text-white z-[9999] flex flex-col items-center justify-center">
+        <div className="pt-2 fixed top-0 left-0 w-full  bg-purple text-white z-[9999] flex flex-col items-center justify-center">
           <p className=" text-md font-bold text-center">
             🚧 Maintenance Notice 🚧
           </p>
-          <p className="typing-animation text-md font-medium text-center">
-            {typedMessage}
-          </p>
+          <p className=" text-md font-medium text-center">{typedMessage}</p>
         </div>
       )}
 
