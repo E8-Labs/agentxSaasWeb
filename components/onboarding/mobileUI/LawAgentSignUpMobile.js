@@ -26,7 +26,7 @@ import { PersistanceKeys } from "@/constants/Constants";
 import { setCookie } from "@/utilities/cookies";
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
-const lawAgentSignUpMobile = ({
+const LawAgentSignUpMobile = ({
   handleContinue,
   handleWaitList,
   handleSolarAgentBack,
@@ -771,12 +771,9 @@ const lawAgentSignUpMobile = ({
                 }}
               />
 
-
-
               <div style={styles.headingStyle} className="mt-6">
                 Client Type
               </div>
-
 
               <div
                 className="flex w-full flex-wrap flex-row items-center gap-2"
@@ -996,4 +993,4 @@ const lawAgentSignUpMobile = ({
   );
 };
 
-export default lawAgentSignUpMobile;
+export default LawAgentSignUpMobile;
