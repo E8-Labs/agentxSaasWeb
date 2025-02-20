@@ -114,8 +114,12 @@ const Apis = {
   deleteAffiliate: `${BasePath}api/admin/deleteAffiliate`,
   adminStats: `${BasePath}api/admin/adminStats`,
 
-  getUsersForAffiliate :`${BasePath}api/admin/usersForAffiliate`,
-  
+  getUsersForAffiliate: `${BasePath}api/admin/usersForAffiliate`,
+
+  //Knowledgebase
+  AddKnowledgebase: `${BasePath}api/kb/addKnowledgebase`,
+  GetKnowledgebase: `${BasePath}api/kb/getKnowledgebase`,
+  DeleteKnowledgebase: `${BasePath}api/kb/deleteKnowledgebase`,
 };
 
 export default Apis;

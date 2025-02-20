@@ -1,12 +1,44 @@
 import { AddCircleRounded } from "@mui/icons-material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image"; // Ensure Image is imported correctly
 import AddKnowledgeBaseModal from "./AddKnowledgebaseModal";
+import KnowledgeBaseList from "@/components/admin/dashboard/KnowledgebaseList";
 
 function Knowledgebase({ user }) {
   const [kb, setKb] = useState([]);
   const [showKbPopup, setShowKbPopup] = useState(false);
   const [showAddNewCalendar, setShowAddNewCalendar] = useState(false); // Fixed missing state
+
+  useEffect(() => {
+    GetKnowledgebase();
+  }, []);
+
+  //Api calls
+
+  async function GetKnowledgebase() {
+    try {
+      const token = user.token; // Extract JWT token
+
+      const response = await fetch("/api/kb/getkb", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("KB Data:", data.data);
+        setKb(data.data);
+      } else {
+        console.error("Failed to fetch kb:", data.error);
+      }
+    } catch (error) {
+      console.error("Error fetching kb:", error);
+    }
+  }
 
   //all actions UI Related
   function addKnowledgebase() {
@@ -49,7 +81,17 @@ function Knowledgebase({ user }) {
   }
 
   function GetKbView() {
-    return <div>show the kb here</div>;
+    return (
+      <KnowledgeBaseList
+        kbList={kb}
+        onDelete={(item) => {
+          console.log("Delete kb here");
+        }}
+        onAddKnowledge={() => {
+          setShowKbPopup(true);
+        }}
+      />
+    );
   }
 
   function GetViewToRender() {
@@ -63,6 +105,7 @@ function Knowledgebase({ user }) {
   return (
     <div>
       <AddKnowledgeBaseModal
+        user={user}
         open={showKbPopup}
         onClose={() => setShowKbPopup(false)}
       />

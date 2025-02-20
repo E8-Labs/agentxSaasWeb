@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Modal,
   Box,
@@ -6,61 +6,238 @@ import {
   Button,
   TextField,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
+import axios from "axios";
+import JSZip from "jszip";
 import { Close, InsertDriveFile, Link, TextFields } from "@mui/icons-material";
+import { User } from "lucide-react";
 
-const AddKnowledgeBaseModal = ({ open, onClose }) => {
+const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
   const [selectedType, setSelectedType] = useState("Text"); // Url, Document
 
+  const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [url, setUrl] = useState("");
+
+  const [fileName, setFileName] = useState("");
+  const [selectedDocument, setSelectedDocument] = useState(null);
+  const [selectedFileName, setSelectedFileName] = useState("");
+  const fileInputRef = useRef(null);
 
   const handleTypeSelect = (type) => {
     setSelectedType(type);
   };
 
+  //General App Logic Functions
+
+  //code to select document
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setFileName(file.name);
+      setSelectedFileName(file.name);
+      // setSelectedDocument(file);
+      // compressDocument(file);
+      try {
+        // Compress the selected document
+        const compressedFile = await compressDocument(file);
+
+        // Set the compressed document
+        setSelectedDocument(compressedFile);
+
+        console.log("Original file:", file);
+        console.log("Compressed file:", compressedFile);
+      } catch (error) {
+        console.error("Error compressing the document:", error);
+      }
+    }
+  };
+
+  const handleDrop = async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragging(false);
+
+    const file = event.dataTransfer.files[0];
+    if (file) {
+      setFileName(file.name);
+      setSelectedFileName(file.name);
+      // setSelectedDocument(file);
+      // compressDocument(file);
+      try {
+        // Compress the selected document
+        const compressedFile = await compressDocument(file);
+
+        // Set the compressed document
+        setSelectedDocument(compressedFile);
+
+        console.log("Original file:", file);
+        console.log("Compressed file:", compressedFile);
+      } catch (error) {
+        console.error("Error compressing the document:", error);
+      }
+    }
+  };
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleButtonClick = (event) => {
+    event.preventDefault(); // Prevent unintended behavior
+    if (fileInputRef.current) {
+      fileInputRef.current.click(); // Programmatically open file dialog
+    }
+  };
+
+  const handleDeselect = () => {
+    setFileName("");
+    fileInputRef.current.value = ""; // Clear file input
+  };
+
+  //code to compress document
+  const compressDocument = async (file) => {
+    return file;
+    // setSelectedDocument(file);
+    const zip = new JSZip();
+    zip.file(file.name, file);
+
+    try {
+      const compressedBlob = await zip.generateAsync({ type: "blob" });
+
+      return new File(
+        [compressedBlob],
+        file.name.replace(/\.[^/.]+$/, ".zip"),
+        {
+          type: "application/zip",
+        }
+      );
+    } catch (error) {
+      console.error("Compression error:", error);
+      return null;
+    }
+  };
+
+  async function addKnowledgebaseEntry() {
+    const link = "/api/kb/addkb"; // Adjust the API route if necessary
+    let originalContent = "";
+    let documentName = "";
+    const formData = new FormData();
+    formData.append("type", selectedType);
+    formData.append("title", title);
+    if (selectedType == "Text") {
+      originalContent = text;
+    }
+    if (selectedType == "Document") {
+      originalContent = "";
+      documentName = selectedFileName;
+    }
+    if (selectedType == "Url") {
+      originalContent = url;
+    }
+    formData.append("originalContent", originalContent);
+
+    if (selectedDocument) {
+      formData.append("documentName", documentName);
+      console.log("Attaching media", selectedDocument);
+      formData.append("media", selectedDocument);
+    }
+
+    setLoading(true);
+    try {
+      const response = await axios.post(link, formData, {
+        headers: {
+          Authorization: `Bearer ` + user.token, // Replace with actual token
+          // "Content-Type": "multipart/form-data",
+        },
+      });
+      setLoading(false);
+
+      console.log("Success:", response.data);
+      return response.data;
+    } catch (error) {
+      setLoading(false);
+      console.error("Error:", error.response?.data || error.message);
+      console.log("Data ", error);
+      return null;
+    }
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    // const type = selectedType;
+    // const title = title;
+    // const originalContent = event.target.originalContent.value;
+    // const media = selectedDocument;
+
+    addKnowledgebaseEntry()
+      .then((data) => {
+        if (data) {
+          onClose();
+        }
+      })
+      .catch((err) => console.error("Failed:", err));
+  }
+
+  //Api Calls
+
+  //UI Related Functions
+
   function GetUiForOption() {
     if (selectedType == "Text") {
       return GetUiForText();
-    } else if (selectedType == "Link") {
+    } else if (selectedType == "Url") {
       return GetUiForUrl();
     }
     return GetUiForDocument();
   }
 
   function GetUiForText() {
-    if (selectedType == "Text") {
-      return (
-        <div className="flex flex-col w-full gap-4">
-          <input
-            value={title}
-            // value = {showRenameAgentPopup?.name}
-            onChange={(e) => {}}
-            placeholder={"Title"}
-            className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
-            style={{ border: "1px solid #00000020" }}
-          />
-          <textarea
-            value={title}
-            // value = {showRenameAgentPopup?.name}
-            onChange={(e) => {}}
-            placeholder={"Type here"}
-            className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[25vh]"
-            style={{ border: "1px solid #00000020" }}
-          />
-        </div>
-      );
-    }
+    // if (selectedType == "Text") {
+    return (
+      <div className="flex flex-col w-full gap-4">
+        <input
+          value={title}
+          // value = {showRenameAgentPopup?.name}
+          onChange={(e) => {
+            setTitle(e.target.value);
+          }}
+          placeholder={"Title"}
+          className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
+          style={{ border: "1px solid #00000020" }}
+        />
+        <textarea
+          value={text}
+          // value = {showRenameAgentPopup?.name}
+          onChange={(e) => {
+            setText(e.target.value);
+          }}
+          placeholder={"Type here"}
+          className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[25vh]"
+          style={{ border: "1px solid #00000020" }}
+        />
+      </div>
+    );
+    // }
   }
 
   function GetUiForUrl() {
     return (
       <div className="flex flex-col w-full gap-4">
         <input
-          value={title}
+          value={url}
           // value = {showRenameAgentPopup?.name}
-          onChange={(e) => {}}
+          onChange={(e) => {
+            setUrl(e.target.value);
+            setTitle("");
+          }}
           placeholder={"Url"}
           className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
           style={{ border: "1px solid #00000020" }}
@@ -74,19 +251,91 @@ const AddKnowledgeBaseModal = ({ open, onClose }) => {
         <input
           value={title}
           // value = {showRenameAgentPopup?.name}
-          onChange={(e) => {}}
+          onChange={(e) => {
+            setTitle(e.target.value);
+          }}
           placeholder={"Title"}
           className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
           style={{ border: "1px solid #00000020" }}
         />
+        <div className="flex flex-row items-center gap-6">
+          <input
+            type="file"
+            id="fileInput"
+            ref={fileInputRef} // Use ref instead of ID
+            accept=".pdf,.doc,.docx,.txt,.csv"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+          {fileName ? (
+            <div
+              className="flex items-center text-gray-700 p-4 rounded gap-2"
+              style={{
+                backgroundColor: "#EDEDED80",
+                fontSize: 13,
+                fontFamily: "inter",
+              }}
+            >
+              <span>{fileName}</span>
+              <IconButton onClick={handleDeselect}>
+                <Close />
+              </IconButton>
+            </div>
+          ) : (
+            <div
+              className="flex flex-row w-full justify-center rounded items-center"
+              style={{
+                height: "100px",
+                border: "2px dashed #0000001006",
+                backgroundColor: "#EDEDED80",
+              }}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              <button
+                onClick={handleButtonClick}
+                className="px-4 py-2 h-full"
+                style={{ fontWeight: "500", fontSize: 16, fontFamily: "inter" }}
+              >
+                Drop file or <br /> <span className="text-purple"> Browse</span>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     );
+  }
+
+  function GetButtonUI() {
+    if (!loading) {
+      return (
+        <Button
+          variant="contained"
+          fullWidth
+          sx={{
+            bgcolor: "#7902DF",
+            color: "white",
+            borderRadius: 2,
+            paddingY: 1.5,
+          }}
+          onClick={(e) => {
+            // e.preventDefault()
+            handleSubmit(e);
+          }}
+        >
+          Add
+        </Button>
+      );
+    } else {
+      return <CircularProgress />;
+    }
   }
 
   return (
     <Modal open={open} onClose={onClose}>
       <Box
-        className={"w-[30%]"}
+        className={"lg:w-[500px] w-[500px]"}
         sx={{
           position: "absolute",
           top: "50%",
@@ -104,93 +353,84 @@ const AddKnowledgeBaseModal = ({ open, onClose }) => {
           gap: 1,
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            width: "100%",
-            mb: 2,
-          }}
-        >
-          <Typography variant="h6" fontWeight="bold">
-            Knowledge Base
+        <div className="flex flex-col h-full">
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              width: "100%",
+              mb: 2,
+            }}
+          >
+            <Typography variant="h6" fontWeight="bold">
+              Knowledge Base
+            </Typography>
+            <IconButton onClick={onClose}>
+              <Close />
+            </IconButton>
+          </Box>
+
+          <Typography variant="subtitle1" sx={{ mb: 2 }}>
+            Select Type
           </Typography>
-          <IconButton onClick={onClose}>
-            <Close />
-          </IconButton>
-        </Box>
 
-        <Typography variant="subtitle1" sx={{ mb: 2 }}>
-          Select Type
-        </Typography>
+          <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+            <Button
+              variant="outlined"
+              startIcon={<InsertDriveFile />}
+              onClick={() => handleTypeSelect("Document")}
+              sx={{
+                borderColor: selectedType === "Document" ? "#7902DF" : "#ccc",
+                color: selectedType === "Document" ? "#7902DF" : "black",
+                borderWidth: selectedType === "Document" ? 2 : 1,
+                borderRadius: 2,
+                paddingX: 5,
+                paddingY: 1,
+                // width: "30%",
+              }}
+            >
+              File
+            </Button>
 
-        <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-          <Button
-            variant="outlined"
-            startIcon={<InsertDriveFile />}
-            onClick={() => handleTypeSelect("Document")}
-            sx={{
-              borderColor: selectedType === "Document" ? "#7902DF" : "#ccc",
-              color: selectedType === "Document" ? "#7902DF" : "black",
-              borderWidth: selectedType === "Document" ? 2 : 1,
-              borderRadius: 2,
-              paddingX: 5,
-              paddingY: 1,
-              width: "30%",
-            }}
-          >
-            File
-          </Button>
+            <Button
+              variant="outlined"
+              startIcon={<TextFields />}
+              onClick={() => handleTypeSelect("Text")}
+              sx={{
+                borderColor: selectedType === "Text" ? "#7902DF" : "#ccc",
+                color: selectedType === "Text" ? "#7902DF" : "black",
+                borderWidth: selectedType === "Text" ? 2 : 1,
+                borderRadius: 2,
+                paddingX: 5,
+                paddingY: 1,
+                // width: "30%",
+              }}
+            >
+              Text
+            </Button>
 
-          <Button
-            variant="outlined"
-            startIcon={<TextFields />}
-            onClick={() => handleTypeSelect("Text")}
-            sx={{
-              borderColor: selectedType === "Text" ? "#7902DF" : "#ccc",
-              color: selectedType === "Text" ? "#7902DF" : "black",
-              borderWidth: selectedType === "Text" ? 2 : 1,
-              borderRadius: 2,
-              paddingX: 5,
-              paddingY: 1,
-              width: "30%",
-            }}
-          >
-            Text
-          </Button>
+            <Button
+              variant="outlined"
+              startIcon={<Link />}
+              onClick={() => handleTypeSelect("Url")}
+              sx={{
+                borderColor: selectedType === "Url" ? "#7902DF" : "#ccc",
+                color: selectedType === "Url" ? "#7902DF" : "black",
+                borderWidth: selectedType === "Url" ? 2 : 1,
+                borderRadius: 2,
+                paddingX: 5,
+                paddingY: 1,
+                // width: "30%",
+              }}
+            >
+              Link
+            </Button>
+          </Box>
 
-          <Button
-            variant="outlined"
-            startIcon={<Link />}
-            onClick={() => handleTypeSelect("Link")}
-            sx={{
-              borderColor: selectedType === "Link" ? "#7902DF" : "#ccc",
-              color: selectedType === "Link" ? "#7902DF" : "black",
-              borderWidth: selectedType === "Link" ? 2 : 1,
-              borderRadius: 2,
-              paddingX: 5,
-              paddingY: 1,
-              width: "30%",
-            }}
-          >
-            Link
-          </Button>
-        </Box>
+          {GetUiForOption()}
+        </div>
 
-        {GetUiForOption()}
-
-        <Button
-          variant="contained"
-          fullWidth
-          sx={{
-            bgcolor: "#7902DF",
-            color: "white",
-            borderRadius: 2,
-            paddingY: 1.5,
-          }}
-        >
-          Add
-        </Button>
+        {GetButtonUI()}
       </Box>
     </Modal>
   );
