@@ -66,7 +66,7 @@ function Page() {
     "Agent Info",
     "Calendar",
     "Pipeline | Stages",
-    "Knowledgebase",
+    // "Knowledge Base",
   ]);
   const [openTestAiModal, setOpenTestAiModal] = useState(false);
   const [name, setName] = useState("");
@@ -3216,7 +3216,7 @@ function Page() {
                 mainAgent={calendarDetails}
               />
             </div>
-          ) : activeTab === "Knowledgebase" ? (
+          ) : activeTab === "Knowledge Base" ? (
             <div className="flex flex-col gap-4">
               <Knowledgebase user={user} />
             </div>
