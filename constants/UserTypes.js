@@ -8,4 +8,7 @@ export const UserTypes = {
   RecruiterAgent: "RecruiterAgent",
   TaxAgent: "TaxAgent",
   DebtCollectorAgent: "DebtCollectorAgent",
+  MedSpaAgent: "MedSpaAgent",
+  LoanOfficerAgent: "LoanOfficerAgent",
+  LawAgent: "LawAgent",
 };

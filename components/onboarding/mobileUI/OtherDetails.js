@@ -415,16 +415,16 @@ const OtherDetails = ({
         formData.append("averageTransactionPerYear", userTransaction);
       }
       if (service) {
-        formData.append("averageTransactionPerYear", service);
+        formData.append("areaOfService", service);
       }
       if (companyName) {
-        formData.append("averageTransactionPerYear", companyName);
+        formData.append("company", companyName);
       }
       if (installationVolume) {
-        formData.append("averageTransactionPerYear", installationVolume);
+        formData.append("projectsPerYear", installationVolume);
       }
       if (projectSize) {
-        formData.append("averageTransactionPerYear", projectSize);
+        formData.append("projectSizekw", projectSize);
       }
       if (websiteUrl) {
         formData.append("averageTransactionPerYear", websiteUrl);

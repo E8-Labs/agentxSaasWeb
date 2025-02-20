@@ -8,14 +8,23 @@ import getProfileDetails from "../apis/GetProfile";
 import { UpdateProfile } from "../apis/UpdateProfile";
 import Apis from "../apis/Apis";
 import axios from "axios";
+import { UserTypes } from "@/constants/UserTypes";
 
 function BasicInfo() {
   const router = useRouter();
   const [focusedName, setFocusedName] = useState(false);
   const [focusedFarm, setFocusedFarm] = useState(false);
+  const [focusedTerritory, setFocusedTerritory] = useState(false);
   const [focusedBrokerage, setFocusedBrokerage] = useState(false);
+  const [focusedCompany, setFocusedCompany] = useState(false);
   const [focusedTransaction, setFocusedTransaction] = useState(false);
+  const [focusedInstallationVolume, setFocusedInstallationVolume] = useState(false);
   const [focusedEmail, setFocusedEmail] = useState(false);
+  const [focusedServiceArea, setFocusedServiceArea] = useState(false);
+  const [focusedProjectSize, setFocusedProjectSize] = useState(false);
+  const [focusedWebsite, setFocusedWebSite] = useState(false);
+
+
 
   //my variable
   const [serviceId, setServiceId] = useState([]);
@@ -27,11 +36,26 @@ function BasicInfo() {
   const [transaction, setTransaction] = useState("");
   const [brokerAge, setBrokerAge] = useState("");
   const [phone, setPhone] = useState("");
+  const [serviceArea, setServiceArea] = useState("")
+  const [teritorry, setTeritorry] = useState("")
+  const [company, setCompany] = useState("")
+  const [installationVolume, setInstallationVolume] = useState("")
+  const [projectSize, setProjectSize] = useState("")
+  const [clientType, setClientType] = useState("")
+  const [websiteUrl, setWebsiteUrl] = useState("")
+
 
   const [isNameChanged, setIsNameChanged] = useState(false);
   const [isTransactionChanged, setIsTransactionChange] = useState("");
   const [isFarmChanged, setIsFarmChanged] = useState(false);
   const [isBrokerageChanged, setIsBrokerageChanged] = useState(false);
+  const [isServiceAreaChanged, setIsServiceAreaChanged] = useState(false);
+  const [isTeritorryChanged, setIsTeritorryChanged] = useState("")
+  const [isCompanyChanged, setIsCompanyChanged] = useState("")
+  const [isInstallationVolumechanged, setIsInstallationVolumeChanged] = useState("")
+  const [isProjectSizeChanged, setIsprojectSizeChanged] = useState("")
+  const [isWebsiteUrlChanged, setIsWebsiteUrlChanged] = useState("")
+
 
   const [agentServices, setAgentServices] = useState([]);
   const [agentAreasOfFocus, setAgentAreasOfFocus] = useState([]);
@@ -41,6 +65,11 @@ function BasicInfo() {
   const [loading3, setloading3] = useState(false);
   const [loading4, setloading4] = useState(false);
   const [loading5, setloading5] = useState(false);
+  const [loading6, setloading6] = useState(false);
+  const [loading7, setloading7] = useState(false);
+  const [loading8, setloading8] = useState(false);
+  const [loading9, setloading9] = useState(false);
+  const [loading10, setLoading10] = useState(farm)
 
   const [srviceLoader, setServiceLoader] = useState(false);
   const [areaLoading, setAreaLoading] = useState(false);
@@ -60,6 +89,55 @@ function BasicInfo() {
 
 
   const [userRole, setUserRole] = useState("")
+  const [userType, setUserType] = useState("")
+
+
+
+  const primaryClientTypes = [
+    {
+      id: 1,
+      title: "Residential clients",
+    },
+    {
+      id: 2,
+      title: "Commercial clients",
+    },
+    {
+      id: 3,
+      title: "Both",
+    },
+  ];
+
+  //array for the primary client types
+  const primaryClientTypes2 = [
+    {
+      id: 1,
+      title: "Individuals (B2)",
+    },
+    {
+      id: 2,
+      title: "Businesses & Corporations (B2B)",
+    },
+    {
+      id: 3,
+      title: "Government & Public Sector",
+    },
+  ];
+
+  const ConsultationFormat = [
+    {
+      id: 1,
+      title: "In-Person Consultations",
+    },
+    {
+      id: 2,
+      title: "Virtual Consultations",
+    },
+    {
+      id: 3,
+      title: "Virtual Consultationsr",
+    },
+  ];
 
   //fetching the data
   useEffect(() => {
@@ -67,7 +145,10 @@ function BasicInfo() {
     if (LocalData) {
       const userData = JSON.parse(LocalData);
       console.log("Should set data", userData?.user);
+
       setUserRole(userData?.user?.userRole)
+      setUserType(userData?.user?.userType)
+      // setUserType(UserTypes.SolarRep)
       setUserDetails(userData.user);
       setName(userData?.user?.name);
       setSelectedImage(userData?.user?.thumb_profile_image);
@@ -76,6 +157,14 @@ function BasicInfo() {
       setTransaction(userData?.user?.averageTransactionPerYear);
       setBrokerAge(userData?.user?.brokerage);
       setPhone(userData?.user?.phone);
+
+      setInstallationVolume(userData?.user?.projectsPerYear)
+      setServiceArea(userData?.user?.areaOfService)
+      setClientType(userData?.user?.primaryClientType)
+      setCompany(userData?.user?.company)
+      setProjectSize(userData?.user?.projectSizeKw)
+      setWebsiteUrl(userData?.user?.website)
+
 
       // Initialize arrays to hold services and areas of focus
       const servicesArray = [];
@@ -312,6 +401,21 @@ function BasicInfo() {
     }
   };
 
+  const handleCompanySave = async () => {
+    try {
+      setloading8(true);
+
+      let data = {
+        company: company,
+      };
+      await UpdateProfile(data);
+      setloading8(false);
+      setIsCompanyChanged(false);
+    } catch (e) {
+      // console.log("error in updating", e);
+    }
+  };
+
   const handleBrokerAgeSave = async () => {
     try {
       setloading3(true);
@@ -342,19 +446,49 @@ function BasicInfo() {
     }
   };
 
-  // const handleServiceSelect = (item) => {
-  // setSelected((prev) => {
-  // const isSelected = prev.some((selectedItem) => selectedItem.id === item.id); // Check if the item is already selected
+  const handleInstallationVolumeSave = async () => {
+    try {
+      setloading7(true);
+      let data = {
+        projectsPerYear: installationVolume,
+      };
+      await UpdateProfile(data);
+      setloading7(false);
+      setIsInstallationVolumeChanged(false);
+    } catch (e) {
+      // console.log("error in updating", e);
+    }
+  };
 
-  // if (isSelected) {
-  // // If already selected, remove the item from the array
-  // return prev.filter((selectedItem) => selectedItem.id !== item.id);
-  // } else {
-  // // If not selected, add the full item to the array
-  // return [...prev, item];
-  // }
-  // });
-  // };
+  const handleServiceAreaSave = async () => {
+    try {
+      setloading6(true);
+
+      let data = {
+        areaOfService: serviceArea,
+      };
+      await UpdateProfile(data);
+      setloading6(false);
+      setIsServiceAreaChanged(false);
+    } catch (e) {
+      // console.log("error in updating", e);
+    }
+  };
+  const handleProjectSizeSave = async () => {
+    try {
+      setloading9(true);
+      let data = {
+        projectSizeKw: projectSize,
+      };
+      await UpdateProfile(data);
+      setloading9(false);
+      setIsprojectSizeChanged(false);
+    } catch (e) {
+      // console.log("error in updating", e);
+    }
+  };
+
+
 
   const handleserviceId = (id) => {
     // console.log("Id to ad is", id);
@@ -397,9 +531,25 @@ function BasicInfo() {
     });
   };
 
-  useEffect(() => {
-    // console.log("selected", selected);
-  }, [selected]);
+  const handleSelectClientType = async (item) => {
+    // console.log("Select client type", item);
+    setClientType(item.title);
+    let ClientType = item.title
+    let clienttype = ""
+
+    if (ClientType === "Residential clients") {
+      clienttype = "residential";
+    } else if (ClientType === "Commercial clients") {
+      clienttype = "commercial";
+    } else if (ClientType === "Both") {
+      clienttype = "both";
+    }
+    let data = {
+      primaryClientType: clienttype,
+    };
+    await UpdateProfile(data);
+
+  };
 
   const handleAreaChange = async () => {
     try {
@@ -434,6 +584,25 @@ function BasicInfo() {
       // console.log("error in updating", e);
     }
   };
+
+  const handleWebsiteChange = async () => {
+    try {
+      setLoading10(true);
+      let data = {
+        website: websiteUrl,
+      };
+      // console.log("Api data is", serviceId);
+
+      // return
+      await UpdateProfile(data);
+      setIsWebsiteUrlChanged(false);
+      setLoading10(false);
+    } catch (e) {
+      // console.log("error in updating", e);
+    }
+  };
+
+
 
   return (
     <div
@@ -588,157 +757,6 @@ function BasicInfo() {
           ))}
       </div>
 
-      {
-        userRole && userRole != "Invitee" && (
-          <>
-            <div
-              style={{
-                fontSize: 16,
-                fontWeight: "700",
-                color: "#000",
-                marginTop: "4vh",
-              }}
-            >
-              Farm
-            </div>
-
-            <div
-              className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-              style={{
-                border: `1px solid ${focusedFarm ? "#8a2be2" : "#00000010"}`,
-                transition: "border-color 0.3s ease",
-              }}
-            >
-              <input
-                className="w-11/12 outline-none focus:ring-0"
-                onFocus={() => setFocusedFarm(true)}
-                onBlur={() => setFocusedFarm(false)}
-                value={farm}
-                onChange={(event) => {
-                  setFarm(event.target.value);
-                  setIsFarmChanged(true);
-                }}
-                type="text"
-                placeholder="Farm"
-                style={{ border: "0px solid #000000", outline: "none" }}
-              />
-              {isFarmChanged &&
-                (loading2 ? (
-                  <CircularProgress size={20} />
-                ) : (
-                  <button
-                    onClick={async () => {
-                      handleFarmSave();
-                    }}
-                    style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
-                  >
-                    Save
-                  </button>
-                ))}
-            </div>
-          </>
-        )
-      }
-
-      {
-        userRole && userRole != "Invitee" && (
-          <>
-            <div
-              style={{
-                fontSize: 16,
-                fontWeight: "700",
-                color: "#000",
-                marginTop: "4vh",
-              }}
-            >
-              Brokerage
-            </div>
-
-            <div
-              className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
-              style={{
-                border: `1px solid ${focusedBrokerage ? "#8a2be2" : "#00000010"}`,
-                transition: "border-color 0.3s ease",
-              }}
-            >
-              <input
-                className="w-11/12 outline-none focus:ring-0"
-                onFocus={() => setFocusedBrokerage(true)}
-                onBlur={() => setFocusedBrokerage(false)}
-                value={brokerAge}
-                onChange={(event) => {
-                  setBrokerAge(event.target.value);
-                  setIsBrokerageChanged(true);
-                }}
-                type="text"
-                placeholder="Brokerage"
-                style={{ border: "0px solid #000000", outline: "none" }}
-              />
-              {isBrokerageChanged &&
-                (loading3 ? (
-                  <CircularProgress size={20} />
-                ) : (
-                  <button
-                    onClick={async () => {
-                      handleBrokerAgeSave();
-                    }}
-                    style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
-                  >
-                    Save
-                  </button>
-                ))}
-            </div>
-
-
-
-            <div
-              style={{
-                fontSize: 16,
-                fontWeight: "700",
-                color: "#000",
-                marginTop: "4vh",
-              }}
-            >
-              Average transaction volume per year
-            </div>
-
-            <div
-              className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-              style={{
-                border: `1px solid ${focusedTransaction ? "#8a2be2" : "#00000010"}`,
-                transition: "border-color 0.3s ease",
-              }}
-            >
-              <input
-                type="number"
-                className="w-11/12 outline-none focus:ring-0"
-                onFocus={() => setFocusedTransaction(true)}
-                onBlur={() => setFocusedTransaction(false)}
-                value={transaction}
-                onChange={(event) => {
-                  setTransaction(event.target.value);
-                  setIsTransactionChange(true);
-                }}
-                placeholder="Value"
-                style={{ border: "0px solid #000000", outline: "none" }}
-              />
-              {isTransactionChanged &&
-                (loading4 ? (
-                  <CircularProgress size={20} />
-                ) : (
-                  <button
-                    onClick={async () => {
-                      handleTransactionSave();
-                    }}
-                    style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
-                  >
-                    Save
-                  </button>
-                ))}
-            </div>
-
-          </>
-        )}
 
       <div
         style={{
@@ -808,6 +826,594 @@ function BasicInfo() {
           style={{ border: "0px solid #000000", outline: "none" }}
         />
       </div>
+
+      {
+        userRole && userRole != "Invitee" && (
+          <>
+            {
+              userType && userType === UserTypes.RealEstateAgent ||
+                userType && userType === UserTypes.RealEstateAgent
+                ? (
+                  <>
+                    <div
+                      style={{
+                        fontSize: 16,
+                        fontWeight: "700",
+                        color: "#000",
+                        marginTop: "4vh",
+                      }}
+                    >
+                      Farm
+                    </div>
+
+                    <div
+                      className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                      style={{
+                        border: `1px solid ${focusedFarm ? "#8a2be2" : "#00000010"}`,
+                        transition: "border-color 0.3s ease",
+                      }}
+                    >
+                      <input
+                        className="w-11/12 outline-none focus:ring-0"
+                        onFocus={() => setFocusedFarm(true)}
+                        onBlur={() => setFocusedFarm(false)}
+                        value={farm}
+                        onChange={(event) => {
+                          setFarm(event.target.value);
+                          setIsFarmChanged(true);
+                        }}
+                        type="text"
+                        placeholder="Farm"
+                        style={{ border: "0px solid #000000", outline: "none" }}
+                      />
+                      {isFarmChanged &&
+                        (loading2 ? (
+                          <CircularProgress size={20} />
+                        ) : (
+                          <button
+                            onClick={async () => {
+                              handleFarmSave();
+                            }}
+                            style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
+                          >
+                            Save
+                          </button>
+                        ))}
+                    </div>
+                  </>
+
+                ) : (
+                  userType && userType === UserTypes.SolarRep ||
+                    userType && userType === UserTypes.SalesDevRep ||
+                    userType && userType === UserTypes.MarketerAgent ||
+                    userType && userType === UserTypes.TaxAgent ||
+                    userType && userType === UserTypes.RecruiterAgent ||
+                    userType && userType === UserTypes.DebtCollectorAgent ||
+                    userType && userType === UserTypes.MedSpaAgent ||
+                    userType && userType === UserTypes.LawAgent ||
+                    userType && userType === UserTypes.LoanOfficerAgent
+
+                    ? (
+                      <>
+                        <div
+                          style={{
+                            fontSize: 16,
+                            fontWeight: "700",
+                            color: "#000",
+                            marginTop: "4vh",
+                          }}
+                        >
+                          Area of service
+                        </div>
+
+                        <div
+                          className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                          style={{
+                            border: `1px solid ${focusedServiceArea ? "#8a2be2" : "#00000010"}`,
+                            transition: "border-color 0.3s ease",
+                          }}
+                        >
+                          <input
+                            className="w-11/12 outline-none focus:ring-0"
+                            onFocus={() => setFocusedServiceArea(true)}
+                            onBlur={() => setFocusedServiceArea(false)}
+                            value={serviceArea}
+                            onChange={(event) => {
+                              setServiceArea(event.target.value);
+                              setIsServiceAreaChanged(true);
+                            }}
+                            type="text"
+                            placeholder="Farm"
+                            style={{ border: "0px solid #000000", outline: "none" }}
+                          />
+                          {isServiceAreaChanged &&
+                            (loading6 ? (
+                              <CircularProgress size={20} />
+                            ) : (
+                              <button
+                                onClick={async () => {
+                                  handleServiceAreaSave();
+                                }}
+                                style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
+                              >
+                                Save
+                              </button>
+                            ))}
+
+                        </div>
+                      </>
+                    ) : ""
+                )
+            }
+
+
+            {
+              userType && userType === UserTypes.RealEstateAgent ||
+                userType && userType === UserTypes.RealEstateAgent
+                ? (
+
+                  <>
+                    <div
+                      style={{
+                        fontSize: 16,
+                        fontWeight: "700",
+                        color: "#000",
+                        marginTop: "4vh",
+                      }}
+                    >
+                      Brokerage
+                    </div>
+
+                    <div
+                      className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
+                      style={{
+                        border: `1px solid ${focusedBrokerage ? "#8a2be2" : "#00000010"}`,
+                        transition: "border-color 0.3s ease",
+                      }}
+                    >
+                      <input
+                        className="w-11/12 outline-none focus:ring-0"
+                        onFocus={() => setFocusedBrokerage(true)}
+                        onBlur={() => setFocusedBrokerage(false)}
+                        value={brokerAge}
+                        onChange={(event) => {
+                          setBrokerAge(event.target.value);
+                          setIsBrokerageChanged(true);
+                        }}
+                        type="text"
+                        placeholder="Brokerage"
+                        style={{ border: "0px solid #000000", outline: "none" }}
+                      />
+                      {isBrokerageChanged &&
+                        (loading3 ? (
+                          <CircularProgress size={20} />
+                        ) : (
+                          <button
+                            onClick={async () => {
+                              handleBrokerAgeSave();
+                            }}
+                            style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
+                          >
+                            Save
+                          </button>
+                        ))}
+                    </div>
+
+                  </>
+                ) : (
+                  userType && userType === UserTypes.SolarRep ||
+                    userType && userType === UserTypes.SolarRep ||
+                    userType && userType === UserTypes.MarketerAgent ||
+                    userType && userType === UserTypes.DebtCollectorAgent ||
+                    userType && userType === UserTypes.MedSpaAgent ||
+                    userType && userType === UserTypes.LawAgent ||
+                    userType && userType === UserTypes.LoanOfficerAgent
+
+
+                    ? (
+                      <>
+                        <div
+                          style={{
+                            fontSize: 16,
+                            fontWeight: "700",
+                            color: "#000",
+                            marginTop: "4vh",
+                          }}
+                        >
+                          Company
+                        </div>
+
+                        <div
+                          className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
+                          style={{
+                            border: `1px solid ${focusedBrokerage ? "#8a2be2" : "#00000010"}`,
+                            transition: "border-color 0.3s ease",
+                          }}
+                        >
+                          <input
+                            className="w-11/12 outline-none focus:ring-0"
+                            onFocus={() => setFocusedCompany(true)}
+                            onBlur={() => setFocusedCompany(false)}
+                            value={brokerAge}
+                            onChange={(event) => {
+                              setCompany(event.target.value);
+                              setIsCompanyChanged(true);
+                            }}
+                            type="text"
+                            placeholder="Brokerage"
+                            style={{ border: "0px solid #000000", outline: "none" }}
+                          />
+                          {isCompanyChanged &&
+                            (loading8 ? (
+                              <CircularProgress size={20} />
+                            ) : (
+                              <button
+                                onClick={async () => {
+                                  handleCompanySave();
+                                }}
+                                style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
+                              >
+                                Save
+                              </button>
+                            ))}
+                        </div>
+                      </>
+                    ) : (
+                      userType && userType === UserTypes.WebsiteAgent ? (
+                        <>
+                          <div
+                            style={{
+                              fontSize: 16,
+                              fontWeight: "700",
+                              color: "#000",
+                              marginTop: "4vh",
+                            }}
+                          >
+                            Website URL
+                          </div>
+
+                          <div
+                            className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
+                            style={{
+                              border: `1px solid ${focusedWebsite ? "#8a2be2" : "#00000010"}`,
+                              transition: "border-color 0.3s ease",
+                            }}
+                          >
+                            <input
+                              className="w-11/12 outline-none focus:ring-0"
+                              onFocus={() => setFocusedWebSite(true)}
+                              onBlur={() => setFocusedWebSite(false)}
+                              value={websiteUrl}
+                              onChange={(event) => {
+                                setWebsiteUrl(event.target.value);
+                                setIsWebsiteUrlChanged(true);
+                              }}
+                              type="text"
+                              placeholder="Brokerage"
+                              style={{ border: "0px solid #000000", outline: "none" }}
+                            />
+                            {isWebsiteUrlChanged &&
+                              (loading10 ? (
+                                <CircularProgress size={20} />
+                              ) : (
+                                <button
+                                  onClick={async () => {
+                                    handleWebsiteChange();
+                                  }}
+                                  style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
+                                >
+                                  Save
+                                </button>
+                              ))}
+                          </div>
+                        </>
+                      ) : ""
+                    )
+                )
+            }
+
+            {
+              userType && userType === UserTypes.RealEstateAgent ? (
+                <>
+                  <div
+                    style={{
+                      fontSize: 16,
+                      fontWeight: "700",
+                      color: "#000",
+                      marginTop: "4vh",
+                    }}
+                  >
+                    Average transaction volume per year
+                  </div>
+
+                  <div
+                    className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                    style={{
+                      border: `1px solid ${focusedTransaction ? "#8a2be2" : "#00000010"}`,
+                      transition: "border-color 0.3s ease",
+                    }}
+                  >
+                    <input
+                      type="number"
+                      className="w-11/12 outline-none focus:ring-0"
+                      onFocus={() => setFocusedTransaction(true)}
+                      onBlur={() => setFocusedTransaction(false)}
+                      value={transaction}
+                      onChange={(event) => {
+                        setTransaction(event.target.value);
+                        setIsTransactionChange(true);
+                      }}
+                      placeholder="Value"
+                      style={{ border: "0px solid #000000", outline: "none" }}
+                    />
+                    {isTransactionChanged &&
+                      (loading4 ? (
+                        <CircularProgress size={20} />
+                      ) : (
+                        <button
+                          onClick={async () => {
+                            handleTransactionSave();
+                          }}
+                          style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
+                        >
+                          Save
+                        </button>
+                      ))}
+                  </div>
+                </>
+              ) : (
+                userType && userType === UserTypes.SolarRep ||
+                  userType && userType === UserTypes.DebtCollectorAgent ||
+                  userType && userType === UserTypes.LoanOfficerAgent ||
+                  userType && userType === UserTypes.LawAgent ||
+                  userType && userType === UserTypes.MedSpaAgent
+
+                  ? (
+                    <>
+                      <div
+                        style={{
+                          fontSize: 16,
+                          fontWeight: "700",
+                          color: "#000",
+                          marginTop: "4vh",
+                        }}
+                      >
+                        Installation Volume per Year
+                      </div>
+
+                      <div
+                        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                        style={{
+                          border: `1px solid ${focusedInstallationVolume ? "#8a2be2" : "#00000010"}`,
+                          transition: "border-color 0.3s ease",
+                        }}
+                      >
+                        <input
+                          type="number"
+                          className="w-11/12 outline-none focus:ring-0"
+                          onFocus={() => setFocusedInstallationVolume(true)}
+                          onBlur={() => setFocusedInstallationVolume(false)}
+                          value={installationVolume}
+                          onChange={(event) => {
+                            setInstallationVolume(event.target.value);
+                            setIsInstallationVolumeChanged(true);
+                          }}
+                          placeholder="Value"
+                          style={{ border: "0px solid #000000", outline: "none" }}
+                        />
+                        {isInstallationVolumechanged &&
+                          (loading7 ? (
+                            <CircularProgress size={20} />
+                          ) : (
+                            <button
+                              onClick={async () => {
+                                handleInstallationVolumeSave();
+                              }}
+                              style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
+                            >
+                              Save
+                            </button>
+                          ))}
+                      </div>
+                    </>
+                  ) : ""
+
+              )
+            }
+
+
+            {
+              userType && userType === UserTypes.SolarRep ? (
+                <>
+                  <div
+                    style={{
+                      fontSize: 16,
+                      fontWeight: "700",
+                      color: "#000",
+                      marginTop: "4vh",
+                    }}
+                  >
+                    Average Project Size (kW)
+                  </div>
+
+                  <div
+                    className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                    style={{
+                      border: `1px solid ${focusedProjectSize ? "#8a2be2" : "#00000010"}`,
+                      transition: "border-color 0.3s ease",
+                    }}
+                  >
+                    <input
+                      type="number"
+                      className="w-11/12 outline-none focus:ring-0"
+                      onFocus={() => setFocusedProjectSize(true)}
+                      onBlur={() => setFocusedProjectSize(false)}
+                      value={projectSize}
+                      onChange={(event) => {
+                        setProjectSize(event.target.value);
+                        setIsprojectSizeChanged(true);
+                      }}
+                      placeholder="Value"
+                      style={{ border: "0px solid #000000", outline: "none" }}
+                    />
+                    {isProjectSizeChanged &&
+                      (loading9 ? (
+                        <CircularProgress size={20} />
+                      ) : (
+                        <button
+                          onClick={async () => {
+                            handleProjectSizeSave();
+                          }}
+                          style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
+                        >
+                          Save
+                        </button>
+                      ))}
+                  </div>
+                </>
+              ) : ("")
+            }
+            {
+              userType && userType === UserTypes.SolarRep ||
+                userType && userType === UserTypes.DebtCollectorAgent
+
+                ? (
+                  <>
+                    <div
+                      style={{
+                        fontSize: 16,
+                        fontWeight: "700",
+                        color: "#000",
+                        marginTop: "4vh",
+                      }}
+                    >
+                      Primary Client Type
+                    </div>
+
+                    <div
+                      className="flex flex-row items-center gap-4"
+                      style={{ marginTop: "8px" }}
+                    >
+                      {primaryClientTypes.map((item, index) => {
+                        return (
+                          <div key={index} className="w-full">
+                            <button
+                              onClick={() => {
+                                handleSelectClientType(item);
+                              }}
+                              className="border border-[#00000010] rounded px-4 h-[70px] outline-none focus:outline-none focus:ring-0 w-full"
+                              style={{
+                                fontSize: 15,
+                                fontWeight: "500",
+                                borderRadius: "7px",
+                                borderRadius: "30px",
+                                paddingInline: index === 2 && "40px",
+                                border:
+                                  clientType === item.title
+                                    ? "2px solid #7902DF"
+                                    : "",
+                                backgroundColor:
+                                  clientType === item.title ? "#402FFF20" : "",
+                              }}
+                            >
+                              {item.title}
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                  </>
+                ) : ("")
+            }
+            {
+              userType && userType === UserTypes.LawAgent ||
+                userType && userType === UserTypes.LoanOfficerAgent ? (
+                <>
+                  <div style={styles.headingStyle} className="mt-6">
+                    Client Type
+                  </div>
+
+
+                  <div
+                    className="flex w-full flex-wrap flex-row items-center gap-2"
+                    style={{ marginTop: "8px", flexWrap: 'wrap' }}
+                  >
+                    {primaryClientTypes2.map((item, index) => {
+                      return (
+                        <div key={index} className="w-full">
+                          <button
+                            onClick={() => {
+                              handleSelectClientType(item);
+                            }}
+                            className="border border-[#00000010] rounded px-4 py-4 outline-none focus:outline-none focus:ring-0"
+                            style={{
+                              ...styles.inputStyle,
+                              borderRadius: "30px",
+                              paddingInline: index === 2 && "40px",
+                              border:
+                                ClientType === item.title
+                                  ? "2px solid #7902DF"
+                                  : "",
+                              backgroundColor:
+                                ClientType === item.title ? "#402FFF20" : "",
+                            }}
+                          >
+                            {item.title}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              ) : ""
+            }
+            {
+              userType && userType === UserTypes.LawAgent ? (
+                <>
+
+                  <div style={styles.headingStyle} className="mt-6">
+                    Consultation Format
+                  </div>
+
+                  <div
+                    className="flex w-full flex-wrap flex-row items-center gap-2"
+                    style={{ marginTop: "8px" }}
+                  >
+                    {ConsultationFormat.map((item, index) => {
+                      return (
+                        <div key={index} className="w-full">
+                          <button
+                            onClick={() => {
+                              handleSelectClientType(item);
+                            }}
+                            className="border border-[#00000010] rounded px-4 py-4 outline-none focus:outline-none focus:ring-0"
+                            style={{
+                              ...styles.inputStyle,
+                              borderRadius: "30px",
+                              paddingInline: index === 2 && "40px",
+                              border:
+                                ClientType === item.title
+                                  ? "2px solid #7902DF"
+                                  : "",
+                              backgroundColor:
+                                ClientType === item.title ? "#402FFF20" : "",
+                            }}
+                          >
+                            {item.title}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+
+              ) : ""
+            }
+          </>
+        )}
+
+
 
       {
         userRole && userRole != "Invitee" && (
@@ -957,3 +1563,11 @@ function BasicInfo() {
 }
 
 export default BasicInfo;
+
+
+const styles = {
+  headingStyle: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+}

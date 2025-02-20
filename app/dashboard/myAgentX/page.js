@@ -55,12 +55,19 @@ import Link from "next/link";
 import { ArrowUpRight } from "@phosphor-icons/react";
 import VideoCard from "@/components/createagent/VideoCard";
 import { UserTypes } from "@/constants/UserTypes";
+import Knowledgebase from "@/components/dashboard/myagentX/Knowledgebase";
 
 function Page() {
   const timerRef = useRef();
   const fileInputRef = useRef([]);
   // const fileInputRef = useRef(null);
   const router = useRouter();
+  const [AgentMenuOptions] = useState([
+    "Agent Info",
+    "Calendar",
+    "Pipeline | Stages",
+    "Knowledgebase",
+  ]);
   const [openTestAiModal, setOpenTestAiModal] = useState(false);
   const [name, setName] = useState("");
   //code for phonenumber
@@ -2748,7 +2755,7 @@ function Page() {
           </div>
 
           <div className="flex gap-8 pb-2 mb-4">
-            {["Agent Info", "Calendar", "Pipeline | Stages"].map((tab) => (
+            {AgentMenuOptions.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -3208,6 +3215,10 @@ function Page() {
                 UserPipeline={UserPipeline}
                 mainAgent={calendarDetails}
               />
+            </div>
+          ) : activeTab === "Knowledgebase" ? (
+            <div className="flex flex-col gap-4">
+              <Knowledgebase user={user} />
             </div>
           ) : (
             ""

@@ -8,7 +8,10 @@ import {
   Fade,
   Modal,
   Popover,
+  Radio,
   Snackbar,
+  Switch,
+  ToggleButton,
   Typography,
 } from "@mui/material";
 import { CaretDown, CaretUp } from "@phosphor-icons/react";
@@ -62,6 +65,7 @@ const Leads1 = () => {
   //functions for add custom stage list
   const [showAddNewSheetModal, setShowAddNewSheetModal] = useState(false);
 
+  const [isInbound, setIsInbound] = useState(false);
   const [newSheetName, setNewSheetName] = useState("");
   const [inputs, setInputs] = useState([
     { id: 1, value: "First Name" },
@@ -928,6 +932,7 @@ const Leads1 = () => {
       const ApiData = {
         sheetName: newSheetName,
         columns: inputs.map((columns) => columns.value),
+        inbound: isInbound,
       };
       // console.log("Data to send in api is:", ApiData);
 
@@ -947,6 +952,7 @@ const Leads1 = () => {
         // console.log("Response of add new smart list api is :", response);
         if (response.data.status === true) {
           // setSheetsList([...SheetsList, response.data.data]);
+          setIsInbound(false);
           setUserLeads(response.data.data);
           setSetData(true);
           setAddNewLeadModal(false);
@@ -1895,8 +1901,20 @@ const Leads1 = () => {
                 </div>
 
                 <div className="px-4 w-full">
-                  <div className="flex flex-row items-center justify-start mt-6 gap-2">
+                  <div className="flex flex-row items-center justify-between mt-6 gap-2">
                     <span style={styles.paragraph}>List Name</span>
+                    <div className="">
+                      <span>Inbound?</span>
+                      <Switch
+                        checked={isInbound}
+                        // exclusive
+                        onChange={(event) => {
+                          console.log("Inboud sheet ", event.target.checked);
+                          setIsInbound(event.target.checked);
+                        }}
+                        // aria-label="text alignment"
+                      />
+                    </div>
                     {/* <Image
                       src={"/svgIcons/infoIcon.svg"}
                       height={15}
