@@ -68,7 +68,7 @@ export default function AgentSelectSnackMessage({
   return (
     isVisible && (
       <div
-        className="flex items-center justify-center  w-full z-[9999]"
+        className="flex items-center justify-center  w-full z-[99999]"
         style={{
           position: "absolute",
           left: "50%",

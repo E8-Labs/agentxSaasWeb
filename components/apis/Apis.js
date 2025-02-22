@@ -69,6 +69,7 @@ const Apis = {
   //apis to add card & subscribe plan
   addCard: `${BasePath}api/user/addPaymentMethod`,
   subscribePlan: `${BasePath}api/user/subscribePlan`,
+  purchaseSupportPlan: `${BasePath}api/user/purchaseSupportPlan`,
 
   getLeadDetails: `${BasePath}api/leads/leadDetail`,
   getStagesList: `${BasePath}api/pipeline/getPipeline`,
