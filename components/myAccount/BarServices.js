@@ -118,33 +118,8 @@ function BarServices() {
     },
   ];
 
-  //cancel plan reasons
-  const cancelPlanReasons = [
-    {
-      id: 1,
-      reason: "It’s too expensive",
-    },
-    {
-      id: 2,
-      reason: "I’m using something else",
-    },
-    {
-      id: 3,
-      reason: "I’m not getting the results I expected",
-    },
-    {
-      id: 4,
-      reason: "It’s too complicated to use",
-    },
-    {
-      id: 5,
-      reason: "Others",
-    },
-  ];
-
   useEffect(() => {
     getProfile();
-    getPaymentHistory();
     getCardsList();
   }, []);
 
@@ -154,18 +129,18 @@ function BarServices() {
       let response = await getProfileDetails();
       // console.log("Response of get progf", response);
       if (response) {
-        let plan = response?.data?.data?.supportPlan;
-        let togglePlan = plan?.type;
+        let togglePlan = response?.data?.data?.supportPlan;
+        // let togglePlan = plan?.type;
         let planType = null;
-        if (plan.status == "active") {
-          if (togglePlan === "Starter") {
-            planType = 1;
-          } else if (togglePlan === "Professional") {
-            planType = 2;
-          } else if (togglePlan === "Enterprise") {
-            planType = 3;
-          }
+        // if (plan.status == "active") {
+        if (togglePlan === "Starter") {
+          planType = 1;
+        } else if (togglePlan === "Professional") {
+          planType = 2;
+        } else if (togglePlan === "Enterprise") {
+          planType = 3;
         }
+        // }
         setUserLocalData(response?.data?.data);
         // console.log("Get Profile Toggle plan is ", planType);
         setTogglePlan(planType);
@@ -180,7 +155,98 @@ function BarServices() {
     // console.log("User local data is", userLocalData);
   }, [userLocalData]);
 
-  //function to close the add card popup
+  //functions for selecting plans
+  const handleTogglePlanClick = (item) => {
+    setTogglePlan(item.id);
+    setSelectedPlan((prevId) => (prevId === item ? null : item));
+    // setTogglePlan(prevId => (prevId === id ? null : id));
+  };
+
+  //function to subscribe plan
+  const handleSubscribePlan = async () => {
+    try {
+      let planType = null;
+
+      //// console.log("Selected plan is:", togglePlan);
+
+      if (togglePlan === 1) {
+        planType = "Starter";
+      } else if (togglePlan === 2) {
+        planType = "Professional";
+      } else if (togglePlan === 3) {
+        planType = "Enterprise";
+      }
+
+      // console.log("Current plan is", planType);
+
+      setSubscribePlanLoader(true);
+      let AuthToken = null;
+      let localDetails = null;
+      const localData = localStorage.getItem("User");
+      if (localData) {
+        const LocalDetails = JSON.parse(localData);
+        localDetails = LocalDetails;
+        AuthToken = LocalDetails.token;
+        if (cards.length > 0) {
+          // console.log("Already have cards");
+        } else {
+          //   setErrorSnack("No payment method added");
+          setAddPaymentPopup(true);
+          return;
+        }
+      }
+
+      // console.log("Authtoken is", AuthToken);
+
+      const ApiData = {
+        supportPlan: planType,
+      };
+
+      // console.log("Api data is", ApiData);
+
+      const ApiPath = Apis.purchaseSupportPlan;
+      // console.log("Apipath is", ApiPath);
+
+      // return
+
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response) {
+        // console.log("Response of subscribe plan api is", response);
+        if (response.data.status === true) {
+          localDetails.user = response.data.data;
+          // console.log("Data updated is", localDetails);
+
+          //   if (response2) {
+          let togglePlan = response?.data?.data?.supportPlan;
+          let planType = null;
+          if (togglePlan === "Starter") {
+            planType = 1;
+          } else if (togglePlan === "Professional") {
+            planType = 2;
+          } else if (togglePlan === "Enterprise") {
+            planType = 3;
+          }
+          setTogglePlan(planType);
+          setCurrentPlan(planType);
+          //   }
+          // localStorage.setItem("User", JSON.stringify(localDetails));
+          setSuccessSnack("Your plan successfully updated");
+        } else if (response.data.status === false) {
+          setErrorSnack(response.data.message);
+        }
+      }
+    } catch (error) {
+      // console.error("Error occured in api is:", error);
+    } finally {
+      setSubscribePlanLoader(false);
+    }
+  };
   const handleClose = (data) => {
     // console.log("Add card details are", data);
     if (data.status === true) {
@@ -233,314 +299,6 @@ function BarServices() {
     }
   };
 
-  //function to make default cards api
-  const makeDefaultCard = async (item) => {
-    setSelectedCard(item);
-    // console.log('selectedCard', item.id)
-    // return
-    try {
-      setMakeDefaultCardLoader(true);
-
-      const localData = localStorage.getItem("User");
-
-      let AuthToken = null;
-
-      if (localData) {
-        const Data = JSON.parse(localData);
-        AuthToken = Data.token;
-      }
-      // console.log('authToken', AuthToken)
-
-      const ApiPath = Apis.makeDefaultCard;
-
-      const ApiData = {
-        paymentMethodId: item.id,
-      };
-
-      // console.log('apiData', ApiData)
-
-      const response = await axios.post(ApiPath, ApiData, {
-        headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response) {
-        // console.log("Response of make default card api is", response.data);
-        if (response.data.status === true) {
-          let crds = cards.forEach((card, index) => {
-            if (card.isDefault) {
-              console.log("card.isDefault", card.isDefault);
-              cards[index].isDefault = false;
-            }
-          });
-          item.isDefault = true;
-        }
-      }
-    } catch (error) {
-      // console.error("Error occured in make default card api is", error);
-    } finally {
-      setMakeDefaultCardLoader(false);
-    }
-  };
-
-  //functions for selecting plans
-  const handleTogglePlanClick = (item) => {
-    // if (togglePlan) {
-    //     setTogglePlan(prevId => (prevId === item.id ? null : item.id));
-    //     setSelectedPlan(prevId => (prevId === item ? null : item));
-    // } else {
-    //     setSelectedPlan(prevId => (prevId === item ? null : item));
-    //     setAddPaymentPopUp(true);
-    // }
-    // setTogglePlan(prevId => (prevId === item.id ? null : item.id));
-    setTogglePlan(item.id);
-    setSelectedPlan((prevId) => (prevId === item ? null : item));
-    // setTogglePlan(prevId => (prevId === id ? null : id));
-  };
-
-  //function to subscribe plan
-  const handleSubscribePlan = async () => {
-    try {
-      let planType = null;
-
-      //// console.log("Selected plan is:", togglePlan);
-
-      if (togglePlan === 1) {
-        planType = "Plan30";
-      } else if (togglePlan === 2) {
-        planType = "Plan120";
-      } else if (togglePlan === 3) {
-        planType = "Plan360";
-      } else if (togglePlan === 4) {
-        planType = "Plan720";
-      }
-
-      // console.log("Current plan is", planType);
-
-      setSubscribePlanLoader(true);
-      let AuthToken = null;
-      let localDetails = null;
-      const localData = localStorage.getItem("User");
-      if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        localDetails = LocalDetails;
-        AuthToken = LocalDetails.token;
-        if (localDetails?.user?.cards?.length > 0) {
-          // console.log("Already have cards");
-        } else {
-          setErrorSnack("No payment method added");
-          return;
-        }
-      }
-
-      // console.log("Authtoken is", AuthToken);
-
-      const ApiData = {
-        plan: planType,
-        payNow: true,
-      };
-
-      // console.log("Api data is", ApiData);
-
-      const ApiPath = Apis.subscribePlan;
-      // console.log("Apipath is", ApiPath);
-
-      // return
-
-      const response = await axios.post(ApiPath, ApiData, {
-        headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response) {
-        // console.log("Response of subscribe plan api is", response);
-        if (response.data.status === true) {
-          localDetails.user.plan = response.data.data;
-          // console.log("Data updated is", localDetails);
-          let response2 = await getProfileDetails();
-          if (response2) {
-            let togglePlan = response2?.data?.data?.plan?.type;
-            let planType = null;
-            if (togglePlan === "Plan30") {
-              planType = 1;
-            } else if (togglePlan === "Plan120") {
-              planType = 2;
-            } else if (togglePlan === "Plan360") {
-              planType = 3;
-            } else if (togglePlan === "Plan720") {
-              planType = 4;
-            }
-            setTogglePlan(planType);
-            setCurrentPlan(planType);
-          }
-          // localStorage.setItem("User", JSON.stringify(localDetails));
-          setSuccessSnack("Your plan successfully updated");
-        } else if (response.data.status === false) {
-          setErrorSnack(response.data.message);
-        }
-      }
-    } catch (error) {
-      // console.error("Error occured in api is:", error);
-    } finally {
-      setSubscribePlanLoader(false);
-    }
-  };
-
-  //function to get payment history
-  const getPaymentHistory = async () => {
-    try {
-      setHistoryLoader(true);
-
-      let AuthToken = null;
-      let localDetails = null;
-      const localData = localStorage.getItem("User");
-      if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        localDetails = LocalDetails;
-        AuthToken = LocalDetails.token;
-      }
-
-      const ApiPath = Apis.getPaymentHistory;
-
-      const response = await axios.get(ApiPath, {
-        headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response) {
-        // console.log("Response of get payment history", response.data.data);
-        if (response.data.status === true) {
-          setPaymentHistoryData(response.data.data);
-        }
-      }
-    } catch (error) {
-      // console.error("Error occured in get history api is", error);
-    } finally {
-      setHistoryLoader(false);
-    }
-  };
-
-  //function to cancel current plan
-  const handleCancelPlan = async () => {
-    try {
-      setCancelPlanLoader(true);
-
-      let AuthToken = null;
-
-      const localData = localStorage.getItem("User");
-      if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        AuthToken = LocalDetails.token;
-      }
-
-      const ApiPath = Apis.cancelPlan;
-
-      // console.log("Auth token ", AuthToken);
-
-      //// console.log("Api data is", Apidata);
-      // console.log("Apipath is", ApiPath);
-
-      const ApiData = {
-        patanai: "Sari dunya",
-      };
-
-      // return
-      const response = await axios.post(ApiPath, ApiData, {
-        headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response) {
-        // console.log("Responmse fo cancel plan is", response.data);
-        if (response.data.status === true) {
-          // console.log("Response of cancel plan is true");
-          await getProfileDetails();
-          setShowConfirmCancelPlanPopup(false);
-          setGiftPopup(false);
-          setTogglePlan(null);
-          setCurrentPlan(null);
-          setShowConfirmCancelPlanPopup2(true);
-          setSuccessSnack("Your plan was successfully cancelled");
-        } else if (response.data.status === false) {
-          setErrorSnack(response.data.message);
-        }
-      }
-    } catch (error) {
-      // console.error("Eror occured in cancel plan api is", error);
-    } finally {
-      setCancelPlanLoader(false);
-    }
-  };
-
-  //function to call redeem api
-  const handleRedeemPlan = async () => {
-    console.log("Trying to redeem plan");
-    try {
-      setRedeemLoader(true);
-
-      let AuthToken = null;
-
-      const localData = localStorage.getItem("User");
-      if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        AuthToken = LocalDetails.token;
-      }
-
-      const ApiPath = Apis.redeemPlan;
-
-      const ApiData = {
-        sub_Type: "0", //send 1 for already redeemed plan
-      };
-
-      const response = await axios.post(ApiPath, ApiData, {
-        headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response) {
-        // console.log("Response of redeem api is", response.data);
-        let response2 = await getProfileDetails();
-        // console.log("Response if");
-        if (response2) {
-          let togglePlan = response2?.data?.data?.plan?.type;
-          let planType = null;
-          if (togglePlan === "Plan30") {
-            planType = 1;
-          } else if (togglePlan === "Plan120") {
-            planType = 2;
-          } else if (togglePlan === "Plan360") {
-            planType = 3;
-          } else if (togglePlan === "Plan720") {
-            planType = 4;
-          }
-          setUserLocalData(response2?.data?.data);
-          setGiftPopup(false);
-          setTogglePlan(planType);
-          setCurrentPlan(planType);
-          if (response2.data.status === true) {
-            setSuccessSnack("You've claimed an extra 30 mins");
-          } else if (response2.data.status === false) {
-            setErrorSnack(response2.data.message);
-          }
-        }
-      }
-    } catch (error) {
-      // console.error("Error occurd in api is", error);
-    } finally {
-      setRedeemLoader(false);
-    }
-  };
-
   //function to get card brand image
   const getCardImage = (item) => {
     if (item.brand === "visa") {
@@ -553,76 +311,6 @@ function BarServices() {
       return "/svgIcons/Discover.svg";
     } else if (item.brand === "dinersClub") {
       return "/svgIcons/DinersClub.svg";
-    }
-  };
-
-  //variables
-  const textFieldRef = useRef(null);
-  const [selectReason, setSelectReason] = useState("");
-  const [showOtherReasonInput, setShowOtherReasonInput] = useState(false);
-  const [otherReasonInput, setOtherReasonInput] = useState("");
-
-  //delreason extra variables
-  const [cancelReasonLoader, setCancelReasonLoader] = useState(false);
-  //function to select the cancel plan reason
-  const handleSelectReason = async (item) => {
-    // console.log("Item is", item);
-    setSelectReason(item.reason);
-    if (item.reason === "Others") {
-      setShowOtherReasonInput(true);
-      const timer = setTimeout(() => {
-        textFieldRef.current.focus();
-      }, 300);
-      return () => clearTimeout(timer);
-    } else {
-      setShowOtherReasonInput(false);
-      setOtherReasonInput("");
-    }
-  };
-
-  //del reason api
-  const handleDelReason = async () => {
-    try {
-      setCancelReasonLoader(true);
-      const localdata = localStorage.getItem("User");
-      let AuthToken = null;
-      if (localdata) {
-        const D = JSON.parse(localdata);
-        AuthToken = D.token;
-      }
-
-      const ApiData = {
-        reason: otherReasonInput || selectReason,
-      };
-
-      // console.log("Api data is", ApiData);
-
-      const ApiPath = Apis.calcelPlanReason;
-      // console.log("Api Path is", ApiPath);
-
-      const response = await axios.post(ApiPath, ApiData, {
-        headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response) {
-        // console.log("Response of cancel plan reason api is", response);
-        if (response.data.status === true) {
-          setShowConfirmCancelPlanPopup2(false);
-          setSuccessSnack(response.data.message);
-        } else if (response.data.status === true) {
-          setErrorSnack(response.data.message);
-        }
-      }
-    } catch (error) {
-      setErrorSnack(error);
-      setCancelReasonLoader(false);
-      // console.error("Error occured in api is ", error);
-    } finally {
-      setCancelReasonLoader(false);
-      // console.log("Del reason api done");
     }
   };
 
