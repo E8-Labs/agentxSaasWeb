@@ -39,6 +39,8 @@ const AssignLead = ({
   const [CallNow, setCallNow] = useState("");
   const [CallLater, setCallLater] = useState(false);
 
+  const [invalidTimeMessage, setInvalidTimeMessage] = useState(null);
+
   //new code by salman
   const [errorMessage, setErrorMessage] = useState(null);
   const [errTitle, setErrTitle] = useState(null);
@@ -265,6 +267,20 @@ const AssignLead = ({
   };
 
   const handleAssignLead = async () => {
+    const selectedDate = dayjs(selectedDateTime); // Convert input date to Day.js object
+    const currentHour = selectedDate.hour(); // Get the current hour (0-23)
+    if (currentHour >= 5 && currentHour < 19) {
+      console.log(
+        "✅ Current time is between 5 AM and 7 PM.",
+        selectedDateTime
+      );
+      // setSelectedDateTime(date);
+    } else {
+      console.log("❌ Current time is outside 5 AM to 7 PM.");
+      setInvalidTimeMessage("Calling is only available between 5AM and 7PM");
+      return;
+    }
+
     try {
       setLoader(true);
 
@@ -301,6 +317,8 @@ const AssignLead = ({
         batchSize: batchSize,
         selectedAll: selectedAll,
       };
+      console.log("Api data ", Apidata);
+      // return;
       if (filters && selectedAll) {
         Apidata = {
           pipelineId: SelectedAgents[0].pipeline.id,
@@ -367,12 +385,21 @@ const AssignLead = ({
       // console.log("No date selected");
       return;
     }
+    // const selectedDate = dayjs(date); // Convert input date to Day.js object
+    // const currentHour = selectedDate.hour(); // Get the current hour (0-23)
+    // if (currentHour >= 5 && currentHour < 19) {
+    //   console.log("✅ Current time is between 5 AM and 7 PM.", date);
+    //   setSelectedDateTime(date);
+    // } else {
+    //   console.log("❌ Current time is outside 5 AM to 7 PM.");
+    //   setInvalidTimeMessage("Current time is outside 5 AM to 7 PM.");
+    setSelectedDateTime(date);
+    // }
 
     // Print in the desired format
     // console.log("Selected date and time:", date.format("DD/MM/YYYY HH:mm"));
 
     // Save the selected date
-    setSelectedDateTime(date);
   };
 
   const handleFromDateChange = (date) => {
@@ -429,6 +456,8 @@ const AssignLead = ({
           setErrorMessage(null);
         }}
       />
+      {/* Snackbar for invalid time */}
+
       <div className="flex flex-row items-center justify-between mt-4">
         <div style={{ fontSize: 24, fontWeight: "700" }}>Select your Agent</div>
         <div className="text-purple" style={styles.paragraph}>
@@ -625,6 +654,14 @@ const AssignLead = ({
       >
         <Box className="lg:w-4/12 sm:w-7/12 w-8/12" sx={styles.modalsStyle}>
           <div className="flex flex-row justify-center w-full">
+            <AgentSelectSnackMessage
+              className=""
+              message={invalidTimeMessage}
+              isVisible={invalidTimeMessage}
+              hide={() => {
+                setInvalidTimeMessage(null);
+              }}
+            />
             <div
               className="w-full"
               style={{
@@ -733,12 +770,23 @@ const AssignLead = ({
                   }}
                   onClick={() => {
                     const currentDateTime = new Date();
+                    const currentHour = currentDateTime.getHours(); // Get the current hour (0-23)
+                    // if (currentHour >= 5 && currentHour < 19) {
+                    //   console.log("✅ Current time is between 5 AM and 7 PM.");
+                    setCallNow(currentDateTime);
+                    setCallLater(false);
+                    // } else {
+                    //   console.log("❌ Current time is outside 5 AM to 7 PM.");
+                    //   setInvalidTimeMessage(
+                    //     "❌ Current time is outside 5 AM to 7 PM."
+                    //   );
+                    // }
                     // console.log(
                     //   "Current data is:",
                     //   currentDateTime.toLocaleString()
                     // );
-                    setCallNow(currentDateTime);
-                    setCallLater(false);
+                    setSelectedDateTime(dayjs());
+
                     // handleDateTimerDifference();
                   }}
                 >

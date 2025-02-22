@@ -66,7 +66,7 @@ function Page() {
     "Agent Info",
     "Calendar",
     "Pipeline | Stages",
-    // "Knowledge Base",
+    "Knowledge Base",
   ]);
   const [openTestAiModal, setOpenTestAiModal] = useState(false);
   const [name, setName] = useState("");
