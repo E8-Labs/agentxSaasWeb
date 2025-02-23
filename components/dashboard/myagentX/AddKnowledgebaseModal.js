@@ -13,6 +13,8 @@ import JSZip from "jszip";
 import { Close, InsertDriveFile, Link, TextFields } from "@mui/icons-material";
 import { User } from "lucide-react";
 
+import { isValidUrl } from "@/constants/Constants";
+
 const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
   const [selectedType, setSelectedType] = useState("Text"); // Url, Document
 
@@ -20,6 +22,8 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [url, setUrl] = useState("");
+
+  const [isUrlValid, setIsUrlValid] = useState(-1); // -1 no text,  0 = invalid, 1 valid
 
   const [fileName, setFileName] = useState("");
   const [selectedDocument, setSelectedDocument] = useState(null);
@@ -228,23 +232,63 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
     // }
   }
 
+  function canShowContinue() {
+    if (selectedType == "Text") {
+      if (title.length > 0 && text.length > 0) {
+        return true;
+      }
+      return false;
+    }
+    if (selectedType == "Document") {
+      if (title.length > 0 && selectedDocument) return true;
+      return false;
+    }
+    if (selectedType == "Url") {
+      if (isUrlValid == 1) {
+        return true;
+      }
+      return false;
+    }
+    return false;
+  }
+
+  // import { useState } from "react";
+
   function GetUiForUrl() {
     return (
       <div className="flex flex-col w-full gap-4">
+        <div className="flex flex-row justify-between">
+          <div></div>
+        </div>
+
         <input
           value={url}
-          // value = {showRenameAgentPopup?.name}
           onChange={(e) => {
-            setUrl(e.target.value);
-            setTitle("");
+            const inputValue = e.target.value.trim();
+            setUrl(inputValue);
+
+            if (inputValue === "") {
+              setIsUrlValid(-1);
+            } else {
+              const isValid = isValidUrl(inputValue);
+              console.log("URL is valid:", isValid);
+              setIsUrlValid(isValid ? 1 : 0);
+            }
+
+            setTitle(""); // Ensure this is correctly handled in your state
           }}
-          placeholder={"Url"}
+          placeholder="Enter URL"
           className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
           style={{ border: "1px solid #00000020" }}
         />
+
+        {isUrlValid === 0 && (
+          <div className="text-red text-sm">Invalid URL</div>
+        )}
       </div>
     );
   }
+
   function GetUiForDocument() {
     return (
       <div className="flex flex-col w-full gap-4">
@@ -310,22 +354,26 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
   function GetButtonUI() {
     if (!loading) {
       return (
-        <Button
-          variant="contained"
-          fullWidth
-          sx={{
-            bgcolor: "#7902DF",
-            color: "white",
-            borderRadius: 2,
-            paddingY: 1.5,
-          }}
+        <button
+          className={`w-full rounded-lg font-medium h-[50px] ${
+            canShowContinue() ? "bg-purple text-white" : "bg-btngray text-black"
+          } `}
+          // variant="contained"
+          // fullWidth
+          disabled={!canShowContinue()}
+          // sx={{
+          //   bgcolor: canShowContinue() ? "#7902DF" : "#E0E0E0",
+          //   color: canShowContinue() ? "white" : "black",
+          //   borderRadius: 2,
+          //   paddingY: 1.5,
+          // }}
           onClick={(e) => {
             // e.preventDefault()
             handleSubmit(e);
           }}
         >
           Add
-        </Button>
+        </button>
       );
     } else {
       return <CircularProgress />;

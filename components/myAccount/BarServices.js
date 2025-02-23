@@ -339,46 +339,90 @@ function BarServices() {
         message={successSnack}
         type={SnackbarTypes.Success}
       />
-      <div
-        className="w-10/12 p-6 rounded-lg flex flex-row items-center"
-        style={{
-          backgroundImage: "url(/svgIcons/cardBg.svg)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          color: "#fff",
-          alignSelf: "center",
-          marginTop: "7vh",
-          // boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-        }}
-      >
-        <div className="flex flex-col pt-5">
-          <div
-            style={{ fontSize: "2vh", fontWeight: "700", marginBottom: "10px" }}
-          >
-            X Bar Services
-          </div>
-          <p
-            style={{
-              fontSize: "15px",
-              fontWeight: "400",
-              lineHeight: "1.5",
-              width: "90%",
-            }}
-          >
-            This is like the Apple Genius Bar but better. Get up and running the
-            right way. We’ll work alongside to set up your entire AI sales
-            system. This can include integrating your systems, ensuring
-            everything is optimized for success from the start. See results
-            faster and start closing more deals with confidence—all at
-            affordable rates to meet you where you are.
-          </p>
-        </div>
-      </div>
 
       {/* code for current plans available */}
 
       <div className="flex flex-col w-full justify-center items-center ">
+        <div className="pl-8 w-full flex flex-col">
+          <div
+            className=" pt-2"
+            style={{
+              fontSize: 22,
+              fontWeight: "700",
+              color: "#000",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            X Bar Services
+          </div>
+          <div
+            className=" "
+            style={{
+              fontSize: 12,
+
+              color: "#000",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {` Account > Bar Services`}
+          </div>
+        </div>
+        <div
+          className="w-10/12 p-6 rounded-lg flex flex-row items-center"
+          style={{
+            backgroundImage: "url(/svgIcons/cardBg.svg)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            color: "#fff",
+            alignSelf: "center",
+            marginTop: "7vh",
+            // boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+          }}
+        >
+          <div className="flex flex-col pt-5">
+            <div
+              style={{
+                fontSize: "2vh",
+                fontWeight: "700",
+                marginBottom: "10px",
+              }}
+            >
+              X Bar Services
+            </div>
+            <p
+              style={{
+                fontSize: "15px",
+                fontWeight: "400",
+                lineHeight: "1.5",
+                width: "90%",
+              }}
+            >
+              This is like the Apple Genius Bar but better. Get up and running
+              the right way. We’ll work alongside to set up your entire AI sales
+              system. This can include integrating your systems, ensuring
+              everything is optimized for success from the start. See results
+              faster and start closing more deals with confidence—all at
+              affordable rates to meet you where you are.
+            </p>
+            <div className="flex flex-row justify-between">
+              <div></div>
+              <button
+                className="px-4 py-2 rounded-lg bg-white text-purple font-medium"
+                onClick={(e) => {
+                  console.log("Clicked on Speak to genius");
+                }}
+              >
+                Speak to a Genius
+              </button>
+            </div>
+          </div>
+        </div>
+
         {plans.map((item, index) => (
           <button
             key={item.id}

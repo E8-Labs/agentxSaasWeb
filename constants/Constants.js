@@ -41,7 +41,10 @@ export const Constants = {
 };
 
 export const isValidUrl = (url) => {
-  const urlPattern = /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-./?%&=]*)?$/;
+  console.log("Checking url ", url);
+  const urlPattern =
+    /^(https?:\/\/)?([\w-]+\.)+[a-zA-Z]{2,63}(\/[\w\-./?%&=]*)?$/;
+
   return urlPattern.test(url);
 };
 
