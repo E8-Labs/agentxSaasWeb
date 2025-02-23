@@ -552,8 +552,9 @@ const Leads1 = () => {
     // NewColumnsObtained.some((col) => col.dbName === "lastName"));
     ////console.log("Has Full Name ", hasFullName);
     const hasPhone = NewColumnsObtained.some((col) => col.dbName === "phone");
-    ////console.log("Has Phone Num", hasPhone);
+    // console.log("Has Phone Num", hasPhone);
     // return hasPhone && hasFullName;
+
     if (hasPhone && hasFullName) {
       handleAddLead();
       // console.log("Al credentials valid");
@@ -772,12 +773,15 @@ const Leads1 = () => {
     ////console.log(pd);
     NewColumnsObtained.forEach((col) => {
       pd.forEach((item, index) => {
+        console.log("Reading ", item);
+        console.log("For column", col);
+        console.log("---------------------------");
         // if (item.extraColumns[col.ColumnNameInSheet]) {
         if (!col.dbName) {
           ////console.log("Column not needed so deleteing.");
           delete item.extraColumns[col.ColumnNameInSheet];
         } else {
-          let val = item.extraColumns[col.ColumnNameInSheet];
+          // let val = item.extraColumns[col.ColumnNameInSheet];
         }
         // }
       });
