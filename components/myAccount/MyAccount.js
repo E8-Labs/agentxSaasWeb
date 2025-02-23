@@ -193,34 +193,6 @@ function MyAccount() {
             borderBottomColor: "#00000010",
           }}
         >
-          <div className="pl-8 w-full flex flex-col">
-            <div
-              className=" pt-2"
-              style={{
-                fontSize: 16,
-                fontWeight: "700",
-                color: "#000",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
-              X Bar Services
-            </div>
-            <div
-              className=" "
-              style={{
-                fontSize: 12,
-
-                color: "#000",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
-              {` Account > Invite Agent`}
-            </div>
-          </div>
           {renderComponent()}
         </div>
       </div>

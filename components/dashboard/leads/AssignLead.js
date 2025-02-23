@@ -146,7 +146,7 @@ const AssignLead = ({
       });
 
       if (response) {
-        // console.log("Response of get agents api is:", response.data);
+        console.log("Response of get agents api is:", response.data);
         localStorage.setItem(
           "localAgentDetails",
           JSON.stringify(response.data.data)
@@ -167,6 +167,7 @@ const AssignLead = ({
           return hasOutbound && (!hasInbound || hasInbound);
         });
         setAgentsList(filterredAgentsList);
+        console.log("Filtered Agents ", filterredAgentsList);
         setStages(filterredAgentsList.stages);
       }
     } catch (error) {
@@ -176,6 +177,21 @@ const AssignLead = ({
       // console.log("Api call completed");
     }
   };
+
+  function GetOutboundAgent(mainAgent) {
+    if (mainAgent.agents.length == 0) {
+      return null;
+    }
+    if (mainAgent.agents.length > 0) {
+      let outbound = null;
+      for (const a of mainAgent.agents) {
+        if (a.agentType == "outbound") {
+          outbound = a;
+        }
+      }
+      return outbound;
+    }
+  }
 
   //can assign stage or not
   const canAssignStage = (item) => {
@@ -560,8 +576,8 @@ const AssignLead = ({
                   <div className="flex flex-row items-center gap-2">
                     {getAgentImage(item)}
                     <span style={styles.heading}>
-                      {item.name.slice(0, 1).toUpperCase()}
-                      {item.name.slice(1)}
+                      {GetOutboundAgent(item)?.name?.slice(0, 1)?.toUpperCase()}
+                      {GetOutboundAgent(item)?.name?.slice(1)}
                     </span>
                   </div>
                   <div className="flex flex-col items-end">
