@@ -172,7 +172,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       id: 11,
       title: "Med Spa Agent",
       agentType: "Med Spa Agent",
-      icon: "/usertype/avt8.png", 
+      icon: "/usertype/avt8.png",
       areaOfFocusTitle: "What types of services do you primarily offer",
       userType: "MedSpaAgent",
       roundedImage: false,
@@ -181,7 +181,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       id: 12,
       title: "Law Agent",
       agentType: "Law Agent",
-      icon: "/usertype/avt4.png", 
+      icon: "/usertype/avt4.png",
       areaOfFocusTitle: "What area of law do you primarily practice?",
       userType: "LawAgent",
       roundedImage: false,
@@ -190,7 +190,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       id: 13,
       title: "Loan Officer Agent",
       agentType: "Loan Officer Agent",
-      icon: "/usertype/avt2.png", 
+      icon: "/usertype/avt2.png",
       areaOfFocusTitle: "What type of loans do you primarily work with?",
       userType: "LoanOfficerAgent",
       roundedImage: false,
@@ -323,7 +323,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                           <img
                             src={item.icon}
                             style={{
-                              width: item.id === 6 ? "50%" : "100%",
+                              width: item.id === 10 ? "50%" : "100%",
                               transform: "scale(1.1)",
                               resize: "contain",
                               borderRadius: item.roundedImage ? "50%" : "1%",
