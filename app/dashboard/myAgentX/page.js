@@ -2865,7 +2865,7 @@ function Page() {
                         <CircularProgress size={15} />
                       </div>
                     ) : (
-                      <FormControl fullWidth>
+                      <FormControl>
                         <Select
                           value={SelectedVoice}
                           onChange={handleChangeVoice}

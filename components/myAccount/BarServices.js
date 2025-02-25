@@ -343,9 +343,9 @@ function BarServices() {
       {/* code for current plans available */}
 
       <div className="flex flex-col w-full justify-center items-center ">
-        <div className="pl-8 w-full flex flex-col">
+        <div className=" w-full flex flex-col">
           <div
-            className=" pt-2"
+            className=""
             style={{
               fontSize: 22,
               fontWeight: "700",

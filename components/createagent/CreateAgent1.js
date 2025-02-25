@@ -213,7 +213,11 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   function canShowObjectives() {
     if (user && user.user.userType == UserTypes.RealEstateAgent) {
       return true;
-    } else {
+    }
+    // else if (user && user.user.userRole == "Invitee") {
+    //   return true;
+    // }
+    else {
       return false;
     }
   }
@@ -690,8 +694,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
               </div>
               <input
                 autoComplete="off"
-                autoCorrect="off"
-                spellCheck="false"
+                autoCorrect="on"
+                spellCheck="true"
                 enterKeyHint="done"
                 placeholder="Ex: Senior Property Acquisition Specialist"
                 className="border rounded p-3 outline-none focus:outline-none focus:ring-0"

@@ -6,7 +6,11 @@ import Dashboard from "@/components/admin/dashboard/dashboard";
 import BackgroundVideo from "@/components/general/BackgroundVideo";
 import AdminAffiliates from "@/components/admin/affiliates/AdminAffiliates";
 
+import { useRouter } from "next/navigation";
+import { logout } from "@/utilities/UserUtility";
+
 function Page() {
+  const router = useRouter();
   const manuBar = [
     {
       id: 1,
@@ -19,6 +23,10 @@ function Page() {
     {
       id: 3,
       name: "Affiliates",
+    },
+    {
+      id: 4,
+      name: "Logout",
     },
   ];
 
@@ -48,7 +56,12 @@ function Page() {
           <button
             key={item.id}
             onClick={() => {
-              setSelectedManu(item);
+              if (item.id == 4) {
+                logout();
+                router.replace("/");
+              } else {
+                setSelectedManu(item);
+              }
             }}
             className={`flex flex-row items-center gap-3 p-2 items-center 
                       ${

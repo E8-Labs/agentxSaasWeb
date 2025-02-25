@@ -431,6 +431,13 @@ const AssignLead = ({
     }
   }
 
+  function GetAgentsActiveInPipelinesAndStages() {
+    let filtered = agentsList.filter((item) => {
+      return item.pipeline != null && item.stages.length > 0;
+    });
+    return filtered;
+  }
+
   const styles = {
     heading: {
       fontWeight: "600",
@@ -484,10 +491,10 @@ const AssignLead = ({
         className="mt-2"
         style={styles.paragraph2}
         onClick={() => {
-          setLastStepModal(true);
+          // setLastStepModal(true);
         }}
       >
-        Only outbound models can be selected to make calls
+        Only outbound agents assigned to a stage can make calls.
       </div>
 
       {initialLoader ? (
@@ -499,7 +506,7 @@ const AssignLead = ({
           className="max-h-[50vh] overflow-auto"
           style={{ scrollbarWidth: "none" }}
         >
-          {agentsList.map((item, index) => {
+          {GetAgentsActiveInPipelinesAndStages().map((item, index) => {
             const noNumberWarning = (mainAgent) => {
               // console.log(
               //   "Agent passed is",

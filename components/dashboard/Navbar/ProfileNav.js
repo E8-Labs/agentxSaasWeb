@@ -1020,9 +1020,12 @@ const ProfileNav = () => {
                                 </div>
                                 <div className="flex flex-row justify-start items-start ">
                                   <div style={styles.discountedPrice}>
-                                    ${item.discountPrice}
+                                    {item.trial ? "" : "$"}
+                                    {item.discountPrice}
                                   </div>
-                                  <p style={{ color: "#15151580" }}>/mo*</p>
+                                  <p style={{ color: "#15151580" }}>
+                                    {item.trial ? `` : "/mo*"}
+                                  </p>
                                 </div>
                               </div>
                             </div>

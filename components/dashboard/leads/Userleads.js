@@ -1199,13 +1199,13 @@ const Userleads = ({
                 ></button>
               )}
               <div
-                className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white  break-words overflow-hidden text-ellipsis"
                 onClick={() => handleToggleClick(item.id)}
               >
                 {item.firstName.slice(0, 1)}
               </div>
               <div
-                className="truncate cursor-pointer"
+                className="truncate cursor-pointer  break-words overflow-hidden text-ellipsis"
                 onClick={() => handleToggleClick(item.id)}
               >
                 {item.firstName} {item.lastName}
@@ -1253,7 +1253,7 @@ const Userleads = ({
         }
         return (
           <div
-            className="cursor-pointer"
+            className="cursor-pointer  break-words overflow-hidden text-ellipsis"
             onClick={() => {
               handleToggleClick(item.id);
             }}
@@ -2236,7 +2236,7 @@ const Userleads = ({
                           {leadColumns.map((column, colIndex) => (
                             <td
                               key={colIndex}
-                              className={`border-none px-4 py-2 ${
+                              className={`border-none px-4 py-2 max-w-[330px] whitespace-normal break-words overflow-hidden text-ellipsis ${
                                 column.title === "More"
                                   ? "sticky right-0 bg-white"
                                   : ""
@@ -2244,7 +2244,7 @@ const Userleads = ({
                               style={{
                                 whiteSpace: "nowrap",
                                 zIndex: column.title === "More" ? 1 : "auto",
-                                width: "200px",
+                                // width: "200px",
                               }}
                             >
                               {getColumnData(column, item)}

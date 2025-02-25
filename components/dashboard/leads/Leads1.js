@@ -1911,12 +1911,21 @@ const Leads1 = () => {
                       <span>Inbound?</span>
                       <Switch
                         checked={isInbound}
+                        // color="#7902DF"
                         // exclusive
                         onChange={(event) => {
                           console.log("Inboud sheet ", event.target.checked);
                           setIsInbound(event.target.checked);
                         }}
-                        // aria-label="text alignment"
+                        sx={{
+                          "& .MuiSwitch-switchBase.Mui-checked": {
+                            color: "#7902DF",
+                          },
+                          "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
+                            {
+                              backgroundColor: "#7902DF",
+                            },
+                        }}
                       />
                     </div>
                     {/* <Image
