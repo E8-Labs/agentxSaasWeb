@@ -4,7 +4,7 @@ import Image from "next/image"; // Ensure Image is imported correctly
 import AddKnowledgeBaseModal from "./AddKnowledgebaseModal";
 import KnowledgeBaseList from "@/components/admin/dashboard/KnowledgebaseList";
 
-function Knowledgebase({ user }) {
+function Knowledgebase({ user, agent }) {
   const [kb, setKb] = useState([]);
   const [showKbPopup, setShowKbPopup] = useState(false);
   const [showAddNewCalendar, setShowAddNewCalendar] = useState(false); // Fixed missing state
@@ -19,7 +19,7 @@ function Knowledgebase({ user }) {
     try {
       const token = user.token; // Extract JWT token
 
-      const response = await fetch("/api/kb/getkb", {
+      const response = await fetch("/api/kb/getkb?agentId=" + agent.id, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -83,6 +83,7 @@ function Knowledgebase({ user }) {
   function GetKbView() {
     return (
       <KnowledgeBaseList
+        // agent={agent}
         kbList={kb}
         onDelete={(item) => {
           console.log("Delete kb here");
@@ -106,6 +107,7 @@ function Knowledgebase({ user }) {
     <div>
       <AddKnowledgeBaseModal
         user={user}
+        agent={agent}
         open={showKbPopup}
         onClose={() => setShowKbPopup(false)}
       />

@@ -15,7 +15,7 @@ import { User } from "lucide-react";
 
 import { isValidUrl } from "@/constants/Constants";
 
-const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
+const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
   const [selectedType, setSelectedType] = useState("Text"); // Url, Document
 
   const [loading, setLoading] = useState(false);
@@ -136,6 +136,8 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
     const formData = new FormData();
     formData.append("type", selectedType);
     formData.append("title", title);
+    formData.append("agentId", agent.id);
+    formData.append("mainAgentId", agent.mainAgentId);
     if (selectedType == "Text") {
       originalContent = text;
     }

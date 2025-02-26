@@ -993,7 +993,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 <div className="w-full">
                   {settingToggleClick === 1 ? (
                     <div>
-                      <textarea
+                      {/* <textarea
                         className="outline-none rounded-xl focus:ring-0"
                         // ref={objective}
                         value={objective}
@@ -1020,7 +1020,20 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                           resize: "none", // Disable manual resizing
                           border: "1px solid #00000020",
                         }}
-                      />
+                      /> */}
+
+                      <div className="mt-4 w-full">
+                        <PromptTagInput
+                          promptTag={objective}
+                          kycsList={kycsData}
+                          uniqueColumns={uniqueColumns}
+                          tagValue={setObjective}
+                          scrollOffset={scrollOffset}
+                          // showSaveChangesBtn={showSaveChangesBtn}
+                        />
+
+                        {/* <DynamicDropdown /> */}
+                      </div>
                     </div>
                   ) : settingToggleClick === 2 ? (
                     <GuardianSetting />

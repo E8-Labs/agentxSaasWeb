@@ -15,9 +15,10 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const offset = searchParams.get("offset");
     const search = searchParams.get("search");
+    const agentId = searchParams.get("agentId");
 
     // Fetch admin stats from backend API
-    let url = Apis.GetKnowledgebase + `?offset=${offset}`;
+    let url = Apis.GetKnowledgebase + `?offset=${offset}&agentId=${agentId}`;
     if (search && search.length > 0) {
       url = `${url}&search=${search}`;
     }
