@@ -1902,3 +1902,5 @@ const Leads1 = () => {
     </div>
   );
 };
+
+export default Leads1;
