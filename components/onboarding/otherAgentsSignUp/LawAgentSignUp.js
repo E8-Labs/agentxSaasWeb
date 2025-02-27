@@ -77,6 +77,7 @@ const LawAgentSignUp = ({
   const [installationVolume, setInstallationVolume] = useState("");
   const [projectSize, setProjectSize] = useState("");
   const [ClientType, setClientType] = useState(null);
+  const [consultation, setConsultation] = useState(null)
 
   //array for the primary client types
   const primaryClientTypes = [
@@ -191,6 +192,10 @@ const LawAgentSignUp = ({
     // console.log("Select client type", item);
     setClientType(item.title);
   };
+
+  const handleConsultationFormat = (item) => {
+    setConsultation(item.title)
+  }
 
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
@@ -325,15 +330,7 @@ const LawAgentSignUp = ({
 
       let agentTitle = userData.userTypeTitle;
 
-      let clienttype = null;
-
-      if (ClientType === "Residential clients") {
-        clienttype = "residential";
-      } else if (ClientType === "Commercial clients") {
-        clienttype = "commercial";
-      } else if (ClientType === "Both") {
-        clienttype = "both";
-      }
+    
       const formData = new FormData();
       const ApiPath = Apis.register;
       let campainee = GetCampaigneeNameIfAvailable(window);
@@ -347,11 +344,12 @@ const LawAgentSignUp = ({
       formData.append("agentService", JSON.stringify(userData.serviceID));
       formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
       formData.append("userType", agentTitle);
-      formData.append("areaOfService", customerService);
-      formData.append("company", companyName);
-      formData.append("projectSizeKw", installationVolume);
-      formData.append("projectsPerYear", projectSize);
-      formData.append("primaryClientType", clienttype);
+      formData.append("territory", customerService);
+      formData.append("firmAffiliation", companyName);
+      formData.append("caseVolume", installationVolume);
+      // formData.append("projectsPerYear", projectSize);
+      formData.append("clientType", ClientType);
+      formData.append("consultationFormat", consultation);
       formData.append("login", false);
       formData.append("verificationCode", VerifyCode.join(""));
       formData.append(
@@ -733,7 +731,7 @@ const LawAgentSignUp = ({
               </div>
 
               <div style={styles.headingStyle} className="mt-6">
-                Where do you primarily operate?
+                Where do you primarily practice law?
               </div>
               <input
                 placeholder="Specific cities, counties, or regions"
@@ -746,7 +744,7 @@ const LawAgentSignUp = ({
               />
 
               <div style={styles.headingStyle} className="mt-6">
-                Name of the med spa or practice you work with, if any.
+                Name of the firm or legal practice you work with, if any.
               </div>
               <input
                 placeholder="Name"
@@ -759,7 +757,7 @@ const LawAgentSignUp = ({
               />
 
               <div style={styles.headingStyle} className="mt-6">
-                How many clients do you typically see per month?
+                How many cases do you handle annually or monthly?
               </div>
               <input
                 placeholder="Type here"
@@ -778,7 +776,7 @@ const LawAgentSignUp = ({
 
               <div
                 className="flex w-full flex-wrap flex-row items-center gap-2"
-                style={{ marginTop: "8px" ,flexWrap:'wrap'}}
+                style={{ marginTop: "8px", flexWrap: 'wrap' }}
               >
                 {primaryClientTypes.map((item, index) => {
                   return (
@@ -820,7 +818,7 @@ const LawAgentSignUp = ({
                     <div key={index} className="w-full">
                       <button
                         onClick={() => {
-                          handleSelectClientType(item);
+                          handleConsultationFormat(item);
                         }}
                         className="border border-[#00000010] rounded px-4 py-4 outline-none focus:outline-none focus:ring-0"
                         style={{
@@ -841,7 +839,6 @@ const LawAgentSignUp = ({
                   );
                 })}
               </div>
-
               <Modal
                 open={showVerifyPopup}
                 // onClose={() => setAddKYCQuestion(false)}

@@ -2833,7 +2833,7 @@ function Page() {
                     {showDrawerSelectedAgent?.agentRole}
                   </div>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex w-full justify-between items-center">
                   <div
                     style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
                   >
@@ -2848,15 +2848,17 @@ function Page() {
                     </div> */}
                   <div
                     style={{
-                      width: "150px",
+                      // width: "115px",
                       display: "flex",
                       alignItems: "center",
+                      // borderWidth:1,
+                      marginRight:-15
                     }}
                   >
                     {showVoiceLoader ? (
                       <div
                         style={{
-                          width: "150px",
+                          width: "115px",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -3590,7 +3592,7 @@ function Page() {
         }}
       >
         <Box
-          className="w-10/12 sm:w-[760px] p-8 rounded-[15px]"
+          className="w-10/12 h-[90%] sm:w-[760px] p-8 rounded-[15px]"
           sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
         >
           <div style={{ width: "100%" }}>
@@ -3669,7 +3671,7 @@ function Page() {
 
               {showScript && (
                 <div style={{ height: "82%" }}>
-                  <div style={{ height: "90%" }}>
+                  <div style={{ height: "83%",borderWidth:0 }}>
                     <div className="bg-[#00000002] p-2 mt-6">
                       <div
                         style={styles.inputStyle}

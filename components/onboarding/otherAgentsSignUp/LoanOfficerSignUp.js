@@ -26,7 +26,7 @@ import { PersistanceKeys } from "@/constants/Constants";
 import { setCookie } from "@/utilities/cookies";
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
-const MedSpaAgentSignUpMobile = ({
+const LoanOfficerSignUp = ({
   handleContinue,
   handleWaitList,
   handleSolarAgentBack,
@@ -78,22 +78,32 @@ const MedSpaAgentSignUpMobile = ({
   const [projectSize, setProjectSize] = useState("");
   const [ClientType, setClientType] = useState(null);
 
+  const [otherType, setOtherType] = useState("")
+
   //array for the primary client types
   const primaryClientTypes = [
     {
       id: 1,
-      title: "Individuals (B2)",
+      title: "First-Time Homebuyers",
     },
     {
       id: 2,
-      title: "Businesses & Corporations (B2B)",
+      title: "Investors & Property Developers",
     },
     {
       id: 3,
-      title: "Government & Public Sector",
+      title: "Veterans & Active Military",
+    }, {
+      id: 3,
+      title: "Luxury Homebuyers",
+    }, {
+      id: 5,
+      title: "Self-Employed & Entrepreneurs",
+    }, {
+      id: 6,
+      title: "Other (type here)",
     },
   ];
-
   const ConsultationFormat = [
     {
       id: 1,
@@ -325,15 +335,7 @@ const MedSpaAgentSignUpMobile = ({
 
       let agentTitle = userData.userTypeTitle;
 
-      let clienttype = null;
-
-      if (ClientType === "Residential clients") {
-        clienttype = "residential";
-      } else if (ClientType === "Commercial clients") {
-        clienttype = "commercial";
-      } else if (ClientType === "Both") {
-        clienttype = "both";
-      }
+     
       const formData = new FormData();
       const ApiPath = Apis.register;
       let campainee = GetCampaigneeNameIfAvailable(window);
@@ -347,11 +349,9 @@ const MedSpaAgentSignUpMobile = ({
       formData.append("agentService", JSON.stringify(userData.serviceID));
       formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
       formData.append("userType", agentTitle);
-      formData.append("areaOfService", customerService);
-      formData.append("company", companyName);
-      formData.append("projectSizeKw", installationVolume);
-      formData.append("projectsPerYear", projectSize);
-      formData.append("primaryClientType", clienttype);
+      formData.append("territory", customerService);
+      formData.append("companyAffiliation", companyName);
+      formData.append("clientType", ClientType);
       formData.append("login", false);
       formData.append("verificationCode", VerifyCode.join(""));
       formData.append(
@@ -733,7 +733,7 @@ const MedSpaAgentSignUpMobile = ({
               </div>
 
               <div style={styles.headingStyle} className="mt-6">
-                Where do you primarily operate?
+                Where do you primarily serve clients?
               </div>
               <input
                 placeholder="Specific cities, counties, or regions"
@@ -746,7 +746,7 @@ const MedSpaAgentSignUpMobile = ({
               />
 
               <div style={styles.headingStyle} className="mt-6">
-                Name of the med spa or practice you work with, if any.
+                Name of the mortgage lender, bank, or brokerage you work with, if any.
               </div>
               <input
                 placeholder="Name"
@@ -759,26 +759,13 @@ const MedSpaAgentSignUpMobile = ({
               />
 
               <div style={styles.headingStyle} className="mt-6">
-                How many clients do you typically see per month?
-              </div>
-              <input
-                placeholder="Type here"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-                style={{ ...styles.inputStyle, marginTop: "8px" }}
-                value={installationVolume}
-                onChange={(e) => {
-                  setInstallationVolume(e.target.value);
-                }}
-              />
-
-<div style={styles.headingStyle} className="mt-6">
                 Client Type
               </div>
 
 
               <div
                 className="flex w-full flex-wrap flex-row items-center gap-2"
-                style={{ marginTop: "8px" ,flexWrap:'wrap'}}
+                style={{ marginTop: "8px", flexWrap: 'wrap' }}
               >
                 {primaryClientTypes.map((item, index) => {
                   return (
@@ -802,10 +789,24 @@ const MedSpaAgentSignUpMobile = ({
                       >
                         {item.title}
                       </button>
+                      {
+                        ClientType === "Other (type here)" && item.id === 6 && (
+                          <input
+                          placeholder="Type here"
+                          className=" w-full border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                          style={{ ...styles.inputStyle, marginTop: "8px" }}
+                          value={otherType}
+                          onChange={(e) => {
+                            setOtherType(e.target.value);
+                          }}
+                        />
+                        )
+                      }
                     </div>
                   );
                 })}
               </div>
+
 
 
 
@@ -962,4 +963,4 @@ const MedSpaAgentSignUpMobile = ({
   );
 };
 
-export default MedSpaAgentSignUpMobile;
+export default LoanOfficerSignUp;

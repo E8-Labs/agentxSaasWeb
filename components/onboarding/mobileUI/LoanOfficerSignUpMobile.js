@@ -337,13 +337,7 @@ const LoanOfficeSugnUpMobile = ({
 
       let clienttype = null;
 
-      if (ClientType === "Residential clients") {
-        clienttype = "residential";
-      } else if (ClientType === "Commercial clients") {
-        clienttype = "commercial";
-      } else if (ClientType === "Both") {
-        clienttype = "both";
-      }
+     
       const formData = new FormData();
       const ApiPath = Apis.register;
       let campainee = GetCampaigneeNameIfAvailable(window);
@@ -357,18 +351,15 @@ const LoanOfficeSugnUpMobile = ({
       formData.append("agentService", JSON.stringify(userData.serviceID));
       formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
       formData.append("userType", agentTitle);
-      formData.append("areaOfService", customerService);
-      formData.append("company", companyName);
-      formData.append("projectSizeKw", installationVolume);
-      formData.append("projectsPerYear", projectSize);
-      formData.append("primaryClientType", clienttype);
+      formData.append("territory", customerService);
+      formData.append("companyAffiliation", companyName);
+      formData.append("clientType", ClientType);
       formData.append("login", false);
       formData.append("verificationCode", VerifyCode.join(""));
       formData.append(
         "timeZone",
         Intl.DateTimeFormat().resolvedOptions().timeZone
       );
-
       // console.log("Data for user registeration is :-----");
       for (let [key, value] of formData.entries()) {
         // console.log(`${key}: ${value}`);
@@ -768,20 +759,7 @@ const LoanOfficeSugnUpMobile = ({
                 }}
               />
 
-              <div style={styles.headingStyle} className="mt-6">
-                How many clients do you typically see per month?
-              </div>
-              <input
-                placeholder="Type here"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-                style={{ ...styles.inputStyle, marginTop: "8px" }}
-                value={installationVolume}
-                onChange={(e) => {
-                  setInstallationVolume(e.target.value);
-                }}
-              />
-
-
+             
               <div style={styles.headingStyle} className="mt-6">
                 Client Type
               </div>

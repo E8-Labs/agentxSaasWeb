@@ -368,7 +368,7 @@ const ProfileNav = () => {
   const getProfile = async () => {
     try {
       let response = await getProfileDetails();
-      console.log("Response of profile api ", response.status);
+      console.log("Response of profile api ", response.data);
       if (response.status == 404) {
         console.log("User has been deleted");
         // logout();

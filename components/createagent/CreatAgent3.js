@@ -258,7 +258,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
       calls: 250,
       details: "Great for trying out AI sales agents",
       originalPrice: "",
-      discountPrice: "45",
+      discountPrice: "$45",
       planStatus: "",
       status: "",
     },

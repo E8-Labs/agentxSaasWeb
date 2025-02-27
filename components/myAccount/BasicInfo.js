@@ -557,7 +557,7 @@ function BasicInfo() {
       let data = {
         areaOfFocus: selectedArea, //[selectedArea.join()]
       };
-      // console.log("data is", data);
+      console.log("data is", data);
 
       // return
       await UpdateProfile(data);
@@ -574,7 +574,7 @@ function BasicInfo() {
       let data = {
         agentService: serviceId, //[serviceId.join()]
       };
-      // console.log("Api data is", serviceId);
+      console.log("Api data is", serviceId);
 
       // return
       await UpdateProfile(data);
@@ -756,7 +756,6 @@ function BasicInfo() {
             </button>
           ))}
       </div>
-
 
       <div
         style={{
@@ -1026,7 +1025,7 @@ function BasicInfo() {
                         <div
                           className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
                           style={{
-                            border: `1px solid ${focusedBrokerage ? "#8a2be2" : "#00000010"}`,
+                            border: `1px solid ${focusedCompany ? "#8a2be2" : "#00000010"}`,
                             transition: "border-color 0.3s ease",
                           }}
                         >
@@ -1040,7 +1039,7 @@ function BasicInfo() {
                               setIsCompanyChanged(true);
                             }}
                             type="text"
-                            placeholder="Brokerage"
+                            placeholder="Company"
                             style={{ border: "0px solid #000000", outline: "none" }}
                           />
                           {isCompanyChanged &&

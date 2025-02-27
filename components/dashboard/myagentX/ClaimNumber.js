@@ -201,11 +201,13 @@ const ClaimNumber = ({
         <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.claimPopup}>
           <div className="flex flex-row justify-center w-full">
             <div
-              className="sm:w-8/12 w-full min-h-[50vh] max-h-[80vh] flex flex-col justify-between"
+              className="sm:w-8/12 w-full min-h-[50vh] max-h-[84vh] flex flex-col justify-between"
               style={{
                 backgroundColor: "#ffffff",
                 padding: 20,
                 borderRadius: "13px",
+                overflow:'auto',
+                scrollbarWidth:'none'
               }}
             >
               <div>
@@ -410,7 +412,7 @@ const ClaimNumber = ({
           },
         }}
       >
-        <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.claimPopup}>
+        <Box className="lg:w-6/12 sm:w-full w-6/12" sx={styles.claimPopup}>
           <div className="flex flex-row justify-center w-full">
             <div
               className="sm:w-8/12 w-full min-h-[50vh] max-h-[80vh] flex flex-col justify-between"

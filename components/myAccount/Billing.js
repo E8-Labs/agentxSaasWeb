@@ -83,7 +83,7 @@ function Billing() {
       calls: 250,
       details: "Great for trying out AI sales agents.",
       // originalPrice: "45",
-      discountPrice: "45",
+      discountPrice: "$45",
       planStatus: "",
       status: "",
     },

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image"; // Ensure Image is imported correctly
 import AddKnowledgeBaseModal from "./AddKnowledgebaseModal";
 import KnowledgeBaseList from "@/components/admin/dashboard/KnowledgebaseList";
+import Apis from "@/components/apis/Apis";
 
 function Knowledgebase({ user, agent }) {
   const [kb, setKb] = useState([]);
@@ -11,7 +12,7 @@ function Knowledgebase({ user, agent }) {
 
   useEffect(() => {
     GetKnowledgebase();
-  }, []);
+  }, [showKbPopup]);
 
   //Api calls
 
@@ -19,7 +20,10 @@ function Knowledgebase({ user, agent }) {
     try {
       const token = user.token; // Extract JWT token
 
-      const response = await fetch("/api/kb/getkb?agentId=" + agent.id, {
+      let link = "/api/kb/getkb?agentId="
+      // let link = `${Apis.GetKnowledgebase}?agentId=`
+
+      const response = await fetch(link + agent.id, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

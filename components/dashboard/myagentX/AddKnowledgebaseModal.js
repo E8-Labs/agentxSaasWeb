@@ -14,6 +14,7 @@ import { Close, InsertDriveFile, Link, TextFields } from "@mui/icons-material";
 import { User } from "lucide-react";
 
 import { isValidUrl } from "@/constants/Constants";
+import Apis from "@/components/apis/Apis";
 
 const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
   const [selectedType, setSelectedType] = useState("Text"); // Url, Document
@@ -130,7 +131,9 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
   };
 
   async function addKnowledgebaseEntry() {
-    const link = "/api/kb/addkb"; // Adjust the API route if necessary
+    // const link = "/api/kb/addkb"; // Adjust the API route if necessary
+    const link = Apis.AddKnowledgebase; // Adjust the API route if necessary
+
     let originalContent = "";
     let documentName = "";
     const formData = new FormData();
@@ -226,8 +229,8 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
             setText(e.target.value);
           }}
           placeholder={"Type here"}
-          className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[25vh]"
-          style={{ border: "1px solid #00000020" }}
+          className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[15vh]"
+          style={{ border: "1px solid #00000020" ,resize:'none'}}
         />
       </div>
     );
