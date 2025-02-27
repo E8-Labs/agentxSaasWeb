@@ -1033,7 +1033,7 @@ function BasicInfo() {
                             className="w-11/12 outline-none focus:ring-0"
                             onFocus={() => setFocusedCompany(true)}
                             onBlur={() => setFocusedCompany(false)}
-                            value={brokerAge}
+                            value={company}
                             onChange={(event) => {
                               setCompany(event.target.value);
                               setIsCompanyChanged(true);

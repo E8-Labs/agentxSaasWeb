@@ -127,49 +127,43 @@ const LoanOfficeSugnUpMobile = ({
   }, []);
 
   useEffect(() => {
-    if (
-      userName &&
-      userEmail &&
-      userPhoneNumber &&
-      customerService &&
-      companyName &&
-      installationVolume &&
-      // projectSize &&
-      ClientType &&
-      emailCheckResponse?.status === true &&
-      checkPhoneResponse?.status === true
-    ) {
-      setShouldContinue(false);
-    } else if (
-      !userName ||
-      !userEmail ||
-      !userPhoneNumber ||
-      !userFarm ||
-      !userBrokage ||
-      !userTransaction ||
-      customerService ||
-      companyName ||
-      installationVolume ||
-      // projectSize ||
-      ClientType ||
-      userTransaction ||
-      checkPhoneResponse?.status === false ||
-      emailCheckResponse?.status === false
-    ) {
-      setShouldContinue(true);
-    }
-  }, [
-    userName,
-    userEmail,
-    userPhoneNumber,
-    checkPhoneResponse,
-    emailCheckResponse,
-    customerService,
-    companyName,
-    installationVolume,
-    projectSize,
-    ClientType,
-  ]);
+     if (
+       userName &&
+       userEmail &&
+       userPhoneNumber &&
+       customerService &&
+       companyName &&
+       ClientType &&
+       emailCheckResponse?.status === true &&
+       checkPhoneResponse?.status === true
+     ) {
+       setShouldContinue(false);
+     } else if (
+       !userName ||
+       !userEmail ||
+       !userPhoneNumber ||
+       
+       customerService ||
+       companyName ||
+       installationVolume ||
+       // projectSize ||
+       ClientType ||
+       checkPhoneResponse?.status === false ||
+       emailCheckResponse?.status === false
+     ) {
+       setShouldContinue(true);
+     }
+   }, [
+     userName,
+     userEmail,
+     userPhoneNumber,
+     checkPhoneResponse,
+     emailCheckResponse,
+     customerService,
+     companyName,
+     
+     ClientType,
+   ]);
 
   useEffect(() => {
     let storedData = localStorage.getItem(PersistanceKeys.RegisterDetails);

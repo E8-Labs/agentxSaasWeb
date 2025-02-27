@@ -206,8 +206,8 @@ const ClaimNumber = ({
                 backgroundColor: "#ffffff",
                 padding: 20,
                 borderRadius: "13px",
-                overflow:'auto',
-                scrollbarWidth:'none'
+                overflow: 'auto',
+                scrollbarWidth: 'none'
               }}
             >
               <div>
@@ -374,26 +374,31 @@ const ClaimNumber = ({
                   </div>
                 )}
               </div>
-              <div className="h-[50px]">
-                <div>
-                  {purchaseLoader ? (
-                    <div className="w-full flex flex-row justify-center mt-4">
-                      <CircularProgress size={32} />
-                    </div>
-                  ) : (
+              {
+                !openPurchaseSuccessModal && (
+                  <div className="h-[50px]">
                     <div>
-                      {selectedPurchasedNumber && (
-                        <button
-                          className="text-white bg-purple w-full h-[50px] rounded-lg"
-                          onClick={handlePurchaseNumber}
-                        >
-                          Proceed to Buy
-                        </button>
+                      {purchaseLoader ? (
+                        <div className="w-full flex flex-row justify-center mt-4">
+                          <CircularProgress size={32} />
+                        </div>
+                      ) : (
+                        <div>
+                          {selectedPurchasedNumber && (
+                            <button
+                              className="text-white bg-purple w-full h-[50px] rounded-lg"
+                              onClick={handlePurchaseNumber}
+                            >
+                              Proceed to Buy
+                            </button>
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
-              </div>
+                  </div>
+                )
+              }
+
             </div>
           </div>
         </Box>

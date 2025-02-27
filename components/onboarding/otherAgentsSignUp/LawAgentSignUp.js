@@ -128,7 +128,8 @@ const LawAgentSignUp = ({
       // projectSize &&
       ClientType &&
       emailCheckResponse?.status === true &&
-      checkPhoneResponse?.status === true
+      checkPhoneResponse?.status === true&&
+      consultation
     ) {
       setShouldContinue(false);
     } else if (
@@ -141,11 +142,11 @@ const LawAgentSignUp = ({
       customerService ||
       companyName ||
       installationVolume ||
-      // projectSize ||
       ClientType ||
-      userTransaction ||
+      // userTransaction ||
       checkPhoneResponse?.status === false ||
-      emailCheckResponse?.status === false
+      emailCheckResponse?.status === false ||
+      consultation
     ) {
       setShouldContinue(true);
     }
@@ -160,6 +161,7 @@ const LawAgentSignUp = ({
     installationVolume,
     projectSize,
     ClientType,
+    consultation
   ]);
 
   useEffect(() => {
@@ -345,7 +347,7 @@ const LawAgentSignUp = ({
       formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
       formData.append("userType", agentTitle);
       formData.append("territory", customerService);
-      formData.append("firmAffiliation", companyName);
+      formData.append("firmOrCompanyAffiliation", companyName);
       formData.append("caseVolume", installationVolume);
       // formData.append("projectsPerYear", projectSize);
       formData.append("clientType", ClientType);
@@ -826,11 +828,11 @@ const LawAgentSignUp = ({
                           borderRadius: "30px",
                           paddingInline: index === 2 && "40px",
                           border:
-                            ClientType === item.title
+                            consultation === item.title
                               ? "2px solid #7902DF"
                               : "",
                           backgroundColor:
-                            ClientType === item.title ? "#402FFF20" : "",
+                          consultation === item.title ? "#402FFF20" : "",
                         }}
                       >
                         {item.title}

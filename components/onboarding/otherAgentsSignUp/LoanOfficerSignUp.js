@@ -133,8 +133,6 @@ const LoanOfficerSignUp = ({
       userPhoneNumber &&
       customerService &&
       companyName &&
-      installationVolume &&
-      // projectSize &&
       ClientType &&
       emailCheckResponse?.status === true &&
       checkPhoneResponse?.status === true
@@ -144,15 +142,12 @@ const LoanOfficerSignUp = ({
       !userName ||
       !userEmail ||
       !userPhoneNumber ||
-      !userFarm ||
-      !userBrokage ||
-      !userTransaction ||
+      
       customerService ||
       companyName ||
       installationVolume ||
       // projectSize ||
       ClientType ||
-      userTransaction ||
       checkPhoneResponse?.status === false ||
       emailCheckResponse?.status === false
     ) {
@@ -166,8 +161,7 @@ const LoanOfficerSignUp = ({
     emailCheckResponse,
     customerService,
     companyName,
-    installationVolume,
-    projectSize,
+    
     ClientType,
   ]);
 
@@ -350,7 +344,7 @@ const LoanOfficerSignUp = ({
       formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
       formData.append("userType", agentTitle);
       formData.append("territory", customerService);
-      formData.append("companyAffiliation", companyName);
+      formData.append("firmOrCompanyAffiliation", companyName);
       formData.append("clientType", ClientType);
       formData.append("login", false);
       formData.append("verificationCode", VerifyCode.join(""));

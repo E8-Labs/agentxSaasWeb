@@ -462,7 +462,7 @@ const LeadDetails = ({
         case "Stage":
           return <div></div>;
         default:
-          const value = item[title];
+          const value = `${item[title]}`;
 
           if (value.length > 60) {
             return (
@@ -507,7 +507,8 @@ const LeadDetails = ({
         case "Stage":
           return item.stage ? item.stage.stageTitle : "No Stage";
         default:
-          const value = item[title];
+          const value = `${item[title]}`;
+          console.log("Value is ", value);
           if (typeof value === "object" && value !== null) {
             // Handle objects gracefully
             return JSON.stringify(value); // Convert to string or handle as needed

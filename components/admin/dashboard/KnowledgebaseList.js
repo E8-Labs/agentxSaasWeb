@@ -47,6 +47,7 @@ const KBCard = ({ kb, onDelete }) => {
 
       {kb.type === "Document" && <DocumentCard kb={kb} />}
       {kb.type === "Url" && <UrlCard kb={kb} />}
+      {kb.type === "Youtube" && <YoutubeCard kb={kb} />}
       {kb.type === "Text" && <TextCard kb={kb} />}
     </div>
   );
@@ -69,12 +70,32 @@ const DocumentCard = ({ kb }) => {
 
 const UrlCard = ({ kb }) => {
   return (
-    <a
+    <a 
       href={kb.originalContent}
       target="_blank"
       className="text-purple underline"
     >
       {kb.originalContent}
+    </a>
+  );
+};
+
+const YoutubeCard = ({ kb }) => {
+  return (
+    <a style={{flexWrap: 'wrap',
+      width: '100%', 
+      // borderWidth: 1,
+      wordBreak: 'break-word',  // Breaks long words if needed
+      overflowWrap: 'break-word', // Ensures text wraps properly
+      whiteSpace: 'normal', // Allows text to wrap
+      }}
+
+      href={kb.webUrl}
+      target="_blank"
+      className="text-purple underline"
+    
+    >
+      {kb.webUrl}
     </a>
   );
 };

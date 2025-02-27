@@ -13,7 +13,7 @@ import JSZip from "jszip";
 import { Close, InsertDriveFile, Link, TextFields } from "@mui/icons-material";
 import { User } from "lucide-react";
 
-import { isValidUrl } from "@/constants/Constants";
+import { isValidUrl, isValidYoutubeUrl } from "@/constants/Constants";
 import Apis from "@/components/apis/Apis";
 
 const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
@@ -23,6 +23,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [url, setUrl] = useState("");
+  const [youtube, setYoutube] = useState("");
 
   const [isUrlValid, setIsUrlValid] = useState(-1); // -1 no text,  0 = invalid, 1 valid
 
@@ -151,6 +152,9 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
     if (selectedType == "Url") {
       originalContent = url;
     }
+    if (selectedType == "Youtube") {
+      originalContent = youtube
+    }
     formData.append("originalContent", originalContent);
 
     if (selectedDocument) {
@@ -158,6 +162,11 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
       console.log("Attaching media", selectedDocument);
       formData.append("media", selectedDocument);
     }
+
+    console.log("FormData entries:");
+    formData.forEach((value, key) => {
+      console.log(`${key}:`, value);
+    });
 
     setLoading(true);
     try {
@@ -204,6 +213,8 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
       return GetUiForText();
     } else if (selectedType == "Url") {
       return GetUiForUrl();
+    } else if (selectedType == "Youtube") {
+      return GetUiForYoutube();
     }
     return GetUiForDocument();
   }
@@ -230,7 +241,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
           }}
           placeholder={"Type here"}
           className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[15vh]"
-          style={{ border: "1px solid #00000020" ,resize:'none'}}
+          style={{ border: "1px solid #00000020", resize: 'none' }}
         />
       </div>
     );
@@ -249,6 +260,12 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
       return false;
     }
     if (selectedType == "Url") {
+      if (isUrlValid == 1) {
+        return true;
+      }
+      return false;
+    }
+    if (selectedType == "Youtube") {
       if (isUrlValid == 1) {
         return true;
       }
@@ -276,6 +293,41 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
               setIsUrlValid(-1);
             } else {
               const isValid = isValidUrl(inputValue);
+              console.log("URL is valid:", isValid);
+              setIsUrlValid(isValid ? 1 : 0);
+            }
+
+            setTitle(""); // Ensure this is correctly handled in your state
+          }}
+          placeholder="Enter URL"
+          className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
+          style={{ border: "1px solid #00000020" }}
+        />
+
+        {isUrlValid === 0 && (
+          <div className="text-red text-sm">Invalid URL</div>
+        )}
+      </div>
+    );
+  }
+
+  function GetUiForYoutube() {
+    return (
+      <div className="flex flex-col w-full gap-4">
+        <div className="flex flex-row justify-between">
+          <div></div>
+        </div>
+
+        <input
+          value={youtube}
+          onChange={(e) => {
+            const inputValue = e.target.value.trim();
+            setYoutube(inputValue);
+
+            if (inputValue === "") {
+              setIsUrlValid(-1);
+            } else {
+              const isValid = isValidYoutubeUrl(inputValue);
               console.log("URL is valid:", isValid);
               setIsUrlValid(isValid ? 1 : 0);
             }
@@ -360,9 +412,8 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
     if (!loading) {
       return (
         <button
-          className={`w-full rounded-lg font-medium h-[50px] ${
-            canShowContinue() ? "bg-purple text-white" : "bg-btngray text-black"
-          } `}
+          className={`w-full rounded-lg font-medium h-[50px] ${canShowContinue() ? "bg-purple text-white" : "bg-btngray text-black"
+            } `}
           // variant="contained"
           // fullWidth
           disabled={!canShowContinue()}
@@ -427,7 +478,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
             Select Type
           </Typography>
 
-          <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+          <Box sx={{ display: "flex", gap: 2, mb: 2, overflowX: 'auto' }}>
             <Button
               variant="outlined"
               startIcon={<InsertDriveFile />}
@@ -437,7 +488,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
                 color: selectedType === "Document" ? "#7902DF" : "black",
                 borderWidth: selectedType === "Document" ? 2 : 1,
                 borderRadius: 2,
-                paddingX: 5,
+                paddingX: 2,
                 paddingY: 1,
                 // width: "30%",
               }}
@@ -454,7 +505,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
                 color: selectedType === "Text" ? "#7902DF" : "black",
                 borderWidth: selectedType === "Text" ? 2 : 1,
                 borderRadius: 2,
-                paddingX: 5,
+                paddingX: 2,
                 paddingY: 1,
                 // width: "30%",
               }}
@@ -471,12 +522,30 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
                 color: selectedType === "Url" ? "#7902DF" : "black",
                 borderWidth: selectedType === "Url" ? 2 : 1,
                 borderRadius: 2,
-                paddingX: 5,
+                paddingX: 2,
                 paddingY: 1,
                 // width: "30%",
               }}
             >
               Link
+            </Button>
+
+
+            <Button
+              variant="outlined"
+              startIcon={<Link />}
+              onClick={() => handleTypeSelect("Youtube")}
+              sx={{
+                borderColor: selectedType === "Youtube" ? "#7902DF" : "#ccc",
+                color: selectedType === "Youtube" ? "#7902DF" : "black",
+                borderWidth: selectedType === "Youtube" ? 2 : 1,
+                borderRadius: 2,
+                paddingX: 2,
+                paddingY: 1,
+                // width: "30%",
+              }}
+            >
+              Youtube
             </Button>
           </Box>
 

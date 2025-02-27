@@ -348,7 +348,7 @@ const MedSpaAgentSignUpMobile = ({
       formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
       formData.append("userType", agentTitle);
       formData.append("territory", customerService);
-      formData.append("businessAffiliation", companyName);
+      formData.append("firmOrCompanyAffiliation", companyName);
       formData.append("averageMonthlyClients", installationVolume);
       // formData.append("projectsPerYear", projectSize);
       // formData.append("primaryClientType", clienttype);

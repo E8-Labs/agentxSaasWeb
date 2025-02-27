@@ -542,7 +542,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
             <button
               className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
               style={{ textAlign: "center" }}
-              onClick={handleContinue}
+              // onClick={handleContinue}
             >
               Get started with your AI agent
             </button>

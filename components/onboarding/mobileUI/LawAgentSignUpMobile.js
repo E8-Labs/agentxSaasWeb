@@ -356,7 +356,7 @@ const LawAgentSignUpMobile = ({
       formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
       formData.append("userType", agentTitle);
       formData.append("territory", customerService);
-      formData.append("firmAffiliation", companyName);
+      formData.append("firmOrCompanyAffiliation", companyName);
       formData.append("caseVolume", installationVolume);
       // formData.append("projectsPerYear", projectSize);
       formData.append("clientType", ClientType);

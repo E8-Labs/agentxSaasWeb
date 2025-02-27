@@ -125,7 +125,7 @@ const MedSpaAgentSignUp = ({
       companyName &&
       installationVolume &&
       // projectSize &&
-      ClientType &&
+      // ClientType &&
       emailCheckResponse?.status === true &&
       checkPhoneResponse?.status === true
     ) {
@@ -141,8 +141,8 @@ const MedSpaAgentSignUp = ({
       companyName ||
       installationVolume ||
       // projectSize ||
-      ClientType ||
-      userTransaction ||
+      // ClientType ||
+      // userTransaction ||
       checkPhoneResponse?.status === false ||
       emailCheckResponse?.status === false
     ) {
@@ -158,7 +158,7 @@ const MedSpaAgentSignUp = ({
     companyName,
     installationVolume,
     projectSize,
-    ClientType,
+    // ClientType,
   ]);
 
   useEffect(() => {
@@ -340,7 +340,7 @@ const MedSpaAgentSignUp = ({
       formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
       formData.append("userType", agentTitle);
       formData.append("territory", customerService);
-      formData.append("businessAffiliation", companyName);
+      formData.append("firmOrCompanyAffiliation", companyName);
       formData.append("averageMonthlyClients", installationVolume);
       // formData.append("projectsPerYear", projectSize);
       // formData.append("primaryClientType", clienttype);
@@ -761,6 +761,7 @@ const MedSpaAgentSignUp = ({
                 onChange={(e) => {
                   setInstallationVolume(e.target.value);
                 }}
+                type='number'
               />
 
               <Modal
