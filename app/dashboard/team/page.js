@@ -396,6 +396,7 @@ function Page() {
   };
 
   function canShowMenuDots(team) {
+    console.log("Checking team", team);
     let user = localStorage.getItem(PersistanceKeys.LocalStorageUser);
     if (user) {
       user = JSON.parse(user);
@@ -404,7 +405,7 @@ function Page() {
     // console.log("Current user role ", user);
     // console.log("team member is", team);
     if (user?.userRole == "Invitee") {
-      if (team.invitedUser.id == user.id) {
+      if (team.invitedUser?.id == user.id) {
         return true; // show menu at own profile
       }
       return false;

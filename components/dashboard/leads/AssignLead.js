@@ -285,15 +285,15 @@ const AssignLead = ({
   const handleAssignLead = async () => {
     const selectedDate = dayjs(selectedDateTime); // Convert input date to Day.js object
     const currentHour = selectedDate.hour(); // Get the current hour (0-23)
-    if (currentHour >= 5 && currentHour < 19) {
+    if (currentHour >= 7 && currentHour < 20) {
       console.log(
-        "✅ Current time is between 5 AM and 7 PM.",
+        "✅ Current time is between 7 AM and 8:30 PM.",
         selectedDateTime
       );
       // setSelectedDateTime(date);
     } else {
-      console.log("❌ Current time is outside 5 AM to 7 PM.");
-      setInvalidTimeMessage("Calling is only available between 5AM and 7PM");
+      console.log("❌ Current time is outside 7 AM to 8:30 PM.");
+      setInvalidTimeMessage("Calling is only available between 7AM and 8:30PM");
       return;
     }
 
