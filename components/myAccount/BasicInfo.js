@@ -1351,11 +1351,11 @@ function BasicInfo() {
                               borderRadius: "30px",
                               paddingInline: index === 2 && "40px",
                               border:
-                                ClientType === item.title
+                                clientType === item.title
                                   ? "2px solid #7902DF"
                                   : "",
                               backgroundColor:
-                                ClientType === item.title ? "#402FFF20" : "",
+                                clientType === item.title ? "#402FFF20" : "",
                             }}
                           >
                             {item.title}
@@ -1392,11 +1392,11 @@ function BasicInfo() {
                               borderRadius: "30px",
                               paddingInline: index === 2 && "40px",
                               border:
-                                ClientType === item.title
+                                clientType === item.title
                                   ? "2px solid #7902DF"
                                   : "",
                               backgroundColor:
-                                ClientType === item.title ? "#402FFF20" : "",
+                                clientType === item.title ? "#402FFF20" : "",
                             }}
                           >
                             {item.title}

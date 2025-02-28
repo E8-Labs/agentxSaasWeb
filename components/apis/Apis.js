@@ -121,6 +121,9 @@ const Apis = {
   AddKnowledgebase: `${BasePath}api/kb/addKnowledgebase`,
   GetKnowledgebase: `${BasePath}api/kb/getKnowledgebase`,
   DeleteKnowledgebase: `${BasePath}api/kb/deleteKnowledgebase`,
+
+
+  AdminAnalytics:`${BasePath}api/admin/adminAnalytics`
 };
 
 export default Apis;
