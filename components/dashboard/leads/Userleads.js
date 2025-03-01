@@ -1832,6 +1832,7 @@ const Userleads = ({
                             selectedAll={selectedAll}
                             filters={getFiltersObject()}
                             totalLeads={totalLeads}
+                            userProfile={userLocalData} // this is the .user object doesn't include token
                           />
                         </div>
 

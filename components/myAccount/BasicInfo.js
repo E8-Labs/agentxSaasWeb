@@ -18,13 +18,12 @@ function BasicInfo() {
   const [focusedBrokerage, setFocusedBrokerage] = useState(false);
   const [focusedCompany, setFocusedCompany] = useState(false);
   const [focusedTransaction, setFocusedTransaction] = useState(false);
-  const [focusedInstallationVolume, setFocusedInstallationVolume] = useState(false);
+  const [focusedInstallationVolume, setFocusedInstallationVolume] =
+    useState(false);
   const [focusedEmail, setFocusedEmail] = useState(false);
   const [focusedServiceArea, setFocusedServiceArea] = useState(false);
   const [focusedProjectSize, setFocusedProjectSize] = useState(false);
   const [focusedWebsite, setFocusedWebSite] = useState(false);
-
-
 
   //my variable
   const [serviceId, setServiceId] = useState([]);
@@ -36,29 +35,30 @@ function BasicInfo() {
   const [transaction, setTransaction] = useState("");
   const [brokerAge, setBrokerAge] = useState("");
   const [phone, setPhone] = useState("");
-  const [serviceArea, setServiceArea] = useState("")
-  const [teritorry, setTeritorry] = useState("")
-  const [company, setCompany] = useState("")
-  const [installationVolume, setInstallationVolume] = useState("")
-  const [projectSize, setProjectSize] = useState("")
-  const [clientType, setClientType] = useState("")
-  const [websiteUrl, setWebsiteUrl] = useState("")
-
+  const [serviceArea, setServiceArea] = useState("");
+  const [teritorry, setTeritorry] = useState("");
+  const [company, setCompany] = useState("");
+  const [installationVolume, setInstallationVolume] = useState("");
+  const [projectSize, setProjectSize] = useState("");
+  const [clientType, setClientType] = useState("");
+  const [websiteUrl, setWebsiteUrl] = useState("");
 
   const [isNameChanged, setIsNameChanged] = useState(false);
   const [isTransactionChanged, setIsTransactionChange] = useState("");
   const [isFarmChanged, setIsFarmChanged] = useState(false);
   const [isBrokerageChanged, setIsBrokerageChanged] = useState(false);
   const [isServiceAreaChanged, setIsServiceAreaChanged] = useState(false);
-  const [isTeritorryChanged, setIsTeritorryChanged] = useState("")
-  const [isCompanyChanged, setIsCompanyChanged] = useState("")
-  const [isInstallationVolumechanged, setIsInstallationVolumeChanged] = useState("")
-  const [isProjectSizeChanged, setIsprojectSizeChanged] = useState("")
-  const [isWebsiteUrlChanged, setIsWebsiteUrlChanged] = useState("")
-
+  const [isTeritorryChanged, setIsTeritorryChanged] = useState("");
+  const [isCompanyChanged, setIsCompanyChanged] = useState("");
+  const [isInstallationVolumechanged, setIsInstallationVolumeChanged] =
+    useState("");
+  const [isProjectSizeChanged, setIsprojectSizeChanged] = useState("");
+  const [isWebsiteUrlChanged, setIsWebsiteUrlChanged] = useState("");
 
   const [agentServices, setAgentServices] = useState([]);
   const [agentAreasOfFocus, setAgentAreasOfFocus] = useState([]);
+  const [agentIndustries, setAgentIndustries] = useState([]);
+  const [selectedIndustries, setSelectedIndustries] = useState([]);
 
   const [loading, setloading] = useState(false);
   const [loading2, setloading2] = useState(false);
@@ -69,7 +69,7 @@ function BasicInfo() {
   const [loading7, setloading7] = useState(false);
   const [loading8, setloading8] = useState(false);
   const [loading9, setloading9] = useState(false);
-  const [loading10, setLoading10] = useState(farm)
+  const [loading10, setLoading10] = useState(farm);
 
   const [srviceLoader, setServiceLoader] = useState(false);
   const [areaLoading, setAreaLoading] = useState(false);
@@ -81,17 +81,17 @@ function BasicInfo() {
   const [selectedImage, setSelectedImage] = useState("");
   const [dragging, setDragging] = useState(false);
 
+  const [originalSelectedIndustries, setOriginalSelectedIndustries] = useState(
+    []
+  ); // To track initial state
   const [originalSelectedArea, setOriginalSelectedArea] = useState([]); // To track initial state
   const [originalSelectedService, setOriginalSelectedService] = useState([]); // To track initial state
 
   //user details
   const [UserDetails, setUserDetails] = useState(null);
 
-
-  const [userRole, setUserRole] = useState("")
-  const [userType, setUserType] = useState("")
-
-
+  const [userRole, setUserRole] = useState("");
+  const [userType, setUserType] = useState("");
 
   const primaryClientTypes = [
     {
@@ -146,8 +146,8 @@ function BasicInfo() {
       const userData = JSON.parse(LocalData);
       console.log("Should set data", userData?.user);
 
-      setUserRole(userData?.user?.userRole)
-      setUserType(userData?.user?.userType)
+      setUserRole(userData?.user?.userRole);
+      setUserType(userData?.user?.userType);
       // setUserType(UserTypes.SolarRep)
       setUserDetails(userData.user);
       setName(userData?.user?.name);
@@ -158,34 +158,41 @@ function BasicInfo() {
       setBrokerAge(userData?.user?.brokerage);
       setPhone(userData?.user?.phone);
 
-      setInstallationVolume(userData?.user?.projectsPerYear)
-      setServiceArea(userData?.user?.areaOfService)
-      setClientType(userData?.user?.primaryClientType)
-      setCompany(userData?.user?.company)
-      setProjectSize(userData?.user?.projectSizeKw)
-      setWebsiteUrl(userData?.user?.website)
-
+      setInstallationVolume(userData?.user?.projectsPerYear);
+      setServiceArea(userData?.user?.areaOfService);
+      setClientType(userData?.user?.primaryClientType);
+      setCompany(userData?.user?.company);
+      setProjectSize(userData?.user?.projectSizeKw);
+      setWebsiteUrl(userData?.user?.website);
 
       // Initialize arrays to hold services and areas of focus
+      const industriesArray = [];
       const servicesArray = [];
       const focusAreasArray = [];
 
       // Pre-populate selected services and areas based on the user profile
       userData?.user?.services?.forEach((item) => {
-        servicesArray.push(item.agentService); // Add the full object or only IDs as needed
+        servicesArray.push(item.id); // Add the full object or only IDs as needed
+      });
+      userData?.user?.userIndustry?.forEach((item) => {
+        industriesArray.push(item.id); // Add the full object or only IDs as needed
       });
 
       userData?.user?.focusAreas?.forEach((item) => {
-        focusAreasArray.push(item.areaOfFocus); // Add the full object or only IDs as needed
+        focusAreasArray.push(item.id); // Add the full object or only IDs as needed
       });
-
-      setServiceId(servicesArray);
 
       // Set default selected areas and services
       // setSelected(servicesArray); // Default select services
-      setSelectedArea(focusAreasArray); // Default select areas of focus
 
+      setSelectedIndustries(industriesArray);
+      setOriginalSelectedIndustries(industriesArray);
+
+      setSelectedArea(focusAreasArray);
       setOriginalSelectedArea(focusAreasArray); // Save the initial state
+
+      console.log("Services array", servicesArray);
+      setServiceId(servicesArray);
       setOriginalSelectedService(servicesArray);
     }
 
@@ -359,9 +366,10 @@ function BasicInfo() {
         });
 
         if (response) {
-          // console.log("Response of services api is : -----", response.data);
+          console.log("Response of services api is : -----", response.data);
           setAgentServices(response.data.data.agentServices);
           setAgentAreasOfFocus(response.data.data.areaOfFocus);
+          setAgentIndustries(response.data.data.userIndustry);
         } else {
           alert(response.data.message);
         }
@@ -488,8 +496,6 @@ function BasicInfo() {
     }
   };
 
-
-
   const handleserviceId = (id) => {
     // console.log("Id to ad is", id);
     // console.log("Old is are", serviceId);
@@ -531,11 +537,27 @@ function BasicInfo() {
     });
   };
 
+  const handleSelectAgentIndustry = (id) => {
+    // console.log("Id to ad is", id);
+    // console.log("Old is are", selectedArea);
+    let newIDs = [];
+    if (selectedIndustries.includes(id)) {
+      // Unselect the item if it's already selected
+      newIDs = selectedIndustries.filter((prevId) => prevId !== id);
+    } else {
+      // Select the item if it's not already selected
+      newIDs = [...selectedIndustries, id];
+    }
+    setSelectedIndustries(newIDs);
+    // console.log("New array is", newIDs);
+    return;
+  };
+
   const handleSelectClientType = async (item) => {
     // console.log("Select client type", item);
     setClientType(item.title);
-    let ClientType = item.title
-    let clienttype = ""
+    let ClientType = item.title;
+    let clienttype = "";
 
     if (ClientType === "Residential clients") {
       clienttype = "residential";
@@ -548,7 +570,6 @@ function BasicInfo() {
       primaryClientType: clienttype,
     };
     await UpdateProfile(data);
-
   };
 
   const handleAreaChange = async () => {
@@ -562,6 +583,22 @@ function BasicInfo() {
       // return
       await UpdateProfile(data);
       setOriginalSelectedArea([...selectedArea]);
+      setAreaLoading(false);
+    } catch (e) {
+      // console.log("error in updating", e);
+    }
+  };
+  const handleIndustryChange = async () => {
+    try {
+      setAreaLoading(true);
+      let data = {
+        userIndustry: selectedIndustries, //[selectedArea.join()]
+      };
+      console.log("data is", data);
+
+      // return
+      await UpdateProfile(data);
+      setOriginalSelectedIndustries([...selectedIndustries]);
       setAreaLoading(false);
     } catch (e) {
       // console.log("error in updating", e);
@@ -601,8 +638,6 @@ function BasicInfo() {
       // console.log("error in updating", e);
     }
   };
-
-
 
   return (
     <div
@@ -677,7 +712,7 @@ function BasicInfo() {
                     width: 74,
                     height: 74,
                     borderRadius: "50%",
-                    objectFit: 'cover',
+                    objectFit: "cover",
                   }}
                   alt="profileImage"
                 />
@@ -826,627 +861,648 @@ function BasicInfo() {
         />
       </div>
 
-      {
-        userRole && userRole != "Invitee" && (
-          <>
-            {
-              userType && userType === UserTypes.RealEstateAgent ||
-                userType && userType === UserTypes.RealEstateAgent
-                ? (
-                  <>
-                    <div
-                      style={{
-                        fontSize: 16,
-                        fontWeight: "700",
-                        color: "#000",
-                        marginTop: "4vh",
-                      }}
-                    >
-                      Farm
-                    </div>
-
-                    <div
-                      className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                      style={{
-                        border: `1px solid ${focusedFarm ? "#8a2be2" : "#00000010"}`,
-                        transition: "border-color 0.3s ease",
-                      }}
-                    >
-                      <input
-                        className="w-11/12 outline-none focus:ring-0"
-                        onFocus={() => setFocusedFarm(true)}
-                        onBlur={() => setFocusedFarm(false)}
-                        value={farm}
-                        onChange={(event) => {
-                          setFarm(event.target.value);
-                          setIsFarmChanged(true);
-                        }}
-                        type="text"
-                        placeholder="Farm"
-                        style={{ border: "0px solid #000000", outline: "none" }}
-                      />
-                      {isFarmChanged &&
-                        (loading2 ? (
-                          <CircularProgress size={20} />
-                        ) : (
-                          <button
-                            onClick={async () => {
-                              handleFarmSave();
-                            }}
-                            style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
-                          >
-                            Save
-                          </button>
-                        ))}
-                    </div>
-                  </>
-
-                ) : (
-                  userType && userType === UserTypes.SolarRep ||
-                    userType && userType === UserTypes.SalesDevRep ||
-                    userType && userType === UserTypes.MarketerAgent ||
-                    userType && userType === UserTypes.TaxAgent ||
-                    userType && userType === UserTypes.RecruiterAgent ||
-                    userType && userType === UserTypes.DebtCollectorAgent ||
-                    userType && userType === UserTypes.MedSpaAgent ||
-                    userType && userType === UserTypes.LawAgent ||
-                    userType && userType === UserTypes.LoanOfficerAgent
-
-                    ? (
-                      <>
-                        <div
-                          style={{
-                            fontSize: 16,
-                            fontWeight: "700",
-                            color: "#000",
-                            marginTop: "4vh",
-                          }}
-                        >
-                          Area of service
-                        </div>
-
-                        <div
-                          className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                          style={{
-                            border: `1px solid ${focusedServiceArea ? "#8a2be2" : "#00000010"}`,
-                            transition: "border-color 0.3s ease",
-                          }}
-                        >
-                          <input
-                            className="w-11/12 outline-none focus:ring-0"
-                            onFocus={() => setFocusedServiceArea(true)}
-                            onBlur={() => setFocusedServiceArea(false)}
-                            value={serviceArea}
-                            onChange={(event) => {
-                              setServiceArea(event.target.value);
-                              setIsServiceAreaChanged(true);
-                            }}
-                            type="text"
-                            placeholder="Farm"
-                            style={{ border: "0px solid #000000", outline: "none" }}
-                          />
-                          {isServiceAreaChanged &&
-                            (loading6 ? (
-                              <CircularProgress size={20} />
-                            ) : (
-                              <button
-                                onClick={async () => {
-                                  handleServiceAreaSave();
-                                }}
-                                style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
-                              >
-                                Save
-                              </button>
-                            ))}
-
-                        </div>
-                      </>
-                    ) : ""
-                )
-            }
-
-
-            {
-              userType && userType === UserTypes.RealEstateAgent ||
-                userType && userType === UserTypes.RealEstateAgent
-                ? (
-
-                  <>
-                    <div
-                      style={{
-                        fontSize: 16,
-                        fontWeight: "700",
-                        color: "#000",
-                        marginTop: "4vh",
-                      }}
-                    >
-                      Brokerage
-                    </div>
-
-                    <div
-                      className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
-                      style={{
-                        border: `1px solid ${focusedBrokerage ? "#8a2be2" : "#00000010"}`,
-                        transition: "border-color 0.3s ease",
-                      }}
-                    >
-                      <input
-                        className="w-11/12 outline-none focus:ring-0"
-                        onFocus={() => setFocusedBrokerage(true)}
-                        onBlur={() => setFocusedBrokerage(false)}
-                        value={brokerAge}
-                        onChange={(event) => {
-                          setBrokerAge(event.target.value);
-                          setIsBrokerageChanged(true);
-                        }}
-                        type="text"
-                        placeholder="Brokerage"
-                        style={{ border: "0px solid #000000", outline: "none" }}
-                      />
-                      {isBrokerageChanged &&
-                        (loading3 ? (
-                          <CircularProgress size={20} />
-                        ) : (
-                          <button
-                            onClick={async () => {
-                              handleBrokerAgeSave();
-                            }}
-                            style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
-                          >
-                            Save
-                          </button>
-                        ))}
-                    </div>
-
-                  </>
-                ) : (
-                  userType && userType === UserTypes.SolarRep ||
-                    userType && userType === UserTypes.SolarRep ||
-                    userType && userType === UserTypes.MarketerAgent ||
-                    userType && userType === UserTypes.DebtCollectorAgent ||
-                    userType && userType === UserTypes.MedSpaAgent ||
-                    userType && userType === UserTypes.LawAgent ||
-                    userType && userType === UserTypes.LoanOfficerAgent
-
-
-                    ? (
-                      <>
-                        <div
-                          style={{
-                            fontSize: 16,
-                            fontWeight: "700",
-                            color: "#000",
-                            marginTop: "4vh",
-                          }}
-                        >
-                          Company
-                        </div>
-
-                        <div
-                          className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
-                          style={{
-                            border: `1px solid ${focusedCompany ? "#8a2be2" : "#00000010"}`,
-                            transition: "border-color 0.3s ease",
-                          }}
-                        >
-                          <input
-                            className="w-11/12 outline-none focus:ring-0"
-                            onFocus={() => setFocusedCompany(true)}
-                            onBlur={() => setFocusedCompany(false)}
-                            value={company}
-                            onChange={(event) => {
-                              setCompany(event.target.value);
-                              setIsCompanyChanged(true);
-                            }}
-                            type="text"
-                            placeholder="Company"
-                            style={{ border: "0px solid #000000", outline: "none" }}
-                          />
-                          {isCompanyChanged &&
-                            (loading8 ? (
-                              <CircularProgress size={20} />
-                            ) : (
-                              <button
-                                onClick={async () => {
-                                  handleCompanySave();
-                                }}
-                                style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
-                              >
-                                Save
-                              </button>
-                            ))}
-                        </div>
-                      </>
-                    ) : (
-                      userType && userType === UserTypes.WebsiteAgent ? (
-                        <>
-                          <div
-                            style={{
-                              fontSize: 16,
-                              fontWeight: "700",
-                              color: "#000",
-                              marginTop: "4vh",
-                            }}
-                          >
-                            Website URL
-                          </div>
-
-                          <div
-                            className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
-                            style={{
-                              border: `1px solid ${focusedWebsite ? "#8a2be2" : "#00000010"}`,
-                              transition: "border-color 0.3s ease",
-                            }}
-                          >
-                            <input
-                              className="w-11/12 outline-none focus:ring-0"
-                              onFocus={() => setFocusedWebSite(true)}
-                              onBlur={() => setFocusedWebSite(false)}
-                              value={websiteUrl}
-                              onChange={(event) => {
-                                setWebsiteUrl(event.target.value);
-                                setIsWebsiteUrlChanged(true);
-                              }}
-                              type="text"
-                              placeholder="Brokerage"
-                              style={{ border: "0px solid #000000", outline: "none" }}
-                            />
-                            {isWebsiteUrlChanged &&
-                              (loading10 ? (
-                                <CircularProgress size={20} />
-                              ) : (
-                                <button
-                                  onClick={async () => {
-                                    handleWebsiteChange();
-                                  }}
-                                  style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
-                                >
-                                  Save
-                                </button>
-                              ))}
-                          </div>
-                        </>
-                      ) : ""
-                    )
-                )
-            }
-
-            {
-              userType && userType === UserTypes.RealEstateAgent ? (
-                <>
-                  <div
-                    style={{
-                      fontSize: 16,
-                      fontWeight: "700",
-                      color: "#000",
-                      marginTop: "4vh",
-                    }}
-                  >
-                    Average transaction volume per year
-                  </div>
-
-                  <div
-                    className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                    style={{
-                      border: `1px solid ${focusedTransaction ? "#8a2be2" : "#00000010"}`,
-                      transition: "border-color 0.3s ease",
-                    }}
-                  >
-                    <input
-                      type="number"
-                      className="w-11/12 outline-none focus:ring-0"
-                      onFocus={() => setFocusedTransaction(true)}
-                      onBlur={() => setFocusedTransaction(false)}
-                      value={transaction}
-                      onChange={(event) => {
-                        setTransaction(event.target.value);
-                        setIsTransactionChange(true);
-                      }}
-                      placeholder="Value"
-                      style={{ border: "0px solid #000000", outline: "none" }}
-                    />
-                    {isTransactionChanged &&
-                      (loading4 ? (
-                        <CircularProgress size={20} />
-                      ) : (
-                        <button
-                          onClick={async () => {
-                            handleTransactionSave();
-                          }}
-                          style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
-                        >
-                          Save
-                        </button>
-                      ))}
-                  </div>
-                </>
-              ) : (
-                userType && userType === UserTypes.SolarRep ||
-                  userType && userType === UserTypes.DebtCollectorAgent ||
-                  userType && userType === UserTypes.LoanOfficerAgent ||
-                  userType && userType === UserTypes.LawAgent ||
-                  userType && userType === UserTypes.MedSpaAgent
-
-                  ? (
-                    <>
-                      <div
-                        style={{
-                          fontSize: 16,
-                          fontWeight: "700",
-                          color: "#000",
-                          marginTop: "4vh",
-                        }}
-                      >
-                        Installation Volume per Year
-                      </div>
-
-                      <div
-                        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                        style={{
-                          border: `1px solid ${focusedInstallationVolume ? "#8a2be2" : "#00000010"}`,
-                          transition: "border-color 0.3s ease",
-                        }}
-                      >
-                        <input
-                          type="number"
-                          className="w-11/12 outline-none focus:ring-0"
-                          onFocus={() => setFocusedInstallationVolume(true)}
-                          onBlur={() => setFocusedInstallationVolume(false)}
-                          value={installationVolume}
-                          onChange={(event) => {
-                            setInstallationVolume(event.target.value);
-                            setIsInstallationVolumeChanged(true);
-                          }}
-                          placeholder="Value"
-                          style={{ border: "0px solid #000000", outline: "none" }}
-                        />
-                        {isInstallationVolumechanged &&
-                          (loading7 ? (
-                            <CircularProgress size={20} />
-                          ) : (
-                            <button
-                              onClick={async () => {
-                                handleInstallationVolumeSave();
-                              }}
-                              style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
-                            >
-                              Save
-                            </button>
-                          ))}
-                      </div>
-                    </>
-                  ) : ""
-
-              )
-            }
-
-
-            {
-              userType && userType === UserTypes.SolarRep ? (
-                <>
-                  <div
-                    style={{
-                      fontSize: 16,
-                      fontWeight: "700",
-                      color: "#000",
-                      marginTop: "4vh",
-                    }}
-                  >
-                    Average Project Size (kW)
-                  </div>
-
-                  <div
-                    className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                    style={{
-                      border: `1px solid ${focusedProjectSize ? "#8a2be2" : "#00000010"}`,
-                      transition: "border-color 0.3s ease",
-                    }}
-                  >
-                    <input
-                      type="number"
-                      className="w-11/12 outline-none focus:ring-0"
-                      onFocus={() => setFocusedProjectSize(true)}
-                      onBlur={() => setFocusedProjectSize(false)}
-                      value={projectSize}
-                      onChange={(event) => {
-                        setProjectSize(event.target.value);
-                        setIsprojectSizeChanged(true);
-                      }}
-                      placeholder="Value"
-                      style={{ border: "0px solid #000000", outline: "none" }}
-                    />
-                    {isProjectSizeChanged &&
-                      (loading9 ? (
-                        <CircularProgress size={20} />
-                      ) : (
-                        <button
-                          onClick={async () => {
-                            handleProjectSizeSave();
-                          }}
-                          style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
-                        >
-                          Save
-                        </button>
-                      ))}
-                  </div>
-                </>
-              ) : ("")
-            }
-            {
-              userType && userType === UserTypes.SolarRep ||
-                userType && userType === UserTypes.DebtCollectorAgent
-
-                ? (
-                  <>
-                    <div
-                      style={{
-                        fontSize: 16,
-                        fontWeight: "700",
-                        color: "#000",
-                        marginTop: "4vh",
-                      }}
-                    >
-                      Primary Client Type
-                    </div>
-
-                    <div
-                      className="flex flex-row items-center gap-4"
-                      style={{ marginTop: "8px" }}
-                    >
-                      {primaryClientTypes.map((item, index) => {
-                        return (
-                          <div key={index} className="w-full">
-                            <button
-                              onClick={() => {
-                                handleSelectClientType(item);
-                              }}
-                              className="border border-[#00000010] rounded px-4 h-[70px] outline-none focus:outline-none focus:ring-0 w-full"
-                              style={{
-                                fontSize: 15,
-                                fontWeight: "500",
-                                borderRadius: "7px",
-                                borderRadius: "30px",
-                                paddingInline: index === 2 && "40px",
-                                border:
-                                  clientType === item.title
-                                    ? "2px solid #7902DF"
-                                    : "",
-                                backgroundColor:
-                                  clientType === item.title ? "#402FFF20" : "",
-                              }}
-                            >
-                              {item.title}
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                  </>
-                ) : ("")
-            }
-            {
-              userType && userType === UserTypes.LawAgent ||
-                userType && userType === UserTypes.LoanOfficerAgent ? (
-                <>
-                  <div style={styles.headingStyle} className="mt-6">
-                    Client Type
-                  </div>
-
-
-                  <div
-                    className="flex w-full flex-wrap flex-row items-center gap-2"
-                    style={{ marginTop: "8px", flexWrap: 'wrap' }}
-                  >
-                    {primaryClientTypes2.map((item, index) => {
-                      return (
-                        <div key={index} className="w-full">
-                          <button
-                            onClick={() => {
-                              handleSelectClientType(item);
-                            }}
-                            className="border border-[#00000010] rounded px-4 py-4 outline-none focus:outline-none focus:ring-0"
-                            style={{
-                              ...styles.inputStyle,
-                              borderRadius: "30px",
-                              paddingInline: index === 2 && "40px",
-                              border:
-                                clientType === item.title
-                                  ? "2px solid #7902DF"
-                                  : "",
-                              backgroundColor:
-                                clientType === item.title ? "#402FFF20" : "",
-                            }}
-                          >
-                            {item.title}
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </>
-              ) : ""
-            }
-            {
-              userType && userType === UserTypes.LawAgent ? (
-                <>
-
-                  <div style={styles.headingStyle} className="mt-6">
-                    Consultation Format
-                  </div>
-
-                  <div
-                    className="flex w-full flex-wrap flex-row items-center gap-2"
-                    style={{ marginTop: "8px" }}
-                  >
-                    {ConsultationFormat.map((item, index) => {
-                      return (
-                        <div key={index} className="w-full">
-                          <button
-                            onClick={() => {
-                              handleSelectClientType(item);
-                            }}
-                            className="border border-[#00000010] rounded px-4 py-4 outline-none focus:outline-none focus:ring-0"
-                            style={{
-                              ...styles.inputStyle,
-                              borderRadius: "30px",
-                              paddingInline: index === 2 && "40px",
-                              border:
-                                clientType === item.title
-                                  ? "2px solid #7902DF"
-                                  : "",
-                              backgroundColor:
-                                clientType === item.title ? "#402FFF20" : "",
-                            }}
-                          >
-                            {item.title}
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </>
-
-              ) : ""
-            }
-          </>
-        )}
-
-
-
-      {
-        userRole && userRole != "Invitee" && (
-          <>
-            <div className="w-full flex flex-row items-center justify-between">
+      {userRole && userRole != "Invitee" && (
+        <>
+          {(userType && userType === UserTypes.RealEstateAgent) ||
+          (userType && userType === UserTypes.RealEstateAgent) ? (
+            <>
               <div
                 style={{
                   fontSize: 16,
                   fontWeight: "700",
                   color: "#000",
                   marginTop: "4vh",
-                  marginBottom: "2vh",
                 }}
               >
-                What would you like Agentx to help you with
+                Farm
               </div>
-              {serviceId.length > 0 &&
-                hasServiceChanged() &&
-                (srviceLoader ? (
-                  <CircularProgress size={20} />
-                ) : (
-                  <button
-                    onClick={async () => {
-                      handleServiceChange();
-                    }}
-                    style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
-                  >
-                    Save
-                  </button>
-                ))}
-            </div>
 
-            <div className="w-9/12 flex flex-row flex-wrap gap-2">
-              {agentServices.map((item, index) => (
+              <div
+                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                style={{
+                  border: `1px solid ${focusedFarm ? "#8a2be2" : "#00000010"}`,
+                  transition: "border-color 0.3s ease",
+                }}
+              >
+                <input
+                  className="w-11/12 outline-none focus:ring-0"
+                  onFocus={() => setFocusedFarm(true)}
+                  onBlur={() => setFocusedFarm(false)}
+                  value={farm}
+                  onChange={(event) => {
+                    setFarm(event.target.value);
+                    setIsFarmChanged(true);
+                  }}
+                  type="text"
+                  placeholder="Farm"
+                  style={{ border: "0px solid #000000", outline: "none" }}
+                />
+                {isFarmChanged &&
+                  (loading2 ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleFarmSave();
+                      }}
+                      style={{
+                        color: " #8a2be2",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Save
+                    </button>
+                  ))}
+              </div>
+            </>
+          ) : (userType && userType === UserTypes.SolarRep) ||
+            (userType && userType === UserTypes.SalesDevRep) ||
+            (userType && userType === UserTypes.MarketerAgent) ||
+            (userType && userType === UserTypes.TaxAgent) ||
+            (userType && userType === UserTypes.RecruiterAgent) ||
+            (userType && userType === UserTypes.DebtCollectorAgent) ||
+            (userType && userType === UserTypes.MedSpaAgent) ||
+            (userType && userType === UserTypes.LawAgent) ||
+            (userType && userType === UserTypes.LoanOfficerAgent) ? (
+            <>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  color: "#000",
+                  marginTop: "4vh",
+                }}
+              >
+                Area of service
+              </div>
+
+              <div
+                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                style={{
+                  border: `1px solid ${
+                    focusedServiceArea ? "#8a2be2" : "#00000010"
+                  }`,
+                  transition: "border-color 0.3s ease",
+                }}
+              >
+                <input
+                  className="w-11/12 outline-none focus:ring-0"
+                  onFocus={() => setFocusedServiceArea(true)}
+                  onBlur={() => setFocusedServiceArea(false)}
+                  value={serviceArea}
+                  onChange={(event) => {
+                    setServiceArea(event.target.value);
+                    setIsServiceAreaChanged(true);
+                  }}
+                  type="text"
+                  placeholder="Farm"
+                  style={{ border: "0px solid #000000", outline: "none" }}
+                />
+                {isServiceAreaChanged &&
+                  (loading6 ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleServiceAreaSave();
+                      }}
+                      style={{
+                        color: " #8a2be2",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Save
+                    </button>
+                  ))}
+              </div>
+            </>
+          ) : (
+            ""
+          )}
+
+          {(userType && userType === UserTypes.RealEstateAgent) ||
+          (userType && userType === UserTypes.RealEstateAgent) ? (
+            <>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  color: "#000",
+                  marginTop: "4vh",
+                }}
+              >
+                Brokerage
+              </div>
+
+              <div
+                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
+                style={{
+                  border: `1px solid ${
+                    focusedBrokerage ? "#8a2be2" : "#00000010"
+                  }`,
+                  transition: "border-color 0.3s ease",
+                }}
+              >
+                <input
+                  className="w-11/12 outline-none focus:ring-0"
+                  onFocus={() => setFocusedBrokerage(true)}
+                  onBlur={() => setFocusedBrokerage(false)}
+                  value={brokerAge}
+                  onChange={(event) => {
+                    setBrokerAge(event.target.value);
+                    setIsBrokerageChanged(true);
+                  }}
+                  type="text"
+                  placeholder="Brokerage"
+                  style={{ border: "0px solid #000000", outline: "none" }}
+                />
+                {isBrokerageChanged &&
+                  (loading3 ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleBrokerAgeSave();
+                      }}
+                      style={{
+                        color: " #8a2be2",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Save
+                    </button>
+                  ))}
+              </div>
+            </>
+          ) : (userType && userType === UserTypes.SolarRep) ||
+            (userType && userType === UserTypes.SolarRep) ||
+            (userType && userType === UserTypes.MarketerAgent) ||
+            (userType && userType === UserTypes.DebtCollectorAgent) ||
+            (userType && userType === UserTypes.MedSpaAgent) ||
+            (userType && userType === UserTypes.LawAgent) ||
+            (userType && userType === UserTypes.LoanOfficerAgent) ? (
+            <>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  color: "#000",
+                  marginTop: "4vh",
+                }}
+              >
+                Company
+              </div>
+
+              <div
+                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
+                style={{
+                  border: `1px solid ${
+                    focusedCompany ? "#8a2be2" : "#00000010"
+                  }`,
+                  transition: "border-color 0.3s ease",
+                }}
+              >
+                <input
+                  className="w-11/12 outline-none focus:ring-0"
+                  onFocus={() => setFocusedCompany(true)}
+                  onBlur={() => setFocusedCompany(false)}
+                  value={company}
+                  onChange={(event) => {
+                    setCompany(event.target.value);
+                    setIsCompanyChanged(true);
+                  }}
+                  type="text"
+                  placeholder="Company"
+                  style={{ border: "0px solid #000000", outline: "none" }}
+                />
+                {isCompanyChanged &&
+                  (loading8 ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleCompanySave();
+                      }}
+                      style={{
+                        color: " #8a2be2",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Save
+                    </button>
+                  ))}
+              </div>
+            </>
+          ) : userType && userType === UserTypes.WebsiteAgent ? (
+            <>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  color: "#000",
+                  marginTop: "4vh",
+                }}
+              >
+                Website URL
+              </div>
+
+              <div
+                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
+                style={{
+                  border: `1px solid ${
+                    focusedWebsite ? "#8a2be2" : "#00000010"
+                  }`,
+                  transition: "border-color 0.3s ease",
+                }}
+              >
+                <input
+                  className="w-11/12 outline-none focus:ring-0"
+                  onFocus={() => setFocusedWebSite(true)}
+                  onBlur={() => setFocusedWebSite(false)}
+                  value={websiteUrl}
+                  onChange={(event) => {
+                    setWebsiteUrl(event.target.value);
+                    setIsWebsiteUrlChanged(true);
+                  }}
+                  type="text"
+                  placeholder="Brokerage"
+                  style={{ border: "0px solid #000000", outline: "none" }}
+                />
+                {isWebsiteUrlChanged &&
+                  (loading10 ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleWebsiteChange();
+                      }}
+                      style={{
+                        color: " #8a2be2",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Save
+                    </button>
+                  ))}
+              </div>
+            </>
+          ) : (
+            ""
+          )}
+
+          {userType && userType === UserTypes.RealEstateAgent ? (
+            <>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  color: "#000",
+                  marginTop: "4vh",
+                }}
+              >
+                Average transaction volume per year
+              </div>
+
+              <div
+                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                style={{
+                  border: `1px solid ${
+                    focusedTransaction ? "#8a2be2" : "#00000010"
+                  }`,
+                  transition: "border-color 0.3s ease",
+                }}
+              >
+                <input
+                  type="number"
+                  className="w-11/12 outline-none focus:ring-0"
+                  onFocus={() => setFocusedTransaction(true)}
+                  onBlur={() => setFocusedTransaction(false)}
+                  value={transaction}
+                  onChange={(event) => {
+                    setTransaction(event.target.value);
+                    setIsTransactionChange(true);
+                  }}
+                  placeholder="Value"
+                  style={{ border: "0px solid #000000", outline: "none" }}
+                />
+                {isTransactionChanged &&
+                  (loading4 ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleTransactionSave();
+                      }}
+                      style={{
+                        color: " #8a2be2",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Save
+                    </button>
+                  ))}
+              </div>
+            </>
+          ) : (userType && userType === UserTypes.SolarRep) ||
+            (userType && userType === UserTypes.DebtCollectorAgent) ||
+            (userType && userType === UserTypes.LoanOfficerAgent) ||
+            (userType && userType === UserTypes.LawAgent) ||
+            (userType && userType === UserTypes.MedSpaAgent) ? (
+            <>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  color: "#000",
+                  marginTop: "4vh",
+                }}
+              >
+                Installation Volume per Year
+              </div>
+
+              <div
+                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                style={{
+                  border: `1px solid ${
+                    focusedInstallationVolume ? "#8a2be2" : "#00000010"
+                  }`,
+                  transition: "border-color 0.3s ease",
+                }}
+              >
+                <input
+                  type="number"
+                  className="w-11/12 outline-none focus:ring-0"
+                  onFocus={() => setFocusedInstallationVolume(true)}
+                  onBlur={() => setFocusedInstallationVolume(false)}
+                  value={installationVolume}
+                  onChange={(event) => {
+                    setInstallationVolume(event.target.value);
+                    setIsInstallationVolumeChanged(true);
+                  }}
+                  placeholder="Value"
+                  style={{ border: "0px solid #000000", outline: "none" }}
+                />
+                {isInstallationVolumechanged &&
+                  (loading7 ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleInstallationVolumeSave();
+                      }}
+                      style={{
+                        color: " #8a2be2",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Save
+                    </button>
+                  ))}
+              </div>
+            </>
+          ) : (
+            ""
+          )}
+
+          {userType && userType === UserTypes.SolarRep ? (
+            <>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  color: "#000",
+                  marginTop: "4vh",
+                }}
+              >
+                Average Project Size (kW)
+              </div>
+
+              <div
+                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                style={{
+                  border: `1px solid ${
+                    focusedProjectSize ? "#8a2be2" : "#00000010"
+                  }`,
+                  transition: "border-color 0.3s ease",
+                }}
+              >
+                <input
+                  type="number"
+                  className="w-11/12 outline-none focus:ring-0"
+                  onFocus={() => setFocusedProjectSize(true)}
+                  onBlur={() => setFocusedProjectSize(false)}
+                  value={projectSize}
+                  onChange={(event) => {
+                    setProjectSize(event.target.value);
+                    setIsprojectSizeChanged(true);
+                  }}
+                  placeholder="Value"
+                  style={{ border: "0px solid #000000", outline: "none" }}
+                />
+                {isProjectSizeChanged &&
+                  (loading9 ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleProjectSizeSave();
+                      }}
+                      style={{
+                        color: " #8a2be2",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Save
+                    </button>
+                  ))}
+              </div>
+            </>
+          ) : (
+            ""
+          )}
+          {(userType && userType === UserTypes.SolarRep) ||
+          (userType && userType === UserTypes.DebtCollectorAgent) ? (
+            <>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  color: "#000",
+                  marginTop: "4vh",
+                }}
+              >
+                Primary Client Type
+              </div>
+
+              <div
+                className="flex flex-row items-center gap-4"
+                style={{ marginTop: "8px" }}
+              >
+                {primaryClientTypes.map((item, index) => {
+                  return (
+                    <div key={index} className="w-full">
+                      <button
+                        onClick={() => {
+                          handleSelectClientType(item);
+                        }}
+                        className="border border-[#00000010] rounded px-4 h-[70px] outline-none focus:outline-none focus:ring-0 w-full"
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          borderRadius: "7px",
+                          borderRadius: "30px",
+                          paddingInline: index === 2 && "40px",
+                          border:
+                            clientType === item.title
+                              ? "2px solid #7902DF"
+                              : "",
+                          backgroundColor:
+                            clientType === item.title ? "#402FFF20" : "",
+                        }}
+                      >
+                        {item.title}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            ""
+          )}
+          {(userType && userType === UserTypes.LawAgent) ||
+          (userType && userType === UserTypes.LoanOfficerAgent) ? (
+            <>
+              <div style={styles.headingStyle} className="mt-6">
+                Client Type
+              </div>
+
+              <div
+                className="flex w-full flex-wrap flex-row items-center gap-2"
+                style={{ marginTop: "8px", flexWrap: "wrap" }}
+              >
+                {primaryClientTypes2.map((item, index) => {
+                  return (
+                    <div key={index} className="w-full">
+                      <button
+                        onClick={() => {
+                          handleSelectClientType(item);
+                        }}
+                        className="border border-[#00000010] rounded px-4 py-4 outline-none focus:outline-none focus:ring-0"
+                        style={{
+                          ...styles.inputStyle,
+                          borderRadius: "30px",
+                          paddingInline: index === 2 && "40px",
+                          border:
+                            clientType === item.title
+                              ? "2px solid #7902DF"
+                              : "",
+                          backgroundColor:
+                            clientType === item.title ? "#402FFF20" : "",
+                        }}
+                      >
+                        {item.title}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            ""
+          )}
+          {userType && userType === UserTypes.LawAgent ? (
+            <>
+              <div style={styles.headingStyle} className="mt-6">
+                Consultation Format
+              </div>
+
+              <div
+                className="flex w-full flex-wrap flex-row items-center gap-2"
+                style={{ marginTop: "8px" }}
+              >
+                {ConsultationFormat.map((item, index) => {
+                  return (
+                    <div key={index} className="w-full">
+                      <button
+                        onClick={() => {
+                          handleSelectClientType(item);
+                        }}
+                        className="border border-[#00000010] rounded px-4 py-4 outline-none focus:outline-none focus:ring-0"
+                        style={{
+                          ...styles.inputStyle,
+                          borderRadius: "30px",
+                          paddingInline: index === 2 && "40px",
+                          border:
+                            clientType === item.title
+                              ? "2px solid #7902DF"
+                              : "",
+                          backgroundColor:
+                            clientType === item.title ? "#402FFF20" : "",
+                        }}
+                      >
+                        {item.title}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            ""
+          )}
+        </>
+      )}
+
+      {userRole && userRole != "Invitee" && (
+        <>
+          <div className="w-full flex flex-row items-center justify-between">
+            <div
+              style={{
+                fontSize: 16,
+                fontWeight: "700",
+                color: "#000",
+                marginTop: "4vh",
+                marginBottom: "2vh",
+              }}
+            >
+              What would you like Agentx to help you with
+            </div>
+            {serviceId.length > 0 &&
+              hasServiceChanged() &&
+              (srviceLoader ? (
+                <CircularProgress size={20} />
+              ) : (
+                <button
+                  onClick={async () => {
+                    handleServiceChange();
+                  }}
+                  style={{
+                    color: " #8a2be2",
+                    fontSize: "14px",
+                    fontWeight: "600",
+                  }}
+                >
+                  Save
+                </button>
+              ))}
+          </div>
+
+          <div className="w-9/12 flex flex-row flex-wrap gap-2">
+            {agentServices.map((item, index) => {
+              console.log(
+                `${item.id} included in array `,
+                serviceId.includes(item.id)
+              );
+              return (
                 <div
                   key={index}
                   className="w-5/12 p-4 flex flex-col gap-2 items-start rounded-2xl"
@@ -1464,7 +1520,9 @@ function BasicInfo() {
                     handleserviceId(item.id);
                   }}
                 >
-                  <div style={{ fontSize: 15, fontWeight: "700" }}>{item.title}</div>
+                  <div style={{ fontSize: 15, fontWeight: "700" }}>
+                    {item.title}
+                  </div>
 
                   <div style={{ fontSize: 14, fontWeight: "500" }}>
                     {item.description}
@@ -1481,37 +1539,50 @@ function BasicInfo() {
                     style={{ alignSelf: "flex-end" }}
                   />
                 </div>
-              ))}
-            </div>
+              );
+            })}
+          </div>
 
-            <div className="w-full flex flex-row items-center justify-between">
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: "700",
-                  color: "#000",
-                  marginTop: "4vh",
-                  marginBottom: "2vh",
-                }}
-              >
-                What area of real estate do you focus on?
-              </div>
-              {selectedArea.length > 0 &&
-                hasAreaFocusChanged() &&
-                (areaLoading ? (
-                  <CircularProgress size={20} />
-                ) : (
-                  <button
-                    onClick={async () => {
+          <div className="w-full flex flex-row items-center justify-between">
+            <div
+              style={{
+                fontSize: 16,
+                fontWeight: "700",
+                color: "#000",
+                marginTop: "4vh",
+                marginBottom: "2vh",
+              }}
+            >
+              {agentAreasOfFocus.length > 0
+                ? "What area of real estate do you focus on?"
+                : "What industries do you specialize in?"}
+            </div>
+            {selectedArea.length > 0 &&
+              hasAreaFocusChanged() &&
+              (areaLoading ? (
+                <CircularProgress size={20} />
+              ) : (
+                <button
+                  onClick={async () => {
+                    console.log("User is ", userType);
+                    if (userType == UserTypes.RecruiterAgent) {
+                      handleIndustryChange();
+                    } else {
                       handleAreaChange();
-                    }}
-                    style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
-                  >
-                    Save
-                  </button>
-                ))}
-            </div>
+                    }
+                  }}
+                  style={{
+                    color: " #8a2be2",
+                    fontSize: "14px",
+                    fontWeight: "600",
+                  }}
+                >
+                  Save
+                </button>
+              ))}
+          </div>
 
+          {agentAreasOfFocus.length > 0 && (
             <div className="w-9/12 flex flex-row flex-wrap gap-2 ">
               {agentAreasOfFocus.map((item, index) => (
                 <div
@@ -1531,7 +1602,9 @@ function BasicInfo() {
                     handleAreaSelect(item.id);
                   }}
                 >
-                  <div style={{ fontSize: 15, fontWeight: "700" }}>{item.title}</div>
+                  <div style={{ fontSize: 15, fontWeight: "700" }}>
+                    {item.title}
+                  </div>
 
                   <div style={{ fontSize: 14, fontWeight: "500" }}>
                     {item.description}
@@ -1550,23 +1623,60 @@ function BasicInfo() {
                 </div>
               ))}
             </div>
+          )}
+          {agentIndustries.length > 0 && (
+            <div className="w-9/12 flex flex-row flex-wrap gap-2 ">
+              {agentIndustries.map((item, index) => (
+                <div
+                  key={index}
+                  className="w-5/12 p-4 flex flex-col justify-betweeen items-start rounded-2xl"
+                  style={{
+                    borderWidth: 2,
+                    borderColor: selectedIndustries.includes(item.id)
+                      ? "#7902DF"
+                      : "#00000008",
+                    backgroundColor: selectedIndustries.includes(item.id)
+                      ? "#7902DF05"
+                      : "transparent",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    handleSelectAgentIndustry(item.id);
+                  }}
+                >
+                  <div style={{ fontSize: 15, fontWeight: "700" }}>
+                    {item.title}
+                  </div>
 
-          </>
-        )
-      }
-
-
-
+                  <div style={{ fontSize: 14, fontWeight: "500" }}>
+                    {item.description}
+                  </div>
+                  <Image
+                    src={
+                      selectedIndustries.includes(item.id)
+                        ? "/otherAssets/selectedTickBtn.png"
+                        : "/otherAssets/unselectedTickBtn.png"
+                    }
+                    height={24}
+                    width={24}
+                    alt="icon"
+                    style={{ alignSelf: "flex-end" }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
 
 export default BasicInfo;
 
-
 const styles = {
   headingStyle: {
     fontSize: 16,
     fontWeight: "600",
   },
-}
+};

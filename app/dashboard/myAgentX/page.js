@@ -1408,8 +1408,8 @@ function Page() {
         setIsVisibleSnack(true);
         if (response.data.status === true) {
           setOpenTestAiModal(false);
-          setName("");
-          setPhone("");
+          // setName("");
+          // setPhone("");
         }
       }
     } catch (error) {
@@ -2852,7 +2852,7 @@ function Page() {
                       display: "flex",
                       alignItems: "center",
                       // borderWidth:1,
-                      marginRight:-15
+                      marginRight: -15,
                     }}
                   >
                     {showVoiceLoader ? (
@@ -3671,7 +3671,7 @@ function Page() {
 
               {showScript && (
                 <div style={{ height: "82%" }}>
-                  <div style={{ height: "83%",borderWidth:0 }}>
+                  <div style={{ height: "83%", borderWidth: 0 }}>
                     <div className="bg-[#00000002] p-2 mt-6">
                       <div
                         style={styles.inputStyle}

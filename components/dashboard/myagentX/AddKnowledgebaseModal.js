@@ -42,6 +42,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
+    console.log("File change event");
     if (file) {
       setFileName(file.name);
       setSelectedFileName(file.name);
@@ -59,13 +60,15 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
       } catch (error) {
         console.error("Error compressing the document:", error);
       }
+    } else {
+      console.log("File not selected");
     }
   };
 
   const handleDrop = async (event) => {
     event.preventDefault();
     event.stopPropagation();
-    setIsDragging(false);
+    // setIsDragging(false);
 
     const file = event.dataTransfer.files[0];
     if (file) {
@@ -89,11 +92,11 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
   };
   const handleDragOver = (event) => {
     event.preventDefault();
-    setIsDragging(true);
+    // setIsDragging(true);
   };
 
   const handleDragLeave = () => {
-    setIsDragging(false);
+    // setIsDragging(false);
   };
 
   const handleButtonClick = (event) => {
@@ -105,7 +108,9 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
 
   const handleDeselect = () => {
     setFileName("");
-    fileInputRef.current.value = ""; // Clear file input
+    if (fileInputRef && fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   //code to compress document
@@ -132,6 +137,16 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
   };
 
   async function addKnowledgebaseEntry() {
+    // setTitle("");
+    // setUrl("");
+    // setSelectedDocument(null);
+    // setSelectedFileName("");
+    // setFileName("");
+    // fileInputRef.current.value = "";
+    // // setSelectedType("Text");
+    // setText("");
+
+    // return;
     // const link = "/api/kb/addkb"; // Adjust the API route if necessary
     const link = Apis.AddKnowledgebase; // Adjust the API route if necessary
 
@@ -153,7 +168,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
       originalContent = url;
     }
     if (selectedType == "Youtube") {
-      originalContent = youtube
+      originalContent = youtube;
     }
     formData.append("originalContent", originalContent);
 
@@ -177,6 +192,12 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
         },
       });
       setLoading(false);
+      setTitle("");
+      setUrl("");
+      setSelectedDocument(null);
+      setSelectedFileName("");
+      // setSelectedType("Text");
+      setText("");
 
       console.log("Success:", response.data);
       return response.data;
@@ -241,7 +262,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
           }}
           placeholder={"Type here"}
           className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[15vh]"
-          style={{ border: "1px solid #00000020", resize: 'none' }}
+          style={{ border: "1px solid #00000020", resize: "none" }}
         />
       </div>
     );
@@ -372,9 +393,15 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
             <div
               className="flex items-center text-gray-700 p-4 rounded gap-2"
               style={{
-                backgroundColor: "#EDEDED80",
+                // backgroundColor: "#EDEDED80",
                 fontSize: 13,
                 fontFamily: "inter",
+                // marginTop: 40,
+                border: "1px dashed #7902DF",
+                borderRadius: "10px",
+                // borderColor: '#7902DF',
+                boxShadow: "0px 0px 10px 10px rgba(64, 47, 255, 0.05)",
+                backgroundColor: "#FBFCFF",
               }}
             >
               <span>{fileName}</span>
@@ -387,8 +414,13 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
               className="flex flex-row w-full justify-center rounded items-center"
               style={{
                 height: "100px",
-                border: "2px dashed #0000001006",
-                backgroundColor: "#EDEDED80",
+                // border: "2px dashed #0000001006",
+                // backgroundColor: "#EDEDED80",
+                border: "1px dashed #7902DF",
+                borderRadius: "10px",
+                // borderColor: '#7902DF',
+                boxShadow: "0px 0px 10px 10px rgba(64, 47, 255, 0.05)",
+                backgroundColor: "#FBFCFF",
               }}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -412,8 +444,9 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
     if (!loading) {
       return (
         <button
-          className={`w-full rounded-lg font-medium h-[50px] ${canShowContinue() ? "bg-purple text-white" : "bg-btngray text-black"
-            } `}
+          className={`w-full rounded-lg font-medium h-[50px] ${
+            canShowContinue() ? "bg-purple text-white" : "bg-btngray text-black"
+          } `}
           // variant="contained"
           // fullWidth
           disabled={!canShowContinue()}
@@ -469,7 +502,21 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
             <Typography variant="h6" fontWeight="bold">
               Knowledge Base
             </Typography>
-            <IconButton onClick={onClose}>
+            <IconButton
+              onClick={() => {
+                setTitle("");
+                setUrl("");
+                setSelectedDocument(null);
+                setSelectedFileName("");
+                setFileName("");
+                if (fileInputRef && fileInputRef.current) {
+                  fileInputRef.current.value = "";
+                }
+                // setSelectedType("Text");
+                setText("");
+                onClose();
+              }}
+            >
               <Close />
             </IconButton>
           </Box>
@@ -478,7 +525,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
             Select Type
           </Typography>
 
-          <Box sx={{ display: "flex", gap: 2, mb: 2, overflowX: 'auto' }}>
+          <Box sx={{ display: "flex", gap: 2, mb: 2, overflowX: "auto" }}>
             <Button
               variant="outlined"
               startIcon={<InsertDriveFile />}
@@ -529,7 +576,6 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
             >
               Link
             </Button>
-
 
             <Button
               variant="outlined"

@@ -4,6 +4,7 @@ import Image from "next/image"; // Ensure Image is imported correctly
 import AddKnowledgeBaseModal from "./AddKnowledgebaseModal";
 import KnowledgeBaseList from "@/components/admin/dashboard/KnowledgebaseList";
 import Apis from "@/components/apis/Apis";
+import { Plus } from "lucide-react";
 
 function Knowledgebase({ user, agent }) {
   const [kb, setKb] = useState([]);
@@ -20,7 +21,7 @@ function Knowledgebase({ user, agent }) {
     try {
       const token = user.token; // Extract JWT token
 
-      let link = "/api/kb/getkb?agentId="
+      let link = "/api/kb/getkb?agentId=";
       // let link = `${Apis.GetKnowledgebase}?agentId=`
 
       const response = await fetch(link + agent.id, {
@@ -52,11 +53,11 @@ function Knowledgebase({ user, agent }) {
   function GetNoKbView() {
     return (
       <div className="flex flex-col items-center justify-center mt-5   p-8 ">
-        <div className="flex flex-col w-[60%] items-center justify-center mt-5 gap-4 bg-gray-100 p-8 rounded-lg">
+        <div className="flex flex-col w-[60%] items-center justify-center mt-5 gap-4 p-8 rounded-lg">
           <Image
             src={"/assets/nokb.svg"}
-            height={30}
-            width={30}
+            height={5000}
+            width={5000}
             alt="No Knowledgebase"
           />
 
@@ -64,16 +65,10 @@ function Knowledgebase({ user, agent }) {
             No Knowledge base added
           </div>
 
-          <div className="flex flex-row gap-2 ">
-            <Image
-              className="cursor-pointer"
-              src="/assets/calendaradd.svg"
-              height={25}
-              width={25}
-              alt=""
-            />
+          <div className="flex flex-row gap-2 bg-purple p-2 px-8 rounded-lg">
+            <Plus color="white"></Plus>
             <button
-              className="flex items-center justify-center  text-black text-purple font-medium"
+              className="flex items-center justify-center  text-black text-white font-medium"
               onClick={() => addKnowledgebase()} // Fixed typo
             >
               Add New

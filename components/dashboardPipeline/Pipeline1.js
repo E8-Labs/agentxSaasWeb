@@ -3618,7 +3618,7 @@ const Pipeline1 = () => {
         </Box>
       </Modal>
       {/* Code for side view */}
-      {importantCalls?.length > 0 && (
+      {importantCalls?.length >= 0 && (
         <div
           className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${
             expandSideView ? "w-[506px]" : "w-[100px]"
@@ -3635,40 +3635,58 @@ const Pipeline1 = () => {
           onClick={() => {}}
         >
           {expandSideView ? (
-            <div className="w-full flex flex-row items-center gap-4  h-20">
-              <button
-                className="flex flex-col items-center justify-center gap-1"
-                onClick={() => {
-                  setOpenCallWorthyPopup(true);
-                }}
-              >
-                <img
-                  src="/svgIcons/fireIcon.png"
-                  style={{ height: 25, width: 25 }}
-                  alt="Fire Icon"
-                />
-                <img
-                  src="/svgIcons/threeDots.svg"
-                  style={{ height: 5, width: 15 }}
-                  alt="Three Dots"
-                />
-              </button>
-              <button
-                onClick={() => {
-                  setOpenCallWorthyPopup(true);
-                }}
-                className="flex flex-col items-start  truncate"
-              >
-                <div className="text-[17px] font-[600]">
-                  While you were away
+            <div className="flex  items-center justify-center w-full">
+              <div className="w-full flex flex-col items-start gap-1  h-20">
+                <div className="flex flex-row gap-2 w-full">
+                  <button
+                    className="flex flex-col items-center justify-center gap-1"
+                    onClick={() => {
+                      setOpenCallWorthyPopup(true);
+                    }}
+                  >
+                    <img
+                      src="/svgIcons/fireIcon.png"
+                      style={{ height: 25, width: 25 }}
+                      alt="Fire Icon"
+                    />
+                    <img
+                      src="/svgIcons/threeDots.svg"
+                      style={{ height: 5, width: 15 }}
+                      alt="Three Dots"
+                    />
+                  </button>
+
+                  <div className="flex  items-center w-full">
+                    <button
+                      onClick={() => {
+                        // setOpenCallWorthyPopup(true);
+                      }}
+                      className="flex flex-col items-start  truncate"
+                    >
+                      <div className="text-[17px] font-[600]">
+                        While you were away
+                      </div>
+                    </button>
+                    <div className="flex flex-col items-start ml-[30px]">
+                      <button
+                        className="text-purple"
+                        onClick={() => {
+                          // setExpandSideView(false);
+                          setOpenCallWorthyPopup(true);
+                        }}
+                      >
+                        Listen Now
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <div className="text-[15px] font-[500]">
+                <div className="text-[15px] font-[500] pl-8 truncate">
                   Here are some calls that sounded important.
                 </div>
-              </button>
-              <div className="flex flex-col items-start ml-[30px]">
+              </div>
+              <div className="flex flex-col items-center -mt-2 ml-[30px]">
                 <button
-                  className="text-purple mt-2"
+                  className="text-purple"
                   onClick={() => {
                     setExpandSideView(false);
                   }}
@@ -3677,15 +3695,6 @@ const Pipeline1 = () => {
                     src="/svgIcons/cross.svg"
                     style={{ height: 24, width: 24 }}
                   />
-                </button>
-
-                <button
-                  className="text-purple mt-2"
-                  onClick={() => {
-                    setExpandSideView(false);
-                  }}
-                >
-                  Hide
                 </button>
               </div>
             </div>
