@@ -416,10 +416,11 @@ function AdminSubscriptions() {
                                 <Legend verticalAlign="top" height={36} /> */}
 
                                     {/* Lines */}
-                                    <Line type="monotone" dataKey="Plan30" stroke="#402FFF" strokeWidth={2} dot={false} />
-                                    <Line type="monotone" dataKey="Plan120" stroke="#FF2222" strokeWidth={2} dot={false} />
-                                    <Line type="monotone" dataKey="Plan360" stroke="#00C49F" strokeWidth={2} dot={false} />
-                                    <Line type="monotone" dataKey="Plan720" stroke="#FFBB28" strokeWidth={2} dot={false} />
+                                    <Line type="monotone" dataKey="Trail" stroke="#8E24AA" strokeWidth={2} dot={false} />
+                                    <Line type="monotone" dataKey="Plan30" stroke="#000" strokeWidth={2} dot={false} />
+                                    <Line type="monotone" dataKey="Plan120" stroke="#FF6600" strokeWidth={2} dot={false} />
+                                    <Line type="monotone" dataKey="Plan360" stroke="#402FFF" strokeWidth={2} dot={false} />
+                                    <Line type="monotone" dataKey="Plan720" stroke="#FF2222" strokeWidth={2} dot={false} />
                                 </LineChart>
                             </div>
                         </div>
@@ -1059,7 +1060,7 @@ function AdminSubscriptions() {
                         </div>
 
                         {/* Value */}
-                        <div style={{ whiteSpace: 'nowrap', fontSize: 48, fontWeight: '300' }}>
+                        <div style={{ whiteSpace: 'nowrap', fontSize: 30, fontWeight: '300' }}>
                             ${analyticData?.clv}
                         </div>
 
@@ -1114,7 +1115,7 @@ function AdminSubscriptions() {
                         </div>
 
                         {/* Value */}
-                        <div style={{ whiteSpace: 'nowrap', fontSize: 48, fontWeight: '300' }}>
+                        <div style={{ whiteSpace: 'nowrap', fontSize: 30, fontWeight: '300' }}>
                             ${analyticData?.mrr}
                         </div>
 
@@ -1169,7 +1170,7 @@ function AdminSubscriptions() {
                         </div>
 
                         {/* Value */}
-                        <div style={{ whiteSpace: 'nowrap', fontSize: 48, fontWeight: '300' }}>
+                        <div style={{ whiteSpace: 'nowrap', fontSize: 30, fontWeight: '300' }}>
                             ${analyticData?.arr}
                         </div>
 
@@ -1222,7 +1223,7 @@ function AdminSubscriptions() {
                         </div>
 
                         {/* Value */}
-                        <div style={{ whiteSpace: 'nowrap', fontSize: 48, fontWeight: '300' }}>
+                        <div style={{ whiteSpace: 'nowrap', fontSize: 30, fontWeight: '300' }}>
                             ${analyticData?.nrr}
                         </div>
 
@@ -1285,7 +1286,7 @@ function AdminSubscriptions() {
                         </div>
 
                         {/* Value */}
-                        <div style={{ whiteSpace: 'nowrap', fontSize: 48, fontWeight: '300' }}>
+                        <div style={{ whiteSpace: 'nowrap', fontSize: 30, fontWeight: '300' }}>
                             $802
                         </div>
 
@@ -1343,7 +1344,7 @@ function AdminSubscriptions() {
                         </div>
 
                         {/* Value */}
-                        <div style={{ whiteSpace: 'nowrap', fontSize: 48, fontWeight: '300' }}>
+                        <div style={{ whiteSpace: 'nowrap', fontSize: 30, fontWeight: '300' }}>
                             $802
                         </div>
 

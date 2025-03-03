@@ -317,7 +317,6 @@ function AdminAllCalls({selectedUser}) {
           if (data.length < LimitPerPage) {
             setHasMore(false);
           }
-          // setOffset((prevOffset) => prevOffset + 5);
         }
       }
     } catch (error) {

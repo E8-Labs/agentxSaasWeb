@@ -128,7 +128,7 @@ const LawAgentSignUp = ({
       // projectSize &&
       ClientType &&
       emailCheckResponse?.status === true &&
-      checkPhoneResponse?.status === true&&
+      checkPhoneResponse?.status === true &&
       consultation
     ) {
       setShouldContinue(false);
@@ -332,7 +332,7 @@ const LawAgentSignUp = ({
 
       let agentTitle = userData.userTypeTitle;
 
-    
+
       const formData = new FormData();
       const ApiPath = Apis.register;
       let campainee = GetCampaigneeNameIfAvailable(window);
@@ -762,6 +762,7 @@ const LawAgentSignUp = ({
                 How many cases do you handle annually or monthly?
               </div>
               <input
+                type="number"
                 placeholder="Type here"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
@@ -832,7 +833,7 @@ const LawAgentSignUp = ({
                               ? "2px solid #7902DF"
                               : "",
                           backgroundColor:
-                          consultation === item.title ? "#402FFF20" : "",
+                            consultation === item.title ? "#402FFF20" : "",
                         }}
                       >
                         {item.title}

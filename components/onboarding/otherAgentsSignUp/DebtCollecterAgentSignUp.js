@@ -755,6 +755,7 @@ const DebtCollerterAgentSignUp = ({
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={installationVolume}
+                type="number"
                 onChange={(e) => {
                   setInstallationVolume(e.target.value);
                 }}
@@ -826,7 +827,7 @@ const DebtCollerterAgentSignUp = ({
                               ? "2px solid #7902DF"
                               : "",
                           backgroundColor:
-                            ClientType === item.title ? "#402FFF20" : "",
+                            ClientType === item.title ? "#7902DF20" : "",
                         }}
                       >
                         {item.title}

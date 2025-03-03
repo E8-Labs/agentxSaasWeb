@@ -54,10 +54,9 @@ function Knowledgebase({ user, agent }) {
     return (
       <div className="flex flex-col items-center justify-center mt-5   p-8 ">
         <div className="flex flex-col w-[60%] items-center justify-center mt-5 gap-4 p-8 rounded-lg">
-          <Image
+          <img
             src={"/assets/nokb.svg"}
-            height={5000}
-            width={5000}
+           className="h-50 w-70 object-contain"
             alt="No Knowledgebase"
           />
 

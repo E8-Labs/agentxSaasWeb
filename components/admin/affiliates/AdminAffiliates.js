@@ -27,6 +27,7 @@ import {
   GetFormattedTimeString,
 } from "@/utilities/utility";
 import { AffiliatesFilterModal } from "./AffiliatesFilterModal";
+import AffiliateDetailsDrawer from "./AffiliateDetailsDrawer";
 
 function AdminAffiliates({ selectedUser }) {
   const timerRef = useRef(null);
@@ -65,9 +66,11 @@ function AdminAffiliates({ selectedUser }) {
   const [filters, setFilters] = useState({});
 
   const [showUsersModal, setShowUsersModal] = useState(false)
-  const [selectedAffiliate, setSelectedAffiliate] = useState(null)
+  const [selectedAffiliate, setSelectedAffiliate] = useState("")
   const [affilateUsers, setAffiliateUsers] = useState([])
   const [affilateUsersLoader, setAffiliateUsersLoader] = useState([])
+
+  const [showAffiliateDrawer, setShowAffiliateDrawer] = useState(false)
 
 
 
@@ -166,7 +169,7 @@ function AdminAffiliates({ selectedUser }) {
         let u = JSON.parse(data);
 
         let path = Apis.getAffiliate + "?offset=" + offset;
-
+        console.log('u', u)
         if (filter) {
           if (filter.users) {
             path = `${path}&minUsers=${filter.users[0]}&maxUsers=${filter.users[1]}`
@@ -345,7 +348,6 @@ function AdminAffiliates({ selectedUser }) {
     // }
   };
 
-
   const handleSearch = (e) => {
     const searchTerm = e.target.value.toLowerCase();
     setSearch(searchTerm);
@@ -370,6 +372,28 @@ function AdminAffiliates({ selectedUser }) {
     setFilteredAffiliates(filtered);
   };
 
+
+  const mockAffiliate = {
+    name: "Carol Perez",
+    email: "shakia.chidubem@gmail.com",
+    phone: "(945) 952-9271",
+    url: "myagentx.com/carolperez_ai",
+    createdAt: "Jan 1 2025",
+    totalUsers: 24,
+    revenue: "1,527.73",
+    xbarAmount: "1,527.73",
+    topClient: { name: "Maria Hall", amount: "4,513.80" },
+    payouts: [
+      { date: "7 May 2010", amount: "1,527.73", paidAmount: "152" },
+      { date: "27 September 2011", amount: "5,440.01", paidAmount: "544" },
+      { date: "5 November 2023", amount: "6,597.00", paid: true },
+      { date: "14 April 2006", amount: "9,983.57", paid: true },
+      { date: "10 February 2008", amount: "4,588.92", paid: true },
+      { date: "22 October 2022", amount: "6,011.04", paid: true },
+      { date: "21 May 2007", amount: "7,414.90", paid: true },
+      { date: "1 January 2021", amount: "3,265.50", paid: true },
+    ],
+  };
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -407,12 +431,12 @@ function AdminAffiliates({ selectedUser }) {
 
 
       <div
-        className="flex w-full justify-center overflow-auto pb-50"
+        className="flex w-full justify-center overflow-hidden pb-50"
         style={{ scrollbarWidth: "none" }}
       >
 
-
         <div className="w-11/12 flex flex-col items-start">
+          <div style={{ fontSize: 24, fontWeight: "600" }}>LeaderBoard</div>
           <div className="w-full flex flex-row items-center justify-between">
             <div className="flex flex-row justify-start items-center gap-4 p-6 w-full">
               <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded pe-2">
@@ -447,7 +471,7 @@ function AdminAffiliates({ selectedUser }) {
               </button>
             </div>
             <button
-              className="rounded-lg text-white bg-purple"
+              className="rounded-lg text-white bg-purple p-3"
               style={{
                 fontWeight: "500",
                 fontSize: "16",
@@ -460,30 +484,51 @@ function AdminAffiliates({ selectedUser }) {
             </button>
           </div>
 
-          <div className="w-full flex flex-row  mt-4">
-            <div className="w-3/12">
-              <div style={styles.text}>Name</div>
+          <div className="w-full flex flex-row bg-purple h-[52px] mt-4 gap-2 px-2">
+            <div className="w-1/12 flex border-r-2 border-[#15151510] flex-row items-center gap-2">
+              <img src="/svgIcons/rankIcon.svg"
+                style={styles.image} alt="*"
+              />
+              <div style={styles.text}>Rank</div>
             </div>
-            <div className="w-2/12">
-              <div style={styles.text}>Email</div>
+            <div className="w-3/12 border-r-2 border-[#15151510] flex flex-row items-center gap-2">
+              <img src="/svgIcons/affiliateIcon.svg"
+                style={styles.image} alt="*"
+              />
+              <div style={styles.text}>Affiliate</div>
             </div>
-            <div className="w-2/12">
-              <div style={styles.text}>Contact Number</div>
-            </div>
-            <div className="w-2/12">
-              <div style={styles.text}>Unique Url</div>
+            <div className="w-2/12 flex border-r-2 border-[#15151510] flex-row items-center gap-2">
+              <img src="/svgIcons/usersIcon.svg"
+                style={styles.image} alt="*"
+              />
+              <div style={styles.text}>Users</div>
             </div>
 
-            <div className="w-1/12">
-              <div style={styles.text}>Total Users</div>
+            <div className="w-3/12 flex border-r-2 border-[#15151510] flex-row items-center gap-2">
+              <img src="/svgIcons/topSpendingIcon.svg"
+                style={styles.image} alt="*"
+              />
+              <div style={styles.text}>Top Spending Client</div>
             </div>
-
-            <div className="w-1/12">
+            <div className="w-2/12 flex border-r-2 border-[#15151510] flex-row items-center gap-2">
+              <img src="/svgIcons/revenueIcon.svg"
+                style={styles.image} alt="*"
+              />
               <div style={styles.text}>Revenue</div>
             </div>
+            <div className="w-2/12 flex border-r-2 border-[#15151510] flex-row items-center gap-2">
+              <img src="/svgIcons/xBarIcon.svg"
+                style={styles.image} alt="*"
+              />
+              <div style={styles.text}>Xbar Amount</div>
+            </div>
 
-            <div className="w-1/12">
-              <div style={styles.text}>Date</div>
+
+            <div className="w-1/12 flex border-r-2 border-[#15151510] flex-row items-center gap-2">
+              <img src="/svgIcons/detailsIcon.svg"
+                style={styles.image} alt="*"
+              />
+              <div style={styles.text}>Details</div>
             </div>
           </div>
 
@@ -493,58 +538,57 @@ function AdminAffiliates({ selectedUser }) {
             </div>
           ) : affiliatsList.length > 0 ? (
             <div
-              className="flex flex-col h-[76vh] w-full"
+              className="flex flex-col h-[70vh] w-full"
               style={{ overflow: "auto", scrollbarWidth: "none" }}
             >
-              {filteredAffiliates.map((item) => (
+              {filteredAffiliates.map((item, index) => (
                 <div
                   key={item.id}
                   style={{ cursor: "pointer" }}
-                  className="w-full flex flex-row items-center mt-5 hover:bg-[#402FFF05]"
+                  className="w-full flex flex-row items-center gap-2 h-[60px] hover:bg-[#402FFF05]"
                 >
-                  <div className="w-3/12 flex flex-row gap-2 items-center">
-                    <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                      {item.name.slice(0, 1).toUpperCase()}
-                    </div>
+                  <div className="w-1/12 h-full border-r-2 border-[#15151510] pl-4">
+
+                    <div style={styles.text2}>{index + 1}</div>
+                  </div>
+                  <div className="w-3/12  h-full border-r-2 border-[#15151510] pl-4">
                     <div style={styles.text2}>{item.name}</div>
                   </div>
-                  <div className="w-2/12">
-                    <div style={styles.text2}>{item.email}</div>
-                  </div>
-                  <div className="w-2/12">
+                  <div className="w-2/12  h-full border-r-2 border-[#15151510] pl-4">
                     {/* (item.LeadModel?.phone) */}
                     <div style={styles.text2}>
-                      {item.phone ? (
-                        <div>{formatPhoneNumber(item?.phone)}</div>
+                      {item.totalUsers ? (
+                        item?.totalUsers
                       ) : (
                         "-"
                       )}
                     </div>
                   </div>
-                  <div className="w-2/12">
+                  <div className="w-3/12  h-full border-r-2 border-[#15151510] pl-4">
                     <div style={styles.text2}>
-                      {item.uniqueUrl ? item.uniqueUrl : "-"}
+                      { "-"}
                     </div>
                   </div>
-                  <div className="w-1/12">
-                    <button onClick={() => {
-                      setShowUsersModal(true)
-                      setSelectedAffiliate(item)
-                    }}>
-                      <div style={styles.text2}>{item.totalUsers}</div>
-                    </button>
+                  <div className="w-2/12  h-full border-r-2 border-[#15151510]">
+
+                    <div style={styles.text2}>{item.Revenue ? item.Revenue :"-"}</div>
                   </div>
-                  <div className="w-1/12">
+                  <div className="w-2/12 pl-4">
                     <div style={styles.text2}>
-                      {item.totalSpent ? `$${item.totalSpent}` : "-"}
+                      {item.xbarTotalRevenue?.totalSpent ? `$${item.xbarTotalRevenue.totalSpent}` : "-"}
                     </div>
                   </div>
 
-                  <div className="w-1/12">
-                    <div style={styles.text2}>
-                      {GetFormattedDateString(item.createdAt)}
+                  <button className="w-1/12 pl-4"
+                    onClick={() => {
+                      setShowAffiliateDrawer(true)
+                      setSelectedAffiliate(item)
+                    }}
+                  >
+                    <div style={{ textDecorationLine: 'underline' }}>
+                      More Info
                     </div>
-                  </div>
+                  </button>
                 </div>
               ))}
             </div>
@@ -558,8 +602,15 @@ function AdminAffiliates({ selectedUser }) {
         </div>
       </div>
 
-      {/* open user detail popup */}
 
+      {/* drawer for selected affiliate */}
+
+      <AffiliateDetailsDrawer open={showAffiliateDrawer} onClose={() => { setShowAffiliateDrawer(false) }}
+        affiliate={selectedAffiliate}
+      />
+
+      {/* open user detail popup */}
+      {/* 
       <Modal
         open={showUsersModal}
         onClose={() => setShowUsersModal(false)}
@@ -568,8 +619,8 @@ function AdminAffiliates({ selectedUser }) {
           timeout: 100,
           sx: {
             backgroundColor: "#00000020",
-            alignItems:'center',
-            justifyContent:'center'
+            alignItems: 'center',
+            justifyContent: 'center'
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -670,7 +721,6 @@ function AdminAffiliates({ selectedUser }) {
                             <div style={styles.text2}>{item.email}</div>
                           </div>
                           <div className="w-2/12">
-                            {/* (item.LeadModel?.phone) */}
                             <div style={styles.text2}>
                               {item.phone ? (
                                 <div>{formatPhoneNumber(item?.phone)}</div>
@@ -686,8 +736,7 @@ function AdminAffiliates({ selectedUser }) {
                           </div>
                           <div className="w-1/12">
                             <button onClick={() => {
-                              setShowUsersModal(true)
-                              setSelectedAffiliate(item)
+                             
                             }}>
                               <div style={styles.text2}>{item.totalUsers}</div>
                             </button>
@@ -715,7 +764,7 @@ function AdminAffiliates({ selectedUser }) {
             </div>
           </div>
         </Box>
-      </Modal>
+      </Modal> */}
 
       {/* add affiliate popup */}
       <Modal
@@ -1004,7 +1053,7 @@ const styles = {
     color: "#FF4D4F", // Red color for delete
   },
   modalsStyle: {
-    
+
     height: "auto",
     bgcolor: "transparent",
 
@@ -1033,9 +1082,13 @@ const styles = {
     fontWeight: "500",
   },
   text: {
-    fontSize: 15,
-    color: "#00000090",
+    fontSize: 16,
+    color: "#fff",
     fontWeight: "600",
+  },
+  image: {
+    height: 16,
+    width: 16
   },
   text2: {
     textAlignLast: "left",

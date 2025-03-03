@@ -15,6 +15,7 @@ import {
 
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
+import CustomSlider from "./CustomSlider";
 
 const styles = {
     heading: {
@@ -76,9 +77,17 @@ export function AffiliatesFilterModal({
     onDismissCallback,
 }) {
 
-    const [users, setusers] = useState( [0, 1000000]);
+    const [users, setusers] = useState([0, 1000000]);
     const [revenue, setrevenue] = useState([0, 1000000]);
-    const [loading,setLoading] = useState(false)
+    const [xBar, setXBar] = useState([0, 1000000]);
+    const [loading, setLoading] = useState(false)
+
+    useEffect(() => {
+        setusers(filters.users || [0, 1000000]);
+        setrevenue(filters.revenue || [0, 1000000]);
+        setXBar(filters.xBar || [0, 1000000]);
+      }, [showFilterModal]); // Reset filters every time the modal opens
+    
 
 
     const handleApplyFilters = () => {
@@ -108,7 +117,7 @@ export function AffiliatesFilterModal({
             }}
         >
             <Box
-                className="flex flex-row justify-center items-start lg:w-4/12 sm:w-7/12 w-8/12 py-2 px-6 bg-white max-h-[75svh]  overflow-auto md:overflow-auto"
+                className="flex flex-row justify-center items-start lg:w-4/12 sm:w-7/12 w-8/12 py-4 px-6 bg-white max-h-[75svh]  overflow-auto md:overflow-auto"
                 sx={{
                     ...styles.modalsStyle,
                     scrollbarWidth: "none",
@@ -127,35 +136,43 @@ export function AffiliatesFilterModal({
                         </button>
                     </div>
                     <div className="mt-2 w-full overflow-auto h-[85%] p-4">
-                        <div style={{
-                            fontWeight: "500",
-                            fontSize: 12,
-                            color: "#00000060",
-                            marginTop: 10,
-                        }}>Total Users</div>
-                        <Slider value={users} onChange={(e, v) => {
-                            setusers(v)
-                            updateFilters({ ...filters, users: v })
 
-                        }} valueLabelDisplay="auto"
+                        <CustomSlider
+                            // min={100}
+                            // max={1000}
+                            step={50}
+                            defaultValue={users}
+                            label="X-Bar"
+                            onChange={(value) => {
+                                console.log("Selected Users:", value)
+                                setXBar(value)
 
-                            sx={{
-                                color: "#7902DF",
-                            }} />
+                            }}
+                        />
 
-                        <div style={{
-                            fontWeight: "500",
-                            fontSize: 12,
-                            color: "#00000060",
-                            marginTop: 10,
-                        }}>Total Revenue</div>
-                        <Slider value={revenue} onChange={(e, v) => {
-                            setrevenue(v)
-                            updateFilters({ ...filters, revenue: v })
-                        }} valueLabelDisplay="auto"
-                            min={0} max={1000000}
-                            sx={{
-                                color: "#7902DF",
+                        <CustomSlider
+                            min={100}
+                            max={1000}
+                            step={50}
+                            defaultValue={users}
+                            label="Users"
+                            onChange={(value) => {
+                                console.log("Selected Users:", value)
+                                setusers(value)
+
+                            }}
+                        />
+
+                        <CustomSlider
+                            // min={100}
+                            // max={1000}
+                            step={50}
+                            defaultValue={users}
+                            label="Revenue"
+                            onChange={(value) => {
+                                console.log("Selected Users:", value)
+                                setrevenue(value)
+
                             }}
                         />
 
