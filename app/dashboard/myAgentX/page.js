@@ -999,7 +999,7 @@ function Page() {
   };
 
   const updateAgent = async (voiceId) => {
-    console.log("voiceData", voiceData);
+    // console.log("voiceData", voiceData);
     // return
     try {
       // return
@@ -1034,8 +1034,8 @@ function Page() {
         formData.append("mainAgentId", MainAgentId);
       }
 
-      if (vocieId) {
-        formData.append("voiceId", vocieId);
+      if (voiceId) {
+        formData.append("voiceId", voiceId);
       }
 
       // return
@@ -2764,7 +2764,7 @@ function Page() {
             </button>
           </div> */}
           <div
-            className="w-full flex flex-col h-[80vh]"
+            className="w-full flex flex-col h-[90vh]"
             style={{
               overflowY: "auto",
               overflowX: "hidden",
@@ -2889,45 +2889,6 @@ function Page() {
                 </div>
               </div>
               <div className="flex flex-col gap-2  ">
-                {/* Delete agent button */}
-                <button
-                  className="flex flex-row gap-2 items-center"
-                  onClick={() => {
-                    setDelAgentModal(true);
-                  }}
-                  style={{
-                    marginTop: 20,
-                    // position: "absolute",
-                    // bottom: "5%",
-                  }}
-                >
-                  {/* <Image src={'/otherAssets/redDeleteIcon.png'}
-                height={24}
-                width={24}
-                alt='del'
-              /> */}
-
-                  <Image
-                    src={"/otherAssets/redDeleteIcon.png"}
-                    height={24}
-                    width={24}
-                    alt="del"
-                    style={{
-                      filter: "brightness(0) saturate(100%) opacity(0.5)", // Convert to black and make semi-transparent
-                    }}
-                  />
-
-                  <div
-                    style={{
-                      fontSize: 15,
-                      fontWeight: "600",
-                      color: "#15151590",
-                      textDecorationLine: "underline",
-                    }}
-                  >
-                    Delete Agent
-                  </div>
-                </button>
                 {/* GPT Button */}
                 <div>
                   <button
@@ -3840,6 +3801,47 @@ function Page() {
             ) : (
               ""
             )}
+
+            {/* Delete agent button */}
+            <button
+              className="flex flex-row gap-2 items-center"
+              onClick={() => {
+                setDelAgentModal(true);
+              }}
+              style={{
+                marginTop: 20,
+                alignSelf: "end",
+                // position: "absolute",
+                // bottom: "5%",
+              }}
+            >
+              {/* <Image src={'/otherAssets/redDeleteIcon.png'}
+                height={24}
+                width={24}
+                alt='del'
+              /> */}
+
+              <Image
+                src={"/otherAssets/redDeleteIcon.png"}
+                height={24}
+                width={24}
+                alt="del"
+                style={{
+                  filter: "brightness(0) saturate(100%) opacity(0.5)", // Convert to black and make semi-transparent
+                }}
+              />
+
+              <div
+                style={{
+                  fontSize: 15,
+                  fontWeight: "600",
+                  color: "#15151590",
+                  textDecorationLine: "underline",
+                }}
+              >
+                Delete Agent
+              </div>
+            </button>
           </div>
         </div>
       </Drawer>
