@@ -59,23 +59,20 @@ function AdminAffiliates({ selectedUser }) {
 
   const [urlError, setUrlError] = useState("");
   const [urlError2, setUrlError2] = useState("");
-  const [search, setSearch] = useState("")
+  const [search, setSearch] = useState("");
   const [filteredAffiliates, setFilteredAffiliates] = useState([]);
 
-  const [showFilterModal, setShowFilterModal] = useState(false)
+  const [showFilterModal, setShowFilterModal] = useState(false);
   const [filters, setFilters] = useState({});
 
-  const [showUsersModal, setShowUsersModal] = useState(false)
-  const [selectedAffiliate, setSelectedAffiliate] = useState("")
-  const [affilateUsers, setAffiliateUsers] = useState([])
-  const [affilateUsersLoader, setAffiliateUsersLoader] = useState([])
+  const [showUsersModal, setShowUsersModal] = useState(false);
+  const [selectedAffiliate, setSelectedAffiliate] = useState("");
+  const [affilateUsers, setAffiliateUsers] = useState([]);
+  const [affilateUsersLoader, setAffiliateUsersLoader] = useState([]);
 
-  const [showAffiliateDrawer, setShowAffiliateDrawer] = useState(false)
+  const [showAffiliateDrawer, setShowAffiliateDrawer] = useState(false);
 
-
-
-
-  useEffect(() => { });
+  useEffect(() => {});
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -102,45 +99,49 @@ function AdminAffiliates({ selectedUser }) {
   }, [officeHourUrl]);
 
   useEffect(() => {
-    getUsersForAffiliate()
-  }, [selectedAffiliate])
-
+    getUsersForAffiliate();
+  }, [selectedAffiliate]);
 
   const getUsersForAffiliate = async (offset = 0) => {
-    console.log('selected affiliate is ', selectedAffiliate)
+    console.log("selected affiliate is ", selectedAffiliate);
     try {
-      setAffiliateUsersLoader(true)
-      let data = localStorage.getItem(PersistanceKeys.LocalStorageUser)
+      setAffiliateUsersLoader(true);
+      let data = localStorage.getItem(PersistanceKeys.LocalStorageUser);
 
       if (data) {
-        let u = JSON.parse(data)
+        let u = JSON.parse(data);
 
-        let path = `${Apis.getUsersForAffiliate}?offset=${offset}&campaigneeId=${selectedAffiliate?.id}`
+        let path = `${Apis.getUsersForAffiliate}?offset=${offset}&campaigneeId=${selectedAffiliate?.id}`;
 
         const response = await axios.get(path, {
           headers: {
-            "Authorization": "Bearer " + u.token
-          }
-        })
+            Authorization: "Bearer " + u.token,
+          },
+        });
 
         if (response.data) {
-          setAffiliateUsersLoader(false)
+          setAffiliateUsersLoader(false);
 
           if (response.data.status === true) {
-            console.log('users for selected affiliate are ', response.data.data)
-            setAffiliateUsers(response.data.data)
+            console.log(
+              "users for selected affiliate are ",
+              response.data.data
+            );
+            setAffiliateUsers(response.data.data);
           } else {
-
-            console.log('users for selected affiliate api messsage is', response.data.message)
+            console.log(
+              "users for selected affiliate api messsage is",
+              response.data.message
+            );
           }
         }
       }
     } catch (e) {
-      setAffiliateUsersLoader(false)
+      setAffiliateUsersLoader(false);
 
-      console.log('error in get users api is ', e)
+      console.log("error in get users api is ", e);
     }
-  }
+  };
 
   //   useEffect(() => {
   //     let timer = setTimeout(() => {
@@ -169,16 +170,16 @@ function AdminAffiliates({ selectedUser }) {
         let u = JSON.parse(data);
 
         let path = Apis.getAffiliate + "?offset=" + offset;
-        console.log('u', u)
+        console.log("u", u);
         if (filter) {
           if (filter.users) {
-            path = `${path}&minUsers=${filter.users[0]}&maxUsers=${filter.users[1]}`
+            path = `${path}&minUsers=${filter.users[0]}&maxUsers=${filter.users[1]}`;
           }
           if (filter.revenue) {
-            path = `${path}&minRevenue=${filter.revenue[0]}&maxRevenue=${filter.revenue[1]}`
+            path = `${path}&minRevenue=${filter.revenue[0]}&maxRevenue=${filter.revenue[1]}`;
           }
         }
-        console.log('path', path)
+        console.log("path", path);
 
         const response = await axios.get(path, {
           headers: {
@@ -372,7 +373,6 @@ function AdminAffiliates({ selectedUser }) {
     setFilteredAffiliates(filtered);
   };
 
-
   const mockAffiliate = {
     name: "Carol Perez",
     email: "shakia.chidubem@gmail.com",
@@ -405,36 +405,29 @@ function AdminAffiliates({ selectedUser }) {
           type={SnackbarTypes.Success}
         />
       )}
-      {
-        showFilterModal && (
-          <AffiliatesFilterModal
-            filters={{}}
-            showFilterModal={showFilterModal}
-            onDismissCallback={() => {
-              setShowFilterModal(false)
-            }}
-            updateFilters={(filter) => {
-
-              console.log("Filters selected", filter);
-              // let f = { ...filters, filter }
-              setFilters(filter);
-              if (filter?.finalUpdate === true) {
-
-
-                getAffiliates(0, filter,);
-                setShowFilterModal(false);
-              }
-            }}
-          />
-        )
-      }
-
+      {showFilterModal && (
+        <AffiliatesFilterModal
+          filters={{}}
+          showFilterModal={showFilterModal}
+          onDismissCallback={() => {
+            setShowFilterModal(false);
+          }}
+          updateFilters={(filter) => {
+            console.log("Filters selected", filter);
+            // let f = { ...filters, filter }
+            setFilters(filter);
+            if (filter?.finalUpdate === true) {
+              getAffiliates(0, filter);
+              setShowFilterModal(false);
+            }
+          }}
+        />
+      )}
 
       <div
         className="flex w-full justify-center overflow-hidden pb-50"
         style={{ scrollbarWidth: "none" }}
       >
-
         <div className="w-11/12 flex flex-col items-start">
           <div style={{ fontSize: 24, fontWeight: "600" }}>LeaderBoard</div>
           <div className="w-full flex flex-row items-center justify-between">
@@ -456,10 +449,11 @@ function AdminAffiliates({ selectedUser }) {
                   />
                 </button>
               </div>
-              <button className="outline-none flex-shrink-0"
+              <button
+                className="outline-none flex-shrink-0"
                 onClick={() => {
-                  console.log('show filter true')
-                  setShowFilterModal(true)
+                  console.log("show filter true");
+                  setShowFilterModal(true);
                 }}
               >
                 <Image
@@ -486,47 +480,48 @@ function AdminAffiliates({ selectedUser }) {
 
           <div className="w-full flex flex-row bg-purple h-[52px] mt-4 gap-2 px-2">
             <div className="w-1/12 flex border-r-2 border-[#15151510] flex-row items-center gap-2">
-              <img src="/svgIcons/rankIcon.svg"
-                style={styles.image} alt="*"
-              />
+              <img src="/svgIcons/rankIcon.svg" style={styles.image} alt="*" />
               <div style={styles.text}>Rank</div>
             </div>
             <div className="w-3/12 border-r-2 border-[#15151510] flex flex-row items-center gap-2">
-              <img src="/svgIcons/affiliateIcon.svg"
-                style={styles.image} alt="*"
+              <img
+                src="/svgIcons/affiliateIcon.svg"
+                style={styles.image}
+                alt="*"
               />
               <div style={styles.text}>Affiliate</div>
             </div>
             <div className="w-2/12 flex border-r-2 border-[#15151510] flex-row items-center gap-2">
-              <img src="/svgIcons/usersIcon.svg"
-                style={styles.image} alt="*"
-              />
+              <img src="/svgIcons/usersIcon.svg" style={styles.image} alt="*" />
               <div style={styles.text}>Users</div>
             </div>
 
             <div className="w-3/12 flex border-r-2 border-[#15151510] flex-row items-center gap-2">
-              <img src="/svgIcons/topSpendingIcon.svg"
-                style={styles.image} alt="*"
+              <img
+                src="/svgIcons/topSpendingIcon.svg"
+                style={styles.image}
+                alt="*"
               />
               <div style={styles.text}>Top Spending Client</div>
             </div>
             <div className="w-2/12 flex border-r-2 border-[#15151510] flex-row items-center gap-2">
-              <img src="/svgIcons/revenueIcon.svg"
-                style={styles.image} alt="*"
+              <img
+                src="/svgIcons/revenueIcon.svg"
+                style={styles.image}
+                alt="*"
               />
               <div style={styles.text}>Revenue</div>
             </div>
             <div className="w-2/12 flex border-r-2 border-[#15151510] flex-row items-center gap-2">
-              <img src="/svgIcons/xBarIcon.svg"
-                style={styles.image} alt="*"
-              />
+              <img src="/svgIcons/xBarIcon.svg" style={styles.image} alt="*" />
               <div style={styles.text}>Xbar Amount</div>
             </div>
 
-
             <div className="w-1/12 flex border-r-2 border-[#15151510] flex-row items-center gap-2">
-              <img src="/svgIcons/detailsIcon.svg"
-                style={styles.image} alt="*"
+              <img
+                src="/svgIcons/detailsIcon.svg"
+                style={styles.image}
+                alt="*"
               />
               <div style={styles.text}>Details</div>
             </div>
@@ -548,7 +543,6 @@ function AdminAffiliates({ selectedUser }) {
                   className="w-full flex flex-row items-center gap-2 h-[60px] hover:bg-[#402FFF05]"
                 >
                   <div className="w-1/12 h-full border-r-2 border-[#15151510] pl-4">
-
                     <div style={styles.text2}>{index + 1}</div>
                   </div>
                   <div className="w-3/12  h-full border-r-2 border-[#15151510] pl-4">
@@ -557,35 +551,38 @@ function AdminAffiliates({ selectedUser }) {
                   <div className="w-2/12  h-full border-r-2 border-[#15151510] pl-4">
                     {/* (item.LeadModel?.phone) */}
                     <div style={styles.text2}>
-                      {item.totalUsers ? (
-                        item?.totalUsers
-                      ) : (
-                        "-"
-                      )}
+                      {item.totalUsers ? item?.totalUsers : "-"}
                     </div>
                   </div>
                   <div className="w-3/12  h-full border-r-2 border-[#15151510] pl-4">
                     <div style={styles.text2}>
-                      { "-"}
+                      {item.topSpender
+                        ? `${item.topSpender?.User?.name}
+                        ($${item.topSpender?.totalSpent})`
+                        : ""}
                     </div>
                   </div>
                   <div className="w-2/12  h-full border-r-2 border-[#15151510]">
-
-                    <div style={styles.text2}>{item.Revenue ? item.Revenue :"-"}</div>
+                    <div style={styles.text2}>
+                      {item.Revenue ? item.Revenue : "-"}
+                    </div>
                   </div>
                   <div className="w-2/12 pl-4">
                     <div style={styles.text2}>
-                      {item.xbarTotalRevenue?.totalSpent ? `$${item.xbarTotalRevenue.totalSpent}` : "-"}
+                      {item.xbarTotalRevenue?.totalSpent
+                        ? `$${item.xbarTotalRevenue?.totalSpent}`
+                        : "-"}
                     </div>
                   </div>
 
-                  <button className="w-1/12 pl-4"
+                  <button
+                    className="w-1/12 pl-4"
                     onClick={() => {
-                      setShowAffiliateDrawer(true)
-                      setSelectedAffiliate(item)
+                      setShowAffiliateDrawer(true);
+                      setSelectedAffiliate(item);
                     }}
                   >
-                    <div style={{ textDecorationLine: 'underline' }}>
+                    <div style={{ textDecorationLine: "underline" }}>
                       More Info
                     </div>
                   </button>
@@ -602,10 +599,13 @@ function AdminAffiliates({ selectedUser }) {
         </div>
       </div>
 
-
       {/* drawer for selected affiliate */}
 
-      <AffiliateDetailsDrawer open={showAffiliateDrawer} onClose={() => { setShowAffiliateDrawer(false) }}
+      <AffiliateDetailsDrawer
+        open={showAffiliateDrawer}
+        onClose={() => {
+          setShowAffiliateDrawer(false);
+        }}
         affiliate={selectedAffiliate}
       />
 
@@ -921,7 +921,7 @@ function AdminAffiliates({ selectedUser }) {
                         overflowY: "auto",
                       }}
                       countryCodeEditable={true}
-                    // defaultMask={locationLoader ? "Loading..." : undefined}
+                      // defaultMask={locationLoader ? "Loading..." : undefined}
                     />
                   </div>
                 </div>
@@ -978,14 +978,14 @@ function AdminAffiliates({ selectedUser }) {
                     marginTop: 20,
                     backgroundColor:
                       !name ||
-                        !email ||
-                        !phone ||
-                        //   emailCheckResponse?.status !== true ||
-                        //   checkPhoneResponse?.status !== true ||
-                        !!urlError ||
-                        //   !!urlError2 ||
-                        !uniqueUrl ||
-                        !officeHourUrl
+                      !email ||
+                      !phone ||
+                      //   emailCheckResponse?.status !== true ||
+                      //   checkPhoneResponse?.status !== true ||
+                      !!urlError ||
+                      //   !!urlError2 ||
+                      !uniqueUrl ||
+                      !officeHourUrl
                         ? "#00000020"
                         : "",
                   }}
@@ -1019,8 +1019,8 @@ function AdminAffiliates({ selectedUser }) {
                       color:
                         !name || !email || !phone
                           ? // emailCheckResponse?.status !== true ||
-                          // checkPhoneResponse?.status !== true
-                          "#000000"
+                            // checkPhoneResponse?.status !== true
+                            "#000000"
                           : "#ffffff",
                     }}
                   >
@@ -1035,7 +1035,7 @@ function AdminAffiliates({ selectedUser }) {
           </div>
         </Box>
       </Modal>
-    </div >
+    </div>
   );
 }
 
@@ -1053,7 +1053,6 @@ const styles = {
     color: "#FF4D4F", // Red color for delete
   },
   modalsStyle: {
-
     height: "auto",
     bgcolor: "transparent",
 
@@ -1088,7 +1087,7 @@ const styles = {
   },
   image: {
     height: 16,
-    width: 16
+    width: 16,
   },
   text2: {
     textAlignLast: "left",
