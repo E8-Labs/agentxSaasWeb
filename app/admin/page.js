@@ -8,6 +8,7 @@ import AdminAffiliates from "@/components/admin/affiliates/AdminAffiliates";
 
 import { useRouter } from "next/navigation";
 import { logout } from "@/utilities/UserUtility";
+import AdminDashboardCallLogs from "@/components/admin/CallLogs/AdminDashboardCallLogs";
 
 function Page() {
   const router = useRouter();
@@ -26,6 +27,10 @@ function Page() {
     },
     {
       id: 4,
+      name: "Call Logs",
+    },
+    {
+      id: 5,
       name: "Logout",
     },
   ];
@@ -56,7 +61,7 @@ function Page() {
           <button
             key={item.id}
             onClick={() => {
-              if (item.id == 4) {
+              if (item.name == "Logout") {
                 logout();
                 router.replace("/");
               } else {
@@ -64,10 +69,9 @@ function Page() {
               }
             }}
             className={`flex flex-row items-center gap-3 p-2 items-center 
-                      ${
-                        selectedManu.id == item.id &&
-                        "border-b-[2px] border-purple"
-                      }`}
+                      ${selectedManu.id == item.id &&
+              "border-b-[2px] border-purple"
+              }`}
           >
             <div
               style={{
@@ -85,14 +89,18 @@ function Page() {
       <div className="w-full">
         {selectedManu.name === "Users" ? (
           <AdminUsers />
-        ) : // <div> </div>
-        selectedManu.name === "Affiliates" ? (
-          <AdminAffiliates />
-        ) : (
-          <div>
-            <Dashboard />
-          </div>
-        )}
+        ) : 
+          selectedManu.name === "Affiliates" ? (
+            <AdminAffiliates />
+          ) : (
+            selectedManu.name === "Call Logs" ? (
+              <AdminDashboardCallLogs />
+            ) : (
+              <div>
+                <Dashboard />
+              </div>
+            )
+          )}
       </div>
     </div>
   );

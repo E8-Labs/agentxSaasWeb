@@ -714,8 +714,7 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(item.phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -1259,8 +1258,7 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -2127,8 +2125,8 @@ function Page() {
                           >
                             {user.user.userType == UserTypes.RealEstateAgent
                               ? `${item.agentObjective
-                                  ?.slice(0, 1)
-                                  .toUpperCase()}${item.agentObjective?.slice(
+                                ?.slice(0, 1)
+                                .toUpperCase()}${item.agentObjective?.slice(
                                   1
                                 )}`
                               : `${item.agentRole}`}
@@ -2631,7 +2629,7 @@ function Page() {
                       overflowY: "auto",
                     }}
                     countryCodeEditable={true}
-                    // defaultMask={loading ? 'Loading...' : undefined}
+                  // defaultMask={loading ? 'Loading...' : undefined}
                   />
                 </div>
 
@@ -2662,9 +2660,8 @@ function Page() {
                       <input
                         placeholder="Type here"
                         // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
-                          index === scriptKeys?.length - 1 ? "mb-16" : ""
-                        }`}
+                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
+                          }`}
                         style={{
                           ...styles.inputStyle,
                           border: "1px solid #00000010",
@@ -2744,7 +2741,7 @@ function Page() {
       >
         <div
           className="flex flex-col w-full bg-white p-5 rounded-xl"
-          // style={{  }}
+        // style={{  }}
         >
           {/* <div
             className="w-full flex flex-row items-center justify-between py-3"
@@ -2764,7 +2761,7 @@ function Page() {
             </button>
           </div> */}
           <div
-            className="w-full flex flex-col h-[80vh]"
+            className="w-full flex flex-col h-[90vh]"
             style={{
               overflowY: "auto",
               overflowX: "hidden",
@@ -2889,45 +2886,7 @@ function Page() {
                 </div>
               </div>
               <div className="flex flex-col gap-2  ">
-                {/* Delete agent button */}
-                <button
-                  className="flex flex-row gap-2 items-center"
-                  onClick={() => {
-                    setDelAgentModal(true);
-                  }}
-                  style={{
-                    marginTop: 20,
-                    // position: "absolute",
-                    // bottom: "5%",
-                  }}
-                >
-                  {/* <Image src={'/otherAssets/redDeleteIcon.png'}
-                height={24}
-                width={24}
-                alt='del'
-              /> */}
 
-                  <Image
-                    src={"/otherAssets/redDeleteIcon.png"}
-                    height={24}
-                    width={24}
-                    alt="del"
-                    style={{
-                      filter: "brightness(0) saturate(100%) opacity(0.5)", // Convert to black and make semi-transparent
-                    }}
-                  />
-
-                  <div
-                    style={{
-                      fontSize: 15,
-                      fontWeight: "600",
-                      color: "#15151590",
-                      textDecorationLine: "underline",
-                    }}
-                  >
-                    Delete Agent
-                  </div>
-                </button>
                 {/* GPT Button */}
                 <div>
                   <button
@@ -3011,7 +2970,7 @@ function Page() {
                 name="Calls"
                 value={
                   showDrawerSelectedAgent?.calls &&
-                  showDrawerSelectedAgent?.calls > 0 ? (
+                    showDrawerSelectedAgent?.calls > 0 ? (
                     <div>{showDrawerSelectedAgent?.calls}</div>
                   ) : (
                     "-"
@@ -3025,7 +2984,7 @@ function Page() {
                 name="Convos"
                 value={
                   showDrawerSelectedAgent?.callsGt10 &&
-                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                    showDrawerSelectedAgent?.callsGt10 > 0 ? (
                     <div>{showDrawerSelectedAgent?.callsGt10}</div>
                   ) : (
                     "-"
@@ -3053,7 +3012,7 @@ function Page() {
                 name="Mins Talked"
                 value={
                   showDrawerSelectedAgent?.totalDuration &&
-                  showDrawerSelectedAgent?.totalDuration > 0 ? (
+                    showDrawerSelectedAgent?.totalDuration > 0 ? (
                     // <div>{showDrawer?.totalDuration}</div>
                     <div>
                       {moment
@@ -3077,11 +3036,10 @@ function Page() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`${
-                    activeTab === tab
+                  className={`${activeTab === tab
                       ? "text-purple border-b-2 border-purple"
                       : "text-black-500"
-                  }`}
+                    }`}
                   style={{ fontSize: 15, fontWeight: "500" }}
                 >
                   {tab}
@@ -3209,9 +3167,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3324,9 +3282,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3425,9 +3383,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3679,37 +3637,37 @@ function Page() {
                                     {showReassignBtn && (
                                       <div
                                         className="w-full"
-                                        // onClick={(e) => {
-                                        //   console.log(
-                                        //     "Should open confirmation modal"
-                                        //   );
-                                        //   e.stopPropagation();
-                                        //   setShowConfirmationModal(item);
-                                        // }}
+                                      // onClick={(e) => {
+                                      //   console.log(
+                                      //     "Should open confirmation modal"
+                                      //   );
+                                      //   e.stopPropagation();
+                                      //   setShowConfirmationModal(item);
+                                      // }}
                                       >
                                         {item.claimedBy && (
                                           <div className="flex flex-row items-center gap-2">
                                             {showDrawerSelectedAgent?.name !==
                                               item.claimedBy.name && (
-                                              <div>
-                                                <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                {reassignLoader === item ? (
-                                                  <CircularProgress size={15} />
-                                                ) : (
-                                                  <button
-                                                    className="text-purple underline"
-                                                    onClick={(e) => {
-                                                      e.stopPropagation();
-                                                      setShowConfirmationModal(
-                                                        item
-                                                      );
-                                                    }}
-                                                  >
-                                                    Reassign
-                                                  </button>
-                                                )}
-                                              </div>
-                                            )}
+                                                <div>
+                                                  <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                                  {reassignLoader === item ? (
+                                                    <CircularProgress size={15} />
+                                                  ) : (
+                                                    <button
+                                                      className="text-purple underline"
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setShowConfirmationModal(
+                                                          item
+                                                        );
+                                                      }}
+                                                    >
+                                                      Reassign
+                                                    </button>
+                                                  )}
+                                                </div>
+                                              )}
                                           </div>
                                         )}
                                       </div>
@@ -3840,6 +3798,47 @@ function Page() {
             ) : (
               ""
             )}
+
+            {/* Delete agent button */}
+            <button 
+              className="flex flex-row gap-2 items-center"
+              onClick={() => {
+                setDelAgentModal(true);
+              }}
+              style={{
+                marginTop: 20,
+                alignSelf:'end'
+                // position: "absolute",
+                // bottom: "5%",
+              }}
+            >
+              {/* <Image src={'/otherAssets/redDeleteIcon.png'}
+                height={24}
+                width={24}
+                alt='del'
+              /> */}
+
+              <Image
+                src={"/otherAssets/redDeleteIcon.png"}
+                height={24}
+                width={24}
+                alt="del"
+                style={{
+                  filter: "brightness(0) saturate(100%) opacity(0.5)", // Convert to black and make semi-transparent
+                }}
+              />
+
+              <div
+                style={{
+                  fontSize: 15,
+                  fontWeight: "600",
+                  color: "#15151590",
+                  textDecorationLine: "underline",
+                }}
+              >
+                Delete Agent
+              </div>
+            </button>
           </div>
         </div>
       </Drawer>

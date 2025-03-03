@@ -11,6 +11,10 @@ import AdminDashboard from './AdminDashboard'
 import AdminIntegration from './AdminIntegration'
 import AdminTeam from './AdminTeams'
 import AdminProfileData from './AdminProfileData'
+import { Cross } from '@phosphor-icons/react'
+import axios from 'axios'
+import Apis from '@/components/apis/Apis'
+import AgentSelectSnackMessage from '@/components/dashboard/leads/AgentSelectSnackMessage'
 
 function SelectedUserDetails({ open, close, selectedUser, handleNext, handleBack }) {
 
@@ -61,6 +65,11 @@ function SelectedUserDetails({ open, close, selectedUser, handleNext, handleBack
     ]
 
     const [selectedManu, setSelectedManu] = useState(manuBar[0])
+    const [showAddMinutesModal, setShowAddMinutesModal] = useState(false)
+    const [error,setError] = useState("")
+    const [minutes, setMinutes] = useState("")
+    const [showSnackMessage,setShowSnackMessage] = useState(null)
+    const [loading,setloading] = useState(response.data.message)
 
 
     const handleManuClick = (item) => {
@@ -68,10 +77,44 @@ function SelectedUserDetails({ open, close, selectedUser, handleNext, handleBack
     }
 
 
+    const handleAddMinutes =async () =>{
+        try{
+            const data = localStorage.getItem("User")
 
+            if(data){
+                let u = JSON.parse(data)
+
+                let path = Apis.addMinutes
+
+                let apidata = {
+                    userId:selectedUser.id,
+                    minutes:minutes
+                }
+
+                const response = await axios.post(path,apidata,{
+                    headers:{
+                        "Authorization":'Bearer '+u.token
+                    }
+                })
+
+                if(response.data){
+                    if(response.data.status === true){
+                        console.log('add minutes api response is', response.data.data)
+                        setShowSnackMessage(response.data.message)
+                        setShowAddMinutesModal(false)
+                    }else{
+                        console.log('add minutes api message is', response.data.message)
+                    }
+                }
+            }
+        }catch(e){
+            console.log('error in add minutes api is', error)
+        }
+    }
 
     return (
         <div className='w-full flex flex-col items-center justify-center'>
+            <AgentSelectSnackMessage isVisible={showSnackMessage} hide={()=>{setShowSnackMessage(null)}}/>
             <Modal
                 open={open}
                 onClose={close}
@@ -104,24 +147,15 @@ function SelectedUserDetails({ open, close, selectedUser, handleNext, handleBack
                                     />
                                 </div>
 
-                                <div className='flex flex-row gap-5 items-center'>
-                                    <button className='flex p-3 rounded-full border'
-                                        onClick={handleBack}
-                                    >
-                                        <Image src={"/svgIcons/reverseArrow.svg"}
-                                            height={24} width={24} alt='*'
-                                        />
-                                    </button>
-
-                                    <button className='flex p-3 rounded-full border'
-                                        onClick={handleNext}
-
-                                    >
-                                        <Image src={"/svgIcons/farwordArrow.svg"}
-                                            height={24} width={24} alt='*'
-                                        />
-                                    </button>
-                                </div>
+                                <button
+                                    className="text-white bg-purple outline-none rounded-xl px-3"
+                                    style={{ height: "50px" }}
+                                    onClick={() => {
+                                        setShowAddMinutesModal(true)
+                                    }}
+                                >
+                                    Add Minutes
+                                </button>
                             </div>
 
 
@@ -182,6 +216,66 @@ function SelectedUserDetails({ open, close, selectedUser, handleNext, handleBack
                             </div>
                         </div>
                     </div>
+
+
+                    {/* Add minutes modal  */}
+                    <Modal
+                        open={showAddMinutesModal}
+                        onClose={() => {
+                            setShowAddMinutesModal(false);
+                        }}
+                        BackdropProps={{
+                            timeout: 100,
+                            sx: {
+                                backgroundColor: "#00000020",
+                                // //backdropFilter: "blur(20px)",
+                            },
+                        }}
+                    >
+                        <Box
+                            className="w-10/12 sm:w-7/12 md:w-5/12 lg:w-3/12 p-8 rounded-[15px]"
+                            sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+                        >
+                            <div className='w-full flex flex-row items-center justify-between'>
+                                <div style={{ fontSize: 16, fontWeight: '500' }}>
+                                    Add Minutes
+                                </div>
+
+
+                                <button onClick={() => {
+                                    setShowAddMinutesModal(false)
+                                }}>
+                                    <Image src={"/svgIcons/cross.svg"}
+                                        height={24}
+                                        width={24} alt='*'
+                                    />
+                                </button>
+
+                            </div>
+
+                            <div className='w-full flex flex-col items-start gap-3'>
+                                <div style={{ fontSize: 16, fontWeight: '500',marginTop:30 }}>
+                                    Minutes
+                                </div>
+
+                                <input
+                                    className={`w-full border-gray-300 rounded p-2 outline-none focus:outline-none focus:ring-0`}
+                                    value={minutes}
+                                    placeholder='Enter minutes'
+                                    onChange={(event) => {
+                                        setMinutes(event.target.value)
+                                    }}
+                                    type='number'
+                                />
+
+                                <button className='w-full outline-none bg-purple h-[52px] text-white rounded-lg'
+                                    onClick={handleAddMinutes}
+                                >
+                                    Add
+                                </button>
+                            </div>
+                        </Box>
+                    </Modal>
                 </Box>
 
             </Modal>
