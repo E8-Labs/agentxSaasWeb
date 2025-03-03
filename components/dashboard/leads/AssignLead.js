@@ -313,7 +313,8 @@ const AssignLead = ({
     } else {
       console.log("❌ Current time is outside 7 AM to 8:30 PM.");
       setInvalidTimeMessage(
-        "Calling is only available between 7AM and 8:30PM in " + userTimeZone
+        "Calls only between 7am-8:30pm"
+        // "Calling is only available between 7AM and 8:30PM in " + userTimeZone
       );
       return;
     }

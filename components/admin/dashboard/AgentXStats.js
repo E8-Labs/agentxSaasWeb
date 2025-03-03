@@ -71,7 +71,7 @@ function AgentXStats({ user }) {
 
   function GetStatView(title, percentage, count, icon) {
     return (
-      <Card className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center  w-[14vw]">
+      <Card className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center  w-[14vw] ">
         <div className="cursor-pointer flex items-start  justify-between w-full  mb-2">
           <img
             src={`${icon}`} //"/mt2agentsicon.png"
@@ -82,7 +82,11 @@ function AgentXStats({ user }) {
             <div className="cursor-pointer flex flex-col mr-2 items-end">
               <div
                 className="cursor-pointer font-light"
-                style={{ fontFamily: "Inter", fontSize: 30 }}
+                style={{
+                  fontFamily: "Inter",
+                  fontSize: 23,
+                  fontWeight: "bold",
+                }}
               >
                 {count}
               </div>
@@ -93,7 +97,14 @@ function AgentXStats({ user }) {
           )}
           {(count == "" || percentage == "") && (
             <div className="cursor-pointer flex flex-col mr-2 items-end">
-              <h2 className="cursor-pointer font-light" style={{ fontFamily: "Inter", fontSize: 30 }}>
+              <h2
+                className="cursor-pointer font-light"
+                style={{
+                  fontFamily: "Inter",
+                  fontSize: 23,
+                  fontWeight: "bold",
+                }}
+              >
                 {count == "" ? percentage : count}
                 {count == "" ? "%" : ""}
               </h2>
@@ -112,141 +123,144 @@ function AgentXStats({ user }) {
   }
 
   return (
-    <div className=" flex flex-col justify-start items-start pl-32 h-[90svh] gap-4" style={{overflow:'auto',scrollbarWidth:'none'}}>
+    <div
+      className=" flex flex-col justify-start items-start pl-32 h-[90svh] gap-4 pb-8"
+      style={{ overflow: "auto", scrollbarWidth: "none" }}
+    >
       {/*  Stats  */}
       <span className=" flex flex-row gap-2">
         <h1 className=" text-3xl font-regular mb-4">AgentX User</h1>
         <h1 className=" text-3xl font-regular mb-4 text-[#00000047]">Stat</h1>
       </span>
-        {/*  Subscriptions  */}
-        <SubscriptionsStatsComponent stats={stats} />
+      {/*  Subscriptions  */}
+      <SubscriptionsStatsComponent stats={stats} />
 
-        {/*  DAU MAU  */}
-        <div
-          className="h-[16%] cursor-pointer grid gap-6 grid-cols-4 md:grid-cols-4 lg:grid-cols-4 bg-white px-8 rounded-lg"
-          style={{
-            backgroundImage: "url('/daustatback.svg')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          {/* Top Metrics */}
-          <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[16vw] bg-transparent text-white">
-            <CardHeader>
-              <CardTitle>Daily Active Users</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <h2 className="cursor-pointer text-3xl font-bold">
-                {stats?.activeUsers.DAU.percentage}%
-              </h2>
-            </CardContent>
-            <CardContent>
-              <h2 className="cursor-pointer text-3xl font-bold">
-                {stats?.activeUsers.DAU.count}
-              </h2>
-            </CardContent>
-          </Card>
+      {/*  DAU MAU  */}
+      <div
+        className=" cursor-pointer grid gap-6 grid-cols-4 md:grid-cols-4 lg:grid-cols-4 bg-white px-8 rounded-lg"
+        style={{
+          backgroundImage: "url('/daustatback.svg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        {/* Top Metrics */}
+        <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[18.5vw] bg-transparent text-white">
+          <CardHeader>
+            <CardTitle>Daily Active Users</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <h2 className="cursor-pointer text-2xl font-bold">
+              {stats?.activeUsers.DAU.percentage}%
+            </h2>
+          </CardContent>
+          <CardContent>
+            <h2 className="cursor-pointer text-xl font-bold">
+              {stats?.activeUsers.DAU.count}
+            </h2>
+          </CardContent>
+        </Card>
 
-          <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none  w-[16vw] bg-transparent text-white">
-            <CardHeader>
-              <CardTitle>Weekly Sign Ups </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <h2 className="cursor-pointer text-3xl font-bold">
-                {stats?.weeklySignups}
-              </h2>
-              {/* <Progress value={27} /> */}
-            </CardContent>
-          </Card>
+        <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none  w-[16vw] bg-transparent text-white">
+          <CardHeader>
+            <CardTitle>Weekly Sign Ups </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <h2 className="cursor-pointer text-2xl font-bold">
+              {stats?.weeklySignups}
+            </h2>
+            {/* <Progress value={27} /> */}
+          </CardContent>
+        </Card>
 
-          <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[16vw] bg-transparent text-white">
-            <CardHeader>
-              <CardTitle>Monthly Active Users (MAU)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <h2 className="cursor-pointer text-3xl font-bold">
-                {stats?.activeUsers.MAU.percentage}%
-              </h2>
-            </CardContent>
-            <CardContent>
-              <h2 className="cursor-pointer text-3xl font-bold">
-                {stats?.activeUsers.MAU.count}
-              </h2>
-            </CardContent>
-          </Card>
+        <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[16vw] bg-transparent text-white">
+          <CardHeader>
+            <CardTitle>Monthly Active Users (MAU)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <h2 className="cursor-pointer text-2xl font-bold">
+              {stats?.activeUsers.MAU.percentage}%
+            </h2>
+          </CardContent>
+          <CardContent>
+            <h2 className="cursor-pointer text-xl font-bold">
+              {stats?.activeUsers.MAU.count}
+            </h2>
+          </CardContent>
+        </Card>
 
-          <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[16vw] bg-transparent text-white">
-            <CardHeader>
-              <CardTitle>Session Length</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <h2 className="cursor-pointer text-3xl font-bold">
-                {stats?.avgSessionDuration}
-              </h2>
-              {/* <Progress value={48} /> */}
-            </CardContent>
-          </Card>
-        </div>
+        <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[16vw] bg-transparent text-white">
+          <CardHeader>
+            <CardTitle>Session Length</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <h2 className="cursor-pointer text-2xl font-bold">
+              {stats?.avgSessionDuration}
+            </h2>
+            {/* <Progress value={48} /> */}
+          </CardContent>
+        </Card>
+      </div>
 
-        {/*  Voices  */}
+      {/*  Voices  */}
 
-        {/* <div className=" h-[15%] grid gap-6 grid-cols-3 md:grid-cols-3 lg:grid-cols-3 "> */}
-        <VoicesComponent stats={stats} voiceIds={stats?.topVoices} />
-        {/* </div> */}
+      {/* <div className=" h-[15%] grid gap-6 grid-cols-3 md:grid-cols-3 lg:grid-cols-3 "> */}
+      <VoicesComponent stats={stats} voiceIds={stats?.topVoices} />
+      {/* </div> */}
 
-        <div className=" grid gap-4 grid-cols-5 md:grid-cols-5 lg:grid-cols-5  rounded-lg">
-          {/* Top Metrics */}
+      <div className=" grid gap-4 grid-cols-5 md:grid-cols-5 lg:grid-cols-5  rounded-lg">
+        {/* Top Metrics */}
 
-          {GetStatView(
-            "More than 2 agents",
-            stats?.pipelineUsers.percentage,
-            stats?.pipelineUsers.count,
-            "/mt2agentsicon.png"
-          )}
-          {GetStatView(
-            "More than 1 pipeline",
-            stats?.agentUsers.percentage,
-            stats?.agentUsers.count,
-            "/mt1pipelineicon.png"
-          )}
+        {GetStatView(
+          "> 2 agents",
+          stats?.pipelineUsers.percentage,
+          stats?.pipelineUsers.count,
+          "/mt2agentsicon.png"
+        )}
+        {GetStatView(
+          "> 1 pipeline",
+          stats?.agentUsers.percentage,
+          stats?.agentUsers.count,
+          "/mt1pipelineicon.png"
+        )}
 
-          {GetStatView(
-            "Uploaded Leads",
-            stats?.leadsUsers.percentage,
-            stats?.leadsUsers.count,
-            "/uploadleadsicon.png"
-          )}
+        {GetStatView(
+          "Uploaded Leads",
+          stats?.leadsUsers.percentage,
+          stats?.leadsUsers.count,
+          "/uploadleadsicon.png"
+        )}
 
-          {GetStatView(
-            "Invited Teams",
-            stats?.teamsUsers.percentage,
-            stats?.teamsUsers.count,
-            "/invtedteamsiocn.png"
-          )}
+        {GetStatView(
+          "Invited Teams",
+          stats?.teamsUsers.percentage,
+          stats?.teamsUsers.count,
+          "/invtedteamsiocn.png"
+        )}
 
-          {GetStatView(
-            "Added calendar",
-            stats?.calendarUsers.percentage,
-            stats?.calendarUsers.count,
-            "/addedtocalendaricon.png"
-          )}
+        {GetStatView(
+          "Added calendar",
+          stats?.calendarUsers.percentage,
+          stats?.calendarUsers.count,
+          "/addedtocalendaricon.png"
+        )}
 
-          {GetStatView(
-            "Call Success Rate",
-            stats?.callSuccessRate,
-            "",
-            "/callsuccessicon.png"
-          )}
+        {GetStatView(
+          "Call Success Rate",
+          stats?.callSuccessRate,
+          "",
+          "/callsuccessicon.png"
+        )}
 
-          {GetStatView(
-            "Average Call Per User",
-            "",
-            stats?.avgCallsPerUser,
+        {GetStatView(
+          "Average Call Per User",
+          "",
+          stats?.avgCallsPerUser,
 
-            "/avgcallicon.png"
-          )}
+          "/avgcallicon.png"
+        )}
 
-          {/* <Card className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center  w-[14vw]">
+        {/* <Card className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center  w-[14vw]">
           <div className="cursor-pointer flex items-start  justify-between w-full  mb-2">
             <img
               src="/ratingicon.png"
@@ -265,7 +279,7 @@ function AgentXStats({ user }) {
             </p>
           </div>
         </Card> */}
-        </div>
+      </div>
     </div>
   );
 }
@@ -357,9 +371,7 @@ function VoicesComponent({
         </div>
 
         <div className="cursor-pointer flex flex-row items-start w-full pl-3">
-          <p className="cursor-pointer font-bold mt-2 mb-2">
-            Users with unique numbers
-          </p>
+          <p className="cursor-pointer font-bold mt-2 mb-2">Unique numbers</p>
         </div>
       </Card>
     </div>
@@ -368,7 +380,7 @@ function VoicesComponent({
 
 function SubscriptionsStatsComponent({ stats }) {
   return (
-    <div className="h-[15%] grid gap-2 grid-cols-6 md:grid-cols-6 lg:grid-cols-6 bg-white px-8 rounded-lg">
+    <div className="  grid gap-2 grid-cols-7 md:grid-cols-7 lg:grid-cols-7 bg-white px-4 rounded-lg">
       {/* Top Metrics */}
       <Card className="cursor-pointer border-none shadow-none w-[11vw]">
         <CardHeader>
@@ -388,15 +400,13 @@ function SubscriptionsStatsComponent({ stats }) {
           <CardTitle>No Plan</CardTitle>
         </CardHeader>
         <CardContent>
-          <h2 className="cursor-pointer text-3xl font-regular">
-            -
-          </h2>
+          <h2 className="cursor-pointer text-2xl font-regular">-</h2>
           {/* <Progress value={27} /> */}
         </CardContent>
         <CardContent>
-          <h2 className="cursor-pointer text-3xl font-regular">
+          <p className="cursor-pointer text-xl font-regular text-gray-500">
             {stats?.trialUsers.count}
-          </h2>
+          </p>
         </CardContent>
       </Card>
 
@@ -406,15 +416,15 @@ function SubscriptionsStatsComponent({ stats }) {
           <CardTitle>Trial Plan</CardTitle>
         </CardHeader>
         <CardContent>
-          <h2 className="cursor-pointer text-3xl font-regular">
+          <h2 className="cursor-pointer text-2xl font-regular">
             {stats?.trialUsers.percentage}%
           </h2>
           {/* <Progress value={27} /> */}
         </CardContent>
         <CardContent>
-          <h2 className="cursor-pointer text-3xl font-regular">
+          <p className="cursor-pointer text-xl font-regular text-gray-500">
             {stats?.trialUsers.count}
-          </h2>
+          </p>
         </CardContent>
       </Card>
 
@@ -424,12 +434,12 @@ function SubscriptionsStatsComponent({ stats }) {
           <CardTitle>$45 Plan</CardTitle>
         </CardHeader>
         <CardContent>
-          <h2 className="cursor-pointer text-3xl font-regular">
+          <h2 className="cursor-pointer text-2xl font-regular">
             {stats?.usersOnPlans.Plan30.percentage}%
           </h2>
         </CardContent>
         <CardContent>
-          <h2 className="cursor-pointer text-3xl font-regular">
+          <h2 className="cursor-pointer text-xl font-regular text-gray-500">
             {stats?.usersOnPlans.Plan30.count}
           </h2>
         </CardContent>
@@ -441,12 +451,12 @@ function SubscriptionsStatsComponent({ stats }) {
           <CardTitle>$99 Plan</CardTitle>
         </CardHeader>
         <CardContent>
-          <h2 className="cursor-pointer text-3xl font-regular">
+          <h2 className="cursor-pointer text-2xl font-regular">
             {stats?.usersOnPlans.Plan120.percentage}%
           </h2>
         </CardContent>
         <CardContent>
-          <h2 className="cursor-pointer text-3xl font-regular">
+          <h2 className="cursor-pointer text-xl font-regular text-gray-500">
             {stats?.usersOnPlans.Plan120.count}
           </h2>
         </CardContent>
@@ -458,12 +468,12 @@ function SubscriptionsStatsComponent({ stats }) {
           <CardTitle>$270 Plan</CardTitle>
         </CardHeader>
         <CardContent>
-          <h2 className="cursor-pointer text-3xl font-regular">
+          <h2 className="cursor-pointer text-2xl font-regular">
             {stats?.usersOnPlans.Plan360.percentage}%
           </h2>
         </CardContent>
         <CardContent>
-          <h2 className="cursor-pointer text-3xl font-regular">
+          <h2 className="cursor-pointer text-xl font-regular text-gray-500">
             {stats?.usersOnPlans.Plan360.count}
           </h2>
         </CardContent>
@@ -475,12 +485,12 @@ function SubscriptionsStatsComponent({ stats }) {
           <CardTitle>$600 Plan</CardTitle>
         </CardHeader>
         <CardContent>
-          <h2 className="cursor-pointer text-3xl font-regular">
+          <h2 className="cursor-pointer text-2xl font-regular">
             {stats?.usersOnPlans.Plan720.percentage}%
           </h2>
         </CardContent>
         <CardContent>
-          <h2 className="cursor-pointer text-3xl font-regular">
+          <h2 className="cursor-pointer text-xl font-regular text-gray-500">
             {stats?.usersOnPlans.Plan720.count}
           </h2>
         </CardContent>

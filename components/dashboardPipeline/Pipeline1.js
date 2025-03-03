@@ -3636,7 +3636,7 @@ const Pipeline1 = () => {
         >
           {expandSideView ? (
             <div className="flex  items-center justify-center w-full">
-              <div className="w-full flex flex-col items-start gap-1  h-20">
+              <div className="w-11/12 flex flex-col items-start gap-1  h-20 ">
                 <div className="flex flex-row gap-2 w-full">
                   <button
                     className="flex flex-col items-center justify-center gap-1"
@@ -3656,7 +3656,7 @@ const Pipeline1 = () => {
                     />
                   </button>
 
-                  <div className="flex  items-center w-full">
+                  <div className="flex  items-center justify-start w-full">
                     <button
                       onClick={() => {
                         // setOpenCallWorthyPopup(true);
@@ -3667,9 +3667,9 @@ const Pipeline1 = () => {
                         While you were away
                       </div>
                     </button>
-                    <div className="flex flex-col items-start ml-[30px]">
+                    <div className="flex flex-col items-start ml-[30px] border border-purple rounded">
                       <button
-                        className="text-purple"
+                        className="text-purple  px-2"
                         onClick={() => {
                           // setExpandSideView(false);
                           setOpenCallWorthyPopup(true);
@@ -3684,7 +3684,7 @@ const Pipeline1 = () => {
                   Here are some calls that sounded important.
                 </div>
               </div>
-              <div className="flex flex-col items-center -mt-2 ml-[30px]">
+              <div className="flex flex-col items-center -mt-2 -ml-2">
                 <button
                   className="text-purple"
                   onClick={() => {

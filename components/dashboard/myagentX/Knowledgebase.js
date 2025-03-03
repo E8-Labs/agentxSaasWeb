@@ -53,15 +53,16 @@ function Knowledgebase({ user, agent }) {
   function GetNoKbView() {
     return (
       <div className="flex flex-col items-center justify-center mt-5   p-8 ">
-        <div className="flex flex-col w-[60%] items-center justify-center mt-5 gap-4 p-8 rounded-lg">
+        <div className="flex flex-col w-[100%] items-center justify-center mt-5 gap-4 p-8 rounded-lg">
           <img
-            src={"/assets/nokb.svg"}
-           className="h-50 w-70 object-contain"
+            src={"/assets/nokb.png"}
+            className=" object-fill "
+            style={{ height: 250, width: 596 }}
             alt="No Knowledgebase"
           />
 
           <div style={{ fontSize: 16, fontWeight: "600", color: "#000" }}>
-            No Knowledge base added
+            No knowledge base added
           </div>
 
           <div className="flex flex-row gap-2 bg-purple p-2 px-8 rounded-lg">

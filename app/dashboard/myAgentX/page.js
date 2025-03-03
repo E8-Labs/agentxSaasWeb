@@ -215,68 +215,73 @@ function Page() {
     icon: "/svgIcons/chatgptIcon.svg", // Replace with actual icon path
   });
 
-  const [voiceExpressiveness, setVoiceExpressiveness] = useState(null)
-  const [startingPace, setStartingPace] = useState(null)
-  const [callRecordingPermition, setCallRecordingPermition] = useState(null)
-
+  const [voiceExpressiveness, setVoiceExpressiveness] = useState(null);
+  const [startingPace, setStartingPace] = useState(null);
+  const [callRecordingPermition, setCallRecordingPermition] = useState(null);
 
   const [showCallRecordingLoader, setShowCallRecordingLoader] = useState(false);
   const [showStartingPaceLoader, setShowStartingPaceLoader] = useState(false);
-  const [showVoiceExpressivenessLoader, setShowVoiceExpressivenessLoader] = useState(false);
+  const [showVoiceExpressivenessLoader, setShowVoiceExpressivenessLoader] =
+    useState(false);
 
-
- 
   const models = [
     { name: "Grok", icon: "/svgIcons/chatgptIcon.svg" },
     { name: "GPT-4", icon: "/svgIcons/chatgptIcon.svg" },
     { name: "GPT-4 Mini", icon: "/svgIcons/chatgptIcon.svg" },
     { name: "LLaMA", icon: "/svgIcons/chatgptIcon.svg" },
     { name: "Gemini", icon: "/svgIcons/chatgptIcon.svg" },
-    { name: "DeepSeek (Coming Soon)", icon: "/svgIcons/chatgptIcon.svg", disabled: true },
+    {
+      name: "DeepSeek (Coming Soon)",
+      icon: "/svgIcons/chatgptIcon.svg",
+      disabled: true,
+    },
   ];
   const voiceExpressivenessList = [
     {
       id: 1,
-      title: '🎭 Expressive',
-      value: "Expressive"
-    }, {
-      id: 2,
-      title: '🎙️ Balanced',
-      value: "Balanced"
-    }, {
-      id: 3,
-      title: '🏛️ Steady',
-      value: "Steady"
+      title: "🎭 Expressive",
+      value: "Expressive",
     },
-  ]
+    {
+      id: 2,
+      title: "🎙️ Balanced",
+      value: "Balanced",
+    },
+    {
+      id: 3,
+      title: "🏛️ Steady",
+      value: "Steady",
+    },
+  ];
   const StartingPaceList = [
     {
       id: 1,
-      title: '⚡️ Instant',
-      value: 'Instant'
-    }, {
-      id: 2,
-      title: '⏳ Short Pause',
-      value: 'Short Pause'
-    }, {
-      id: 3,
-      title: '🧘 Natural Conversation Flow',
-      value: 'Natural Conversation Flow'
+      title: "⚡️ Instant",
+      value: "Instant",
     },
-  ]
+    {
+      id: 2,
+      title: "⏳ Short Pause",
+      value: "Short Pause",
+    },
+    {
+      id: 3,
+      title: "🧘 Delayed",
+      value: "Natural Conversation Flow",
+    },
+  ];
   const callRecordingPermitionList = [
     {
       id: 1,
-      title: '✅ Enable Call Recording',
-      value: true
-    }, {
-      id: 2,
-      title: '❌ Disable Call Recording',
-      value: false
+      title: "✅ Enable Call Recording",
+      value: true,
     },
-  ]
-
-
+    {
+      id: 2,
+      title: "❌ Disable Call Recording",
+      value: false,
+    },
+  ];
 
   //call get numbers list api
   useEffect(() => {
@@ -545,9 +550,9 @@ function Page() {
     setAssignNumber(item?.phoneNumber);
     setSelectedVoice(item?.voiceId);
     setVoicesList([voicesList]);
-    setCallRecordingPermition(item.consentRecording)
-    setVoiceExpressiveness(item.voiceStability)
-    setStartingPace(item.initialPauseSeconds)
+    setCallRecordingPermition(item.consentRecording);
+    setVoiceExpressiveness(item.voiceStability);
+    setStartingPace(item.initialPauseSeconds);
 
     const comparedAgent = mainAgentsList.find((mainAgent) =>
       mainAgent.agents.some((subAgent) => subAgent.id === item.id)
@@ -709,7 +714,8 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(item.phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -993,7 +999,7 @@ function Page() {
   };
 
   const updateAgent = async (voiceId) => {
-    console.log('voiceData', voiceData)
+    console.log("voiceData", voiceData);
     // return
     try {
       // return
@@ -1107,7 +1113,6 @@ function Page() {
 
   const updateSubAgent = async (voiceData) => {
     try {
-
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
@@ -1116,8 +1121,8 @@ function Page() {
 
         const ApiPath = Apis.updateSubAgent;
 
-        let formData = new FormData()
-        formData.append("agentId", showDrawerSelectedAgent.id,)
+        let formData = new FormData();
+        formData.append("agentId", showDrawerSelectedAgent.id);
 
         if (voiceData.voiceExpressiveness) {
           formData.append("voiceStability", voiceData.voiceExpressiveness);
@@ -1126,7 +1131,10 @@ function Page() {
           formData.append("initialPauseSeconds", voiceData.startingPace);
         }
         if (voiceData.callRecordingPermition) {
-          formData.append("consentRecordings", voiceData.callRecordingPermition);
+          formData.append(
+            "consentRecordings",
+            voiceData.callRecordingPermition
+          );
         }
 
         if (showDrawerSelectedAgent) {
@@ -1137,17 +1145,18 @@ function Page() {
           console.log(`${key}: ${value}`);
         }
 
-
         const response = await axios.post(ApiPath, formData, {
           headers: {
             Authorization: "Bearer " + AuthToken,
-
           },
         });
 
         if (response) {
           // setShowRenameAgentPopup(false);
-          console.log("Response of update sub agent api is :--", response.data.data);
+          console.log(
+            "Response of update sub agent api is :--",
+            response.data.data
+          );
           // console.log("Respons eof update api is", response.data.data);
           setShowSuccessSnack(response.data.message);
           if (response.data.status === true) {
@@ -1250,7 +1259,8 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -1348,7 +1358,6 @@ function Page() {
     }
     setOpenGptManu(null);
   };
-
 
   //function ot compare the selected agent wiith the main agents list
   const matchingAgent = (agent) => {
@@ -2118,8 +2127,8 @@ function Page() {
                           >
                             {user.user.userType == UserTypes.RealEstateAgent
                               ? `${item.agentObjective
-                                ?.slice(0, 1)
-                                .toUpperCase()}${item.agentObjective?.slice(
+                                  ?.slice(0, 1)
+                                  .toUpperCase()}${item.agentObjective?.slice(
                                   1
                                 )}`
                               : `${item.agentRole}`}
@@ -2622,7 +2631,7 @@ function Page() {
                       overflowY: "auto",
                     }}
                     countryCodeEditable={true}
-                  // defaultMask={loading ? 'Loading...' : undefined}
+                    // defaultMask={loading ? 'Loading...' : undefined}
                   />
                 </div>
 
@@ -2653,8 +2662,9 @@ function Page() {
                       <input
                         placeholder="Type here"
                         // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                          }`}
+                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
+                          index === scriptKeys?.length - 1 ? "mb-16" : ""
+                        }`}
                         style={{
                           ...styles.inputStyle,
                           border: "1px solid #00000010",
@@ -2714,16 +2724,15 @@ function Page() {
         PaperProps={{
           sx: {
             width: "45%", // Adjust width as needed
-            borderRadius: '20px', // Rounded corners
-            padding: '0px', // Internal padding
+            borderRadius: "20px", // Rounded corners
+            padding: "0px", // Internal padding
             boxShadow: 3, // Light shadow
-            margin: '40px', // Small margin for better appearance
-            backgroundColor: 'white', // Ensure it's visible
-            maxHeight: '92vh',
-            overflow: 'hidden',
-            scrollbarWidth: 'none'
+            margin: "1%", // Small margin for better appearance
+            backgroundColor: "white", // Ensure it's visible
+            height: "96.5vh",
+            overflow: "hidden",
+            scrollbarWidth: "none",
           },
-
         }}
         BackdropProps={{
           timeout: 100,
@@ -2733,34 +2742,40 @@ function Page() {
           },
         }}
       >
-        <div className="flex flex-col w-full bg-white p-5 rounded-xl" style={{ marginBottom: "20px" }}>
-
-          <div className="w-full flex flex-row items-center justify-between py-3"
+        <div
+          className="flex flex-col w-full bg-white p-5 rounded-xl"
+          // style={{  }}
+        >
+          {/* <div
+            className="w-full flex flex-row items-center justify-between py-3"
             style={{
-              borderBottomWidth: 1
+              borderBottomWidth: 1,
             }}
           >
-            <div style={{ fontSize: 18, fontWeight: '700' }}>
-              More Info
-            </div>
+            <div style={{ fontSize: 18, fontWeight: "700" }}>More Info</div>
 
             <button onClick={() => setShowDrawerSelectedAgent(null)}>
-              <Image src={"/svgIcons/cross.svg"}
+              <Image
+                src={"/svgIcons/cross.svg"}
                 height={24}
                 width={24}
                 alt="*"
               />
             </button>
-          </div>
-          <div className="w-full flex flex-col h-[80vh]" style={{
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            scrollbarWidth: 'none'
-          }}>
-            <div className="flex flex-row items-start justify-between w-full mt-2">
-              <div className="w-[80px]"></div>
-              <div className="flex flex-col gap-1 items-center ">
-                <div>
+          </div> */}
+          <div
+            className="w-full flex flex-col h-[80vh]"
+            style={{
+              overflowY: "auto",
+              overflowX: "hidden",
+              scrollbarWidth: "none",
+            }}
+          >
+            {/* Agent TOp Info */}
+            <div className="flex flex-row items-start justify-between w-full mt-2 ">
+              <div className="flex flex-row items-start justify-start mt-2 gap-4">
+                {/* Profile Image */}
+                <div className="">
                   <button
                     // className='mt-8'
                     onClick={() => {
@@ -2827,6 +2842,93 @@ function Page() {
                     />
                   )}
                 </div>
+                <div className="flex flex-col gap-1 items-start">
+                  <div className="flex flex-row justify-center items-center gap-2">
+                    <div style={{ fontSize: 22, fontWeight: "600" }}>
+                      {showDrawerSelectedAgent?.name?.slice(0, 1).toUpperCase()}
+                      {showDrawerSelectedAgent?.name?.slice(1)}
+                    </div>
+                    <div
+                      className="text-purple"
+                      style={{ fontSize: 11, fontWeight: "600" }}
+                    >
+                      {showDrawerSelectedAgent?.agentObjective}{" "}
+                      <span>
+                        {" "}
+                        |{" "}
+                        {showDrawerSelectedAgent?.agentType
+                          ?.slice(0, 1)
+                          .toUpperCase(0)}
+                        {showDrawerSelectedAgent?.agentType?.slice(1)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{ fontSize: 15, fontWeight: "500", color: "#000" }}
+                  >
+                    {/* {showDrawer?.phoneNumber} */}
+                    {formatPhoneNumber(showDrawerSelectedAgent?.phoneNumber)}
+                  </div>
+
+                  <div className="flex flex-row gap-2 items-center ">
+                    <div
+                      style={{ fontSize: 11, fontWeight: "500", color: "#666" }}
+                    >
+                      Created on:
+                    </div>
+                    <div
+                      style={{ fontSize: 11, fontWeight: "500", color: "#000" }}
+                    >
+                      {/* {showDrawer?.createdAt} */}
+                      {GetFormattedDateString(
+                        showDrawerSelectedAgent?.createdAt
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2  ">
+                {/* Delete agent button */}
+                <button
+                  className="flex flex-row gap-2 items-center"
+                  onClick={() => {
+                    setDelAgentModal(true);
+                  }}
+                  style={{
+                    marginTop: 20,
+                    // position: "absolute",
+                    // bottom: "5%",
+                  }}
+                >
+                  {/* <Image src={'/otherAssets/redDeleteIcon.png'}
+                height={24}
+                width={24}
+                alt='del'
+              /> */}
+
+                  <Image
+                    src={"/otherAssets/redDeleteIcon.png"}
+                    height={24}
+                    width={24}
+                    alt="del"
+                    style={{
+                      filter: "brightness(0) saturate(100%) opacity(0.5)", // Convert to black and make semi-transparent
+                    }}
+                  />
+
+                  <div
+                    style={{
+                      fontSize: 15,
+                      fontWeight: "600",
+                      color: "#15151590",
+                      textDecorationLine: "underline",
+                    }}
+                  >
+                    Delete Agent
+                  </div>
+                </button>
+                {/* GPT Button */}
                 <div>
                   <button
                     id="gpt"
@@ -2851,9 +2953,12 @@ function Page() {
                       sx={{ width: 24, height: 24, marginRight: 1 }}
                     />
                     {selectedGptManu.name}
-                    <Image src={"/svgIcons/downArrow.svg"}
-                      width={18} height={18} alt="*" />
-
+                    <Image
+                      src={"/svgIcons/downArrow.svg"}
+                      width={18}
+                      height={18}
+                      alt="*"
+                    />
                   </button>
 
                   <Menu
@@ -2882,104 +2987,31 @@ function Page() {
                           borderRadius: "8px",
                           transition: "background 0.2s",
                           "&:hover": {
-                            backgroundColor: model.disabled ? "inherit" : "#F5F5F5",
+                            backgroundColor: model.disabled
+                              ? "inherit"
+                              : "#F5F5F5",
                           },
                           opacity: model.disabled ? 0.6 : 1,
                         }}
                       >
-                        <Avatar src={model.icon} sx={{ width: 24, height: 24 }} />
+                        <Avatar
+                          src={model.icon}
+                          sx={{ width: 24, height: 24 }}
+                        />
                         {model.name}
                       </MenuItem>
                     ))}
                   </Menu>
                 </div>
-                <div style={{ fontSize: 22, fontWeight: "600" }}>
-                  {showDrawerSelectedAgent?.name?.slice(0, 1).toUpperCase()}
-                  {showDrawerSelectedAgent?.name?.slice(1)}
-                </div>
-                <div
-                  className="text-purple"
-                  style={{ fontSize: 11, fontWeight: "600" }}
-                >
-                  {showDrawerSelectedAgent?.agentObjective}{" "}
-                  <span>
-                    {" "}
-                    |{" "}
-                    {showDrawerSelectedAgent?.agentType
-                      ?.slice(0, 1)
-                      .toUpperCase(0)}
-                    {showDrawerSelectedAgent?.agentType?.slice(1)}
-                  </span>
-                </div>
-
-
-                <div style={{ fontSize: 15, fontWeight: "500", color: "#000" }}>
-                  {/* {showDrawer?.phoneNumber} */}
-                  {formatPhoneNumber(showDrawerSelectedAgent?.phoneNumber)}
-                </div>
-
-                <div className="flex flex-row gap-2 items-center ">
-                  <div
-                    style={{ fontSize: 11, fontWeight: "500", color: "#666" }}
-                  >
-                    Created on:
-                  </div>
-                  <div
-                    style={{ fontSize: 11, fontWeight: "500", color: "#000" }}
-                  >
-                    {/* {showDrawer?.createdAt} */}
-                    {GetFormattedDateString(showDrawerSelectedAgent?.createdAt)}
-                  </div>
-                </div>
               </div>
-
-              {/* Delete agent button */}
-              <button
-                className="flex flex-row gap-2 items-center"
-                onClick={() => {
-                  setDelAgentModal(true);
-                }}
-                style={{
-                  marginTop: 20,
-                  // position: "absolute",
-                  // bottom: "5%",
-                }}
-              >
-                {/* <Image src={'/otherAssets/redDeleteIcon.png'}
-                height={24}
-                width={24}
-                alt='del'
-              /> */}
-
-                <Image
-                  src={"/otherAssets/redDeleteIcon.png"}
-                  height={24}
-                  width={24}
-                  alt="del"
-                  style={{
-                    filter: "brightness(0) saturate(100%) opacity(0.6)", // Convert to black and make semi-transparent
-                  }}
-                />
-
-                <div
-                  style={{
-                    fontSize: 15,
-                    fontWeight: "600",
-                    color: "#00000060",
-                    textDecorationLine: "underline",
-                  }}
-                >
-                  Delete Agent
-                </div>
-              </button>
             </div>
 
-            <div className="grid grid-cols-5 gap-6 border p-8 flex-row justify-between w-full rounded-lg mb-6 bg-[#15151505]">
+            <div className="grid grid-cols-5 gap-6 border p-6 flex-row justify-between w-full rounded-lg mb-6 mt-2 bg-[#15151505]">
               <Card
                 name="Calls"
                 value={
                   showDrawerSelectedAgent?.calls &&
-                    showDrawerSelectedAgent?.calls > 0 ? (
+                  showDrawerSelectedAgent?.calls > 0 ? (
                     <div>{showDrawerSelectedAgent?.calls}</div>
                   ) : (
                     "-"
@@ -2993,7 +3025,7 @@ function Page() {
                 name="Convos"
                 value={
                   showDrawerSelectedAgent?.callsGt10 &&
-                    showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
                     <div>{showDrawerSelectedAgent?.callsGt10}</div>
                   ) : (
                     "-"
@@ -3021,11 +3053,13 @@ function Page() {
                 name="Mins Talked"
                 value={
                   showDrawerSelectedAgent?.totalDuration &&
-                    showDrawerSelectedAgent?.totalDuration > 0 ? (
+                  showDrawerSelectedAgent?.totalDuration > 0 ? (
                     // <div>{showDrawer?.totalDuration}</div>
                     <div>
                       {moment
-                        .utc((showDrawerSelectedAgent?.totalDuration || 0) * 1000)
+                        .utc(
+                          (showDrawerSelectedAgent?.totalDuration || 0) * 1000
+                        )
                         .format("HH:mm:ss")}
                     </div>
                   ) : (
@@ -3043,10 +3077,11 @@ function Page() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`${activeTab === tab
-                    ? "text-purple border-b-2 border-purple"
-                    : "text-black-500"
-                    }`}
+                  className={`${
+                    activeTab === tab
+                      ? "text-purple border-b-2 border-purple"
+                      : "text-black-500"
+                  }`}
                   style={{ fontSize: 15, fontWeight: "500" }}
                 >
                   {tab}
@@ -3068,11 +3103,10 @@ function Page() {
                     <div
                       style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
                     >
-                      Agent
+                      Voice Options
                     </div>
-
                   </div>
-                  <div className="flex justify-between">
+                  {/* <div className="flex justify-between">
                     <div
                       style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
                     >
@@ -3087,8 +3121,8 @@ function Page() {
                     >
                       {showDrawerSelectedAgent?.name}
                     </div>
-                  </div>
-                  <div className="flex justify-between items-center mt-4">
+                  </div> */}
+                  {/* <div className="flex justify-between items-center mt-4">
                     <div
                       style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
                     >
@@ -3103,7 +3137,7 @@ function Page() {
                     >
                       {showDrawerSelectedAgent?.agentRole}
                     </div>
-                  </div>
+                  </div> */}
                   <div className="flex w-full justify-between items-center">
                     <div
                       style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
@@ -3174,9 +3208,10 @@ function Page() {
                               "& .MuiOutlinedInput-notchedOutline": {
                                 border: "none", // Remove the default outline
                               },
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove outline on focus
-                              },
+                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3222,12 +3257,12 @@ function Page() {
                       )}
                     </div>
                   </div>
-
+                  {/* Expression */}
                   <div className="flex w-full justify-between items-center -mt-4">
                     <div
                       style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
                     >
-                      Voice Expressiveness
+                      Expression
                     </div>
 
                     <div
@@ -3256,14 +3291,14 @@ function Page() {
                             value={voiceExpressiveness}
                             onChange={async (event) => {
                               setShowVoiceExpressivenessLoader(true);
-                              let value = event.target.value
-                              console.log('value', value)
+                              let value = event.target.value;
+                              console.log("value", value);
                               let voiceData = {
-                                voiceExpressiveness: value
-                              }
+                                voiceExpressiveness: value,
+                              };
                               await updateSubAgent(voiceData);
                               setShowVoiceExpressivenessLoader(false);
-                              setVoiceExpressiveness(value)
+                              setVoiceExpressiveness(value);
                             }}
                             displayEmpty // Enables placeholder
                             renderValue={(selected) => {
@@ -3274,9 +3309,10 @@ function Page() {
                                   </div>
                                 ); // Placeholder style
                               }
-                              const selectedVoice = voiceExpressivenessList.find(
-                                (voice) => voice.value === selected
-                              );
+                              const selectedVoice =
+                                voiceExpressivenessList.find(
+                                  (voice) => voice.value === selected
+                                );
                               return selectedVoice ? selectedVoice.title : null;
                             }}
                             sx={{
@@ -3287,9 +3323,10 @@ function Page() {
                               "& .MuiOutlinedInput-notchedOutline": {
                                 border: "none", // Remove the default outline
                               },
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove outline on focus
-                              },
+                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3306,14 +3343,12 @@ function Page() {
                             }}
                           >
                             {voiceExpressivenessList.map((item, index) => {
-
                               return (
                                 <MenuItem
                                   value={item.value}
                                   key={index}
                                   disabled={voiceExpressiveness === item.title}
                                 >
-
                                   <div>{item.title}</div>
                                 </MenuItem>
                               );
@@ -3321,10 +3356,9 @@ function Page() {
                           </Select>
                         </FormControl>
                       )}
-
                     </div>
                   </div>
-
+                  {/* Starting Pace */}
                   <div className="flex w-full justify-between items-center -mt-4">
                     <div
                       style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
@@ -3358,15 +3392,15 @@ function Page() {
                             value={startingPace}
                             onChange={async (event) => {
                               setShowStartingPaceLoader(true);
-                              let value = event.target.value
-                              console.log('value', value)
+                              let value = event.target.value;
+                              console.log("value", value);
                               let voiceData = {
-                                startingPace: value
-                              }
+                                startingPace: value,
+                              };
                               await updateSubAgent(voiceData);
                               setShowStartingPaceLoader(false);
                               // setSelectedVoice(event.target.value);
-                              setStartingPace(value)
+                              setStartingPace(value);
                             }}
                             displayEmpty // Enables placeholder
                             renderValue={(selected) => {
@@ -3390,9 +3424,10 @@ function Page() {
                               "& .MuiOutlinedInput-notchedOutline": {
                                 border: "none", // Remove the default outline
                               },
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove outline on focus
-                              },
+                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3409,14 +3444,12 @@ function Page() {
                             }}
                           >
                             {StartingPaceList.map((item, index) => {
-
                               return (
                                 <MenuItem
                                   value={item.value}
                                   key={index}
                                   disabled={startingPace === item.title}
                                 >
-
                                   <div>{item.title}</div>
                                 </MenuItem>
                               );
@@ -3424,12 +3457,10 @@ function Page() {
                           </Select>
                         </FormControl>
                       )}
-
                     </div>
                   </div>
 
-
-                  <div className="flex w-full justify-between items-center -mt-4">
+                  {/* <div className="flex w-full justify-between items-center -mt-4">
                     <div
                       style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
                     >
@@ -3461,15 +3492,15 @@ function Page() {
                           <Select
                             value={callRecordingPermition}
                             onChange={async (event) => {
-                              let value = event.target.value
-                              console.log('value', value)
+                              let value = event.target.value;
+                              console.log("value", value);
                               setShowCallRecordingLoader(true);
                               let voiceData = {
-                                callRecordingPermition: value
-                              }
+                                callRecordingPermition: value,
+                              };
                               await updateSubAgent(voiceData);
                               setShowCallRecordingLoader(false);
-                              setCallRecordingPermition(value)
+                              setCallRecordingPermition(value);
                             }}
                             displayEmpty // Enables placeholder
                             renderValue={(selected) => {
@@ -3480,12 +3511,12 @@ function Page() {
                                   </div>
                                 ); // Placeholder style
                               }
-                              const selectedVoice = callRecordingPermitionList.find(
-                                (voice) => voice.value === selected
-                              );
+                              const selectedVoice =
+                                callRecordingPermitionList.find(
+                                  (voice) => voice.value === selected
+                                );
                               return selectedVoice ? selectedVoice.title : null;
                             }}
-
                             sx={{
                               border: "none", // Default border
                               "&:hover": {
@@ -3494,9 +3525,10 @@ function Page() {
                               "& .MuiOutlinedInput-notchedOutline": {
                                 border: "none", // Remove the default outline
                               },
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove outline on focus
-                              },
+                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3513,14 +3545,14 @@ function Page() {
                             }}
                           >
                             {callRecordingPermitionList.map((item, index) => {
-
                               return (
                                 <MenuItem
                                   value={item.value}
                                   key={index}
-                                  disabled={callRecordingPermition === item.value}
+                                  disabled={
+                                    callRecordingPermition === item.value
+                                  }
                                 >
-
                                   <div>{item.title}</div>
                                 </MenuItem>
                               );
@@ -3528,13 +3560,14 @@ function Page() {
                           </Select>
                         </FormControl>
                       )}
-
                     </div>
-                  </div>
+                  </div> */}
                 </div>
                 <div className="flex flex-col gap-4 mt-4">
-                  <div style={{ fontSize: 16, fontWeight: "600", color: "#000" }}>
-                    Contact Info
+                  <div
+                    style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
+                  >
+                    Contact
                   </div>
 
                   <div className="flex justify-between items-center">
@@ -3646,37 +3679,37 @@ function Page() {
                                     {showReassignBtn && (
                                       <div
                                         className="w-full"
-                                      // onClick={(e) => {
-                                      //   console.log(
-                                      //     "Should open confirmation modal"
-                                      //   );
-                                      //   e.stopPropagation();
-                                      //   setShowConfirmationModal(item);
-                                      // }}
+                                        // onClick={(e) => {
+                                        //   console.log(
+                                        //     "Should open confirmation modal"
+                                        //   );
+                                        //   e.stopPropagation();
+                                        //   setShowConfirmationModal(item);
+                                        // }}
                                       >
                                         {item.claimedBy && (
                                           <div className="flex flex-row items-center gap-2">
                                             {showDrawerSelectedAgent?.name !==
                                               item.claimedBy.name && (
-                                                <div>
-                                                  <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                  {reassignLoader === item ? (
-                                                    <CircularProgress size={15} />
-                                                  ) : (
-                                                    <button
-                                                      className="text-purple underline"
-                                                      onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setShowConfirmationModal(
-                                                          item
-                                                        );
-                                                      }}
-                                                    >
-                                                      Reassign
-                                                    </button>
-                                                  )}
-                                                </div>
-                                              )}
+                                              <div>
+                                                <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                                {reassignLoader === item ? (
+                                                  <CircularProgress size={15} />
+                                                ) : (
+                                                  <button
+                                                    className="text-purple underline"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      setShowConfirmationModal(
+                                                        item
+                                                      );
+                                                    }}
+                                                  >
+                                                    Reassign
+                                                  </button>
+                                                )}
+                                              </div>
+                                            )}
                                           </div>
                                         )}
                                       </div>
@@ -3729,7 +3762,11 @@ function Page() {
                   <div className="flex justify-between">
                     <div className="flex flex-row gap-3">
                       <div
-                        style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          color: "#666",
+                        }}
                       >
                         Call back number
                       </div>
@@ -3758,7 +3795,11 @@ function Page() {
                   <div className="flex justify-between mt-4">
                     <div className="flex flex-row gap-3">
                       <div
-                        style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          color: "#666",
+                        }}
                       >
                         Call transfer number
                       </div>
