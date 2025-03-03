@@ -4,9 +4,14 @@ import { Progress } from "@/components/ui/progress";
 
 const KnowledgeBaseList = ({ kbList, onDelete, onAddKnowledge }) => {
   return (
-    <div className="p-6">
+    <div className="">
       <div className="flex flex-row justify-between mb-2">
-        <h2 className="text-2xl font-semibold mb-4">My Knowledge Base</h2>
+        <h2
+          className=" mb-4"
+          style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
+        >
+          My Knowledge Base
+        </h2>
         <button
           className=" outline-none"
           style={{
@@ -47,6 +52,7 @@ const KBCard = ({ kb, onDelete }) => {
 
       {kb.type === "Document" && <DocumentCard kb={kb} />}
       {kb.type === "Url" && <UrlCard kb={kb} />}
+      {kb.type === "Youtube" && <YoutubeCard kb={kb} />}
       {kb.type === "Text" && <TextCard kb={kb} />}
     </div>
   );
@@ -75,6 +81,26 @@ const UrlCard = ({ kb }) => {
       className="text-purple underline"
     >
       {kb.originalContent}
+    </a>
+  );
+};
+
+const YoutubeCard = ({ kb }) => {
+  return (
+    <a
+      style={{
+        flexWrap: "wrap",
+        width: "100%",
+        // borderWidth: 1,
+        wordBreak: "break-word", // Breaks long words if needed
+        overflowWrap: "break-word", // Ensures text wraps properly
+        whiteSpace: "normal", // Allows text to wrap
+      }}
+      href={kb.webUrl}
+      target="_blank"
+      className="text-purple underline"
+    >
+      {kb.webUrl}
     </a>
   );
 };

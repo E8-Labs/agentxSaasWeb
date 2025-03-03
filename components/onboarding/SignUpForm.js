@@ -760,6 +760,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                 ref={(el) => (inputsFields.current[5] = el)}
                 autoComplete="off"
                 autoCorrect="off"
+                type="number"
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Value"

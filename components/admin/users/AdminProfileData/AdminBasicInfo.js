@@ -104,7 +104,7 @@ function AdminBasicInfo({ selectedUser }) {
       getProfile();
     }
     getData()
-  }, [selectedUser]);
+  }, []);
 
   const hasAreaFocusChanged = () => {
     // if (selectedArea.length !== originalSelectedArea.length) return true;
@@ -459,7 +459,7 @@ function AdminBasicInfo({ selectedUser }) {
           </div>
         </div>
         <div>
-          <button
+          {/* <button
             className="text-red text-start mt-4 bg-[#FF4E4E40] px-3 py-1 rounded-3xl"
             style={{ fontWeight: "600", fontSize: 17 }}
             onClick={() => {
@@ -474,7 +474,7 @@ function AdminBasicInfo({ selectedUser }) {
             }}
           >
             Log Out
-          </button>
+          </button> */}
         </div>
       </div>
 

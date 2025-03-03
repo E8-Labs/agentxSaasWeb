@@ -48,6 +48,14 @@ export const isValidUrl = (url) => {
   return urlPattern.test(url);
 };
 
+export const isValidYoutubeUrl = (url) => {
+  console.log("Checking url ", url);
+  const urlPattern =
+   /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})(.*)$/;
+
+  return urlPattern.test(url);
+};
+
 export let userType = "RealEstateAgent";
 
 export const setUserType = (newUserType) => {

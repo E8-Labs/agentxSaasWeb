@@ -14,7 +14,12 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs"; // Import Day.js
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import { getAgentImage } from "@/utilities/agentUtilities";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const AssignLead = ({
   leadIs,
@@ -22,6 +27,7 @@ const AssignLead = ({
   selectedAll = false,
   filters = null,
   totalLeads = 0,
+  userProfile, // this is the .user object doesn't include token
 }) => {
   const [initialLoader, setInitialLoader] = useState(false);
   const [agentsList, setAgentsList] = useState([]);
@@ -283,19 +289,37 @@ const AssignLead = ({
   };
 
   const handleAssignLead = async () => {
-    const selectedDate = dayjs(selectedDateTime); // Convert input date to Day.js object
+    let userTimeZone = userProfile.timeZone || "America/Los_Angeles";
+    const selectedDate = dayjs(selectedDateTime).tz(userTimeZone); // Convert input date to Day.js object
     const currentHour = selectedDate.hour(); // Get the current hour (0-23)
-    if (currentHour >= 5 && currentHour < 19) {
+    const currentMinute = selectedDate.minute(); // Get minutes for 8:30 PM check
+    console.log("Time in user's timezone is ", selectedDate);
+    console.log("Hour in user's timezone is ", currentHour);
+    console.log("Minute in user's timezone is ", currentMinute);
+    console.log("Time in not user's timezone is ", selectedDateTime);
+
+    const isAfterStartTime = currentHour >= 7; // || (selectedHour === 7 && selectedMinute >= 0); // 7:00 AM or later
+    const isBeforeEndTime =
+      currentHour < 20 || (currentHour === 20 && currentMinute <= 30); // Before 8:30 PM
+    if (
+      isAfterStartTime && // After 7:00 AM
+      isBeforeEndTime // Before 8:30 PM
+    ) {
       console.log(
-        "✅ Current time is between 5 AM and 7 PM.",
-        selectedDateTime
+        "✅ Selected time is between 7 AM and 8:30 PM.",
+        selectedDate.format()
       );
-      // setSelectedDateTime(date);
+      // setSelectedDateTime(selectedDate);
     } else {
-      console.log("❌ Current time is outside 5 AM to 7 PM.");
-      setInvalidTimeMessage("Calling is only available between 5AM and 7PM");
+      console.log("❌ Current time is outside 7 AM to 8:30 PM.");
+      setInvalidTimeMessage(
+        "Calls only between 7am-8:30pm"
+        // "Calling is only available between 7AM and 8:30PM in " + userTimeZone
+      );
       return;
     }
+
+    // return;
 
     try {
       setLoader(true);
@@ -431,6 +455,13 @@ const AssignLead = ({
     }
   }
 
+  function GetAgentsActiveInPipelinesAndStages() {
+    let filtered = agentsList.filter((item) => {
+      return item.pipeline != null && item.stages.length > 0;
+    });
+    return filtered;
+  }
+
   const styles = {
     heading: {
       fontWeight: "600",
@@ -484,10 +515,10 @@ const AssignLead = ({
         className="mt-2"
         style={styles.paragraph2}
         onClick={() => {
-          setLastStepModal(true);
+          // setLastStepModal(true);
         }}
       >
-        Only outbound models can be selected to make calls
+        Only outbound agents assigned to a stage can make calls.
       </div>
 
       {initialLoader ? (
@@ -499,7 +530,7 @@ const AssignLead = ({
           className="max-h-[50vh] overflow-auto"
           style={{ scrollbarWidth: "none" }}
         >
-          {agentsList.map((item, index) => {
+          {GetAgentsActiveInPipelinesAndStages().map((item, index) => {
             const noNumberWarning = (mainAgent) => {
               // console.log(
               //   "Agent passed is",
@@ -886,7 +917,7 @@ const AssignLead = ({
                               <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DateTimePicker
                                   // label="Select date and time"
-                                  minDateTime={dayjs()}
+                                  minDateTime={dayjs().tz(userProfile.timeZone)}
                                   //   value={value}
                                   onChange={handleDateChange}
                                   renderInput={(params) => (

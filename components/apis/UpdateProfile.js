@@ -10,12 +10,12 @@ export const UpdateProfile = async (apidata) => {
     PersistanceKeys.LocalStorageCompleteLocation
   );
   if (SavedLocation) {
-    console.log("User location saved ", SavedLocation);
+    // console.log("User location saved ", SavedLocation);
     let parsedLocation = JSON.parse(SavedLocation);
     apidata.lat = parsedLocation.latitude;
     apidata.lang = parsedLocation.longitude;
   }
-  console.log("Token sending in api is", apidata);
+  // console.log("Token sending in api is", apidata);
   // UpdateProfile()
   try {
     const data = localStorage.getItem("User");
@@ -23,7 +23,7 @@ export const UpdateProfile = async (apidata) => {
       let u = JSON.parse(data);
       let path = Apis.updateProfileApi;
       // console.log("Authtoken is", u.token);
-      // console.log("Api Data passsed is", apidata)
+      console.log("Api Data passsed is", apidata)
       // return
       const response = await axios.post(path, apidata, {
         headers: {
@@ -34,20 +34,22 @@ export const UpdateProfile = async (apidata) => {
 
       if (response) {
         if (response.data.status === true) {
-          // console.log('updateProfile data is', response.data)
+          console.log('updateProfile data is', response.data)
           u.user = response.data.data;
 
           //// console.log('u', u)
           localStorage.setItem("User", JSON.stringify(u));
-          // console.log('trying to send event')
+          console.log('trying to send event')
           window.dispatchEvent(
             new CustomEvent("UpdateProfile", { detail: { update: true } })
           );
           return response.data.data;
         }
       }
+    }else{
+      console.log('no data ')
     }
   } catch (e) {
-    // console.log('error in update profile is', e)
+    console.log('error in update profile is', e)
   }
 };

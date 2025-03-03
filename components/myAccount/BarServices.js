@@ -20,6 +20,8 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
+import XBarConfirmationModal from "./XBarConfirmationModal";
+import { PersistanceKeys } from "@/constants/Constants";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -31,6 +33,7 @@ function BarServices() {
   //stroes user cards list
   const [cards, setCards] = useState([]);
 
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   //userlocal data
   const [userLocalData, setUserLocalData] = useState(null);
   const [currentPlan, setCurrentPlan] = useState(null);
@@ -236,7 +239,7 @@ function BarServices() {
           setCurrentPlan(planType);
           //   }
           // localStorage.setItem("User", JSON.stringify(localDetails));
-          setSuccessSnack("Your plan successfully updated");
+          setSuccessSnack("Your support plan successfully updated");
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
         }
@@ -300,18 +303,16 @@ function BarServices() {
   };
 
   //function to get card brand image
-  const getCardImage = (item) => {
-    if (item.brand === "visa") {
-      return "/svgIcons/Visa.svg";
-    } else if (item.brand === "Mastercard") {
-      return "/svgIcons/mastercard.svg";
-    } else if (item.brand === "amex") {
-      return "/svgIcons/Amex.svg";
-    } else if (item.brand === "discover") {
-      return "/svgIcons/Discover.svg";
-    } else if (item.brand === "dinersClub") {
-      return "/svgIcons/DinersClub.svg";
+  const getPlanFromId = () => {
+    let planType = "";
+    if (togglePlan === 1) {
+      planType = "Starter";
+    } else if (togglePlan === 2) {
+      planType = "Professional";
+    } else if (togglePlan === 3) {
+      planType = "Enterprise";
     }
+    return planType;
   };
 
   return (
@@ -343,9 +344,9 @@ function BarServices() {
       {/* code for current plans available */}
 
       <div className="flex flex-col w-full justify-center items-center ">
-        <div className="pl-8 w-full flex flex-col">
+        <div className=" w-full flex flex-col">
           <div
-            className=" pt-2"
+            className=""
             style={{
               fontSize: 22,
               fontWeight: "700",
@@ -415,6 +416,10 @@ function BarServices() {
                 className="px-4 py-2 rounded-lg bg-white text-purple font-medium"
                 onClick={(e) => {
                   console.log("Clicked on Speak to genius");
+                  let url = PersistanceKeys.GlobalConsultationUrl;
+                  if (typeof window !== "undefined") {
+                    window.open(url, "_blank");
+                  }
                 }}
               >
                 Speak to a Genius
@@ -555,7 +560,9 @@ function BarServices() {
                   togglePlan === currentPlan ? "#00000020" : "#7902DF",
                 color: togglePlan === currentPlan ? "#000000" : "#ffffff",
               }}
-              onClick={handleSubscribePlan}
+              onClick={() => {
+                setShowConfirmationModal(true);
+              }}
             >
               Continue
             </button>
@@ -563,6 +570,17 @@ function BarServices() {
         </div>
       </div>
 
+      <XBarConfirmationModal
+        plan={getPlanFromId()}
+        open={showConfirmationModal}
+        onClose={() => {
+          setShowConfirmationModal(false);
+        }}
+        onConfirm={() => {
+          handleSubscribePlan();
+          setTimeout(() => setShowConfirmationModal(false), 0);
+        }}
+      />
       {/* Add Payment Modal */}
       <Modal
         open={addPaymentPopUp} //addPaymentPopUp

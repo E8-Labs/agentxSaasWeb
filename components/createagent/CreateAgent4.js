@@ -109,10 +109,11 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     // console.log("do not staus is :", toggleClick);
     // console.log("User office number value is:", officeNumber);
     if (
-      (selectNumber &&
+      (selectNumber //&&
         // callBackNumber ||
         // !toggleClick &&
-        userSelectedNumber) ||
+        // userSelectedNumber
+      ) ||
       officeNumber
     ) {
       setShouldContinue(false);

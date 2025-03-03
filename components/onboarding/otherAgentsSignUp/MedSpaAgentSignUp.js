@@ -125,7 +125,7 @@ const MedSpaAgentSignUp = ({
       companyName &&
       installationVolume &&
       // projectSize &&
-      ClientType &&
+      // ClientType &&
       emailCheckResponse?.status === true &&
       checkPhoneResponse?.status === true
     ) {
@@ -141,8 +141,8 @@ const MedSpaAgentSignUp = ({
       companyName ||
       installationVolume ||
       // projectSize ||
-      ClientType ||
-      userTransaction ||
+      // ClientType ||
+      // userTransaction ||
       checkPhoneResponse?.status === false ||
       emailCheckResponse?.status === false
     ) {
@@ -158,7 +158,7 @@ const MedSpaAgentSignUp = ({
     companyName,
     installationVolume,
     projectSize,
-    ClientType,
+    // ClientType,
   ]);
 
   useEffect(() => {
@@ -326,14 +326,6 @@ const MedSpaAgentSignUp = ({
       let agentTitle = userData.userTypeTitle;
 
       let clienttype = null;
-
-      if (ClientType === "Residential clients") {
-        clienttype = "residential";
-      } else if (ClientType === "Commercial clients") {
-        clienttype = "commercial";
-      } else if (ClientType === "Both") {
-        clienttype = "both";
-      }
       const formData = new FormData();
       const ApiPath = Apis.register;
       let campainee = GetCampaigneeNameIfAvailable(window);
@@ -347,11 +339,11 @@ const MedSpaAgentSignUp = ({
       formData.append("agentService", JSON.stringify(userData.serviceID));
       formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
       formData.append("userType", agentTitle);
-      formData.append("areaOfService", customerService);
-      formData.append("company", companyName);
-      formData.append("projectSizeKw", installationVolume);
-      formData.append("projectsPerYear", projectSize);
-      formData.append("primaryClientType", clienttype);
+      formData.append("territory", customerService);
+      formData.append("firmOrCompanyAffiliation", companyName);
+      formData.append("averageMonthlyClients", installationVolume);
+      // formData.append("projectsPerYear", projectSize);
+      // formData.append("primaryClientType", clienttype);
       formData.append("login", false);
       formData.append("verificationCode", VerifyCode.join(""));
       formData.append(
@@ -733,7 +725,7 @@ const MedSpaAgentSignUp = ({
               </div>
 
               <div style={styles.headingStyle} className="mt-6">
-                Where do you primarily practice law?
+                Where do you primarily operate?
               </div>
               <input
                 placeholder="Specific cities, counties, or regions"
@@ -746,7 +738,7 @@ const MedSpaAgentSignUp = ({
               />
 
               <div style={styles.headingStyle} className="mt-6">
-                Name of the firm or legal practice you work with, if any.
+                Name of the med spa or practice you work with, if any.
               </div>
               <input
                 placeholder="Name"
@@ -759,7 +751,7 @@ const MedSpaAgentSignUp = ({
               />
 
               <div style={styles.headingStyle} className="mt-6">
-                How many cases do you handle annually or monthly?
+                How many clients do you typically see per month?
               </div>
               <input
                 placeholder="Type here"
@@ -769,6 +761,7 @@ const MedSpaAgentSignUp = ({
                 onChange={(e) => {
                   setInstallationVolume(e.target.value);
                 }}
+                type='number'
               />
 
               <Modal

@@ -368,7 +368,7 @@ const ProfileNav = () => {
   const getProfile = async () => {
     try {
       let response = await getProfileDetails();
-      console.log("Response of profile api ", response.status);
+      console.log("Response of profile api ", response.data);
       if (response.status == 404) {
         console.log("User has been deleted");
         // logout();
@@ -1020,9 +1020,12 @@ const ProfileNav = () => {
                                 </div>
                                 <div className="flex flex-row justify-start items-start ">
                                   <div style={styles.discountedPrice}>
-                                    ${item.discountPrice}
+                                    {item.trial ? "" : "$"}
+                                    {item.discountPrice}
                                   </div>
-                                  <p style={{ color: "#15151580" }}>/mo*</p>
+                                  <p style={{ color: "#15151580" }}>
+                                    {item.trial ? `` : "/mo*"}
+                                  </p>
                                 </div>
                               </div>
                             </div>

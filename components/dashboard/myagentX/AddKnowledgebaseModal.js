@@ -13,15 +13,17 @@ import JSZip from "jszip";
 import { Close, InsertDriveFile, Link, TextFields } from "@mui/icons-material";
 import { User } from "lucide-react";
 
-import { isValidUrl } from "@/constants/Constants";
+import { isValidUrl, isValidYoutubeUrl } from "@/constants/Constants";
+import Apis from "@/components/apis/Apis";
 
-const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
+const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
   const [selectedType, setSelectedType] = useState("Text"); // Url, Document
 
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [url, setUrl] = useState("");
+  const [youtube, setYoutube] = useState("");
 
   const [isUrlValid, setIsUrlValid] = useState(-1); // -1 no text,  0 = invalid, 1 valid
 
@@ -40,6 +42,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
+    console.log("File change event");
     if (file) {
       setFileName(file.name);
       setSelectedFileName(file.name);
@@ -57,13 +60,15 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
       } catch (error) {
         console.error("Error compressing the document:", error);
       }
+    } else {
+      console.log("File not selected");
     }
   };
 
   const handleDrop = async (event) => {
     event.preventDefault();
     event.stopPropagation();
-    setIsDragging(false);
+    // setIsDragging(false);
 
     const file = event.dataTransfer.files[0];
     if (file) {
@@ -87,11 +92,11 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
   };
   const handleDragOver = (event) => {
     event.preventDefault();
-    setIsDragging(true);
+    // setIsDragging(true);
   };
 
   const handleDragLeave = () => {
-    setIsDragging(false);
+    // setIsDragging(false);
   };
 
   const handleButtonClick = (event) => {
@@ -103,7 +108,9 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
 
   const handleDeselect = () => {
     setFileName("");
-    fileInputRef.current.value = ""; // Clear file input
+    if (fileInputRef && fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   //code to compress document
@@ -130,12 +137,26 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
   };
 
   async function addKnowledgebaseEntry() {
-    const link = "/api/kb/addkb"; // Adjust the API route if necessary
+    // setTitle("");
+    // setUrl("");
+    // setSelectedDocument(null);
+    // setSelectedFileName("");
+    // setFileName("");
+    // fileInputRef.current.value = "";
+    // // setSelectedType("Text");
+    // setText("");
+
+    // return;
+    // const link = "/api/kb/addkb"; // Adjust the API route if necessary
+    const link = Apis.AddKnowledgebase; // Adjust the API route if necessary
+
     let originalContent = "";
     let documentName = "";
     const formData = new FormData();
     formData.append("type", selectedType);
     formData.append("title", title);
+    formData.append("agentId", agent.id);
+    formData.append("mainAgentId", agent.mainAgentId);
     if (selectedType == "Text") {
       originalContent = text;
     }
@@ -146,6 +167,9 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
     if (selectedType == "Url") {
       originalContent = url;
     }
+    if (selectedType == "Youtube") {
+      originalContent = youtube;
+    }
     formData.append("originalContent", originalContent);
 
     if (selectedDocument) {
@@ -153,6 +177,11 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
       console.log("Attaching media", selectedDocument);
       formData.append("media", selectedDocument);
     }
+
+    console.log("FormData entries:");
+    formData.forEach((value, key) => {
+      console.log(`${key}:`, value);
+    });
 
     setLoading(true);
     try {
@@ -163,6 +192,12 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
         },
       });
       setLoading(false);
+      setTitle("");
+      setUrl("");
+      setSelectedDocument(null);
+      setSelectedFileName("");
+      // setSelectedType("Text");
+      setText("");
 
       console.log("Success:", response.data);
       return response.data;
@@ -199,6 +234,8 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
       return GetUiForText();
     } else if (selectedType == "Url") {
       return GetUiForUrl();
+    } else if (selectedType == "Youtube") {
+      return GetUiForYoutube();
     }
     return GetUiForDocument();
   }
@@ -224,8 +261,8 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
             setText(e.target.value);
           }}
           placeholder={"Type here"}
-          className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[25vh]"
-          style={{ border: "1px solid #00000020" }}
+          className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[15vh]"
+          style={{ border: "1px solid #00000020", resize: "none" }}
         />
       </div>
     );
@@ -244,6 +281,12 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
       return false;
     }
     if (selectedType == "Url") {
+      if (isUrlValid == 1) {
+        return true;
+      }
+      return false;
+    }
+    if (selectedType == "Youtube") {
       if (isUrlValid == 1) {
         return true;
       }
@@ -289,6 +332,41 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
     );
   }
 
+  function GetUiForYoutube() {
+    return (
+      <div className="flex flex-col w-full gap-4">
+        <div className="flex flex-row justify-between">
+          <div></div>
+        </div>
+
+        <input
+          value={youtube}
+          onChange={(e) => {
+            const inputValue = e.target.value.trim();
+            setYoutube(inputValue);
+
+            if (inputValue === "") {
+              setIsUrlValid(-1);
+            } else {
+              const isValid = isValidYoutubeUrl(inputValue);
+              console.log("URL is valid:", isValid);
+              setIsUrlValid(isValid ? 1 : 0);
+            }
+
+            setTitle(""); // Ensure this is correctly handled in your state
+          }}
+          placeholder="Enter URL"
+          className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
+          style={{ border: "1px solid #00000020" }}
+        />
+
+        {isUrlValid === 0 && (
+          <div className="text-red text-sm">Invalid URL</div>
+        )}
+      </div>
+    );
+  }
+
   function GetUiForDocument() {
     return (
       <div className="flex flex-col w-full gap-4">
@@ -315,9 +393,15 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
             <div
               className="flex items-center text-gray-700 p-4 rounded gap-2"
               style={{
-                backgroundColor: "#EDEDED80",
+                // backgroundColor: "#EDEDED80",
                 fontSize: 13,
                 fontFamily: "inter",
+                // marginTop: 40,
+                border: "1px dashed #7902DF",
+                borderRadius: "10px",
+                // borderColor: '#7902DF',
+                boxShadow: "0px 0px 10px 10px rgba(64, 47, 255, 0.05)",
+                backgroundColor: "#FBFCFF",
               }}
             >
               <span>{fileName}</span>
@@ -330,8 +414,13 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
               className="flex flex-row w-full justify-center rounded items-center"
               style={{
                 height: "100px",
-                border: "2px dashed #0000001006",
-                backgroundColor: "#EDEDED80",
+                // border: "2px dashed #0000001006",
+                // backgroundColor: "#EDEDED80",
+                border: "1px dashed #7902DF",
+                borderRadius: "10px",
+                // borderColor: '#7902DF',
+                boxShadow: "0px 0px 10px 10px rgba(64, 47, 255, 0.05)",
+                backgroundColor: "#FBFCFF",
               }}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -413,7 +502,21 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
             <Typography variant="h6" fontWeight="bold">
               Knowledge Base
             </Typography>
-            <IconButton onClick={onClose}>
+            <IconButton
+              onClick={() => {
+                setTitle("");
+                setUrl("");
+                setSelectedDocument(null);
+                setSelectedFileName("");
+                setFileName("");
+                if (fileInputRef && fileInputRef.current) {
+                  fileInputRef.current.value = "";
+                }
+                // setSelectedType("Text");
+                setText("");
+                onClose();
+              }}
+            >
               <Close />
             </IconButton>
           </Box>
@@ -422,7 +525,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
             Select Type
           </Typography>
 
-          <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+          <Box sx={{ display: "flex", gap: 2, mb: 2, overflowX: "auto" }}>
             <Button
               variant="outlined"
               startIcon={<InsertDriveFile />}
@@ -432,7 +535,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
                 color: selectedType === "Document" ? "#7902DF" : "black",
                 borderWidth: selectedType === "Document" ? 2 : 1,
                 borderRadius: 2,
-                paddingX: 5,
+                paddingX: 2,
                 paddingY: 1,
                 // width: "30%",
               }}
@@ -449,7 +552,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
                 color: selectedType === "Text" ? "#7902DF" : "black",
                 borderWidth: selectedType === "Text" ? 2 : 1,
                 borderRadius: 2,
-                paddingX: 5,
+                paddingX: 2,
                 paddingY: 1,
                 // width: "30%",
               }}
@@ -466,12 +569,29 @@ const AddKnowledgeBaseModal = ({ user, open, onClose }) => {
                 color: selectedType === "Url" ? "#7902DF" : "black",
                 borderWidth: selectedType === "Url" ? 2 : 1,
                 borderRadius: 2,
-                paddingX: 5,
+                paddingX: 2,
                 paddingY: 1,
                 // width: "30%",
               }}
             >
               Link
+            </Button>
+
+            <Button
+              variant="outlined"
+              startIcon={<Link />}
+              onClick={() => handleTypeSelect("Youtube")}
+              sx={{
+                borderColor: selectedType === "Youtube" ? "#7902DF" : "#ccc",
+                color: selectedType === "Youtube" ? "#7902DF" : "black",
+                borderWidth: selectedType === "Youtube" ? 2 : 1,
+                borderRadius: 2,
+                paddingX: 2,
+                paddingY: 1,
+                // width: "30%",
+              }}
+            >
+              Youtube
             </Button>
           </Box>
 
