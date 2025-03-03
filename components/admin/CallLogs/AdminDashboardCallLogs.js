@@ -29,7 +29,7 @@ import {
 import AdminCallDetails from "./AdminCallDetails";
 import { time } from "framer-motion";
 
-function AdminDashboardCallLogs({ }) {
+function AdminDashboardCallLogs({}) {
   const LimitPerPage = 30;
 
   const [searchValue, setSearchValue] = useState("");
@@ -56,7 +56,6 @@ function AdminDashboardCallLogs({ }) {
   const [selectedLeadsDetails, setselectedLeadsDetails] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
 
-
   //code for pagination
   const [offset, setOffset] = useState(5);
   const [hasMore, setHasMore] = useState(true);
@@ -69,35 +68,44 @@ function AdminDashboardCallLogs({ }) {
     {
       id: 1,
       status: "Voicemail",
-    }, {
+    },
+    {
       id: 2,
       status: "Booked",
-    }, {
+    },
+    {
       id: 3,
       status: "Hangup",
-    }, {
+    },
+    {
       id: 4,
       status: "Hot Lead",
-    }, {
+    },
+    {
       id: 5,
       status: "Agent Goodbye",
-    }, {
+    },
+    {
       id: 6,
       status: "Human Goodbye",
-    }, {
+    },
+    {
       id: 7,
       status: "Busy",
-    }, {
+    },
+    {
       id: 8,
       status: "Failed",
-    }, {
+    },
+    {
       id: 9,
       status: "Not Interested",
-    }, {
+    },
+    {
       id: 10,
       status: "No answer",
     },
-  ]
+  ];
 
   // useEffect(() => {
   //   console.log("Search value changed", searchValue);
@@ -124,10 +132,9 @@ function AdminDashboardCallLogs({ }) {
     }, 400);
   }, [searchValue]);
 
-
   useEffect(() => {
     // getCallLogs()
-  }, [])
+  }, []);
 
   function getFilterTitle(filter) {
     if (filter.key === "date") {
@@ -148,7 +155,6 @@ function AdminDashboardCallLogs({ }) {
 
     return "";
   }
-
 
   function GetFiltersFromSelection() {
     let filters = [];
@@ -201,7 +207,7 @@ function AdminDashboardCallLogs({ }) {
       if (offset == null) {
         offset = filteredCallDetails.length;
       }
-      if ((selectedFromDate && selectedToDate)) {
+      if (selectedFromDate && selectedToDate) {
         ApiPath = `${Apis.adminCallLogs}?startDate=${startDate}&endDate=${endDate}&offset=${offset}`;
       } else {
         ApiPath = `${Apis.adminCallLogs}?offset=${offset}`; //Apis.getCallLogs;
@@ -246,7 +252,6 @@ function AdminDashboardCallLogs({ }) {
           setHasMore(false);
         }
       }
-
     } catch (error) {
       console.error("Error occured in gtting calls log api is:", error);
     } finally {
@@ -265,7 +270,6 @@ function AdminDashboardCallLogs({ }) {
     setShowToDatePicker(false);
   };
 
-
   //function to format phone number
   //code for formating the number
   const formatPhoneNumber = (rawNumber) => {
@@ -280,12 +284,14 @@ function AdminDashboardCallLogs({ }) {
 
   return (
     <div className="w-full items-start">
-      <div className="w-full pl-10 mt-5" style={{ fontSize: 24, fontWeight: "600" }}>
+      <div
+        className="w-full pl-10 mt-5"
+        style={{ fontSize: 24, fontWeight: "600" }}
+      >
         Call Logs
       </div>
 
       <div className="flex w-full pl-10 flex-row items-center gap-3">
-
         <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded pe-2 mt-4">
           <input
             style={{ fontSize: 15 }}
@@ -322,11 +328,12 @@ function AdminDashboardCallLogs({ }) {
         </button>
 
         {/* Show filters here in a row*/}
-        <div className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto w-[70%] "
+        <div
+          className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto w-[70%] "
           style={{ scrollbarColor: "#00000000", scrollbarWidth: "none" }}
         >
           {GetFiltersFromSelection().map((filter, index) => (
-            <div className="flex-shrink-0" key={filter.key + index}>
+            <div className="flex-shrink-0" key={index}>
               <div
                 className="px-4 py-2 bg-[#402FFF10] text-purple flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
                 style={{ fontWeight: "500", fontSize: 15 }}
@@ -341,7 +348,9 @@ function AdminDashboardCallLogs({ }) {
                       setSelectedFromDate(null);
                       setSelectedToDate(null);
                     } else if (filter.key === "status") {
-                      setSelectedStatus((prev) => prev.filter((s) => s !== filter.values[0]));
+                      setSelectedStatus((prev) =>
+                        prev.filter((s) => s !== filter.values[0])
+                      );
                     }
 
                     // Refresh Call Logs after filter removal
@@ -363,7 +372,6 @@ function AdminDashboardCallLogs({ }) {
             </div>
           ))}
         </div>
-
       </div>
 
       <div className="w-full flex flex-row justify-between mt-2 px-10 mt-4">
@@ -517,7 +525,6 @@ function AdminDashboardCallLogs({ }) {
             )}
           </InfiniteScroll>
         </div>
-
       )}
 
       {/* Code for filter modal */}
@@ -696,7 +703,6 @@ function AdminDashboardCallLogs({ }) {
                   </div>
                 </div>
 
-
                 <div
                   style={{
                     fontWeight: "500",
@@ -709,31 +715,35 @@ function AdminDashboardCallLogs({ }) {
                 </div>
 
                 <div className="w-full flex flex-row items-center gap-2 flex-wrap mt-4">
-                  {
-                    statusList.map((item) => (
-                      <button onClick={() => {
+                  {statusList.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => {
                         setSelectedStatus((prev) => {
                           if (prev.includes(item.status)) {
                             return prev.filter((s) => s !== item.status);
                           } else {
                             return [...prev, item.status];
                           }
-                        })
-                      }}>
-                        <div className="py-2 px-3 border rounded-full"
-                          style={{
-                            color: selectedStatus.includes(item.status) ? "#fff" : "",
-                            backgroundColor: selectedStatus.includes(item.status) ? "#7902df" : ""
-                          }}
-                        >
-                          {item.status}
-                        </div>
-                      </button>
-                    ))
-                  }
+                        });
+                      }}
+                    >
+                      <div
+                        className="py-2 px-3 border rounded-full"
+                        style={{
+                          color: selectedStatus.includes(item.status)
+                            ? "#fff"
+                            : "",
+                          backgroundColor: selectedStatus.includes(item.status)
+                            ? "#7902df"
+                            : "",
+                        }}
+                      >
+                        {item.status}
+                      </div>
+                    </button>
+                  ))}
                 </div>
-
-
               </div>
 
               <div className="flex flex-row items-center w-full justify-between mt-4 pb-8">
@@ -743,7 +753,7 @@ function AdminDashboardCallLogs({ }) {
                   onClick={() => {
                     setSelectedFromDate(null);
                     setSelectedToDate(null);
-                    getLeads()
+                    getLeads();
                     // if (typeof window !== "undefined") {
                     //   window.location.reload();
                     // }
@@ -760,7 +770,8 @@ function AdminDashboardCallLogs({ }) {
                       fontSize: 16.8,
                       fontWeight: "600",
                       backgroundColor:
-                        (selectedFromDate && selectedToDate) || selectedStatus.length > 0
+                        (selectedFromDate && selectedToDate) ||
+                        selectedStatus.length > 0
                           ? ""
                           : "#00000050",
                     }}

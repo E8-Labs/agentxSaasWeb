@@ -2743,7 +2743,7 @@ function Page() {
         }}
       >
         <div
-          className="flex flex-col w-full bg-white p-5 rounded-xl"
+          className="flex flex-col w-full h-full  py-2 px-5 rounded-xl"
           // style={{  }}
         >
           {/* <div
@@ -2764,7 +2764,7 @@ function Page() {
             </button>
           </div> */}
           <div
-            className="w-full flex flex-col h-[90vh]"
+            className="w-full flex flex-col h-full"
             style={{
               overflowY: "auto",
               overflowX: "hidden",
@@ -2967,7 +2967,7 @@ function Page() {
               </div>
             </div>
 
-            <div className="grid grid-cols-5 gap-6 border p-6 flex-row justify-between w-full rounded-lg mb-6 mt-2 bg-[#15151505]">
+            <div className="grid grid-cols-5 gap-6 border p-6 flex-row justify-between w-full rounded-lg mb-6 mt-2 ">
               <Card
                 name="Calls"
                 value={
