@@ -39,6 +39,7 @@ const AssignLead = ({
   const [ShouldContinue, setShouldContinue] = useState(false);
   const [NoOfLeadsToSend, setNoOfLeadsToSend] = useState("");
   const [customLeadsToSend, setCustomLeadsToSend] = useState("");
+  const [isFocustedCustomLeads, setisFocustedCustomLeads] = useState("");
   const [selectedFromDate, setSelectedFromDate] = useState(null);
   const [showFromDatePicker, setShowFromDatePicker] = useState(false);
   const [selectedDateTime, setSelectedDateTime] = useState(dayjs());
@@ -771,12 +772,13 @@ const AssignLead = ({
                 <input
                   className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
                   style={{
-                    border: "1px solid #00000040",
+                    border: `${isFocustedCustomLeads?"2px solid #7902Df":"2px solid #00000040"}`,
                     height: "50px",
                   }}
                   value={customLeadsToSend}
                   onFocus={() => {
                     setNoOfLeadsToSend("");
+                    setisFocustedCustomLeads(true)
                   }}
                   onChange={(e) => {
                     let value = e.target.value;
@@ -796,6 +798,7 @@ const AssignLead = ({
                   onClick={() => {
                     setNoOfLeadsToSend(totalLeads);
                     setCustomLeadsToSend("");
+                    setisFocustedCustomLeads(false)
                   }}
                 >
                   All {getLeadSelectedCount()}

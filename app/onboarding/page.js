@@ -29,6 +29,7 @@ import LoanOfficerSignUp from "@/components/onboarding/otherAgentsSignUp/LoanOff
 import MedSpaAgentSignUpMobile from "@/components/onboarding/mobileUI/MedSpaAgentSignUpMobile";
 import LoanOfficerSignUpMobile from "@/components/onboarding/mobileUI/LoanOfficerSignUpMobile";
 import LawAgentSignUpMobile from "@/components/onboarding/mobileUI/LawAgentSignUpMobile";
+import TexAgentSignUpMoble from "@/components/onboarding/mobileUI/TexAgentSignUpMoble";
 
 const Page = ({ params }) => {
   const router = useRouter();
@@ -89,7 +90,10 @@ const Page = ({ params }) => {
         userType == UserTypes.DebtCollectorAgent ? DebtCollerterAgentSignUp :(
         userType == UserTypes.LawAgent ? LawAgentSignUpMobile :(
           userType == UserTypes.MedSpaAgent ? MedSpaAgentSignUpMobile :(
-            userType == UserTypes.LoanOfficerAgent && LoanOfficerSignUpMobile )
+            userType == UserTypes.LoanOfficerAgent ? LoanOfficerSignUpMobile:
+            BasicDetails
+          
+          )
         )),
         userType == UserTypes.DebtCollectorAgent ? DebtCollerterAgentSignUp : OtherDetails,
         Congrats,

@@ -576,7 +576,11 @@ function AllCalls({ user }) {
                     style={{ cursor: "pointer" }}
                     className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                   >
-                    <div className="w-2/12 flex flex-row gap-2 items-center">
+                    <div className="w-2/12 flex flex-row gap-2 items-center cursor-pointer"  onClick={() => {
+                          // console.log("Selected item is", item);
+                          setselectedLeadsDetails(item);
+                          setShowDetailsModal(true);
+                        }}>
                       <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
                         {item.LeadModel?.firstName.slice(0, 1).toUpperCase()}
                       </div>

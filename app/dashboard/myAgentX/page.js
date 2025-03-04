@@ -225,14 +225,14 @@ function Page() {
     useState(false);
 
   const models = [
-    { name: "Grok", icon: "/svgIcons/chatgptIcon.svg" },
     { name: "GPT-4", icon: "/svgIcons/chatgptIcon.svg" },
     { name: "GPT-4 Mini", icon: "/svgIcons/chatgptIcon.svg" },
-    { name: "LLaMA", icon: "/svgIcons/chatgptIcon.svg" },
-    { name: "Gemini", icon: "/svgIcons/chatgptIcon.svg" },
+    { name: "Grok", icon: "/svgIcons/grokIcon.svg" },
+    { name: "LLaMA", icon: "/svgIcons/llamaIcon.svg" },
+    { name: "Gemini", icon: "/svgIcons/geminiIcon.svg" },
     {
       name: "DeepSeek (Coming Soon)",
-      icon: "/svgIcons/chatgptIcon.svg",
+      icon: "/svgIcons/deepseekIcon.svg",
       disabled: true,
     },
   ];

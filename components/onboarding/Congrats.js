@@ -34,7 +34,7 @@ const Congrats = () => {
         </div>
         {/* Body */}
         <div className="flex flex-col items-center justify-center px-4 w-full h-[85%]">
-          <div className="mt-8 gap-4 flex flex-col overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+          <div className="mt-8 gap-4 flex flex-col overflow-hidden">
             {/* <Image src={"/assets/congrats.png"} style={{ height: "318px", width: "466px", resize: "contain" }} height={318} width={466} alt='*' /> */}
             <Image
               src={"/agentXOrb.gif"}

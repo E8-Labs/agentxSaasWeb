@@ -203,7 +203,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     {
       id: 100,
       icon: "",
-      title: "others",
+      title: "Something Else",
       details: "",
       focusIcn: "/svgIcons/obj6F.svg",
       unFocusIcon: "/objectiveIcons/obj6UF.png",

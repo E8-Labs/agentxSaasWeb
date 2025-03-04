@@ -116,16 +116,22 @@ const LeadDetails = ({
   const [getTeamLoader, setGetTeamLoader] = useState(false);
 
   useEffect(() => {
+    console.log('Lead detail modal rendered');
+}, [])
+
+  useEffect(() => {
+    if (!selectedLead) return;
     getLeadDetails(selectedLead);
     if (pipelineId) {
       // console.log("Get stages api called", pipelineId);
       getStagesList(selectedLead);
     }
     getMyteam();
-  }, []);
+  }, [selectedLead]);
 
   //code for getting teammebers
   const getMyteam = async () => {
+    console.log('team getting')
     try {
       setGetTeamLoader(true);
       const data = localStorage.getItem("User");
@@ -280,7 +286,7 @@ const LeadDetails = ({
       });
 
       if (response) {
-        // console.log("Lead details Response of api is", response.data);
+        console.log("Lead details Response of api is", response.data);
         let dynamicColumns = [];
         dynamicColumns = [
           ...response?.data?.columns,
@@ -706,7 +712,7 @@ const LeadDetails = ({
         }}
         BackdropProps={{
           sx: {
-            backgroundColor: noBackDrop ? "#00000002" : "#00000020",
+            backgroundColor: noBackDrop ? "#00000020" : "#00000020",
             // //backdropFilter: "blur(5px)",
           },
         }}
