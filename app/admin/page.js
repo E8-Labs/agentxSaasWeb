@@ -86,7 +86,7 @@ function Page() {
         ))}
       </div>
 
-      <div className="w-full">
+      <div className="w-full items-center">
         {selectedManu.name === "Users" ? (
           <AdminUsers />
         ) : 

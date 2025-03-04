@@ -27,6 +27,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { PersistanceKeys } from "@/constants/Constants";
 import AdminSubscriptions from "./AdminSubscriptions";
+import AdminEngagments from "./AdminEngagments";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -54,7 +55,7 @@ export default function Dashboard() {
           <AgentXStats user={user} />
         </TabsContent>
         <TabsContent value="engagement">
-          <div>Engagement</div>
+          <AdminEngagments />
         </TabsContent>
 
         <TabsContent value="subscription">
