@@ -1502,11 +1502,11 @@ const Pipeline1 = () => {
     } else {
       const filteredLeads = pipeline.leads.filter((lead) => {
         //// console.log(`Checking lead: ${lead.leadId} against ${leadToDelete.id}`);
-        let firstName = lead.lead.firstName.toLowerCase();
-        let lastName = lead.lead.lastName.toLowerCase();
+        let firstName = lead.lead.firstName?.toLowerCase() || "";
+        let lastName = lead.lead.lastName?.toLowerCase() || "";
         let fullName = (firstName || "") + " " + (lastName || "");
         let email = lead?.lead?.email?.toLowerCase() || "";
-        let phone = lead?.lead?.phone;
+        let phone = lead?.lead?.phone || "";
         return (
           firstName.includes(search) ||
           lastName.includes(search) ||

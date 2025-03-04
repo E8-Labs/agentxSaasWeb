@@ -78,7 +78,7 @@ const LoanOfficerSignUp = ({
   const [projectSize, setProjectSize] = useState("");
   const [ClientType, setClientType] = useState(null);
 
-  const [otherType, setOtherType] = useState("")
+  const [otherType, setOtherType] = useState("");
 
   //array for the primary client types
   const primaryClientTypes = [
@@ -93,13 +93,16 @@ const LoanOfficerSignUp = ({
     {
       id: 3,
       title: "Veterans & Active Military",
-    }, {
+    },
+    {
       id: 3,
       title: "Luxury Homebuyers",
-    }, {
+    },
+    {
       id: 5,
       title: "Self-Employed & Entrepreneurs",
-    }, {
+    },
+    {
       id: 6,
       title: "Other (type here)",
     },
@@ -142,7 +145,6 @@ const LoanOfficerSignUp = ({
       !userName ||
       !userEmail ||
       !userPhoneNumber ||
-      
       customerService ||
       companyName ||
       installationVolume ||
@@ -161,7 +163,7 @@ const LoanOfficerSignUp = ({
     emailCheckResponse,
     customerService,
     companyName,
-    
+
     ClientType,
   ]);
 
@@ -199,12 +201,12 @@ const LoanOfficerSignUp = ({
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
     // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
-    // parsePhoneNumberFromString(`+${phone}`, countryCode.toUpperCase())
+    // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
     const parsedNumber = parsePhoneNumberFromString(
       `+${phoneNumber}`,
-      countryCode.toUpperCase()
+      countryCode?.toUpperCase()
     );
-    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
+    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
       setErrorMessage("Invalid");
     } else {
@@ -329,7 +331,6 @@ const LoanOfficerSignUp = ({
 
       let agentTitle = userData.userTypeTitle;
 
-     
       const formData = new FormData();
       const ApiPath = Apis.register;
       let campainee = GetCampaigneeNameIfAvailable(window);
@@ -740,7 +741,8 @@ const LoanOfficerSignUp = ({
               />
 
               <div style={styles.headingStyle} className="mt-6">
-                Name of the mortgage lender, bank, or brokerage you work with, if any.
+                Name of the mortgage lender, bank, or brokerage you work with,
+                if any.
               </div>
               <input
                 placeholder="Name"
@@ -756,10 +758,9 @@ const LoanOfficerSignUp = ({
                 Client Type
               </div>
 
-
               <div
                 className="flex w-full flex-wrap flex-row items-center gap-2"
-                style={{ marginTop: "8px", flexWrap: 'wrap' }}
+                style={{ marginTop: "8px", flexWrap: "wrap" }}
               >
                 {primaryClientTypes.map((item, index) => {
                   return (
@@ -783,9 +784,8 @@ const LoanOfficerSignUp = ({
                       >
                         {item.title}
                       </button>
-                      {
-                        ClientType === "Other (type here)" && item.id === 6 && (
-                          <input
+                      {ClientType === "Other (type here)" && item.id === 6 && (
+                        <input
                           placeholder="Type here"
                           className=" w-full border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                           style={{ ...styles.inputStyle, marginTop: "8px" }}
@@ -794,16 +794,11 @@ const LoanOfficerSignUp = ({
                             setOtherType(e.target.value);
                           }}
                         />
-                        )
-                      }
+                      )}
                     </div>
                   );
                 })}
               </div>
-
-
-
-
 
               <Modal
                 open={showVerifyPopup}

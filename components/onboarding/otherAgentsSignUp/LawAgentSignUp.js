@@ -77,7 +77,7 @@ const LawAgentSignUp = ({
   const [installationVolume, setInstallationVolume] = useState("");
   const [projectSize, setProjectSize] = useState("");
   const [ClientType, setClientType] = useState(null);
-  const [consultation, setConsultation] = useState(null)
+  const [consultation, setConsultation] = useState(null);
 
   //array for the primary client types
   const primaryClientTypes = [
@@ -161,7 +161,7 @@ const LawAgentSignUp = ({
     installationVolume,
     projectSize,
     ClientType,
-    consultation
+    consultation,
   ]);
 
   useEffect(() => {
@@ -196,18 +196,18 @@ const LawAgentSignUp = ({
   };
 
   const handleConsultationFormat = (item) => {
-    setConsultation(item.title)
-  }
+    setConsultation(item.title);
+  };
 
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
     // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
-    // parsePhoneNumberFromString(`+${phone}`, countryCode.toUpperCase())
+    // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
     const parsedNumber = parsePhoneNumberFromString(
       `+${phoneNumber}`,
-      countryCode.toUpperCase()
+      countryCode?.toUpperCase()
     );
-    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
+    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
       setErrorMessage("Invalid");
     } else {
@@ -331,7 +331,6 @@ const LawAgentSignUp = ({
       setRegisterLoader(true);
 
       let agentTitle = userData.userTypeTitle;
-
 
       const formData = new FormData();
       const ApiPath = Apis.register;
@@ -776,10 +775,9 @@ const LawAgentSignUp = ({
                 Client Type
               </div>
 
-
               <div
                 className="flex w-full flex-wrap flex-row items-center gap-2"
-                style={{ marginTop: "8px", flexWrap: 'wrap' }}
+                style={{ marginTop: "8px", flexWrap: "wrap" }}
               >
                 {primaryClientTypes.map((item, index) => {
                   return (

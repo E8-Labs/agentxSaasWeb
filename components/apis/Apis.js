@@ -1,7 +1,7 @@
 // const BasePath = process.env.NEXT_PUBLIC_REACT_APP_BASE_URL;
 // console.log("Base url ", BasePath);
 const BasePath =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== "Production"
     ? "https://www.blindcircle.com/agentx/"
     : "https://www.blindcircle.com/agentxtest/";
 
@@ -122,10 +122,10 @@ const Apis = {
   GetKnowledgebase: `${BasePath}api/kb/getKnowledgebase`,
   DeleteKnowledgebase: `${BasePath}api/kb/deleteKnowledgebase`,
 
-
-  AdminAnalytics:`${BasePath}api/admin/adminAnalytics`,
-  adminCallLogs:`${BasePath}api/admin/callLogsAdmin`,
-  addMinutes:`${BasePath}api/admin/addMinutesToUser`,
+  AdminAnalytics: `${BasePath}api/admin/adminAnalytics`,
+  adminCallLogs: `${BasePath}api/admin/callLogsAdmin`,
+  addMinutes: `${BasePath}api/admin/addMinutesToUser`,
+  adminUsersWithUniquePhoneNumbers: `${BasePath}api/admin/adminUsersWithUniquePhoneNumbers`,
 };
 
 export default Apis;

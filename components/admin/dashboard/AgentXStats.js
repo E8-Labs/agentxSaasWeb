@@ -25,6 +25,7 @@ import { User, TrendingUp, PhoneCall, Calendar, Star } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { FindVoice } from "@/components/createagent/Voices";
 import TopVoicesModal from "./TopVoicesModal";
+import UsersWithUniqueNumbers from "./UsersWithUniqueNumbersModal";
 // import { stat } from "fs";
 
 const data = [
@@ -38,6 +39,8 @@ const data = [
 function AgentXStats({ user }) {
   const [stats, setStats] = useState(null);
   const [showAllVoices, setShowAllVoices] = useState(false);
+  const [showAllUsersWithUniqueNumbers, setShowAllUsersWithUniqueNumbers] =
+    useState(false);
   useEffect(() => {
     // Example usage:
     if (user) {
@@ -79,6 +82,13 @@ function AgentXStats({ user }) {
           open={showAllVoices}
           onClose={() => {
             setShowAllVoices(false);
+          }}
+        />
+        <UsersWithUniqueNumbers
+          user={user}
+          open={showAllUsersWithUniqueNumbers}
+          onClose={() => {
+            setShowAllUsersWithUniqueNumbers(false);
           }}
         />
         <div className="cursor-pointer flex items-start  justify-between w-full  mb-2">
@@ -220,6 +230,9 @@ function AgentXStats({ user }) {
         onViewAll={() => {
           setShowAllVoices(true);
         }}
+        onViewUniqueNumbers={() => {
+          setShowAllUsersWithUniqueNumbers(true);
+        }}
       />
       {/* </div> */}
 
@@ -309,6 +322,7 @@ function VoicesComponent({
     { id: "SqVGDZffOHdbKuvIy7MP", users: 89 },
   ],
   onViewAll,
+  onViewUniqueNumbers,
 }) {
   function GetVoiceCard(index = 0) {
     let color = "bg-green-500/80";
@@ -381,6 +395,9 @@ function VoicesComponent({
             src="/invtedteamsiocn.png"
             alt="Icon"
             className="cursor-pointer h-20  -ml-2  -mt-3"
+            onClick={() => {
+              onViewUniqueNumbers();
+            }}
           />
           <div className="cursor-pointer flex flex-col mr-2 items-end">
             <h2 className="cursor-pointer text-4xl font-light">

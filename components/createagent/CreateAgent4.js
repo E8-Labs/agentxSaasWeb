@@ -109,11 +109,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     // console.log("do not staus is :", toggleClick);
     // console.log("User office number value is:", officeNumber);
     if (
-      (selectNumber //&&
-        // callBackNumber ||
-        // !toggleClick &&
-        // userSelectedNumber
-      ) ||
+      selectNumber || //&&
+      // callBackNumber ||
+      // !toggleClick &&
+      // userSelectedNumber
       officeNumber
     ) {
       setShouldContinue(false);
@@ -265,12 +264,12 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   //number validation
   const validatePhoneNumber = (phoneNumber, e) => {
     // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
-    // parsePhoneNumberFromString(`+${phone}`, countryCode.toUpperCase())
+    // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
     const parsedNumber = parsePhoneNumberFromString(
       `+${phoneNumber}`,
-      countryCode.toUpperCase()
+      countryCode?.toUpperCase()
     );
-    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
+    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
       if (e) {
         setOfficeErrorMessage("Invalid");

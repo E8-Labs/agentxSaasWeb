@@ -72,8 +72,8 @@ const WebOwnersAgentSignUp = ({
 
   //web url
   const [websiteUrl, setWebsiteUrl] = useState("");
-  const [urlError,setUrlError] = useState(false);
-  const [urlErrorMessage,setUrlErrorMessage]= useState("")
+  const [urlError, setUrlError] = useState(false);
+  const [urlErrorMessage, setUrlErrorMessage] = useState("");
 
   //get location
   useEffect(() => {
@@ -139,12 +139,12 @@ const WebOwnersAgentSignUp = ({
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
     // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
-    // parsePhoneNumberFromString(`+${phone}`, countryCode.toUpperCase())
+    // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
     const parsedNumber = parsePhoneNumberFromString(
       `+${phoneNumber}`,
-      countryCode.toUpperCase()
+      countryCode?.toUpperCase()
     );
-    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
+    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
       setErrorMessage("Invalid");
     } else {
@@ -203,26 +203,25 @@ const WebOwnersAgentSignUp = ({
     setShowVerifyPopup(false);
   };
 
-  //code for url validation 
+  //code for url validation
 
   useEffect(() => {
     let timer = setTimeout(() => {
-      console.log('url timerfinished',isValidUrl(websiteUrl))
+      console.log("url timerfinished", isValidUrl(websiteUrl));
       if (websiteUrl) {
         if (isValidUrl(websiteUrl)) {
-          setUrlError(true)
-          setErrMessage("")
-        console.log('url valid')
-
-        }else{
-          setUrlErrorMessage("Invalid")
-          setUrlError(false)
+          setUrlError(true);
+          setErrMessage("");
+          console.log("url valid");
+        } else {
+          setUrlErrorMessage("Invalid");
+          setUrlError(false);
         }
       }
     }, 300);
 
-    return ()=> clearTimeout(timer)
-  },[websiteUrl])
+    return () => clearTimeout(timer);
+  }, [websiteUrl]);
 
   //code for handling verify code changes
 
@@ -687,17 +686,17 @@ const WebOwnersAgentSignUp = ({
                 Website (URL)
               </div>
               <div>
-                {
-                  urlErrorMessage && (
-                    <p style={{
+                {urlErrorMessage && (
+                  <p
+                    style={{
                       ...styles.errmsg,
                       color: "red",
-                      textAlign:'right'
-                    }}>
-                      {urlErrorMessage}
-                    </p>
-                  )
-                }
+                      textAlign: "right",
+                    }}
+                  >
+                    {urlErrorMessage}
+                  </p>
+                )}
               </div>
 
               <input
@@ -707,12 +706,10 @@ const WebOwnersAgentSignUp = ({
                 value={websiteUrl}
                 onChange={(e) => {
                   setWebsiteUrl(e.target.value);
-                  setUrlError(false)
-                  setUrlErrorMessage("")
+                  setUrlError(false);
+                  setUrlErrorMessage("");
                 }}
               />
-
-              
 
               <Modal
                 open={showVerifyPopup}
