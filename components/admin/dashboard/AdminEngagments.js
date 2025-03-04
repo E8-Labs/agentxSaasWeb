@@ -43,14 +43,7 @@ function AdminEngagments() {
         },
     ]
 
-    const progressData = [
-        { name: "Churn Rate", value: engagmentData?.churnRate },
-        { name: "Retention Rate", value: engagmentData?.retentionRate },
-        { name: "5Cohort Retention Rate", value: engagmentData?.cohortRetention[0]?.retentionRate },
-        { name: "Cohort Implementation Request", value: 0 },
-        { name: "Stickiness Ratio (DAU/MAU)", value: engagmentData?.stickinessRatio }
-    ];
-
+    
     useEffect(() => {
         getEngagmentData()
     }, [])
@@ -102,6 +95,16 @@ function AdminEngagments() {
         }
         return null;
     };
+
+
+    const progressData = [
+        { name: "Churn Rate", value: engagmentData?.churnRate },
+        { name: "Retention Rate", value: engagmentData?.retentionRate },
+        { name: "5Cohort Retention Rate", value: engagmentData?.cohortRetention?.length > 0 ? engagmentData?.cohortRetention[0].retentionRate:0 },
+        { name: "Cohort Implementation Request", value: 0 },
+        { name: "Stickiness Ratio (DAU/MAU)", value: engagmentData?.stickinessRatio?.stickinessRatio }
+    ];
+
 
     return (
         <div className='w-full flex flex-col items-center' style={{ alignSelf: 'center' }}>
@@ -213,7 +216,7 @@ function AdminEngagments() {
                                     Build Agent
                                 </div>
                                 <div style={{ fontSize: 30, fontWeight: '300' }}>
-                                    {engagmentData?.usersWithAgentsPercentage?.usersWithAgentsPercentage}%
+                                    {engagmentData?.usersWithAgentsPercentage?.usersWithAgentsCount}%
                                 </div>
                                 <div style={{ fontSize: 16, fontWeight: '500' }}>
                                     {engagmentData?.usersWithAgentsPercentage?.total}
@@ -226,7 +229,7 @@ function AdminEngagments() {
                                     Upload Leads
                                 </div>
                                 <div style={{ fontSize: 30, fontWeight: '300' }}>
-                                    {engagmentData?.usersWithLeadsPercentage?.usersWithLeadsPercentage}%
+                                    {engagmentData?.usersWithLeadsPercentage?.usersWithLeadsCount}%
                                 </div>
                                 <div style={{ fontSize: 16, fontWeight: '500' }}>
                                     {engagmentData?.usersWithLeadsPercentage?.total}
@@ -239,7 +242,7 @@ function AdminEngagments() {
                                     Make Calls
                                 </div>
                                 <div style={{ fontSize: 30, fontWeight: '300' }}>
-                                    {engagmentData?.usersWhoSentCallsPercentage?.usersWhoSentCallsPercentage}%
+                                    {engagmentData?.usersWhoSentCallsPercentage?.usersWhoSentCallsCount}%
                                 </div>
                                 <div style={{ fontSize: 16, fontWeight: '500' }}>
                                     {engagmentData?.usersWhoSentCallsPercentage?.total}
@@ -286,10 +289,10 @@ function AdminEngagments() {
                             Cohort Retention Rate
                         </div>
                         <div style={{ fontSize: 30, fontWeight: '300' }}>
-                            {engagmentData?.cohortRetention[0]?.retentionRate}
+                            {engagmentData?.cohortRetention?.length > 0 ? engagmentData?.cohortRetention[0].retentionRate:0}
                         </div>
                         <div style={{ fontSize: 16, fontWeight: '500' }}>
-                            {engagmentData?.cohortRetention[0]?.retentionRate}
+                            {engagmentData?.cohortRetention?.length > 0 ? engagmentData?.cohortRetention[0].totalUsers:0}
                         </div>
 
 
@@ -309,10 +312,10 @@ function AdminEngagments() {
                             Cohort Implementation Request
                         </div>
                         <div style={{ fontSize: 30, fontWeight: '300' }}>
-                            hello
+                            -
                         </div>
                         <div style={{ fontSize: 16, fontWeight: '500' }}>
-                            hello
+                            -
                         </div>
 
 
@@ -331,10 +334,10 @@ function AdminEngagments() {
                             Stickiness Ratio (DAU/MAU)
                         </div>
                         <div style={{ fontSize: 30, fontWeight: '300' }}>
-                            {engagmentData?.stickinessRatio}
+                            {engagmentData?.stickinessRatio?.stickinessRatio}
                         </div>
                         <div style={{ fontSize: 16, fontWeight: '500' }}>
-                            hello
+                            -
                         </div>
 
 
