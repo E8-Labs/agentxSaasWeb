@@ -1,5 +1,5 @@
 import AdminLeads from '@/components/admin/users/AdminLeads'
-import { Box, Modal } from '@mui/material'
+import { Box, CircularProgress, Modal } from '@mui/material'
 import Image from 'next/image'
 import React, { useState } from 'react'
 import AdminLeads1 from './AdminLeads1'
@@ -14,7 +14,7 @@ import AdminProfileData from './AdminProfileData'
 import { Cross } from '@phosphor-icons/react'
 import axios from 'axios'
 import Apis from '@/components/apis/Apis'
-import AgentSelectSnackMessage from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 
 function SelectedUserDetails({ open, close, selectedUser, handleNext, handleBack }) {
 
@@ -66,55 +66,62 @@ function SelectedUserDetails({ open, close, selectedUser, handleNext, handleBack
 
     const [selectedManu, setSelectedManu] = useState(manuBar[0])
     const [showAddMinutesModal, setShowAddMinutesModal] = useState(false)
-    const [error,setError] = useState("")
+    const [error, setError] = useState("")
     const [minutes, setMinutes] = useState("")
-    const [showSnackMessage,setShowSnackMessage] = useState(null)
-    const [loading,setloading] = useState(response.data.message)
+    const [showSnackMessage, setShowSnackMessage] = useState(null)
+    const [loading, setloading] = useState(false)
 
 
     const handleManuClick = (item) => {
         setSelectedManu(item)
     }
 
-
-    const handleAddMinutes =async () =>{
-        try{
+    const handleAddMinutes = async () => {
+        setloading(true)
+        try {
             const data = localStorage.getItem("User")
 
-            if(data){
+            if (data) {
                 let u = JSON.parse(data)
 
                 let path = Apis.addMinutes
 
                 let apidata = {
-                    userId:selectedUser.id,
-                    minutes:minutes
+                    userId: selectedUser.id,
+                    minutes: minutes
                 }
 
-                const response = await axios.post(path,apidata,{
-                    headers:{
-                        "Authorization":'Bearer '+u.token
+                const response = await axios.post(path, apidata, {
+                    headers: {
+                        "Authorization": 'Bearer ' + u.token
                     }
                 })
 
-                if(response.data){
-                    if(response.data.status === true){
+                if (response.data) {
+                    if (response.data.status === true) {
                         console.log('add minutes api response is', response.data.data)
-                        setShowSnackMessage(response.data.message)
+                        setShowSnackMessage(response.data.messag)
                         setShowAddMinutesModal(false)
-                    }else{
+                    } else {
                         console.log('add minutes api message is', response.data.message)
+                        setShowSnackMessage(response.data.message)
+
                     }
                 }
             }
-        }catch(e){
-            console.log('error in add minutes api is', error)
+        } catch (e) {
+            console.log('error in add minutes api is', e)
+        }
+        finally {
+            setloading(false)
         }
     }
 
     return (
         <div className='w-full flex flex-col items-center justify-center'>
-            <AgentSelectSnackMessage isVisible={showSnackMessage} hide={()=>{setShowSnackMessage(null)}}/>
+            <AgentSelectSnackMessage isVisible={showSnackMessage} hide={() => { setShowSnackMessage(null) }}
+                type={SnackbarTypes.Success} message={showSnackMessage}
+            />
             <Modal
                 open={open}
                 onClose={close}
@@ -254,7 +261,7 @@ function SelectedUserDetails({ open, close, selectedUser, handleNext, handleBack
                             </div>
 
                             <div className='w-full flex flex-col items-start gap-3'>
-                                <div style={{ fontSize: 16, fontWeight: '500',marginTop:30 }}>
+                                <div style={{ fontSize: 16, fontWeight: '500', marginTop: 30 }}>
                                     Minutes
                                 </div>
 
@@ -268,11 +275,18 @@ function SelectedUserDetails({ open, close, selectedUser, handleNext, handleBack
                                     type='number'
                                 />
 
-                                <button className='w-full outline-none bg-purple h-[52px] text-white rounded-lg'
-                                    onClick={handleAddMinutes}
-                                >
-                                    Add
-                                </button>
+                                {
+                                    loading ? (
+                                        <CircularProgress size={15} />
+                                    ) : (
+                                        <button className='w-full outline-none bg-purple h-[52px] text-white rounded-lg'
+                                            onClick={handleAddMinutes}
+                                        >
+                                            Add
+                                        </button>
+                                    )
+                                }
+
                             </div>
                         </Box>
                     </Modal>
