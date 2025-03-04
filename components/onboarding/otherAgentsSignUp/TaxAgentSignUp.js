@@ -141,12 +141,12 @@ const TaxAgentSignUp = ({
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
     // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
-    // parsePhoneNumberFromString(`+${phone}`, countryCode.toUpperCase())
+    // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
     const parsedNumber = parsePhoneNumberFromString(
       `+${phoneNumber}`,
-      countryCode.toUpperCase()
+      countryCode?.toUpperCase()
     );
-    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
+    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
       setErrorMessage("Invalid");
     } else {

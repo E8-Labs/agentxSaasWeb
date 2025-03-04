@@ -57,11 +57,14 @@ function Knowledgebase({ user, agent }) {
           <img
             src={"/assets/nokb.png"}
             className=" object-fill "
-            // style={{ height: 250, width: 596 }}
+            style={{ height: 97, width: 130 }}
             alt="No Knowledgebase"
           />
 
-          <div style={{ fontSize: 16, fontWeight: "600", color: "#000" }}>
+          <div
+            className="text-lg font-semibold text-gray-900 italic"
+            style={{}}
+          >
             No knowledge base added
           </div>
 

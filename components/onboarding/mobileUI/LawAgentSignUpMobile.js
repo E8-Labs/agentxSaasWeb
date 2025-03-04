@@ -77,9 +77,7 @@ const LawAgentSignUpMobile = ({
   const [installationVolume, setInstallationVolume] = useState("");
   const [projectSize, setProjectSize] = useState("");
   const [ClientType, setClientType] = useState(null);
-  const [consultation, setConsultation] = useState(null)
-
-
+  const [consultation, setConsultation] = useState(null);
 
   //array for the primary client types
   const primaryClientTypes = [
@@ -195,20 +193,19 @@ const LawAgentSignUpMobile = ({
     setClientType(item.title);
   };
 
-    
   const handleConsultationFormat = (item) => {
-    setConsultation(item.title)
-  }
+    setConsultation(item.title);
+  };
 
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
     // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
-    // parsePhoneNumberFromString(`+${phone}`, countryCode.toUpperCase())
+    // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
     const parsedNumber = parsePhoneNumberFromString(
       `+${phoneNumber}`,
-      countryCode.toUpperCase()
+      countryCode?.toUpperCase()
     );
-    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
+    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
       setErrorMessage("Invalid");
     } else {
@@ -772,8 +769,7 @@ const LawAgentSignUpMobile = ({
               </div>
               <input
                 placeholder="Type here"
-
-              type= "number"
+                type="number"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={installationVolume}

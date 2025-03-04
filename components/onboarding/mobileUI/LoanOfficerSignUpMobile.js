@@ -78,7 +78,7 @@ const LoanOfficeSugnUpMobile = ({
   const [projectSize, setProjectSize] = useState("");
   const [ClientType, setClientType] = useState(null);
 
-  const [otherType,setOtherType] = useState("")
+  const [otherType, setOtherType] = useState("");
 
   //array for the primary client types
   const primaryClientTypes = [
@@ -93,13 +93,16 @@ const LoanOfficeSugnUpMobile = ({
     {
       id: 3,
       title: "Veterans & Active Military",
-    }, {
+    },
+    {
       id: 3,
       title: "Luxury Homebuyers",
-    }, {
+    },
+    {
       id: 5,
       title: "Self-Employed & Entrepreneurs",
-    }, {
+    },
+    {
       id: 6,
       title: "Other (type here)",
     },
@@ -127,43 +130,42 @@ const LoanOfficeSugnUpMobile = ({
   }, []);
 
   useEffect(() => {
-     if (
-       userName &&
-       userEmail &&
-       userPhoneNumber &&
-       customerService &&
-       companyName &&
-       ClientType &&
-       emailCheckResponse?.status === true &&
-       checkPhoneResponse?.status === true
-     ) {
-       setShouldContinue(false);
-     } else if (
-       !userName ||
-       !userEmail ||
-       !userPhoneNumber ||
-       
-       customerService ||
-       companyName ||
-       installationVolume ||
-       // projectSize ||
-       ClientType ||
-       checkPhoneResponse?.status === false ||
-       emailCheckResponse?.status === false
-     ) {
-       setShouldContinue(true);
-     }
-   }, [
-     userName,
-     userEmail,
-     userPhoneNumber,
-     checkPhoneResponse,
-     emailCheckResponse,
-     customerService,
-     companyName,
-     
-     ClientType,
-   ]);
+    if (
+      userName &&
+      userEmail &&
+      userPhoneNumber &&
+      customerService &&
+      companyName &&
+      ClientType &&
+      emailCheckResponse?.status === true &&
+      checkPhoneResponse?.status === true
+    ) {
+      setShouldContinue(false);
+    } else if (
+      !userName ||
+      !userEmail ||
+      !userPhoneNumber ||
+      customerService ||
+      companyName ||
+      installationVolume ||
+      // projectSize ||
+      ClientType ||
+      checkPhoneResponse?.status === false ||
+      emailCheckResponse?.status === false
+    ) {
+      setShouldContinue(true);
+    }
+  }, [
+    userName,
+    userEmail,
+    userPhoneNumber,
+    checkPhoneResponse,
+    emailCheckResponse,
+    customerService,
+    companyName,
+
+    ClientType,
+  ]);
 
   useEffect(() => {
     let storedData = localStorage.getItem(PersistanceKeys.RegisterDetails);
@@ -199,12 +201,12 @@ const LoanOfficeSugnUpMobile = ({
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
     // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
-    // parsePhoneNumberFromString(`+${phone}`, countryCode.toUpperCase())
+    // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
     const parsedNumber = parsePhoneNumberFromString(
       `+${phoneNumber}`,
-      countryCode.toUpperCase()
+      countryCode?.toUpperCase()
     );
-    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
+    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
       setErrorMessage("Invalid");
     } else {
@@ -331,7 +333,6 @@ const LoanOfficeSugnUpMobile = ({
 
       let clienttype = null;
 
-     
       const formData = new FormData();
       const ApiPath = Apis.register;
       let campainee = GetCampaigneeNameIfAvailable(window);
@@ -741,7 +742,8 @@ const LoanOfficeSugnUpMobile = ({
               />
 
               <div style={styles.headingStyle} className="mt-6">
-                Name of the mortgage lender, bank, or brokerage you work with, if any.
+                Name of the mortgage lender, bank, or brokerage you work with,
+                if any.
               </div>
               <input
                 placeholder="Name"
@@ -753,11 +755,9 @@ const LoanOfficeSugnUpMobile = ({
                 }}
               />
 
-             
               <div style={styles.headingStyle} className="mt-6">
                 Client Type
               </div>
-
 
               <div
                 className="flex w-full flex-wrap flex-row items-center gap-2"
@@ -785,9 +785,8 @@ const LoanOfficeSugnUpMobile = ({
                       >
                         {item.title}
                       </button>
-                      {
-                        ClientType === "Other (type here)" && item.id === 6 && (
-                          <input
+                      {ClientType === "Other (type here)" && item.id === 6 && (
+                        <input
                           placeholder="Type here"
                           className=" w-full border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                           style={{ ...styles.inputStyle, marginTop: "8px" }}
@@ -796,16 +795,11 @@ const LoanOfficeSugnUpMobile = ({
                             setOtherType(e.target.value);
                           }}
                         />
-                        )
-                      }
-                     
+                      )}
                     </div>
                   );
                 })}
               </div>
-
-
-
 
               <Modal
                 open={showVerifyPopup}

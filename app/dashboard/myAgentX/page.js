@@ -999,7 +999,7 @@ function Page() {
   };
 
   const updateAgent = async (voiceId) => {
-    // console.log("voiceData", voiceData);
+    console.log("voiceData", voiceId);
     // return
     try {
       // return
@@ -1018,10 +1018,10 @@ function Page() {
 
       const formData = new FormData();
 
-      // //console.log("Agent to update is:", showScriptModal);
-
-      if (showScriptModal) {
-        if (showScriptModal.agentType === "inbound") {
+      console.log("Agent to update is:", showDrawerSelectedAgent);
+      // return;
+      if (showDrawerSelectedAgent) {
+        if (showDrawerSelectedAgent.agentType === "inbound") {
           //console.log("Is inbound true");
           formData.append("inboundGreeting", greetingTagInput);
           formData.append("inboundPrompt", scriptTagInput);
@@ -1031,7 +1031,7 @@ function Page() {
           formData.append("greeting", greetingTagInput);
           formData.append("outboundObjective", objective);
         }
-        formData.append("mainAgentId", MainAgentId);
+        formData.append("mainAgentId", showDrawerSelectedAgent.mainAgentId);
       }
 
       if (voiceId) {
@@ -1047,7 +1047,7 @@ function Page() {
 
       if (response) {
         //console.log("Response of update api is :--", response.data);
-        console.log("Respons eof update api is", response.data.data);
+        console.log("Respons eof update api is", response.data);
         setShowSuccessSnack(response.data.message);
         if (response.data.status === true) {
           setIsVisibleSnack(true);
@@ -1102,10 +1102,10 @@ function Page() {
         }
       }
     } catch (error) {
-      //// console.error("Error occured in api is", error);
+      console.error("Error occured in api is", error);
       setGlobalLoader(false);
     } finally {
-      //console.log("Api call completed");
+      console.log("Api call completed");
       setUpdateAgentLoader(false);
       setGlobalLoader(false);
     }
@@ -1608,12 +1608,12 @@ function Page() {
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
     // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
-    // parsePhoneNumberFromString(`+${phone}`, countryCode.toUpperCase())
+    // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
     const parsedNumber = parsePhoneNumberFromString(
       `+${phoneNumber}`,
-      countryCode.toUpperCase()
+      countryCode?.toUpperCase()
     );
-    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
+    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
       setErrorMessage("Invalid");
     } else {
@@ -2967,6 +2967,7 @@ function Page() {
               </div>
             </div>
 
+            {/* Center Stats View  */}
             <div className="grid grid-cols-5 gap-6 border p-6 flex-row justify-between w-full rounded-lg mb-6 mt-2 ">
               <Card
                 name="Calls"
@@ -3032,7 +3033,7 @@ function Page() {
                 iconColor="text-green-500"
               />
             </div>
-
+            {/* Bottom Agent Info */}
             <div className="flex gap-8 pb-2 mb-4">
               {AgentMenuOptions.map((tab) => (
                 <button
@@ -3059,7 +3060,7 @@ function Page() {
             {/* Code for agent info */}
             {activeTab === "Agent Info" ? (
               <div className="w-full">
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1">
                   <div className="flex flex-row items-center justify-between">
                     <div
                       style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
@@ -3524,7 +3525,7 @@ function Page() {
                     </div>
                   </div> */}
                 </div>
-                <div className="flex flex-col gap-4 mt-4">
+                <div className="flex flex-col gap-1 mt-4">
                   <div
                     style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
                   >

@@ -23,7 +23,7 @@ import { PersistanceKeys } from "@/constants/Constants";
 import { logout } from "@/utilities/UserUtility";
 import { useRouter } from "next/navigation";
 
-function AdminTeam({selectedUser}) {
+function AdminTeam({ selectedUser }) {
   const timerRef = useRef(null);
   const router = useRouter();
   const [teamDropdown, setteamDropdown] = useState(null);
@@ -100,7 +100,7 @@ function AdminTeam({selectedUser}) {
     },
   ];
 
-  useEffect(() => { });
+  useEffect(() => {});
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -120,7 +120,7 @@ function AdminTeam({selectedUser}) {
         let u = JSON.parse(data);
 
         let path = Apis.getTeam;
-        path = path+"?userId="+selectedUser.id
+        path = path + "?userId=" + selectedUser.id;
         // console.log('u.token', u.token)
 
         const response = await axios.get(path, {
@@ -295,9 +295,9 @@ function AdminTeam({selectedUser}) {
   //number validation
   const validatePhoneNumber = async (phoneNumber) => {
     // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
-    // parsePhoneNumberFromString(`+${phone}`, countryCode.toUpperCase())
+    // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
     const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
-    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode.toUpperCase()) {
+    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
       setErrorMessage("Invalid");
     } else {
@@ -533,9 +533,8 @@ function AdminTeam({selectedUser}) {
                   return (
                     <div key={item.id} className="relative">
                       <div className="p-4 flex flex-row gap-4 items-start border rounded-lg">
-                        {
-                          item.invitedUser?.thumb_profile_image ? (
-                            <div
+                        {item.invitedUser?.thumb_profile_image ? (
+                          <div
                             style={{
                               width: "37px",
                               height: "37px",
@@ -552,20 +551,18 @@ function AdminTeam({selectedUser}) {
                               style={{ height: "100%", width: "100%" }}
                             />
                           </div>
-                          ) : (
-                            <div
-                              className="flex rounded-full justify-center items-center bg-black text-white text-md"
-                              style={{
-                                height: 37,
-                                width: 37,
-                                textTransform: "capitalize",
-                              }}
-                            >
-                              {item.name[0]}
-                            </div>
-                          )
-                        }
-
+                        ) : (
+                          <div
+                            className="flex rounded-full justify-center items-center bg-black text-white text-md"
+                            style={{
+                              height: 37,
+                              width: 37,
+                              textTransform: "capitalize",
+                            }}
+                          >
+                            {item.name[0]}
+                          </div>
+                        )}
 
                         <div className="flex flex-wrap flex-col items-start gap-2 w-60">
                           <div className="text-lg font-medium text-black">
@@ -578,10 +575,11 @@ function AdminTeam({selectedUser}) {
                             {item.email}
                           </div>
                           <div
-                            className={`text-sm font-medium ${item.status === "Pending"
-                              ? "text-red-500"
-                              : "text-green-500"
-                              }`}
+                            className={`text-sm font-medium ${
+                              item.status === "Pending"
+                                ? "text-red-500"
+                                : "text-green-500"
+                            }`}
                           >
                             {item.status}
                           </div>
@@ -887,7 +885,7 @@ function AdminTeam({selectedUser}) {
                         overflowY: "auto",
                       }}
                       countryCodeEditable={true}
-                    // defaultMask={locationLoader ? "Loading..." : undefined}
+                      // defaultMask={locationLoader ? "Loading..." : undefined}
                     />
                   </div>
                 </div>
@@ -903,10 +901,10 @@ function AdminTeam({selectedUser}) {
                     marginTop: 20,
                     backgroundColor:
                       !name ||
-                        !email ||
-                        !phone ||
-                        emailCheckResponse?.status !== true ||
-                        checkPhoneResponse?.status !== true
+                      !email ||
+                      !phone ||
+                      emailCheckResponse?.status !== true ||
+                      checkPhoneResponse?.status !== true
                         ? "#00000020"
                         : "",
                   }}
@@ -933,10 +931,10 @@ function AdminTeam({selectedUser}) {
                       fontWeight: "500",
                       color:
                         !name ||
-                          !email ||
-                          !phone ||
-                          emailCheckResponse?.status !== true ||
-                          checkPhoneResponse?.status !== true
+                        !email ||
+                        !phone ||
+                        emailCheckResponse?.status !== true ||
+                        checkPhoneResponse?.status !== true
                           ? "#000000"
                           : "#ffffff",
                     }}
