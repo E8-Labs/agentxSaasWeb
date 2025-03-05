@@ -573,10 +573,12 @@ const AddSellerKyc = ({
 
       for (let i = 0; i < allKYCs.length; i++) {
         const itemA = allKYCs[i];
+
         let existsInArrayB = false;
         for (let j = 0; j < selectedNeedQuestions.length; j++) {
           if (itemA.question === selectedNeedQuestions[j].question) {
             existsInArrayB = true;
+
             break;
           }
         }
@@ -586,7 +588,9 @@ const AddSellerKyc = ({
       }
 
       for (let i = 0; i < selectedNeedQuestions.length; i++) {
-        const itemB = selectedNeedQuestions[i];
+        let itemB = selectedNeedQuestions[i];
+        itemB.category = "need";
+        itemB.type = "seller";
         let existsInArrayA = false;
         for (let j = 0; j < allKYCs.length; j++) {
           if (itemB.question === allKYCs[j].question) {
@@ -606,10 +610,24 @@ const AddSellerKyc = ({
 
       // let categoryType = ""
       let updatedKycs = [
-        ...selectedMotivationQuestions,
-        ...selectedNeedQuestions,
-        ...selectedUrgencyQuestions,
+        ...selectedMotivationQuestions.map((item) => ({
+          ...item,
+          type: "seller",
+          category: "motivation",
+        })),
+        ...selectedNeedQuestions.map((item) => ({
+          ...item,
+          type: "seller",
+          category: "need",
+        })),
+        ...selectedUrgencyQuestions.map((item) => ({
+          ...item,
+          type: "seller",
+          category: "urgency",
+        })),
       ];
+
+      console.log("Updated kycs", updatedKycs);
 
       // let kycs = allKYCs.filter((item) => item.category != "motivation")
       // kycs = [...kycs, ...updatedKycs]
@@ -624,8 +642,8 @@ const AddSellerKyc = ({
         type: "seller",
         mainAgentId: AgentId,
       };
-      // console.log("Data to send in api is", data);
-      // return
+      console.log("Data to send in api is", data);
+      // return;
       ApiData = data;
 
       const response = await axios.post(ApiPath, ApiData, {

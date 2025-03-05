@@ -1044,6 +1044,18 @@ function Page() {
           formData.append("outboundObjective", objective);
         }
         formData.append("mainAgentId", showDrawerSelectedAgent.mainAgentId);
+      } else if (showScriptModal) {
+        if (showScriptModal.agentType === "inbound") {
+          //console.log("Is inbound true");
+          formData.append("inboundGreeting", greetingTagInput);
+          formData.append("inboundPrompt", scriptTagInput);
+          formData.append("inboundObjective", objective);
+        } else {
+          formData.append("prompt", scriptTagInput);
+          formData.append("greeting", greetingTagInput);
+          formData.append("outboundObjective", objective);
+        }
+        formData.append("mainAgentId", showScriptModal.mainAgentId);
       }
 
       if (voiceId) {
