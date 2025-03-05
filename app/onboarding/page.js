@@ -82,31 +82,41 @@ const Page = ({ params }) => {
     if (typeof window !== "undefined") {
       screenWidth = window.innerWidth;
     }
-    let comps = getComponentToRender();
+
     if (screenWidth < 640) {
-      setComponents([
-        UserType,
-        UserService,
-        FocusArea,
-        userType == UserTypes.DebtCollectorAgent
-          ? DebtCollerterAgentSignUp
-          : userType == UserTypes.LawAgent
-          ? LawAgentSignUpMobile
-          : userType == UserTypes.MedSpaAgent
-          ? MedSpaAgentSignUpMobile
-          : userType == UserTypes.LoanOfficerAgent
-          ? LoanOfficerSignUpMobile
-          : BasicDetails,
-        userType == UserTypes.DebtCollectorAgent
-          ? DebtCollerterAgentSignUp
-          : OtherDetails,
-        Congrats,
-        // SalesDevAgent, SolarRepAgentSignUp,
-        // InsuranceAgentSignUp, MarketerAgentSignUp,
-        // WebOwnersAgentSignUp, RecruiterAgentSignUp,
-        // TaxAgentSignUp
-      ]);
+      let comps = getMobileComponent();
+      console.log("Setting mobile UI");
+      if (userType) {
+        setComponents(comps.filter(Boolean));
+
+        // let oldComps = [
+        //   UserType,
+        //   UserService,
+        //   FocusArea,
+        //   userType === UserTypes.DebtCollectorAgent
+        //     ? DebtCollerterAgentSignUp
+        //     : userType === UserTypes.LawAgent
+        //     ? LawAgentSignUpMobile
+        //     : userType === UserTypes.MedSpaAgent
+        //     ? MedSpaAgentSignUpMobile
+        //     : userType === UserTypes.LoanOfficerAgent
+        //     ? LoanOfficerSignUpMobile
+        //     : BasicDetails, // Fallback
+
+        //   userType === UserTypes.DebtCollectorAgent
+        //     ? DebtCollerterAgentSignUp
+        //     : OtherDetails,
+        //   Congrats,
+        // ];
+        // setComponents(oldComps);
+
+        console.log(
+          "🚀 Components from getComponentToRender:",
+          comps.map((c) => c?.name || "undefined")
+        );
+      }
     } else {
+      let comps = getComponentToRender();
       // console.log("Setting components", comps.length);
       // console.log(
       //   "🚀 Components from getComponentToRender:",
@@ -115,16 +125,9 @@ const Page = ({ params }) => {
       setComponents(comps.filter(Boolean));
     }
   }, [userType]);
-  // registerDetails	{"serviceID":[102],"focusAreaId":[406],"userType":4,"userTypeTitle":"InsuranceAgent","areaFocusTitle":"What area of insurance do you focus on?","otherFocusArea":""}
+  // registerDetails  {"serviceID":[102],"focusAreaId":[406],"userType":4,"userTypeTitle":"InsuranceAgent","areaFocusTitle":"What area of insurance do you focus on?","otherFocusArea":""}
   function getComponentToRender() {
     console.log("Inside get components");
-
-    // let storedData = localStorage.getItem(PersistanceKeys.RegisterDetails);
-    // if (!storedData) {
-    //   return [UserType, UserService, FocusArea, SignUpForm, Congrats]; // Default
-    // }
-
-    // let userData = JSON.parse(storedData);
     let agentTitle = userType; //userData?.userTypeTitle || null;
     console.log("Agent title  = ", agentTitle);
 
@@ -144,7 +147,6 @@ const Page = ({ params }) => {
     };
 
     const selectedComponent = agentComponents[agentTitle] || SignUpForm;
-    // console.log("Selected comp ", selectedComponent);
 
     // 🚀 Ensure components are functions, not strings
     const finalComponents = [
@@ -155,10 +157,40 @@ const Page = ({ params }) => {
       Congrats,
     ].filter(Boolean);
 
-    // console.log(
-    //   "✅ Returning components:",
-    //   finalComponents.map((c) => c?.name || "undefined")
-    // );
+    return finalComponents;
+  }
+
+  function getMobileComponent() {
+    console.log("Inside get mobile components");
+    let agentTitle = userType; //userData?.userTypeTitle || null;
+    console.log("Agent title  = ", agentTitle);
+
+    const agentComponents = {
+      [UserTypes.RealEstateAgent]: BasicDetails,
+      [UserTypes.SalesDevRep]: BasicDetails,
+      [UserTypes.SolarRep]: BasicDetails,
+      [UserTypes.InsuranceAgent]: BasicDetails,
+      [UserTypes.MarketerAgent]: BasicDetails,
+      [UserTypes.WebsiteAgent]: BasicDetails,
+      [UserTypes.RecruiterAgent]: BasicDetails,
+      [UserTypes.TaxAgent]: BasicDetails,
+      [UserTypes.DebtCollectorAgent]: BasicDetails,
+      [UserTypes.MedSpaAgent]: MedSpaAgentSignUpMobile,
+      [UserTypes.LawAgent]: LawAgentSignUpMobile,
+      [UserTypes.LoanOfficerAgent]: LoanOfficerSignUpMobile,
+    };
+
+    const selectedComponent = agentComponents[agentTitle] || SignUpForm;
+
+    // 🚀 Ensure components are functions, not strings
+    const finalComponents = [
+      UserType,
+      UserService,
+      FocusArea,
+      selectedComponent,
+      OtherDetails,
+      Congrats,
+    ].filter(Boolean);
 
     return finalComponents;
   }

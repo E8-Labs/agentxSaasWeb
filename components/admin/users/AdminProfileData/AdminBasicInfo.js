@@ -14,10 +14,8 @@ function AdminBasicInfo({selectedUser}) {
   const router = useRouter();
   const [focusedName, setFocusedName] = useState(false);
   const [focusedFarm, setFocusedFarm] = useState(false);
-  const [focusedTerritory, setFocusedTerritory] = useState(false);
   const [focusedBrokerage, setFocusedBrokerage] = useState(false);
   const [focusedCompany, setFocusedCompany] = useState(false);
-  const [focusedCompanyAffiliation, setFocusedCompanyAffiliation] = useState(false);
   const [focusedTransaction, setFocusedTransaction] = useState(false);
   const [focusedInstallationVolume, setFocusedInstallationVolume] =
     useState(false);
@@ -201,104 +199,51 @@ function AdminBasicInfo({selectedUser}) {
 
   //fetching the data
   useEffect(() => {
+    // console.log("Selected user on basic info is ", selectedUser);
     getProfile();
   }, [selectedUser]);
-
-  const hasAreaFocusChanged = () => {
-    // if (selectedArea.length !== originalSelectedArea.length) return true;
-    // return selectedArea.includes((id) => !originalSelectedArea.includes(id));
-    return true;
-  };
-
-  const hasServiceChanged = () => {
-    // if (serviceId.length !== originalSelectedService.length)
-    return true;
-    // return serviceId.includes((id) => !originalSelectedService.includes(id));
-  };
-
-  const uploadeImage = async (imageUrl) => {
-    try {
-      const data = localStorage.getItem("User");
-      if (data) {
-        let u = JSON.parse(data);
-        const apidata = new FormData();
-
-        apidata.append("media", imageUrl);
-
-        // console.log("Uploading image with apidata:");
-        for (let pair of apidata.entries()) {
-          // console.log(`${pair[0]}:`, pair[1]); // Debug FormData contents
-        }
-        let path = Apis.updateProfileApi;
-
-        // console.log("Authtoken is", u.token);
-        // console.log("Api Data passsed is", apidata);
-        // return
-        const response = await axios.post(path, apidata, {
-          headers: {
-            Authorization: "Bearer " + u.token,
-          },
-        });
-
-        if (response) {
-          if (response.data.status === true) {
-            // console.log("updateProfile data is", response.data);
-            u.user = response.data.data;
-
-            //// console.log('u', u)
-            localStorage.setItem("User", JSON.stringify(u));
-            // console.log("trying to send event");
-            window.dispatchEvent(
-              new CustomEvent("UpdateProfile", { detail: { update: true } })
-            );
-            return response.data.data;
-          }
-        }
-      }
-    } catch (e) {
-      // console.log("error in update profile is", e);
-    }
-  };
-
+  
   //function to fetch the profile data
   const getProfile = async () => {
     try {
       let LocalData = await AdminGetProfileDetails(selectedUser);
+    
 
       if (LocalData) {
         const userData = LocalData;
-        console.log("Should set data", userData?.user);
+        await getAgentDefaultData(userData);
+        console.log("Should set data is", userData);
   
-        setUserRole(userData?.user?.userRole);
-        setUserType(userData?.user?.userType);
+        setUserRole(userData?.userRole);
+        setUserType(userData?.userType);
         // setUserType(UserTypes.SolarRep)
         setUserDetails(userData.user);
-        setName(userData?.user?.name);
-        setSelectedImage(userData?.user?.thumb_profile_image);
-        setEmail(userData?.user?.email);
-        setFarm(userData?.user?.farm);
-        setTransaction(userData?.user?.averageTransactionPerYear);
-        setBrokerAge(userData?.user?.brokerage);
-        setPhone(userData?.user?.phone);
+        setName(userData?.name);
+        setSelectedImage(userData?.thumb_profile_image);
+        setEmail(userData?.email);
+        setFarm(userData?.farm);
+        setTransaction(userData?.averageTransactionPerYear);
+        setBrokerAge(userData?.brokerage);
+        setPhone(userData?.phone);
   
-        setServiceArea(userData?.user?.areaOfService);
-        setClientType(userData?.user?.primaryClientType);
-        setClientType2(userData?.user?.clientType);
+        setServiceArea(userData?.areaOfService);
+        setClientType(userData?.primaryClientType);
+        setClientType2(userData?.clientType);
   
-        setCompany(userData?.user?.company);
-        // setProjectSize(userData?.user?.projectSizeKw);
-        setWebsiteUrl(userData?.user?.website);
-        setCompanyAffiliation(userData?.user?.firmOrCompanyAffiliation);
-        setClientsPerMonth(userData?.user?.averageMonthlyClients);
-        setCasessPerMonth(userData?.user?.caseVolume);
+        setCompany(userData?.company);
+        // setProjectSize(userData?.projectSizeKw);
+        setWebsiteUrl(userData?.website);
+        setCompanyAffiliation(userData?.firmOrCompanyAffiliation);
+        setClientsPerMonth(userData?.averageMonthlyClients);
+        setCasessPerMonth(userData?.caseVolume);
   
   
   
-        setInstallationVolume(userData?.user?.projectsPerYear || "");
-        setProjectSize(userData?.user?.projectSizeKw || "");
+        setInstallationVolume(userData?.projectsPerYear || "");
+        setProjectSize(userData?.projectSizeKw || "");
   
-        console.log("Installation Volume: ", userData?.user?.projectsPerYear);
-        console.log("Project Size: ", userData?.user?.projectSizeKw);
+        // console.log("Installation Volume: ", userData?.projectsPerYear);
+        // console.log("Project Size: ", userData?.projectSizeKw);
   
         // Initialize arrays to hold services and areas of focus
         const industriesArray = [];
@@ -306,14 +251,14 @@ function AdminBasicInfo({selectedUser}) {
         const focusAreasArray = [];
   
         // Pre-populate selected services and areas based on the user profile
-        userData?.user?.services?.forEach((item) => {
+        userData?.services?.forEach((item) => {
           servicesArray.push(item.id); // Add the full object or only IDs as needed
         });
-        userData?.user?.userIndustry?.forEach((item) => {
+        userData?.userIndustry?.forEach((item) => {
           industriesArray.push(item.id); // Add the full object or only IDs as needed
         });
   
-        userData?.user?.focusAreas?.forEach((item) => {
+        userData?.focusAreas?.forEach((item) => {
           focusAreasArray.push(item.id); // Add the full object or only IDs as needed
         });
   
@@ -337,98 +282,14 @@ function AdminBasicInfo({selectedUser}) {
     }
   };
 
-  //function to handle image selection
-  const handleImageChange = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    try {
-      setloading5(true);
-      const imageUrl = URL.createObjectURL(file); // Generate preview URL
-
-      setSelectedImage(imageUrl); // Set the preview image
-
-      uploadeImage(file);
-    } catch (error) {
-      // console.error("Error uploading image:", error);
-    } finally {
-      setloading5(false);
-    }
-  };
-
-  const handleDrop = async (event) => {
-    event.preventDefault();
-    setDragging(false);
-    const file = event.dataTransfer.files[0];
-    if (file && file.type.startsWith("image/")) {
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(imageUrl);
-    }
-  };
-
-  const handleDragOver = (event) => {
-    event.preventDefault();
-    setDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setDragging(false);
-  };
-
-  const areas = [
-    {
-      id: 1,
-      heading: "Commercial real estate",
-      subHeading:
-        "Dealing with commercial real estate like offices, retail spaces, and industrial properties",
-    },
-    {
-      id: 2,
-      heading: "Residential real estate",
-      subHeading: "Buying and selling residential properties",
-    },
-    {
-      id: 3,
-      heading: "Investment property",
-      subHeading:
-        "Helping clients invest in income-generating propertiesd) Selling high-end, luxury homes in exclusive areas",
-    },
-    {
-      id: 4,
-      heading: "Land broker",
-      subHeading: "Specializing in the sale of undeveloped land",
-    },
-    {
-      id: 5,
-      heading: "Sale associate",
-      subHeading: "Selling newly built homes for builders and developers",
-    },
-    {
-      id: 6,
-      heading: "Relocation consultant",
-      subHeading:
-        "Assisting people with finding homes and moving when they relocate",
-    },
-    {
-      id: 7,
-      heading: "Real estate management",
-      subHeading:
-        "Managing properties, including leasing and maintenance, for owners",
-    },
-  ];
-
-  useEffect(() => {
-    getAgentDefaultData();
-  }, []);
-
-  const getAgentDefaultData = async () => {
+  const getAgentDefaultData = async (userData) => {
     try {
       setServiceLoader(true);
       let data = localStorage.getItem("User");
       if (data) {
         let d = JSON.parse(data);
-        let AgentTypeTitle = d.user.userType;
-        // console.log("AgentTypeTitle is", AgentTypeTitle);
+        let AgentTypeTitle = userData.userType;
+        console.log("AgentTypeTitle is", AgentTypeTitle);
 
         const ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`;
         // console.log("Api link is:--", ApiPath);
@@ -452,312 +313,6 @@ function AdminBasicInfo({selectedUser}) {
       // console.error("ERror occured in default data api is :----", error);
     } finally {
       setServiceLoader(false);
-    }
-  };
-
-  const handleNameSave = async () => {
-    try {
-      setloading(true);
-      const data = { name: name };
-      await UpdateProfile(data);
-      setloading(false);
-      setIsNameChanged(false);
-    } catch (e) {
-      // console.log("Error in updating", e);
-    }
-  };
-
-  const handleFarmSave = async () => {
-    try {
-      setloading2(true);
-
-      let data = {
-        farm: farm,
-      };
-      await UpdateProfile(data);
-      setloading2(false);
-      setIsFarmChanged(false);
-    } catch (e) {
-      // console.log("error in updating", e);
-    }
-  };
-
-  const handleCompanySave = async () => {
-    try {
-      setloading8(true);
-
-      let data = {
-        company: company,
-      };
-      await UpdateProfile(data);
-      setloading8(false);
-      setIsCompanyChanged(false);
-    } catch (e) {
-      // console.log("error in updating", e);
-    }
-  };
-
-  const handleCompanyAffiliationSave = async () => {
-    try {
-      setLoading11(true);
-
-      let data = {
-        firmOrCompanyAffiliation: companyAffiliation,
-      };
-      await UpdateProfile(data);
-      setLoading11(false);
-      setIsCompanyAffiliationChanged(false);
-    } catch (e) {
-      // console.log("error in updating", e);
-    }
-  };
-
-  const handleBrokerAgeSave = async () => {
-    try {
-      setloading3(true);
-
-      let data = {
-        brokerage: brokerAge,
-      };
-      await UpdateProfile(data);
-      setloading3(false);
-      setIsBrokerageChanged(false);
-    } catch (e) {
-      // console.log("error in updating", e);
-    }
-  };
-
-  const handleTransactionSave = async () => {
-    try {
-      setloading4(true);
-      let data = {
-        averageTransactionPerYear: transaction,
-      };
-      await UpdateProfile(data);
-      setloading4(false);
-
-      setIsTransactionChange(false);
-    } catch (e) {
-      // console.log("error in updating", e);
-    }
-  };
-
-  const handleInstallationVolumeSave = async () => {
-    try {
-      setloading7(true);
-      let data = {
-        projectsPerYear: installationVolume,
-      };
-      await UpdateProfile(data);
-      setloading7(false);
-      setIsInstallationVolumeChanged(false);
-    } catch (e) {
-      // console.log("error in updating", e);
-    }
-  };
-
-  const handleServiceAreaSave = async () => {
-    try {
-      setloading6(true);
-
-      let data = {
-        areaOfService: serviceArea,
-      };
-      await UpdateProfile(data);
-      setloading6(false);
-      setIsServiceAreaChanged(false);
-    } catch (e) {
-      // console.log("error in updating", e);
-    }
-  };
-  const handleProjectSizeSave = async () => {
-    try {
-      setloading9(true);
-      let data = {
-        projectSizeKw: projectSize,
-      };
-      await UpdateProfile(data);
-      setloading9(false);
-      setIsprojectSizeChanged(false);
-    } catch (e) {
-      // console.log("error in updating", e);
-    }
-  };
-
-  const handleClientsPerMonthSave = async () => {
-    try {
-      setLoading12(true);
-      let data = {
-        averageMonthlyClients: clientsPerMonth,
-      };
-      await UpdateProfile(data);
-      setLoading12(false);
-      setIsprojectSizeChanged(false);
-    } catch (e) {
-      // console.log("error in updating", e);
-    }
-  };
-
-  const handleserviceId = (id) => {
-    // console.log("Id to ad is", id);
-    // console.log("Old is are", serviceId);
-    let newIDs = [];
-    if (serviceId.includes(id)) {
-      // Unselect the item if it's already selected
-      newIDs = serviceId.filter((prevId) => prevId !== id);
-    } else {
-      // Select the item if it's not already selected
-      newIDs = [...serviceId, id];
-    }
-
-    setServiceId(newIDs);
-    // console.log("New array is", newIDs);
-  };
-
-  const handleAreaSelect = (id) => {
-    // console.log("Id to ad is", id);
-    // console.log("Old is are", selectedArea);
-    let newIDs = [];
-    if (selectedArea.includes(id)) {
-      // Unselect the item if it's already selected
-      newIDs = selectedArea.filter((prevId) => prevId !== id);
-    } else {
-      // Select the item if it's not already selected
-      newIDs = [...selectedArea, id];
-    }
-    setSelectedArea(newIDs);
-    // console.log("New array is", newIDs);
-    return;
-    setSelectedArea((prevIds) => {
-      if (prevIds.includes(id)) {
-        // Unselect the item if it's already selected
-        return prevIds.filter((prevId) => prevId !== id);
-      } else {
-        // Select the item if it's not already selected
-        return [...prevIds, id];
-      }
-    });
-  };
-
-  const handleSelectAgentIndustry = (id) => {
-    // console.log("Id to ad is", id);
-    // console.log("Old is are", selectedArea);
-    let newIDs = [];
-    if (selectedIndustries.includes(id)) {
-      // Unselect the item if it's already selected
-      newIDs = selectedIndustries.filter((prevId) => prevId !== id);
-    } else {
-      // Select the item if it's not already selected
-      newIDs = [...selectedIndustries, id];
-    }
-    setSelectedIndustries(newIDs);
-    // console.log("New array is", newIDs);
-    return;
-  };
-
-  const handleSelectClientType = async (item) => {
-    // console.log("Select client type", item);
-    setClientType(item.value);
-
-    let data = {
-      primaryClientType: item.value,
-    };
-    await UpdateProfile(data);
-  };
-  const handleSelectconsoltation = async (item) => {
-    // console.log("Select client type", item);
-    setconsaltation(item.title);
-
-    let data = {
-      collectionStrategies: item.value,
-    };
-    await UpdateProfile(data);
-  };
-
-  const handleSelectClientType2 = async (item) => {
-    // console.log("Select client type", item);
-    setClientType(item.title);
-
-    let data = {
-      clientType: item.title,
-    };
-    await UpdateProfile(data);
-  };
-
-  const handleSelectCollectionStretigy = async (item) => {
-    // console.log("Select client type", item);
-    setcollectionStratigy(item.value);
-
-    let data = {
-      collectionStratigy: item.value,
-    };
-    await UpdateProfile(data);
-  };
-
-  const handleAreaChange = async () => {
-    try {
-      setAreaLoading(true);
-      let data = {
-        areaOfFocus: selectedArea, //[selectedArea.join()]
-      };
-      console.log("data is", data);
-
-      // return
-      await UpdateProfile(data);
-      setOriginalSelectedArea([...selectedArea]);
-      setAreaLoading(false);
-    } catch (e) {
-      // console.log("error in updating", e);
-    }
-  };
-  const handleIndustryChange = async () => {
-    try {
-      setAreaLoading(true);
-      let data = {
-        userIndustry: selectedIndustries, //[selectedArea.join()]
-      };
-      console.log("data is", data);
-
-      // return
-      await UpdateProfile(data);
-      setOriginalSelectedIndustries([...selectedIndustries]);
-      setAreaLoading(false);
-    } catch (e) {
-      // console.log("error in updating", e);
-    }
-  };
-
-  const handleServiceChange = async () => {
-    try {
-      setServiceLoader(true);
-      let data = {
-        agentService: serviceId, //[serviceId.join()]
-      };
-      console.log("Api data is", serviceId);
-
-      // return
-      await UpdateProfile(data);
-      setOriginalSelectedService([...serviceId]);
-      setServiceLoader(false);
-    } catch (e) {
-      // console.log("error in updating", e);
-    }
-  };
-
-  const handleWebsiteChange = async () => {
-    try {
-      setLoading10(true);
-      let data = {
-        website: websiteUrl,
-      };
-      // console.log("Api data is", serviceId);
-
-      // return
-      await UpdateProfile(data);
-      setIsWebsiteUrlChanged(false);
-      setLoading10(false);
-    } catch (e) {
-      // console.log("error in updating", e);
     }
   };
 
@@ -790,36 +345,12 @@ function AdminBasicInfo({selectedUser}) {
             {"Account > Basic Information"}
           </div>
         </div>
-        <div>
-          <button
-            className="text-red text-start mt-4 bg-[#FF4E4E40] px-3 py-1 rounded-3xl"
-            style={{ fontWeight: "600", fontSize: 17 }}
-            onClick={() => {
-              localStorage.clear();
-              // localStorage.removeItem("User");
-              // localStorage.removeItem("localAgentDetails");
-              if (typeof document !== "undefined") {
-                document.cookie =
-                  "User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-              }
-              router.push("/");
-            }}
-          >
-            Log Out
-          </button>
-        </div>
+       
       </div>
 
       <button
         className="mt-8"
-        onClick={() => {
-          if (typeof document !== "undefined") {
-            document.getElementById("fileInput").click();
-          }
-        }}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
+       
       >
         {loading5 ? (
           <CircularProgress size={20} />
@@ -856,26 +387,12 @@ function AdminBasicInfo({selectedUser}) {
                 alt="profileImage"
               />
             )}
-
-            <Image
-              src={"/otherAssets/cameraBtn.png"}
-              style={{ marginLeft: -25 }}
-              height={36}
-              width={36}
-              alt="profileImage"
-            />
           </div>
         )}
       </button>
 
       {/* Hidden file input */}
-      <input
-        type="file"
-        accept="image/*"
-        id="fileInput"
-        style={{ display: "none" }}
-        onChange={handleImageChange}
-      />
+     
 
       <div
         style={{
@@ -908,19 +425,7 @@ function AdminBasicInfo({selectedUser}) {
           placeholder="Name"
           style={{ border: "0px solid #7902DF", outline: "none" }}
         />
-        {isNameChanged &&
-          (loading ? (
-            <CircularProgress size={20} />
-          ) : (
-            <button
-              onClick={async () => {
-                handleNameSave();
-              }}
-              style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
-            >
-              Save
-            </button>
-          ))}
+       
       </div>
 
       <div
@@ -1029,23 +534,7 @@ function AdminBasicInfo({selectedUser}) {
                   placeholder="Farm"
                   style={{ border: "0px solid #000000", outline: "none" }}
                 />
-                {isFarmChanged &&
-                  (loading2 ? (
-                    <CircularProgress size={20} />
-                  ) : (
-                    <button
-                      onClick={async () => {
-                        handleFarmSave();
-                      }}
-                      style={{
-                        color: " #8a2be2",
-                        fontSize: "14px",
-                        fontWeight: "600",
-                      }}
-                    >
-                      Save
-                    </button>
-                  ))}
+               
               </div>
             </>
           ) : (userType && userType === UserTypes.SolarRep) ||
@@ -1088,23 +577,7 @@ function AdminBasicInfo({selectedUser}) {
                   placeholder="Farm"
                   style={{ border: "0px solid #000000", outline: "none" }}
                 />
-                {isServiceAreaChanged &&
-                  (loading6 ? (
-                    <CircularProgress size={20} />
-                  ) : (
-                    <button
-                      onClick={async () => {
-                        handleServiceAreaSave();
-                      }}
-                      style={{
-                        color: " #8a2be2",
-                        fontSize: "14px",
-                        fontWeight: "600",
-                      }}
-                    >
-                      Save
-                    </button>
-                  ))}
+                
               </div>
             </>
           ) : (
@@ -1147,23 +620,7 @@ function AdminBasicInfo({selectedUser}) {
                   placeholder="Brokerage"
                   style={{ border: "0px solid #000000", outline: "none" }}
                 />
-                {isBrokerageChanged &&
-                  (loading3 ? (
-                    <CircularProgress size={20} />
-                  ) : (
-                    <button
-                      onClick={async () => {
-                        handleBrokerAgeSave();
-                      }}
-                      style={{
-                        color: " #8a2be2",
-                        fontSize: "14px",
-                        fontWeight: "600",
-                      }}
-                    >
-                      Save
-                    </button>
-                  ))}
+                
               </div>
             </>
           ) : (userType && userType === UserTypes.SolarRep) ||
@@ -1204,23 +661,7 @@ function AdminBasicInfo({selectedUser}) {
                   placeholder="Company"
                   style={{ border: "0px solid #000000", outline: "none" }}
                 />
-                {isCompanyChanged &&
-                  (loading8 ? (
-                    <CircularProgress size={20} />
-                  ) : (
-                    <button
-                      onClick={async () => {
-                        handleCompanySave();
-                      }}
-                      style={{
-                        color: " #8a2be2",
-                        fontSize: "14px",
-                        fontWeight: "600",
-                      }}
-                    >
-                      Save
-                    </button>
-                  ))}
+                
               </div>
             </>
           ) : userType && userType === UserTypes.WebsiteAgent ? (
@@ -1257,23 +698,7 @@ function AdminBasicInfo({selectedUser}) {
                   placeholder="Brokerage"
                   style={{ border: "0px solid #000000", outline: "none" }}
                 />
-                {isWebsiteUrlChanged &&
-                  (loading10 ? (
-                    <CircularProgress size={20} />
-                  ) : (
-                    <button
-                      onClick={async () => {
-                        handleWebsiteChange();
-                      }}
-                      style={{
-                        color: " #8a2be2",
-                        fontSize: "14px",
-                        fontWeight: "600",
-                      }}
-                    >
-                      Save
-                    </button>
-                  ))}
+                
               </div>
             </>
           ) : (
@@ -1316,23 +741,7 @@ function AdminBasicInfo({selectedUser}) {
                       placeholder="Company"
                       style={{ border: "0px solid #000000", outline: "none" }}
                     />
-                    {isCompanyAffiliationChanged &&
-                      (loading11 ? (
-                        <CircularProgress size={20} />
-                      ) : (
-                        <button
-                          onClick={async () => {
-                            handleCompanyAffiliationSave();
-                          }}
-                          style={{
-                            color: " #8a2be2",
-                            fontSize: "14px",
-                            fontWeight: "600",
-                          }}
-                        >
-                          Save
-                        </button>
-                      ))}
+                    
                   </div>
                 </>
               ) : ""
@@ -1375,23 +784,7 @@ function AdminBasicInfo({selectedUser}) {
                     placeholder="Value"
                     style={{ border: "0px solid #000000", outline: "none" }}
                   />
-                  {isTransactionChanged &&
-                    (loading4 ? (
-                      <CircularProgress size={20} />
-                    ) : (
-                      <button
-                        onClick={async () => {
-                          handleTransactionSave();
-                        }}
-                        style={{
-                          color: " #8a2be2",
-                          fontSize: "14px",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Save
-                      </button>
-                    ))}
+                 
                 </div>
               </>
             ) : (userType && userType === UserTypes.SolarRep)
@@ -1429,23 +822,7 @@ function AdminBasicInfo({selectedUser}) {
                       placeholder="Value"
                       style={{ border: "0px solid #000000", outline: "none" }}
                     />
-                    {isInstallationVolumechanged &&
-                      (loading7 ? (
-                        <CircularProgress size={20} />
-                      ) : (
-                        <button
-                          onClick={async () => {
-                            handleInstallationVolumeSave();
-                          }}
-                          style={{
-                            color: " #8a2be2",
-                            fontSize: "14px",
-                            fontWeight: "600",
-                          }}
-                        >
-                          Save
-                        </button>
-                      ))}
+                   
                   </div>
                 </>
               ) : (
@@ -1491,23 +868,7 @@ function AdminBasicInfo({selectedUser}) {
                     placeholder="Value"
                     style={{ border: "0px solid #000000", outline: "none" }}
                   />
-                  {isProjectSizeChanged &&
-                    (loading9 ? (
-                      <CircularProgress size={20} />
-                    ) : (
-                      <button
-                        onClick={async () => {
-                          handleProjectSizeSave();
-                        }}
-                        style={{
-                          color: " #8a2be2",
-                          fontSize: "14px",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Save
-                      </button>
-                    ))}
+                  
                 </div>
               </>
             ) : (
@@ -1547,23 +908,7 @@ function AdminBasicInfo({selectedUser}) {
                         placeholder="Value"
                         style={{ border: "0px solid #000000", outline: "none" }}
                       />
-                      {isClientsPerMonthChanged &&
-                        (loading12 ? (
-                          <CircularProgress size={20} />
-                        ) : (
-                          <button
-                            onClick={async () => {
-                              handleClientsPerMonthSave();
-                            }}
-                            style={{
-                              color: " #8a2be2",
-                              fontSize: "14px",
-                              fontWeight: "600",
-                            }}
-                          >
-                            Save
-                          </button>
-                        ))}
+                    
                     </div>
                   </>
                 ) : userType && userType === UserTypes.LawAgent 
@@ -1601,23 +946,7 @@ function AdminBasicInfo({selectedUser}) {
                         placeholder="Value"
                         style={{ border: "0px solid #000000", outline: "none" }}
                       />
-                      {iscasesPerMonthChanged &&
-                        (loading12 ? (
-                          <CircularProgress size={20} />
-                        ) : (
-                          <button
-                            onClick={async () => {
-                              handleClientsPerMonthSave();
-                            }}
-                            style={{
-                              color: " #8a2be2",
-                              fontSize: "14px",
-                              fontWeight: "600",
-                            }}
-                          >
-                            Save
-                          </button>
-                        ))}
+                      
                     </div>
                   </>
                 ) : ""
@@ -1644,9 +973,7 @@ function AdminBasicInfo({selectedUser}) {
                   return (
                     <div key={index} className="w-full">
                       <button
-                        onClick={() => {
-                          handleSelectClientType(item);
-                        }}
+                       
                         className="border border-[#00000010] rounded px-4 h-[70px] outline-none focus:outline-none focus:ring-0 w-full"
                         style={{
                           fontSize: 15,
@@ -1691,9 +1018,7 @@ function AdminBasicInfo({selectedUser}) {
                     return (
                       <div key={index} className="w-full">
                         <button
-                          onClick={() => {
-                            handleSelectCollectionStretigy(item);
-                          }}
+                         
                           className="border border-[#00000010] rounded px-4 h-[70px] outline-none focus:outline-none focus:ring-0 w-full"
                           style={{
                             fontSize: 15,
@@ -1736,9 +1061,7 @@ function AdminBasicInfo({selectedUser}) {
                   return (
                     <div key={index} className="w-full">
                       <button
-                        onClick={() => {
-                          handleSelectClientType2(item);
-                        }}
+                       
                         className="border border-[#00000010] rounded px-4 py-4 outline-none focus:outline-none focus:ring-0"
                         style={{
                           ...styles.inputStyle,
@@ -1776,9 +1099,7 @@ function AdminBasicInfo({selectedUser}) {
                   return (
                     <div key={index} className="w-full">
                       <button
-                        onClick={() => {
-                          handleSelectconsoltation(item);
-                        }}
+                        
                         className="border border-[#00000010] rounded px-4 py-4 outline-none focus:outline-none focus:ring-0"
                         style={{
                           ...styles.inputStyle,
@@ -1819,24 +1140,7 @@ function AdminBasicInfo({selectedUser}) {
             >
               What would you like Agentx to help you with
             </div>
-            {serviceId.length > 0 &&
-              hasServiceChanged() &&
-              (srviceLoader ? (
-                <CircularProgress size={20} />
-              ) : (
-                <button
-                  onClick={async () => {
-                    handleServiceChange();
-                  }}
-                  style={{
-                    color: " #8a2be2",
-                    fontSize: "14px",
-                    fontWeight: "600",
-                  }}
-                >
-                  Save
-                </button>
-              ))}
+           
           </div>
 
           <div className="w-9/12 flex flex-row flex-wrap gap-2">
@@ -1859,9 +1163,7 @@ function AdminBasicInfo({selectedUser}) {
                       : "transparent",
                     cursor: "pointer",
                   }}
-                  onClick={() => {
-                    handleserviceId(item.id);
-                  }}
+                 
                 >
                   <div style={{ fontSize: 15, fontWeight: "700" }}>
                     {item.title}
@@ -1900,29 +1202,7 @@ function AdminBasicInfo({selectedUser}) {
                 ? "What area of real estate do you focus on?"
                 : "What industries do you specialize in?"}
             </div>
-            {selectedArea.length > 0 &&
-              hasAreaFocusChanged() &&
-              (areaLoading ? (
-                <CircularProgress size={20} />
-              ) : (
-                <button
-                  onClick={async () => {
-                    console.log("User is ", userType);
-                    if (userType == UserTypes.RecruiterAgent) {
-                      handleIndustryChange();
-                    } else {
-                      handleAreaChange();
-                    }
-                  }}
-                  style={{
-                    color: " #8a2be2",
-                    fontSize: "14px",
-                    fontWeight: "600",
-                  }}
-                >
-                  Save
-                </button>
-              ))}
+            
           </div>
 
           {agentAreasOfFocus.length > 0 && (
@@ -1941,9 +1221,7 @@ function AdminBasicInfo({selectedUser}) {
                       : "transparent",
                     cursor: "pointer",
                   }}
-                  onClick={() => {
-                    handleAreaSelect(item.id);
-                  }}
+                  
                 >
                   <div style={{ fontSize: 15, fontWeight: "700" }}>
                     {item.title}
@@ -1983,9 +1261,7 @@ function AdminBasicInfo({selectedUser}) {
                       : "transparent",
                     cursor: "pointer",
                   }}
-                  onClick={() => {
-                    handleSelectAgentIndustry(item.id);
-                  }}
+                 
                 >
                   <div style={{ fontSize: 15, fontWeight: "700" }}>
                     {item.title}
