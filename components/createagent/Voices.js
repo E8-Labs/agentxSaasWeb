@@ -163,10 +163,21 @@ const voicesList = [
 export default voicesList;
 
 export function FindVoice(id) {
-  console.log("Finding voice", id);
+  // console.log("Finding voice", id);
 
   const voice = voicesList.find((v) => v.voice_id === id);
 
-  console.log("Found voice:", voice);
-  return voice || voicesList[0]; // Return first voice if no match found
+  // console.log("Found voice:", voice);
+  return (
+    voice || {
+      voice_id: "yUeKuNxGTYAYe6vcplkT", //"5aOHxVGviCbvOnsHsrWn",
+      name: id,
+      preview: "/voicesList/Luna.MP3",
+      // "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/5aOHxVGviCbvOnsHsrWn/d88b5e99-1892-4736-b401-5ed6172b6f2b.mp3",
+      workspace: "1711297163700x954223200313016300",
+      img: "/otherAssets/luna.png",
+      status: "",
+      Dialect: "Personable, Assertive, Mid 30s | New Yorker",
+    }
+  ); // Return first voice if no match found
 }
