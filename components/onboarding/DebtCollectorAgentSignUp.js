@@ -357,7 +357,7 @@ const DebtCollectorAgentSignUp = ({
       formData.append("company", companyName);
       formData.append("projectSizeKw", installationVolume);
       formData.append("projectsPerYear", projectSize);
-      formData.append("primaryClientType", clienttype);
+      formData.append("collectionStrategy", clienttype);
       formData.append("login", false);
       formData.append("verificationCode", VerifyCode.join(""));
       formData.append(

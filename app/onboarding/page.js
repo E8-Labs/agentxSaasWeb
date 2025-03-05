@@ -187,7 +187,7 @@ const Page = ({ params }) => {
       UserType,
       UserService,
       FocusArea,
-      selectedComponent,
+      BasicDetails,
       OtherDetails,
       Congrats,
     ].filter(Boolean);

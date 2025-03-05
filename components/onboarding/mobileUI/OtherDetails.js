@@ -24,6 +24,15 @@ import SnackMessages from "../services/AuthVerification/SnackMessages";
 import { setCookie } from "@/utilities/cookies";
 import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
 import { PersistanceKeys } from "@/constants/Constants";
+import { UserTypes } from "@/constants/UserTypes";
+import RealEstateOtherDetails from "./RealEstateOtherDetails";
+import SolarRepAgentSignUp from "../otherAgentsSignUp/SolarRepAgentSignUp";
+import SolarRepOtherDetails from "./SalesRepOtherDetails";
+import SalesDevRepOtherDetails from "./SolerDevRepOtherDetails";
+import InsuranceOtherDetails from "./InsuranceOtherDetails";
+import MarketerOtherDetails from "./MarketerOtherDetails";
+import RecuiterOtherDetails from "./RecuiterOtherDetails";
+import DebtCollectorOtherDetails from "./DebtCollectorOtherDetails";
 
 const OtherDetails = ({
   handleContinue,
@@ -84,6 +93,7 @@ const OtherDetails = ({
   const [installationVolume, setInstallationVolume] = useState("");
   const [projectSize, setProjectSize] = useState("");
   const [ClientType, setClientType] = useState(null);
+  const [collectionStretigy, setCollectionStretigy] = useState(null);
 
   //for webURL
   const [websiteUrl, setWebsiteUrl] = useState("");
@@ -140,17 +150,17 @@ const OtherDetails = ({
       }
     } else if (userData?.userTypeTitle === "SolarRep") {
       if (
-        userFarm &&
-        userBrokage &&
-        userTransaction &&
+        service &&
+        companyName &&
+        installationVolume &&
         projectSize &&
         ClientType
       ) {
         setShouldContinue(false);
       } else if (
-        !userFarm ||
-        !userBrokage ||
-        !userTransaction ||
+        !service ||
+        !companyName ||
+        !installationVolume ||
         !projectSize ||
         !ClientType
       ) {
@@ -162,6 +172,13 @@ const OtherDetails = ({
       } else if (!userFarm || !userBrokage) {
         setShouldContinue(true);
       }
+      else if (userData?.userTypeTitle === UserTypes.DebtCollectorAgent) { 
+        if (service && companyName && installationVolume && collectionStretigy) {
+          setShouldContinue(false);
+        } else if (!service || !companyName || !installationVolume || !collectionStretigy) {
+          setShouldContinue(true);
+        }
+      }
     } else if (userData?.userTypeTitle === "WebsiteAgent") {
       if (websiteUrl) {
         setShouldContinue(false);
@@ -172,7 +189,7 @@ const OtherDetails = ({
       userData?.userTypeTitle === "RecruiterAgent" ||
       userData?.userTypeTitle === "TaxAgent"
     ) {
-      if (websiteUrservice) {
+      if (service) {
         setShouldContinue(false);
       } else if (!service) {
         setShouldContinue(true);
@@ -198,6 +215,8 @@ const OtherDetails = ({
     service,
     companyName,
     projectSize,
+    collectionStretigy,
+    installationVolume,
     ClientType,
   ]);
 
@@ -214,49 +233,11 @@ const OtherDetails = ({
     setClientType(item.title);
   };
 
-  // Handle phone number change and validation
-  const handlePhoneNumberChange = (phone) => {
-    setUserPhoneNumber(phone);
-    validatePhoneNumber(phone);
-
-    if (!phone) {
-      setErrorMessage("");
-    }
+  const handleSelectCollectionStretigy = (item) => {
+    // console.log("Select client type", item);
+    setCollectionStretigy(item.title);
   };
 
-  //code to get user location
-
-  const getLocation = () => {
-    // console.log("getlocation trigered");
-    // let registerationData = null;
-    setLocationLoader(true);
-
-    const fetchCountry = async () => {
-      try {
-        // Get user's geolocation
-        navigator.geolocation.getCurrentPosition(async (position) => {
-          const { latitude, longitude } = position.coords;
-
-          // Fetch country code based on lat and long
-          const response = await fetch(
-            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
-          );
-          const data = await response.json();
-
-          // Set the country code based on the geolocation API response
-          setCountryCode(data.countryCode.toLowerCase());
-          setLoading(false);
-        });
-      } catch (error) {
-        // console.error("Error fetching location:", error);
-        setLoading(true); // Stop loading if there’s an error
-      } finally {
-        setLocationLoader(false);
-      }
-    };
-
-    fetchCountry();
-  };
 
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
@@ -284,19 +265,6 @@ const OtherDetails = ({
         // console.log("I am hit now");
       }, 300);
     }
-  };
-
-  //email validation function
-  const validateEmail = (email) => {
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-    // Check if email contains consecutive dots, which are invalid
-    if (/\.\./.test(email)) {
-      return false;
-    }
-
-    // Check the general pattern for a valid email
-    return emailPattern.test(email);
   };
 
   //code for verify number popup
@@ -491,41 +459,6 @@ const OtherDetails = ({
 
   //code to check email and phone
 
-  const checkEmail = async (value) => {
-    try {
-      setValidEmail("");
-      setEmailLoader(true);
-
-      const ApiPath = Apis.CheckEmail;
-
-      const ApiData = {
-        email: value,
-      };
-
-      // console.log("Api data is :", ApiData);
-
-      const response = await axios.post(ApiPath, ApiData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response) {
-        // console.log("Response of check email api is :", response);
-        if (response.data.status === true) {
-          // console.log("Response message is :", response.data.message);
-          setEmailCheckResponse(response.data);
-        } else {
-          setEmailCheckResponse(response.data);
-        }
-      }
-    } catch (error) {
-      // console.error("Error occured in check email api is :", error);
-    } finally {
-      setEmailLoader(false);
-    }
-  };
-
   const checkPhoneNumber = async (value) => {
     try {
       setPhoneNumberLoader(true);
@@ -586,6 +519,136 @@ const OtherDetails = ({
       outline: "none",
     },
   };
+  const getOtherAgentDetailsComponent = () => {
+    console.log("User type is", userData?.userTypeTitle);
+
+    if (userData?.userTypeTitle) {
+
+      if (userData?.userTypeTitle === UserTypes.RealEstateAgent) {
+        return (
+          <RealEstateOtherDetails
+            inputsFields={inputsFields}
+            userBrokage={userBrokage}
+            userFarm={userFarm}
+            userTransaction={userTransaction}
+            setUserBrokage={setUserBrokage}
+            setUserFarm={setUserFarm}
+            setUserTransaction={setUserTransaction}
+            handleVerifyPopup={handleVerifyPopup}
+
+          />
+        )
+      }
+      if (userData?.userTypeTitle === UserTypes.SalesDevRep) {
+        return (
+          <SalesDevRepOtherDetails
+            inputsFields={inputsFields}
+            service={service}
+            companyName={companyName}
+            setService={setService}
+            setCompanyName={setCompanyName}
+            handleVerifyPopup={handleVerifyPopup}
+          />
+        )
+      }
+      if (userData?.userTypeTitle === UserTypes.SolarRep) {
+        return (
+          <SolarRepOtherDetails
+            inputsFields={inputsFields}
+            installationVolume={installationVolume}
+            projectSize={projectSize}
+            ClientType={ClientType}
+            setInstallationVolume={setInstallationVolume}
+            setProjectSize={setProjectSize}
+            companyName={companyName}
+            setCompanyName={setCompanyName}
+            service={service}
+            setService={setService}
+            setClientType={setClientType}
+            handleSelectClientType={(item) => handleSelectClientType(item)}
+            handleVerifyPopup={handleVerifyPopup}
+
+          />
+        )
+      }
+
+      if (userData?.userTypeTitle === UserTypes.InsuranceAgent) {
+        return (
+          <InsuranceOtherDetails
+            inputsFields={inputsFields}
+            userBrokage={userBrokage}
+            userFarm={userFarm}
+            setUserBrokage={setUserBrokage}
+            setUserFarm={setUserFarm}
+            handleVerifyPopup={handleVerifyPopup}
+          />
+        )
+      }
+
+      if (userData?.userTypeTitle === UserTypes.MarketerAgent) {
+        return (
+          <MarketerOtherDetails
+            inputsFields={inputsFields}
+            service={service}
+            companyName={companyName}
+            setService={setService}
+            setCompanyName={setCompanyName}
+            handleVerifyPopup={handleVerifyPopup}
+          />
+        )
+      }
+      // tax and recruiter agent have same UI
+
+
+      if (userData?.userTypeTitle === UserTypes.RecruiterAgent ||
+        userData?.userTypeTitle === UserTypes.TaxAgent
+      ) {
+        return (
+          <RecuiterOtherDetails
+            inputsFields={inputsFields}
+            service={service}
+            setService={setService}
+            handleVerifyPopup={handleVerifyPopup}
+          />
+        )
+      }
+
+      if (userData?.userTypeTitle === UserTypes.DebtCollectorAgent) {
+        return (
+          <DebtCollectorOtherDetails
+            inputsFields={inputsFields}
+            service={service}
+            setService={setService}
+            companyName={companyName}
+            setCompanyName={setCompanyName}
+            installationVolume={installationVolume}
+            setInstallationVolume={setInstallationVolume}
+            handleVerifyPopup={handleVerifyPopup}
+            collectionStretigy={collectionStretigy}
+            handleSelectCollectionStretigy={handleSelectCollectionStretigy}
+          />
+        )
+      }
+
+
+
+      // else {
+
+      //   return (
+      //     <RealEstateOtherDetails
+      //       inputsFields={inputsFields}
+      //       userBrokage={userBrokage}
+      //       userFarm={userFarm}
+      //       userTransaction={userTransaction}
+      //       setUserBrokage={setUserBrokage}
+      //       setUserFarm={setUserFarm}
+      //       setUserTransaction={setUserTransaction}
+      //       handleVerifyPopup={handleVerifyPopup}
+      //     />
+      //   )
+      // }
+    }
+  }
 
   return (
     <div
@@ -613,368 +676,7 @@ const OtherDetails = ({
               {/* Other Agents Other Details */}
 
               {
-                // userData.agentTitle = "Real Estate Agent" ? (
-                //     "RealEstateAgent") :
-                userData?.userTypeTitle === "SalesDevRep" ||
-                userData?.userTypeTitle === "MarketerAgent" ? (
-                  <div className="w-full">
-                    <div style={styles.headingStyle} className="mt-6">
-                      Where do you primarily operate or serve customers
-                    </div>
-                    <input
-                      ref={(el) => (inputsFields.current[0] = el)}
-                      autoComplete="off"
-                      autoCorrect="off"
-                      spellCheck="false"
-                      enterKeyHint="done"
-                      placeholder="Your territory"
-                      className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-                      style={{ ...styles.inputStyle, marginTop: "8px" }}
-                      value={service}
-                      onChange={(e) => {
-                        setService(e.target.value);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === "Done") {
-                          inputsFields.current[1]?.focus(); // Move to the second input
-                        }
-                      }}
-                    />
-
-                    <div style={styles.headingStyle} className="mt-6">
-                      Company
-                    </div>
-                    <input
-                      ref={(el) => (inputsFields.current[1] = el)}
-                      autoComplete="off"
-                      autoCorrect="off"
-                      spellCheck="false"
-                      enterKeyHint="done"
-                      placeholder="Brokerage"
-                      className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-                      style={{ ...styles.inputStyle, marginTop: "8px" }}
-                      value={companyName}
-                      onChange={(e) => {
-                        setCompanyName(e.target.value);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === "Done") {
-                          handleVerifyPopup();
-                        }
-                      }}
-                    />
-                  </div>
-                ) : userData?.userTypeTitle === "SolarRep" ? (
-                  <div className="w-full">
-                    <div style={styles.headingStyle} className="mt-6">
-                      {`What’s your market territory`}
-                    </div>
-                    <input
-                      ref={(el) => (inputsFields.current[0] = el)}
-                      autoComplete="off"
-                      autoCorrect="off"
-                      spellCheck="false"
-                      enterKeyHint="done"
-                      placeholder="Your territory"
-                      className="w-full border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-                      style={{ ...styles.inputStyle, marginTop: "8px" }}
-                      value={userFarm}
-                      onChange={(e) => {
-                        setUserFarm(e.target.value);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === "Done") {
-                          inputsFields.current[1]?.focus(); // Move to the second input
-                        }
-                      }}
-                    />
-
-                    <div style={styles.headingStyle} className="mt-6">
-                      Your brokerage
-                    </div>
-                    <input
-                      ref={(el) => (inputsFields.current[1] = el)}
-                      autoComplete="off"
-                      autoCorrect="off"
-                      spellCheck="false"
-                      enterKeyHint="done"
-                      placeholder="Brokerage"
-                      className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-                      style={{ ...styles.inputStyle, marginTop: "8px" }}
-                      value={userBrokage}
-                      onChange={(e) => {
-                        setUserBrokage(e.target.value);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === "Done") {
-                          inputsFields.current[2]?.focus(); // Move to the second input
-                        }
-                      }}
-                    />
-
-                    <div style={styles.headingStyle} className="mt-6">
-                      Average transaction volume per year
-                    </div>
-                    <input
-                      ref={(el) => (inputsFields.current[2] = el)}
-                      autoComplete="off"
-                      autoCorrect="off"
-                      spellCheck="false"
-                      enterKeyHint="done"
-                      placeholder="Value"
-                      className="border border-[#00000010] w-full rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0"
-                      style={{ ...styles.inputStyle, marginTop: "8px" }}
-                      value={userTransaction}
-                      type="number"
-                      onChange={(e) => {
-                        setUserTransaction(e.target.value);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === "Done") {
-                          inputsFields.current[3]?.focus(); // Move to the second input
-                        }
-                      }}
-                    />
-                    <div style={styles.headingStyle} className="mt-6">
-                      Installation Volume per Year
-                    </div>
-                    <input
-                      autoComplete="off"
-                      autoCorrect="off"
-                      spellCheck="false"
-                      enterKeyHint="done"
-                      ref={(el) => (inputsFields.current[3] = el)}
-                      placeholder="Type here"
-                      className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-                      style={{ ...styles.inputStyle, marginTop: "8px" }}
-                      value={installationVolume}
-                      onChange={(e) => {
-                        setInstallationVolume(e.target.value);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === "Done") {
-                          inputsFields.current[4]?.focus(); // Move to the second input
-                        }
-                      }}
-                    />
-
-                    <div style={styles.headingStyle} className="mt-6">
-                      Average Project Size (kW)
-                    </div>
-                    <input
-                      placeholder="Type here"
-                      className="w-full border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-                      ref={(el) => (inputsFields.current[4] = el)}
-                      style={{ ...styles.inputStyle, marginTop: "8px" }}
-                      value={projectSize}
-                      onChange={(e) => {
-                        setProjectSize(e.target.value);
-                      }}
-                    />
-
-                    <div style={styles.headingStyle} className="mt-6">
-                      Primary Client Type
-                    </div>
-
-                    <div
-                      className="flex flex-col items-start gap-4"
-                      style={{ marginTop: "8px" }}
-                    >
-                      {primaryClientTypes.map((item, index) => {
-                        return (
-                          <div key={index} className="w-full">
-                            <button
-                              onClick={() => {
-                                handleSelectClientType(item);
-                              }}
-                              className="border border-[#00000010] text-start rounded px-4 rounded py-1 outline-none focus:outline-none focus:ring-0 w-full"
-                              style={{
-                                ...styles.inputStyle,
-                                // borderRadius: "30px",
-                                paddingInline: index === 2 && "40px",
-                                border:
-                                  ClientType === item.title
-                                    ? "2px solid #7902DF"
-                                    : "",
-                                backgroundColor:
-                                  ClientType === item.title ? "#402FFF20" : "",
-                              }}
-                            >
-                              {item.title}
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ) : userData?.userTypeTitle === "InsuranceAgent" ? (
-                  <div className="w-full">
-                    <div style={styles.headingStyle} className="mt-6">
-                      Market Teritory
-                    </div>
-                    <input
-                      ref={(el) => (inputsFields.current[0] = el)}
-                      autoComplete="off"
-                      autoCorrect="off"
-                      spellCheck="false"
-                      enterKeyHint="done"
-                      placeholder="Your territory"
-                      className="border w-full border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-                      style={{ ...styles.inputStyle, marginTop: "8px" }}
-                      value={userFarm}
-                      onChange={(e) => {
-                        setUserFarm(e.target.value);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === "Done") {
-                          inputsFields.current[1]?.focus(); // Move to the second input
-                        }
-                      }}
-                    />
-
-                    <div style={styles.headingStyle} className="mt-6">
-                      Agency or Brokerage Name
-                    </div>
-                    <input
-                      ref={(el) => (inputsFields.current[1] = el)}
-                      autoComplete="off"
-                      autoCorrect="off"
-                      spellCheck="false"
-                      enterKeyHint="done"
-                      placeholder="Brokerage"
-                      className="border w-full border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-                      style={{ ...styles.inputStyle, marginTop: "8px" }}
-                      value={userBrokage}
-                      onChange={(e) => {
-                        setUserBrokage(e.target.value);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === "Done") {
-                          handleVerifyPopup();
-                        }
-                      }}
-                    />
-                  </div>
-                ) : userData?.userTypeTitle === "WebsiteAgent" ? (
-                  <div className="w-full">
-                    <div style={styles.headingStyle} className="mt-6">
-                      Website (URL)
-                    </div>
-                    <input
-                      ref={(el) => (inputsFields.current[0] = el)}
-                      placeholder="URL"
-                      className="border border-[#00000010] w-full rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0"
-                      style={{ ...styles.inputStyle, marginTop: "8px" }}
-                      value={websiteUrl}
-                      onChange={(e) => {
-                        setWebsiteUrl(e.target.value);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === "Done") {
-                          handleVerifyPopup();
-                        }
-                      }}
-                    />
-                  </div>
-                ) : userData?.userTypeTitle === "RecruiterAgent" ||
-                  userData?.userTypeTitle === "TaxAgent" ? (
-                  <div className="w-full">
-                    <div style={styles.headingStyle} className="mt-6">
-                      Where do you primarily operate or serve customers
-                    </div>
-                    <input
-                      ref={(el) => (inputsFields.current[0] = el)}
-                      autoComplete="off"
-                      autoCorrect="off"
-                      spellCheck="false"
-                      enterKeyHint="done"
-                      placeholder="Your territory"
-                      className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-                      style={{ ...styles.inputStyle, marginTop: "8px" }}
-                      value={service}
-                      onChange={(e) => {
-                        setService(e.target.value);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === "Done") {
-                          handleVerifyPopup();
-                        }
-                      }}
-                    />
-                  </div>
-                ) : (
-                  <div className="w-full">
-                    <div style={styles.headingStyle} className="mt-6">
-                      {`What’s your market territory`}
-                    </div>
-                    <input
-                      ref={(el) => (inputsFields.current[0] = el)}
-                      autoComplete="off"
-                      autoCorrect="off"
-                      spellCheck="false"
-                      enterKeyHint="done"
-                      placeholder="Your territory"
-                      className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-                      style={{ ...styles.inputStyle, marginTop: "8px" }}
-                      value={userFarm}
-                      onChange={(e) => {
-                        setUserFarm(e.target.value);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === "Done") {
-                          inputsFields.current[1]?.focus(); // Move to the second input
-                        }
-                      }}
-                    />
-
-                    <div style={styles.headingStyle} className="mt-6">
-                      Your brokerage
-                    </div>
-                    <input
-                      ref={(el) => (inputsFields.current[1] = el)}
-                      autoComplete="off"
-                      autoCorrect="off"
-                      spellCheck="false"
-                      enterKeyHint="done"
-                      placeholder="Brokerage"
-                      className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-                      style={{ ...styles.inputStyle, marginTop: "8px" }}
-                      value={userBrokage}
-                      onChange={(e) => {
-                        setUserBrokage(e.target.value);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === "Done") {
-                          inputsFields.current[2]?.focus(); // Move to the second input
-                        }
-                      }}
-                    />
-
-                    <div style={styles.headingStyle} className="mt-6">
-                      Average transaction volume per year
-                    </div>
-                    <input
-                      ref={(el) => (inputsFields.current[2] = el)}
-                      autoComplete="off"
-                      autoCorrect="off"
-                      spellCheck="false"
-                      enterKeyHint="done"
-                      placeholder="Value"
-                      type="number"
-                      className="border border-[#00000010] w-full rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0"
-                      style={{ ...styles.inputStyle, marginTop: "8px" }}
-                      value={userTransaction}
-                      onChange={(e) => {
-                        setUserTransaction(e.target.value);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === "Done") {
-                          handleVerifyPopup();
-                        }
-                      }}
-                    />
-                  </div>
-                )
+                getOtherAgentDetailsComponent()
               }
 
               {/* Modal for verify number */}

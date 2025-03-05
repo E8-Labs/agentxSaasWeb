@@ -316,13 +316,6 @@ const DebtCollerterAgentSignUp = ({
 
       let clienttype = null;
 
-      if (ClientType === "Residential clients") {
-        clienttype = "residential";
-      } else if (ClientType === "Commercial clients") {
-        clienttype = "commercial";
-      } else if (ClientType === "Both") {
-        clienttype = "both";
-      }
       const formData = new FormData();
       const ApiPath = Apis.register;
       let campainee = GetCampaigneeNameIfAvailable(window);
@@ -340,7 +333,7 @@ const DebtCollerterAgentSignUp = ({
       formData.append("company", companyName);
       formData.append("projectSizeKw", installationVolume);
       formData.append("projectsPerYear", projectSize);
-      formData.append("primaryClientType", clienttype);
+      formData.append("collectionStrategies", ClientType);
       formData.append("login", false);
       formData.append("verificationCode", VerifyCode.join(""));
       formData.append(
@@ -777,34 +770,6 @@ const DebtCollerterAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Typical Collection Strategy
               </div>
-
-              {/* <div
-                                className='flex flex-row items-center gap-4'
-                                style={{
-                                    marginTop: "8px"
-                                }}
-                            >
-                                {
-                                    primaryClientTypes.map((item, index) => {
-                                        return (
-                                            <div key={index} className="w-full">
-                                                <button
-                                                    onClick={() => { handleSelectClientType(item) }}
-                                                    className='border border-[#00000010] rounded px-4 bg-[#402DFF20] h-[70px] outline-none focus:outline-none focus:ring-0 w-full'
-                                                    style={{
-                                                        ...styles.inputStyle, borderRadius: "30px",
-                                                        paddingInline: index === 2 && "40px",
-                                                        border: ClientType === item ? "2px solid #7902DF" : "",
-                                                        backgroundColor: ClientType === item ? "red" : " green"
-                                                    }}
-                                                >
-                                                    {item.title}
-                                                </button>
-                                            </div>
-                                        )
-                                    })
-                                }
-                            </div> */}
 
               <div
                 className="flex w-full flex-wrap flex-row items-center gap-4 border"
