@@ -11,6 +11,7 @@ import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import { PersistanceKeys } from "@/constants/Constants";
 
 function Page() {
+  // console.log("This is a callLOg CRash", CallLogTest);
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("All Calls");
 

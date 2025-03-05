@@ -30,6 +30,7 @@ import MedSpaAgentSignUpMobile from "@/components/onboarding/mobileUI/MedSpaAgen
 import LoanOfficerSignUpMobile from "@/components/onboarding/mobileUI/LoanOfficerSignUpMobile";
 import LawAgentSignUpMobile from "@/components/onboarding/mobileUI/LawAgentSignUpMobile";
 import TexAgentSignUpMoble from "@/components/onboarding/mobileUI/TexAgentSignUpMoble";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const Page = ({ params }) => {
   const router = useRouter();
@@ -87,15 +88,18 @@ const Page = ({ params }) => {
         UserType,
         UserService,
         FocusArea,
-        userType == UserTypes.DebtCollectorAgent ? DebtCollerterAgentSignUp :(
-        userType == UserTypes.LawAgent ? LawAgentSignUpMobile :(
-          userType == UserTypes.MedSpaAgent ? MedSpaAgentSignUpMobile :(
-            userType == UserTypes.LoanOfficerAgent ? LoanOfficerSignUpMobile:
-            BasicDetails
-          
-          )
-        )),
-        userType == UserTypes.DebtCollectorAgent ? DebtCollerterAgentSignUp : OtherDetails,
+        userType == UserTypes.DebtCollectorAgent
+          ? DebtCollerterAgentSignUp
+          : userType == UserTypes.LawAgent
+          ? LawAgentSignUpMobile
+          : userType == UserTypes.MedSpaAgent
+          ? MedSpaAgentSignUpMobile
+          : userType == UserTypes.LoanOfficerAgent
+          ? LoanOfficerSignUpMobile
+          : BasicDetails,
+        userType == UserTypes.DebtCollectorAgent
+          ? DebtCollerterAgentSignUp
+          : OtherDetails,
         Congrats,
         // SalesDevAgent, SolarRepAgentSignUp,
         // InsuranceAgentSignUp, MarketerAgentSignUp,
@@ -134,10 +138,9 @@ const Page = ({ params }) => {
       [UserTypes.RecruiterAgent]: RecruiterAgentSignUp,
       [UserTypes.TaxAgent]: TaxAgentSignUp,
       [UserTypes.DebtCollectorAgent]: DebtCollectorAgentSignUp,
-      [UserTypes.MedSpaAgent] : MedSpaAgentSignUp,
-      [UserTypes.LawAgent] : LawAgentSignUp,
-      [UserTypes.LoanOfficerAgent] : LoanOfficerSignUp,
-
+      [UserTypes.MedSpaAgent]: MedSpaAgentSignUp,
+      [UserTypes.LawAgent]: LawAgentSignUp,
+      [UserTypes.LoanOfficerAgent]: LoanOfficerSignUp,
     };
 
     const selectedComponent = agentComponents[agentTitle] || SignUpForm;
@@ -271,65 +274,67 @@ const Page = ({ params }) => {
   };
 
   return (
-    <div
-      // style={backgroundImage}
-      className="overflow-hidden flex flex-row justify-center items-center h-[100svh]"
-    >
-      {windowSize > 640 && (
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            backgroundColor: "white",
-            zIndex: -1, // Ensure the video stays behind content
+    <ErrorBoundary>
+      <div
+        // style={backgroundImage}
+        className="overflow-hidden flex flex-row justify-center items-center h-[100svh]"
+      >
+        {windowSize > 640 && (
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              backgroundColor: "white",
+              zIndex: -1, // Ensure the video stays behind content
+            }}
+          >
+            <BackgroundVideo />
+          </div>
+        )}
+        <CurrentComp
+          handleContinue={handleContinue}
+          handleBack={handleBack}
+          handleSalesAgentContinue={handleSalesAgentContinue}
+          handleSolarAgentContinue={handleSolarAgentContinue}
+          handleInsuranceContinue={handleInsuranceContinue}
+          handleMarketerAgentContinue={handleMarketerAgentContinue}
+          handleWebsiteAgentContinue={handleWebsiteAgentContinue}
+          handleRecruiterAgentContinue={handleRecruiterAgentContinue}
+          handleTaxAgentContinue={handleTaxAgentContinue}
+          handleSalesAgentBack={handleBack}
+          handleSolarAgentBack={handleBack}
+          handleInsuranceBack={handleBack}
+          handleMarketerAgentBack={handleBack}
+          handleWebsiteAgentBack={handleBack}
+          handleRecruiterAgentBack={handleBack}
+          handleTaxAgentBack={handleBack}
+          //move other agents to wait list
+          handleWaitList={handleWaitList}
+          handleDetails={handleDetails}
+          userDetails={userDetails}
+          setCongratsPopup={setCongratsPopup}
+          handleUserTypeChange={handleUserTypeChange}
+        />
+        <Modal
+          open={congratsPopup}
+          // onClose={() => setAddKYCQuestion(false)}
+          closeAfterTransition
+          BackdropProps={{
+            timeout: 1000,
+            sx: {
+              backgroundColor: "#00000020",
+              ////backdropFilter: "blur(5px)"
+            },
           }}
         >
-          <BackgroundVideo />
-        </div>
-      )}
-      <CurrentComp
-        handleContinue={handleContinue}
-        handleBack={handleBack}
-        handleSalesAgentContinue={handleSalesAgentContinue}
-        handleSolarAgentContinue={handleSolarAgentContinue}
-        handleInsuranceContinue={handleInsuranceContinue}
-        handleMarketerAgentContinue={handleMarketerAgentContinue}
-        handleWebsiteAgentContinue={handleWebsiteAgentContinue}
-        handleRecruiterAgentContinue={handleRecruiterAgentContinue}
-        handleTaxAgentContinue={handleTaxAgentContinue}
-        handleSalesAgentBack={handleBack}
-        handleSolarAgentBack={handleBack}
-        handleInsuranceBack={handleBack}
-        handleMarketerAgentBack={handleBack}
-        handleWebsiteAgentBack={handleBack}
-        handleRecruiterAgentBack={handleBack}
-        handleTaxAgentBack={handleBack}
-        //move other agents to wait list
-        handleWaitList={handleWaitList}
-        handleDetails={handleDetails}
-        userDetails={userDetails}
-        setCongratsPopup={setCongratsPopup}
-        handleUserTypeChange={handleUserTypeChange}
-      />
-      <Modal
-        open={congratsPopup}
-        // onClose={() => setAddKYCQuestion(false)}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 1000,
-          sx: {
-            backgroundColor: "#00000020",
-            ////backdropFilter: "blur(5px)"
-          },
-        }}
-      >
-        <Congrats />
-      </Modal>
-    </div>
+          <Congrats />
+        </Modal>
+      </div>
+    </ErrorBoundary>
   );
 };
 

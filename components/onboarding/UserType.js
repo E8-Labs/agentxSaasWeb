@@ -18,6 +18,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
   const [ShowModal, setShowModal] = useState(false);
   const [shouldContinue, setShouldContinue] = useState(true);
 
+  // console.log("This is my crash", crash);
   //variable stores height
   const [screenHeight, setScreenHeight] = useState(null);
 

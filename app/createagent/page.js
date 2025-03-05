@@ -1,5 +1,6 @@
 "use client";
 
+import ErrorBoundary from "@/components/ErrorBoundary.js";
 import BackgroundVideo from "@/components/general/BackgroundVideo.js";
 import { PersistanceKeys } from "@/constants/Constants.js";
 import dynamic from "next/dynamic.js";
@@ -38,6 +39,7 @@ function EmptyPage() {
 }
 
 const Page = () => {
+  // console.log("This is a crash", crash);
   const [user, setUser] = useState(null);
   const [index, setIndex] = useState(0);
   const [components, setComponents] = useState([
@@ -170,34 +172,36 @@ const Page = () => {
   };
 
   return (
-    <div
-      style={backgroundImage}
-      className="overflow-y-none flex flex-row justify-center items-center"
-    >
-      {windowSize > 640 && (
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            zIndex: -1, // Ensure the video stays behind content
-          }}
-        >
-          <BackgroundVideo />
-        </div>
-      )}
-      <CurrentComp
-        handleContinue={handleContinue}
-        handleBack={handleBack}
-        handleSkipAddPayment={handleSkipAddPayment}
-        getAgentDetails={getAgentDetails}
-        AgentDetails={AgentDetails}
-        user={user}
-      />
-    </div>
+    <ErrorBoundary>
+      <div
+        style={backgroundImage}
+        className="overflow-y-none flex flex-row justify-center items-center"
+      >
+        {windowSize > 640 && (
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              zIndex: -1, // Ensure the video stays behind content
+            }}
+          >
+            <BackgroundVideo />
+          </div>
+        )}
+        <CurrentComp
+          handleContinue={handleContinue}
+          handleBack={handleBack}
+          handleSkipAddPayment={handleSkipAddPayment}
+          getAgentDetails={getAgentDetails}
+          AgentDetails={AgentDetails}
+          user={user}
+        />
+      </div>
+    </ErrorBoundary>
   );
 };
 
