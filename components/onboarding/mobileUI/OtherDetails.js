@@ -33,6 +33,7 @@ import InsuranceOtherDetails from "./InsuranceOtherDetails";
 import MarketerOtherDetails from "./MarketerOtherDetails";
 import RecuiterOtherDetails from "./RecuiterOtherDetails";
 import DebtCollectorOtherDetails from "./DebtCollectorOtherDetails";
+import WebsiteAgentOtherDetails from "./WebsiteAgentOtherDetails";
 
 const OtherDetails = ({
   handleContinue,
@@ -97,6 +98,8 @@ const OtherDetails = ({
 
   //for webURL
   const [websiteUrl, setWebsiteUrl] = useState("");
+  const [urlErrorMessage, setUrlErrorMessage] = useState("");
+
 
   //array for the primary client types
   const primaryClientTypes = [
@@ -137,6 +140,13 @@ const OtherDetails = ({
     }
   }, []);
 
+  useEffect(() => {
+    console.log('service', service)
+    console.log('companyName', companyName)
+    console.log('InstallationVolume', installationVolume)
+    console.log('collectionStretigy', collectionStretigy)
+  },[service,companyName,installationVolume,collectionStretigy])
+
   // Function to get the user's location and set the country code
   useEffect(() => {
     if (
@@ -145,7 +155,7 @@ const OtherDetails = ({
     ) {
       if (service && companyName) {
         setShouldContinue(false);
-      } else if (!service || !companyName) {
+      } else {
         setShouldContinue(true);
       }
     } else if (userData?.userTypeTitle === "SolarRep") {
@@ -157,32 +167,25 @@ const OtherDetails = ({
         ClientType
       ) {
         setShouldContinue(false);
-      } else if (
-        !service ||
-        !companyName ||
-        !installationVolume ||
-        !projectSize ||
-        !ClientType
-      ) {
+      } else {
         setShouldContinue(true);
       }
     } else if (userData?.userTypeTitle === "InsuranceAgent") {
       if (userFarm && userBrokage) {
         setShouldContinue(false);
-      } else if (!userFarm || !userBrokage) {
+      } else {
         setShouldContinue(true);
       }
-      else if (userData?.userTypeTitle === UserTypes.DebtCollectorAgent) { 
-        if (service && companyName && installationVolume && collectionStretigy) {
-          setShouldContinue(false);
-        } else if (!service || !companyName || !installationVolume || !collectionStretigy) {
-          setShouldContinue(true);
-        }
+    } else if (userData?.userTypeTitle === UserTypes.DebtCollectorAgent) {
+      if (service && companyName && installationVolume && collectionStretigy) {
+        setShouldContinue(false);
+      } else {
+        setShouldContinue(true);
       }
     } else if (userData?.userTypeTitle === "WebsiteAgent") {
       if (websiteUrl) {
         setShouldContinue(false);
-      } else if (!websiteUrl) {
+      } else {
         setShouldContinue(true);
       }
     } else if (
@@ -191,18 +194,13 @@ const OtherDetails = ({
     ) {
       if (service) {
         setShouldContinue(false);
-      } else if (!service) {
+      } else {
         setShouldContinue(true);
       }
     } else {
       if (userFarm && userBrokage && userTransaction) {
         setShouldContinue(false);
-      } else if (
-        !userFarm ||
-        !userBrokage ||
-        !userTransaction ||
-        userTransaction
-      ) {
+      } else {
         setShouldContinue(true);
       }
     }
@@ -219,6 +217,7 @@ const OtherDetails = ({
     installationVolume,
     ClientType,
   ]);
+  
 
   //code to focus the verify code input field
   useEffect(() => {
@@ -395,7 +394,7 @@ const OtherDetails = ({
         formData.append("projectSizekw", projectSize);
       }
       if (websiteUrl) {
-        formData.append("averageTransactionPerYear", websiteUrl);
+        formData.append("website", websiteUrl);
       }
 
       formData.append("agentService", JSON.stringify(userData.serviceID));
@@ -626,6 +625,18 @@ const OtherDetails = ({
             handleVerifyPopup={handleVerifyPopup}
             collectionStretigy={collectionStretigy}
             handleSelectCollectionStretigy={handleSelectCollectionStretigy}
+          />
+        )
+      }
+
+      if(userData?.userTypeTitle === UserTypes.WebsiteAgent){
+        return(
+          <WebsiteAgentOtherDetails 
+          websiteUrl={websiteUrl}
+          setWebsiteUrl={setWebsiteUrl}
+          urlErrorMessage={urlErrorMessage}
+          setUrlErrorMessage={setUrlErrorMessage}
+          handleVerifyPopup={handleVerifyPopup}
           />
         )
       }
