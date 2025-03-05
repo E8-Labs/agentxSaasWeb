@@ -34,6 +34,10 @@ import MarketerOtherDetails from "./MarketerOtherDetails";
 import RecuiterOtherDetails from "./RecuiterOtherDetails";
 import DebtCollectorOtherDetails from "./DebtCollectorOtherDetails";
 import WebsiteAgentOtherDetails from "./WebsiteAgentOtherDetails";
+import MedSpaAgentOtherDetails from "./MedSpaAgentOtherDetails";
+import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
+import LawAgentOtherDetails from "./LawAgentOtherDetails";
+import LoanOfficerOtherDetails from "./LoanOfficerOtherDetails";
 
 const OtherDetails = ({
   handleContinue,
@@ -101,6 +105,16 @@ const OtherDetails = ({
   const [urlErrorMessage, setUrlErrorMessage] = useState("");
 
 
+
+  const [territory, setTerritory] = useState("");
+  const [firmOrCompanyAffiliation, setFirmOrCompanyAffiliation] = useState("");
+  const [averageMonthlyClients, setAverageMonthlyClients] = useState("");
+
+  const [consultation, setConsultation] = useState("");
+  const [caseVolume, setCaseVolume] = useState("");
+
+
+
   //array for the primary client types
   const primaryClientTypes = [
     {
@@ -145,7 +159,7 @@ const OtherDetails = ({
     console.log('companyName', companyName)
     console.log('InstallationVolume', installationVolume)
     console.log('collectionStretigy', collectionStretigy)
-  },[service,companyName,installationVolume,collectionStretigy])
+  }, [service, companyName, installationVolume, collectionStretigy])
 
   // Function to get the user's location and set the country code
   useEffect(() => {
@@ -158,7 +172,25 @@ const OtherDetails = ({
       } else {
         setShouldContinue(true);
       }
-    } else if (userData?.userTypeTitle === "SolarRep") {
+    } else if (userData?.userTypeTitle === UserTypes.RealEstateAgent) {
+      console.log("Real Estate Agent Fields:", {
+        userFarm,
+        userBrokage,
+        userTransaction
+      });
+      if (
+        userFarm &&
+        userBrokage &&
+        userTransaction
+
+      ) {
+        setShouldContinue(false);
+      } else if (!userFarm || !userBrokage || !userTransaction) {
+        setShouldContinue(true);
+      }
+    }
+
+    else if (userData?.userTypeTitle === "SolarRep") {
       if (
         service &&
         companyName &&
@@ -197,7 +229,37 @@ const OtherDetails = ({
       } else {
         setShouldContinue(true);
       }
-    } else {
+    } else if (userData?.userTypeTitle === UserTypes.MedSpaAgent) {
+      if (territory && firmOrCompanyAffiliation && averageMonthlyClients) {
+        setShouldContinue(false);
+      } else if (!territory || !firmOrCompanyAffiliation || !averageMonthlyClients) {
+        {
+          setShouldContinue(true);
+        }
+      }
+    }
+    else if (userData?.userTypeTitle === UserTypes.LawAgent) {
+      if (territory && firmOrCompanyAffiliation && caseVolume && consultation && ClientType) {
+        setShouldContinue(false);
+      } else if (!territory || !firmOrCompanyAffiliation || !caseVolume || !consultation || !ClientType) {
+        {
+          setShouldContinue(true);
+        }
+      }
+
+    }
+    else if (userData?.userTypeTitle === UserTypes.LoanOfficerAgent) {
+      if (territory && firmOrCompanyAffiliation && ClientType) {
+        setShouldContinue(false);
+      } else if (!territory || !firmOrCompanyAffiliation || !ClientType) {
+        {
+          setShouldContinue(true);
+        }
+      }
+
+    }
+
+    else {
       if (userFarm && userBrokage && userTransaction) {
         setShouldContinue(false);
       } else {
@@ -216,8 +278,13 @@ const OtherDetails = ({
     collectionStretigy,
     installationVolume,
     ClientType,
+    territory,
+    firmOrCompanyAffiliation,
+    averageMonthlyClients,
+    caseVolume,
+    consultation,
   ]);
-  
+
 
   //code to focus the verify code input field
   useEffect(() => {
@@ -396,6 +463,27 @@ const OtherDetails = ({
       if (websiteUrl) {
         formData.append("website", websiteUrl);
       }
+      if (collectionStretigy) {
+        formData.append("collectionStrategy", collectionStretigy);
+      }
+      if (ClientType) {
+        formData.append("clientType", ClientType);
+      }
+      if (territory) {
+        formData.append("territory", territory);
+      }
+      if (firmOrCompanyAffiliation) {
+        formData.append("firmOrCompanyAffiliation", firmOrCompanyAffiliation);
+      }
+      if (averageMonthlyClients) {
+        formData.append("averageMonthlyClients", averageMonthlyClients);
+      }
+      if (caseVolume) {
+        formData.append("caseVolume", caseVolume);
+      }
+      if (consultation) {
+        formData.append("consultationFormat", consultation);
+      }
 
       formData.append("agentService", JSON.stringify(userData.serviceID));
       formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
@@ -518,6 +606,12 @@ const OtherDetails = ({
       outline: "none",
     },
   };
+
+  const handleConsultationFormat = (item) => {
+    setConsultation(item.title);
+  };
+
+
   const getOtherAgentDetailsComponent = () => {
     console.log("User type is", userData?.userTypeTitle);
 
@@ -629,14 +723,63 @@ const OtherDetails = ({
         )
       }
 
-      if(userData?.userTypeTitle === UserTypes.WebsiteAgent){
-        return(
-          <WebsiteAgentOtherDetails 
-          websiteUrl={websiteUrl}
-          setWebsiteUrl={setWebsiteUrl}
-          urlErrorMessage={urlErrorMessage}
-          setUrlErrorMessage={setUrlErrorMessage}
-          handleVerifyPopup={handleVerifyPopup}
+      if (userData?.userTypeTitle === UserTypes.WebsiteAgent) {
+        return (
+          <WebsiteAgentOtherDetails
+            websiteUrl={websiteUrl}
+            setWebsiteUrl={setWebsiteUrl}
+            urlErrorMessage={urlErrorMessage}
+            setUrlErrorMessage={setUrlErrorMessage}
+            handleVerifyPopup={handleVerifyPopup}
+          />
+        )
+      }
+
+      if (userData?.userTypeTitle === UserTypes.MedSpaAgent) {
+        return (
+          <MedSpaAgentOtherDetails
+            inputsFields={inputsFields}
+            customerService={territory}
+            setCustomerService={setTerritory}
+            companyName={firmOrCompanyAffiliation}
+            setCompanyName={setFirmOrCompanyAffiliation}
+            installationVolume={averageMonthlyClients}
+            setInstallationVolume={setAverageMonthlyClients}
+            handleVerifyPopup={handleVerifyPopup}
+          />
+        )
+      }
+
+      if (userData?.userTypeTitle === UserTypes.LawAgent) {
+        return (
+          <LawAgentOtherDetails
+            inputsFields={inputsFields}
+            customerService={territory}
+            setCustomerService={setTerritory}
+            companyName={firmOrCompanyAffiliation}
+            setCompanyName={setFirmOrCompanyAffiliation}
+            installationVolume={caseVolume}
+            setInstallationVolume={setCaseVolume}
+            handleVerifyPopup={handleVerifyPopup}
+            consultation={consultation}
+            handleConsultationFormat={handleConsultationFormat}
+            ClientType={ClientType}
+            handleSelectClientType={handleSelectClientType}
+          />
+        )
+      }
+
+      if (userData?.userTypeTitle === UserTypes.LoanOfficerAgent) {
+        return (
+          <LoanOfficerOtherDetails
+            inputsFields={inputsFields}
+            customerService={territory}
+            setCustomerService={setTerritory}
+            companyName={firmOrCompanyAffiliation}
+            setCompanyName={setFirmOrCompanyAffiliation}
+            ClientType={ClientType}
+            handleSelectClientType={() => handleSelectClientType()}
+            handleVerifyPopup={handleVerifyPopup}
           />
         )
       }
