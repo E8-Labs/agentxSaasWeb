@@ -199,7 +199,7 @@ const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
     {
       id: 100,
       icon: "",
-      title: "others",
+      title: "Something Else",
       details: "",
       focusIcn: "/objectiveIcons/obj6FC.png",
       unFocusIcon: "/objectiveIcons/obj6UF.png",

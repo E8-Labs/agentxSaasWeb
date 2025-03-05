@@ -128,7 +128,7 @@ const Apis = {
   adminUsersWithUniquePhoneNumbers: `${BasePath}api/admin/adminUsersWithUniquePhoneNumbers`,
 
   adminEngagements: `${BasePath}api/admin/adminEngagements`,
-
+  getProfileFromId: `${BasePath}api/user/getProfileFromId`,
 };
 
 export default Apis;

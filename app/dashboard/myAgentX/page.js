@@ -217,22 +217,25 @@ function Page() {
 
   const [voiceExpressiveness, setVoiceExpressiveness] = useState(null);
   const [startingPace, setStartingPace] = useState(null);
+  const [patienceValue, setPatienceValue] = useState(null);
+
   const [callRecordingPermition, setCallRecordingPermition] = useState(null);
 
   const [showCallRecordingLoader, setShowCallRecordingLoader] = useState(false);
   const [showStartingPaceLoader, setShowStartingPaceLoader] = useState(false);
+  const [showPatienceLoader, setShowPatienceLoader] = useState(false);
   const [showVoiceExpressivenessLoader, setShowVoiceExpressivenessLoader] =
     useState(false);
 
   const models = [
-    { name: "Grok", icon: "/svgIcons/chatgptIcon.svg" },
     { name: "GPT-4", icon: "/svgIcons/chatgptIcon.svg" },
     { name: "GPT-4 Mini", icon: "/svgIcons/chatgptIcon.svg" },
-    { name: "LLaMA", icon: "/svgIcons/chatgptIcon.svg" },
-    { name: "Gemini", icon: "/svgIcons/chatgptIcon.svg" },
+    { name: "Grok", icon: "/svgIcons/grokIcon.svg" },
+    { name: "LLaMA", icon: "/svgIcons/llamaIcon.svg" },
+    { name: "Gemini", icon: "/svgIcons/geminiIcon.svg" },
     {
       name: "DeepSeek (Coming Soon)",
-      icon: "/svgIcons/chatgptIcon.svg",
+      icon: "/svgIcons/deepseekIcon.svg",
       disabled: true,
     },
   ];
@@ -252,6 +255,13 @@ function Page() {
       title: "🏛️ Steady",
       value: "Steady",
     },
+  ];
+
+  // 🐢
+  const PatienceLevels = [
+    { id: 1, title: "💨 Fast", value: "Fast" },
+    { id: 2, title: "⚖️ Balanced", value: "Balanced" },
+    { id: 3, title: "🐢 Slow", value: "Slow" },
   ];
   const StartingPaceList = [
     {
@@ -553,6 +563,8 @@ function Page() {
     setCallRecordingPermition(item.consentRecording);
     setVoiceExpressiveness(item.voiceStability);
     setStartingPace(item.initialPauseSeconds);
+    console.log("Patience Level is ", item.patienceLevel);
+    setPatienceValue(item.patienceLevel);
 
     const comparedAgent = mainAgentsList.find((mainAgent) =>
       mainAgent.agents.some((subAgent) => subAgent.id === item.id)
@@ -1129,6 +1141,9 @@ function Page() {
         }
         if (voiceData.startingPace) {
           formData.append("initialPauseSeconds", voiceData.startingPace);
+        }
+        if (voiceData.patienceLevel) {
+          formData.append("patienceLevel", voiceData.patienceLevel);
         }
         if (voiceData.callRecordingPermition) {
           formData.append(
@@ -3136,9 +3151,7 @@ function Page() {
                             renderValue={(selected) => {
                               if (!selected) {
                                 return (
-                                  <div style={{ color: "#aaa" }}>
-                                    Select Voice
-                                  </div>
+                                  <div style={{ color: "#aaa" }}>Select</div>
                                 ); // Placeholder style
                               }
                               // return selected;
@@ -3368,9 +3381,7 @@ function Page() {
                             renderValue={(selected) => {
                               if (!selected) {
                                 return (
-                                  <div style={{ color: "#aaa" }}>
-                                    Select Pace
-                                  </div>
+                                  <div style={{ color: "#aaa" }}>Select</div>
                                 ); // Placeholder style
                               }
                               const selectedVoice = StartingPaceList.find(
@@ -3422,6 +3433,108 @@ function Page() {
                     </div>
                   </div>
 
+                  {/* Patience level */}
+                  <div className="flex w-full justify-between items-center -mt-4">
+                    <div
+                      style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                    >
+                      Patience Level
+                    </div>
+
+                    <div
+                      style={{
+                        // width: "115px",
+                        display: "flex",
+                        alignItems: "center",
+                        // borderWidth:1,
+                        marginRight: -15,
+                      }}
+                    >
+                      {showPatienceLoader ? (
+                        <div
+                          style={{
+                            width: "115px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <CircularProgress size={15} />
+                        </div>
+                      ) : (
+                        <FormControl>
+                          <Select
+                            value={patienceValue}
+                            onChange={async (event) => {
+                              setShowPatienceLoader(true);
+                              let value = event.target.value;
+                              console.log("value", value);
+                              let voiceData = {
+                                patienceLevel: value,
+                              };
+                              await updateSubAgent(voiceData);
+                              setShowPatienceLoader(false);
+                              // setSelectedVoice(event.target.value);
+                              setPatienceValue(value);
+                            }}
+                            displayEmpty // Enables placeholder
+                            renderValue={(selected) => {
+                              if (!selected) {
+                                return (
+                                  <div style={{ color: "#aaa" }}>Select</div>
+                                ); // Placeholder style
+                              }
+                              const selectedVoice = PatienceLevels.find(
+                                (voice) => voice.value === selected
+                              );
+                              console.log(
+                                `Selected Patience Level for ${selected} is ${selectedVoice.title}`
+                              );
+                              return selectedVoice ? selectedVoice.title : null;
+                            }}
+                            sx={{
+                              border: "none", // Default border
+                              "&:hover": {
+                                border: "none", // Same border on hover
+                              },
+                              "& .MuiOutlinedInput-notchedOutline": {
+                                border: "none", // Remove the default outline
+                              },
+                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
+                              "&.MuiSelect-select": {
+                                py: 0, // Optional padding adjustments
+                              },
+                            }}
+                            MenuProps={{
+                              PaperProps: {
+                                style: {
+                                  maxHeight: "30vh", // Limit dropdown height
+                                  overflow: "auto", // Enable scrolling in dropdown
+                                  scrollbarWidth: "none",
+                                  // borderRadius: "10px"
+                                },
+                              },
+                            }}
+                          >
+                            {PatienceLevels.map((item, index) => {
+                              return (
+                                <MenuItem
+                                  value={item.value}
+                                  key={index}
+                                  disabled={patienceValue === item.title}
+                                >
+                                  <div>{item.title}</div>
+                                </MenuItem>
+                              );
+                            })}
+                          </Select>
+                        </FormControl>
+                      )}
+                    </div>
+                  </div>
                   {/* <div className="flex w-full justify-between items-center -mt-4">
                     <div
                       style={{ fontSize: 15, fontWeight: "500", color: "#666" }}

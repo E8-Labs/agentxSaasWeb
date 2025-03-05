@@ -29,6 +29,8 @@ import LoanOfficerSignUp from "@/components/onboarding/otherAgentsSignUp/LoanOff
 import MedSpaAgentSignUpMobile from "@/components/onboarding/mobileUI/MedSpaAgentSignUpMobile";
 import LoanOfficerSignUpMobile from "@/components/onboarding/mobileUI/LoanOfficerSignUpMobile";
 import LawAgentSignUpMobile from "@/components/onboarding/mobileUI/LawAgentSignUpMobile";
+import TexAgentSignUpMoble from "@/components/onboarding/mobileUI/TexAgentSignUpMoble";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const Page = ({ params }) => {
   const router = useRouter();
@@ -80,25 +82,41 @@ const Page = ({ params }) => {
     if (typeof window !== "undefined") {
       screenWidth = window.innerWidth;
     }
-    let comps = getComponentToRender();
+
     if (screenWidth < 640) {
-      setComponents([
-        UserType,
-        UserService,
-        FocusArea,
-        userType == UserTypes.DebtCollectorAgent ? DebtCollerterAgentSignUp :(
-        userType == UserTypes.LawAgent ? LawAgentSignUpMobile :(
-          userType == UserTypes.MedSpaAgent ? MedSpaAgentSignUpMobile :(
-            userType == UserTypes.LoanOfficerAgent && LoanOfficerSignUpMobile )
-        )),
-        userType == UserTypes.DebtCollectorAgent ? DebtCollerterAgentSignUp : OtherDetails,
-        Congrats,
-        // SalesDevAgent, SolarRepAgentSignUp,
-        // InsuranceAgentSignUp, MarketerAgentSignUp,
-        // WebOwnersAgentSignUp, RecruiterAgentSignUp,
-        // TaxAgentSignUp
-      ]);
+      let comps = getMobileComponent();
+      console.log("Setting mobile UI");
+      if (userType) {
+        setComponents(comps.filter(Boolean));
+
+        // let oldComps = [
+        //   UserType,
+        //   UserService,
+        //   FocusArea,
+        //   userType === UserTypes.DebtCollectorAgent
+        //     ? DebtCollerterAgentSignUp
+        //     : userType === UserTypes.LawAgent
+        //     ? LawAgentSignUpMobile
+        //     : userType === UserTypes.MedSpaAgent
+        //     ? MedSpaAgentSignUpMobile
+        //     : userType === UserTypes.LoanOfficerAgent
+        //     ? LoanOfficerSignUpMobile
+        //     : BasicDetails, // Fallback
+
+        //   userType === UserTypes.DebtCollectorAgent
+        //     ? DebtCollerterAgentSignUp
+        //     : OtherDetails,
+        //   Congrats,
+        // ];
+        // setComponents(oldComps);
+
+        console.log(
+          "🚀 Components from getComponentToRender:",
+          comps.map((c) => c?.name || "undefined")
+        );
+      }
     } else {
+      let comps = getComponentToRender();
       // console.log("Setting components", comps.length);
       // console.log(
       //   "🚀 Components from getComponentToRender:",
@@ -107,16 +125,9 @@ const Page = ({ params }) => {
       setComponents(comps.filter(Boolean));
     }
   }, [userType]);
-  // registerDetails	{"serviceID":[102],"focusAreaId":[406],"userType":4,"userTypeTitle":"InsuranceAgent","areaFocusTitle":"What area of insurance do you focus on?","otherFocusArea":""}
+  // registerDetails  {"serviceID":[102],"focusAreaId":[406],"userType":4,"userTypeTitle":"InsuranceAgent","areaFocusTitle":"What area of insurance do you focus on?","otherFocusArea":""}
   function getComponentToRender() {
     console.log("Inside get components");
-
-    // let storedData = localStorage.getItem(PersistanceKeys.RegisterDetails);
-    // if (!storedData) {
-    //   return [UserType, UserService, FocusArea, SignUpForm, Congrats]; // Default
-    // }
-
-    // let userData = JSON.parse(storedData);
     let agentTitle = userType; //userData?.userTypeTitle || null;
     console.log("Agent title  = ", agentTitle);
 
@@ -130,14 +141,12 @@ const Page = ({ params }) => {
       [UserTypes.RecruiterAgent]: RecruiterAgentSignUp,
       [UserTypes.TaxAgent]: TaxAgentSignUp,
       [UserTypes.DebtCollectorAgent]: DebtCollectorAgentSignUp,
-      [UserTypes.MedSpaAgent] : MedSpaAgentSignUp,
-      [UserTypes.LawAgent] : LawAgentSignUp,
-      [UserTypes.LoanOfficerAgent] : LoanOfficerSignUp,
-
+      [UserTypes.MedSpaAgent]: MedSpaAgentSignUp,
+      [UserTypes.LawAgent]: LawAgentSignUp,
+      [UserTypes.LoanOfficerAgent]: LoanOfficerSignUp,
     };
 
     const selectedComponent = agentComponents[agentTitle] || SignUpForm;
-    // console.log("Selected comp ", selectedComponent);
 
     // 🚀 Ensure components are functions, not strings
     const finalComponents = [
@@ -148,10 +157,40 @@ const Page = ({ params }) => {
       Congrats,
     ].filter(Boolean);
 
-    // console.log(
-    //   "✅ Returning components:",
-    //   finalComponents.map((c) => c?.name || "undefined")
-    // );
+    return finalComponents;
+  }
+
+  function getMobileComponent() {
+    console.log("Inside get mobile components");
+    let agentTitle = userType; //userData?.userTypeTitle || null;
+    console.log("Agent title  = ", agentTitle);
+
+    const agentComponents = {
+      [UserTypes.RealEstateAgent]: BasicDetails,
+      [UserTypes.SalesDevRep]: BasicDetails,
+      [UserTypes.SolarRep]: BasicDetails,
+      [UserTypes.InsuranceAgent]: BasicDetails,
+      [UserTypes.MarketerAgent]: BasicDetails,
+      [UserTypes.WebsiteAgent]: BasicDetails,
+      [UserTypes.RecruiterAgent]: BasicDetails,
+      [UserTypes.TaxAgent]: BasicDetails,
+      [UserTypes.DebtCollectorAgent]: BasicDetails,
+      [UserTypes.MedSpaAgent]: MedSpaAgentSignUpMobile,
+      [UserTypes.LawAgent]: LawAgentSignUpMobile,
+      [UserTypes.LoanOfficerAgent]: LoanOfficerSignUpMobile,
+    };
+
+    const selectedComponent = agentComponents[agentTitle] || SignUpForm;
+
+    // 🚀 Ensure components are functions, not strings
+    const finalComponents = [
+      UserType,
+      UserService,
+      FocusArea,
+      selectedComponent,
+      OtherDetails,
+      Congrats,
+    ].filter(Boolean);
 
     return finalComponents;
   }
@@ -267,65 +306,67 @@ const Page = ({ params }) => {
   };
 
   return (
-    <div
-      // style={backgroundImage}
-      className="overflow-hidden flex flex-row justify-center items-center h-[100svh]"
-    >
-      {windowSize > 640 && (
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            backgroundColor: "white",
-            zIndex: -1, // Ensure the video stays behind content
+    <ErrorBoundary>
+      <div
+        // style={backgroundImage}
+        className="overflow-hidden flex flex-row justify-center items-center h-[100svh]"
+      >
+        {windowSize > 640 && (
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              backgroundColor: "white",
+              zIndex: -1, // Ensure the video stays behind content
+            }}
+          >
+            <BackgroundVideo />
+          </div>
+        )}
+        <CurrentComp
+          handleContinue={handleContinue}
+          handleBack={handleBack}
+          handleSalesAgentContinue={handleSalesAgentContinue}
+          handleSolarAgentContinue={handleSolarAgentContinue}
+          handleInsuranceContinue={handleInsuranceContinue}
+          handleMarketerAgentContinue={handleMarketerAgentContinue}
+          handleWebsiteAgentContinue={handleWebsiteAgentContinue}
+          handleRecruiterAgentContinue={handleRecruiterAgentContinue}
+          handleTaxAgentContinue={handleTaxAgentContinue}
+          handleSalesAgentBack={handleBack}
+          handleSolarAgentBack={handleBack}
+          handleInsuranceBack={handleBack}
+          handleMarketerAgentBack={handleBack}
+          handleWebsiteAgentBack={handleBack}
+          handleRecruiterAgentBack={handleBack}
+          handleTaxAgentBack={handleBack}
+          //move other agents to wait list
+          handleWaitList={handleWaitList}
+          handleDetails={handleDetails}
+          userDetails={userDetails}
+          setCongratsPopup={setCongratsPopup}
+          handleUserTypeChange={handleUserTypeChange}
+        />
+        <Modal
+          open={congratsPopup}
+          // onClose={() => setAddKYCQuestion(false)}
+          closeAfterTransition
+          BackdropProps={{
+            timeout: 1000,
+            sx: {
+              backgroundColor: "#00000020",
+              ////backdropFilter: "blur(5px)"
+            },
           }}
         >
-          <BackgroundVideo />
-        </div>
-      )}
-      <CurrentComp
-        handleContinue={handleContinue}
-        handleBack={handleBack}
-        handleSalesAgentContinue={handleSalesAgentContinue}
-        handleSolarAgentContinue={handleSolarAgentContinue}
-        handleInsuranceContinue={handleInsuranceContinue}
-        handleMarketerAgentContinue={handleMarketerAgentContinue}
-        handleWebsiteAgentContinue={handleWebsiteAgentContinue}
-        handleRecruiterAgentContinue={handleRecruiterAgentContinue}
-        handleTaxAgentContinue={handleTaxAgentContinue}
-        handleSalesAgentBack={handleBack}
-        handleSolarAgentBack={handleBack}
-        handleInsuranceBack={handleBack}
-        handleMarketerAgentBack={handleBack}
-        handleWebsiteAgentBack={handleBack}
-        handleRecruiterAgentBack={handleBack}
-        handleTaxAgentBack={handleBack}
-        //move other agents to wait list
-        handleWaitList={handleWaitList}
-        handleDetails={handleDetails}
-        userDetails={userDetails}
-        setCongratsPopup={setCongratsPopup}
-        handleUserTypeChange={handleUserTypeChange}
-      />
-      <Modal
-        open={congratsPopup}
-        // onClose={() => setAddKYCQuestion(false)}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 1000,
-          sx: {
-            backgroundColor: "#00000020",
-            ////backdropFilter: "blur(5px)"
-          },
-        }}
-      >
-        <Congrats />
-      </Modal>
-    </div>
+          <Congrats />
+        </Modal>
+      </div>
+    </ErrorBoundary>
   );
 };
 

@@ -23,7 +23,7 @@ import { UserTypes } from "@/constants/UserTypes";
 
 const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   const addressKey = process.env.NEXT_PUBLIC_AddressPickerApiKey;
-
+  // console.log("This is a crash", crash);
   const router = useRouter();
   const bottomRef = useRef();
   const [loaderModal, setLoaderModal] = useState(false);
@@ -203,7 +203,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     {
       id: 100,
       icon: "",
-      title: "others",
+      title: "Something Else",
       details: "",
       focusIcn: "/svgIcons/obj6F.svg",
       unFocusIcon: "/objectiveIcons/obj6UF.png",

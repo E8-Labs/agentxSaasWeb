@@ -4,11 +4,27 @@ import Image from 'next/image';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts"
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
+import { CalendarPicker } from '../users/CalendarPicker';
+import { Box, Modal } from '@mui/material';
+import moment from 'moment';
 
 function AdminEngagments() {
 
+    let currantDate = new Date();
+
+
     const [loading, setLoading] = useState(false)
     const [engagmentData, setEngagmentData] = useState("")
+
+    const [showCustomRangePopup, setShowCustomRangePopup] = useState(false);
+    const [startDate, setstartDate] =
+        useState("2025-01-01");
+    const [endDate, setendDate] = useState(
+        moment(currantDate).format("YYYY-MM-DD")
+    );
+
+    const [selectedDateRange, setselectedDateRange] = useState("All Time");
+
 
 
     const plans = [
@@ -43,12 +59,12 @@ function AdminEngagments() {
         },
     ]
 
-    
+
     useEffect(() => {
         getEngagmentData()
     }, [])
 
-    const getEngagmentData = async (offset = 0,) => {
+    const getEngagmentData = async (customRange= false,) => {
         try {
             setLoading(true);
             const data = localStorage.getItem("User");
@@ -57,6 +73,15 @@ function AdminEngagments() {
                 let u = JSON.parse(data);
 
                 let path = Apis.adminEngagements
+
+                if (customRange) {
+                    path =
+                      path + "?startDate=" +
+                      startDate +
+                      "&endDate=" +
+                      endDate
+                    }
+          
                 console.log("u", u);
 
                 console.log("path", path);
@@ -85,6 +110,26 @@ function AdminEngagments() {
         }
     };
 
+    const handleStartDateSelect = (date) => {
+        console.log("date", date);
+
+        let formatedDate = moment(date).format("YYYY-MM-DD");
+
+        if (showCustomRangePopup) {
+            setstartDate(formatedDate);
+        }
+    };
+
+    const handleEndDateSelect = (date) => {
+        console.log("date", date);
+
+        let formatedDate = moment(date).format("YYYY-MM-DD");
+
+        if (showCustomRangePopup) {
+            setendDate(formatedDate);
+        }
+    };
+
     const CustomTooltip = ({ active, payload }) => {
         if (active && payload && payload.length) {
             return (
@@ -100,7 +145,7 @@ function AdminEngagments() {
     const progressData = [
         { name: "Churn Rate", value: engagmentData?.churnRate },
         { name: "Retention Rate", value: engagmentData?.retentionRate },
-        { name: "5Cohort Retention Rate", value: engagmentData?.cohortRetention?.length > 0 ? engagmentData?.cohortRetention[0].retentionRate:0 },
+        { name: "5Cohort Retention Rate", value: engagmentData?.cohortRetention?.length > 0 ? engagmentData?.cohortRetention[0].retentionRate : 0 },
         { name: "Cohort Implementation Request", value: 0 },
         { name: "Stickiness Ratio (DAU/MAU)", value: engagmentData?.stickinessRatio?.stickinessRatio }
     ];
@@ -124,8 +169,8 @@ function AdminEngagments() {
                                 "
                                 >
                                     <p>
-                                        {/* {selectedSubRange
-                                        ? selectedSubRange */}
+                                        {/* {selectedDateRange
+                                        ? selectedDateRange */}
                                         Select Plan
                                         {/* } */}
                                     </p>
@@ -156,19 +201,19 @@ function AdminEngagments() {
                             </DropdownMenuContent>
                         </DropdownMenu>
 
+                        {/* Range date Dropdown */}
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <button
                                     className="
-                                    px-4 py-2 border-2 border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                    flex flex-row items-center gap-1
-                                "
+                                         px-4 py-2 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
+                                         flex flex-row items-center gap-1
+                                       "
                                 >
                                     <p>
-                                        {/* {selectedSubRange
-                                        ? selectedSubRange */}
-                                        Select Period
-                                        {/* } */}
+                                        {selectedDateRange
+                                            ? selectedDateRange
+                                            : "Select Range"}
                                     </p>
                                     <Image
                                         src={"/svgIcons/downArrow.svg"}
@@ -179,23 +224,36 @@ function AdminEngagments() {
                                 </button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
-                                className="bg-white border-2 rounded-lg shadow-md"
+                                className="bg-white border rounded-lg shadow-md"
                                 style={{ minWidth: "8rem", width: "100%" }} // Match button width
                             >
                                 <DropdownMenuGroup style={{ cursor: "pointer" }}>
-                                    {
-                                        periods.map((item) => (
-                                            <DropdownMenuItem key={item.id}
-                                                className="hover:bg-gray-100 px-3"
-
-                                            >
-                                                {item.name}
-                                            </DropdownMenuItem>
-                                        ))
-                                    }
+                                    <DropdownMenuItem
+                                        className="hover:bg-gray-100 px-3"
+                                        onClick={() => {
+                                            setendDate(
+                                                moment(currantDate).format("YYYY-MM-DD")
+                                            );
+                                            setstartDate("2025-01-01");
+                                            setselectedDateRange("All Time");
+                                            getEngagmentData(false);
+                                        }}
+                                    >
+                                        All Time
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onClick={() => {
+                                            setShowCustomRangePopup(true);
+                                            setselectedDateRange("Custom Range");
+                                        }}
+                                        className="hover:bg-gray-100 px-3"
+                                    >
+                                        Custom Range
+                                    </DropdownMenuItem>
                                 </DropdownMenuGroup>
                             </DropdownMenuContent>
                         </DropdownMenu>
+
                     </div>
                 </div>
 
@@ -289,10 +347,10 @@ function AdminEngagments() {
                             Cohort Retention Rate
                         </div>
                         <div style={{ fontSize: 30, fontWeight: '300' }}>
-                            {engagmentData?.cohortRetention?.length > 0 ? engagmentData?.cohortRetention[0].retentionRate:0}
+                            {engagmentData?.cohortRetention?.length > 0 ? engagmentData?.cohortRetention[0].retentionRate : 0}
                         </div>
                         <div style={{ fontSize: 16, fontWeight: '500' }}>
-                            {engagmentData?.cohortRetention?.length > 0 ? engagmentData?.cohortRetention[0].totalUsers:0}
+                            {engagmentData?.cohortRetention?.length > 0 ? engagmentData?.cohortRetention[0].totalUsers : 0}
                         </div>
 
 
@@ -362,8 +420,8 @@ function AdminEngagments() {
                                 "
                                     >
                                         <p>
-                                            {/* {selectedSubRange
-                                        ? selectedSubRange */}
+                                            {/* {selectedDateRange
+                                        ? selectedDateRange */}
                                             Select Plan
                                             {/* } */}
                                         </p>
@@ -403,8 +461,8 @@ function AdminEngagments() {
                                 "
                                     >
                                         <p>
-                                            {/* {selectedSubRange
-                                        ? selectedSubRange */}
+                                            {/* {selectedDateRange
+                                        ? selectedDateRange */}
                                             Select Period
                                             {/* } */}
                                         </p>
@@ -465,8 +523,113 @@ function AdminEngagments() {
                 </div>
             </div>
 
+
+            {/* Custom range popup */}
+
+            <Modal
+                open={showCustomRangePopup}
+                onClose={() => setShowCustomRangePopup(false)}
+                BackdropProps={{
+                    timeout: 200,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        // //backdropFilter: "blur(20px)",
+                    },
+                }}
+            >
+                <Box
+                    className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
+                    sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+                >
+                    <div style={{ width: "100%" }}>
+                        <div
+                            className="max-h-[60vh] overflow-auto"
+                            style={{ scrollbarWidth: "none" }}
+                        >
+                            <div
+                                style={{
+                                    width: "100%",
+                                    direction: "row",
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                }}
+                            >
+                                <div style={{ fontWeight: "500", fontSize: 17 }}>
+                                    Select Date
+                                </div>
+
+                                <button
+                                    onClick={() => {
+                                        setShowCustomRangePopup(false);
+                                    }}
+                                >
+                                    <Image
+                                        src={"/assets/blackBgCross.png"}
+                                        height={20}
+                                        width={20}
+                                        alt="*"
+                                    />
+                                </button>
+                            </div>
+
+                            <div
+                                style={{
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    width: "100%",
+                                    marginTop: 20,
+                                }}
+                            >
+                                <div style={{ fontWeight: "500", fontSize: 14 }}>
+                                    Start Date
+                                </div>
+                                <div className="mt-5">
+                                    <CalendarPicker onSelectDate={handleStartDateSelect} />
+                                </div>
+                            </div>
+
+                            <div style={{ fontWeight: "500", fontSize: 14, marginTop: 20 }}>
+                                End Date
+                            </div>
+                            <div className="mt-5">
+                                <CalendarPicker onSelectDate={handleEndDateSelect} />
+                            </div>
+
+                            <button
+                                className="text-white bg-purple outline-none rounded-xl w-full mt-8"
+                                style={{ height: "50px" }}
+                                onClick={() => {
+                                    getEngagmentData(true);
+                                    setShowCustomRangePopup(false);
+                                }}
+                            >
+                                Continue
+                            </button>
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+
         </div>
     )
 }
 
 export default AdminEngagments
+
+
+const styles = {
+    modalsStyle: {
+      height: "auto",
+      bgcolor: "transparent",
+      p: 2,
+      mx: "auto",
+      my: "50vh",
+      transform: "translateY(-50%)",
+      borderRadius: 2,
+      border: "none",
+      outline: "none",
+    },
+  };
+  

@@ -1199,14 +1199,20 @@ const Userleads = ({
                 ></button>
               )}
               <div
-                className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white  break-words overflow-hidden text-ellipsis"
-                onClick={() => handleToggleClick(item.id)}
+                className="h-[32px] w-[32px] bg-black cursor-pointer rounded-full flex flex-row items-center justify-center text-white  break-words overflow-hidden text-ellipsis"
+                onClick={() =>  {setSelectedLeadsDetails(item); // Pass selected lead data
+                  setNoteDetails(item.notes);
+                  setShowDetailsModal(true); // Show modal
+                  setColumns(column);}}
               >
                 {item.firstName.slice(0, 1)}
               </div>
               <div
                 className="truncate cursor-pointer  break-words overflow-hidden text-ellipsis"
-                onClick={() => handleToggleClick(item.id)}
+                onClick={() =>  {setSelectedLeadsDetails(item); // Pass selected lead data
+                  setNoteDetails(item.notes);
+                  setShowDetailsModal(true); // Show modal
+                  setColumns(column);}}
               >
                 {item.firstName} {item.lastName}
               </div>
@@ -1468,6 +1474,7 @@ const Userleads = ({
     if (disSelectLeads === true) {
       setSelectedLeadsList([]);
       setShowSnackMessage(true);
+      setSelectedAll(false)
       setMessageType(SnackbarTypes.Success);
     } else if (disSelectLeads === false) {
       setShowSnackMessage(true);

@@ -10,8 +10,6 @@ function AdminProfileData({selectedUser}) {
     let searchParams = useSearchParams();
     const router = useRouter();
 
-    const [tabSelected, setTabSelected] = useState(1);
-
     const manuBar = [
         {
             id: 1,
@@ -27,29 +25,13 @@ function AdminProfileData({selectedUser}) {
         },
     ];
 
+    const [tabSelected, setTabSelected] = useState(1);
+
+   
+
     const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected]);
-    const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
-
-    useEffect(() => {
-        const tab = searchParams.get("tab"); // Get the value of 'tab'
-        let number = Number(tab) || 6;
-       // console.log("Tab value is ", number);
-        setTabSelected(number);
-        if (!tab) {
-            setParamsInSearchBar(1);
-        }
-    }, []);
-
-    const setParamsInSearchBar = (index = 1) => {
-        // Create a new URLSearchParams object to modify
-        const params = new URLSearchParams(searchParams.toString());
-        params.set("tab", index); // Set or update the 'tab' parameter
-
-        // Push the updated URL
-        // router.push(`/dashboard/myAccount?${params.toString()}`);
-
-       // console.log("Rerendering tab with selected tab: ", index);
-    };
+    const [showNotificationDrawer, setShowNotificationDrawer] = useState(false)
+    
 
     const renderComponent = () => {
         // setTabSelected(selectedMenuId);
@@ -94,7 +76,6 @@ function AdminProfileData({selectedUser}) {
                                     onClick={() => {
                                         //   setSelectedManu(index + 1);
                                         setTabSelected(index + 1);
-                                        setParamsInSearchBar(index + 1);
                                     }}
                                 >
                                     <div
