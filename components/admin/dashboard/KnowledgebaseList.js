@@ -80,7 +80,7 @@ const UrlCard = ({ kb }) => {
       target="_blank"
       className="text-purple underline"
     >
-      {kb.originalContent}
+      {kb.webUrl}
     </a>
   );
 };
