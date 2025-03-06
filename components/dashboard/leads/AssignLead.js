@@ -53,6 +53,9 @@ const AssignLead = ({
   const [errTitle, setErrTitle] = useState(null);
   const SelectAgentErrorTimeout = 4000; //change this to change the duration of the snack timer
 
+  const [hasUserSelectedDate, setHasUserSelectedDate] = useState(false);
+
+
   useEffect(() => {
     if (errorMessage) {
       setTimeout(() => {
@@ -426,21 +429,9 @@ const AssignLead = ({
       // console.log("No date selected");
       return;
     }
-    // const selectedDate = dayjs(date); // Convert input date to Day.js object
-    // const currentHour = selectedDate.hour(); // Get the current hour (0-23)
-    // if (currentHour >= 5 && currentHour < 19) {
-    //   console.log("✅ Current time is between 5 AM and 7 PM.", date);
-    //   setSelectedDateTime(date);
-    // } else {
-    //   console.log("❌ Current time is outside 5 AM to 7 PM.");
-    //   setInvalidTimeMessage("Current time is outside 5 AM to 7 PM.");
+   
     setSelectedDateTime(date);
-    // }
-
-    // Print in the desired format
-    // console.log("Selected date and time:", date.format("DD/MM/YYYY HH:mm"));
-
-    // Save the selected date
+    setHasUserSelectedDate(true); 
   };
 
   const handleFromDateChange = (date) => {
@@ -560,7 +551,7 @@ const AssignLead = ({
                               fontWeight: "600",
                             }}
                           >
-                            No Phone number assigned
+                            No phone number assigned
                           </i>
                         </p>
                       </div>
@@ -1033,7 +1024,7 @@ const AssignLead = ({
               ) : (
                 <div className="w-full">
                   {(NoOfLeadsToSend || customLeadsToSend) &&
-                  (CallNow || CallLater) ? (
+                  (CallNow || (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
                     <button
                       className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {

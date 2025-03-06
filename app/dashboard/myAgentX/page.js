@@ -49,7 +49,7 @@ import {
 } from "@/utilities/agentUtilities";
 import { getLocalLocation } from "@/components/onboarding/services/apisServices/ApiService";
 import ClaimNumber from "@/components/dashboard/myagentX/ClaimNumber";
-import { Constants, HowtoVideos, PersistanceKeys } from "@/constants/Constants";
+import { AgentLLmModels, Constants, HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import LoaderAnimation from "@/components/animations/LoaderAnimation";
 import Link from "next/link";
@@ -227,12 +227,15 @@ function Page() {
   const [showVoiceExpressivenessLoader, setShowVoiceExpressivenessLoader] =
     useState(false);
 
+  const [showModelLoader, setShowModelLoader] = useState(false);
+
+
   const models = [
-    { name: "GPT-4", icon: "/svgIcons/chatgptIcon.svg" },
+    { name: "GPT-4o", icon: "/svgIcons/chatgptIcon.svg" },
     { name: "GPT-4 Mini", icon: "/svgIcons/chatgptIcon.svg" },
-    { name: "Grok", icon: "/svgIcons/grokIcon.svg" },
-    { name: "LLaMA", icon: "/svgIcons/llamaIcon.svg" },
-    { name: "Gemini", icon: "/svgIcons/geminiIcon.svg" },
+    { name: "Grok (Coming Soon)", icon: "/svgIcons/grokIcon.svg", disabled: true, },
+    { name: "LLaMA (Coming Soon)", icon: "/svgIcons/llamaIcon.svg", disabled: true, },
+    { name: "Gemini (Coming Soon)", icon: "/svgIcons/geminiIcon.svg", disabled: true, },
     {
       name: "DeepSeek (Coming Soon)",
       icon: "/svgIcons/deepseekIcon.svg",
@@ -252,32 +255,32 @@ function Page() {
     },
     {
       id: 3,
-      title: "🏛️ Steady",
+      title: "🤚 Steady",
       value: "Steady",
     },
   ];
 
   // 🐢
   const PatienceLevels = [
-    { id: 1, title: "💨 Fast", value: "Fast" },
-    { id: 2, title: "⚖️ Balanced", value: "Balanced" },
-    { id: 3, title: "🐢 Slow", value: "Slow" },
+    { id: 1, title: "💨 Fast ~1 sec", value: "Fast" },
+    { id: 2, title: "⚖️ Balanced ~3 sec", value: "Balanced" },
+    { id: 3, title: "🐢 Slow ~5 sec", value: "Slow" },
   ];
   const StartingPaceList = [
     {
       id: 1,
-      title: "⚡️ Instant",
+      title: "⚡️ Instant ~0 sec",
       value: "Instant",
     },
     {
       id: 2,
-      title: "⏳ Short Pause",
+      title: "⏳ Short Pause ~1 sec",
       value: "Short Pause",
     },
     {
       id: 3,
       title: "🧘 Delayed",
-      value: "Natural Conversation Flow",
+      value: "Natural Conversation Flow ~ 2 sec",
     },
   ];
   const callRecordingPermitionList = [
@@ -555,7 +558,7 @@ function Page() {
 
   //function to open drawer
   const handleShowDrawer = (item) => {
-    // console.log('item', item)
+    console.log('item', item)
     // return
     setAssignNumber(item?.phoneNumber);
     setSelectedVoice(item?.voiceId);
@@ -565,6 +568,15 @@ function Page() {
     setStartingPace(item.initialPauseSeconds);
     console.log("Patience Level is ", item.patienceLevel);
     setPatienceValue(item.patienceLevel);
+
+    let manue = item.agentLLmModel
+    if (manue) {
+      if (manue === AgentLLmModels.Gpt4o) {
+        setSelectedGptManu(models[0])
+      } else if (manue === AgentLLmModels.Gpt4oMini) {
+        setSelectedGptManu(models[1])
+      }
+    }
 
     const comparedAgent = mainAgentsList.find((mainAgent) =>
       mainAgent.agents.some((subAgent) => subAgent.id === item.id)
@@ -726,8 +738,7 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(item.phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -1135,7 +1146,10 @@ function Page() {
     }
   };
 
-  const updateSubAgent = async (voiceData) => {
+  const updateSubAgent = async (voiceData = null, model = null) => {
+    console.log("modal", model);
+
+    // return
     try {
       let AuthToken = null;
       const localData = localStorage.getItem("User");
@@ -1148,24 +1162,31 @@ function Page() {
         let formData = new FormData();
         formData.append("agentId", showDrawerSelectedAgent.id);
 
-        if (voiceData.voiceExpressiveness) {
-          formData.append("voiceStability", voiceData.voiceExpressiveness);
-        }
-        if (voiceData.startingPace) {
-          formData.append("initialPauseSeconds", voiceData.startingPace);
-        }
-        if (voiceData.patienceLevel) {
-          formData.append("patienceLevel", voiceData.patienceLevel);
-        }
-        if (voiceData.callRecordingPermition) {
-          formData.append(
-            "consentRecordings",
-            voiceData.callRecordingPermition
-          );
+        if (voiceData) {
+
+          if (voiceData.voiceExpressiveness) {
+            formData.append("voiceStability", voiceData.voiceExpressiveness);
+          }
+          if (voiceData.startingPace) {
+            formData.append("initialPauseSeconds", voiceData.startingPace);
+          }
+          if (voiceData.patienceLevel) {
+            formData.append("patienceLevel", voiceData.patienceLevel);
+          }
+          if (voiceData.callRecordingPermition) {
+            formData.append(
+              "consentRecordings",
+              voiceData.callRecordingPermition
+            );
+          }
         }
 
         if (showDrawerSelectedAgent) {
           formData.append("mainAgentId", showDrawerSelectedAgent.mainAgentId);
+        }
+
+        if (model) {
+          formData.append("agentLLmModel", model);
         }
 
         for (let [key, value] of formData.entries()) {
@@ -1286,8 +1307,7 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -1379,10 +1399,24 @@ function Page() {
     setShowGuardrails(false);
   };
 
-  const handleGptManuClose = (model) => {
+  const handleGptManuSelect = async (model) => {
     if (!model.disabled) {
       setSelectedGptManu(model);
     }
+
+    let m = null
+
+    if (model.name === "GPT-4o") {
+      m = AgentLLmModels.Gpt4o
+
+    } else if (model.name === "GPT-4 Mini") {
+      m = AgentLLmModels.Gpt4oMini
+
+
+    }
+    setShowModelLoader(true)
+    await updateSubAgent(null, m)
+    setShowModelLoader(false)
     setOpenGptManu(null);
   };
 
@@ -2154,8 +2188,8 @@ function Page() {
                           >
                             {user.user.userType == UserTypes.RealEstateAgent
                               ? `${item.agentObjective
-                                  ?.slice(0, 1)
-                                  .toUpperCase()}${item.agentObjective?.slice(
+                                ?.slice(0, 1)
+                                .toUpperCase()}${item.agentObjective?.slice(
                                   1
                                 )}`
                               : `${item.agentRole}`}
@@ -2222,7 +2256,7 @@ function Page() {
                               fontWeight: "600",
                             }}
                           >
-                            No Phone number assigned
+                            No phone number assigned
                           </i>
                         </p>
                       </div>
@@ -2572,7 +2606,7 @@ function Page() {
                               fontWeight: "600",
                             }}
                           >
-                            No Phone number assigned
+                            No phone number assigned
                           </i>
                         </p>
                       </div>
@@ -2658,7 +2692,7 @@ function Page() {
                       overflowY: "auto",
                     }}
                     countryCodeEditable={true}
-                    // defaultMask={loading ? 'Loading...' : undefined}
+                  // defaultMask={loading ? 'Loading...' : undefined}
                   />
                 </div>
 
@@ -2689,9 +2723,8 @@ function Page() {
                       <input
                         placeholder="Type here"
                         // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
-                          index === scriptKeys?.length - 1 ? "mb-16" : ""
-                        }`}
+                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
+                          }`}
                         style={{
                           ...styles.inputStyle,
                           border: "1px solid #00000010",
@@ -2771,7 +2804,7 @@ function Page() {
       >
         <div
           className="flex flex-col w-full h-full  py-2 px-5 rounded-xl"
-          // style={{  }}
+        // style={{  }}
         >
           {/* <div
             className="w-full flex flex-row items-center justify-between py-3"
@@ -2917,80 +2950,88 @@ function Page() {
               </div>
               <div className="flex flex-col gap-2  ">
                 {/* GPT Button */}
-                <div>
-                  <button
-                    id="gpt"
-                    onClick={(event) => setOpenGptManu(event.currentTarget)}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      borderRadius: "20px",
-                      padding: "6px 12px",
-                      border: "1px solid #EEE",
-                      backgroundColor: "white",
-                      // boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.05)",
-                      fontSize: "16px",
-                      fontWeight: "500",
-                      color: "#000",
-                      textTransform: "none",
-                      "&:hover": { backgroundColor: "#F5F5F5" },
-                    }}
-                  >
-                    <Avatar
-                      src={selectedGptManu.icon}
-                      sx={{ width: 24, height: 24, marginRight: 1 }}
-                    />
-                    {selectedGptManu.name}
-                    <Image
-                      src={"/svgIcons/downArrow.svg"}
-                      width={18}
-                      height={18}
-                      alt="*"
-                    />
-                  </button>
 
-                  <Menu
-                    id="gpt"
-                    anchorEl={openGptManu}
-                    open={openGptManu}
-                    onClose={() => setOpenGptManu(null)}
-                    sx={{
-                      "& .MuiPaper-root": {
-                        borderRadius: "12px",
-                        padding: "8px",
-                        minWidth: "180px",
-                      },
-                    }}
-                  >
-                    {models.map((model, index) => (
-                      <MenuItem
-                        key={index}
-                        onClick={() => handleGptManuClose(model)}
-                        disabled={model.disabled}
-                        sx={{
+                {
+                  showModelLoader ? (
+                    <CircularProgress size={25} />
+                  ) : (
+                    <div>
+                      <button
+                        id="gpt"
+                        onClick={(event) => setOpenGptManu(event.currentTarget)}
+                        style={{
                           display: "flex",
                           alignItems: "center",
-                          gap: "10px",
-                          padding: "8px 12px",
-                          borderRadius: "8px",
-                          transition: "background 0.2s",
-                          "&:hover": {
-                            backgroundColor: model.disabled
-                              ? "inherit"
-                              : "#F5F5F5",
-                          },
-                          opacity: model.disabled ? 0.6 : 1,
+                          borderRadius: "20px",
+                          padding: "6px 12px",
+                          border: "1px solid #EEE",
+                          backgroundColor: "white",
+                          // boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.05)",
+                          fontSize: "16px",
+                          fontWeight: "500",
+                          color: "#000",
+                          textTransform: "none",
+                          "&:hover": { backgroundColor: "#F5F5F5" },
                         }}
                       >
                         <Avatar
-                          src={model.icon}
-                          sx={{ width: 24, height: 24 }}
+                          src={selectedGptManu.icon}
+                          sx={{ width: 24, height: 24, marginRight: 1 }}
                         />
-                        {model.name}
-                      </MenuItem>
-                    ))}
-                  </Menu>
-                </div>
+                        {selectedGptManu.name}
+                        <Image
+                          src={"/svgIcons/downArrow.svg"}
+                          width={18}
+                          height={18}
+                          alt="*"
+                        />
+                      </button>
+
+                      <Menu
+                        id="gpt"
+                        anchorEl={openGptManu}
+                        open={openGptManu}
+                        onClose={() => setOpenGptManu(null)}
+                        sx={{
+                          "& .MuiPaper-root": {
+                            borderRadius: "12px",
+                            padding: "8px",
+                            minWidth: "180px",
+                          },
+                        }}
+                      >
+                        {models.map((model, index) => (
+                          <MenuItem
+                            key={index}
+                            onClick={() => handleGptManuSelect(model)}
+                            disabled={model.disabled}
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "10px",
+                              padding: "8px 12px",
+                              borderRadius: "8px",
+                              transition: "background 0.2s",
+                              "&:hover": {
+                                backgroundColor: model.disabled
+                                  ? "inherit"
+                                  : "#F5F5F5",
+                              },
+                              opacity: model.disabled ? 0.6 : 1,
+                            }}
+                          >
+                            <Avatar
+                              src={model.icon}
+                              sx={{ width: 24, height: 24 }}
+                            />
+                            {model.name}
+                          </MenuItem>
+                        ))}
+                      </Menu>
+                    </div>
+                  )
+                }
+
               </div>
             </div>
 
@@ -3000,7 +3041,7 @@ function Page() {
                 name="Calls"
                 value={
                   showDrawerSelectedAgent?.calls &&
-                  showDrawerSelectedAgent?.calls > 0 ? (
+                    showDrawerSelectedAgent?.calls > 0 ? (
                     <div>{showDrawerSelectedAgent?.calls}</div>
                   ) : (
                     "-"
@@ -3014,7 +3055,7 @@ function Page() {
                 name="Convos"
                 value={
                   showDrawerSelectedAgent?.callsGt10 &&
-                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                    showDrawerSelectedAgent?.callsGt10 > 0 ? (
                     <div>{showDrawerSelectedAgent?.callsGt10}</div>
                   ) : (
                     "-"
@@ -3042,7 +3083,7 @@ function Page() {
                 name="Mins Talked"
                 value={
                   showDrawerSelectedAgent?.totalDuration &&
-                  showDrawerSelectedAgent?.totalDuration > 0 ? (
+                    showDrawerSelectedAgent?.totalDuration > 0 ? (
                     // <div>{showDrawer?.totalDuration}</div>
                     <div>
                       {moment
@@ -3066,11 +3107,10 @@ function Page() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`${
-                    activeTab === tab
-                      ? "text-purple border-b-2 border-purple"
-                      : "text-black-500"
-                  }`}
+                  className={`${activeTab === tab
+                    ? "text-purple border-b-2 border-purple"
+                    : "text-black-500"
+                    }`}
                   style={{ fontSize: 15, fontWeight: "500" }}
                 >
                   {tab}
@@ -3196,9 +3236,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3292,7 +3332,7 @@ function Page() {
                               if (!selected) {
                                 return (
                                   <div style={{ color: "#aaa" }}>
-                                    Select Voice
+                                    Select only for expression
                                   </div>
                                 ); // Placeholder style
                               }
@@ -3311,9 +3351,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3410,9 +3450,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3500,7 +3540,7 @@ function Page() {
                                 (voice) => voice.value === selected
                               );
                               console.log(
-                                `Selected Patience Level for ${selected} is ${selectedVoice.title}`
+                                // `Selected Patience Level for ${selected} is ${selectedVoice.title}`
                               );
                               return selectedVoice ? selectedVoice.title : null;
                             }}
@@ -3513,9 +3553,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3766,37 +3806,37 @@ function Page() {
                                     {showReassignBtn && (
                                       <div
                                         className="w-full"
-                                        // onClick={(e) => {
-                                        //   console.log(
-                                        //     "Should open confirmation modal"
-                                        //   );
-                                        //   e.stopPropagation();
-                                        //   setShowConfirmationModal(item);
-                                        // }}
+                                      // onClick={(e) => {
+                                      //   console.log(
+                                      //     "Should open confirmation modal"
+                                      //   );
+                                      //   e.stopPropagation();
+                                      //   setShowConfirmationModal(item);
+                                      // }}
                                       >
                                         {item.claimedBy && (
                                           <div className="flex flex-row items-center gap-2">
                                             {showDrawerSelectedAgent?.name !==
                                               item.claimedBy.name && (
-                                              <div>
-                                                <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                {reassignLoader === item ? (
-                                                  <CircularProgress size={15} />
-                                                ) : (
-                                                  <button
-                                                    className="text-purple underline"
-                                                    onClick={(e) => {
-                                                      e.stopPropagation();
-                                                      setShowConfirmationModal(
-                                                        item
-                                                      );
-                                                    }}
-                                                  >
-                                                    Reassign
-                                                  </button>
-                                                )}
-                                              </div>
-                                            )}
+                                                <div>
+                                                  <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                                  {reassignLoader === item ? (
+                                                    <CircularProgress size={15} />
+                                                  ) : (
+                                                    <button
+                                                      className="text-purple underline"
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setShowConfirmationModal(
+                                                          item
+                                                        );
+                                                      }}
+                                                    >
+                                                      Reassign
+                                                    </button>
+                                                  )}
+                                                </div>
+                                              )}
                                           </div>
                                         )}
                                       </div>
@@ -4103,7 +4143,7 @@ function Page() {
                       fontWeight: "600",
                     }}
                   >
-                    No Phone number assigned
+                    No phone number assigned
                   </i>
                 </p>
               </div>

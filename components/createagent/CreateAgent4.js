@@ -696,7 +696,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
               <button
                 onClick={() => {
-                  setOpenPurchaseSuccessModal(true);
+                  // setOpenPurchaseSuccessModal(true);
                 }}
                 style={styles.headingStyle}
                 className="text-start"

@@ -56,8 +56,9 @@ export const isValidYoutubeUrl = (url) => {
   return urlPattern.test(url);
 };
 
-export let userType = "RealEstateAgent";
 
-export const setUserType = (newUserType) => {
-  userType = newUserType;
+export const AgentLLmModels = {
+  Gpt4o: "gpt-4o",
+  Gpt4oMini: "gpt-4-turbo",
+  synthflow: "synthflow",
 };

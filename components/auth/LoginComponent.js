@@ -97,7 +97,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       // console.log("user login details are :", d.user.userType);
 
       // set user type in global variable
-      setUserType(d.user.userType);
 
       if (d.user.userType == "admin") {
         router.push("/admin");

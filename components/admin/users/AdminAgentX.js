@@ -1910,7 +1910,7 @@ function AdminAgentX({ selectedUser }) {
                               fontWeight: "600",
                             }}
                           >
-                            No Phone number assigned
+                            No phone number assigned
                           </i>
                         </p>
                       </div>
@@ -2149,7 +2149,7 @@ function AdminAgentX({ selectedUser }) {
                             fontWeight: "600",
                           }}
                         >
-                          No Phone number assigned
+                          No phone number assigned
                         </i>
                       </p>
                     </div>
@@ -3153,7 +3153,7 @@ function AdminAgentX({ selectedUser }) {
                       fontWeight: "600",
                     }}
                   >
-                    No Phone number assigned
+                    No phone number assigned
                   </i>
                 </p>
               </div>

@@ -820,7 +820,7 @@ const ProfileNav = () => {
       <div>
         {/* Subscribe Plan modal */}
         <Modal
-          open={false}
+          open={showPlansPopup}
           closeAfterTransition
           BackdropProps={{
             timeout: 100,
@@ -912,8 +912,8 @@ const ProfileNav = () => {
                   style={{
                     overflowY: "auto", // Make the plans scrollable
                     paddingBottom: "0px", // Add space for the fixed buttons
-                    height: "800px",
-                    borderWidth: 1,
+                    // height: "800px",
+                    // borderWidth: 1,
                   }}
                 >
                   {plans.map((item, index) => (
@@ -1045,7 +1045,7 @@ const ProfileNav = () => {
                   ) : (
                     <button
                       disabled={!togglePlan}
-                      className="w-full flex flex-row items-center justify-center h-[50px] bg-purple rounded-lg text-white mt-2"
+                      className="w-full flex flex-row items-center justify-center h-[50px] bg-purple rounded-lg text-white"
                       style={{
                         fontSize: 16.8,
                         fontWeight: "600",
@@ -1062,7 +1062,7 @@ const ProfileNav = () => {
                           localDetails = LocalDetails;
                           // AuthToken = LocalDetails.token;
                         }
-                        if (localDetails.user.cards.length == 0) {
+                        if (localDetails?.user?.cards?.length == 0) {
                           setAddPaymentPopup(true);
                         } else {
                           handleSubscribePlan();
