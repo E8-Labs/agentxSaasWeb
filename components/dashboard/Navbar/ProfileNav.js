@@ -820,7 +820,7 @@ const ProfileNav = () => {
       <div>
         {/* Subscribe Plan modal */}
         <Modal
-          open={true}
+          open={false}
           closeAfterTransition
           BackdropProps={{
             timeout: 100,
@@ -912,8 +912,8 @@ const ProfileNav = () => {
                   style={{
                     overflowY: "auto", // Make the plans scrollable
                     paddingBottom: "0px", // Add space for the fixed buttons
-                    height:'800px',
-                    borderWidth:1
+                    height: "800px",
+                    borderWidth: 1,
                   }}
                 >
                   {plans.map((item, index) => (

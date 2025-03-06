@@ -2173,10 +2173,10 @@ function Page() {
                         <button
                           onClick={() => {
                             //// console.log("Grreting sending ", item);
-                            setGreetingTagInput(item.prompt.greeting);
-                            setOldGreetingTagInput(item.prompt.greeting);
-                            setScriptTagInput(item.prompt.callScript);
-                            setOldScriptTagInput(item.prompt.callScript);
+                            setGreetingTagInput(item?.prompt?.greeting);
+                            setOldGreetingTagInput(item?.prompt?.greeting);
+                            setScriptTagInput(item?.prompt?.callScript);
+                            setOldScriptTagInput(item?.prompt?.callScript);
                             setShowScriptModal(item);
                             matchingAgent(item);
                             setShowScript(true);

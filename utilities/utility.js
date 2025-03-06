@@ -16,7 +16,6 @@ export function convertUTCToTimezone(utcTimestamp, timezone = null) {
 }
 
 export function GetFormattedDateString(
-
   dateString,
   time = false,
   RequiredDateFormat = null
@@ -25,7 +24,7 @@ export function GetFormattedDateString(
     return dateString;
   }
   let formatted = "";
-  // console.log("Created At before", dateString);
+  console.log("Created At servertz", dateString);
   let dateFormat = RequiredDateFormat ? RequiredDateFormat : "MMM DD, YYYY";
   if (time) {
     dateFormat = RequiredDateFormat
@@ -54,7 +53,7 @@ export function GetFormattedDateString(
   } catch (error) {
     console.error("Error parsing or formatting date:", error);
   }
-  // console.log("Created At after", formatted);
+  console.log("Created At localtz", formatted);
   return formatted;
 }
 export function GetFormattedTimeString(dateString) {
@@ -75,4 +74,3 @@ export function GetFormattedTimeString(dateString) {
     return dateString; // Return the original string if error occurs
   }
 }
-

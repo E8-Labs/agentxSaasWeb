@@ -25,7 +25,9 @@ import {
   convertUTCToTimezone,
   GetFormattedDateString,
   GetFormattedTimeString,
+  GetTimezone,
 } from "@/utilities/utility";
+import { Api } from "@mui/icons-material";
 
 function AllCalls({ user }) {
   const LimitPerPage = 30;
@@ -263,8 +265,12 @@ function AllCalls({ user }) {
       let endDate = "";
 
       if (selectedFromDate && selectedToDate) {
-        startDate = moment(selectedFromDate).format("MM-DD-YYYY");
-        endDate = moment(selectedToDate).format("MM-DD-YYYY");
+        startDate = moment(selectedFromDate)
+          .startOf("day")
+          .format("MM-DD-YYYY HH:mm:ss");
+        endDate = moment(selectedToDate)
+          .endOf("day")
+          .format("MM-DD-YYYY HH:mm:ss");
       }
 
       // console.log("Check 3");
@@ -288,6 +294,7 @@ function AllCalls({ user }) {
       // if (selectedFromDate && selectedToDate && stages.length > 0) {
       //     ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}&stageIds=${stages}&offset=${offset}&limit=10`;
       // }
+      ApiPath = `${ApiPath}&timezone=${GetTimezone()}`;
 
       console.log("Api path for calls log  is", ApiPath);
 
@@ -576,11 +583,14 @@ function AllCalls({ user }) {
                     style={{ cursor: "pointer" }}
                     className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                   >
-                    <div className="w-2/12 flex flex-row gap-2 items-center cursor-pointer"  onClick={() => {
-                          // console.log("Selected item is", item);
-                          setselectedLeadsDetails(item);
-                          setShowDetailsModal(true);
-                        }}>
+                    <div
+                      className="w-2/12 flex flex-row gap-2 items-center cursor-pointer"
+                      onClick={() => {
+                        // console.log("Selected item is", item);
+                        setselectedLeadsDetails(item);
+                        setShowDetailsModal(true);
+                      }}
+                    >
                       <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
                         {item.LeadModel?.firstName.slice(0, 1).toUpperCase()}
                       </div>
