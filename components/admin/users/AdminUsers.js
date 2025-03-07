@@ -3,13 +3,12 @@ import Apis from "@/components/apis/Apis";
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { CircularProgress } from "@mui/material";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { GetFormattedDateString } from "@/utilities/utility";
 import SelectedUserDetails from "./SelectedUserDetails";
 import { UserFilterModal } from "./UserFilterModal";
+import { Box, CircularProgress, Modal } from '@mui/material'
 
-import Modal, { Box } from "@mui/material";
 import moment from "moment";
 
 function AdminUsers() {
@@ -125,7 +124,7 @@ function AdminUsers() {
           apiPath = `${apiPath}&sort=${sortData.sort}&sortOrder=${sortData.sortOrder}`;
         }
 
-        console.log("Url ", apiPath);
+        // console.log("Url ", apiPath);
         // return
         const response = await axios.get(apiPath, {
           headers: {
@@ -167,7 +166,7 @@ function AdminUsers() {
               sortOrder: selectedSortOrder,
             };
 
-            getUsersList(0, filters, sortData);
+            getUsersList(0, filter, sortData);
             setShowFilterModal(false);
           }
         }}
@@ -258,17 +257,14 @@ function AdminUsers() {
         >
           <table className="table-auto w-full border-collapse border border-none">
             {/* Table Header */}
-            <thead>
-              <tr className="bg-gray-100 text-sm font-semibold text-gray-600">
+            <thead className="bg-red w-full" style={{ overflowX: 'auto' }}>
+              <tr className="bg-gray-100 text-sm font-semibold text-gray-600 ">
                 <th className="px-4 py-2 text-left">Name</th>
                 <th className="px-4 py-2 text-left">Email</th>
-                <th className=" py-2 text-left flex flex-row gap-2 w-[110px]">
-                  <button
+                <th className=" py-2 text-left w-[110px] flex flex-row gap-2">
+                  <button className=""
                     onClick={() => {
-                      // setLeadsSort(!leadsSort);
-                      // setBalanceSort(false);
-                      // setMinsSort(false);
-                      // setSpentSort(false);
+
                       let sortOrder = selectedSortOrder;
                       if (selectedSort == "Leads") {
                         sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
@@ -285,24 +281,25 @@ function AdminUsers() {
                     }}
                   >
                     Leads
-                    {selectedSort === "Leads" && (
+                    {selectedSort === "Leads" ? (
                       <Image
                         src={
                           selectedSortOrder == "DESC"
                             ? "/downArrow.png"
                             : "/upArrow.png"
                         }
-                        height={10}
+                        height={3}
                         width={10}
+                        className="inline-block align-middle"
                         alt="*"
                       />
-                    )}
+                    ) : null}
                   </button>
                 </th>
                 <th className="px-4 py-2 text-left">Plan</th>
                 <th className="px-4 py-2 text-left w-[100px]">Teams</th>
-                <th className=" py-2 text-left  w-[150px]">
-                  <button
+                <th className=" py-2 text-left flex flex-row  w-[100px]">
+                  <button className=""
                     onClick={() => {
                       let sortOrder = selectedSortOrder;
                       if (selectedSort == "TotalSpent") {
@@ -325,15 +322,16 @@ function AdminUsers() {
                             ? "/downArrow.png"
                             : "/upArrow.png"
                         }
-                        height={10}
-                        width={10}
+                        height={3}
+                        width={12}
+                        className="inline-block align-middle"
                         alt="*"
                       />
                     )}
                   </button>
                 </th>
-                <th className=" py-2 text-left w-[150px] flex-row">
-                  <button
+                <th className=" py-2 text-left w-[100px]">
+                  <button className="whitespace-nowrap"
                     onClick={() => {
                       let sortOrder = selectedSortOrder;
                       if (selectedSort == "MinutesUsed") {
@@ -356,15 +354,16 @@ function AdminUsers() {
                             ? "/downArrow.png"
                             : "/upArrow.png"
                         }
-                        height={10}
-                        width={10}
+                        height={3}
+                        width={12}
+                        className="inline-block align-middle"
                         alt="*"
                       />
                     )}
                   </button>
                 </th>
                 <th className=" py-2 text-left  w-[150px]">
-                  <button
+                  <button className="whitespace-nowrap"
                     onClick={() => {
                       let sortOrder = selectedSortOrder;
                       if (selectedSort == "MinutesBalance") {
@@ -380,7 +379,7 @@ function AdminUsers() {
                       getUsersList(0, filters, sortData);
                     }}
                   >
-                    Mins Balance
+                    Balance
                     {selectedSort === "MinutesBalance" && (
                       <Image
                         src={
@@ -388,8 +387,9 @@ function AdminUsers() {
                             ? "/downArrow.png"
                             : "/upArrow.png"
                         }
-                        height={10}
-                        width={10}
+                        height={3}
+                        width={12}
+                        className="inline-block align-middle"
                         alt="*"
                       />
                     )}
@@ -397,7 +397,7 @@ function AdminUsers() {
                 </th>
                 <th className="px-4 py-2 text-left w-[150px]">Renewal</th>
                 <th className="px-4 py-2 text-left w-[150px]">Agents</th>
-                <th className="px-4 py-2 text-left w-[150px]">Referred by</th>
+                <th className="px-4 py-2 text-left w-[150px]">Referred</th>
                 <th className="px-4 py-2 text-left w-[150px]">Closer</th>
                 <th className="px-4 py-2 text-left w-[150px]">Source</th>
                 <th className="px-4 py-2 text-left w-[150px]">Created</th>
@@ -424,30 +424,34 @@ function AdminUsers() {
                           src={item.thumb_profile_image}
                           height={40}
                           width={40}
-                          className="rounded-full"
+                          className="rounded-full object-cover"
+                          style={{ minWidth: "40px", minHeight: "40px" }} // Ensures consistency
                           alt="User"
                         />
                       ) : (
-                        <div className="w-[40px] h-[40px] rounded-full bg-black flex items-center justify-center text-white">
-                          {item.name[0]}
+                        <div
+                          className="w-[40px] h-[40px] rounded-full bg-black flex items-center justify-center text-white text-lg font-meduim uppercase"
+                          style={{ minWidth: "40px", minHeight: "40px" }}
+                        >
+                          {item.name?.charAt(0) || "U"}
                         </div>
                       )}
-                      <span>{item.name}</span>
+                      <span className="whitespace-nowrap">{item.name}</span>
                     </div>
                   </td>
+
                   <td className="px-4 py-2">{item.email}</td>
                   <td className="px-4 py-2">{item.leads || "0"}</td>
                   <td className="px-4 py-2">{item.plan || "-"}</td>
                   <td className="px-4 py-2">{item.team || "-"}</td>
-                  <td className="px-4 py-2">${item.totalSpent || "0"}</td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2  ">${item.totalSpent || "0"}</td>
+                  <td className="px-4 py-2 w-[100px] whitespace-nowrap">
                     {parseFloat((item.minutesUsed || 0) / 60).toFixed(2)} mins
                   </td>
-                  <td className="px-4 py-2">
-                    {parseFloat((item.totalSecondsAvailable / 60).toFixed(2))}{" "}
-                    mins
+                  <td className="px-4 py-2 w-[100px]  whitespace-nowrap">
+                    {parseFloat((item.totalSecondsAvailable / 60).toFixed(2))}{" "}mins
                   </td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2 ">
                     {GetFormattedDateString(item.nextChargeDate)}
                   </td>
                   <td className="px-4 py-2">{item.agents || "-"}</td>
@@ -463,7 +467,7 @@ function AdminUsers() {
           </table>
         </InfiniteScroll>
       </div>
-      {selectedUser && (
+      {/* {selectedUser && (
         <SelectedUserDetails
           open={selectedUser ? true : false}
           close={() => {
@@ -471,9 +475,48 @@ function AdminUsers() {
           }}
           selectedUser={selectedUser}
         />
-      )}
+      )} */}
+
+      <Modal
+        open={selectedUser ? true : false}
+        onClose={() => {
+          setSelectedUser(null);
+        }}
+        BackdropProps={{
+          timeout: 200,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(20px)",
+          },
+        }}
+
+      >
+        <Box
+          className="w-11/12  p-8 rounded-[15px]"
+          sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+        >
+          <SelectedUserDetails
+            selectedUser={selectedUser}
+
+          />
+        </Box>
+      </Modal>
     </div>
   );
 }
 
 export default AdminUsers;
+
+const styles = {
+  modalsStyle: {
+    height: "auto",
+    bgcolor: "transparent",
+    p: 2,
+    mx: "auto",
+    my: "50vh",
+    transform: "translateY(-50%)",
+    borderRadius: 2,
+    border: "none",
+    outline: "none",
+  },
+}

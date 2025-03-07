@@ -20,7 +20,7 @@ import Apis from "@/components/apis/Apis";
 const getAvatarUrl = (voiceId) => FindVoice(voiceId)?.img || "";
 const getVoiceName = (voiceId) => FindVoice(voiceId)?.name || "Unknown Voice";
 
-export default function UsersWithUniqueNumbers({ open, onClose, user }) {
+export default function UsersWithPipelines({ open, onClose, user }) {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function UsersWithUniqueNumbers({ open, onClose, user }) {
         const token = u.token; // Extract JWT token
         console.log("Token:", token);
 
-        const response = await axios.get(Apis.getUsersWithUniqueNumbers, {
+        const response = await axios.get(Apis.getUsersWithPipelines, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -95,7 +95,7 @@ export default function UsersWithUniqueNumbers({ open, onClose, user }) {
 
         {/* Modal Title */}
         <Typography variant="h6" fontWeight="bold" sx={{ mt: 1 }}>
-          Users with unique numbers
+          Users with pipelines
         </Typography>
 
         {/* List of Voices */}

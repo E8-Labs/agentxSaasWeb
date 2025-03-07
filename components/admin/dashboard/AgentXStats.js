@@ -26,6 +26,11 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { FindVoice } from "@/components/createagent/Voices";
 import TopVoicesModal from "./TopVoicesModal";
 import UsersWithUniqueNumbers from "./UsersWithUniqueNumbersModal";
+import UsersWithAgnets from "./UsersWithAgents";
+import UsersWithPipelines from "./UsersWIthPipelines";
+import UsersWithTeam from "./UsersWithTeam";
+import UsersWithLeads from "./UsersWithLeads";
+import UsersWithCalender from "./UsersWithCalenders";
 // import { stat } from "fs";
 
 const data = [
@@ -41,10 +46,16 @@ function AgentXStats({ user }) {
   const [showAllVoices, setShowAllVoices] = useState(false);
   const [showAllUsersWithUniqueNumbers, setShowAllUsersWithUniqueNumbers] =
     useState(false);
+  const [showAllUsersWithAgents, setShowAllUsersWithAgents] = useState(false);
+  const [showAllUsersWithTeam, setShowAllUsersWithTeam] = useState(false);
+  const [showAllUsersWithLeads, setShowAllUsersWithLeads] = useState(false);
+  const [showAllUsersWithPipelines, setShowAllUsersWithPipelines] = useState(false);
+  const [showAllUsersWithCalender, setShowAllUsersWithCalender] = useState(false);
+
   useEffect(() => {
     // Example usage:
     if (user) {
-      console.log("There is a logged in user");
+      // console.log("There is a logged in user");
       fetchAdminStats();
     }
   }, [user]);
@@ -147,10 +158,10 @@ function AgentXStats({ user }) {
       style={{ overflow: "auto", scrollbarWidth: "none" }}
     >
       {/*  Stats  */}
-      <span className=" flex flex-row gap-2">
+      {/* <span className=" flex flex-row gap-2">
         <h1 className=" text-3xl font-regular mb-4">AgentX User</h1>
         <h1 className=" text-3xl font-regular mb-4 text-[#00000047]">Stat</h1>
-      </span>
+      </span> */}
       {/*  Subscriptions  */}
       <SubscriptionsStatsComponent stats={stats} />
 
@@ -170,19 +181,19 @@ function AgentXStats({ user }) {
           </CardHeader>
           <CardContent>
             <h2 className="cursor-pointer text-2xl font-bold">
-              {stats?.activeUsers.DAU.percentage}%
+              {stats?.activeUsers.DAU.count}
             </h2>
           </CardContent>
           <CardContent>
-            <h2 className="cursor-pointer text-xl font-bold">
-              {stats?.activeUsers.DAU.count}
+            <h2 className="cursor-pointer text-lg text-gray-300 font-bold">
+              {stats?.activeUsers.DAU.percentage}%
             </h2>
           </CardContent>
         </Card>
 
         <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none  w-[16vw] bg-transparent text-white">
           <CardHeader>
-            <CardTitle>Weekly Sign Ups </CardTitle>
+            <CardTitle>Weekly Sign Ups</CardTitle>
           </CardHeader>
           <CardContent>
             <h2 className="cursor-pointer text-2xl font-bold">
@@ -198,12 +209,12 @@ function AgentXStats({ user }) {
           </CardHeader>
           <CardContent>
             <h2 className="cursor-pointer text-2xl font-bold">
-              {stats?.activeUsers.MAU.percentage}%
+              {stats?.activeUsers.MAU.count}
             </h2>
           </CardContent>
           <CardContent>
-            <h2 className="cursor-pointer text-xl font-bold">
-              {stats?.activeUsers.MAU.count}
+            <h2 className="cursor-pointer text-lg text-gray-300 font-bold">
+              {stats?.activeUsers.MAU.percentage}%
             </h2>
           </CardContent>
         </Card>
@@ -220,6 +231,48 @@ function AgentXStats({ user }) {
           </CardContent>
         </Card>
       </div>
+
+      {/* users lists components */}
+
+      <UsersWithAgnets
+        user={user}
+        open={showAllUsersWithAgents}
+        onClose={() => {
+          setShowAllUsersWithAgents(false);
+        }}
+      />
+
+      <UsersWithPipelines
+        user={user}
+        open={showAllUsersWithPipelines}
+        onClose={() => {
+          setShowAllUsersWithPipelines(false);
+        }}
+      />
+
+      <UsersWithTeam
+        user={user}
+        open={showAllUsersWithTeam}
+        onClose={() => {
+          setShowAllUsersWithTeam(false);
+        }}
+      />
+
+      <UsersWithLeads
+        user={user}
+        open={showAllUsersWithLeads}
+        onClose={() => {
+          setShowAllUsersWithLeads(false);
+        }}
+      />
+
+      <UsersWithCalender
+        user={user}
+        open={showAllUsersWithCalender}
+        onClose={() => {
+          setShowAllUsersWithCalender(false);
+        }}
+      />
 
       {/*  Voices  */}
 
@@ -238,40 +291,60 @@ function AgentXStats({ user }) {
 
       <div className=" grid gap-4 grid-cols-5 md:grid-cols-5 lg:grid-cols-5  rounded-lg">
         {/* Top Metrics */}
+        <button onClick={() => {
+          setShowAllUsersWithAgents(true)
+        }}>
+          {GetStatView(
+            "> 2 agents",
+            stats?.pipelineUsers.percentage,
+            stats?.pipelineUsers.count,
+            "/mt2agentsicon.png"
+          )}
+        </button>
 
-        {GetStatView(
-          "> 2 agents",
-          stats?.pipelineUsers.percentage,
-          stats?.pipelineUsers.count,
-          "/mt2agentsicon.png"
-        )}
-        {GetStatView(
-          "> 1 pipeline",
-          stats?.agentUsers.percentage,
-          stats?.agentUsers.count,
-          "/mt1pipelineicon.png"
-        )}
+        <button onClick={() => {
+          setShowAllUsersWithPipelines(true)
+        }}>
+          {GetStatView(
+            "> 1 pipeline",
+            stats?.agentUsers.percentage,
+            stats?.agentUsers.count,
+            "/mt1pipelineicon.png"
+          )}
+        </button>
 
-        {GetStatView(
-          "Uploaded Leads",
-          stats?.leadsUsers.percentage,
-          stats?.leadsUsers.count,
-          "/uploadleadsicon.png"
-        )}
+        <button onClick={() => {
+          setShowAllUsersWithLeads(true)
+        }}>
+          {GetStatView(
+            "Uploaded Leads",
+            stats?.leadsUsers.percentage,
+            stats?.leadsUsers.count,
+            "/uploadleadsicon.png"
+          )}
+        </button>
 
-        {GetStatView(
-          "Invited Teams",
-          stats?.teamsUsers.percentage,
-          stats?.teamsUsers.count,
-          "/invtedteamsiocn.png"
-        )}
+        <button onClick={() => {
+          setShowAllUsersWithTeam(true)
+        }}>
+          {GetStatView(
+            "Invited Teams",
+            stats?.teamsUsers.percentage,
+            stats?.teamsUsers.count,
+            "/invtedteamsiocn.png"
+          )}
+        </button>
 
-        {GetStatView(
-          "Added calendar",
-          stats?.calendarUsers.percentage,
-          stats?.calendarUsers.count,
-          "/addedtocalendaricon.png"
-        )}
+        <button onClick={() => {
+          setShowAllUsersWithCalender(true)
+        }}>
+          {GetStatView(
+            "Added calendar",
+            stats?.calendarUsers.percentage,
+            stats?.calendarUsers.count,
+            "/addedtocalendaricon.png"
+          )}
+        </button>
 
         {GetStatView(
           "Call Success Rate",
@@ -381,7 +454,7 @@ function VoicesComponent({
           }}
         >
           <h2
-            className="cursor-pointer text-xl font-regular"
+            className="cursor-pointer text-lg font-regular"
             style={{ fontFamily: "Inter" }}
           >
             View All
@@ -443,8 +516,8 @@ function SubscriptionsStatsComponent({ stats }) {
           {/* <Progress value={27} /> */}
         </CardContent>
         <CardContent>
-          <p className="cursor-pointer text-xl font-regular text-gray-500">
-            {stats?.trialUsers.count}
+          <p className="cursor-pointer text-lg font-regular text-gray-500">
+            -
           </p>
         </CardContent>
       </Card>
@@ -456,13 +529,13 @@ function SubscriptionsStatsComponent({ stats }) {
         </CardHeader>
         <CardContent>
           <h2 className="cursor-pointer text-2xl font-regular">
-            {stats?.trialUsers.percentage}%
+            {stats?.trialUsers.count}
           </h2>
           {/* <Progress value={27} /> */}
         </CardContent>
         <CardContent>
-          <p className="cursor-pointer text-xl font-regular text-gray-500">
-            {stats?.trialUsers.count}
+          <p className="cursor-pointer text-lg font-regular text-gray-500">
+            {stats?.trialUsers.percentage}%
           </p>
         </CardContent>
       </Card>
@@ -474,12 +547,12 @@ function SubscriptionsStatsComponent({ stats }) {
         </CardHeader>
         <CardContent>
           <h2 className="cursor-pointer text-2xl font-regular">
-            {stats?.usersOnPlans.Plan30.percentage}%
+            {stats?.usersOnPlans.Plan30.count}
           </h2>
         </CardContent>
         <CardContent>
-          <h2 className="cursor-pointer text-xl font-regular text-gray-500">
-            {stats?.usersOnPlans.Plan30.count}
+          <h2 className="cursor-pointer text-lg font-regular text-gray-500">
+            {stats?.usersOnPlans.Plan30.percentage}%
           </h2>
         </CardContent>
       </Card>
@@ -491,12 +564,12 @@ function SubscriptionsStatsComponent({ stats }) {
         </CardHeader>
         <CardContent>
           <h2 className="cursor-pointer text-2xl font-regular">
-            {stats?.usersOnPlans.Plan120.percentage}%
+            {stats?.usersOnPlans.Plan120.count}
           </h2>
         </CardContent>
         <CardContent>
-          <h2 className="cursor-pointer text-xl font-regular text-gray-500">
-            {stats?.usersOnPlans.Plan120.count}
+          <h2 className="cursor-pointer text-lg font-regular text-gray-500">
+            {stats?.usersOnPlans.Plan120.percentage}%
           </h2>
         </CardContent>
       </Card>
@@ -508,12 +581,12 @@ function SubscriptionsStatsComponent({ stats }) {
         </CardHeader>
         <CardContent>
           <h2 className="cursor-pointer text-2xl font-regular">
-            {stats?.usersOnPlans.Plan360.percentage}%
+            {stats?.usersOnPlans.Plan360.count}
           </h2>
         </CardContent>
         <CardContent>
-          <h2 className="cursor-pointer text-xl font-regular text-gray-500">
-            {stats?.usersOnPlans.Plan360.count}
+          <h2 className="cursor-pointer text-lg font-regular text-gray-500">
+            {stats?.usersOnPlans.Plan360.percentage}%
           </h2>
         </CardContent>
       </Card>
@@ -525,12 +598,12 @@ function SubscriptionsStatsComponent({ stats }) {
         </CardHeader>
         <CardContent>
           <h2 className="cursor-pointer text-2xl font-regular">
-            {stats?.usersOnPlans.Plan720.percentage}%
+            {stats?.usersOnPlans.Plan720.count}
           </h2>
         </CardContent>
         <CardContent>
-          <h2 className="cursor-pointer text-xl font-regular text-gray-500">
-            {stats?.usersOnPlans.Plan720.count}
+          <h2 className="cursor-pointer text-lg font-regular text-gray-500">
+            {stats?.usersOnPlans.Plan720.percentage}%
           </h2>
         </CardContent>
       </Card>

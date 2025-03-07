@@ -153,7 +153,9 @@ function AdminBilling({selectedUser}) {
   const getProfile = async () => {
     try {
       const localData = localStorage.getItem("User");
-      let response = await AdminGetProfileDetails(selectedUser);
+      let response = await AdminGetProfileDetails(selectedUser.id
+        
+      );
       // console.log("Response of get progf", response);
       if (response) {
         let plan = response?.data?.data?.plan;

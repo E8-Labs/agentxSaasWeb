@@ -54,6 +54,7 @@ const AssignLead = ({
   const SelectAgentErrorTimeout = 4000; //change this to change the duration of the snack timer
 
   const [hasUserSelectedDate, setHasUserSelectedDate] = useState(false);
+  const [isDncChecked, setIsDncChecked] = useState(false);
 
 
   useEffect(() => {
@@ -341,8 +342,6 @@ const AssignLead = ({
         timer = 0;
       } else if (CallLater) {
         const currentDateTime = dayjs(); // Get current date and time using Day.js
-        const currentDate = currentDateTime.format("YYYY-MM-DD HH:mm:ss"); // Format as string
-        const futureDate = selectedDateTime.format("YYYY-MM-DD HH:mm:ss"); // Format as string
 
         const differenceInMilliseconds = selectedDateTime.diff(currentDateTime); // Difference in ms
         const minutes = differenceInMilliseconds / (1000 * 60); // Convert ms to minutes
@@ -360,7 +359,9 @@ const AssignLead = ({
         startTimeDifFromNow: timer,
         batchSize: batchSize,
         selectedAll: selectedAll,
+        dncCheck: isDncChecked ? true : false
       };
+
       console.log("Api data ", Apidata);
       // return;
       if (filters && selectedAll) {
@@ -429,9 +430,9 @@ const AssignLead = ({
       // console.log("No date selected");
       return;
     }
-   
+
     setSelectedDateTime(date);
-    setHasUserSelectedDate(true); 
+    setHasUserSelectedDate(true);
   };
 
   const handleFromDateChange = (date) => {
@@ -757,13 +758,11 @@ const AssignLead = ({
               </div>
 
               <div className="flex flex-row items-center gap-8 mt-4">
-                {/* <button className='w-1/2 flex flex-row items-center p-4 rounded-2xl' style={{ border: "1px solid #00000040", height: "50px" }}>
-                                    
-                                </button> */}
+
                 <input
                   className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
                   style={{
-                    border: `${isFocustedCustomLeads?"2px solid #7902Df":"2px solid #00000040"}`,
+                    border: `${isFocustedCustomLeads ? "2px solid #7902Df" : "2px solid #00000040"}`,
                     height: "50px",
                   }}
                   value={customLeadsToSend}
@@ -964,6 +963,23 @@ const AssignLead = ({
                 </div>
               </div>
 
+              <button
+                className={`flex mt-4 flex-row gap-6 justify-start items-start border px-4 
+                  ${isDncChecked ? "border-purple border-2" : 'border-gray-300'} h-[50px] 
+                  w-[219px] rounded-lg items-center`}
+                onClick={() => {
+                  setIsDncChecked(!isDncChecked)
+                }}
+              >
+                <Image
+                  src={`${isDncChecked ? "/svgIcons/smartlistIcnPurple.svg" : "/svgIcons/smartlistIcnBlack.svg"}`}
+                  height={24}
+                  width={24}
+                  alt="*"
+                />
+                <span style={{ fontsize: 16, fontWeight: '500', color: "#000" }}>DNC</span>
+              </button>
+
               {CallLater && (
                 <div>
                   <div
@@ -1024,7 +1040,7 @@ const AssignLead = ({
               ) : (
                 <div className="w-full">
                   {(NoOfLeadsToSend || customLeadsToSend) &&
-                  (CallNow || (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
+                    (CallNow || (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
                     <button
                       className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {
