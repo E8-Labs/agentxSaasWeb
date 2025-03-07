@@ -309,8 +309,8 @@ function Page() {
     },
     {
       id: 3,
-      title: "🧘 Delayed",
-      value: "Natural Conversation Flow ~ 2 sec",
+      title: "🧘 Delayed ~ 2 sec",
+      value: "Natural Conversation Flow",
     },
   ];
   const callRecordingPermitionList = [
