@@ -621,7 +621,7 @@ function AllCalls({ user }) {
                       <div style={styles.text2}>
                         {item?.callStage?.stageTitle
                           ? item.callStage?.stageTitle
-                          : "No Stage"}
+                          : "-"}
                       </div>
                     </div>
                     <div className="w-1/12">

@@ -1,19 +1,29 @@
-"use client"; // Ensure this runs on the client side
-import { useSearchParams, useRouter } from "next/navigation"; // Use correct hook
+"use client";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import SelectedUserDetails from "@/components/admin/users/SelectedUserDetails";
 import AdminGetProfileDetails from "@/components/admin/AdminGetProfileDetails";
 
 export default function Page() {
-  const searchParams = useSearchParams(); // Get search params from the URL
-  const router = useRouter(); // For navigation
-  const userId = searchParams.get("userId"); // Extract userId from the URL
-
+  const router = useRouter();
+  const [userId, setUserId] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
 
+  // ✅ Manually get `userId` from the URL (avoids Suspense issue)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("userId");
+      if (id) {
+        setUserId(id);
+      }
+    }
+  }, []);
+
+  // ✅ Fetch user details when `userId` is available
   useEffect(() => {
     if (userId) {
-      console.log('userID', userId)
+      console.log("Fetching user details for:", userId);
       fetchUserDetails(userId);
     }
   }, [userId]);
@@ -38,7 +48,7 @@ export default function Page() {
           close={() => {
             router.push("/admin"); // Redirect back to admin on close
           }}
-          selectedUser={selectedUser&&selectedUser}
+          selectedUser={selectedUser}
         />
       ) : (
         <p>Loading...</p>
