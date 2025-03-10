@@ -116,7 +116,7 @@ export default function UsersWithCalender({ open, onClose, user }) {
                 }
                 secondary={
                   <Typography sx={{ color: "#666", fontSize: "14px" }}>
-                    Phone Numbers: {user.phoneCount}
+                    Calendars: {user.calendarsCount}
                   </Typography>
                 }
               />

@@ -116,7 +116,7 @@ export default function UsersWithLeads({ open, onClose, user }) {
                 }
                 secondary={
                   <Typography sx={{ color: "#666", fontSize: "14px" }}>
-                    Phone Numbers: {user.phoneCount}
+                     Leads : {user.leadsCount}
                   </Typography>
                 }
               />

@@ -1,5 +1,5 @@
 import Apis from "@/components/apis/Apis";
-import { Box, CircularProgress, Modal } from "@mui/material";
+import { Box, CircularProgress, FormControl, FormControlLabel, Modal, Radio, RadioGroup } from "@mui/material";
 import { CalendarDots, CaretLeft } from "@phosphor-icons/react";
 import axios from "axios";
 import moment from "moment";
@@ -745,11 +745,33 @@ const AssignLead = ({
                 >
                   One last thing
                 </div>
-                <div
-                  className="text-purple"
-                  style={{ fontSize: 12, fontWeight: "600" }}
-                >
-                  {getLeadSelectedCount()} Contacts Selected
+                <div className="flex flex-col items-center">
+                  <div
+                    className="text-purple"
+                    style={{ fontSize: 12, fontWeight: "600" }}
+                  >
+                    {getLeadSelectedCount()} Contacts Selected
+                  </div>
+
+                  <div>
+                    <FormControl>
+                      <FormControlLabel
+                        control={
+                          <Radio
+                          sx={{
+                            color: "#A0A0A0", // Gray when unchecked
+                            "&.Mui-checked": {
+                              color: "#7902DF", // Turns purple when checked
+                            },
+                          }}
+                            checked={isDncChecked}
+                            onClick={()=>setIsDncChecked((prev) => !prev)}
+                          />
+                        }
+                        label="Check DNC list"
+                      />
+                    </FormControl>
+                  </div>
                 </div>
               </div>
 
@@ -962,23 +984,6 @@ const AssignLead = ({
                   {/*  */}
                 </div>
               </div>
-
-              <button
-                className={`flex mt-4 flex-row gap-6 justify-start items-start border px-4 
-                  ${isDncChecked ? "border-purple border-2" : 'border-gray-300'} h-[50px] 
-                  w-[219px] rounded-lg items-center`}
-                onClick={() => {
-                  setIsDncChecked(!isDncChecked)
-                }}
-              >
-                <Image
-                  src={`${isDncChecked ? "/svgIcons/smartlistIcnPurple.svg" : "/svgIcons/smartlistIcnBlack.svg"}`}
-                  height={24}
-                  width={24}
-                  alt="*"
-                />
-                <span style={{ fontsize: 16, fontWeight: '500', color: "#000" }}>DNC</span>
-              </button>
 
               {CallLater && (
                 <div>

@@ -116,7 +116,7 @@ export default function UsersWithPipelines({ open, onClose, user }) {
                 }
                 secondary={
                   <Typography sx={{ color: "#666", fontSize: "14px" }}>
-                    Phone Numbers: {user.phoneCount}
+                    Pipelines: {user.pipelinesCount}
                   </Typography>
                 }
               />

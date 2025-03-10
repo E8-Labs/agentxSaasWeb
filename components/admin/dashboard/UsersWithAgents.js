@@ -116,7 +116,7 @@ export default function UsersWithAgnets({ open, onClose, user }) {
                 }
                 secondary={
                   <Typography sx={{ color: "#666", fontSize: "14px" }}>
-                    Phone Numbers: {user.phoneCount}
+                    Agents : {user.agentsCount}
                   </Typography>
                 }
               />

@@ -632,11 +632,11 @@ function SheduledCalls({ user }) {
           </div>
         ) : (
           <div
-            className={`h-["67vh"] overflow-auto`}
+            className={`h-[70vh] overflow-auto`}
             style={{ scrollbarWidth: "none" }}
           >
             {filteredAgentsList.length > 0 ? (
-              <div className={`h-["67vh] overflow-auto`}>
+              <div>
                 {filteredAgentsList.map((item, index) => {
                   return (
                     <div key={index}>

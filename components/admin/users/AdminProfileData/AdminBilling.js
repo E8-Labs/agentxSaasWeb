@@ -153,12 +153,10 @@ function AdminBilling({selectedUser}) {
   const getProfile = async () => {
     try {
       const localData = localStorage.getItem("User");
-      let response = await AdminGetProfileDetails(selectedUser.id
-        
-      );
-      // console.log("Response of get progf", response);
+      let response = await AdminGetProfileDetails(selectedUser.id );
+      console.log("Response of get progf", response);
       if (response) {
-        let plan = response?.data?.data?.plan;
+        let plan = response.plan;
         let togglePlan = plan?.type;
         let planType = null;
         if (plan.status == "active") {
@@ -172,8 +170,8 @@ function AdminBilling({selectedUser}) {
             planType = 4;
           }
         }
-        setUserLocalData(response?.data?.data);
-        // console.log("Get Profile Toggle plan is ", planType);
+        setUserLocalData(response);
+        console.log("Get Profile Toggle plan is ", planType);
         setTogglePlan(planType);
         setCurrentPlan(planType);
       }
@@ -214,7 +212,7 @@ function AdminBilling({selectedUser}) {
 
       //Talabat road
 
-      const ApiPath = Apis.getCardsList;
+      const ApiPath = Apis.getCardsList + "?userId=" + selectedUser.id; 
 
       // console.log("apipath for get cards list", ApiPath);
 
@@ -226,7 +224,7 @@ function AdminBilling({selectedUser}) {
       });
 
       if (response) {
-        // console.log("Response of get cards api is", response.data);
+        console.log("Response of get cards api is", response.data);
         if (response.data.status === true) {
           setCards(response.data.data);
         }
@@ -411,7 +409,7 @@ function AdminBilling({selectedUser}) {
         AuthToken = LocalDetails.token;
       }
 
-      const ApiPath = Apis.getPaymentHistory;
+      const ApiPath = Apis.getPaymentHistory+"?userId="+selectedUser.id;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -421,13 +419,13 @@ function AdminBilling({selectedUser}) {
       });
 
       if (response) {
-        // console.log("Response of get payment history", response.data.data);
+        console.log("Response of get payment history", response.data.data);
         if (response.data.status === true) {
           setPaymentHistoryData(response.data.data);
         }
       }
     } catch (error) {
-      // console.error("Error occured in get history api is", error);
+      console.error("Error occured in get history api is", error);
     } finally {
       setHistoryLoader(false);
     }
@@ -822,7 +820,7 @@ function AdminBilling({selectedUser}) {
         <button
           key={item.id}
           className="w-9/12 mt-4 outline-none"
-          onClick={(e) => handleTogglePlanClick(item)}
+          // onClick={(e) => handleTogglePlanClick(item)}
         >
           <div
             className="px-4 py-1 pb-4"
@@ -967,7 +965,7 @@ function AdminBilling({selectedUser}) {
         </div>
       </div>
 
-      {userLocalData?.plan && (
+      {/* {userLocalData?.plan && (
         <div className="w-full">
           <div className="w-full">
             {subscribePlanLoader ? (
@@ -994,27 +992,7 @@ function AdminBilling({selectedUser}) {
             )}
           </div>
 
-          {/* {togglePlan === currentPlan && (
-            <button
-              className="text-black  outline-none rounded-xl w-9/12 mt-3"
-              style={{
-                fontSize: 16,
-                fontWeight: "700",
-                height: "50px",
-                textDecorationLine: "underline",
-                flexShrink: 0,
-              }}
-              onClick={() => {
-                if (userLocalData?.cancelPlanRedemptions === 0) {
-                  setGiftPopup(true);
-                } else {
-                  setShowConfirmCancelPlanPopup(true);
-                }
-              }}
-            >
-              Cancel AgentX
-            </button>
-          )} */}
+         
 
           <div className="w-9/12 flex flex-row items-center justify-center">
             {userLocalData.plan && (
@@ -1048,7 +1026,7 @@ function AdminBilling({selectedUser}) {
             )}
           </div>
         </div>
-      )}
+      )} */}
 
       <div style={{ fontSize: 16, fontWeight: "700", marginTop: 40 }}>
         My Billing History

@@ -59,7 +59,7 @@ function SelectedUserDetails({selectedUser}) {
         }, {
             id: 8,
             name: 'Personal Data',
-            selectedImage: '/svgIcons/selectdDashboardIcon.svg',
+            selectedImage: '/svgIcons/selectedProfileCircle.svg',
             unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg'
         }
     ]
