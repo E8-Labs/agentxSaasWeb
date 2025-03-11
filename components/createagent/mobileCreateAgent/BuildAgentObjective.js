@@ -238,7 +238,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
       if (response) {
        // console.log("Response of build agent api  is :---", response.data);
         if (response.data.status === true) {
-         // console.log("Status of build agent is :", response.data.status);
+         console.log("Status of build agent is :", response.data.status);
           localStorage.setItem(
             "agentDetails",
             JSON.stringify(response.data.data)
@@ -253,7 +253,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
         }
       }
     } catch (error) {
-     // console.error("Error occured in build agent api is: ----", error);
+     console.error("Error occured in build agent api is: ----", error);
     } finally {
       setBuildAgentLoader(false);
       setLoaderModal(false);

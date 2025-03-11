@@ -92,10 +92,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     if (localAgentsData) {
       const agetnDetails = JSON.parse(localAgentsData);
       // console.log("Created agent details are :", agetnDetails);
-      setAgentData(agetnDetails.agents[0]);
-      if (agetnDetails.agents.length === 2) {
+      setAgentData(agetnDetails?.agents[0]);
+      if (agetnDetails?.agents?.length === 2) {
         setShowReassignBtn(false);
-      } else if (agetnDetails.agents[0].agentType === "inbound") {
+      } else if (agetnDetails?.agents[0]?.agentType === "inbound") {
         setShowReassignBtn(true);
         setShowGlobalBtn(false);
       }
@@ -137,7 +137,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       // setAgentData(agetnDetails.agents[0]);
       if (
         agentDetails.agents.length === 1 &&
-        agentDetails.agents[0].agentType == "inbound"
+        agentDetails?.agents[0]?.agentType == "inbound"
       ) {
         return true;
       }
