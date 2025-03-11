@@ -202,6 +202,9 @@ function CallWorthyReviewsPopup({ open, close }) {
                                         fontSize: 13,
                                         fontWeight: "500",
                                         color: "#00000060",
+                                        width:150,
+                                        overflow:"hidden",
+                                        textOverflow:"ellipsis",
                                       }}
                                     >
                                       {item.email}

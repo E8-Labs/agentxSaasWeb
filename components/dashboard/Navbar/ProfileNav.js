@@ -861,14 +861,14 @@ const ProfileNav = () => {
                   overflow: "hidden",
                 }}
               >
-                <div
+                {/* <div
                   style={{
                     fontWeight: "600",
                     fontSize: 17,
                   }}
                 >
                   Subscribe to plan
-                </div>
+                </div> */}
 
                 <div
                   className="flex justify-center items-center"
@@ -883,7 +883,7 @@ const ProfileNav = () => {
 
                 <div className="flex flex-row items-center justify-center ">
                   <div
-                    className="hidden md:flex flex flex-row items-center justify-center py-3 gap-4 mt-6 mb-8 px-4"
+                    className="hidden md:flex flex flex-row items-center justify-center py-3 gap-4 mt-2 px-4"
                     style={{
                       backgroundColor: "#402FFF10",
                       borderRadius: "50px",
@@ -910,9 +910,10 @@ const ProfileNav = () => {
 
                 <div
                   style={{
-                    flexGrow: 1,
                     overflowY: "auto", // Make the plans scrollable
-                    paddingBottom: "20px", // Add space for the fixed buttons
+                    paddingBottom: "0px", // Add space for the fixed buttons
+                    // height: "800px",
+                    // borderWidth: 1,
                   }}
                 >
                   {plans.map((item, index) => (
@@ -1044,7 +1045,7 @@ const ProfileNav = () => {
                   ) : (
                     <button
                       disabled={!togglePlan}
-                      className="w-full flex flex-row items-center justify-center h-[50px] bg-purple rounded-lg text-white mt-6"
+                      className="w-full flex flex-row items-center justify-center h-[50px] bg-purple rounded-lg text-white"
                       style={{
                         fontSize: 16.8,
                         fontWeight: "600",
@@ -1061,7 +1062,7 @@ const ProfileNav = () => {
                           localDetails = LocalDetails;
                           // AuthToken = LocalDetails.token;
                         }
-                        if (localDetails.user.cards.length == 0) {
+                        if (localDetails?.user?.cards?.length == 0) {
                           setAddPaymentPopup(true);
                         } else {
                           handleSubscribePlan();
@@ -1073,7 +1074,7 @@ const ProfileNav = () => {
                   )}
                 </div>
 
-                <div className="w-full mt-4 flex flex-row items-center justify-center">
+                <div className="w-full mt-2 flex flex-row items-center justify-center">
                   <button
                     onClick={() => {
                       localStorage.clear();

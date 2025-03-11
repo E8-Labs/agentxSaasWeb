@@ -453,10 +453,10 @@ function AdminDashboardCallLogs({}) {
                   >
                     <div className="w-2/12 flex flex-row gap-2 items-center">
                       <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                        {item.LeadModel?.firstName.slice(0, 1).toUpperCase()}
+                        {item.user?.name.slice(0, 1).toUpperCase()}
                       </div>
                       <div style={styles.text2}>
-                        {item.LeadModel?.firstName}
+                        {item.user?.name}
                       </div>
                     </div>
                     <div className="w-2/12 ">
@@ -804,7 +804,7 @@ function AdminDashboardCallLogs({}) {
       {/* Code for details view */}
       {showDetailsModal && (
         <AdminCallDetails
-          selectedLead={selectedLeadsDetails?.LeadModel?.id}
+          selectedLead={selectedLeadsDetails}
           showDetailsModal={showDetailsModal}
           setShowDetailsModal={setShowDetailsModal}
         />

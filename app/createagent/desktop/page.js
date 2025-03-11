@@ -74,7 +74,7 @@ const Page = () => {
             >
               <Image
                 className=""
-                src="/assets/agentX.png"
+                src="/assets/agentX2.png"
                 style={{ height: "12px", width: "42px", resize: "contain" }}
                 height={12}
                 width={42}
@@ -128,6 +128,9 @@ const Page = () => {
               textAlign: "center",
               marginTop: 35,
               color: "#ffffff",
+              width:"90%",
+              // borderWidth:1
+              
             }}
           >
             For a seamless experience, we recommend completing your setup on

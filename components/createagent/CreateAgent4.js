@@ -92,10 +92,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     if (localAgentsData) {
       const agetnDetails = JSON.parse(localAgentsData);
       // console.log("Created agent details are :", agetnDetails);
-      setAgentData(agetnDetails.agents[0]);
-      if (agetnDetails.agents.length === 2) {
+      setAgentData(agetnDetails?.agents[0]);
+      if (agetnDetails?.agents?.length === 2) {
         setShowReassignBtn(false);
-      } else if (agetnDetails.agents[0].agentType === "inbound") {
+      } else if (agetnDetails?.agents[0]?.agentType === "inbound") {
         setShowReassignBtn(true);
         setShowGlobalBtn(false);
       }
@@ -113,7 +113,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       // callBackNumber ||
       // !toggleClick &&
       // userSelectedNumber
-      officeNumber
+      officeNumber ||
+      isInboundOnly()
     ) {
       setShouldContinue(false);
     } else {
@@ -127,6 +128,22 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     useOfficeNumber,
     officeNumber,
   ]);
+
+  function isInboundOnly() {
+    const localAgentsData = localStorage.getItem("agentDetails");
+    if (localAgentsData) {
+      const agentDetails = JSON.parse(localAgentsData);
+      // console.log("Created agent details are :", agetnDetails);
+      // setAgentData(agetnDetails.agents[0]);
+      if (
+        agentDetails.agents.length === 1 &&
+        agentDetails?.agents[0]?.agentType == "inbound"
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   //code to format the number
   const formatPhoneNumber = (rawNumber) => {
@@ -338,6 +355,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   //get main agent id
   const AssignNumber = async () => {
     console.log("Calling assign number");
+    // const isInboundOnly = isInboundOnly()
     try {
       setAssignLoader(true);
       let AuthToken = null;
@@ -696,7 +714,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
               <button
                 onClick={() => {
-                  setOpenPurchaseSuccessModal(true);
+                  // setOpenPurchaseSuccessModal(true);
                 }}
                 style={styles.headingStyle}
                 className="text-start"

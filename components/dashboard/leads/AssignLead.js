@@ -1,5 +1,5 @@
 import Apis from "@/components/apis/Apis";
-import { Box, CircularProgress, Modal } from "@mui/material";
+import { Box, CircularProgress, FormControl, FormControlLabel, Modal, Radio, RadioGroup } from "@mui/material";
 import { CalendarDots, CaretLeft } from "@phosphor-icons/react";
 import axios from "axios";
 import moment from "moment";
@@ -52,6 +52,10 @@ const AssignLead = ({
   const [errorMessage, setErrorMessage] = useState(null);
   const [errTitle, setErrTitle] = useState(null);
   const SelectAgentErrorTimeout = 4000; //change this to change the duration of the snack timer
+
+  const [hasUserSelectedDate, setHasUserSelectedDate] = useState(false);
+  const [isDncChecked, setIsDncChecked] = useState(false);
+
 
   useEffect(() => {
     if (errorMessage) {
@@ -338,8 +342,6 @@ const AssignLead = ({
         timer = 0;
       } else if (CallLater) {
         const currentDateTime = dayjs(); // Get current date and time using Day.js
-        const currentDate = currentDateTime.format("YYYY-MM-DD HH:mm:ss"); // Format as string
-        const futureDate = selectedDateTime.format("YYYY-MM-DD HH:mm:ss"); // Format as string
 
         const differenceInMilliseconds = selectedDateTime.diff(currentDateTime); // Difference in ms
         const minutes = differenceInMilliseconds / (1000 * 60); // Convert ms to minutes
@@ -357,7 +359,9 @@ const AssignLead = ({
         startTimeDifFromNow: timer,
         batchSize: batchSize,
         selectedAll: selectedAll,
+        dncCheck: isDncChecked ? true : false
       };
+
       console.log("Api data ", Apidata);
       // return;
       if (filters && selectedAll) {
@@ -426,21 +430,9 @@ const AssignLead = ({
       // console.log("No date selected");
       return;
     }
-    // const selectedDate = dayjs(date); // Convert input date to Day.js object
-    // const currentHour = selectedDate.hour(); // Get the current hour (0-23)
-    // if (currentHour >= 5 && currentHour < 19) {
-    //   console.log("✅ Current time is between 5 AM and 7 PM.", date);
-    //   setSelectedDateTime(date);
-    // } else {
-    //   console.log("❌ Current time is outside 5 AM to 7 PM.");
-    //   setInvalidTimeMessage("Current time is outside 5 AM to 7 PM.");
+
     setSelectedDateTime(date);
-    // }
-
-    // Print in the desired format
-    // console.log("Selected date and time:", date.format("DD/MM/YYYY HH:mm"));
-
-    // Save the selected date
+    setHasUserSelectedDate(true);
   };
 
   const handleFromDateChange = (date) => {
@@ -560,7 +552,7 @@ const AssignLead = ({
                               fontWeight: "600",
                             }}
                           >
-                            No Phone number assigned
+                            No phone number assigned
                           </i>
                         </p>
                       </div>
@@ -753,11 +745,33 @@ const AssignLead = ({
                 >
                   One last thing
                 </div>
-                <div
-                  className="text-purple"
-                  style={{ fontSize: 12, fontWeight: "600" }}
-                >
-                  {getLeadSelectedCount()} Contacts Selected
+                <div className="flex flex-col items-center">
+                  <div
+                    className="text-purple"
+                    style={{ fontSize: 12, fontWeight: "600" }}
+                  >
+                    {getLeadSelectedCount()} Contacts Selected
+                  </div>
+
+                  <div>
+                    <FormControl>
+                      <FormControlLabel
+                        control={
+                          <Radio
+                          sx={{
+                            color: "#A0A0A0", // Gray when unchecked
+                            "&.Mui-checked": {
+                              color: "#7902DF", // Turns purple when checked
+                            },
+                          }}
+                            checked={isDncChecked}
+                            onClick={()=>setIsDncChecked((prev) => !prev)}
+                          />
+                        }
+                        label="Check DNC list"
+                      />
+                    </FormControl>
+                  </div>
                 </div>
               </div>
 
@@ -766,13 +780,11 @@ const AssignLead = ({
               </div>
 
               <div className="flex flex-row items-center gap-8 mt-4">
-                {/* <button className='w-1/2 flex flex-row items-center p-4 rounded-2xl' style={{ border: "1px solid #00000040", height: "50px" }}>
-                                    
-                                </button> */}
+
                 <input
                   className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
                   style={{
-                    border: `${isFocustedCustomLeads?"2px solid #7902Df":"2px solid #00000040"}`,
+                    border: `${isFocustedCustomLeads ? "2px solid #7902Df" : "2px solid #00000040"}`,
                     height: "50px",
                   }}
                   value={customLeadsToSend}
@@ -1033,7 +1045,7 @@ const AssignLead = ({
               ) : (
                 <div className="w-full">
                   {(NoOfLeadsToSend || customLeadsToSend) &&
-                  (CallNow || CallLater) ? (
+                    (CallNow || (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
                     <button
                       className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {

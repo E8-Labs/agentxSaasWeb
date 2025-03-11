@@ -351,7 +351,7 @@ const Pipeline1 = () => {
       if (data) {
         const u = JSON.parse(data);
         let path = Apis.getImportantCalls;
-        // console.log("Apipath for getcall", path);
+        console.log("Apipath for getcall", path);
         // console.log("Authtoken for getcall", u.token);
         const response = await axios.get(path, {
           headers: {
@@ -361,22 +361,22 @@ const Pipeline1 = () => {
 
         if (response) {
           if (response.data.status === true) {
-            // console.log(
-            //   "response of get imporatant calls api is",
-            //   response.data.data
-            // );
+            console.log(
+              "response of get imporatant calls api is",
+              response.data.data
+            );
             setImportantCalls(response.data.data);
             setSelectedCall(response.data.data[0]);
           } else {
-            // console.log(
-            //   "message of get important calls api is",
-            //   response.data.message
-            // );
+            console.log(
+              "message of get important calls api is",
+              response.data.message
+            );
           }
         }
       }
     } catch (e) {
-      // console.log("error in get important calls api is", e);
+      console.log("error in get important calls api is", e);
     }
   };
 
@@ -3618,7 +3618,7 @@ const Pipeline1 = () => {
         </Box>
       </Modal>
       {/* Code for side view */}
-      {importantCalls?.length >= 0 && (
+      {importantCalls?.length > 0 && (
         <div
           className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${
             expandSideView ? "w-[506px]" : "w-[100px]"

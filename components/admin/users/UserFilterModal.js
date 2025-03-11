@@ -71,6 +71,9 @@ const styles = {
   }
 };
 
+
+
+
 // console.log('filter modal trigered')
 
 
@@ -126,12 +129,34 @@ export function UserFilterModal({
 
       finalUpdate: true  //to call api
     });
+
     setTimeout(() => setLoading(false), 500);
   };
+
+  const handleResetFilters = (filters) => {
+    updateFilters({
+      selectedCreatedFromDate: null,
+      selectedCreatedToDate: null,
+      renewalFromDate: null,
+      renewalToDate: null,
+      leads: null,
+      teams: null,
+      totalSpent: null,
+      minsUsed: null,
+      agent: null,
+      balance: null,
+      selectedPlans: null,
+      selectedAffiliates: null,
+
+      finalUpdate: true  //to call api
+    });
+  }
 
   useEffect(() => {
     getAffiliates();
   }, []);
+
+
 
 
 
@@ -196,7 +221,7 @@ export function UserFilterModal({
           </div>
           <div className="mt-2 w-full overflow-auto h-[85%] p-4">
 
-            <div className="flex flex-row items-start gap-4">
+            <div className="w-full flex flex-row items-start gap-4">
               <div className="w-1/2 h-full">
                 <div
                   className="h-full"
@@ -385,23 +410,24 @@ export function UserFilterModal({
                 onChange={handleAffiliateChange}
                 renderValue={(selected) => (
                   <div>
-                    {
-                      selected.map((value) => (
-                        <Chip key={value} label={value} sx={{ margin: 0.5 }} />
-                      ))
+
+
+                    {selected.map((value) => (
+                      <Chip key={value} label={value} sx={{ margin: 0.5 }} />
+                    ))
                     }
-                    {
-                      selected?.length === 0 && (
-                        <div style={{ color: "#aaa" }}>Select Closer</div>
-                      )
-                    }
+
+
+
+
+
 
                   </div>
 
                 )}
               >
                 {affiliatesList.map((affiliate) => (
-                  <MenuItem key={affiliate.id} value={affiliate.id}>
+                  <MenuItem key={affiliate.id} value={affiliate.name}>
                     {affiliate.name}
                   </MenuItem>
                 ))}
@@ -430,7 +456,8 @@ export function UserFilterModal({
               className="outline-none w-[105px]"
               style={{ fontSize: 16.8, fontWeight: "600" }}
               onClick={() => {
-                updateFilters(filters);
+                handleResetFilters(filters);
+
               }}
             >
               Reset

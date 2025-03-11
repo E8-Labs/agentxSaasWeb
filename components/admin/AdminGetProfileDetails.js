@@ -1,7 +1,7 @@
 import axios from "axios";
 import Apis from "../apis/Apis";
 
-const AdminGetProfileDetails = async (selectedUser) => {
+const AdminGetProfileDetails = async (id) => {
   try {
     let Authtoken = null;
     let localDetails = null;
@@ -9,7 +9,7 @@ const AdminGetProfileDetails = async (selectedUser) => {
 
     if (localData) {
       const Data = JSON.parse(localData);
-      console.log("User localdetails are", selectedUser);
+      // console.log("User localdetails are", selectedUser);
       localDetails = Data;
       Authtoken = Data.token;
     }
@@ -17,7 +17,7 @@ const AdminGetProfileDetails = async (selectedUser) => {
     console.log("Auth otk is");
 
     let ApiPath = Apis.getProfileFromId;
-    ApiPath = ApiPath + "?id=" + selectedUser?.id
+    ApiPath = ApiPath + "?id=" +id
 
     console.log('apiPath', ApiPath)
 

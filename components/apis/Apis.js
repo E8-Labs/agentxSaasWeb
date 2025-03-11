@@ -1,4 +1,5 @@
 // const BasePath = process.env.NEXT_PUBLIC_REACT_APP_BASE_URL;
+
 // console.log("Base url ", BasePath);
 const BasePath =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -129,6 +130,13 @@ const Apis = {
 
   adminEngagements: `${BasePath}api/admin/adminEngagements`,
   getProfileFromId: `${BasePath}api/user/getProfileFromId`,
+
+  getUsersWithUniqueNumbers: `${BasePath}api/admin/adminUsersWithUniquePhoneNumbers`,
+  getUsersWithAgents: `${BasePath}api/admin/adminUsersWithAgents`,
+  getUsersWithPipelines: `${BasePath}api/admin/adminUsersWithPipelines`,
+  getUsersWithLeads: `${BasePath}api/admin/adminUsersWithLeads`,
+  getUsersWithTeams: `${BasePath}api/admin/adminUsersWithTeams`,
+  getUsersWithCalenders: `${BasePath}api/admin/adminUsersWithCalendars`,
 };
 
 export default Apis;

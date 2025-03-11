@@ -206,7 +206,7 @@ function AdminBasicInfo({selectedUser}) {
   //function to fetch the profile data
   const getProfile = async () => {
     try {
-      let LocalData = await AdminGetProfileDetails(selectedUser);
+      let LocalData = await AdminGetProfileDetails(selectedUser.id);
     
 
       if (LocalData) {

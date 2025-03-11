@@ -92,6 +92,7 @@ const LeadDetails = ({
   //code for stages drop down
   const [selectedStage, setSelectedStage] = useState("");
   const [stagesList, setStagesList] = useState([]);
+  const [stagesListLoader, setStagesListLoader] = useState([]);
 
   //code for snakbars
   const [showSuccessSnack, setShowSuccessSnack] = useState(null);
@@ -117,7 +118,7 @@ const LeadDetails = ({
 
   useEffect(() => {
     console.log('Lead detail modal rendered');
-}, [])
+  }, [])
 
   useEffect(() => {
     if (!selectedLead) return;
@@ -315,9 +316,10 @@ const LeadDetails = ({
 
   //function to get the stages list using pipelineId
   const getStagesList = async () => {
+
     try {
       let AuthToken = null;
-
+      setStagesListLoader(true)
       const localDetails = localStorage.getItem("User");
       if (localDetails) {
         const Data = JSON.parse(localDetails);
@@ -348,6 +350,7 @@ const LeadDetails = ({
     } catch (error) {
       // console.error("Error occured in api is", error);
     } finally {
+      setStagesListLoader(false)
       // console.log("Get stages ai call done");
     }
   };
@@ -466,33 +469,14 @@ const LeadDetails = ({
         case "Date":
         case "Phone":
         case "Stage":
-          return <div></div>;
+          return false;
         default:
           const value = `${item[title]}`;
 
           if (value.length > 60) {
-            return (
-              <button
-                style={{
-                  fontWeight: "600",
-                  fontSize: 15,
-                }}
-                onClick={() => {
-                  setExpandedCustomFields((prevFields) =>
-                    prevFields.includes(title)
-                      ? prevFields.filter((field) => field !== title)
-                      : [...prevFields, title]
-                  );
-                }}
-                className=" text-black underline w-[120px]"
-              >
-                {expandedCustomFields.includes(title)
-                  ? "Read Less"
-                  : "Read More"}
-              </button>
-            );
+            return true;
           } else {
-            return null;
+            return false;
           }
       }
     }
@@ -853,11 +837,10 @@ const LeadDetails = ({
                                         }}
                                       >
                                         {selectedLeadsDetails?.emails?.length >
-                                        1
-                                          ? `+${
-                                              selectedLeadsDetails?.emails
-                                                ?.length - 1
-                                            }`
+                                          1
+                                          ? `+${selectedLeadsDetails?.emails
+                                            ?.length - 1
+                                          }`
                                           : ""}
                                       </button>
                                     </div>
@@ -901,9 +884,8 @@ const LeadDetails = ({
                                   }}
                                 >
                                   {selectedLeadsDetails?.emails?.length > 1
-                                    ? `+${
-                                        selectedLeadsDetails?.emails?.length - 1
-                                      }`
+                                    ? `+${selectedLeadsDetails?.emails?.length - 1
+                                    }`
                                     : ""}
                                 </button>
                               </div>
@@ -1044,7 +1026,7 @@ const LeadDetails = ({
                                         {tag}
                                       </div>
                                       {DelTagLoader &&
-                                      tag.includes(DelTagLoader) ? (
+                                        tag.includes(DelTagLoader) ? (
                                         <div>
                                           <CircularProgress size={15} />
                                         </div>
@@ -1117,7 +1099,7 @@ const LeadDetails = ({
                       {selectedLeadsDetails?.tags.length > 0 ? (
                         <div
                           className="text-end flex flex-row items-center gap-2"
-                          // style={styles.paragraph}
+                        // style={styles.paragraph}
                         >
                           {
                             // selectedLeadsDetails?.tags?.map.slice(0, 1)
@@ -1136,7 +1118,7 @@ const LeadDetails = ({
                                         {tag}
                                       </div>
                                       {DelTagLoader &&
-                                      tag.includes(DelTagLoader) ? (
+                                        tag.includes(DelTagLoader) ? (
                                         <div>
                                           <CircularProgress size={15} />
                                         </div>
@@ -1213,105 +1195,33 @@ const LeadDetails = ({
                         />
                         <div style={styles.subHeading}>Stage</div>
                       </div>
+
                       <div
                         className="text-end flex flex-row items-center gap-1"
                         style={styles.paragraph}
                       >
-                        <div
-                          className="h-[10px] w-[10px] rounded-full"
-                          style={{
-                            backgroundColor:
-                              selectedLeadsDetails?.stage?.defaultColor,
-                          }}
-                        ></div>
-                        {/* {selectedLeadsDetails?.stage?.stageTitle || "-"} */}
-                        {/* <FormControl size="fit-content">
-                          <Select
-                            value={selectedStage}
-                            onChange={handleStageChange}
-                            displayEmpty // Enables placeholder
-                            renderValue={(selected) => {
-                              if (!selected) {
-                                return (
-                                  <div style={{ color: "#aaa" }}>
-                                    {stagesList?.length > 0
-                                      ? "Select"
-                                      : "No Stage"}
-                                  </div>
-                                ); // Placeholder style
-                              }
-                              return selected;
-                            }}
-                            sx={{
-                              border: "none", // Default border
-                              "&:hover": {
-                                border: "none", // Same border on hover
-                              },
-                              "& .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove the default outline
-                              },
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
-                              "& .MuiSelect-select": {
-                                padding: "0 24px 0 8px", // Add padding to create space for the icon
-                                lineHeight: 1, // Align with font size
-                                minHeight: "unset", // Ensure no extra height is enforced
-                                display: "flex", // Proper alignment
-                                alignItems: "center",
-                              },
-                              "& .MuiSelect-icon": {
-                                right: "4px", // Adjust the position of the icon
-                                top: "50%", // Center the icon vertically
-                                transform: "translateY(-50%)", // Ensure vertical alignment
-                              },
-                            }}
-                            MenuProps={{
-                              PaperProps: {
-                                style: {
-                                  maxHeight: "30vh", // Limit dropdown height
-                                  overflow: "auto", // Enable scrolling in dropdown
-                                  scrollbarWidth: "none",
-                                  // borderRadius: "10px"
-                                },
-                              },
-                            }}
-                          >
-                            {stagesList?.length > 0 &&
-                              stagesList.map((item, index) => {
-                                return (
-                                  <MenuItem
-                                    value={item.stageTitle}
-                                    key={index}
-                                    className="hover:bg-lightBlue hover:text-[#000000]"
-                                  >
-                                    <button
-                                      className="outline-none border-none"
-                                      onClick={() => {
-                                        updateLeadStage(item);
-                                      }}
-                                    >
-                                      {item.stageTitle}
-                                    </button>
-                                  </MenuItem>
-                                );
-                              })}
+                        {
+                          stagesListLoader ? (
+                            <CircularProgress size={25} />
+                          ) : (
+                            <>
+                              <div
+                                className="h-[10px] w-[10px] rounded-full"
+                                style={{
+                                  backgroundColor:
+                                    selectedLeadsDetails?.stage?.defaultColor,
+                                }}
+                              ></div>
 
-                            {!stagesList?.length > 0 && (
-                              <MenuItem className="text-sm text-[#15151560] font-bold">
-                                No Stage
-                              </MenuItem>
-                            )}
-                          </Select>
-                        </FormControl> */}
 
-                        <SelectStageDropdown
-                          selectedStage={selectedStage}
-                          handleStageChange={handleStageChange}
-                          stagesList={stagesList}
-                          updateLeadStage={updateLeadStage}
-                        />
+                              <SelectStageDropdown
+                                selectedStage={selectedStage}
+                                handleStageChange={handleStageChange}
+                                stagesList={stagesList}
+                                updateLeadStage={updateLeadStage}
+                              />
+                            </>
+                          )}
                       </div>
                     </div>
 
@@ -1537,21 +1447,44 @@ const LeadDetails = ({
                                     </div>
                                   </div>
                                   <div
-                                    className="flex flex-row whitespace-normal break-words overflow-hidden items-end"
-                                    style={styles.paragraph}
+                                    className="flex w-full flex-row whitespace-normal break-words overflow-hidden items-end justify-end"
+                                    style={{ alignSelf: 'flex-end' }}
                                   >
-                                    <div className="flex w-[85%]">
+                                    <div className="flex w-[85%] flex-col items-end">
                                       {getDetailsColumnData(
                                         column,
                                         selectedLeadsDetails
                                       )}
                                     </div>
-                                    <div className="flex w-[15%] items-end justify-end">
-                                      {ShowReadMoreButton(
-                                        column,
-                                        selectedLeadsDetails
-                                      )}
-                                    </div>
+                                    {ShowReadMoreButton(
+                                      column,
+                                      selectedLeadsDetails
+                                    ) && (
+                                        <div className="flex w-[15%] items-end justify-end border">
+
+                                          <button
+                                            style={{
+                                              fontWeight: "600",
+                                              fontSize: 15,
+                                            }}
+                                            onClick={() => {
+                                              setExpandedCustomFields((prevFields) =>
+                                                prevFields.includes(title)
+                                                  ? prevFields.filter((field) => field !== title)
+                                                  : [...prevFields, title]
+                                              );
+                                            }}
+                                            className=" text-black underline w-[120px]"
+                                          >
+                                            {expandedCustomFields.includes(title)
+                                              ? "Read Less"
+                                              : "Read More"}
+                                          </button>
+                                        </div>
+                                      )
+
+                                    }
+
                                   </div>
                                 </div>
                               );
@@ -1900,103 +1833,103 @@ const LeadDetails = ({
                                           {isExpandedActivity.includes(
                                             item.id
                                           ) && (
-                                            <div
-                                              className="mt-6"
-                                              style={{
-                                                border: "1px solid #00000020",
-                                                borderRadius: "10px",
-                                                padding: 10,
-                                                paddingInline: 15,
-                                              }}
-                                            >
                                               <div
-                                                className="mt-4"
+                                                className="mt-6"
                                                 style={{
-                                                  fontWeight: "500",
-                                                  fontSize: 12,
-                                                  color: "#00000070",
+                                                  border: "1px solid #00000020",
+                                                  borderRadius: "10px",
+                                                  padding: 10,
+                                                  paddingInline: 15,
                                                 }}
                                               >
-                                                Transcript
-                                              </div>
-                                              <div className="flex flex-row items-center justify-between mt-4">
                                                 <div
+                                                  className="mt-4"
                                                   style={{
                                                     fontWeight: "500",
-                                                    fontSize: 15,
+                                                    fontSize: 12,
+                                                    color: "#00000070",
                                                   }}
                                                 >
-                                                  {moment(
-                                                    item?.duration * 1000
-                                                  ).format("mm:ss")}{" "}
+                                                  Transcript
                                                 </div>
-                                                <button
-                                                  onClick={() => {
-                                                    if (item?.recordingUrl) {
-                                                      setShowAudioPlay(
-                                                        item?.recordingUrl
-                                                      );
-                                                    } else {
-                                                      setShowNoAudioPlay(true);
-                                                    }
-                                                    // window.open(item.recordingUrl, "_blank")
-                                                  }}
-                                                >
-                                                  <Image
-                                                    src={"/assets/play.png"}
-                                                    height={35}
-                                                    width={35}
-                                                    alt="*"
-                                                  />
-                                                </button>
-                                              </div>
-                                              {item.transcript ? (
-                                                <div className="w-full">
+                                                <div className="flex flex-row items-center justify-between mt-4">
                                                   <div
-                                                    className="mt-4"
                                                     style={{
-                                                      fontWeight: "600",
+                                                      fontWeight: "500",
                                                       fontSize: 15,
                                                     }}
                                                   >
-                                                    {/* {item.transcript} */}
-                                                    {isExpanded.includes(
-                                                      item.id
-                                                    )
-                                                      ? `${item.transcript}`
-                                                      : `${initialText}...`}
+                                                    {moment(
+                                                      item?.duration * 1000
+                                                    ).format("mm:ss")}{" "}
                                                   </div>
                                                   <button
+                                                    onClick={() => {
+                                                      if (item?.recordingUrl) {
+                                                        setShowAudioPlay(
+                                                          item?.recordingUrl
+                                                        );
+                                                      } else {
+                                                        setShowNoAudioPlay(true);
+                                                      }
+                                                      // window.open(item.recordingUrl, "_blank")
+                                                    }}
+                                                  >
+                                                    <Image
+                                                      src={"/assets/play.png"}
+                                                      height={35}
+                                                      width={35}
+                                                      alt="*"
+                                                    />
+                                                  </button>
+                                                </div>
+                                                {item.transcript ? (
+                                                  <div className="w-full">
+                                                    <div
+                                                      className="mt-4"
+                                                      style={{
+                                                        fontWeight: "600",
+                                                        fontSize: 15,
+                                                      }}
+                                                    >
+                                                      {/* {item.transcript} */}
+                                                      {isExpanded.includes(
+                                                        item.id
+                                                      )
+                                                        ? `${item.transcript}`
+                                                        : `${initialText}...`}
+                                                    </div>
+                                                    <button
+                                                      style={{
+                                                        fontWeight: "600",
+                                                        fontSize: 15,
+                                                      }}
+                                                      onClick={() => {
+                                                        handleReadMoreToggle(
+                                                          item
+                                                        );
+                                                      }}
+                                                      className="mt-2 text-black underline"
+                                                    >
+                                                      {isExpanded.includes(
+                                                        item.id
+                                                      )
+                                                        ? "Read Less"
+                                                        : "Read more"}
+                                                    </button>
+                                                  </div>
+                                                ) : (
+                                                  <div
                                                     style={{
                                                       fontWeight: "600",
                                                       fontSize: 15,
                                                     }}
-                                                    onClick={() => {
-                                                      handleReadMoreToggle(
-                                                        item
-                                                      );
-                                                    }}
-                                                    className="mt-2 text-black underline"
                                                   >
-                                                    {isExpanded.includes(
-                                                      item.id
-                                                    )
-                                                      ? "Read Less"
-                                                      : "Read more"}
-                                                  </button>
-                                                </div>
-                                              ) : (
-                                                <div
-                                                  style={{
-                                                    fontWeight: "600",
-                                                    fontSize: 15,
-                                                  }}
-                                                >
-                                                  No transcript
-                                                </div>
-                                              )}
-                                            </div>
-                                          )}
+                                                    No transcript
+                                                  </div>
+                                                )}
+                                              </div>
+                                            )}
                                         </div>
                                       </div>
                                     </div>
