@@ -617,8 +617,7 @@ function AdminAgentX({ selectedUser }) {
         //// console.log("Respose of reassign api is:", response.data.data);
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -1001,8 +1000,7 @@ function AdminAgentX({ selectedUser }) {
         //// console.log("Response of update number api is", response.data);
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -1726,7 +1724,7 @@ function AdminAgentX({ selectedUser }) {
 
       <div
         className="w-full flex flex-row justify-between items-center py-4 px-10"
-        // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
+      // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>My Agents</div>
       </div>
@@ -2232,7 +2230,7 @@ function AdminAgentX({ selectedUser }) {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                  // defaultMask={loading ? 'Loading...' : undefined}
+                // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -2263,9 +2261,8 @@ function AdminAgentX({ selectedUser }) {
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
-                        index === scriptKeys?.length - 1 ? "mb-16" : ""
-                      }`}
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
+                        }`}
                       style={{
                         ...styles.inputStyle,
                         border: "1px solid #00000010",
@@ -2317,20 +2314,26 @@ function AdminAgentX({ selectedUser }) {
       {/* drawer */}
 
       <Drawer
+
         anchor="right"
         open={showDrawerSelectedAgent}
         onClose={() => setShowDrawerSelectedAgent(null)}
+        container={document.body} // Forces rendering outside the Modal
         sx={{
           "& .MuiDrawer-paper": {
-            width: "50%", // Adjust the width as per your design
-            paddingInline: "60px", // Add padding for internal spacing
+            width: "50%",
+            paddingInline: "60px",
+            height: "80vh",
+            zIndex: 1501, // Ensure it's above the Modal
+            position: "fixed", // Forces absolute positioning
+            top: 0,
+            right: 0,
           },
         }}
         BackdropProps={{
-          timeout: 100,
           sx: {
+            zIndex: 1400, // Keep backdrop below Drawer
             backgroundColor: "#00000020",
-            // //backdropFilter: "blur(20px)",
           },
         }}
       >
@@ -2465,7 +2468,7 @@ function AdminAgentX({ selectedUser }) {
               name="Calls"
               value={
                 showDrawerSelectedAgent?.calls &&
-                showDrawerSelectedAgent?.calls > 0 ? (
+                  showDrawerSelectedAgent?.calls > 0 ? (
                   <div>{showDrawerSelectedAgent?.calls}</div>
                 ) : (
                   "-"
@@ -2479,7 +2482,7 @@ function AdminAgentX({ selectedUser }) {
               name="Convos"
               value={
                 showDrawerSelectedAgent?.callsGt10 &&
-                showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
                   <div>{showDrawerSelectedAgent?.callsGt10}</div>
                 ) : (
                   "-"
@@ -2507,7 +2510,7 @@ function AdminAgentX({ selectedUser }) {
               name="Mins Talked"
               value={
                 showDrawerSelectedAgent?.totalDuration &&
-                showDrawerSelectedAgent?.totalDuration > 0 ? (
+                  showDrawerSelectedAgent?.totalDuration > 0 ? (
                   // <div>{showDrawer?.totalDuration}</div>
                   <div>
                     {moment(
@@ -2529,11 +2532,10 @@ function AdminAgentX({ selectedUser }) {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`${
-                  activeTab === tab
-                    ? "text-purple border-b-2 border-purple"
-                    : "text-black-500"
-                }`}
+                className={`${activeTab === tab
+                  ? "text-purple border-b-2 border-purple"
+                  : "text-black-500"
+                  }`}
                 style={{ fontSize: 15, fontWeight: "500" }}
               >
                 {tab}
@@ -2842,25 +2844,25 @@ function AdminAgentX({ selectedUser }) {
                                       <div className="flex flex-row items-center gap-2">
                                         {showDrawerSelectedAgent?.name !==
                                           item.claimedBy.name && (
-                                          <div>
-                                            <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                            {reassignLoader === item ? (
-                                              <CircularProgress size={15} />
-                                            ) : (
-                                              <button
-                                                className="text-purple underline"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  setShowConfirmationModal(
-                                                    item
-                                                  );
-                                                }}
-                                              >
-                                                Reassign
-                                              </button>
-                                            )}
-                                          </div>
-                                        )}
+                                            <div>
+                                              <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                              {reassignLoader === item ? (
+                                                <CircularProgress size={15} />
+                                              ) : (
+                                                <button
+                                                  className="text-purple underline"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setShowConfirmationModal(
+                                                      item
+                                                    );
+                                                  }}
+                                                >
+                                                  Reassign
+                                                </button>
+                                              )}
+                                            </div>
+                                          )}
                                       </div>
                                     )}
                                   </div>

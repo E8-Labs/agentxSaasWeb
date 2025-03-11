@@ -152,7 +152,7 @@ function AdminUsers() {
   };
 
   return (
-    <div className="flex flex-col items-center w-full">
+    <div style={{ zIndex: 1000}} className="flex flex-col items-center w-full">
       <UserFilterModal
         showFilterModal={showFilterModal}
         filters={{}}
@@ -395,7 +395,41 @@ function AdminUsers() {
                     )}
                   </button>
                 </th>
-                <th className="px-4 py-2 text-left w-[150px]">Renewal</th>
+                <th className=" py-2 text-left  w-[150px]">
+                  <button className="whitespace-nowrap"
+                    onClick={() => {
+
+                      let sortOrder = selectedSortOrder;
+                      if (selectedSort == "Renewal") {
+                        sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                      }
+
+                      setSelectedSortOrder(sortOrder);
+
+                      sortData = {
+                        sort: "Renewal",
+                        sortOrder: sortOrder,
+                      };
+                      setSelectedSort("Renewal");
+                      getUsersList(0, filters, sortData);
+                    }}>
+                    Renewal
+                    {selectedSort === "Renewal" ? (
+                      <Image
+                        src={
+                          selectedSortOrder == "DESC"
+                            ? "/downArrow.png"
+                            : "/upArrow.png"
+                        }
+                        height={3}
+                        width={10}
+                        className="inline-block align-middle"
+                        alt="*"
+                      />
+                    ) : null
+                    }
+                  </button>
+                </th>
                 <th className="px-4 py-2 text-left w-[150px]">Agents</th>
                 <th className="px-4 py-2 text-left w-[150px]">Referred</th>
                 <th className="px-4 py-2 text-left w-[150px]">Closer</th>
@@ -451,7 +485,7 @@ function AdminUsers() {
                   <td className="px-4 py-2 w-[100px]  whitespace-nowrap">
                     {parseFloat((item.totalSecondsAvailable / 60).toFixed(2))}{" "}mins
                   </td>
-                  <td className="px-4 py-2 ">
+                  <td className="px-4 py-2 w-[100px]  whitespace-nowrap">
                     {GetFormattedDateString(item.nextChargeDate)}
                   </td>
                   <td className="px-4 py-2">{item.agents || "-"}</td>
@@ -486,14 +520,22 @@ function AdminUsers() {
           timeout: 200,
           sx: {
             backgroundColor: "#00000020",
-            // //backdropFilter: "blur(20px)",
+            zIndex: 1200, // Keep backdrop below Drawer
           },
         }}
-
+        sx={{
+          zIndex: 1300, // Keep Modal below the Drawer
+        }}
+        
       >
         <Box
           className="w-11/12  p-8 rounded-[15px]"
-          sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+          sx={{ ...styles.modalsStyle, 
+            backgroundColor: "white",
+            position: "relative",
+            zIndex: 1301, // Keep modal content above its backdrop
+           }}
+          
         >
           <SelectedUserDetails
             selectedUser={selectedUser}

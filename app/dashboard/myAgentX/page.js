@@ -236,6 +236,12 @@ function Page() {
 
   const models = [
     {
+      name: "AgentX",
+      value: "synthflow",
+      icon: "/svgIcons/chatgptIcon.svg",
+      disabled: false,
+    },
+    {
       name: "GPT-4o",
       value: "gpt-4o",
       icon: "/svgIcons/chatgptIcon.svg",
@@ -332,6 +338,18 @@ function Page() {
       getAvailabePhoneNumbers();
     }
   }, [showDrawerSelectedAgent]);
+
+
+  useEffect(()=>{
+    let d = localStorage.getItem("TestAiCredentials")
+    console.log('d', d)
+    if(d){
+      let cr = JSON.parse(d)
+      console.log('d', cr)
+      setName(cr?.name)
+      setPhone(cr?.phone)
+    }
+  },[openTestAiModal])
 
   ////// console.log("showDrawerSelectedAgent", showDrawerSelectedAgent);
 
@@ -1645,6 +1663,7 @@ function Page() {
       setTestAIloader(true);
       let AuthToken = null;
       const userData = localStorage.getItem("User");
+
       if (userData) {
         const localData = JSON.parse(userData);
         //console.log("Authtoken is:", localData.token);
@@ -1663,6 +1682,8 @@ function Page() {
         phone: phone,
         extraColumns: newArray,
       };
+
+      localStorage.setItem("TestAiCredentials",JSON.stringify(ApiData))
 
       const ApiPath = Apis.testAI;
 

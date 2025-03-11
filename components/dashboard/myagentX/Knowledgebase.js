@@ -5,10 +5,12 @@ import AddKnowledgeBaseModal from "./AddKnowledgebaseModal";
 import KnowledgeBaseList from "@/components/admin/dashboard/KnowledgebaseList";
 import Apis from "@/components/apis/Apis";
 import { Plus } from "lucide-react";
+import axios from "axios";
 
 function Knowledgebase({ user, agent }) {
   const [kb, setKb] = useState([]);
   const [showKbPopup, setShowKbPopup] = useState(false);
+  const [kbDelLoader,setKbDelLoader] = useState(null)
   const [showAddNewCalendar, setShowAddNewCalendar] = useState(false); // Fixed missing state
 
   useEffect(() => {
@@ -21,10 +23,12 @@ function Knowledgebase({ user, agent }) {
     try {
       const token = user.token; // Extract JWT token
 
-      let link = "/api/kb/getkb?agentId=";
-      // let link = `${Apis.GetKnowledgebase}?agentId=`
+      // let link = `/api/kb/getkb?agentId=${agent.id}`;
+      let link = `${Apis.GetKnowledgebase}?agentId=${agent.id}`
+      // console.log('link', token)
 
-      const response = await fetch(link + agent.id, {
+ 
+      const response = await fetch(link, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -82,17 +86,55 @@ function Knowledgebase({ user, agent }) {
     );
   }
 
+  async function handleDeleteKb(item) {
+    console.log('item', item)
+    try {
+      setKbDelLoader(item.id)
+      const token = user.token; // Extract JWT token
+
+      
+      let link = `${Apis.deleteKnowledgebase}`
+      console.log('link', link)
+
+      let apidata = {
+        kbId : item.id
+      }
+      console.log('apidata', apidata)
+
+      const response = await axios.post(link,apidata,{
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+        
+      if (response.data) {
+        console.log("KB delete Data:", response.data.data);
+        setKb((prevKb) => prevKb.filter((kbItem) => kbItem.id !== item.id));
+        
+      } else {
+        console.error("Failed to delete kb:", data.error);
+      }
+    } catch (error) {
+      console.error("Error fetching kb:", error);
+    }
+    finally{
+      setKbDelLoader(null)
+    }
+  }
   function GetKbView() {
     return (
       <KnowledgeBaseList
         // agent={agent}
         kbList={kb}
         onDelete={(item) => {
-          console.log("Delete kb here");
+          
+         handleDeleteKb(item)
         }}
         onAddKnowledge={() => {
           setShowKbPopup(true);
         }}
+        isLoading = {kbDelLoader}
       />
     );
   }

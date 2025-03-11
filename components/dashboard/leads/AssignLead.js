@@ -1,5 +1,5 @@
 import Apis from "@/components/apis/Apis";
-import { Box, CircularProgress, FormControl, FormControlLabel, Modal, Radio, RadioGroup } from "@mui/material";
+import { Box, CircularProgress, FormControl, FormControlLabel, Modal, Radio, RadioGroup, Typography } from "@mui/material";
 import { CalendarDots, CaretLeft } from "@phosphor-icons/react";
 import axios from "axios";
 import moment from "moment";
@@ -758,17 +758,28 @@ const AssignLead = ({
                       <FormControlLabel
                         control={
                           <Radio
-                          sx={{
-                            color: "#A0A0A0", // Gray when unchecked
-                            "&.Mui-checked": {
-                              color: "#7902DF", // Turns purple when checked
-                            },
-                          }}
+                            sx={{
+                              color: "#A0A0A0", // Gray when unchecked
+                              "&.Mui-checked": {
+                                color: "#7902DF", // Turns purple when checked
+                              },
+                            }}
                             checked={isDncChecked}
-                            onClick={()=>setIsDncChecked((prev) => !prev)}
+                            onClick={() => setIsDncChecked((prev) => !prev)}
                           />
                         }
-                        label="Check DNC list"
+                        label={
+                          <Typography sx={{ fontSize: 12, fontWeight: "600" , color: "#333",whiteSpace:'nowrap' }}>
+                            Check DNC List
+                          </Typography>
+                        }
+                        labelPlacement="start" // Moves label to the left side of the radio button
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          width: "100%", // Ensures proper alignment
+                          marginLeft: 0, // Aligns the label properly
+                        }}
                       />
                     </FormControl>
                   </div>
@@ -1045,7 +1056,7 @@ const AssignLead = ({
               ) : (
                 <div className="w-full">
                   {(NoOfLeadsToSend || customLeadsToSend) &&
-                    (CallNow || (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
+                    (CallNow || (CallLater && selectedDateTime && hasUserSelectedDate)) && isDncChecked ? (
                     <button
                       className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {

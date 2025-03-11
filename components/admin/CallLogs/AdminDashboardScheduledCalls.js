@@ -6,9 +6,9 @@ import { Box, CircularProgress, Modal, Popover } from "@mui/material";
 import moment from "moment";
 import { GetFormattedDateString } from "@/utilities/utility";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
-import { ShowConfirmationPopup } from "./AdminActiveCalls";
+import { ShowConfirmationPopup } from "./AdminDashboardActiveCall";
 
-function AdminScheduledCalls({selectedUser}) {
+function AdminDashboardScheduledCalls({}) {
   const [searchValue, setSearchValue] = useState("");
   //code for agent details
   const [callDetails, setCallDetails] = useState([]);
@@ -122,7 +122,7 @@ function AdminScheduledCalls({selectedUser}) {
         mainAgent = agentDetails;
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
-      let ApiPath = `${Apis.getSheduledCallLogs}?scheduled=true`;
+      let ApiPath = `${Apis.getAdminSheduledCallLogs}?scheduled=true`;
 
       ApiPath = ApiPath
     
@@ -933,7 +933,7 @@ function AdminScheduledCalls({selectedUser}) {
   );
 }
 
-export default AdminScheduledCalls;
+export default AdminDashboardScheduledCalls;
 const styles = {
   text: {
     fontSize: 15,

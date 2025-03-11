@@ -48,6 +48,7 @@ const Apis = {
   getLeadsInBatch: `${BasePath}api/pipeline/leadsInBatch`,
 
   getSheduledCallLogs: `${BasePath}api/pipeline/getScheduledCalls`,
+  getAdminSheduledCallLogs: `${BasePath}api/admin/getScheduledCallsAdmin`,
   getAgentCallLogs: `${BasePath}api/agent/getAgentCallActivity`,
   pauseAgent: `${BasePath}api/pipeline/pauseAgentCadence`,
   resumeCalls: `${BasePath}api/pipeline/resumeAgentCadence`,
@@ -121,7 +122,8 @@ const Apis = {
   //Knowledgebase
   AddKnowledgebase: `${BasePath}api/kb/addKnowledgebase`,
   GetKnowledgebase: `${BasePath}api/kb/getKnowledgebase`,
-  DeleteKnowledgebase: `${BasePath}api/kb/deleteKnowledgebase`,
+  deleteKnowledgebase: `${BasePath}api/kb/deleteKnowledgebase`,
+  // DeleteKnowledgebase: `${BasePath}api/kb/deleteKnowledgebase`,
 
   AdminAnalytics: `${BasePath}api/admin/adminAnalytics`,
   adminCallLogs: `${BasePath}api/admin/callLogsAdmin`,
