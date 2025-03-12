@@ -281,7 +281,9 @@ const Pipeline1 = () => {
     }
   }, []);
 
-  const setParamsInSearchBar = (index = 0) => {
+  const setParamsInSearchBar = (index = 0, from = "default") => {
+    console.log("From function ", from);
+    console.log("Settign index for pipeline", index);
     // Create a new URLSearchParams object to modify
     const params = new URLSearchParams(searchParams.toString());
     params.set("pipeline", index); // Set or update the 'tab' parameter
@@ -514,7 +516,7 @@ const Pipeline1 = () => {
           handlePipelineClosePopover();
 
           selectedPipelineIndex = PipeLines.length;
-          setParamsInSearchBar(selectedPipelineIndex);
+          setParamsInSearchBar(selectedPipelineIndex, "handlecreatePipeline");
         }
       }
     } catch (error) {
@@ -594,7 +596,7 @@ const Pipeline1 = () => {
           PersistanceKeys.LocalStoragePipelines,
           JSON.stringify(response.data.data)
         );
-        let index = 0;
+        let index = selectedPipelineIndex;
         if (selectedPipelineIndex < response.data.data.length) {
           index = selectedPipelineIndex;
         } else if (response.data.data.length > 0) {
@@ -713,7 +715,7 @@ const Pipeline1 = () => {
     setLeadsList(item.leads);
     handleCloseOtherPipeline();
     selectedPipelineIndex = index;
-    setParamsInSearchBar(index);
+    setParamsInSearchBar(index, "handleSelectOtherPipeline");
   };
 
   //code for adding new custom stage
