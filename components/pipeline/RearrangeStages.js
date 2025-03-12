@@ -129,14 +129,14 @@ const RearrangeStages = ({
         !action ||
         inputs.filter((input) => input.value.trim() !== "").length < 3
       ) {
-       // console.log("Shoukd hide ");
+        // console.log("Shoukd hide ");
         setShowAddStageBtn(false);
       } else if (
         newStageTitle &&
         action &&
         inputs.filter((input) => input.value.trim() !== "").length === 3
       ) {
-       // console.log("Show continue to add stage");
+        // console.log("Show continue to add stage");
         setShowAddStageBtn(true);
       }
     } else if (!showAdvanceSettings) {
@@ -154,7 +154,7 @@ const RearrangeStages = ({
   const handleDeleteStage = async () => {
     try {
       setDelStageLoader(true);
-     // console.log("Selected pipeline is:", selectedPipelineItem);
+      // console.log("Selected pipeline is:", selectedPipelineItem);
       const localData = localStorage.getItem("User");
       let AuthToken = null;
       if (localData) {
@@ -163,17 +163,17 @@ const RearrangeStages = ({
         //// console.log("Local details are :", UserDetails);
       }
 
-     // console.log("Auth token is :--", AuthToken);
+      // console.log("Auth token is :--", AuthToken);
 
       const ApiData = {
         pipelineId: selectedPipelineItem.id,
         stageId: showDelStagePopup.id,
       };
 
-     // console.log("Api dta is:", ApiData);
+      // console.log("Api dta is:", ApiData);
       // return
       const ApiPath = Apis.deleteStage;
-     // console.log("Apipath is:", ApiPath);
+      // console.log("Apipath is:", ApiPath);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -183,16 +183,38 @@ const RearrangeStages = ({
       });
 
       if (response) {
-       // console.log("response of del stage api is:", response.data);
+        // console.log("response of del stage api is:", response.data);
         if (response.data.status === true) {
           setPipelineStages(response.data.data.stages);
           setSuccessSnack(response.data.message);
           setShowDelStagePopup(null);
+
+          let p = localStorage.getItem("pipelinesList")
+
+          if (p) {
+            let localPipelines = JSON.parse(p)
+
+            let updatedPipelines = localPipelines.map(pipeline => {
+              if (selectedPipelineItem.id === pipeline.id) {
+                return {
+                  ...pipeline,
+                  stages: pipeline.stages.filter(stage => stage.id !== showDelStagePopup.id)
+                };
+              }
+              return pipeline; // Return unchanged pipeline for others
+            });
+
+            console.log('updatedPipelines', updatedPipelines)
+            localStorage.setItem("pipelinesList", JSON.stringify(updatedPipelines));
+
+          } else {
+            console.log('no pipeline list found from local')
+          }
           // setStageAnchorel(null);
         }
       }
     } catch (error) {
-     // console.error("Error occured in delstage api is:", error);
+      // console.error("Error occured in delstage api is:", error);
     } finally {
       setDelStageLoader(false);
     }
@@ -222,13 +244,13 @@ const RearrangeStages = ({
 
   const handleAssignTeamMember = (event) => {
     let value = event.target.value;
-   // console.log("Value to set is :", value);
+    // console.log("Value to set is :", value);
     setAssignToMember(event.target.value);
 
     const selectedItem = myTeamList.find(
       (item) => item?.invitedUser?.name === value
     );
-   // console.log("Selected teammeber is:", selectedItem);
+    // console.log("Selected teammeber is:", selectedItem);
     setAssignToMember(
       selectedItem?.invitedUser?.name || myTeamAdmin.invitedUser?.name
     ); //
@@ -237,7 +259,7 @@ const RearrangeStages = ({
       selectedItem?.invitedUser?.id || myTeamAdmin.invitedUser?.id,
     ]); //
 
-   // console.log("Selected teammeber is:", selectedItem);
+    // console.log("Selected teammeber is:", selectedItem);
   };
 
   const getMyTeam = async () => {
@@ -258,7 +280,7 @@ const RearrangeStages = ({
       // }
 
       if (response) {
-       // console.log("Team Response recieved is", response);
+        // console.log("Team Response recieved is", response);
         let teams = [];
         if (response.admin) {
           let admin = response.admin;
@@ -278,7 +300,7 @@ const RearrangeStages = ({
       }
 
     } catch (error) {
-     // console.error("Error occured in api is", error);
+      // console.error("Error occured in api is", error);
     }
   };
 
@@ -324,13 +346,13 @@ const RearrangeStages = ({
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-       // console.log("Local details are :", UserDetails);
+        // console.log("Local details are :", UserDetails);
       }
 
-     // console.log("Auth token is :--", AuthToken);
+      // console.log("Auth token is :--", AuthToken);
 
       const ApiPath = Apis.addCustomStage;
-     // console.log("Api path is:", ApiPath);
+      // console.log("Api path is:", ApiPath);
 
       const ApiData = {
         stageTitle: newStageTitle,
@@ -341,7 +363,7 @@ const RearrangeStages = ({
         tags: tagsValue,
       };
 
-     // console.log("Data sending in api is:", ApiData);
+      // console.log("Data sending in api is:", ApiData);
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -351,7 +373,7 @@ const RearrangeStages = ({
       });
 
       if (response) {
-       // console.log("Response of add stage title :", response);
+        // console.log("Response of add stage title :", response);
         if (response.data.status === true) {
           setPipelineStages(response.data.data.stages);
           setAddNewStageModal(false);
@@ -360,7 +382,7 @@ const RearrangeStages = ({
         }
       }
     } catch (error) {
-     // console.error("Error occured inn adding new stage title api is", error);
+      // console.error("Error occured inn adding new stage title api is", error);
     } finally {
       setAddStageLoader(false);
     }

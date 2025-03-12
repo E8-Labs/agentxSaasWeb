@@ -4397,7 +4397,7 @@ function Page() {
             <div className="h-[90vh]" style={{ scrollbarWidth: "none" }}>
               <div
                 style={{
-                  height: "10%",
+                  height: "8%",
                   width: "100%",
                   direction: "row",
                   display: "flex",
@@ -4434,7 +4434,7 @@ function Page() {
               </div>
 
               <div
-                className="mt-6 flex flex-row gap-6"
+                className="mt-4 flex flex-row gap-6"
                 style={{ height: "", fontWeight: "500", fontSize: 15 }}
               >
                 <button
@@ -4620,14 +4620,14 @@ function Page() {
 
                   <div className="" style={{ height: "" }}>
                     {showSaveChangesBtn && (
-                      <div className="w-full pb-8">
+                      <div className="w-full">
                         {UpdateAgentLoader ? (
                           <div className="w-full flex flex-row justify-center">
                             <CircularProgress size={35} />
                           </div>
                         ) : (
                           <button
-                            className="bg-purple w-full h-[50px] rounded-xl mb-4 text-white"
+                            className="bg-purple w-full h-[50px] rounded-xl text-white"
                             style={{ fontWeight: "600", fontSize: 15 }}
                             onClick={() => {
                               updateAgent();

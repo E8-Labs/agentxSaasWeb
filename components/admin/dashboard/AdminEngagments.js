@@ -64,7 +64,7 @@ function AdminEngagments() {
         getEngagmentData()
     }, [])
 
-    const getEngagmentData = async (customRange= false,) => {
+    const getEngagmentData = async (customRange = false,) => {
         try {
             setLoading(true);
             const data = localStorage.getItem("User");
@@ -74,14 +74,14 @@ function AdminEngagments() {
 
                 let path = Apis.adminEngagements
 
-                if (customRange) {
+                if (startDate && endDate) {
                     path =
-                      path + "?startDate=" +
-                      startDate +
-                      "&endDate=" +
-                      endDate
-                    }
-          
+                        path + "?startDate=" +
+                        startDate +
+                        "&endDate=" +
+                        endDate
+
+                }
                 console.log("u", u);
 
                 console.log("path", path);
@@ -144,7 +144,11 @@ function AdminEngagments() {
 
     const progressData = [
         { name: "Churn Rate", value: engagmentData?.churnRate },
-        { name: "Retention Rate", value: engagmentData?.retentionRate },
+        {
+            name: "Retention Rate", value: typeof engagmentData?.retentionRate === "object"
+                ? engagmentData?.retentionRate?.retentionRate
+                : engagmentData?.retentionRate
+        },
         { name: "5Cohort Retention Rate", value: engagmentData?.cohortRetention?.length > 0 ? engagmentData?.cohortRetention[0].retentionRate : 0 },
         { name: "Cohort Implementation Request", value: 0 },
         { name: "Stickiness Ratio (DAU/MAU)", value: engagmentData?.stickinessRatio?.stickinessRatio }
@@ -160,6 +164,7 @@ function AdminEngagments() {
                     </div>
 
                     <div className='flex flex-row items-center gap-4'>
+
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <button
@@ -254,6 +259,39 @@ function AdminEngagments() {
                             </DropdownMenuContent>
                         </DropdownMenu>
 
+                        {
+                            startDate != "2025-01-01" && endDate != moment(currantDate).format("YYYY-MM-DD") &&
+                            <div className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto"
+                                style={{ scrollbarColor: "#00000000", scrollbarWidth: "none" }}
+                            >
+
+                                <div
+                                    className="px-4 py-2 bg-[#402FFF10] text-purple flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
+                                    style={{ fontWeight: "500", fontSize: 15 }}
+                                >
+                                    {`${moment(startDate).format("MM-DD-YYYY")} - ${moment(endDate).format("MM-DD-YYYY")}`}
+
+                                    {/* Remove Filter Button */}
+                                    <button
+                                        className="outline-none"
+                                        onClick={() => {
+                                            setendDate(moment(currantDate).format("YYYY-MM-DD"))
+                                            setstartDate("2025-01-01")
+                                            getEngagmentData(false)
+                                        }}
+                                    >
+                                        <Image
+                                            src={"/otherAssets/crossIcon.png"}
+                                            height={20}
+                                            width={20}
+                                            alt="Remove Filter"
+                                        />
+                                    </button>
+                                </div>
+                            </div>
+                        }
+
+
                     </div>
                 </div>
 
@@ -325,7 +363,9 @@ function AdminEngagments() {
                             Retention Rate
                         </div>
                         <div className='break-words' style={{ fontSize: 30, fontWeight: '300' }}>
-                            {engagmentData?.retentionRate}%
+                            {typeof engagmentData?.retentionRate === "object"
+                                ? engagmentData?.retentionRate?.retentionRate
+                                : engagmentData?.retentionRate}%
                         </div>
                         <div className='break-words' style={{ fontSize: 16, fontWeight: '500' }}>
                             -
@@ -621,15 +661,14 @@ export default AdminEngagments
 
 const styles = {
     modalsStyle: {
-      height: "auto",
-      bgcolor: "transparent",
-      p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-50%)",
-      borderRadius: 2,
-      border: "none",
-      outline: "none",
+        height: "auto",
+        bgcolor: "transparent",
+        p: 2,
+        mx: "auto",
+        my: "50vh",
+        transform: "translateY(-50%)",
+        borderRadius: 2,
+        border: "none",
+        outline: "none",
     },
-  };
-  
+};

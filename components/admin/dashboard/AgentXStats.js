@@ -87,7 +87,7 @@ function AgentXStats({ user }) {
 
   function GetStatView(title, percentage, count, icon) {
     return (
-      <Card className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center  w-[14vw] ">
+      <Card className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center  w-[16vw] ">
         <TopVoicesModal
           topVoices={stats?.topVoices || []}
           open={showAllVoices}
@@ -289,7 +289,7 @@ function AgentXStats({ user }) {
       />
       {/* </div> */}
 
-      <div className=" grid gap-4 grid-cols-5 md:grid-cols-5 lg:grid-cols-5  rounded-lg">
+      <div className=" grid gap-3 grid-cols-5 md:grid-cols-5 lg:grid-cols-5  rounded-lg">
         {/* Top Metrics */}
         <button onClick={() => {
           setShowAllUsersWithAgents(true)
@@ -406,7 +406,7 @@ function VoicesComponent({
       color = "bg-pink-500/80";
     }
     return (
-      <Card className="cursor-pointer  w-[11vw] h-[160px] border-white relative  border border-white shadow-[0px_4px_31.5px_0px_rgba(121,2,223,0.04)] rounded-2xl p-6 flex flex-col items-center text-center bg-white/60 overflow-hidden">
+      <Card className="cursor-pointer  w-[14vw] h-[160px] border-white relative  border border-white shadow-[0px_4px_31.5px_0px_rgba(121,2,223,0.04)] rounded-2xl p-6 flex flex-col items-center text-center bg-white/60 overflow-hidden">
         <div
           className={`cursor-pointer absolute top-0 left-1/2 transform -translate-x-1/2 w-28 h-20 ${color} rounded-full blur-2xl`}
         />
@@ -430,8 +430,8 @@ function VoicesComponent({
   }
 
   return (
-    <div className=" grid gap-3 grid-cols-6 md:grid-cols-6 lg:grid-cols-6 w-[70vw] bg-white pt-2 rounded-lg ">
-      <Card className="cursor-pointer border-none flex flex-col items-center justify-center shadow-none w-[11vw]">
+    <div className=" grid gap-3 grid-cols-6 md:grid-cols-6 lg:grid-cols-6 w-[83vw] bg-white pt-2 rounded-lg ">
+      <Card className="cursor-pointer border-none flex flex-col items-center justify-center shadow-none w-[13vw]">
         <CardContent>
           <h2 className="cursor-pointer text-2xl font-regular">Top</h2>
         </CardContent>
@@ -462,7 +462,7 @@ function VoicesComponent({
         </CardContent>
       </Card>
 
-      <Card className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center  w-[14vw]">
+      <Card className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center  w-[13vw]">
         <div className="cursor-pointer flex items-center justify-between w-full  mb-2">
           <img
             src="/invtedteamsiocn.png"
