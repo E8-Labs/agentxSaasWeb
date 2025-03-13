@@ -602,13 +602,13 @@ const Pipeline1 = () => {
           JSON.stringify(response.data.data)
         );
         let index = selectedPipelineIndex;
-        if (selectedPipelineIndex < response.data.data.length) {
-          index = selectedPipelineIndex;
-        } else if (response.data.data.length > 0) {
-          index = 0;
-        } else {
-          index = -1;
-        }
+        // if (selectedPipelineIndex < response.data.data.length) {
+        //   index = selectedPipelineIndex;
+        // } else if (response.data.data.length > 0) {
+        //   index = 0;
+        // } else {
+        //   index = -1;
+        // }
 
         if (index != -1) {
           setPipeLines(response.data.data);
