@@ -108,6 +108,13 @@ function AdminSubscriptions() {
       }))
       : [];
 
+
+      const totalNewSubscriptions = subscriptionChartData.reduce((total, monthData) => {
+        return total + (monthData.Trial || 0) + (monthData.Plan30 || 0) + (monthData.Plan120 || 0) + (monthData.Plan360 || 0) + (monthData.Plan720 || 0);
+      }, 0);
+      
+      console.log("Total New Subscriptions:", totalNewSubscriptions);
+
   // Mapping Plan names to UI labels
   const planMapping = {
     Plan30: "Plan30",
@@ -353,7 +360,7 @@ function AdminSubscriptions() {
                 className="px-4 py-2 bg-[#402FFF10] text-purple flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
                 style={{ fontWeight: "500", fontSize: 15 }}
               >
-                {`${subscriptionStartDate} - ${subscriptionEndDate}`}
+                {`${moment(subscriptionStartDate).format("MM-DD-YYYY")} - ${moment(subscriptionEndDate).format("MM-DD-YYYY")}`}
 
                 {/* Remove Filter Button */}
                 <button
@@ -361,6 +368,7 @@ function AdminSubscriptions() {
                   onClick={() => {
                     setSubscriptionEndDate(moment(currantDate).format("YYYY-MM-DD"))
                     setSubscriptionStartDate("2025-01-01")
+                    setSelectedSubRange("All Time")
                     getAdminAnalytics(false)
                   }}
                 >
@@ -409,48 +417,14 @@ function AdminSubscriptions() {
                     <div
                       style={{ fontSize: 48, fontWeight: "300", color: "#000" }}
                     >
-                      11,728
+                      {totalNewSubscriptions}
                     </div>
                   </div>
 
                   <div className="w-full flex flex-row items-center gap-4 justify-end">
 
 
-                    {/* Plan Type Dropdown */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          className="
-                                                            px-4 py-2 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                                            flex flex-row items-center gap-1
-                                                            "
-                        >
-                          <p>Plan Type</p>
-                          <Image
-                            src={"/svgIcons/downArrow.svg"}
-                            height={20}
-                            width={24}
-                            alt="*"
-                          />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        className="bg-white border rounded-lg shadow-md"
-                        style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                      >
-                        <DropdownMenuGroup style={{ cursor: "pointer" }}>
-                          <DropdownMenuItem className="hover:bg-gray-100 px-3">
-                            Monthly
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="hover:bg-gray-100 px-3">
-                            Weekly
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="hover:bg-gray-100 px-3">
-                            Yearly
-                          </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                   
                   </div>
                 </div>
               </div>
@@ -594,42 +568,7 @@ function AdminSubscriptions() {
                     </div>
 
 
-                    {/* Plan Dropdown */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          className="
-                            px-4 py-2 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                            flex flex-row items-center gap-1
-                          "
-                        >
-                          <p>January</p>
-                          <Image
-                            src={"/svgIcons/downArrow.svg"}
-                            height={20}
-                            width={24}
-                            alt="*"
-                          />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        className="bg-white border rounded-lg shadow-md"
-                        style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                      >
-                        <DropdownMenuGroup
-                          style={{ cursor: "pointer", zIndex: 50 }}
-                        >
-                          {months.map((month, index) => (
-                            <DropdownMenuItem
-                              key={index}
-                              className="hover:bg-gray-100 px-3"
-                            >
-                              {month}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuGroup>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                   
                   </div>
 
                   <BarChart
@@ -716,42 +655,7 @@ function AdminSubscriptions() {
                         Churned users who return
                       </div>
                     </div>
-                    {/* Plan Dropdown */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          className="
-                                            px-4 py-2 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                            flex flex-row items-center gap-1
-                                            "
-                        >
-                          <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                          <Image
-                            src={"/svgIcons/downArrow.svg"}
-                            height={20}
-                            width={24}
-                            alt="*"
-                          />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        className="bg-white border rounded-lg shadow-md"
-                        style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                      >
-                        <DropdownMenuGroup
-                          style={{ cursor: "pointer", zIndex: 50 }}
-                        >
-                          {months.map((month, index) => (
-                            <DropdownMenuItem
-                              key={index}
-                              className="hover:bg-gray-100 px-3"
-                            >
-                              {month}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuGroup>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    
                   </div>
 
                   <BarChart
@@ -841,41 +745,7 @@ function AdminSubscriptions() {
 
                 <div className="w-full flex flex-row justify-end items-center gap-4">
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        className="
-                          px-4 py-2 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                          flex flex-row items-center gap-1
-                        "
-                      >
-                        <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                        <Image
-                          src={"/svgIcons/downArrow.svg"}
-                          height={20}
-                          width={24}
-                          alt="*"
-                        />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      className="bg-white border rounded-lg shadow-md"
-                      style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                    >
-                      <DropdownMenuGroup
-                        style={{ cursor: "pointer", zIndex: 50 }}
-                      >
-                        {months.map((month, index) => (
-                          <DropdownMenuItem
-                            key={index}
-                            className="hover:bg-gray-100 px-3"
-                          >
-                            {month}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuGroup>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                 
                 </div>
 
                 <div className="w-full flex flex-row gap-4 items-center mt-4">
@@ -1104,41 +974,6 @@ function AdminSubscriptions() {
                     </div>
                   </div>
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        className="
-                                            px-4 py-2 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                            flex flex-row items-center gap-1
-                                            "
-                      >
-                        <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                        <Image
-                          src={"/svgIcons/downArrow.svg"}
-                          height={20}
-                          width={24}
-                          alt="*"
-                        />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      className="bg-white border rounded-lg shadow-md"
-                      style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                    >
-                      <DropdownMenuGroup
-                        style={{ cursor: "pointer", zIndex: 50 }}
-                      >
-                        {months.map((month, index) => (
-                          <DropdownMenuItem
-                            key={index}
-                            className="hover:bg-gray-100 px-3"
-                          >
-                            {month}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuGroup>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
                 </div>
 
                 <div className="w-full flex flex-row items-start gap- mt-8">
@@ -1244,41 +1079,6 @@ function AdminSubscriptions() {
                     Referal Code Rate
                   </div>
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        className="
-                                            px-4 py-2 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                            flex flex-row items-center gap-1
-                                            "
-                      >
-                        <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                        <Image
-                          src={"/svgIcons/downArrow.svg"}
-                          height={20}
-                          width={24}
-                          alt="*"
-                        />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      className="bg-white border rounded-lg shadow-md"
-                      style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                    >
-                      <DropdownMenuGroup
-                        style={{ cursor: "pointer", zIndex: 50 }}
-                      >
-                        {months.map((month, index) => (
-                          <DropdownMenuItem
-                            key={index}
-                            className="hover:bg-gray-100 px-3"
-                          >
-                            {month}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuGroup>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
                 </div>
 
                 <div style={{ fontSize: 48, fontWeight: 300, color: "#000" }}>
@@ -1298,39 +1098,7 @@ function AdminSubscriptions() {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-purple">CLV</h3>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="
-                                            px-3 py-1 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                            flex flex-row items-center gap-1
-                                            "
-                  >
-                    <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                    <Image
-                      src={"/svgIcons/downArrow.svg"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="bg-white border rounded-lg shadow-md"
-                  style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                >
-                  <DropdownMenuGroup style={{ cursor: "pointer", zIndex: 50 }}>
-                    {months.map((month, index) => (
-                      <DropdownMenuItem
-                        key={index}
-                        className="hover:bg-gray-100 px-3"
-                      >
-                        {month}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+         
             </div>
 
             {/* Value */}
@@ -1361,39 +1129,7 @@ function AdminSubscriptions() {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-purple">MRR</h3>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="
-                                            px-3 py-1 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                            flex flex-row items-center gap-1
-                                            "
-                  >
-                    <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                    <Image
-                      src={"/svgIcons/downArrow.svg"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="bg-white border rounded-lg shadow-md"
-                  style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                >
-                  <DropdownMenuGroup style={{ cursor: "pointer", zIndex: 50 }}>
-                    {months.map((month, index) => (
-                      <DropdownMenuItem
-                        key={index}
-                        className="hover:bg-gray-100 px-3"
-                      >
-                        {month}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+        
             </div>
 
             {/* Value */}
@@ -1424,39 +1160,7 @@ function AdminSubscriptions() {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-purple">ARR</h3>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="
-                                            px-3 py-1 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                            flex flex-row items-center gap-1
-                                            "
-                  >
-                    <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                    <Image
-                      src={"/svgIcons/downArrow.svg"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="bg-white border rounded-lg shadow-md"
-                  style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                >
-                  <DropdownMenuGroup style={{ cursor: "pointer", zIndex: 50 }}>
-                    {months.map((month, index) => (
-                      <DropdownMenuItem
-                        key={index}
-                        className="hover:bg-gray-100 px-3"
-                      >
-                        {month}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+          
             </div>
 
             {/* Value */}
@@ -1486,39 +1190,7 @@ function AdminSubscriptions() {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-purple">NRR</h3>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="
-                                            px-3 py-1 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                            flex flex-row items-center gap-1
-                                            "
-                  >
-                    <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                    <Image
-                      src={"/svgIcons/downArrow.svg"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="bg-white border rounded-lg shadow-md"
-                  style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                >
-                  <DropdownMenuGroup style={{ cursor: "pointer", zIndex: 50 }}>
-                    {months.map((month, index) => (
-                      <DropdownMenuItem
-                        key={index}
-                        className="hover:bg-gray-100 px-3"
-                      >
-                        {month}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+            
             </div>
 
             {/* Value */}
@@ -1555,39 +1227,6 @@ function AdminSubscriptions() {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-purple">CAC</h3>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="
-                                            px-3 py-1 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                            flex flex-row items-center gap-1
-                                            "
-                  >
-                    <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                    <Image
-                      src={"/svgIcons/downArrow.svg"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="bg-white border rounded-lg shadow-md"
-                  style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                >
-                  <DropdownMenuGroup style={{ cursor: "pointer", zIndex: 50 }}>
-                    {months.map((month, index) => (
-                      <DropdownMenuItem
-                        key={index}
-                        className="hover:bg-gray-100 px-3"
-                      >
-                        {month}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
 
             {/* Value */}
@@ -1625,39 +1264,7 @@ function AdminSubscriptions() {
                 />
               </div>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="
-                                            px-3 py-1 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                            flex flex-row items-center gap-1
-                                            "
-                  >
-                    <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                    <Image
-                      src={"/svgIcons/downArrow.svg"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="bg-white border rounded-lg shadow-md"
-                  style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                >
-                  <DropdownMenuGroup style={{ cursor: "pointer", zIndex: 50 }}>
-                    {months.map((month, index) => (
-                      <DropdownMenuItem
-                        key={index}
-                        className="hover:bg-gray-100 px-3"
-                      >
-                        {month}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+       
             </div>
 
             {/* Value */}
@@ -1720,6 +1327,7 @@ function AdminSubscriptions() {
                 <button
                   onClick={() => {
                     setShowCustomRangePopup(null);
+                    setSelectedSubRange("All Time")
                   }}
                 >
                   <Image

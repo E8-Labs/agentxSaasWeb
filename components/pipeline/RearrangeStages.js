@@ -44,6 +44,8 @@ const RearrangeStages = ({
   const [pipelineStages, setPipelineStages] = useState(stages);
   const [delStageLoader, setDelStageLoader] = useState(false);
   const [successSnack, setSuccessSnack] = useState(null);
+  const [errorSnack, setErrorSnack] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
   const [showDelStagePopup, setShowDelStagePopup] = useState(null);
   const [actionInfoEl, setActionInfoEl] = React.useState(null);
   // const [showReorderBtn, setShowReorderBtn] = useState(false);
@@ -379,6 +381,10 @@ const RearrangeStages = ({
           setAddNewStageModal(false);
           setNewStageTitle("");
           setStageColor("");
+        } else {
+          let message = response.data.message;
+          setErrorMessage(message);
+          setErrorSnack(true)
         }
       }
     } catch (error) {
@@ -438,6 +444,16 @@ const RearrangeStages = ({
         hide={() => setSuccessSnack(false)}
         message={successSnack}
         type={SnackbarTypes.Success}
+      />
+      <AgentSelectSnackMessage
+        isVisible={
+          errorSnack == false || errorSnack == null
+            ? false
+            : true
+        }
+        hide={() => setErrorSnack(false)}
+        message={errorMessage}
+        type={SnackbarTypes.Error}
       />
 
       <Droppable droppableId="pipelineStages">

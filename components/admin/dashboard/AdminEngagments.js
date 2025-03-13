@@ -165,47 +165,6 @@ function AdminEngagments() {
 
                     <div className='flex flex-row items-center gap-4'>
 
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <button
-                                    className="
-                                    px-4 py-2 border-2 border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                    flex flex-row items-center gap-1
-                                "
-                                >
-                                    <p>
-                                        {/* {selectedDateRange
-                                        ? selectedDateRange */}
-                                        Select Plan
-                                        {/* } */}
-                                    </p>
-                                    <Image
-                                        src={"/svgIcons/downArrow.svg"}
-                                        height={20}
-                                        width={24}
-                                        alt="*"
-                                    />
-                                </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent
-                                className="bg-white border-2 rounded-lg shadow-md"
-                                style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                            >
-                                <DropdownMenuGroup style={{ cursor: "pointer" }}>
-                                    {
-                                        plans.map((item) => (
-                                            <DropdownMenuItem key={item.id}
-                                                className="hover:bg-gray-100 px-3"
-
-                                            >
-                                                {item.plan}
-                                            </DropdownMenuItem>
-                                        ))
-                                    }
-                                </DropdownMenuGroup>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-
                         {/* Range date Dropdown */}
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -278,6 +237,7 @@ function AdminEngagments() {
                                             setendDate(moment(currantDate).format("YYYY-MM-DD"))
                                             setstartDate("2025-01-01")
                                             getEngagmentData(false)
+                                            setselectedDateRange("All Time")
                                         }}
                                     >
                                         <Image
@@ -451,87 +411,7 @@ function AdminEngagments() {
                             Engagement Graph
                         </div>
                         <div className='flex flex-row items-center gap-4'>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <button
-                                        className="
-                                    px-4 py-2 border-2 border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                    flex flex-row items-center gap-1
-                                "
-                                    >
-                                        <p>
-                                            {/* {selectedDateRange
-                                        ? selectedDateRange */}
-                                            Select Plan
-                                            {/* } */}
-                                        </p>
-                                        <Image
-                                            src={"/svgIcons/downArrow.svg"}
-                                            height={20}
-                                            width={24}
-                                            alt="*"
-                                        />
-                                    </button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                    className="bg-white border-2 rounded-lg shadow-md"
-                                    style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                                >
-                                    <DropdownMenuGroup style={{ cursor: "pointer" }}>
-                                        {
-                                            plans.map((item) => (
-                                                <DropdownMenuItem key={item.id}
-                                                    className="hover:bg-gray-100 px-3"
-
-                                                >
-                                                    {item.plan}
-                                                </DropdownMenuItem>
-                                            ))
-                                        }
-                                    </DropdownMenuGroup>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <button
-                                        className="
-                                    px-4 py-2 border-2 border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                    flex flex-row items-center gap-1
-                                "
-                                    >
-                                        <p>
-                                            {/* {selectedDateRange
-                                        ? selectedDateRange */}
-                                            Select Period
-                                            {/* } */}
-                                        </p>
-                                        <Image
-                                            src={"/svgIcons/downArrow.svg"}
-                                            height={20}
-                                            width={24}
-                                            alt="*"
-                                        />
-                                    </button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                    className="bg-white border-2 rounded-lg shadow-md"
-                                    style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                                >
-                                    <DropdownMenuGroup style={{ cursor: "pointer" }}>
-                                        {
-                                            periods.map((item) => (
-                                                <DropdownMenuItem key={item.id}
-                                                    className="hover:bg-gray-100 px-3"
-
-                                                >
-                                                    {item.name}
-                                                </DropdownMenuItem>
-                                            ))
-                                        }
-                                    </DropdownMenuGroup>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                            
                         </div>
                     </div>
 
@@ -602,6 +482,7 @@ function AdminEngagments() {
                                 <button
                                     onClick={() => {
                                         setShowCustomRangePopup(false);
+                                        setselectedDateRange("All Time")
                                     }}
                                 >
                                     <Image

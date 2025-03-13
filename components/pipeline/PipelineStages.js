@@ -53,6 +53,8 @@ const PipelineStages = ({
   const [delStageLoader, setDelStageLoader] = useState(false);
   const [delStageLoader2, setDelStageLoader2] = useState(false);
   const [successSnack, setSuccessSnack] = useState(null);
+  const [errorSnack, setErrorSnack] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
   //code for stages list
   const [stagesList, setStagesList] = useState([]);
   //code for deleting stage
@@ -503,6 +505,10 @@ const PipelineStages = ({
           setStagesList(response.data.data.stages);
           selectedPipelineItem.stages = response.data.data.stages;
           onNewStageCreated(selectedPipelineItem);
+        } else {
+          let message = response.data.message;
+          setErrorMessage(message);
+          setErrorSnack(true)
         }
       }
     } catch (error) {
@@ -604,6 +610,16 @@ const PipelineStages = ({
                       hide={() => setSuccessSnack(false)}
                       message={successSnack}
                       type={SnackbarTypes.Success}
+                    />
+                     <AgentSelectSnackMessage
+                      isVisible={
+                        errorSnack == false || errorSnack == null
+                          ? false
+                          : true
+                      }
+                      hide={() => setErrorSnack(false)}
+                      message={errorMessage}
+                      type={SnackbarTypes.Error}
                     />
                     <div className="w-[5%]">
                       {index > 0 && (

@@ -4468,9 +4468,9 @@ function Page() {
               </div>
 
               {showScript && (
-                <div style={{ height: "82%" }}>
-                  <div style={{ height: "83%", borderWidth: 0 }}>
-                    <div className="bg-[#00000002] p-2 mt-6">
+                <div style={{ height: "73%", borderWidth:0}}>
+                  <div style={{ height: showSaveChangesBtn? "95%":"100%", borderWidth: 0 }}>
+                    <div className="bg-[#00000002] p-2 mt-2">
                       <div
                         style={styles.inputStyle}
                         className="flex flex-row items-center gap-2"
@@ -4622,7 +4622,7 @@ function Page() {
                     {showSaveChangesBtn && (
                       <div className="w-full">
                         {UpdateAgentLoader ? (
-                          <div className="w-full flex flex-row justify-center">
+                          <div className="w-full flex flex-row mt-6 justify-center">
                             <CircularProgress size={35} />
                           </div>
                         ) : (
