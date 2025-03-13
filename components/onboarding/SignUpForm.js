@@ -754,7 +754,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
               />
 
               <div style={styles.headingStyle} className="mt-6">
-                Average transaction volume per year
+                How many homes did you sell last year?
               </div>
               <input
                 ref={(el) => (inputsFields.current[5] = el)}

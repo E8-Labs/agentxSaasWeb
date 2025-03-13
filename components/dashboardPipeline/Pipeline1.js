@@ -143,6 +143,7 @@ const Pipeline1 = () => {
   const [delStageLoader2, setDelStageLoader2] = useState(false);
   const [showDelStageModal, setShowDelStageModal] = useState(false);
   const [SuccessSnack, setSuccessSnack] = useState(null);
+  const [snackMessage, setSnackMessage] = useState(null);
   //code for dropdown stages when delstage
   const [assignNextStage, setAssignNextStage] = useState("");
   const [assignNextStageId, setAssignNextStageId] = useState("");
@@ -775,7 +776,7 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        // console.log("Response of add stage title :", response);
+        console.log("Response of add stage title :", response);
         if (response.data.status === true) {
           setStagesList(response.data.data.stages);
           handleCloseAddStage();
@@ -796,6 +797,9 @@ const Pipeline1 = () => {
           );
 
           // setPipeLines([...PipeLines, newPipeline]);
+        } else if (response.data.status == false) {
+          let message = response.data.message;
+          setSnackMessage({ message: message, type: SnackbarTypes.Error });
         }
       }
     } catch (error) {
@@ -806,14 +810,12 @@ const Pipeline1 = () => {
   };
 
   useEffect(() => {
-    let data = localStorage.getItem(
-      "pipelinesList"
-    );
+    let data = localStorage.getItem("pipelinesList");
 
     if (data) {
-      let d = JSON.parse(data)
+      let d = JSON.parse(data);
 
-      console.log('pipelinesList from local is', d)
+      console.log("pipelinesList from local is", d);
     }
   }, []);
 
@@ -868,32 +870,35 @@ const Pipeline1 = () => {
       if (response) {
         console.log("response of del stage api is:", response.data);
         if (response.data.status === true) {
-
           setStagesList(response.data.data.stages);
           setSuccessSnack(response.data.message);
           setStageAnchorel(null);
           setShowDelStageModal(false);
 
-          let p = localStorage.getItem("pipelinesList")
+          let p = localStorage.getItem("pipelinesList");
 
           if (p) {
-            let localPipelines = JSON.parse(p)
+            let localPipelines = JSON.parse(p);
 
-            let updatedPipelines = localPipelines.map(pipeline => {
+            let updatedPipelines = localPipelines.map((pipeline) => {
               if (SelectedPipeline.id === pipeline.id) {
                 return {
                   ...pipeline,
-                  stages: pipeline.stages.filter(stage => stage.id !== selectedStage.id)
+                  stages: pipeline.stages.filter(
+                    (stage) => stage.id !== selectedStage.id
+                  ),
                 };
               }
               return pipeline; // Return unchanged pipeline for others
             });
 
-            console.log('updatedPipelines', updatedPipelines)
-            localStorage.setItem("pipelinesList", JSON.stringify(updatedPipelines));
-
+            console.log("updatedPipelines", updatedPipelines);
+            localStorage.setItem(
+              "pipelinesList",
+              JSON.stringify(updatedPipelines)
+            );
           } else {
-            console.log('no pipeline list found from local')
+            console.log("no pipeline list found from local");
           }
         }
       }
@@ -1108,7 +1113,10 @@ const Pipeline1 = () => {
             (pipeline) => pipeline.id !== SelectedPipeline.id
           );
 
-          localStorage.setItem("pipelinesList", JSON.stringify(updatedPipelines))
+          localStorage.setItem(
+            "pipelinesList",
+            JSON.stringify(updatedPipelines)
+          );
 
           // console.log("Updated list of pipelines is:", updatedPipelines);
           setSelectedPipeline(updatedPipelines[0]);
@@ -1483,12 +1491,12 @@ const Pipeline1 = () => {
     const updatedLeadsList = LeadsList.map((item) =>
       item.leadId === lead.id
         ? {
-          ...item,
-          lead: {
-            ...item.lead,
-            teamsAssigned: [...item.lead.teamsAssigned, team],
-          },
-        }
+            ...item,
+            lead: {
+              ...item.lead,
+              teamsAssigned: [...item.lead.teamsAssigned, team],
+            },
+          }
         : item
     );
 
@@ -1611,6 +1619,13 @@ const Pipeline1 = () => {
         hide={() => setSuccessSnack(false)}
         message={SuccessSnack}
       />
+
+      <AgentSelectSnackMessage
+        type={snackMessage?.type}
+        isVisible={snackMessage != null}
+        hide={() => setSnackMessage(null)}
+        message={snackMessage?.message}
+      />
       <div
         className="w-full flex flex-row justify-center"
         style={{ borderBottom: "1px solid #15151510" }}
@@ -1671,12 +1686,12 @@ const Pipeline1 = () => {
                   vertical: "bottom",
                   horizontal: "left",
                 }}
-              // PaperProps={{
-              //     elevation: 0, // This will remove the shadow
-              //     style: {
-              //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
-              //     },
-              // }}
+                // PaperProps={{
+                //     elevation: 0, // This will remove the shadow
+                //     style: {
+                //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
+                //     },
+                // }}
               >
                 <div className="p-3">
                   <button
@@ -1925,7 +1940,7 @@ const Pipeline1 = () => {
                           <div
                             className="text-black flex flex-row items-center gap-4 me-2 outline-none"
                             style={styles.paragraph}
-                          // onClick={handleDeleteStage}
+                            // onClick={handleDeleteStage}
                           >
                             <button
                               className="flex flex-row gap-2 outline-none"
@@ -2000,137 +2015,137 @@ const Pipeline1 = () => {
                     {/* Display leads matching this stage */}
                     {LeadsList.filter((lead) => lead.lead.stage === stage.id)
                       .length > 0 && (
-                        <div
-                          className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl"
-                          style={{
-                            scrollbarWidth: "none",
-                            borderWidth: 1,
-                            borderRadius: "12",
-                            borderStyle: "solid",
-                            borderColor: "#00000010",
-                          }}
-                        >
-                          {LeadsList.filter(
-                            (lead) => lead.lead.stage === stage.id
-                          ).map((lead, leadIndex) => (
-                            <div
-                              className="p-3 h-full"
-                              style={{ width: "300px", height: 200 }}
-                              key={leadIndex}
-                            >
-                              <div className="border rounded-xl px-4 py-2 h-full">
-                                <button
-                                  className="flex flex-row items-center gap-3"
-                                  onClick={() => {
-                                    // console.log(
-                                    //   "Selected lead details are:",
-                                    //   lead
-                                    // );
-                                    setShowDetailsModal(true);
-                                    setSelectedLeadsDetails(lead.lead);
-                                    setPipelineId(lead.lead.pipeline.id);
-                                    setNoteDetails(lead.lead.notes);
-                                  }}
+                      <div
+                        className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl"
+                        style={{
+                          scrollbarWidth: "none",
+                          borderWidth: 1,
+                          borderRadius: "12",
+                          borderStyle: "solid",
+                          borderColor: "#00000010",
+                        }}
+                      >
+                        {LeadsList.filter(
+                          (lead) => lead.lead.stage === stage.id
+                        ).map((lead, leadIndex) => (
+                          <div
+                            className="p-3 h-full"
+                            style={{ width: "300px", height: 200 }}
+                            key={leadIndex}
+                          >
+                            <div className="border rounded-xl px-4 py-2 h-full">
+                              <button
+                                className="flex flex-row items-center gap-3"
+                                onClick={() => {
+                                  // console.log(
+                                  //   "Selected lead details are:",
+                                  //   lead
+                                  // );
+                                  setShowDetailsModal(true);
+                                  setSelectedLeadsDetails(lead.lead);
+                                  setPipelineId(lead.lead.pipeline.id);
+                                  setNoteDetails(lead.lead.notes);
+                                }}
+                              >
+                                {/* T is center aligned */}
+                                <div
+                                  className="bg-black text-white rounded-full flex flex-row item-center justify-center"
+                                  style={{ height: "27px", width: "27px" }}
                                 >
-                                  {/* T is center aligned */}
+                                  {lead.lead.firstName.slice(0, 1)}
+                                </div>
+                                <div style={styles.paragraph}>
+                                  {lead.lead.firstName}
+                                </div>
+                              </button>
+                              <div className="flex flex-row items-center justify-between w-full mt-2">
+                                <div
+                                  className="text-[#00000060]"
+                                  style={styles.agentName}
+                                >
+                                  {(lead?.lead?.email
+                                    ? lead?.lead?.email?.slice(0, 10) + "..."
+                                    : "") || ""}
+                                </div>
+                                <div className="flex flex-row items-center gap-4">
+                                  <Image
+                                    src={"/assets/colorCircle.png"}
+                                    height={24}
+                                    width={24}
+                                    alt="*"
+                                  />
                                   <div
-                                    className="bg-black text-white rounded-full flex flex-row item-center justify-center"
-                                    style={{ height: "27px", width: "27px" }}
-                                  >
-                                    {lead.lead.firstName.slice(0, 1)}
-                                  </div>
-                                  <div style={styles.paragraph}>
-                                    {lead.lead.firstName}
-                                  </div>
-                                </button>
-                                <div className="flex flex-row items-center justify-between w-full mt-2">
-                                  <div
-                                    className="text-[#00000060]"
+                                    className="text-purple underline"
                                     style={styles.agentName}
                                   >
-                                    {(lead?.lead?.email
-                                      ? lead?.lead?.email?.slice(0, 10) + "..."
-                                      : "") || ""}
-                                  </div>
-                                  <div className="flex flex-row items-center gap-4">
-                                    <Image
-                                      src={"/assets/colorCircle.png"}
-                                      height={24}
-                                      width={24}
-                                      alt="*"
-                                    />
-                                    <div
-                                      className="text-purple underline"
-                                      style={styles.agentName}
-                                    >
-                                      {lead.agent.name}
-                                    </div>
+                                    {lead.agent.name}
                                   </div>
                                 </div>
+                              </div>
 
-                                {lead?.lead?.booking?.date && (
-                                  <div
-                                    className="flex flex-row items-center gap-2"
-                                    style={{
-                                      // fontWeight: "500",
+                              {lead?.lead?.booking?.date && (
+                                <div
+                                  className="flex flex-row items-center gap-2"
+                                  style={{
+                                    // fontWeight: "500",
 
-                                      color: "#15151560",
-                                      // backgroundColor: 'red',
-                                    }}
-                                  >
-                                    <Image
-                                      src="/svgIcons/calendar.svg"
-                                      height={16}
-                                      width={16}
-                                      alt="*"
-                                      style={{ filter: "opacity(50%)" }}
-                                    />
-                                    {/* {moment(lead?.lead?.booking?.date).format(
+                                    color: "#15151560",
+                                    // backgroundColor: 'red',
+                                  }}
+                                >
+                                  <Image
+                                    src="/svgIcons/calendar.svg"
+                                    height={16}
+                                    width={16}
+                                    alt="*"
+                                    style={{ filter: "opacity(50%)" }}
+                                  />
+                                  {/* {moment(lead?.lead?.booking?.date).format(
                                       "MMM D"
                                     ) || "-"} */}
-                                    <p style={{ fontSize: 13, fontWeight: 500 }}>
-                                      {GetFormattedDateString(
-                                        lead?.lead?.booking?.date,
-                                        true,
-                                        "MMM DD"
-                                      )}
-                                    </p>
+                                  <p style={{ fontSize: 13, fontWeight: 500 }}>
+                                    {GetFormattedDateString(
+                                      lead?.lead?.booking?.date,
+                                      true,
+                                      "MMM DD"
+                                    )}
+                                  </p>
 
-                                    <Image
-                                      src="/svgIcons/clock.svg"
-                                      height={16}
-                                      width={16}
-                                      alt="*"
-                                      style={{ filter: "opacity(50%)" }}
-                                    />
-                                    <p style={{ fontSize: 13, fontWeight: 500 }}>
-                                      {GetFormattedTimeString(
-                                        lead?.lead?.booking?.datetime
-                                      )}
-                                    </p>
+                                  <Image
+                                    src="/svgIcons/clock.svg"
+                                    height={16}
+                                    width={16}
+                                    alt="*"
+                                    style={{ filter: "opacity(50%)" }}
+                                  />
+                                  <p style={{ fontSize: 13, fontWeight: 500 }}>
+                                    {GetFormattedTimeString(
+                                      lead?.lead?.booking?.datetime
+                                    )}
+                                  </p>
 
-                                    {/* {moment(
+                                  {/* {moment(
                                       lead?.lead?.booking?.time,
                                       "HH:mm"
                                     ).format("HH:mm") || "-"} */}
-                                  </div>
-                                )}
+                                </div>
+                              )}
 
-                                <div className="w-full flex flex-row items-center justify-between mt-12">
-                                  {lead?.lead?.teamsAssigned?.length > 0 ? (
-                                    <LeadTeamsAssignedList
-                                      users={lead?.lead?.teamsAssigned}
-                                      maxVisibleUsers={1}
-                                    />
-                                  ) : (
-                                    <Image
-                                      src={"/assets/manIcon.png"}
-                                      height={32}
-                                      width={32}
-                                      alt="*"
-                                    />
-                                  )}
-                                  {/* <div className="flex flex-row items-center gap-3">
+                              <div className="w-full flex flex-row items-center justify-between mt-12">
+                                {lead?.lead?.teamsAssigned?.length > 0 ? (
+                                  <LeadTeamsAssignedList
+                                    users={lead?.lead?.teamsAssigned}
+                                    maxVisibleUsers={1}
+                                  />
+                                ) : (
+                                  <Image
+                                    src={"/assets/manIcon.png"}
+                                    height={32}
+                                    width={32}
+                                    alt="*"
+                                  />
+                                )}
+                                {/* <div className="flex flex-row items-center gap-3">
                                                                         <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
                                                                             Tag
                                                                         </div>
@@ -2139,85 +2154,85 @@ const Pipeline1 = () => {
                                                                         </div>
                                                                     </div> */}
 
-                                  {lead.lead.tags.length > 0 ? (
-                                    <div className="flex flex-row items-center gap-1">
-                                      {lead?.lead?.tags
-                                        .slice(0, 1)
-                                        .map((tagVal, index) => {
-                                          return (
-                                            // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
-                                            //     {tagVal}
-                                            // </div>
+                                {lead.lead.tags.length > 0 ? (
+                                  <div className="flex flex-row items-center gap-1">
+                                    {lead?.lead?.tags
+                                      .slice(0, 1)
+                                      .map((tagVal, index) => {
+                                        return (
+                                          // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
+                                          //     {tagVal}
+                                          // </div>
+                                          <div
+                                            key={index}
+                                            className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg"
+                                          >
                                             <div
-                                              key={index}
-                                              className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg"
+                                              className="text-purple" //1C55FF10
                                             >
-                                              <div
-                                                className="text-purple" //1C55FF10
-                                              >
-                                                {tagVal.length > 4 ? (
-                                                  <div style={{ fontSize: 13 }}>
-                                                    {tagVal.slice(0, 4)}
-                                                    {"..."}
-                                                  </div>
-                                                ) : (
-                                                  <div style={{ fontSize: 13 }}>
-                                                    {tagVal}
-                                                  </div>
-                                                )}
-                                              </div>
-                                              {DelTagLoader &&
-                                                lead.lead.id === DelTagLoader ? (
-                                                <div>
-                                                  <CircularProgress size={15} />
+                                              {tagVal.length > 4 ? (
+                                                <div style={{ fontSize: 13 }}>
+                                                  {tagVal.slice(0, 4)}
+                                                  {"..."}
                                                 </div>
                                               ) : (
-                                                <button
-                                                  onClick={() => {
-                                                    // console.log(
-                                                    //   "Tag value is",
-                                                    //   tagVal
-                                                    // );
-                                                    handleDelTag(tagVal, lead);
-                                                    let updatedTags =
-                                                      lead.lead.tags.filter(
-                                                        (tag) => tag != tagVal
-                                                      ) || [];
-                                                    lead.lead.tags = updatedTags;
-                                                    let newLeadCad = [];
-                                                    LeadsList.map((item) => {
-                                                      if (item.id == lead.id) {
-                                                        newLeadCad.push(lead);
-                                                      } else {
-                                                        newLeadCad.push(item);
-                                                      }
-                                                    });
-                                                    setLeadsList(newLeadCad);
-                                                  }}
-                                                >
-                                                  <X
-                                                    size={15}
-                                                    weight="bold"
-                                                    color="#7902DF"
-                                                  />
-                                                </button>
+                                                <div style={{ fontSize: 13 }}>
+                                                  {tagVal}
+                                                </div>
                                               )}
                                             </div>
-                                          );
-                                        })}
-                                      {lead.lead.tags.length > 1 && (
-                                        <div>+{lead.lead.tags.length - 1}</div>
-                                      )}
-                                    </div>
-                                  ) : (
-                                    "-"
-                                  )}
-                                </div>
+                                            {DelTagLoader &&
+                                            lead.lead.id === DelTagLoader ? (
+                                              <div>
+                                                <CircularProgress size={15} />
+                                              </div>
+                                            ) : (
+                                              <button
+                                                onClick={() => {
+                                                  // console.log(
+                                                  //   "Tag value is",
+                                                  //   tagVal
+                                                  // );
+                                                  handleDelTag(tagVal, lead);
+                                                  let updatedTags =
+                                                    lead.lead.tags.filter(
+                                                      (tag) => tag != tagVal
+                                                    ) || [];
+                                                  lead.lead.tags = updatedTags;
+                                                  let newLeadCad = [];
+                                                  LeadsList.map((item) => {
+                                                    if (item.id == lead.id) {
+                                                      newLeadCad.push(lead);
+                                                    } else {
+                                                      newLeadCad.push(item);
+                                                    }
+                                                  });
+                                                  setLeadsList(newLeadCad);
+                                                }}
+                                              >
+                                                <X
+                                                  size={15}
+                                                  weight="bold"
+                                                  color="#7902DF"
+                                                />
+                                              </button>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    {lead.lead.tags.length > 1 && (
+                                      <div>+{lead.lead.tags.length - 1}</div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
                               </div>
                             </div>
-                          ))}
-                        </div>
-                      )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -3660,8 +3675,9 @@ const Pipeline1 = () => {
       {/* Code for side view */}
       {importantCalls?.length > 0 && (
         <div
-          className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${expandSideView ? "w-[506px]" : "w-[100px]"
-            }`} //${expandSideView ? 'w-[32vw]' : 'w-[7vw]'}
+          className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${
+            expandSideView ? "w-[506px]" : "w-[100px]"
+          }`} //${expandSideView ? 'w-[32vw]' : 'w-[7vw]'}
           style={{
             borderTopLeftRadius: expandSideView ? "0" : "40px",
             borderBottomLeftRadius: expandSideView ? "0" : "40px",
@@ -3671,7 +3687,7 @@ const Pipeline1 = () => {
             bottom: 100,
             right: 0,
           }}
-          onClick={() => { }}
+          onClick={() => {}}
         >
           {expandSideView ? (
             <div className="flex  items-center justify-center w-full">
