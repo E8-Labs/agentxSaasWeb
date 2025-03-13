@@ -351,7 +351,7 @@ function AdminSubscriptions() {
 
           {/* Show filters here in a row*/}
           {
-            subscriptionStartDate != "2025-01-01" && subscriptionEndDate != moment(currantDate).format("YYYY-MM-DD") &&
+            subscriptionStartDate != "2025-01-01" &&
             <div className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto"
               style={{ scrollbarColor: "#00000000", scrollbarWidth: "none" }}
             >

@@ -202,12 +202,12 @@ function CallWorthyReviewsPopup({ open, close }) {
                                         fontSize: 13,
                                         fontWeight: "500",
                                         color: "#00000060",
-                                        width:150,
+                                        width:100,
                                         overflow:"hidden",
                                         textOverflow:"ellipsis",
                                       }}
                                     >
-                                      {item.email}
+                                      {item.email.slice(0, 10) + "..."}
                                     </div>
                                   </div>
 
