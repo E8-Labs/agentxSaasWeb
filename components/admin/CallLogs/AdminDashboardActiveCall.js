@@ -9,7 +9,7 @@ import { getAgentsListImage } from "@/utilities/agentUtilities";
 import { PersistanceKeys } from "@/constants/Constants";
 import InfiniteScroll from "react-infinite-scroll-component";
 
-function AdminDashboardActiveCall({}) {
+function AdminDashboardActiveCall({ }) {
   const Limit = 30;
   const [user, setUser] = useState(null);
   const [leadsLoading, setLeadsLoading] = useState(false);
@@ -373,7 +373,7 @@ function AdminDashboardActiveCall({}) {
 
       const response = await fetch(
         "/api/calls/leadsInABatch" +
-          `?batchId=${batch.id}&offset=${selectedLeadsList.length}`,
+        `?batchId=${batch.id}&offset=${selectedLeadsList.length}`,
         {
           method: "GET",
           headers: {
@@ -450,7 +450,7 @@ function AdminDashboardActiveCall({}) {
       console.log("Here");
       const response = await fetch(
         "/api/calls/callsInABatch" +
-          `?batchId=${batch.id}&offset=${sheduledCalllogs.length}`,
+        `?batchId=${batch.id}&offset=${sheduledCalllogs.length}`,
         {
           method: "GET",
           headers: {
@@ -584,8 +584,11 @@ function AdminDashboardActiveCall({}) {
 
       <div className="flex w-full pl-10 flex-row items-start gap-3 overflow-hidden"></div>
 
-      <div className="w-full flex flex-row justify-between mt-10 px-10">
-        <div className="w-3/12">
+      <div className="w-full flex flex-row justify-between mt-2 px-10">
+        <div className="w-2/12">
+          <div style={styles.text}>User</div>
+        </div>
+        <div className="w-2/12">
           <div style={styles.text}>Agent</div>
         </div>
         <div className="w-2/12 ">
@@ -607,16 +610,16 @@ function AdminDashboardActiveCall({}) {
 
       <div>
         {initialLoader ? (
-          <div className="flex flex-row items-center h-[50vh] justify-center mt-12">
+          <div className="flex flex-row items-center h-[65vh] justify-center mt-12">
             <CircularProgress size={35} />
           </div>
         ) : (
           <div
-            className={`h-[50vh] overflow-auto`}
+            className={`h-[65vh] overflow-auto`}
             style={{ scrollbarWidth: "none" }}
           >
             {filteredAgentsList.length > 0 ? (
-              <div className={`h-[50vh] overflow-auto`}>
+              <div className={`h-[65vh] overflow-auto`}>
                 {filteredAgentsList.map((item, index) => {
                   return (
                     <div key={index}>
@@ -627,7 +630,39 @@ function AdminDashboardActiveCall({}) {
                               className="w-full flex flex-row items-center justify-between mt-10 px-10"
                               key={index}
                             >
-                              <div className="w-3/12 flex flex-row gap-4 items-center">
+                              <button className="w-2/12 flex flex-row gap-3 items-center"
+                                onClick={() => {
+                                  if (item?.user?.id) {
+                                    // Open a new tab with user ID as query param
+                                    let url = ` admin/users?userId=${item?.user?.id}`
+                                    console.log('url is', url)
+                                    window.open(url, "_blank");
+                                  }
+                                }}
+                              >
+                                {item?.user?.thumb_profile_image ? (
+                                  <Image
+                                    className="rounded-full"
+                                    src={item?.user?.thumb_profile_image}
+                                    height={40}
+                                    width={40}
+                                    style={{
+                                      height: "40px",
+                                      width: "40px",
+                                      resize: "cover",
+                                    }}
+                                    alt="*"
+                                  />
+                                ) : (
+                                  <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                                    {item?.user?.name.slice(0, 1).toUpperCase()}
+                                  </div>
+                                )}
+                                <div style={styles.text2}>{item?.user?.name}</div>
+
+                              </button>
+
+                              <div className="w-2/12 flex flex-row gap-4 items-center">
                                 {/* {agent?.agents[0]?.thumb_profile_image ? (
                                     <Image
                                       className="rounded-full"
@@ -773,7 +808,7 @@ function AdminDashboardActiveCall({}) {
                       <div>
                         {SelectedAgent?.name
                           ? SelectedAgent.name.charAt(0).toUpperCase() +
-                            SelectedAgent.name.slice(1)
+                          SelectedAgent.name.slice(1)
                           : ""}{" "}
                         call activity
                       </div>

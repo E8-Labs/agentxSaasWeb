@@ -44,9 +44,14 @@ export default function Page() {
     <div className="w-screen h-screen flex items-center justify-center bg-white">
       {selectedUser ? (
         <SelectedUserDetails
-          open={true} // Always open in fullscreen
-          close={() => {
-            router.push("/admin"); // Redirect back to admin on close
+          handleDel={() => {
+            // Notify parent window to refresh
+            if (window.opener) {
+              window.opener.location.reload();
+            }
+
+            // Close the current tab
+            window.close();
           }}
           selectedUser={selectedUser}
         />

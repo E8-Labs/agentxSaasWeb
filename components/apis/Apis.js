@@ -139,6 +139,7 @@ const Apis = {
   getUsersWithLeads: `${BasePath}api/admin/adminUsersWithLeads`,
   getUsersWithTeams: `${BasePath}api/admin/adminUsersWithTeams`,
   getUsersWithCalenders: `${BasePath}api/admin/adminUsersWithCalendars`,
+  deleteProfile: `${BasePath}api/user/deleteProfile`,
 };
 
 export default Apis;

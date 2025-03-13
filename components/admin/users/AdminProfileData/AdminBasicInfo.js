@@ -744,7 +744,7 @@ function AdminBasicInfo({ selectedUser }) {
                   marginTop: "4vh",
                 }}
               >
-                How many homes did you sell last year?
+                How many homes did you sell last year
               </div>
 
               <div

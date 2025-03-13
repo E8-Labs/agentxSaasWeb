@@ -1,5 +1,5 @@
 import Apis from "@/components/apis/Apis";
-import { Box, CircularProgress, FormControl, FormControlLabel, Modal, Radio, RadioGroup, Typography } from "@mui/material";
+import { Box, CircularProgress, FormControl, FormControlLabel, Modal, Radio, RadioGroup, Switch, Typography } from "@mui/material";
 import { CalendarDots, CaretLeft } from "@phosphor-icons/react";
 import axios from "axios";
 import moment from "moment";
@@ -372,6 +372,7 @@ const AssignLead = ({
           startTimeDifFromNow: timer,
           batchSize: batchSize,
           selectedAll: selectedAll,
+          dncCheck:isDncChecked,
           ...filters,
         };
       }
@@ -753,35 +754,26 @@ const AssignLead = ({
                     {getLeadSelectedCount()} Contacts Selected
                   </div>
 
-                  <div>
-                    <FormControl>
-                      <FormControlLabel
-                        control={
-                          <Radio
-                            sx={{
-                              color: "#A0A0A0", // Gray when unchecked
-                              "&.Mui-checked": {
-                                color: "#7902DF", // Turns purple when checked
-                              },
-                            }}
-                            checked={isDncChecked}
-                            onClick={() => setIsDncChecked((prev) => !prev)}
-                          />
-                        }
-                        label={
-                          <Typography sx={{ fontSize: 12, fontWeight: "600" , color: "#333",whiteSpace:'nowrap' }}>
-                            Check DNC List
-                          </Typography>
-                        }
-                        labelPlacement="start" // Moves label to the left side of the radio button
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          width: "100%", // Ensures proper alignment
-                          marginLeft: 0, // Aligns the label properly
-                        }}
-                      />
-                    </FormControl>
+                  <div className="flex flex-row items-center  -mt-2">
+                    <div style={{fontSize: 12, fontWeight: "600",color:'#00000080'}}>Check DNC List</div>
+                    <Switch
+                      checked={isDncChecked}
+                      // color="#7902DF"
+                      // exclusive
+                      onChange={(event) => {
+                        setIsDncChecked(event.target.checked);
+                      }}
+                      sx={{
+                        "& .MuiSwitch-switchBase.Mui-checked": {
+                          color: "#7902DF",
+                        },
+                        "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
+                        {
+                          backgroundColor: "#7902DF",
+                        },
+                        margin:0
+                      }}
+                    />
                   </div>
                 </div>
               </div>
@@ -795,7 +787,7 @@ const AssignLead = ({
                 <input
                   className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
                   style={{
-                    border: `${isFocustedCustomLeads ? "2px solid #7902Df" : "2px solid #00000040"}`,
+                    border: `${isFocustedCustomLeads ? "2px solid #7902Df" : "1px solid #00000040"}`,
                     height: "50px",
                   }}
                   value={customLeadsToSend}

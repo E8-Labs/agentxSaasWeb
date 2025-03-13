@@ -539,6 +539,12 @@ function AdminUsers() {
         >
           <SelectedUserDetails
             selectedUser={selectedUser}
+            handleDel={()=>{
+              setUsers((prev)=> prev.filter((u) =>
+                u.id != selectedUser.id
+              ))
+              setSelectedUser(null)
+            }}
 
           />
         </Box>

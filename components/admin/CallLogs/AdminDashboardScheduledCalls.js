@@ -8,7 +8,7 @@ import { GetFormattedDateString } from "@/utilities/utility";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
 import { ShowConfirmationPopup } from "./AdminDashboardActiveCall";
 
-function AdminDashboardScheduledCalls({}) {
+function AdminDashboardScheduledCalls({ }) {
   const [searchValue, setSearchValue] = useState("");
   //code for agent details
   const [callDetails, setCallDetails] = useState([]);
@@ -125,7 +125,7 @@ function AdminDashboardScheduledCalls({}) {
       let ApiPath = `${Apis.getAdminSheduledCallLogs}?scheduled=true`;
 
       ApiPath = ApiPath
-    
+
       // console.log("Api path is: ", ApiPath);
       // return
       const response = await axios.get(ApiPath, {
@@ -393,8 +393,11 @@ function AdminDashboardScheduledCalls({}) {
                 </button> */}
       </div>
 
-      <div className="w-full flex flex-row justify-between mt-10 px-10">
-        <div className="w-3/12">
+      <div className="w-full flex flex-row justify-between mt-2 px-10">
+        <div className="w-2/12">
+          <div style={styles.text}>User</div>
+        </div>
+        <div className="w-2/12">
           <div style={styles.text}>Agent</div>
         </div>
         <div className="w-2/12 ">
@@ -422,10 +425,10 @@ function AdminDashboardScheduledCalls({}) {
             <CircularProgress size={35} />
           </div>
         ) : (
-          <div className={`h-[42vh] overflow-auto`} style={{ scrollbarWidth: "none" }}>
+          <div className={`h-[65vh] overflow-auto`} style={{ scrollbarWidth: "none" }}>
             {filteredAgentsList.length > 0 ? (
-              <div               
-              className={`h-[42vh] overflow-auto`}>
+              <div
+                className={`h-[65vh] overflow-auto`}>
 
                 {filteredAgentsList.map((item, index) => {
                   return (
@@ -436,13 +439,20 @@ function AdminDashboardScheduledCalls({}) {
                             <div
                               className="w-full flex flex-row items-center justify-between mt-10 px-10"
                               key={index}
+                            > <button className="w-2/12 flex flex-row gap-3 items-center"
+                              onClick={() => {
+                                if (item?.user?.id) {
+                                  // Open a new tab with user ID as query param
+                                  let url = ` admin/users?userId=${item?.user?.id}`
+                                  console.log('url is', url)
+                                  window.open(url, "_blank");
+                                }
+                              }}
                             >
-                              <div className="w-3/12 flex flex-row gap-4 items-center">
-
-                                {/* {agent?.agents[0]?.thumb_profile_image ? (
+                                {item?.user?.thumb_profile_image ? (
                                   <Image
                                     className="rounded-full"
-                                    src={agent?.agents[0].thumb_profile_image}
+                                    src={item?.user?.thumb_profile_image}
                                     height={40}
                                     width={40}
                                     style={{
@@ -454,15 +464,41 @@ function AdminDashboardScheduledCalls({}) {
                                   />
                                 ) : (
                                   <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                    {agent.name.slice(0, 1).toUpperCase()}
+                                    {item?.user?.name.slice(0, 1).toUpperCase()}
                                   </div>
-                                )} */}
+                                )}
+                                <div style={styles.text2}>{item?.user?.name}</div>
 
-                                <div style={{ width: "fit-content" }}>
+                              </button>
+
+                              <div className="w-2/12 flex flex-row gap-4 items-center">
+                                {/* {agent?.agents[0]?.thumb_profile_image ? (
+                                                                <Image
+                                                                  className="rounded-full"
+                                                                  src={agent?.agents[0].thumb_profile_image}
+                                                                  height={40}
+                                                                  width={40}
+                                                                  style={{
+                                                                    height: "40px",
+                                                                    width: "40px",
+                                                                    resize: "cover",
+                                                                  }}
+                                                                  alt="*"
+                                                                />
+                                                              ) : (
+                                                                <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                                                                  {agent.name.slice(0, 1).toUpperCase()}
+                                                                </div>
+                                                              )} */}
+
+                                <div>
                                   {getAgentsListImage(agent?.agents[0])}
                                 </div>
+
                                 <div style={styles.text2}>{agent.name}</div>
                               </div>
+
+
                               <div className="w-2/12 ">
                                 {agent?.agents[0]?.agentObjective ? (
                                   <div style={styles.text2}>

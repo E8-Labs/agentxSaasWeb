@@ -59,7 +59,7 @@ function RealEstateOtherDetails({
       />
 
       <div style={styles.headingStyle} className="mt-6">
-        How many homes did you sell last year?
+        How many homes did you sell last year
       </div>
       <input
         ref={(el) => (inputsFields.current[2] = el)}

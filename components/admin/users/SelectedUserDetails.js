@@ -16,7 +16,7 @@ import axios from 'axios'
 import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 
-function SelectedUserDetails({selectedUser}) {
+function SelectedUserDetails({ selectedUser,handleDel }) {
 
     console.log('selectedUser on user details modal is', selectedUser)
 
@@ -66,10 +66,12 @@ function SelectedUserDetails({selectedUser}) {
 
     const [selectedManu, setSelectedManu] = useState(manuBar[0])
     const [showAddMinutesModal, setShowAddMinutesModal] = useState(false)
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
     const [error, setError] = useState("")
     const [minutes, setMinutes] = useState("")
     const [showSnackMessage, setShowSnackMessage] = useState(null)
     const [loading, setloading] = useState(false)
+    const [delLoader,setDelLoader]= useState(false)
 
 
     const handleManuClick = (item) => {
@@ -117,6 +119,49 @@ function SelectedUserDetails({selectedUser}) {
         }
     }
 
+    const handleDeleteUser = async() =>{
+        setDelLoader(true)
+        try {
+            const data = localStorage.getItem("User")
+
+            if (data) {
+                let u = JSON.parse(data)
+
+                let path = Apis.deleteProfile
+
+                let apidata = {
+                    userId: selectedUser.id,
+                    
+                }
+                console.log('apidata', apidata)
+
+                const response = await axios.post(path, apidata, {
+                    headers: {
+                        "Authorization": 'Bearer ' + u.token
+                    }
+                })
+
+                if (response.data) {
+                    if (response.data.status === true) {
+                        console.log('delete profile api response is', response.data.data)
+                        setShowSnackMessage(response.data.messag)
+                        setShowDeleteModal(false)
+                        handleDel()
+                    } else {
+                        console.log('delete profile api message is', response.data.message)
+                        setShowSnackMessage(response.data.message)
+
+                    }
+                }
+            }
+        } catch (e) {
+            console.log('error in delete profile api is', e)
+        }
+        finally {
+            setDelLoader(false)
+        }
+    }
+
     return (
         <div className='w-full flex flex-col items-center justify-center'>
             <AgentSelectSnackMessage isVisible={showSnackMessage} hide={() => { setShowSnackMessage(null) }}
@@ -138,7 +183,7 @@ function SelectedUserDetails({selectedUser}) {
                                 onClick={() => {
                                     if (selectedUser?.id) {
                                         // Open a new tab with user ID as query param
-                                        let url =` admin/users?userId=${selectedUser.id}`
+                                        let url = ` admin/users?userId=${selectedUser.id}`
                                         console.log('url is', url)
                                         window.open(url, "_blank");
                                     }
@@ -149,15 +194,29 @@ function SelectedUserDetails({selectedUser}) {
 
                         </div>
 
-                        <button
-                            className="text-white bg-purple outline-none rounded-xl px-3"
-                            style={{ height: "50px" }}
-                            onClick={() => {
-                                setShowAddMinutesModal(true)
-                            }}
-                        >
-                            Add Minutes
-                        </button>
+                        <div className='flex flex-row items-center gap-4'>
+                            <button
+                                className="text-white bg-purple outline-none rounded-xl px-3"
+                                style={{ height: "50px" }}
+                                onClick={() => {
+                                    setShowAddMinutesModal(true)
+                                }}
+                            >
+                                Add Minutes
+                            </button>
+
+                            <button
+                                className="text-red outline-none rounded-xl px-3"
+                                style={{ height: "50px" }}
+                                onClick={() => {
+                                    setShowDeleteModal(true)
+                                }}
+                            >
+                                Delete
+                            </button>
+                        </div>
+
+
                     </div>
 
 
@@ -218,6 +277,102 @@ function SelectedUserDetails({selectedUser}) {
                     </div>
                 </div>
             </div>
+
+
+            {/* Code to del user */}
+            <Modal
+                open={showDeleteModal}
+                onClose={() => {
+                    setShowDeleteModal(false);
+                }}
+                BackdropProps={{
+                    timeout: 200,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        // //backdropFilter: "blur(20px)",
+                    },
+                }}
+            >
+                <Box
+                    className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
+                    sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+                >
+                    <div style={{ width: "100%" }}>
+                        <div
+                            className="max-h-[60vh] overflow-auto"
+                            style={{ scrollbarWidth: "none" }}
+                        >
+                            <div
+                                style={{
+                                    width: "100%",
+                                    direction: "row",
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                }}
+                            >
+                                {/* <div style={{ width: "20%" }} /> */}
+                                <div style={{ fontWeight: "500", fontSize: 17 }}>
+                                    Delete User
+                                </div>
+                                <div
+                                    style={{
+                                        direction: "row",
+                                        display: "flex",
+                                        justifyContent: "end",
+                                    }}
+                                >
+                                    <button
+                                        onClick={() => {
+                                            setShowDeleteModal(false);
+                                        }}
+                                        className="outline-none"
+                                    >
+                                        <Image
+                                            src={"/svgIcons/crossIcon.svg"}
+                                            height={40}
+                                            width={40}
+                                            alt="*"
+                                        />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="mt-6" style={{ fontWeight: "700", fontSize: 22 }}>
+                                Are you sure you want to delete user?
+                            </div>
+                        </div>
+
+                        <div className="flex flex-row items-center gap-4 mt-6">
+                            <button onClick={()=>setShowDeleteModal(false)} className="w-1/2">
+                                Cancel
+                            </button>
+                            <div className="w-1/2">
+                                {delLoader ? (
+                                    <div className="flex flex-row iems-center justify-center w-full mt-4">
+                                        <CircularProgress size={25} />
+                                    </div>
+                                ) : (
+                                    <button
+                                        className="mt-4 outline-none bg-red"
+                                        style={{
+                                            color: "white",
+                                            height: "50px",
+                                            borderRadius: "10px",
+                                            width: "100%",
+                                            fontWeight: 600,
+                                            fontSize: "20",
+                                        }}
+                                        onClick={handleDeleteUser}
+                                    >
+                                        Yes! Delete
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
 
 
             {/* Add minutes modal  */}
@@ -295,15 +450,14 @@ export default SelectedUserDetails
 
 const styles = {
     modalsStyle: {
-      height: "auto",
-      bgcolor: "transparent",
-      p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-50%)",
-      borderRadius: 2,
-      border: "none",
-      outline: "none",
+        height: "auto",
+        bgcolor: "transparent",
+        p: 2,
+        mx: "auto",
+        my: "50vh",
+        transform: "translateY(-50%)",
+        borderRadius: 2,
+        border: "none",
+        outline: "none",
     },
-  }
-  
+}
