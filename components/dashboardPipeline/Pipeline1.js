@@ -24,7 +24,7 @@ import {
   X,
 } from "@phosphor-icons/react";
 import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Apis from "../apis/Apis";
 import axios from "axios";
 import ColorPicker from "./ColorPicker";
@@ -82,9 +82,10 @@ const Pipeline1 = () => {
   const stageId = StageAnchorel ? "stageAnchor" : undefined;
 
   const [initialLoader, setInitialLoader] = useState(false);
+  const [pipelineDetailLoader, setPipelineDetailLoader] = useState(false);
 
   const [SelectedPipeline, setSelectedPipeline] = useState(null);
-  let selectedPipelineIndex = useRef(0);
+  let selectedPipelineIndex = useRef(-1);
   const [PipeLines, setPipeLines] = useState([]);
   const [StagesList, setStagesList] = useState([]);
   const [oldStages, setOldStages] = useState([]);
@@ -275,12 +276,27 @@ const Pipeline1 = () => {
     getMyTeam();
     const pipelineIndex = searchParams.get("pipeline"); // Get the value of 'tab'
     let number = Number(pipelineIndex) || 0;
-    // console.log("Pipeline index is ", number);
+    console.log("Pipeline index from url is ", number);
     selectedPipelineIndex = number;
     if (!pipelineIndex) {
       setParamsInSearchBar(number);
     }
   }, []);
+
+  //wherever a pipeline is selected, it fetches the details
+  useEffect(() => {
+    const fetchPipelineDetails = async () => {
+      if (SelectedPipeline && !SelectedPipeline?.leads) {
+        await getPipelineDetails(SelectedPipeline);
+      } else {
+        console.log(
+          `Pipeline ${SelectedPipeline?.id} already has leads ${SelectedPipeline?.leads?.length}`
+        );
+      }
+    };
+
+    fetchPipelineDetails();
+  }, [SelectedPipeline]);
 
   const setParamsInSearchBar = (index = 0, from = "default") => {
     console.log("From function ", from);
@@ -511,7 +527,10 @@ const Pipeline1 = () => {
           // setSelectedPipeline(reversePipelinesList[0]);
           // setStagesList(reversePipelinesList[0].stages);
 
-          getPipelineDetails(reversePipelinesList[0])
+          // getPipelineDetails(reversePipelinesList[0]);
+          setSelectedPipeline(reversePipelinesList[0]);
+          setStagesList(reversePipelinesList[0]?.stages);
+          setLeadsList(reversePipelinesList[0]?.leads || []);
           setNewPipelineTitle("");
           setNewPipelineStage(null);
           setSuccessSnack(response.data.message);
@@ -535,7 +554,7 @@ const Pipeline1 = () => {
     let data = localStorage.getItem(PersistanceKeys.LocalStoragePipelines);
     if (data) {
       let jsonData = JSON.parse(data);
-      console.log('jsonData', jsonData)
+      console.log("jsonData", jsonData);
       setPipeLines(jsonData);
       if (jsonData.length > 0) {
         let index = 0;
@@ -568,8 +587,12 @@ const Pipeline1 = () => {
   }
 
   async function getPipelineDetails(pipeline) {
+    console.log("Calling getpipeline details");
+    console.log(
+      "Pipeline index from getpipelinedetails is ",
+      selectedPipelineIndex
+    );
     try {
-
       const localData = localStorage.getItem("User");
       let AuthToken = null;
       if (localData) {
@@ -579,9 +602,9 @@ const Pipeline1 = () => {
       }
 
       // console.log("Auth token is :--", AuthToken);
-      const ApiPath = Apis.getPipelines + "?pipelineId=" + pipeline.id;
+      const ApiPath = Apis.getPipelineById + "?pipelineId=" + pipeline.id;
       console.log("Api path of pipeline details is :", ApiPath);
-
+      setPipelineDetailLoader(true);
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: "Bearer " + AuthToken,
@@ -589,32 +612,42 @@ const Pipeline1 = () => {
         },
       });
 
+      setPipelineDetailLoader(false);
       if (response) {
-        console.log("Response of getpipeline details api is :", response.data.data);
+        console.log(
+          "Response of getpipeline details api is :",
+          response.data.data
+        );
         const pipelineDetails = response.data.data;
 
         //  Merge updated details with existing pipelines list
         let updatedPipelines = PipeLines?.map((p) =>
           p.id === pipeline.id ? { ...p, ...pipelineDetails } : p
         );
-
+        console.log("Pipeline id", pipeline.id);
+        console.log("Pipeline Selected index", selectedPipelineIndex);
         setPipeLines(updatedPipelines);
-        setSelectedPipeline(pipelineDetails);
-        setStagesList(pipelineDetails.stages)
-
-
-
+        if (
+          selectedPipelineIndex.current == -1 ||
+          pipeline.id == PipeLines[selectedPipelineIndex].id
+        ) {
+          // console.log(
+          //   "Current selected is same ",
+          //   PipeLines[selectedPipelineIndex].id
+          // );
+          setSelectedPipeline(pipelineDetails);
+          setStagesList(pipelineDetails.stages);
+          setLeadsList(pipelineDetails.leads);
+        } else {
+          console.log("Current selected pipeline is different");
+        }
         // Save updated pipelines list to localStorage
         localStorage.setItem(
           PersistanceKeys.LocalStoragePipelines,
           JSON.stringify(updatedPipelines)
         );
 
-        localStorage.setItem(
-          "pipelinesList",
-          JSON.stringify(updatedPipelines)
-        );
-
+        localStorage.setItem("pipelinesList", JSON.stringify(updatedPipelines));
       }
     } catch (error) {
       // console.error("Error occured in api is:", error);
@@ -627,12 +660,12 @@ const Pipeline1 = () => {
   //code for get pipeline
   const getPipelines = async () => {
     try {
-      let data = GetPipelinesCached();
-      console.log('data from local', data)
-      if (data) {
-        return
+      let data = false; //GetPipelinesCached();
+      console.log("data from local", data);
+      if (!data) {
+        setInitialLoader(true);
       }
-      setInitialLoader(true);
+
       const localData = localStorage.getItem("User");
       let AuthToken = null;
       if (localData) {
@@ -664,11 +697,16 @@ const Pipeline1 = () => {
           JSON.stringify(response.data.data)
         );
         const pipelinesList = response.data.data;
-        // setPipeLines(pipelinesList)
+        setPipeLines(pipelinesList);
 
         if (pipelinesList.length > 0) {
-          let pipeline = pipelinesList[0]; // Select first pipeline
-          getPipelineDetails(pipeline); // Fetch details for the selected pipeline
+          console.log(
+            "Pipeline index from getpipelines is ",
+            selectedPipelineIndex
+          );
+          let pipeline = pipelinesList[selectedPipelineIndex]; // Select first pipeline
+          setSelectedPipeline(pipeline);
+          // getPipelineDetails(pipeline); // Fetch details for the selected pipeline
         }
 
         // let index = selectedPipelineIndex;
@@ -783,14 +821,17 @@ const Pipeline1 = () => {
 
   //code to seect other pipeline
   const handleSelectOtherPipeline = (item, index) => {
+    // getPipelineDetails(item);
+    setSelectedPipeline(item);
 
-    getPipelineDetails(item)
     // console.log("Other pipeline selected is :", item);
     // setSelectedPipeline(item);
     // setSelectedPipeline(item);
-    // setStagesList(item.stages);
+    setStagesList(item.stages);
+    setLeadsList(item?.leads || []);
     handleCloseOtherPipeline();
     selectedPipelineIndex = index;
+    console.log("Pipeline index from url is ", index);
     setParamsInSearchBar(index, "handleSelectOtherPipeline");
   };
 
@@ -1562,12 +1603,12 @@ const Pipeline1 = () => {
     const updatedLeadsList = LeadsList.map((item) =>
       item.leadId === lead.id
         ? {
-          ...item,
-          lead: {
-            ...item.lead,
-            teamsAssigned: [...item.lead.teamsAssigned, team],
-          },
-        }
+            ...item,
+            lead: {
+              ...item.lead,
+              teamsAssigned: [...item.lead.teamsAssigned, team],
+            },
+          }
         : item
     );
 
@@ -1583,7 +1624,7 @@ const Pipeline1 = () => {
       // console.log("Leads list is", LeadsList);
       // console.log("Pipelines are", PipeLines);
       // return;
-      const filteredLeads = LeadsList.filter((lead) => {
+      const filteredLeads = LeadsList?.filter((lead) => {
         // console.log(`Checking lead: ${lead.leadId} against ${leadToDelete.id}`);
         return lead.leadId !== leadToDelete.id;
       });
@@ -1704,154 +1745,160 @@ const Pipeline1 = () => {
         <div className="w-full">
           <div className="flex flex-row items-center justify-between px-10 mt-4 mb-4">
             <div className="flex flex-row items-center gap-2">
-              <span style={{ fontWeight: "700", fontSize: 25 }}>
-                {SelectedPipeline?.title}
-              </span>
-              <div>
-                {PipeLines.length > 1 && (
+              {initialLoader ? (
+                <CircularProgress size={20} />
+              ) : (
+                <>
+                  <span style={{ fontWeight: "700", fontSize: 25 }}>
+                    {SelectedPipeline?.title}
+                  </span>
+                  <div>
+                    {PipeLines.length > 1 && !pipelineDetailLoader && (
+                      <button
+                        className="outline-none"
+                        aria-describedby={OtherPipelineId}
+                        variant="contained"
+                        onClick={handleShowOtherPipeline}
+                      >
+                        <CaretDown size={22} weight="bold" />
+                      </button>
+                    )}
+                    <Menu
+                      id={OtherPipelineId}
+                      anchorEl={otherPipelinePopoverAnchorel}
+                      open={openOtherPipelines}
+                      onClose={handleCloseOtherPipeline}
+                      MenuListProps={{
+                        "aria-labelledby": OtherPipelineId,
+                      }}
+                    >
+                      {PipeLines.map((item, index) => (
+                        <MenuItem
+                          key={index}
+                          onClick={() => {
+                            handleSelectOtherPipeline(item, index);
+                            handleCloseOtherPipeline(); // Close menu after selection
+                          }}
+                        >
+                          {item.title}
+                        </MenuItem>
+                      ))}
+                    </Menu>
+                  </div>
                   <button
-                    className="outline-none"
-                    aria-describedby={OtherPipelineId}
+                    aria-describedby={id}
                     variant="contained"
-                    onClick={handleShowOtherPipeline}
+                    onClick={handleShowPipelinePopover}
+                    className="outline-none"
                   >
-                    <CaretDown size={22} weight="bold" />
+                    <DotsThree size={27} weight="bold" />
                   </button>
-                )}
-                <Menu
-                  id={OtherPipelineId}
-                  anchorEl={otherPipelinePopoverAnchorel}
-                  open={openOtherPipelines}
-                  onClose={handleCloseOtherPipeline}
-                  MenuListProps={{
-                    "aria-labelledby": OtherPipelineId,
-                  }}
-                >
-                  {PipeLines.map((item, index) => (
-                    <MenuItem
-                      key={index}
-                      onClick={() => {
-                        handleSelectOtherPipeline(item, index);
-                        handleCloseOtherPipeline(); // Close menu after selection
-                      }}
-                    >
-                      {item.title}
-                    </MenuItem>
-                  ))}
-                </Menu>
-              </div>
-              <button
-                aria-describedby={id}
-                variant="contained"
-                onClick={handleShowPipelinePopover}
-                className="outline-none"
-              >
-                <DotsThree size={27} weight="bold" />
-              </button>
-              <Popover
-                id={id}
-                open={open}
-                anchorEl={pipelinePopoverAnchorel}
-                onClose={handlePipelineClosePopover}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "left",
-                }}
-              // PaperProps={{
-              //     elevation: 0, // This will remove the shadow
-              //     style: {
-              //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
-              //     },
-              // }}
-              >
-                <div className="p-3">
-                  <button
-                    className="flex flex-row items-center gap-4"
-                    onClick={() => {
-                      setCreatePipeline(true);
+                  <Popover
+                    id={id}
+                    open={open}
+                    anchorEl={pipelinePopoverAnchorel}
+                    onClose={handlePipelineClosePopover}
+                    anchorOrigin={{
+                      vertical: "bottom",
+                      horizontal: "left",
                     }}
+                    // PaperProps={{
+                    //     elevation: 0, // This will remove the shadow
+                    //     style: {
+                    //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
+                    //     },
+                    // }}
                   >
-                    <Plus size={17} weight="bold" />{" "}
-                    <span style={{ fontWeight: "500", fontSize: 15 }}>
-                      New Pipeline
-                    </span>
-                  </button>
-                  <div className="w-full flex flex-row mt-4">
-                    <button
-                      className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                      style={styles.paragraph}
-                      onClick={() => {
-                        setShowRenamePipelinePopup(true);
-                        setRenamePipeline(SelectedPipeline.title);
-                        // console.log("Selected pipeline is:", SelectedPipeline);
-                      }}
-                    >
-                      <Image
-                        src={"/assets/editPen.png"}
-                        height={15}
-                        width={15}
-                        alt="*"
-                      />
-                      Rename
-                    </button>
-                  </div>
-                  <div className="w-full flex flex-row mt-4">
-                    <button
-                      className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                      style={styles.paragraph}
-                      onClick={() => {
-                        setAddNewStageModal(true);
-                      }}
-                    >
-                      <Image
-                        src={"/svgIcons/arrowBlack.svg"}
-                        height={18}
-                        width={15}
-                        alt="*"
-                      />
-                      Add Stage
-                    </button>
-                  </div>
-                  <div className="w-full flex flex-row mt-4">
-                    {/* {
+                    <div className="p-3">
+                      <button
+                        className="flex flex-row items-center gap-4"
+                        onClick={() => {
+                          setCreatePipeline(true);
+                        }}
+                      >
+                        <Plus size={17} weight="bold" />{" "}
+                        <span style={{ fontWeight: "500", fontSize: 15 }}>
+                          New Pipeline
+                        </span>
+                      </button>
+                      <div className="w-full flex flex-row mt-4">
+                        <button
+                          className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                          style={styles.paragraph}
+                          onClick={() => {
+                            setShowRenamePipelinePopup(true);
+                            setRenamePipeline(SelectedPipeline.title);
+                            // console.log("Selected pipeline is:", SelectedPipeline);
+                          }}
+                        >
+                          <Image
+                            src={"/assets/editPen.png"}
+                            height={15}
+                            width={15}
+                            alt="*"
+                          />
+                          Rename
+                        </button>
+                      </div>
+                      <div className="w-full flex flex-row mt-4">
+                        <button
+                          className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                          style={styles.paragraph}
+                          onClick={() => {
+                            setAddNewStageModal(true);
+                          }}
+                        >
+                          <Image
+                            src={"/svgIcons/arrowBlack.svg"}
+                            height={18}
+                            width={15}
+                            alt="*"
+                          />
+                          Add Stage
+                        </button>
+                      </div>
+                      <div className="w-full flex flex-row mt-4">
+                        {/* {
                                                     delStageLoader ?
                                                         <CircularProgress size={20} /> :
                                                        
                                                 } */}
-                    <button
-                      className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                      style={styles.paragraph}
-                      onClick={() => {
-                        setShowStagesPopup(true);
-                      }}
-                    >
-                      <Image
-                        src={"/assets/list.png"}
-                        height={18}
-                        width={15}
-                        alt="*"
-                      />
-                      Rearrange Stage
-                    </button>
-                  </div>
+                        <button
+                          className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                          style={styles.paragraph}
+                          onClick={() => {
+                            setShowStagesPopup(true);
+                          }}
+                        >
+                          <Image
+                            src={"/assets/list.png"}
+                            height={18}
+                            width={15}
+                            alt="*"
+                          />
+                          Rearrange Stage
+                        </button>
+                      </div>
 
-                  <button
-                    className="text-red flex flex-row items-center gap-4 mt-4 me-2 outline-none"
-                    style={styles.paragraph}
-                    onClick={() => {
-                      setShowDeletePiplinePopup(true);
-                    }}
-                  >
-                    <Image
-                      src={"/assets/delIcon.png"}
-                      height={18}
-                      width={18}
-                      alt="*"
-                    />
-                    Delete
-                  </button>
-                </div>
-              </Popover>
+                      <button
+                        className="text-red flex flex-row items-center gap-4 mt-4 me-2 outline-none"
+                        style={styles.paragraph}
+                        onClick={() => {
+                          setShowDeletePiplinePopup(true);
+                        }}
+                      >
+                        <Image
+                          src={"/assets/delIcon.png"}
+                          height={18}
+                          width={18}
+                          alt="*"
+                        />
+                        Delete
+                      </button>
+                    </div>
+                  </Popover>
+                </>
+              )}
             </div>
             <div className="flex fex-row items-center gap-6">
               <div
@@ -1880,11 +1927,7 @@ const Pipeline1 = () => {
           </div>
         </div>
       </div>
-      {initialLoader ? (
-        <div className="w-full flex flex-row justify-center mt-12">
-          <CircularProgress size={35} />
-        </div>
-      ) : (
+      {
         <div className="flex flex-col items-center w-full">
           <div
             className="w-[95%] flex flex-col items-start overflow-x-auto h-screen mt-8"
@@ -1931,7 +1974,7 @@ const Pipeline1 = () => {
                           )} */}
 
                           {
-                            LeadsList.filter(
+                            LeadsList?.filter(
                               (lead) => lead.lead.stage === stage.id
                             ).length
                           }
@@ -2011,7 +2054,7 @@ const Pipeline1 = () => {
                           <div
                             className="text-black flex flex-row items-center gap-4 me-2 outline-none"
                             style={styles.paragraph}
-                          // onClick={handleDeleteStage}
+                            // onClick={handleDeleteStage}
                           >
                             <button
                               className="flex flex-row gap-2 outline-none"
@@ -2084,8 +2127,13 @@ const Pipeline1 = () => {
                     </Popover>
 
                     {/* Display leads matching this stage */}
-                    {LeadsList.filter((lead) => lead.lead.stage === stage.id)
-                      .length > 0 && (
+                    {pipelineDetailLoader ? (
+                      <div className="w-full flex flex-row justify-center mt-12">
+                        <CircularProgress size={35} />
+                      </div>
+                    ) : (
+                      LeadsList?.filter((lead) => lead.lead.stage === stage.id)
+                        .length > 0 && (
                         <div
                           className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl"
                           style={{
@@ -2096,7 +2144,7 @@ const Pipeline1 = () => {
                             borderColor: "#00000010",
                           }}
                         >
-                          {LeadsList.filter(
+                          {LeadsList?.filter(
                             (lead) => lead.lead.stage === stage.id
                           ).map((lead, leadIndex) => (
                             <div
@@ -2172,9 +2220,11 @@ const Pipeline1 = () => {
                                       style={{ filter: "opacity(50%)" }}
                                     />
                                     {/* {moment(lead?.lead?.booking?.date).format(
-                                      "MMM D"
-                                    ) || "-"} */}
-                                    <p style={{ fontSize: 13, fontWeight: 500 }}>
+                                          "MMM D"
+                                        ) || "-"} */}
+                                    <p
+                                      style={{ fontSize: 13, fontWeight: 500 }}
+                                    >
                                       {GetFormattedDateString(
                                         lead?.lead?.booking?.date,
                                         true,
@@ -2189,16 +2239,18 @@ const Pipeline1 = () => {
                                       alt="*"
                                       style={{ filter: "opacity(50%)" }}
                                     />
-                                    <p style={{ fontSize: 13, fontWeight: 500 }}>
+                                    <p
+                                      style={{ fontSize: 13, fontWeight: 500 }}
+                                    >
                                       {GetFormattedTimeString(
                                         lead?.lead?.booking?.datetime
                                       )}
                                     </p>
 
                                     {/* {moment(
-                                      lead?.lead?.booking?.time,
-                                      "HH:mm"
-                                    ).format("HH:mm") || "-"} */}
+                                          lead?.lead?.booking?.time,
+                                          "HH:mm"
+                                        ).format("HH:mm") || "-"} */}
                                   </div>
                                 )}
 
@@ -2217,13 +2269,13 @@ const Pipeline1 = () => {
                                     />
                                   )}
                                   {/* <div className="flex flex-row items-center gap-3">
-                                                                        <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
-                                                                            Tag
-                                                                        </div>
-                                                                        <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
-                                                                            Tag
-                                                                        </div>
-                                                                    </div> */}
+                                                                            <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
+                                                                                Tag
+                                                                            </div>
+                                                                            <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
+                                                                                Tag
+                                                                            </div>
+                                                                        </div> */}
 
                                   {lead.lead.tags.length > 0 ? (
                                     <div className="flex flex-row items-center gap-1">
@@ -2253,7 +2305,7 @@ const Pipeline1 = () => {
                                                 )}
                                               </div>
                                               {DelTagLoader &&
-                                                lead.lead.id === DelTagLoader ? (
+                                              lead.lead.id === DelTagLoader ? (
                                                 <div>
                                                   <CircularProgress size={15} />
                                                 </div>
@@ -2269,7 +2321,8 @@ const Pipeline1 = () => {
                                                       lead.lead.tags.filter(
                                                         (tag) => tag != tagVal
                                                       ) || [];
-                                                    lead.lead.tags = updatedTags;
+                                                    lead.lead.tags =
+                                                      updatedTags;
                                                     let newLeadCad = [];
                                                     LeadsList.map((item) => {
                                                       if (item.id == lead.id) {
@@ -2303,7 +2356,8 @@ const Pipeline1 = () => {
                             </div>
                           ))}
                         </div>
-                      )}
+                      )
+                    )}
                   </div>
                 ))}
               </div>
@@ -2325,7 +2379,7 @@ const Pipeline1 = () => {
             </div>
           </div>
         </div>
-      )}
+      }
       {/* code for delete pipeline modal */}
 
       <Modal
@@ -3746,8 +3800,9 @@ const Pipeline1 = () => {
       {/* Code for side view */}
       {importantCalls?.length > 0 && (
         <div
-          className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${expandSideView ? "w-[506px]" : "w-[100px]"
-            }`} //${expandSideView ? 'w-[32vw]' : 'w-[7vw]'}
+          className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${
+            expandSideView ? "w-[506px]" : "w-[100px]"
+          }`} //${expandSideView ? 'w-[32vw]' : 'w-[7vw]'}
           style={{
             borderTopLeftRadius: expandSideView ? "0" : "40px",
             borderBottomLeftRadius: expandSideView ? "0" : "40px",
@@ -3757,7 +3812,7 @@ const Pipeline1 = () => {
             bottom: 100,
             right: 0,
           }}
-          onClick={() => { }}
+          onClick={() => {}}
         >
           {expandSideView ? (
             <div className="flex  items-center justify-center w-full">

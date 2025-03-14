@@ -29,6 +29,7 @@ const Apis = {
   updateKYC: `${BasePath}api/agent/updateKyc`,
   getKYCs: `${BasePath}api/agent/getKycs`,
   getPipelines: `${BasePath}api/pipeline/getPipelines`,
+  getPipelineById: `${BasePath}api/pipeline/getPipeline`,
   updatePipeline: `${BasePath}api/pipeline/updatePipeline`,
   createPipeLineCadence: `${BasePath}api/pipeline/createPipelineCadence`,
   getAgentCadence: `${BasePath}api/pipeline/getAgentCadence`,
