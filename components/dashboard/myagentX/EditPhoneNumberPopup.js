@@ -11,16 +11,23 @@ export const EditPhoneNumberModal = ({
     number,
     open,
     close,
+    loading,
+    update
 }) => {
+
+    console.log('number', number)
+
 
     const [errorMessage, setErrorMessage] = useState("");
     const [countryCode, setCountryCode] = useState("");
     const [phoneNumberLoader, setPhoneNumberLoader] = useState(false);
     const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
-    const [userPhoneNumber, setUserPhoneNumber] = useState(number || "")
+    const [userPhoneNumber, setUserPhoneNumber] = useState("")
     const [locationLoader, setLocationLoader] = useState(false);
-    const [loading, setLoading] = useState(false)
 
+    useEffect(() => {
+        setUserPhoneNumber(number)
+    }, [number])
 
     //getlocation
     useEffect(() => {
@@ -80,7 +87,7 @@ export const EditPhoneNumberModal = ({
 
                 </div>
 
-                <div style={{ fontSize: 22, fontWeight: '700',textAlign:'center',color:'#151515' }}>
+                <div style={{ fontSize: 22, fontWeight: '700', textAlign: 'center', color: '#151515' }}>
                     {title}
                 </div>
 
@@ -136,10 +143,12 @@ export const EditPhoneNumberModal = ({
 
                     {
                         loading ? (
-                            <CircularProgress size={15} />
+                            <div className="flex w-full items-center flex col">
+                            <CircularProgress size={25} />
+                            </div>
                         ) : (
                             <button className='w-full outline-none bg-purple h-[52px] text-white rounded-lg'
-                            // onClick={handleAddMinutes}
+                                onClick={() => update(userPhoneNumber)}
                             >
                                 Save
                             </button>

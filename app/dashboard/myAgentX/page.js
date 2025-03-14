@@ -243,6 +243,8 @@ function Page() {
   const [showEditNumberPopup, setShowEditNumberPopup] = useState(null)
   const [selectedNumber, setSelectedNumber] = useState("")
 
+  const [loading, setLoading] = useState(false)
+
   const playVoice = (url) => {
     if (audio) {
       audio.pause();
@@ -1255,6 +1257,19 @@ function Page() {
             formData.append(
               "consentRecordings",
               voiceData.callRecordingPermition
+            );
+          }
+
+          if (voiceData.liveTransferNumber) {
+            formData.append(
+              "liveTransferNumber",
+              voiceData.liveTransferNumber
+            );
+          }
+          if (voiceData.callbackNumber) {
+            formData.append(
+              "callbackNumber",
+              voiceData.callbackNumber
             );
           }
         }
@@ -3883,12 +3898,26 @@ function Page() {
                         Call transfer number
                       </div>
                     </div>
-                    <div>
-                      {showDrawerSelectedAgent?.liveTransferNumber ? (
-                        <div>{showDrawerSelectedAgent?.liveTransferNumber}</div>
-                      ) : (
-                        "-"
-                      )}
+
+                    <div className="flex flex-row items-center justify-between gap-2">
+
+                      <div>
+                        {showDrawerSelectedAgent?.liveTransferNumber ? (
+                          <div>{showDrawerSelectedAgent?.liveTransferNumber}</div>
+                        ) : (
+                          "-"
+                        )}
+                      </div>
+                      <button onClick={() => {
+                        setShowEditNumberPopup(showDrawerSelectedAgent?.liveTransferNumber)
+                        setSelectedNumber("Calltransfer")
+                      }}>
+                        <Image src={"/svgIcons/editIcon2.svg"}
+                          height={24}
+                          width={24}
+                          alt="*"
+                        />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -3897,8 +3926,25 @@ function Page() {
                   <EditPhoneNumberModal
                     open={showEditNumberPopup}
                     close={() => setShowEditNumberPopup(null)}
-                    number={showEditNumberPopup}
+                    number={showEditNumberPopup && showEditNumberPopup}
                     title={selectedNumber === "Callback" ? "Call back Number" : "Call transfer Number"}
+                    loading={loading}
+                    update={async (value) => {
+                      let data = ""
+                      if (selectedNumber === "Callbak") {
+                        data = {
+                          callbackNumber: value
+                        }
+                      } else {
+                        data = {
+                          liveTransferNumber: value
+                        }
+                      }
+                      setLoading(true)
+                      await updateSubAgent(data)
+                      setLoading(false)
+                      setShowEditNumberPopup(null)
+                    }}
 
                   />
                 </div>
