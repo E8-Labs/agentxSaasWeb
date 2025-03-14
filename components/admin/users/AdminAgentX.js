@@ -617,7 +617,8 @@ function AdminAgentX({ selectedUser }) {
         //// console.log("Respose of reassign api is:", response.data.data);
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -1000,7 +1001,8 @@ function AdminAgentX({ selectedUser }) {
         //// console.log("Response of update number api is", response.data);
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -1724,7 +1726,7 @@ function AdminAgentX({ selectedUser }) {
 
       <div
         className="w-full flex flex-row justify-between items-center py-4 px-10"
-      // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
+        // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>My Agents</div>
       </div>
@@ -2230,7 +2232,7 @@ function AdminAgentX({ selectedUser }) {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                // defaultMask={loading ? 'Loading...' : undefined}
+                  // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -2261,8 +2263,9 @@ function AdminAgentX({ selectedUser }) {
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                        }`}
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
+                        index === scriptKeys?.length - 1 ? "mb-16" : ""
+                      }`}
                       style={{
                         ...styles.inputStyle,
                         border: "1px solid #00000010",
@@ -2313,10 +2316,9 @@ function AdminAgentX({ selectedUser }) {
 
       {/* drawer */}
 
-
       <Modal
         open={showDrawerSelectedAgent}
-        onClose={()=>setShowDrawerSelectedAgent(null)}
+        onClose={() => setShowDrawerSelectedAgent(null)}
         closeAfterTransition
         BackdropProps={{
           timeout: 500,
@@ -2324,7 +2326,6 @@ function AdminAgentX({ selectedUser }) {
             backgroundColor: "#00000050", // Semi-transparent background
           },
         }}
-        
       >
         <Box
           sx={{
@@ -2340,10 +2341,9 @@ function AdminAgentX({ selectedUser }) {
             display: "flex",
             flexDirection: "column",
             transition: "transform 0.7s ease-in-out",
-            borderRadius:5
+            borderRadius: 5,
           }}
         >
-
           <div className="flex flex-col w-full">
             <div className="w-full flex flex-row items-center justify-between mb-8">
               <div className="flex flex-row items-center gap-4 mt-8">
@@ -2448,7 +2448,9 @@ function AdminAgentX({ selectedUser }) {
                     </div>
                   </div>
 
-                  <div style={{ fontSize: 15, fontWeight: "500", color: "#000" }}>
+                  <div
+                    style={{ fontSize: 15, fontWeight: "500", color: "#000" }}
+                  >
                     {/* {showDrawer?.phoneNumber} */}
                     {formatPhoneNumber(showDrawerSelectedAgent?.phoneNumber)}
                   </div>
@@ -2463,7 +2465,9 @@ function AdminAgentX({ selectedUser }) {
                       style={{ fontSize: 11, fontWeight: "500", color: "#000" }}
                     >
                       {/* {showDrawer?.createdAt} */}
-                      {GetFormattedDateString(showDrawerSelectedAgent?.createdAt)}
+                      {GetFormattedDateString(
+                        showDrawerSelectedAgent?.createdAt
+                      )}
                     </div>
                   </div>
                 </div>
@@ -2475,7 +2479,7 @@ function AdminAgentX({ selectedUser }) {
                 name="Calls"
                 value={
                   showDrawerSelectedAgent?.calls &&
-                    showDrawerSelectedAgent?.calls > 0 ? (
+                  showDrawerSelectedAgent?.calls > 0 ? (
                     <div>{showDrawerSelectedAgent?.calls}</div>
                   ) : (
                     "-"
@@ -2489,7 +2493,7 @@ function AdminAgentX({ selectedUser }) {
                 name="Convos"
                 value={
                   showDrawerSelectedAgent?.callsGt10 &&
-                    showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
                     <div>{showDrawerSelectedAgent?.callsGt10}</div>
                   ) : (
                     "-"
@@ -2517,7 +2521,7 @@ function AdminAgentX({ selectedUser }) {
                 name="Mins Talked"
                 value={
                   showDrawerSelectedAgent?.totalDuration &&
-                    showDrawerSelectedAgent?.totalDuration > 0 ? (
+                  showDrawerSelectedAgent?.totalDuration > 0 ? (
                     // <div>{showDrawer?.totalDuration}</div>
                     <div>
                       {moment(
@@ -2539,10 +2543,11 @@ function AdminAgentX({ selectedUser }) {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`${activeTab === tab
-                    ? "text-purple border-b-2 border-purple"
-                    : "text-black-500"
-                    }`}
+                  className={`${
+                    activeTab === tab
+                      ? "text-purple border-b-2 border-purple"
+                      : "text-black-500"
+                  }`}
                   style={{ fontSize: 15, fontWeight: "500" }}
                 >
                   {tab}
@@ -2558,7 +2563,10 @@ function AdminAgentX({ selectedUser }) {
 
             {/* Code for agent info */}
             {activeTab === "Agent Info" ? (
-              <div style={{overflow:'auto',scrollbarWidth:'none'}} className="w-full h-[35vh]">
+              <div
+                style={{ overflow: "auto", scrollbarWidth: "none" }}
+                className="w-full h-[35vh]"
+              >
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-row items-center justify-between">
                     <div
@@ -2686,9 +2694,10 @@ function AdminAgentX({ selectedUser }) {
                               "& .MuiOutlinedInput-notchedOutline": {
                                 border: "none", // Remove the default outline
                               },
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove outline on focus
-                              },
+                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -2736,7 +2745,9 @@ function AdminAgentX({ selectedUser }) {
                   </div>
                 </div>
                 <div className="flex flex-col gap-4 mt-4">
-                  <div style={{ fontSize: 16, fontWeight: "600", color: "#000" }}>
+                  <div
+                    style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
+                  >
                     Contact Info
                   </div>
 
@@ -2851,25 +2862,25 @@ function AdminAgentX({ selectedUser }) {
                                         <div className="flex flex-row items-center gap-2">
                                           {showDrawerSelectedAgent?.name !==
                                             item.claimedBy.name && (
-                                              <div>
-                                                <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                {reassignLoader === item ? (
-                                                  <CircularProgress size={15} />
-                                                ) : (
-                                                  <button
-                                                    className="text-purple underline"
-                                                    onClick={(e) => {
-                                                      e.stopPropagation();
-                                                      setShowConfirmationModal(
-                                                        item
-                                                      );
-                                                    }}
-                                                  >
-                                                    Reassign
-                                                  </button>
-                                                )}
-                                              </div>
-                                            )}
+                                            <div>
+                                              <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                              {reassignLoader === item ? (
+                                                <CircularProgress size={15} />
+                                              ) : (
+                                                <button
+                                                  className="text-purple underline"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setShowConfirmationModal(
+                                                      item
+                                                    );
+                                                  }}
+                                                >
+                                                  Reassign
+                                                </button>
+                                              )}
+                                            </div>
+                                          )}
                                         </div>
                                       )}
                                     </div>
@@ -2921,7 +2932,11 @@ function AdminAgentX({ selectedUser }) {
                   <div className="flex justify-between">
                     <div className="flex flex-row gap-3">
                       <div
-                        style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          color: "#666",
+                        }}
                       >
                         Call back number
                       </div>
@@ -2950,7 +2965,11 @@ function AdminAgentX({ selectedUser }) {
                   <div className="flex justify-between mt-4">
                     <div className="flex flex-row gap-3">
                       <div
-                        style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          color: "#666",
+                        }}
                       >
                         Call transfer number
                       </div>
@@ -2966,7 +2985,10 @@ function AdminAgentX({ selectedUser }) {
                 </div>
               </div>
             ) : activeTab === "Calendar" ? (
-              <div style={{overflow:'auto',scrollbarWidth:'none'}} className="w-full h-[35vh]">
+              <div
+                style={{ overflow: "auto", scrollbarWidth: "none" }}
+                className="w-full h-[35vh]"
+              >
                 <UserCalender
                   calendarDetails={calendarDetails}
                   setUserDetails={setMainAgentsList}
@@ -2977,7 +2999,10 @@ function AdminAgentX({ selectedUser }) {
                 />
               </div>
             ) : activeTab === "Pipeline | Stages" ? (
-              <div style={{overflow:'auto',scrollbarWidth:'none'}} className="w-full h-[35vh] flex flex-col gap-4" >
+              <div
+                style={{ overflow: "auto", scrollbarWidth: "none" }}
+                className="w-full h-[35vh] flex flex-col gap-4"
+              >
                 <PiepelineAdnStage
                   selectedAgent={showDrawerSelectedAgent}
                   UserPipeline={UserPipeline}

@@ -76,6 +76,9 @@
   input[type="number"] {
     -moz-appearance: textfield; /* Firefox */
   }
+  input:-webkit-autofill {
+    background-color: transparent !important;
+  }
 }
 
 .truncate-cell {

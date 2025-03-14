@@ -39,7 +39,7 @@ export function middleware(request) {
 
 export const config = {
   matcher: [
-    "/createagent/:path*",
+    // "/createagent/:path*",
     "/pipeline/:path*",
     "/sellerkycquestions/:path*",
     "/buyerkycquestions/:path*",

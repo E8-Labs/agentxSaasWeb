@@ -1200,19 +1200,23 @@ const Userleads = ({
               )}
               <div
                 className="h-[32px] w-[32px] bg-black cursor-pointer rounded-full flex flex-row items-center justify-center text-white  break-words overflow-hidden text-ellipsis"
-                onClick={() =>  {setSelectedLeadsDetails(item); // Pass selected lead data
+                onClick={() => {
+                  setSelectedLeadsDetails(item); // Pass selected lead data
                   setNoteDetails(item.notes);
                   setShowDetailsModal(true); // Show modal
-                  setColumns(column);}}
+                  setColumns(column);
+                }}
               >
                 {item.firstName.slice(0, 1)}
               </div>
               <div
                 className="truncate cursor-pointer  break-words overflow-hidden text-ellipsis"
-                onClick={() =>  {setSelectedLeadsDetails(item); // Pass selected lead data
+                onClick={() => {
+                  setSelectedLeadsDetails(item); // Pass selected lead data
                   setNoteDetails(item.notes);
                   setShowDetailsModal(true); // Show modal
-                  setColumns(column);}}
+                  setColumns(column);
+                }}
               >
                 {item.firstName} {item.lastName}
               </div>
@@ -1474,7 +1478,7 @@ const Userleads = ({
     if (disSelectLeads === true) {
       setSelectedLeadsList([]);
       setShowSnackMessage(true);
-      setSelectedAll(false)
+      setSelectedAll(false);
       setMessageType(SnackbarTypes.Success);
     } else if (disSelectLeads === false) {
       setShowSnackMessage(true);
@@ -1727,10 +1731,10 @@ const Userleads = ({
         type={messageType}
       />
       <div
-        className="flex flex-row items-center justify-between w-full px-10 mt-4 pb-4"
+        className="flex flex-row items-center justify-between w-full px-10 py-4 "
         style={{ borderBottom: "1px solid #15151510" }}
       >
-        <div style={{ fontWeight: "700", fontSize: 25 }}>Leads</div>
+        <div style={{ fontWeight: "600", fontSize: 24 }}>Leads</div>
         <div className="flex fex-row items-center gap-6">
           <button
             style={{

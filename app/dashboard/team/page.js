@@ -488,7 +488,7 @@ function Page() {
         />
       )}
       <div
-        className=" w-full flex flex-row justify-between items-center py-4 px-10"
+        className=" w-full flex flex-row justify-between items-center py-4 mt-2 px-10"
         style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>Team</div>

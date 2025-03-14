@@ -27,7 +27,7 @@ function Page() {
   return (
     <div className="w-full flex flex-col items-center overflow-hidden">
       <div
-        className=" w-full flex flex-row justify-between items-center py-4 px-10"
+        className=" w-full flex flex-row justify-between items-center py-4 mt-2 px-10"
         style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>Call Log</div>
@@ -37,7 +37,7 @@ function Page() {
         </div>
       </div>
 
-      <div className=" w-full flex mt-10  gap-8 pb-2 mb-4 pl-10">
+      <div className=" w-full flex mt-6  gap-8 pb-2 mb-4 pl-10">
         {["All Calls", "Call Activities", "Scheduled"].map((tab) => (
           <button
             key={tab}

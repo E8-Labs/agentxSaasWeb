@@ -5,6 +5,7 @@ import CreateAgent2 from "@/components/createagent/CreateAgent2";
 import CreateAgent4 from "@/components/createagent/CreateAgent4";
 import CreateAgentVoice from "@/components/createagent/CreateAgentVoice";
 import BackgroundVideo from "@/components/general/BackgroundVideo";
+import { DeskTwoTone } from "@mui/icons-material";
 import Image from "next/image";
 import React from "react";
 import { useState } from "react";
@@ -38,108 +39,166 @@ const Page = () => {
 
   return (
     <div
-      style={backgroundImage}
-      className="overflow-y-none h-full flex flex-row justify-center items-center"
+      // style={backgroundImage}
+      className="overflow-y-none h-[100svh] flex flex-col justify-between items-center py-4"
     >
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          zIndex: -1, // Ensure the video stays behind content
-        }}
-      >
-        <BackgroundVideo />
+      <div className="-mt-4 w-full ">
+        <DesktopView />
       </div>
       <div
         style={{ width: "100%" }}
-        className="overflow-y-hidden flex flex-row justify-center items-center "
+        className="overflow-y-hidden flex flex-row justify-center items-center mt-32"
       >
         <div
-          className=" rounded-2xl w-full lg:w-10/12 h-[90vh] flex flex-col items-center justify-center"
+          className=" rounded-2xl w-full lg:w-10/12 h-[90vh] flex flex-col items-center justify-center  "
           style={{ scrollbarWidth: "none", backgroundColor: "transparent" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
         >
-          <div className="w-10/12 flex flex-col items-center">
+          <div className="w-full flex flex-col items-center ">
             <div
-              className="w-11/12 bg-[#ffffff80] p-2 px-4 pt-4"
+              className="w-full bg-[#ffffff80] p-2 px-4 pt-4 mt-2"
               style={{
                 borderTopLeftRadius: "15px",
                 borderTopRightRadius: "15px",
-                border: "1px solid #ffffff",
+                border: "0px solid #ffffff",
                 borderBottom: "none",
               }}
             >
-              <Image
-                className=""
-                src="/assets/agentX2.png"
-                style={{ height: "12px", width: "42px", resize: "contain" }}
-                height={12}
-                width={42}
-                alt="*"
-              />
-              <div className="w-full flex flex-row justify-center mt-2">
-                <Image
-                  className="mix-blend-multiply" //mix-blend-multiply
-                  src="/agentXOrb.gif"
-                  style={{ height: "69px", width: "75px", resize: "contain" }}
-                  height={69}
-                  width={69}
-                  alt="*"
-                />
-              </div>
               <div
                 style={{
-                  fontWeight: "600",
-                  fontSize: 12,
+                  fontWeight: "700",
+                  fontSize: 22,
                   textAlign: "center",
-                  marginTop: 15,
+                  marginTop: 130,
+                  color: "#000",
+                  zIndex: 100,
+                  // backgroundColor: "red",
                 }}
               >
                 Build your AI on Desktop
               </div>
               <div
                 style={{
-                  fontWeight: "500",
-                  fontSize: 10,
+                  // fontWeight: "regular",
+                  fontSize: 15,
                   textAlign: "center",
-                  marginTop: 5,
+                  marginTop: 15,
+                  color: "#000",
+                  width: "100%",
+                  // borderWidth:1
+                }}
+              >
+                For a seamless experience, we recommend completing your setup on
+                desktop.
+              </div>
+              <div
+                style={{
+                  fontWeight: "500",
+                  fontSize: 11,
+                  textAlign: "center",
+                  marginTop: 15,
                 }}
               >
                 Check your email to continue with next steps
               </div>
             </div>
-            <div
+            {/* <div
               className="w-full bg-[#ffffff]"
               style={{
                 borderBottomLeftRadius: "15px",
                 borderBottomRightRadius: "15px",
                 height: "15px",
               }}
-            ></div>
-          </div>
-
-          <div
-            style={{
-              fontWeight: "700",
-              fontSize: 15,
-              textAlign: "center",
-              marginTop: 35,
-              color: "#ffffff",
-              width:"90%",
-              // borderWidth:1
-              
-            }}
-          >
-            For a seamless experience, we recommend completing your setup on
-            desktop.
+            ></div> */}
           </div>
         </div>
       </div>
+      <Image
+        className=""
+        src="/assets/agentX2.png"
+        style={{ height: "36px", width: "126px", resize: "contain" }}
+        height={12}
+        width={42}
+        alt="*"
+      />
     </div>
   );
 };
 
 export default Page;
+
+const DesktopView = () => {
+  return (
+    <div className="">
+      <div
+        style={{
+          position: "absolute",
+          top: "30%", // Adjust this value to move it higher
+          left: "50%",
+          transform: "translate(-50%, -50%)", // Shift from center but more towards the top
+          width: "95%", // Set the width to 86%
+          zIndex: -1, // Ensure it stays behind content
+        }}
+      >
+        <Image
+          width={window.outerWidth * 0.95}
+          height={2}
+          style={{
+            // width: "40%", // Fill parent width
+            height: "auto", // Maintain aspect ratio
+            backgroundColor: "",
+          }}
+          src={"/assets/salmanassets/desktopViewNew.png"}
+          layout="intrinsic"
+        />
+      </div>
+
+      <div
+        style={{
+          position: "absolute",
+          top: "45%", // Adjust this value to move it higher
+          left: "50%",
+          transform: "translate(-50%, -50%)", // Shift from center but more towards the top
+          width: "95%", // Set the width to 86%
+          zIndex: 0, // Ensure it stays behind content
+        }}
+      >
+        <Image
+          height={100}
+          width={100}
+          style={{
+            position: "absolute",
+            top: "37%", // Adjust this value to move it higher
+            left: "50%",
+            transform: "translate(-50%, -50%)", // Shift from center but more towards the top
+            height: "160px",
+            width: "165px",
+            zIndex: 0, // Ensure it stays behind content
+          }}
+          src={"/assets/salmanassets/orbShadow.png"}
+          layout="intrinsic"
+        />
+      </div>
+
+      <div className="w-full flex flex-row justify-center  ">
+        <Image
+          className="mix-blend-multiply" //mix-blend-multiply
+          src="/agentXOrb.gif"
+          style={{
+            position: "absolute",
+            top: "37%", // Adjust this value to move it higher
+            left: "50%",
+            transform: "translate(-50%, -50%)", // Shift from center but more towards the top
+            // width: "95%", // Set the width to 86%
+            zIndex: 0, // Ensure it stays behind content
+            height: "140px",
+            width: "145px",
+            resize: "contain",
+          }}
+          height={69}
+          width={69}
+          alt="*"
+        />
+      </div>
+    </div>
+  );
+};

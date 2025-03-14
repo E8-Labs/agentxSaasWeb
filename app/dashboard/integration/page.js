@@ -182,13 +182,15 @@ const allIntegrations = [
     description:
       "Integrate with AgentX to streamline lead management, automate follow-ups, and boost conversions effortlessly.",
     icon: "/svgIcons/GHLIcon.svg",
-  },{
+  },
+  {
     title: "Pipedrive",
     url: "https://zapier.com/apps/pipedrive/integrations/myagentx",
     description:
       "Connect Pipedrive with AgentX for seamless deal tracking and smart sales automation.",
     icon: "/svgIcons/PipedriveIcon.svg",
-  },{
+  },
+  {
     title: "Salesforce",
     url: "https://zapier.com/apps/salesforce/integrations/myagentx",
     description:
@@ -358,7 +360,7 @@ function Page() {
         type={SnackbarTypes.Success}
       />
       <div
-        className=" w-full flex flex-row justify-between items-center py-4 px-10"
+        className=" w-full flex flex-row justify-between items-center py-4 mt-2 px-10"
         style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>Integration</div>

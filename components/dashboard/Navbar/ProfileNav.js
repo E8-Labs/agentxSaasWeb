@@ -686,7 +686,7 @@ const ProfileNav = () => {
         type={SnackbarTypes.Error}
       />
       <div
-        className="w-full pt-10 flex flex-col items-center"
+        className="w-full pt-5 flex flex-col items-center"
         style={{
           height: "90vh",
           overflow: "auto",
@@ -699,8 +699,8 @@ const ProfileNav = () => {
             <Image
               src={"/assets/agentX.png"}
               alt="profile"
-              height={23}
-              width={98}
+              height={33}
+              width={140}
               objectFit="contain"
             />
           </div>
