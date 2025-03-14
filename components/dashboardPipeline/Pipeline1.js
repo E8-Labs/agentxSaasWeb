@@ -508,8 +508,10 @@ const Pipeline1 = () => {
           updatedPipelinesList = [...PipeLines, response.data.data];
           let reversePipelinesList = updatedPipelinesList.reverse();
           // console.log("Updated list of pipelines is:", reversePipelinesList);
-          setSelectedPipeline(reversePipelinesList[0]);
-          setStagesList(reversePipelinesList[0].stages);
+          // setSelectedPipeline(reversePipelinesList[0]);
+          // setStagesList(reversePipelinesList[0].stages);
+
+          getPipelineDetails(reversePipelinesList[0])
           setNewPipelineTitle("");
           setNewPipelineStage(null);
           setSuccessSnack(response.data.message);
@@ -533,7 +535,7 @@ const Pipeline1 = () => {
     let data = localStorage.getItem(PersistanceKeys.LocalStoragePipelines);
     if (data) {
       let jsonData = JSON.parse(data);
-
+      console.log('jsonData', jsonData)
       setPipeLines(jsonData);
       if (jsonData.length > 0) {
         let index = 0;
@@ -565,13 +567,9 @@ const Pipeline1 = () => {
     return dataFound;
   }
 
-  //code for get pipeline
-  const getPipelines = async () => {
+  async function getPipelineDetails(pipeline) {
     try {
-      let data = GetPipelinesCached();
-      if (!data) {
-        setInitialLoader(true);
-      }
+
       const localData = localStorage.getItem("User");
       let AuthToken = null;
       if (localData) {
@@ -581,8 +579,71 @@ const Pipeline1 = () => {
       }
 
       // console.log("Auth token is :--", AuthToken);
-      const ApiPath = Apis.getPipelines;
-      // console.log("Api path is :", ApiPath);
+      const ApiPath = Apis.getPipelines + "?pipelineId=" + pipeline.id;
+      console.log("Api path of pipeline details is :", ApiPath);
+
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response) {
+        console.log("Response of getpipeline details api is :", response.data.data);
+        const pipelineDetails = response.data.data;
+
+        //  Merge updated details with existing pipelines list
+        let updatedPipelines = PipeLines?.map((p) =>
+          p.id === pipeline.id ? { ...p, ...pipelineDetails } : p
+        );
+
+        setPipeLines(updatedPipelines);
+        setSelectedPipeline(pipelineDetails);
+        setStagesList(pipelineDetails.stages)
+
+
+
+        // Save updated pipelines list to localStorage
+        localStorage.setItem(
+          PersistanceKeys.LocalStoragePipelines,
+          JSON.stringify(updatedPipelines)
+        );
+
+        localStorage.setItem(
+          "pipelinesList",
+          JSON.stringify(updatedPipelines)
+        );
+
+      }
+    } catch (error) {
+      // console.error("Error occured in api is:", error);
+    } finally {
+      // console.log("Api call completed");
+      setInitialLoader(false);
+    }
+  }
+
+  //code for get pipeline
+  const getPipelines = async () => {
+    try {
+      let data = GetPipelinesCached();
+      console.log('data from local', data)
+      if (data) {
+        return
+      }
+      setInitialLoader(true);
+      const localData = localStorage.getItem("User");
+      let AuthToken = null;
+      if (localData) {
+        const UserDetails = JSON.parse(localData);
+        AuthToken = UserDetails.token;
+        // console.log("Local details are :", UserDetails);
+      }
+
+      // console.log("Auth token is :--", AuthToken);
+      const ApiPath = Apis.getPipelines + "?liteResource=true";
+      console.log("Api path get pipeline is :", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -593,6 +654,7 @@ const Pipeline1 = () => {
 
       if (response) {
         console.log("Response of getpipeline api is :", response.data.data);
+
         localStorage.setItem(
           PersistanceKeys.LocalStoragePipelines,
           JSON.stringify(response.data.data)
@@ -601,7 +663,15 @@ const Pipeline1 = () => {
           "pipelinesList",
           JSON.stringify(response.data.data)
         );
-        let index = selectedPipelineIndex;
+        const pipelinesList = response.data.data;
+        // setPipeLines(pipelinesList)
+
+        if (pipelinesList.length > 0) {
+          let pipeline = pipelinesList[0]; // Select first pipeline
+          getPipelineDetails(pipeline); // Fetch details for the selected pipeline
+        }
+
+        // let index = selectedPipelineIndex;
         // if (selectedPipelineIndex < response.data.data.length) {
         //   index = selectedPipelineIndex;
         // } else if (response.data.data.length > 0) {
@@ -610,20 +680,20 @@ const Pipeline1 = () => {
         //   index = -1;
         // }
 
-        if (index != -1) {
-          setPipeLines(response.data.data);
-          setSelectedPipeline(response.data.data[index]);
-          setStagesList(response.data.data[index].stages);
-          setOldStages(response.data.data[index].stages);
-          setLeadsList(response.data.data[index].leads);
-          // console.log("Leads lis is :", response.data.data[index].leads);
-        }
+        // if (index != -1) {
+        //   setPipeLines(response.data.data);
+        //   let pipeline = response.data.data[index]
+        //   setSelectedPipeline(pipeline);
+        //   getPipelineDetails(pipeline)
+
+        //   // console.log("Leads lis is :", response.data.data[index].leads);
+        // }
       }
     } catch (error) {
       // console.error("Error occured in api is:", error);
     } finally {
       // console.log("Api call completed");
-      setInitialLoader(false);
+      // setInitialLoader(false);
     }
   };
 
@@ -713,11 +783,12 @@ const Pipeline1 = () => {
 
   //code to seect other pipeline
   const handleSelectOtherPipeline = (item, index) => {
+
+    getPipelineDetails(item)
     // console.log("Other pipeline selected is :", item);
-    setSelectedPipeline(item);
     // setSelectedPipeline(item);
-    setStagesList(item.stages);
-    setLeadsList(item.leads);
+    // setSelectedPipeline(item);
+    // setStagesList(item.stages);
     handleCloseOtherPipeline();
     selectedPipelineIndex = index;
     setParamsInSearchBar(index, "handleSelectOtherPipeline");
@@ -1491,12 +1562,12 @@ const Pipeline1 = () => {
     const updatedLeadsList = LeadsList.map((item) =>
       item.leadId === lead.id
         ? {
-            ...item,
-            lead: {
-              ...item.lead,
-              teamsAssigned: [...item.lead.teamsAssigned, team],
-            },
-          }
+          ...item,
+          lead: {
+            ...item.lead,
+            teamsAssigned: [...item.lead.teamsAssigned, team],
+          },
+        }
         : item
     );
 
@@ -1686,12 +1757,12 @@ const Pipeline1 = () => {
                   vertical: "bottom",
                   horizontal: "left",
                 }}
-                // PaperProps={{
-                //     elevation: 0, // This will remove the shadow
-                //     style: {
-                //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
-                //     },
-                // }}
+              // PaperProps={{
+              //     elevation: 0, // This will remove the shadow
+              //     style: {
+              //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
+              //     },
+              // }}
               >
                 <div className="p-3">
                   <button
@@ -1823,7 +1894,7 @@ const Pipeline1 = () => {
 
             <div className="flex flex-row items-start gap-2">
               <div className="flex flex-row items-start gap-4">
-                {StagesList.map((stage, index) => (
+                {StagesList?.map((stage, index) => (
                   <div
                     key={index}
                     style={{ width: "300px" }}
@@ -1940,7 +2011,7 @@ const Pipeline1 = () => {
                           <div
                             className="text-black flex flex-row items-center gap-4 me-2 outline-none"
                             style={styles.paragraph}
-                            // onClick={handleDeleteStage}
+                          // onClick={handleDeleteStage}
                           >
                             <button
                               className="flex flex-row gap-2 outline-none"
@@ -2015,137 +2086,137 @@ const Pipeline1 = () => {
                     {/* Display leads matching this stage */}
                     {LeadsList.filter((lead) => lead.lead.stage === stage.id)
                       .length > 0 && (
-                      <div
-                        className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl"
-                        style={{
-                          scrollbarWidth: "none",
-                          borderWidth: 1,
-                          borderRadius: "12",
-                          borderStyle: "solid",
-                          borderColor: "#00000010",
-                        }}
-                      >
-                        {LeadsList.filter(
-                          (lead) => lead.lead.stage === stage.id
-                        ).map((lead, leadIndex) => (
-                          <div
-                            className="p-3 h-full"
-                            style={{ width: "300px", height: 200 }}
-                            key={leadIndex}
-                          >
-                            <div className="border rounded-xl px-4 py-2 h-full">
-                              <button
-                                className="flex flex-row items-center gap-3"
-                                onClick={() => {
-                                  // console.log(
-                                  //   "Selected lead details are:",
-                                  //   lead
-                                  // );
-                                  setShowDetailsModal(true);
-                                  setSelectedLeadsDetails(lead.lead);
-                                  setPipelineId(lead.lead.pipeline.id);
-                                  setNoteDetails(lead.lead.notes);
-                                }}
-                              >
-                                {/* T is center aligned */}
-                                <div
-                                  className="bg-black text-white rounded-full flex flex-row item-center justify-center"
-                                  style={{ height: "27px", width: "27px" }}
-                                >
-                                  {lead.lead.firstName.slice(0, 1)}
-                                </div>
-                                <div style={styles.paragraph}>
-                                  {lead.lead.firstName}
-                                </div>
-                              </button>
-                              <div className="flex flex-row items-center justify-between w-full mt-2">
-                                <div
-                                  className="text-[#00000060]"
-                                  style={styles.agentName}
-                                >
-                                  {(lead?.lead?.email
-                                    ? lead?.lead?.email?.slice(0, 10) + "..."
-                                    : "") || ""}
-                                </div>
-                                <div className="flex flex-row items-center gap-4">
-                                  <Image
-                                    src={"/assets/colorCircle.png"}
-                                    height={24}
-                                    width={24}
-                                    alt="*"
-                                  />
-                                  <div
-                                    className="text-purple underline"
-                                    style={styles.agentName}
-                                  >
-                                    {lead.agent.name}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {lead?.lead?.booking?.date && (
-                                <div
-                                  className="flex flex-row items-center gap-2"
-                                  style={{
-                                    // fontWeight: "500",
-
-                                    color: "#15151560",
-                                    // backgroundColor: 'red',
+                        <div
+                          className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl"
+                          style={{
+                            scrollbarWidth: "none",
+                            borderWidth: 1,
+                            borderRadius: "12",
+                            borderStyle: "solid",
+                            borderColor: "#00000010",
+                          }}
+                        >
+                          {LeadsList.filter(
+                            (lead) => lead.lead.stage === stage.id
+                          ).map((lead, leadIndex) => (
+                            <div
+                              className="p-3 h-full"
+                              style={{ width: "300px", height: 200 }}
+                              key={leadIndex}
+                            >
+                              <div className="border rounded-xl px-4 py-2 h-full">
+                                <button
+                                  className="flex flex-row items-center gap-3"
+                                  onClick={() => {
+                                    // console.log(
+                                    //   "Selected lead details are:",
+                                    //   lead
+                                    // );
+                                    setShowDetailsModal(true);
+                                    setSelectedLeadsDetails(lead.lead);
+                                    setPipelineId(lead.lead.pipeline.id);
+                                    setNoteDetails(lead.lead.notes);
                                   }}
                                 >
-                                  <Image
-                                    src="/svgIcons/calendar.svg"
-                                    height={16}
-                                    width={16}
-                                    alt="*"
-                                    style={{ filter: "opacity(50%)" }}
-                                  />
-                                  {/* {moment(lead?.lead?.booking?.date).format(
+                                  {/* T is center aligned */}
+                                  <div
+                                    className="bg-black text-white rounded-full flex flex-row item-center justify-center"
+                                    style={{ height: "27px", width: "27px" }}
+                                  >
+                                    {lead.lead.firstName.slice(0, 1)}
+                                  </div>
+                                  <div style={styles.paragraph}>
+                                    {lead.lead.firstName}
+                                  </div>
+                                </button>
+                                <div className="flex flex-row items-center justify-between w-full mt-2">
+                                  <div
+                                    className="text-[#00000060]"
+                                    style={styles.agentName}
+                                  >
+                                    {(lead?.lead?.email
+                                      ? lead?.lead?.email?.slice(0, 10) + "..."
+                                      : "") || ""}
+                                  </div>
+                                  <div className="flex flex-row items-center gap-4">
+                                    <Image
+                                      src={"/assets/colorCircle.png"}
+                                      height={24}
+                                      width={24}
+                                      alt="*"
+                                    />
+                                    <div
+                                      className="text-purple underline"
+                                      style={styles.agentName}
+                                    >
+                                      {lead.agent.name}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {lead?.lead?.booking?.date && (
+                                  <div
+                                    className="flex flex-row items-center gap-2"
+                                    style={{
+                                      // fontWeight: "500",
+
+                                      color: "#15151560",
+                                      // backgroundColor: 'red',
+                                    }}
+                                  >
+                                    <Image
+                                      src="/svgIcons/calendar.svg"
+                                      height={16}
+                                      width={16}
+                                      alt="*"
+                                      style={{ filter: "opacity(50%)" }}
+                                    />
+                                    {/* {moment(lead?.lead?.booking?.date).format(
                                       "MMM D"
                                     ) || "-"} */}
-                                  <p style={{ fontSize: 13, fontWeight: 500 }}>
-                                    {GetFormattedDateString(
-                                      lead?.lead?.booking?.date,
-                                      true,
-                                      "MMM DD"
-                                    )}
-                                  </p>
+                                    <p style={{ fontSize: 13, fontWeight: 500 }}>
+                                      {GetFormattedDateString(
+                                        lead?.lead?.booking?.date,
+                                        true,
+                                        "MMM DD"
+                                      )}
+                                    </p>
 
-                                  <Image
-                                    src="/svgIcons/clock.svg"
-                                    height={16}
-                                    width={16}
-                                    alt="*"
-                                    style={{ filter: "opacity(50%)" }}
-                                  />
-                                  <p style={{ fontSize: 13, fontWeight: 500 }}>
-                                    {GetFormattedTimeString(
-                                      lead?.lead?.booking?.datetime
-                                    )}
-                                  </p>
+                                    <Image
+                                      src="/svgIcons/clock.svg"
+                                      height={16}
+                                      width={16}
+                                      alt="*"
+                                      style={{ filter: "opacity(50%)" }}
+                                    />
+                                    <p style={{ fontSize: 13, fontWeight: 500 }}>
+                                      {GetFormattedTimeString(
+                                        lead?.lead?.booking?.datetime
+                                      )}
+                                    </p>
 
-                                  {/* {moment(
+                                    {/* {moment(
                                       lead?.lead?.booking?.time,
                                       "HH:mm"
                                     ).format("HH:mm") || "-"} */}
-                                </div>
-                              )}
-
-                              <div className="w-full flex flex-row items-center justify-between mt-12">
-                                {lead?.lead?.teamsAssigned?.length > 0 ? (
-                                  <LeadTeamsAssignedList
-                                    users={lead?.lead?.teamsAssigned}
-                                    maxVisibleUsers={1}
-                                  />
-                                ) : (
-                                  <Image
-                                    src={"/assets/manIcon.png"}
-                                    height={32}
-                                    width={32}
-                                    alt="*"
-                                  />
+                                  </div>
                                 )}
-                                {/* <div className="flex flex-row items-center gap-3">
+
+                                <div className="w-full flex flex-row items-center justify-between mt-12">
+                                  {lead?.lead?.teamsAssigned?.length > 0 ? (
+                                    <LeadTeamsAssignedList
+                                      users={lead?.lead?.teamsAssigned}
+                                      maxVisibleUsers={1}
+                                    />
+                                  ) : (
+                                    <Image
+                                      src={"/assets/manIcon.png"}
+                                      height={32}
+                                      width={32}
+                                      alt="*"
+                                    />
+                                  )}
+                                  {/* <div className="flex flex-row items-center gap-3">
                                                                         <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
                                                                             Tag
                                                                         </div>
@@ -2154,85 +2225,85 @@ const Pipeline1 = () => {
                                                                         </div>
                                                                     </div> */}
 
-                                {lead.lead.tags.length > 0 ? (
-                                  <div className="flex flex-row items-center gap-1">
-                                    {lead?.lead?.tags
-                                      .slice(0, 1)
-                                      .map((tagVal, index) => {
-                                        return (
-                                          // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
-                                          //     {tagVal}
-                                          // </div>
-                                          <div
-                                            key={index}
-                                            className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg"
-                                          >
+                                  {lead.lead.tags.length > 0 ? (
+                                    <div className="flex flex-row items-center gap-1">
+                                      {lead?.lead?.tags
+                                        .slice(0, 1)
+                                        .map((tagVal, index) => {
+                                          return (
+                                            // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
+                                            //     {tagVal}
+                                            // </div>
                                             <div
-                                              className="text-purple" //1C55FF10
+                                              key={index}
+                                              className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg"
                                             >
-                                              {tagVal.length > 4 ? (
-                                                <div style={{ fontSize: 13 }}>
-                                                  {tagVal.slice(0, 4)}
-                                                  {"..."}
+                                              <div
+                                                className="text-purple" //1C55FF10
+                                              >
+                                                {tagVal.length > 4 ? (
+                                                  <div style={{ fontSize: 13 }}>
+                                                    {tagVal.slice(0, 4)}
+                                                    {"..."}
+                                                  </div>
+                                                ) : (
+                                                  <div style={{ fontSize: 13 }}>
+                                                    {tagVal}
+                                                  </div>
+                                                )}
+                                              </div>
+                                              {DelTagLoader &&
+                                                lead.lead.id === DelTagLoader ? (
+                                                <div>
+                                                  <CircularProgress size={15} />
                                                 </div>
                                               ) : (
-                                                <div style={{ fontSize: 13 }}>
-                                                  {tagVal}
-                                                </div>
+                                                <button
+                                                  onClick={() => {
+                                                    // console.log(
+                                                    //   "Tag value is",
+                                                    //   tagVal
+                                                    // );
+                                                    handleDelTag(tagVal, lead);
+                                                    let updatedTags =
+                                                      lead.lead.tags.filter(
+                                                        (tag) => tag != tagVal
+                                                      ) || [];
+                                                    lead.lead.tags = updatedTags;
+                                                    let newLeadCad = [];
+                                                    LeadsList.map((item) => {
+                                                      if (item.id == lead.id) {
+                                                        newLeadCad.push(lead);
+                                                      } else {
+                                                        newLeadCad.push(item);
+                                                      }
+                                                    });
+                                                    setLeadsList(newLeadCad);
+                                                  }}
+                                                >
+                                                  <X
+                                                    size={15}
+                                                    weight="bold"
+                                                    color="#7902DF"
+                                                  />
+                                                </button>
                                               )}
                                             </div>
-                                            {DelTagLoader &&
-                                            lead.lead.id === DelTagLoader ? (
-                                              <div>
-                                                <CircularProgress size={15} />
-                                              </div>
-                                            ) : (
-                                              <button
-                                                onClick={() => {
-                                                  // console.log(
-                                                  //   "Tag value is",
-                                                  //   tagVal
-                                                  // );
-                                                  handleDelTag(tagVal, lead);
-                                                  let updatedTags =
-                                                    lead.lead.tags.filter(
-                                                      (tag) => tag != tagVal
-                                                    ) || [];
-                                                  lead.lead.tags = updatedTags;
-                                                  let newLeadCad = [];
-                                                  LeadsList.map((item) => {
-                                                    if (item.id == lead.id) {
-                                                      newLeadCad.push(lead);
-                                                    } else {
-                                                      newLeadCad.push(item);
-                                                    }
-                                                  });
-                                                  setLeadsList(newLeadCad);
-                                                }}
-                                              >
-                                                <X
-                                                  size={15}
-                                                  weight="bold"
-                                                  color="#7902DF"
-                                                />
-                                              </button>
-                                            )}
-                                          </div>
-                                        );
-                                      })}
-                                    {lead.lead.tags.length > 1 && (
-                                      <div>+{lead.lead.tags.length - 1}</div>
-                                    )}
-                                  </div>
-                                ) : (
-                                  "-"
-                                )}
+                                          );
+                                        })}
+                                      {lead.lead.tags.length > 1 && (
+                                        <div>+{lead.lead.tags.length - 1}</div>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    "-"
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                          ))}
+                        </div>
+                      )}
                   </div>
                 ))}
               </div>
@@ -3045,7 +3116,7 @@ const Pipeline1 = () => {
                         },
                       }}
                     >
-                      {StagesList.map((stage, index) => {
+                      {StagesList?.map((stage, index) => {
                         return (
                           <MenuItem
                             key={index}
@@ -3675,9 +3746,8 @@ const Pipeline1 = () => {
       {/* Code for side view */}
       {importantCalls?.length > 0 && (
         <div
-          className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${
-            expandSideView ? "w-[506px]" : "w-[100px]"
-          }`} //${expandSideView ? 'w-[32vw]' : 'w-[7vw]'}
+          className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${expandSideView ? "w-[506px]" : "w-[100px]"
+            }`} //${expandSideView ? 'w-[32vw]' : 'w-[7vw]'}
           style={{
             borderTopLeftRadius: expandSideView ? "0" : "40px",
             borderBottomLeftRadius: expandSideView ? "0" : "40px",
@@ -3687,7 +3757,7 @@ const Pipeline1 = () => {
             bottom: 100,
             right: 0,
           }}
-          onClick={() => {}}
+          onClick={() => { }}
         >
           {expandSideView ? (
             <div className="flex  items-center justify-center w-full">

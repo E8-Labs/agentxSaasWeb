@@ -93,24 +93,21 @@ function AdminSubscriptions() {
     : [];
 
   // Transform API data into chart format
-  const subscriptionChartData =
-    months.length > 0
-      ? months.map((shortMonth) => ({
-        month: monthMap[shortMonth] || shortMonth,
-        Trial:
-          analyticData?.planSubscriptionStats?.Trial?.[shortMonth] || 0,
-        Plan30:
-          analyticData?.planSubscriptionStats?.Plan30?.[shortMonth] || 0,
-        Plan120:
-          analyticData?.planSubscriptionStats?.Plan120?.[shortMonth] || 0,
-        Plan360:
-          analyticData?.planSubscriptionStats?.Plan360?.[shortMonth] || 0,
-        Plan720:
-          analyticData?.planSubscriptionStats?.Plan720?.[shortMonth] || 0,
-      }))
-      : [];
-
-
+  const subscriptionChartData = Object.keys(
+    analyticData?.planSubscriptionStats?.Trial || {}
+  ).map((dateKey) => {
+    // Ensure proper date formatting (MMM DD)
+    const formattedDate = moment(dateKey, "MMM DD, YY").format("MMM DD");
+  
+    return {
+      month: formattedDate, // Correct format for X-axis
+      Trial: analyticData?.planSubscriptionStats?.Trial?.[dateKey] || 0,
+      Plan30: analyticData?.planSubscriptionStats?.Plan30?.[dateKey] || 0,
+      Plan120: analyticData?.planSubscriptionStats?.Plan120?.[dateKey] || 0,
+      Plan360: analyticData?.planSubscriptionStats?.Plan360?.[dateKey] || 0,
+      Plan720: analyticData?.planSubscriptionStats?.Plan720?.[dateKey] || 0,
+    };
+  });
   const totalNewSubscriptions = subscriptionChartData.reduce((total, monthData) => {
     return total + (monthData.Trial || 0) + (monthData.Plan30 || 0) + (monthData.Plan120 || 0) + (monthData.Plan360 || 0) + (monthData.Plan720 || 0);
   }, 0);
@@ -491,8 +488,8 @@ function AdminSubscriptions() {
                     axisLine={false}
                     tickMargin={10}
                     tick={{ fontSize: 12, fill: "#6b7280" }}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                  />
+                    tickFormatter={(value) => moment(value, "MMM DD").format("MMM DD")} // ✅ Ensure correct formatting
+                    />
 
                   {/* Y-Axis */}
                   <YAxis
