@@ -7,14 +7,21 @@ import CreateAgentVoice from "@/components/createagent/CreateAgentVoice";
 import BackgroundVideo from "@/components/general/BackgroundVideo";
 import { DeskTwoTone } from "@mui/icons-material";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 
 const Page = () => {
   const [index, setIndex] = useState(0);
-  let components = [CreateAgent1, CreatAgent3, CreateAgent4, CreateAgentVoice];
+  const [width, setWidth] = useState(410);
+  // let components = [CreateAgent1, CreatAgent3, CreateAgent4, CreateAgentVoice];
 
-  let CurrentComp = components[index];
+  useEffect(() => {
+    if (typeof window != "undefined") {
+      setWidth(window.innerWidth);
+    }
+  }, []);
+
+  // let CurrentComp = components[index];
 
   // Function to proceed to the next step
   const handleContinue = () => {
@@ -43,7 +50,7 @@ const Page = () => {
       className="overflow-y-none h-[100svh] flex flex-col justify-between items-center py-4"
     >
       <div className="-mt-4 w-full ">
-        <DesktopView />
+        <DesktopView width={width} />
       </div>
       <div
         style={{ width: "100%" }}
@@ -126,7 +133,7 @@ const Page = () => {
 
 export default Page;
 
-const DesktopView = () => {
+const DesktopView = ({ width }) => {
   return (
     <div className="">
       <div
@@ -140,7 +147,7 @@ const DesktopView = () => {
         }}
       >
         <Image
-          width={window.outerWidth * 0.95}
+          width={width * 0.95}
           height={2}
           style={{
             // width: "40%", // Fill parent width
