@@ -25,6 +25,7 @@ function AdminEngagments() {
 
     const [selectedDateRange, setselectedDateRange] = useState("All Time");
 
+    const [showCustomRange, setShowCustomRange] = useState(false)
 
 
     const plans = [
@@ -201,6 +202,7 @@ function AdminEngagments() {
                                             setstartDate("2025-01-01");
                                             setselectedDateRange("All Time");
                                             getEngagmentData(false);
+                                            setShowCustomRange(false)
                                         }}
                                     >
                                         All Time
@@ -219,7 +221,7 @@ function AdminEngagments() {
                         </DropdownMenu>
 
                         {
-                            startDate != "2025-01-01" &&
+                            showCustomRange &&
                             <div className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto"
                                 style={{ scrollbarColor: "#00000000", scrollbarWidth: "none" }}
                             >
@@ -238,6 +240,8 @@ function AdminEngagments() {
                                             setstartDate("2025-01-01")
                                             getEngagmentData(false)
                                             setselectedDateRange("All Time")
+                                            setShowCustomRange(false)
+
                                         }}
                                     >
                                         <Image
@@ -411,7 +415,7 @@ function AdminEngagments() {
                             Engagement Graph
                         </div>
                         <div className='flex flex-row items-center gap-4'>
-                            
+
                         </div>
                     </div>
 
@@ -528,6 +532,7 @@ function AdminEngagments() {
                                 onClick={() => {
                                     getEngagmentData(true);
                                     setShowCustomRangePopup(false);
+                                    setShowCustomRange(true)
                                 }}
                             >
                                 Continue

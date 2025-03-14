@@ -69,6 +69,8 @@ function AdminSubscriptions() {
   );
   const [selectedUpgradeRange, setSelectedUpgradeRange] = useState("All Time");
 
+  const [showCustomRange, setShowCustomRange] = useState(false)
+
   // Month mapping from short to full name
   const monthMap = {
     Jan: "January",
@@ -109,11 +111,11 @@ function AdminSubscriptions() {
       : [];
 
 
-      const totalNewSubscriptions = subscriptionChartData.reduce((total, monthData) => {
-        return total + (monthData.Trial || 0) + (monthData.Plan30 || 0) + (monthData.Plan120 || 0) + (monthData.Plan360 || 0) + (monthData.Plan720 || 0);
-      }, 0);
-      
-      console.log("Total New Subscriptions:", totalNewSubscriptions);
+  const totalNewSubscriptions = subscriptionChartData.reduce((total, monthData) => {
+    return total + (monthData.Trial || 0) + (monthData.Plan30 || 0) + (monthData.Plan120 || 0) + (monthData.Plan360 || 0) + (monthData.Plan720 || 0);
+  }, 0);
+
+  console.log("Total New Subscriptions:", totalNewSubscriptions);
 
   // Mapping Plan names to UI labels
   const planMapping = {
@@ -169,29 +171,29 @@ function AdminSubscriptions() {
 
   const cancellationsRateData = [
     {
-      name: "Trial",
+      name: "trial",
       value: analyticData?.subscription?.cancellations?.trial || 0,
       color: "#8E24AA",
     },
     {
-      name: "Plan30",
+      name: "From $45",
       value: analyticData?.subscription?.cancellations?.Plan30 || 0,
       color: "#FF6600",
     },
     {
-      name: "Plan120",
+      name: "From $99",
       value: analyticData?.subscription?.cancellations?.Plan120 || 0,
       color: "#402FFF",
     },
     {
-      name: "Plan360",
+      name: "From $270 ",
       value: analyticData?.subscription?.cancellations?.Plan360 || 0,
-      color: "#FF2D2D",
+      color: "#000000",
     },
     {
-      name: "Plan720",
+      name: "From $480 ",
       value: analyticData?.subscription?.cancellations?.Plan720 || 0,
-      color: "#009C5B",
+      color: "#FF2D2D",
     },
   ];
 
@@ -332,6 +334,8 @@ function AdminSubscriptions() {
                     setSubscriptionStartDate("2025-01-01");
                     setSelectedSubRange("All Time");
                     getAdminAnalytics(false);
+                    setShowCustomRange(false)
+
                   }}
                 >
                   All Time
@@ -351,11 +355,10 @@ function AdminSubscriptions() {
 
           {/* Show filters here in a row*/}
           {
-            subscriptionStartDate != "2025-01-01" &&
+            showCustomRange &&
             <div className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto"
               style={{ scrollbarColor: "#00000000", scrollbarWidth: "none" }}
             >
-
               <div
                 className="px-4 py-2 bg-[#402FFF10] text-purple flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
                 style={{ fontWeight: "500", fontSize: 15 }}
@@ -370,6 +373,7 @@ function AdminSubscriptions() {
                     setSubscriptionStartDate("2025-01-01")
                     setSelectedSubRange("All Time")
                     getAdminAnalytics(false)
+                    setShowCustomRange(false)
                   }}
                 >
                   <Image
@@ -424,7 +428,7 @@ function AdminSubscriptions() {
                   <div className="w-full flex flex-row items-center gap-4 justify-end">
 
 
-                   
+
                   </div>
                 </div>
               </div>
@@ -568,7 +572,7 @@ function AdminSubscriptions() {
                     </div>
 
 
-                   
+
                   </div>
 
                   <BarChart
@@ -655,7 +659,7 @@ function AdminSubscriptions() {
                         Churned users who return
                       </div>
                     </div>
-                    
+
                   </div>
 
                   <BarChart
@@ -745,7 +749,7 @@ function AdminSubscriptions() {
 
                 <div className="w-full flex flex-row justify-end items-center gap-4">
 
-                 
+
                 </div>
 
                 <div className="w-full flex flex-row gap-4 items-center mt-4">
@@ -997,35 +1001,17 @@ function AdminSubscriptions() {
                   <div className="flex flex-col gap-2">
                     <div className="flex flex-row items-center gap-">
                       <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#8E24AA] border border-white"></div>
-                      Trial -{" "}
-                      {analyticData?.subscription?.cancellations?.["trial"] ||
-                        0}{" "}
-                      users
-                    </div>
-
-                    <div className="flex flex-row items-center gap-">
-                      <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#8E24AA] border border-white"></div>
-                      Trial to Plan30 -{" "}
-                      {analyticData?.subscription?.cancellations?.["trial"] ||
+                      From trial  -{" "}
+                      {analyticData?.subscription?.cancellations?.trial ||
                         0}{" "}
                       users
                     </div>
 
                     <div className="flex flex-row items-center gap-">
                       <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#FF6600] border border-white"></div>
-                      <p
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "500",
-                          color: "#000",
-                        }}
-                      >
-                        Trial to Plan120 -{" "}
-                        {analyticData?.subscription?.cancellations?.[
-                          "Trial to Plan120"
-                        ] || 0}{" "}
-                        users
-                      </p>
+                      From $45 -{" "}
+                      {analyticData?.subscription?.cancellations?.Plan30 || 0}{" "}
+                      users
                     </div>
 
                     <div className="flex flex-row items-center gap-">
@@ -1037,10 +1023,23 @@ function AdminSubscriptions() {
                           color: "#000",
                         }}
                       >
-                        Trial to Plan360 -{" "}
-                        {analyticData?.subscription?.cancellations?.[
-                          "Trial to Plan7236"
-                        ] || 0}{" "}
+                        From $99 -{" "}
+                        {analyticData?.subscription?.cancellations?.Plan120 || 0}{" "}
+                        users
+                      </p>
+                    </div>
+
+                    <div className="flex flex-row items-center gap-">
+                      <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#000000] border border-white"></div>
+                      <p
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          color: "#000",
+                        }}
+                      >
+                        From $270 -{" "}
+                        {analyticData?.subscription?.cancellations?.Plan360 || 0}{" "}
                         users
                       </p>
                     </div>
@@ -1054,10 +1053,8 @@ function AdminSubscriptions() {
                           color: "#000",
                         }}
                       >
-                        Trial to Plan720 -{" "}
-                        {analyticData?.subscription?.cancellations?.[
-                          "Trial to Plan720"
-                        ] || 0}{" "}
+                        From $480 -{" "}
+                        {analyticData?.subscription?.cancellations?.Plan720 || 0}{" "}
                         users
                       </p>
                     </div>
@@ -1098,7 +1095,7 @@ function AdminSubscriptions() {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-purple">CLV</h3>
 
-         
+
             </div>
 
             {/* Value */}
@@ -1129,7 +1126,7 @@ function AdminSubscriptions() {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-purple">MRR</h3>
 
-        
+
             </div>
 
             {/* Value */}
@@ -1160,7 +1157,7 @@ function AdminSubscriptions() {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-purple">ARR</h3>
 
-          
+
             </div>
 
             {/* Value */}
@@ -1190,7 +1187,7 @@ function AdminSubscriptions() {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-purple">NRR</h3>
 
-            
+
             </div>
 
             {/* Value */}
@@ -1264,7 +1261,7 @@ function AdminSubscriptions() {
                 />
               </div>
 
-       
+
             </div>
 
             {/* Value */}
@@ -1369,6 +1366,7 @@ function AdminSubscriptions() {
                 onClick={() => {
                   getAdminAnalytics(true);
                   setShowCustomRangePopup(null);
+                  setShowCustomRange(true)
                 }}
               >
                 Continue

@@ -527,11 +527,16 @@ function SubscriptionsStatsComponent({ stats }) {
           <CardTitle>No Plan</CardTitle>
         </CardHeader>
         <CardContent>
-          <h2 className="cursor-pointer text-2xl font-regular">-</h2>
+          <h2 className="cursor-pointer text-2xl font-regular">
+            {stats?.usersOnPlans['No Plan'].count}
+
+          </h2>
           {/* <Progress value={27} /> */}
         </CardContent>
         <CardContent>
-          <p className="cursor-pointer text-lg font-regular text-gray-500">-</p>
+          <p className="cursor-pointer text-lg font-regular text-gray-500">
+            {`${stats?.usersOnPlans['No Plan'].percentage}`}%
+          </p>
         </CardContent>
       </Card>
 
