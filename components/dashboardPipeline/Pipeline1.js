@@ -592,7 +592,7 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        // console.log("Response of getpipeline api is :", response.data.data);
+        console.log("Response of getpipeline api is :", response.data.data);
         localStorage.setItem(
           PersistanceKeys.LocalStoragePipelines,
           JSON.stringify(response.data.data)
