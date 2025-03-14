@@ -685,6 +685,7 @@ const Pipeline1 = () => {
         },
       });
 
+      setInitialLoader(false);
       if (response) {
         console.log("Response of getpipeline api is :", response.data.data);
 
