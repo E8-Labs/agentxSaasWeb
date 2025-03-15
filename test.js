@@ -713,7 +713,7 @@ const OtherDetails = ({
                     />
 
                     <div style={styles.headingStyle} className="mt-6">
-                      Average transaction volume per year
+                      How many homes did you sell last yeartion volume per year
                     </div>
                     <input
                       ref={(el) => (inputsFields.current[2] = el)}
@@ -951,7 +951,7 @@ const OtherDetails = ({
                     />
 
                     <div style={styles.headingStyle} className="mt-6">
-                      Average transaction volume per year
+                      How many homes did you sell last yeartion volume per year
                     </div>
                     <input
                       ref={(el) => (inputsFields.current[2] = el)}

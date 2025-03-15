@@ -2316,28 +2316,38 @@ function AdminAgentX({ selectedUser }) {
 
       {/* drawer */}
 
-      <Drawer
-        anchor="right"
+      <Modal
         open={showDrawerSelectedAgent}
         onClose={() => setShowDrawerSelectedAgent(null)}
-        sx={{
-          "& .MuiDrawer-paper": {
-            width: "50%", // Adjust the width as per your design
-            paddingInline: "60px", // Add padding for internal spacing
-          },
-        }}
+        closeAfterTransition
         BackdropProps={{
-          timeout: 100,
+          timeout: 500,
           sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(20px)",
+            backgroundColor: "#00000050", // Semi-transparent background
           },
         }}
       >
-        <div className="flex flex-col w-full">
-          <div className="w-full flex flex-row items-center justify-between mb-8">
-            <div className="flex flex-row items-center gap-4 mt-8">
-              {/* <div className="flex items-end">
+        <Box
+          sx={{
+            position: "fixed",
+            top: 14,
+            right: 25,
+            width: "50vw", // Adjust width as needed
+            maxWidth: "600px",
+            height: "95vh",
+            bgcolor: "white",
+            boxShadow: 3,
+            p: 3,
+            display: "flex",
+            flexDirection: "column",
+            transition: "transform 0.7s ease-in-out",
+            borderRadius: 5,
+          }}
+        >
+          <div className="flex flex-col w-full">
+            <div className="w-full flex flex-row items-center justify-between mb-8">
+              <div className="flex flex-row items-center gap-4 mt-8">
+                {/* <div className="flex items-end">
                 <Image
                   src={"/agentXOrb.gif"}
                   height={90}
@@ -2354,210 +2364,217 @@ function AdminAgentX({ selectedUser }) {
                 </button>
               </div> */}
 
-              <button
-                // className='mt-8'
-                onClick={() => {
-                  document.getElementById("fileInput").click();
-                  // if (typeof document === "undefined") {
-                  // }
-                }}
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-              >
-                <div
-                  className="flex flex-row items-end"
-                  style={
-                    {
-                      // border: dragging ? "2px dashed #0070f3" : "",
-                    }
-                  }
+                <button
+                  // className='mt-8'
+                  onClick={() => {
+                    document.getElementById("fileInput").click();
+                    // if (typeof document === "undefined") {
+                    // }
+                  }}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
                 >
-                  {selectedImage ? (
-                    <div style={{ marginTop: "", background: "" }}>
-                      <Image
-                        src={selectedImage}
-                        height={74}
-                        width={74}
-                        alt="profileImage"
-                        className="rounded-full"
-                        style={{
-                          objectFit: "cover",
-                          resize: "cover",
-                          height: "74px",
-                          width: "74px",
-                        }}
-                      />
-                    </div>
-                  ) : (
-                    getAgentsListImage(showDrawerSelectedAgent)
-                  )}
+                  <div
+                    className="flex flex-row items-end"
+                    style={
+                      {
+                        // border: dragging ? "2px dashed #0070f3" : "",
+                      }
+                    }
+                  >
+                    {selectedImage ? (
+                      <div style={{ marginTop: "", background: "" }}>
+                        <Image
+                          src={selectedImage}
+                          height={74}
+                          width={74}
+                          alt="profileImage"
+                          className="rounded-full"
+                          style={{
+                            objectFit: "cover",
+                            resize: "cover",
+                            height: "74px",
+                            width: "74px",
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      getAgentsListImage(showDrawerSelectedAgent)
+                    )}
 
-                  <Image
-                    src={"/otherAssets/cameraBtn.png"}
-                    style={{ marginLeft: -25 }}
-                    height={36}
-                    width={36}
-                    alt="profileImage"
-                  />
-                </div>
-              </button>
+                    <Image
+                      src={"/otherAssets/cameraBtn.png"}
+                      style={{ marginLeft: -25 }}
+                      height={36}
+                      width={36}
+                      alt="profileImage"
+                    />
+                  </div>
+                </button>
 
-              {/* Hidden file input */}
-              <input
-                type="file"
-                accept="image/*"
-                id="fileInput"
-                style={{ display: "none" }}
-                onChange={handleImageChange}
-              />
-
-              {/* Global Loader */}
-              {globalLoader && (
-                <CircularLoader
-                  globalLoader={globalLoader}
-                  setGlobalLoader={setGlobalLoader}
+                {/* Hidden file input */}
+                <input
+                  type="file"
+                  accept="image/*"
+                  id="fileInput"
+                  style={{ display: "none" }}
+                  onChange={handleImageChange}
                 />
-              )}
 
-              <div className="flex flex-col gap-1 items-start ">
-                <div className="flex flex-row gap-2 items-center ">
-                  <div style={{ fontSize: 22, fontWeight: "600" }}>
-                    {showDrawerSelectedAgent?.name.slice(0, 1).toUpperCase()}
-                    {showDrawerSelectedAgent?.name.slice(1)}
-                  </div>
-                  <div
-                    className="text-purple"
-                    style={{ fontSize: 11, fontWeight: "600" }}
-                  >
-                    {showDrawerSelectedAgent?.agentObjective}{" "}
-                    <span className="text-[#00000060]">
-                      {" "}
-                      | {showDrawerSelectedAgent?.agentType}
-                    </span>
-                  </div>
-                </div>
+                {/* Global Loader */}
+                {globalLoader && (
+                  <CircularLoader
+                    globalLoader={globalLoader}
+                    setGlobalLoader={setGlobalLoader}
+                  />
+                )}
 
-                <div style={{ fontSize: 15, fontWeight: "500", color: "#000" }}>
-                  {/* {showDrawer?.phoneNumber} */}
-                  {formatPhoneNumber(showDrawerSelectedAgent?.phoneNumber)}
-                </div>
-
-                <div className="flex flex-row gap-2 items-center ">
-                  <div
-                    style={{ fontSize: 11, fontWeight: "500", color: "#666" }}
-                  >
-                    Created on:
+                <div className="flex flex-col gap-1 items-start ">
+                  <div className="flex flex-row gap-2 items-center ">
+                    <div style={{ fontSize: 22, fontWeight: "600" }}>
+                      {showDrawerSelectedAgent?.name.slice(0, 1).toUpperCase()}
+                      {showDrawerSelectedAgent?.name.slice(1)}
+                    </div>
+                    <div
+                      className="text-purple"
+                      style={{ fontSize: 11, fontWeight: "600" }}
+                    >
+                      {showDrawerSelectedAgent?.agentObjective}{" "}
+                      <span className="text-[#00000060]">
+                        {" "}
+                        | {showDrawerSelectedAgent?.agentType}
+                      </span>
+                    </div>
                   </div>
+
                   <div
-                    style={{ fontSize: 11, fontWeight: "500", color: "#000" }}
+                    style={{ fontSize: 15, fontWeight: "500", color: "#000" }}
                   >
-                    {/* {showDrawer?.createdAt} */}
-                    {GetFormattedDateString(showDrawerSelectedAgent?.createdAt)}
+                    {/* {showDrawer?.phoneNumber} */}
+                    {formatPhoneNumber(showDrawerSelectedAgent?.phoneNumber)}
+                  </div>
+
+                  <div className="flex flex-row gap-2 items-center ">
+                    <div
+                      style={{ fontSize: 11, fontWeight: "500", color: "#666" }}
+                    >
+                      Created on:
+                    </div>
+                    <div
+                      style={{ fontSize: 11, fontWeight: "500", color: "#000" }}
+                    >
+                      {/* {showDrawer?.createdAt} */}
+                      {GetFormattedDateString(
+                        showDrawerSelectedAgent?.createdAt
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-5 gap-6 border p-8 flex-row justify-between w-full rounded-lg mb-6">
-            <Card
-              name="Calls"
-              value={
-                showDrawerSelectedAgent?.calls &&
-                showDrawerSelectedAgent?.calls > 0 ? (
-                  <div>{showDrawerSelectedAgent?.calls}</div>
-                ) : (
-                  "-"
-                )
-              }
-              icon="/svgIcons/selectedCallIcon.svg"
-              bgColor="bg-blue-100"
-              iconColor="text-blue-500"
-            />
-            <Card
-              name="Convos"
-              value={
-                showDrawerSelectedAgent?.callsGt10 &&
-                showDrawerSelectedAgent?.callsGt10 > 0 ? (
-                  <div>{showDrawerSelectedAgent?.callsGt10}</div>
-                ) : (
-                  "-"
-                )
-              }
-              icon="/svgIcons/convosIcon2.svg"
-              bgColor="bg-purple-100"
-              iconColor="text-purple-500"
-            />
-            <Card
-              name="Hot Leads"
-              value="-"
-              icon="/otherAssets/hotLeadsIcon2.png"
-              bgColor="bg-orange-100"
-              iconColor="text-orange-500"
-            />
-            <Card
-              name="Booked"
-              value="-"
-              icon="/otherAssets/greenCalenderIcon.png"
-              bgColor="bg-green-100"
-              iconColor="text-green-500"
-            />
-            <Card
-              name="Mins Talked"
-              value={
-                showDrawerSelectedAgent?.totalDuration &&
-                showDrawerSelectedAgent?.totalDuration > 0 ? (
-                  // <div>{showDrawer?.totalDuration}</div>
-                  <div>
-                    {moment(
-                      showDrawerSelectedAgent.totalDuration * 1000
-                    ).format("mm:ss")}
-                  </div>
-                ) : (
-                  "-"
-                )
-              }
-              icon="/otherAssets/minsCounter.png"
-              bgColor="bg-green-100"
-              iconColor="text-green-500"
-            />
-          </div>
+            <div className="grid grid-cols-5 gap-6 border p-8 flex-row justify-between w-full rounded-lg mb-6">
+              <Card
+                name="Calls"
+                value={
+                  showDrawerSelectedAgent?.calls &&
+                  showDrawerSelectedAgent?.calls > 0 ? (
+                    <div>{showDrawerSelectedAgent?.calls}</div>
+                  ) : (
+                    "-"
+                  )
+                }
+                icon="/svgIcons/selectedCallIcon.svg"
+                bgColor="bg-blue-100"
+                iconColor="text-blue-500"
+              />
+              <Card
+                name="Convos"
+                value={
+                  showDrawerSelectedAgent?.callsGt10 &&
+                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                    <div>{showDrawerSelectedAgent?.callsGt10}</div>
+                  ) : (
+                    "-"
+                  )
+                }
+                icon="/svgIcons/convosIcon2.svg"
+                bgColor="bg-purple-100"
+                iconColor="text-purple-500"
+              />
+              <Card
+                name="Hot Leads"
+                value="-"
+                icon="/otherAssets/hotLeadsIcon2.png"
+                bgColor="bg-orange-100"
+                iconColor="text-orange-500"
+              />
+              <Card
+                name="Booked"
+                value="-"
+                icon="/otherAssets/greenCalenderIcon.png"
+                bgColor="bg-green-100"
+                iconColor="text-green-500"
+              />
+              <Card
+                name="Mins Talked"
+                value={
+                  showDrawerSelectedAgent?.totalDuration &&
+                  showDrawerSelectedAgent?.totalDuration > 0 ? (
+                    // <div>{showDrawer?.totalDuration}</div>
+                    <div>
+                      {moment(
+                        showDrawerSelectedAgent.totalDuration * 1000
+                      ).format("mm:ss")}
+                    </div>
+                  ) : (
+                    "-"
+                  )
+                }
+                icon="/otherAssets/minsCounter.png"
+                bgColor="bg-green-100"
+                iconColor="text-green-500"
+              />
+            </div>
 
-          <div className="flex gap-8 pb-2 mb-4">
-            {["Agent Info", "Calendar", "Pipeline | Stages"].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`${
-                  activeTab === tab
-                    ? "text-purple border-b-2 border-purple"
-                    : "text-black-500"
-                }`}
-                style={{ fontSize: 15, fontWeight: "500" }}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
+            <div className="flex gap-8 pb-2 mb-4">
+              {["Agent Info", "Calendar", "Pipeline | Stages"].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`${
+                    activeTab === tab
+                      ? "text-purple border-b-2 border-purple"
+                      : "text-black-500"
+                  }`}
+                  style={{ fontSize: 15, fontWeight: "500" }}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
 
-          {/* <div className='w-full flex items-end justify-end mb-5'>
+            {/* <div className='w-full flex items-end justify-end mb-5'>
             <button style={{ color: '#7902DF', fontSize: 15, fontWeight: '600' }}>
               Save Changes
             </button>
           </div> */}
 
-          {/* Code for agent info */}
-          {activeTab === "Agent Info" ? (
-            <div className="w-full">
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-row items-center justify-between">
-                  <div
-                    style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
-                  >
-                    Agent
-                  </div>
-                  {/* {assignLoader ? (
+            {/* Code for agent info */}
+            {activeTab === "Agent Info" ? (
+              <div
+                style={{ overflow: "auto", scrollbarWidth: "none" }}
+                className="w-full h-[35vh]"
+              >
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-row items-center justify-between">
+                    <div
+                      style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
+                    >
+                      Agent
+                    </div>
+                    {/* {assignLoader ? (
                     <div>
                       <CircularProgress size={25} />
                     </div>
@@ -2570,457 +2587,475 @@ function AdminAgentX({ selectedUser }) {
                       Save Changes
                     </button>
                   )} */}
-                </div>
-                <div className="flex justify-between">
-                  <div
-                    style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
-                  >
-                    Name
                   </div>
-                  <div
-                    style={{
-                      fontSize: 15,
-                      fontWeight: "500",
-                      color: "#000",
-                    }}
-                  >
-                    {showDrawerSelectedAgent?.name}
+                  <div className="flex justify-between">
+                    <div
+                      style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                    >
+                      Name
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 15,
+                        fontWeight: "500",
+                        color: "#000",
+                      }}
+                    >
+                      {showDrawerSelectedAgent?.name}
+                    </div>
                   </div>
-                </div>
-                <div className="flex justify-between items-center mt-4">
-                  <div
-                    style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
-                  >
-                    Role
+                  <div className="flex justify-between items-center mt-4">
+                    <div
+                      style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                    >
+                      Role
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 15,
+                        fontWeight: "500",
+                        color: "#000",
+                      }}
+                    >
+                      {showDrawerSelectedAgent?.agentRole}
+                    </div>
                   </div>
-                  <div
-                    style={{
-                      fontSize: 15,
-                      fontWeight: "500",
-                      color: "#000",
-                    }}
-                  >
-                    {showDrawerSelectedAgent?.agentRole}
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <div
-                    style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
-                  >
-                    Voice
-                  </div>
-                  {/* <div className='flex flex-row items-center gap-1'
+                  <div className="flex justify-between items-center">
+                    <div
+                      style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                    >
+                      Voice
+                    </div>
+                    {/* <div className='flex flex-row items-center gap-1'
                       style={{
                         fontSize: 15, fontWeight: '500', color: '#000'
                       }}>
                       <Image src={"/otherAssets/voiceAvt.png"} height={22} width={22} alt='*' />
                       {showDrawer?.voiceId}
                     </div> */}
-                  <div
-                    style={{
-                      width: "150px",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    {showVoiceLoader ? (
-                      <div
-                        style={{
-                          width: "150px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <CircularProgress size={15} />
-                      </div>
-                    ) : (
-                      <FormControl fullWidth>
-                        <Select
-                          value={SelectedVoice}
-                          onChange={handleChangeVoice}
-                          displayEmpty // Enables placeholder
-                          renderValue={(selected) => {
-                            if (!selected) {
-                              return (
-                                <div style={{ color: "#aaa" }}>
-                                  Select Voice
-                                </div>
-                              ); // Placeholder style
-                            }
-                            // return selected;
-                            const selectedVoice = voicesList.find(
-                              (voice) => voice.voice_id === selected
-                            );
-                            return selectedVoice ? (
-                              <div
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <Image
-                                  src={selectedVoice.img}
-                                  height={40}
-                                  width={35}
-                                  alt="Selected Voice"
-                                />
-                                <div>{selectedVoice.name}</div>
-                              </div>
-                            ) : null;
-                          }}
-                          sx={{
-                            border: "none", // Default border
-                            "&:hover": {
-                              border: "none", // Same border on hover
-                            },
-                            "& .MuiOutlinedInput-notchedOutline": {
-                              border: "none", // Remove the default outline
-                            },
-                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                              border: "none", // Remove outline on focus
-                            },
-                            "&.MuiSelect-select": {
-                              py: 0, // Optional padding adjustments
-                            },
-                          }}
-                          MenuProps={{
-                            PaperProps: {
-                              style: {
-                                maxHeight: "30vh", // Limit dropdown height
-                                overflow: "auto", // Enable scrolling in dropdown
-                                scrollbarWidth: "none",
-                                // borderRadius: "10px"
-                              },
-                            },
+                    <div
+                      style={{
+                        width: "150px",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      {showVoiceLoader ? (
+                        <div
+                          style={{
+                            width: "150px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
                           }}
                         >
-                          {voicesList.map((item, index) => {
-                            const selectedVoiceName = (id) => {
-                              const voiceName = voicesList.find(
-                                (voice) => voice.voice_id === id
-                              );
-
-                              return voiceName.name;
-                            };
-                            return (
-                              <MenuItem
-                                value={item?.voice_id}
-                                key={index}
-                                disabled={SelectedVoice === item.voice_id}
-                              >
-                                <Image
-                                  // src={avatarImages[index % avatarImages.length]} // Deterministic selection
-                                  src={item.img} // Deterministic selection
-                                  height={40}
-                                  width={35}
-                                  alt="*"
-                                />
-                                <div>{selectedVoiceName(item.voice_id)}</div>
-                              </MenuItem>
-                            );
-                          })}
-                        </Select>
-                      </FormControl>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-col gap-4 mt-4">
-                <div style={{ fontSize: 16, fontWeight: "600", color: "#000" }}>
-                  Contact Info
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <div
-                    style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
-                  >
-                    Number used for calls
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 15,
-                      fontWeight: "500",
-                      color: "#000",
-                    }}
-                  >
-                    {showPhoneLoader ? (
-                      <div
-                        style={{
-                          width: "150px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <CircularProgress size={15} />
-                      </div>
-                    ) : (
-                      <Box className="w-full">
-                        <FormControl className="w-full">
+                          <CircularProgress size={15} />
+                        </div>
+                      ) : (
+                        <FormControl fullWidth>
                           <Select
-                            ref={selectRef}
-                            open={openCalimNumDropDown}
-                            onClose={() => setOpenCalimNumDropDown(false)}
-                            onOpen={() => setOpenCalimNumDropDown(true)}
-                            className="border-none rounded-2xl outline-none p-0 m-0"
-                            displayEmpty
-                            value={assignNumber}
-                            // onChange={handleSelectNumber}
-                            onChange={(e) => {
-                              let value = e.target.value;
-                              //// console.log("Assign number here");
-                              // return;
-                              setAssignNumber(value);
-                              setOpenCalimNumDropDown(false);
-                            }}
+                            value={SelectedVoice}
+                            onChange={handleChangeVoice}
+                            displayEmpty // Enables placeholder
                             renderValue={(selected) => {
-                              if (selected === "") {
-                                return <div>Select Number</div>;
+                              if (!selected) {
+                                return (
+                                  <div style={{ color: "#aaa" }}>
+                                    Select Voice
+                                  </div>
+                                ); // Placeholder style
                               }
-                              return selected;
-                            }}
-                            sx={{
-                              ...styles.dropdownMenu,
-                              backgroundColor: "none",
-                              "& .MuiOutlinedInput-notchedOutline": {
-                                border: "none",
-                              },
-                              padding: 0,
-                              margin: 0,
-                            }}
-                          >
-                            {previousNumber?.map((item, index) => (
-                              <MenuItem
-                                key={index}
-                                style={styles.dropdownMenu}
-                                value={item.phoneNumber.slice(1)}
-                                className="flex flex-row items-center gap-2"
-                                disabled={assignNumber === item.phoneNumber}
-                              >
+                              // return selected;
+                              const selectedVoice = voicesList.find(
+                                (voice) => voice.voice_id === selected
+                              );
+                              return selectedVoice ? (
                                 <div
-                                  onClick={(e) => {
-                                    if (showReassignBtn && item?.claimedBy) {
-                                      console.log("Assigned to ", item);
-                                      e.stopPropagation();
-                                      setShowConfirmationModal(item);
-                                      //// console.log("Hit release number api");
-                                      // AssignNumber
-                                    } else {
-                                      //// console.log("Hit reassign number api");
-                                      //// console.log(
-                                      //   "Should call assign number api"
-                                      // );
-                                      // return;
-                                      AssignNumber(item.phoneNumber);
-                                      //// console.log(
-                                      //   "Updated number is",
-                                      //   item.phoneNumber
-                                      // );
-                                    }
-                                  }}
                                   style={{
-                                    width: numberDropDownWidth(
-                                      item?.claimedBy?.name
-                                    ),
+                                    display: "flex",
+                                    alignItems: "center",
                                   }}
                                 >
-                                  {item.phoneNumber}
+                                  <Image
+                                    src={selectedVoice.img}
+                                    height={40}
+                                    width={35}
+                                    alt="Selected Voice"
+                                  />
+                                  <div>{selectedVoice.name}</div>
                                 </div>
-                                {showReassignBtn && (
-                                  <div
-                                    className="w-full"
-                                    onClick={(e) => {
-                                      //// console.log(
-                                      //   "Should open confirmation modal"
-                                      // );
-                                      e.stopPropagation();
-                                      setShowConfirmationModal(item);
-                                    }}
-                                  >
-                                    {item.claimedBy && (
-                                      <div className="flex flex-row items-center gap-2">
-                                        {showDrawerSelectedAgent?.name !==
-                                          item.claimedBy.name && (
-                                          <div>
-                                            <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                            {reassignLoader === item ? (
-                                              <CircularProgress size={15} />
-                                            ) : (
-                                              <button
-                                                className="text-purple underline"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  setShowConfirmationModal(
-                                                    item
-                                                  );
-                                                }}
-                                              >
-                                                Reassign
-                                              </button>
-                                            )}
-                                          </div>
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
-                              </MenuItem>
-                            ))}
-                            <MenuItem
-                              style={styles.dropdownMenu}
-                              value={showGlobalBtn ? 14062040550 : ""}
-                              disabled={!showGlobalBtn}
-                              onClick={() => {
-                                //// console.log(
-                                // "This triggers when user clicks on assigning global number"
-                                // );
-                                // return;
-                                AssignNumber(Constants.GlobalPhoneNumber);
-                                // handleReassignNumber(showConfirmationModal);
-                              }}
-                            >
-                              {Constants.GlobalPhoneNumber}
-                              {showGlobalBtn &&
-                                " (to available for testing calls only)"}
-                              {showGlobalBtn == false &&
-                                " (Only for outbound agents. You must buy a number)"}
-                            </MenuItem>
-                            <div
-                              className="ms-4"
-                              style={{
-                                ...styles.inputStyle,
-                                color: "#00000070",
-                              }}
-                            >
-                              <i>Get your own unique phone number.</i>{" "}
-                              <button
-                                className="text-purple underline"
-                                onClick={() => {
-                                  setShowClaimPopup(true);
-                                }}
-                              >
-                                Claim one
-                              </button>
-                            </div>
+                              ) : null;
+                            }}
+                            sx={{
+                              border: "none", // Default border
+                              "&:hover": {
+                                border: "none", // Same border on hover
+                              },
+                              "& .MuiOutlinedInput-notchedOutline": {
+                                border: "none", // Remove the default outline
+                              },
+                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
+                              "&.MuiSelect-select": {
+                                py: 0, // Optional padding adjustments
+                              },
+                            }}
+                            MenuProps={{
+                              PaperProps: {
+                                style: {
+                                  maxHeight: "30vh", // Limit dropdown height
+                                  overflow: "auto", // Enable scrolling in dropdown
+                                  scrollbarWidth: "none",
+                                  // borderRadius: "10px"
+                                },
+                              },
+                            }}
+                          >
+                            {voicesList.map((item, index) => {
+                              const selectedVoiceName = (id) => {
+                                const voiceName = voicesList.find(
+                                  (voice) => voice.voice_id === id
+                                );
+
+                                return voiceName.name;
+                              };
+                              return (
+                                <MenuItem
+                                  value={item?.voice_id}
+                                  key={index}
+                                  disabled={SelectedVoice === item.voice_id}
+                                >
+                                  <Image
+                                    // src={avatarImages[index % avatarImages.length]} // Deterministic selection
+                                    src={item.img} // Deterministic selection
+                                    height={40}
+                                    width={35}
+                                    alt="*"
+                                  />
+                                  <div>{selectedVoiceName(item.voice_id)}</div>
+                                </MenuItem>
+                              );
+                            })}
                           </Select>
                         </FormControl>
-                      </Box>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
-                <div className="flex justify-between">
-                  <div className="flex flex-row gap-3">
-                    <div
-                      style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
-                    >
-                      Call back number
-                    </div>
-                    <div
-                    // aria-owns={open ? 'mouse-over-popover' : undefined}
-                    // aria-haspopup="true"
-                    // onMouseEnter={handlePopoverOpen}
-                    // onMouseLeave={handlePopoverClose}
-                    ></div>
-                    {/* Code for popover */}
-                  </div>
+                <div className="flex flex-col gap-4 mt-4">
                   <div
-                    style={{
-                      fontSize: 15,
-                      fontWeight: "500",
-                      color: "#000",
-                    }}
+                    style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
                   >
-                    {showDrawerSelectedAgent?.callbackNumber ? (
-                      <div>{showDrawerSelectedAgent?.callbackNumber}</div>
-                    ) : (
-                      "-"
-                    )}
+                    Contact Info
                   </div>
-                </div>
-                <div className="flex justify-between mt-4">
-                  <div className="flex flex-row gap-3">
+
+                  <div className="flex justify-between items-center">
                     <div
                       style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
                     >
-                      Call transfer number
+                      Number used for calls
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 15,
+                        fontWeight: "500",
+                        color: "#000",
+                      }}
+                    >
+                      {showPhoneLoader ? (
+                        <div
+                          style={{
+                            width: "150px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <CircularProgress size={15} />
+                        </div>
+                      ) : (
+                        <Box className="w-full">
+                          <FormControl className="w-full">
+                            <Select
+                              ref={selectRef}
+                              open={openCalimNumDropDown}
+                              onClose={() => setOpenCalimNumDropDown(false)}
+                              onOpen={() => setOpenCalimNumDropDown(true)}
+                              className="border-none rounded-2xl outline-none p-0 m-0"
+                              displayEmpty
+                              value={assignNumber}
+                              // onChange={handleSelectNumber}
+                              onChange={(e) => {
+                                let value = e.target.value;
+                                //// console.log("Assign number here");
+                                // return;
+                                setAssignNumber(value);
+                                setOpenCalimNumDropDown(false);
+                              }}
+                              renderValue={(selected) => {
+                                if (selected === "") {
+                                  return <div>Select Number</div>;
+                                }
+                                return selected;
+                              }}
+                              sx={{
+                                ...styles.dropdownMenu,
+                                backgroundColor: "none",
+                                "& .MuiOutlinedInput-notchedOutline": {
+                                  border: "none",
+                                },
+                                padding: 0,
+                                margin: 0,
+                              }}
+                            >
+                              {previousNumber?.map((item, index) => (
+                                <MenuItem
+                                  key={index}
+                                  style={styles.dropdownMenu}
+                                  value={item.phoneNumber.slice(1)}
+                                  className="flex flex-row items-center gap-2"
+                                  disabled={assignNumber === item.phoneNumber}
+                                >
+                                  <div
+                                    onClick={(e) => {
+                                      if (showReassignBtn && item?.claimedBy) {
+                                        console.log("Assigned to ", item);
+                                        e.stopPropagation();
+                                        setShowConfirmationModal(item);
+                                        //// console.log("Hit release number api");
+                                        // AssignNumber
+                                      } else {
+                                        //// console.log("Hit reassign number api");
+                                        //// console.log(
+                                        //   "Should call assign number api"
+                                        // );
+                                        // return;
+                                        AssignNumber(item.phoneNumber);
+                                        //// console.log(
+                                        //   "Updated number is",
+                                        //   item.phoneNumber
+                                        // );
+                                      }
+                                    }}
+                                    style={{
+                                      width: numberDropDownWidth(
+                                        item?.claimedBy?.name
+                                      ),
+                                    }}
+                                  >
+                                    {item.phoneNumber}
+                                  </div>
+                                  {showReassignBtn && (
+                                    <div
+                                      className="w-full"
+                                      onClick={(e) => {
+                                        //// console.log(
+                                        //   "Should open confirmation modal"
+                                        // );
+                                        e.stopPropagation();
+                                        setShowConfirmationModal(item);
+                                      }}
+                                    >
+                                      {item.claimedBy && (
+                                        <div className="flex flex-row items-center gap-2">
+                                          {showDrawerSelectedAgent?.name !==
+                                            item.claimedBy.name && (
+                                            <div>
+                                              <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                              {reassignLoader === item ? (
+                                                <CircularProgress size={15} />
+                                              ) : (
+                                                <button
+                                                  className="text-purple underline"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setShowConfirmationModal(
+                                                      item
+                                                    );
+                                                  }}
+                                                >
+                                                  Reassign
+                                                </button>
+                                              )}
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </MenuItem>
+                              ))}
+                              <MenuItem
+                                style={styles.dropdownMenu}
+                                value={showGlobalBtn ? 14062040550 : ""}
+                                disabled={!showGlobalBtn}
+                                onClick={() => {
+                                  //// console.log(
+                                  // "This triggers when user clicks on assigning global number"
+                                  // );
+                                  // return;
+                                  AssignNumber(Constants.GlobalPhoneNumber);
+                                  // handleReassignNumber(showConfirmationModal);
+                                }}
+                              >
+                                {Constants.GlobalPhoneNumber}
+                                {showGlobalBtn &&
+                                  " (to available for testing calls only)"}
+                                {showGlobalBtn == false &&
+                                  " (Only for outbound agents. You must buy a number)"}
+                              </MenuItem>
+                              <div
+                                className="ms-4"
+                                style={{
+                                  ...styles.inputStyle,
+                                  color: "#00000070",
+                                }}
+                              >
+                                <i>Get your own unique phone number.</i>{" "}
+                                <button
+                                  className="text-purple underline"
+                                  onClick={() => {
+                                    setShowClaimPopup(true);
+                                  }}
+                                >
+                                  Claim one
+                                </button>
+                              </div>
+                            </Select>
+                          </FormControl>
+                        </Box>
+                      )}
                     </div>
                   </div>
-                  <div>
-                    {showDrawerSelectedAgent?.liveTransferNumber ? (
-                      <div>{showDrawerSelectedAgent?.liveTransferNumber}</div>
-                    ) : (
-                      "-"
-                    )}
+                  <div className="flex justify-between">
+                    <div className="flex flex-row gap-3">
+                      <div
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          color: "#666",
+                        }}
+                      >
+                        Call back number
+                      </div>
+                      <div
+                      // aria-owns={open ? 'mouse-over-popover' : undefined}
+                      // aria-haspopup="true"
+                      // onMouseEnter={handlePopoverOpen}
+                      // onMouseLeave={handlePopoverClose}
+                      ></div>
+                      {/* Code for popover */}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 15,
+                        fontWeight: "500",
+                        color: "#000",
+                      }}
+                    >
+                      {showDrawerSelectedAgent?.callbackNumber ? (
+                        <div>{showDrawerSelectedAgent?.callbackNumber}</div>
+                      ) : (
+                        "-"
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex justify-between mt-4">
+                    <div className="flex flex-row gap-3">
+                      <div
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          color: "#666",
+                        }}
+                      >
+                        Call transfer number
+                      </div>
+                    </div>
+                    <div>
+                      {showDrawerSelectedAgent?.liveTransferNumber ? (
+                        <div>{showDrawerSelectedAgent?.liveTransferNumber}</div>
+                      ) : (
+                        "-"
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ) : activeTab === "Calendar" ? (
-            <div>
-              <UserCalender
-                calendarDetails={calendarDetails}
-                setUserDetails={setMainAgentsList}
-                selectedAgent={showDrawerSelectedAgent}
-                mainAgentId={MainAgentId}
-                previousCalenders={previousCalenders}
-                updateVariableData={updateAfterAddCalendar}
-              />
-            </div>
-          ) : activeTab === "Pipeline | Stages" ? (
-            <div className="flex flex-col gap-4">
-              <PiepelineAdnStage
-                selectedAgent={showDrawerSelectedAgent}
-                UserPipeline={UserPipeline}
-                mainAgent={calendarDetails}
-              />
-            </div>
-          ) : (
-            ""
-          )}
+            ) : activeTab === "Calendar" ? (
+              <div
+                style={{ overflow: "auto", scrollbarWidth: "none" }}
+                className="w-full h-[35vh]"
+              >
+                <UserCalender
+                  calendarDetails={calendarDetails}
+                  setUserDetails={setMainAgentsList}
+                  selectedAgent={showDrawerSelectedAgent}
+                  mainAgentId={MainAgentId}
+                  previousCalenders={previousCalenders}
+                  updateVariableData={updateAfterAddCalendar}
+                />
+              </div>
+            ) : activeTab === "Pipeline | Stages" ? (
+              <div
+                style={{ overflow: "auto", scrollbarWidth: "none" }}
+                className="w-full h-[35vh] flex flex-col gap-4"
+              >
+                <PiepelineAdnStage
+                  selectedAgent={showDrawerSelectedAgent}
+                  UserPipeline={UserPipeline}
+                  mainAgent={calendarDetails}
+                />
+              </div>
+            ) : (
+              ""
+            )}
 
-          <div className="flex flex-row justify-end w-full mt-4">
-            <button
-              className="flex flex-row gap-2 items-center"
-              onClick={() => {
-                setDelAgentModal(true);
-              }}
-              style={{
-                marginTop: 20,
-                // position: "absolute",
-                // bottom: "5%",
-              }}
-            >
-              {/* <Image src={'/otherAssets/redDeleteIcon.png'}
+            <div className="flex flex-row justify-end w-full mt-2">
+              <button
+                className="flex flex-row gap-2 items-center"
+                onClick={() => {
+                  setDelAgentModal(true);
+                }}
+                style={{
+                  marginTop: 20,
+                  // position: "absolute",
+                  // bottom: "5%",
+                }}
+              >
+                {/* <Image src={'/otherAssets/redDeleteIcon.png'}
                 height={24}
                 width={24}
                 alt='del'
               /> */}
 
-              <Image
-                src={"/otherAssets/redDeleteIcon.png"}
-                height={24}
-                width={24}
-                alt="del"
-                style={{
-                  filter: "brightness(0) saturate(100%) opacity(0.6)", // Convert to black and make semi-transparent
-                }}
-              />
+                <Image
+                  src={"/otherAssets/redDeleteIcon.png"}
+                  height={24}
+                  width={24}
+                  alt="del"
+                  style={{
+                    filter: "brightness(0) saturate(100%) opacity(0.6)", // Convert to black and make semi-transparent
+                  }}
+                />
 
-              <div
-                style={{
-                  fontSize: 15,
-                  fontWeight: "600",
-                  color: "#00000060",
-                  textDecorationLine: "underline",
-                }}
-              >
-                Delete Agent
-              </div>
-            </button>
+                <div
+                  style={{
+                    fontSize: 15,
+                    fontWeight: "600",
+                    color: "#00000060",
+                    textDecorationLine: "underline",
+                  }}
+                >
+                  Delete Agent
+                </div>
+              </button>
+            </div>
           </div>
-        </div>
-      </Drawer>
+        </Box>
+      </Modal>
 
       {/* Code to del agent */}
       <Modal

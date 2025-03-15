@@ -29,12 +29,11 @@ import VideoCard from "@/components/createagent/VideoCard";
 import { HowtoVideos } from "@/constants/Constants";
 import AdminLeads from "./AdminLeads";
 
-const AdminLeads1 = ({selectedUser}) => {
+const AdminLeads1 = ({ selectedUser }) => {
   const addColRef = useRef(null);
   const bottomRef = useRef(null);
 
   // console.log('selected User user leads screen', selectedUser)
-  
 
   //code for the new ui add lead modal
   const [addNewLeadModal, setAddNewLeadModal] = useState(false);
@@ -308,7 +307,7 @@ const AdminLeads1 = ({selectedUser}) => {
   //auto focus the add column input field
   useEffect(() => {
     if (showPopUp) {
-     // console.log("Should auto focus the field");
+      // console.log("Should auto focus the field");
       setTimeout(() => {
         if (addColRef.current) {
           addColRef.current.focus();
@@ -329,7 +328,7 @@ const AdminLeads1 = ({selectedUser}) => {
         return () => clearTimeout(timer);
       }
     } catch (error) {
-     // console.error("Error occured in selecting file is :", error);
+      // console.error("Error occured in selecting file is :", error);
     } finally {
       setSelectedfileLoader(false);
     }
@@ -339,7 +338,7 @@ const AdminLeads1 = ({selectedUser}) => {
     try {
       setInitialLoader(true);
     } catch (error) {
-     // console.error("Error occured in getVoices api is:", error);
+      // console.error("Error occured in getVoices api is:", error);
     } finally {
       setInitialLoader(false);
     }
@@ -399,9 +398,9 @@ const AdminLeads1 = ({selectedUser}) => {
       defaultColumnsDbNames.includes(UpdateHeader.dbName)
     ) {
       isDefaultColumn = true;
-     // console.log("changing default column");
+      // console.log("changing default column");
     } else {
-     // console.log("changing extra column");
+      // console.log("changing extra column");
     }
     // return;
     //////console.log("Change column name here", UpdatedColumnName);
@@ -413,7 +412,7 @@ const AdminLeads1 = ({selectedUser}) => {
     // ////console.log("Updated Col Name ", UpdatedColumnName);
     keys.forEach((key) => {
       let col = defaultColumns[key];
-     // console.log(
+      // console.log(
       //   `Matching ${col.UserFacingName} with ${UpdatedColumnName} OR ${col.dbName}`
       // );
       if (
@@ -432,14 +431,14 @@ const AdminLeads1 = ({selectedUser}) => {
       if (isDefaultColumn) {
         // changing the default column
         if (dc) {
-         // console.log("Updated name is default column");
+          // console.log("Updated name is default column");
           let value = d[UpdateHeader.dbName];
           delete d[UpdateHeader.dbName];
           // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
           d[UpdatedColumnName] = value;
           pd[i] = d;
         } else {
-         // console.log("Updated name is not default column");
+          // console.log("Updated name is not default column");
           //mmove it to extra column
 
           let value = d[UpdateHeader.dbName];
@@ -463,7 +462,7 @@ const AdminLeads1 = ({selectedUser}) => {
         // });
         //The updated name is in default column list
         if (dc) {
-         // console.log("Updated name is default column", UpdatedColumnName);
+          // console.log("Updated name is default column", UpdatedColumnName);
           let value =
             d.extraColumns[
               UpdateHeader.dbName
@@ -488,7 +487,7 @@ const AdminLeads1 = ({selectedUser}) => {
             ? UpdateHeader.dbName
             : UpdateHeader.ColumnNameInSheet;
           let value = d.extraColumns[colName];
-         // console.log(`Value for colum ${colName} `, value);
+          // console.log(`Value for colum ${colName} `, value);
           delete d.extraColumns[colName];
           // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
           d.extraColumns[
@@ -531,7 +530,7 @@ const AdminLeads1 = ({selectedUser}) => {
     // }
     // mappingList[i] = map;
     // }
-   // console.log(`Processed data changed`, pd);
+    // console.log(`Processed data changed`, pd);
     setProcessedData(pd);
     // setColumnMappingsList(mappingList);
     //////console.log("Mapping list changed", mappingList);
@@ -556,9 +555,9 @@ const AdminLeads1 = ({selectedUser}) => {
     // return hasPhone && hasFullName;
     if (hasPhone && hasFullName) {
       handleAddLead();
-     // console.log("Al credentials valid");
+      // console.log("Al credentials valid");
     } else {
-     // console.log("Al credentials not valid");
+      // console.log("Al credentials not valid");
       if (!hasPhone) {
         setErrSnack(SnackMessageTitles.ErrorMessagePhoneRequiredLeadImport);
         setErrSnackTitle(SnackMessageTitles.ErrorTitlePhoneRequiredLeadImport);
@@ -611,7 +610,7 @@ const AdminLeads1 = ({selectedUser}) => {
         let matched = [];
         headers.forEach((header) => {
           const matchedColumn = matchColumn(header, defaultColumns, allColumns);
-         // console.log(`Matched Col For Header ${header}`, matchedColumn);
+          // console.log(`Matched Col For Header ${header}`, matchedColumn);
           if (matchedColumn) {
             if (!matched.includes(matchedColumn)) {
               let col = defaultColumns[matchedColumn];
@@ -653,7 +652,7 @@ const AdminLeads1 = ({selectedUser}) => {
             // });
           }
         });
-       // console.clear();
+        // console.clear();
         // columnMappings["extraColumns"] = extraColumns;
 
         // Transform data rows based on column mappings
@@ -729,7 +728,7 @@ const AdminLeads1 = ({selectedUser}) => {
           return transformedRow;
         });
 
-       // console.log("Transformed data ", transformedData);
+        // console.log("Transformed data ", transformedData);
         // Update state
         setProcessedData(transformedData);
         // setColumnMappingsList(mappingsList);
@@ -782,15 +781,13 @@ const AdminLeads1 = ({selectedUser}) => {
         // }
       });
     });
-   // console.log(pd);
+    // console.log(pd);
 
     ////console.log("New Columns");
     ////console.log(NewColumnsObtained);
 
     // return;
     try {
-      setLoader(true);
-
       const localData = localStorage.getItem("User");
       let AuthToken = null;
       if (localData) {
@@ -801,15 +798,18 @@ const AdminLeads1 = ({selectedUser}) => {
 
       // const tagsList = tagsValue.map((tag))
 
+      console.log("Selected user ", selectedUser);
       const ApiData = {
         sheetName: sheetName,
         leads: processedData,
         columnMappings: columnMappingsList,
         tags: tagsValue,
+        userId: selectedUser.id,
       };
-
+      // return;
+      setLoader(true);
       const ApiPath = Apis.createLead;
-     // console.log("Api data is :", JSON.stringify(ApiData));
+      // console.log("Api data is :", JSON.stringify(ApiData));
       // return
       //console.log("Apidata sending in Addlead api is :", ApiData);
       // return;
@@ -826,7 +826,7 @@ const AdminLeads1 = ({selectedUser}) => {
           let sheet = response.data.data;
           let leads = response.data.leads;
           // let sheetsList =
-         // console.log("Response of add lead list api is:", response.data.data);
+          // console.log("Response of add lead list api is:", response.data.data);
           setShowUploadLeadModal(false);
           setSelectedFile(null);
           localStorage.setItem("userLeads", JSON.stringify(response.data.data));
@@ -839,7 +839,7 @@ const AdminLeads1 = ({selectedUser}) => {
         }
       }
     } catch (error) {
-     // console.error("Error occured in add lead api is :", error);
+      // console.error("Error occured in add lead api is :", error);
     } finally {
       setLoader(false);
     }
@@ -927,16 +927,16 @@ const AdminLeads1 = ({selectedUser}) => {
         AuthToken = UserDetails.token;
       }
 
-     // console.log("Auth token is :--", AuthToken);
+      // console.log("Auth token is :--", AuthToken);
 
       const ApiData = {
         sheetName: newSheetName,
         columns: inputs.map((columns) => columns.value),
       };
-     // console.log("Data to send in api is:", ApiData);
+      // console.log("Data to send in api is:", ApiData);
 
       const ApiPath = Apis.addSmartList;
-     // console.log("Api Path is", ApiPath);
+      // console.log("Api Path is", ApiPath);
 
       // return
 
@@ -948,7 +948,7 @@ const AdminLeads1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // console.log("Response of add new smart list api is :", response);
+        // console.log("Response of add new smart list api is :", response);
         if (response.data.status === true) {
           // setSheetsList([...SheetsList, response.data.data]);
           setUserLeads(response.data.data);
@@ -967,7 +967,7 @@ const AdminLeads1 = ({selectedUser}) => {
         }
       }
     } catch (error) {
-     // console.error("Error occured in adding new list api is:", error);
+      // console.error("Error occured in adding new list api is:", error);
     } finally {
       setShowaddCreateListLoader(false);
     }
@@ -994,7 +994,7 @@ const AdminLeads1 = ({selectedUser}) => {
         </div>
       ) : (
         <div className="w-full">
-          { userLeads ? (
+          {userLeads ? (
             <div className="w-full h-[70vh]">
               <AdminLeads
                 handleShowAddLeadModal={handleShowAddLeadModal}
@@ -1002,7 +1002,7 @@ const AdminLeads1 = ({selectedUser}) => {
                 newListAdded={userLeads}
                 shouldSet={setData}
                 setSetData={setSetData}
-                selectedUser = {selectedUser}
+                selectedUser={selectedUser}
               />
             </div>
           ) : (
@@ -1056,7 +1056,7 @@ const AdminLeads1 = ({selectedUser}) => {
                   </button>
                 </div>
               </div>
-{/* 
+              {/* 
               <div
                 style={{
                   position: "absolute",
@@ -1407,8 +1407,8 @@ const AdminLeads1 = ({selectedUser}) => {
                               // if (index > 4) {
                               setSelectedItem(index);
                               //////console.log("Selected index is", index);
-                             // console.log("Item selected is :", item);
-                             // console.log(
+                              // console.log("Item selected is :", item);
+                              // console.log(
                               //   "Array selected is :",
                               //   NewColumnsObtained
                               // );
@@ -1551,7 +1551,6 @@ const AdminLeads1 = ({selectedUser}) => {
                         </Box>
                       </Modal>
 
-
                       {/* <Modal 
                           open = {ShowDelCol}
                           onClose={()=>setShowDelCol(false)}
@@ -1562,7 +1561,6 @@ const AdminLeads1 = ({selectedUser}) => {
                         </div>
 
                       </Modal> */}
-
                     </div>
                   );
                 })}
@@ -1680,11 +1678,11 @@ const AdminLeads1 = ({selectedUser}) => {
                         updateColumnValue?.toLowerCase()
                     )
                   ) {
-                   // console.log("Value matched from the array");
+                    // console.log("Value matched from the array");
                     // return
                     setWarningModal(true);
                   } else {
-                   // console.log("Value donot matches from the array");
+                    // console.log("Value donot matches from the array");
                     ChangeColumnName(updateColumnValue);
                   }
                 }}
@@ -1846,7 +1844,7 @@ const AdminLeads1 = ({selectedUser}) => {
         onClose={() => setIntroVideoModal(false)}
         videoTitle="Learn how to add leads to your CRM"
         videoUrl={HowtoVideos.Leads}
-        duratuin = {11}
+        duratuin={11}
       />
       {/* Modal to add custom sheet */}
       <div>

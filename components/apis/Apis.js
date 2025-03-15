@@ -29,6 +29,7 @@ const Apis = {
   updateKYC: `${BasePath}api/agent/updateKyc`,
   getKYCs: `${BasePath}api/agent/getKycs`,
   getPipelines: `${BasePath}api/pipeline/getPipelines`,
+  getPipelineById: `${BasePath}api/pipeline/getPipeline`,
   updatePipeline: `${BasePath}api/pipeline/updatePipeline`,
   createPipeLineCadence: `${BasePath}api/pipeline/createPipelineCadence`,
   getAgentCadence: `${BasePath}api/pipeline/getAgentCadence`,
@@ -48,6 +49,7 @@ const Apis = {
   getLeadsInBatch: `${BasePath}api/pipeline/leadsInBatch`,
 
   getSheduledCallLogs: `${BasePath}api/pipeline/getScheduledCalls`,
+  getAdminSheduledCallLogs: `${BasePath}api/admin/getScheduledCallsAdmin`,
   getAgentCallLogs: `${BasePath}api/agent/getAgentCallActivity`,
   pauseAgent: `${BasePath}api/pipeline/pauseAgentCadence`,
   resumeCalls: `${BasePath}api/pipeline/resumeAgentCadence`,
@@ -121,7 +123,8 @@ const Apis = {
   //Knowledgebase
   AddKnowledgebase: `${BasePath}api/kb/addKnowledgebase`,
   GetKnowledgebase: `${BasePath}api/kb/getKnowledgebase`,
-  DeleteKnowledgebase: `${BasePath}api/kb/deleteKnowledgebase`,
+  deleteKnowledgebase: `${BasePath}api/kb/deleteKnowledgebase`,
+  // DeleteKnowledgebase: `${BasePath}api/kb/deleteKnowledgebase`,
 
   AdminAnalytics: `${BasePath}api/admin/adminAnalytics`,
   adminCallLogs: `${BasePath}api/admin/callLogsAdmin`,
@@ -137,6 +140,7 @@ const Apis = {
   getUsersWithLeads: `${BasePath}api/admin/adminUsersWithLeads`,
   getUsersWithTeams: `${BasePath}api/admin/adminUsersWithTeams`,
   getUsersWithCalenders: `${BasePath}api/admin/adminUsersWithCalendars`,
+  deleteProfile: `${BasePath}api/user/deleteProfile`,
 };
 
 export default Apis;

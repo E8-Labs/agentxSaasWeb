@@ -53,6 +53,8 @@ const PipelineStages = ({
   const [delStageLoader, setDelStageLoader] = useState(false);
   const [delStageLoader2, setDelStageLoader2] = useState(false);
   const [successSnack, setSuccessSnack] = useState(null);
+  const [errorSnack, setErrorSnack] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
   //code for stages list
   const [stagesList, setStagesList] = useState([]);
   //code for deleting stage
@@ -405,6 +407,27 @@ const PipelineStages = ({
           setPipelineStages(response.data.data.stages);
           setSuccessSnack(response.data.message);
           setShowDelStagePopup(null);
+          let p = localStorage.getItem("pipelinesList")
+
+          if (p) {
+            let localPipelines = JSON.parse(p)
+
+            let updatedPipelines = localPipelines.map(pipeline => {
+              if (selectedPipelineItem.id === pipeline.id) {
+                return {
+                  ...pipeline,
+                  stages: pipeline.stages.filter(stage => stage.id !== showDelStagePopup.id)
+                };
+              }
+              return pipeline; // Return unchanged pipeline for others
+            });
+
+            console.log('updatedPipelines', updatedPipelines)
+            localStorage.setItem("pipelinesList", JSON.stringify(updatedPipelines));
+
+          } else {
+            console.log('no pipeline list found from local')
+          }
           // setStageAnchorel(null);
         }
       }
@@ -482,6 +505,10 @@ const PipelineStages = ({
           setStagesList(response.data.data.stages);
           selectedPipelineItem.stages = response.data.data.stages;
           onNewStageCreated(selectedPipelineItem);
+        } else {
+          let message = response.data.message;
+          setErrorMessage(message);
+          setErrorSnack(true)
         }
       }
     } catch (error) {
@@ -583,6 +610,16 @@ const PipelineStages = ({
                       hide={() => setSuccessSnack(false)}
                       message={successSnack}
                       type={SnackbarTypes.Success}
+                    />
+                     <AgentSelectSnackMessage
+                      isVisible={
+                        errorSnack == false || errorSnack == null
+                          ? false
+                          : true
+                      }
+                      hide={() => setErrorSnack(false)}
+                      message={errorMessage}
+                      type={SnackbarTypes.Error}
                     />
                     <div className="w-[5%]">
                       {index > 0 && (
@@ -1269,13 +1306,13 @@ const PipelineStages = ({
                                             border: "1px solid #00000020", // Same border on hover
                                           },
                                           "& .MuiOutlinedInput-notchedOutline":
-                                            {
-                                              border: "none", // Remove the default outline
-                                            },
+                                          {
+                                            border: "none", // Remove the default outline
+                                          },
                                           "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                            {
-                                              border: "none", // Remove outline on focus
-                                            },
+                                          {
+                                            border: "none", // Remove outline on focus
+                                          },
                                           "&.MuiSelect-select": {
                                             py: 0, // Optional padding adjustments
                                           },
@@ -1775,9 +1812,9 @@ const PipelineStages = ({
                                   border: "none", // Remove the default outline
                                 },
                                 "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                  {
-                                    border: "none", // Remove outline on focus
-                                  },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                                 "&.MuiSelect-select": {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -1877,7 +1914,7 @@ const PipelineStages = ({
                               fontWeight: 600,
                               fontSize: "20",
                             }}
-                            // onClick={handleAddNewStageTitle}
+                          // onClick={handleAddNewStageTitle}
                           >
                             Add Stage
                           </button>

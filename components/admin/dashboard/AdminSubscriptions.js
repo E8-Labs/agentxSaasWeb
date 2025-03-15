@@ -69,6 +69,8 @@ function AdminSubscriptions() {
   );
   const [selectedUpgradeRange, setSelectedUpgradeRange] = useState("All Time");
 
+  const [showCustomRange, setShowCustomRange] = useState(false)
+
   // Month mapping from short to full name
   const monthMap = {
     Jan: "January",
@@ -87,28 +89,33 @@ function AdminSubscriptions() {
 
   // Extract months dynamically from API response
   let months = analyticData
-    ? Object.keys(analyticData?.planSubscriptionStats?.Plan30 || {})
+    ? Object.keys(analyticData?.planSubscriptionStats?.Trial || {})
     : [];
 
   // Transform API data into chart format
-  const subscriptionChartData =
-    months.length > 0
-      ? months.map((shortMonth) => ({
-        month: monthMap[shortMonth] || shortMonth,
-        Plan30:
-          analyticData?.planSubscriptionStats?.Plan30?.[shortMonth] || 0,
-        Plan120:
-          analyticData?.planSubscriptionStats?.Plan120?.[shortMonth] || 0,
-        Plan360:
-          analyticData?.planSubscriptionStats?.Plan360?.[shortMonth] || 0,
-        Plan720:
-          analyticData?.planSubscriptionStats?.Plan720?.[shortMonth] || 0,
-      }))
-      : [];
+  const subscriptionChartData = Object.keys(
+    analyticData?.planSubscriptionStats?.Trial || {}
+  ).map((dateKey) => {
+    // Ensure proper date formatting (MMM DD)
+    const formattedDate = moment(dateKey, "MMM DD, YY").format("MMM DD");
+  
+    return {
+      month: formattedDate, // Correct format for X-axis
+      Trial: analyticData?.planSubscriptionStats?.Trial?.[dateKey] || 0,
+      Plan30: analyticData?.planSubscriptionStats?.Plan30?.[dateKey] || 0,
+      Plan120: analyticData?.planSubscriptionStats?.Plan120?.[dateKey] || 0,
+      Plan360: analyticData?.planSubscriptionStats?.Plan360?.[dateKey] || 0,
+      Plan720: analyticData?.planSubscriptionStats?.Plan720?.[dateKey] || 0,
+    };
+  });
+  const totalNewSubscriptions = subscriptionChartData.reduce((total, monthData) => {
+    return total + (monthData.Trial || 0) + (monthData.Plan30 || 0) + (monthData.Plan120 || 0) + (monthData.Plan360 || 0) + (monthData.Plan720 || 0);
+  }, 0);
+
+  console.log("Total New Subscriptions:", totalNewSubscriptions);
 
   // Mapping Plan names to UI labels
   const planMapping = {
-    trail:"trail",
     Plan30: "Plan30",
     Plan120: "Plan120",
     Plan360: "Plan360",
@@ -118,7 +125,7 @@ function AdminSubscriptions() {
   // Transform data into required format
   const planChartData = Object.keys(planMapping).map((planKey) => ({
     name: planMapping[planKey],
-    value: analyticData?.subscription?.Plans[planKey] || 0, // Assign value from API data, default to 0 if missing
+    value: analyticData?.subscription?.activePlans[planKey] || 0, // Assign value from API data, default to 0 if missing
   }));
 
 
@@ -131,8 +138,26 @@ function AdminSubscriptions() {
   const colors = ["#8E24AA", "#FF6600", "#402FFF", "#FF2D2D"];
 
   // Transform data into required format
-  const UpgateRateData = analyticData?.subscription?.upgradeBreakdown
-    ? Object.keys(analyticData.subscription.upgradeBreakdown).map(
+
+  function selecteUpgradeRateMenu() {
+    if (selectedManu.id == 1) {
+      return analyticData?.subscription?.upgradeBreakdown
+    } else {
+      analyticData?.plan30Upgradesdown
+    }
+  }
+  const UpgateRateData = analyticData?.subscription?.upgradeBreakdown ?
+    Object.keys(analyticData?.subscription?.upgradeBreakdown).map(
+      (key, index) => ({
+        name: key,
+        value: analyticData.subscription.upgradeBreakdown[key] || 0,
+        color: colors[index % colors.length], // Assign color based on index
+      })
+    )
+    : [];
+
+  const UpgateRateData2 = analyticData?.plan30Upgrades ?
+    Object.keys(analyticData?.plan30Upgrades).map(
       (key, index) => ({
         name: key,
         value: analyticData.subscription.upgradeBreakdown[key] || 0,
@@ -143,29 +168,29 @@ function AdminSubscriptions() {
 
   const cancellationsRateData = [
     {
-      name: "Trial",
+      name: "trial",
       value: analyticData?.subscription?.cancellations?.trial || 0,
       color: "#8E24AA",
     },
     {
-      name: "Plan30",
+      name: "From $45",
       value: analyticData?.subscription?.cancellations?.Plan30 || 0,
       color: "#FF6600",
     },
     {
-      name: "Plan120",
+      name: "From $99",
       value: analyticData?.subscription?.cancellations?.Plan120 || 0,
       color: "#402FFF",
     },
     {
-      name: "Plan360",
+      name: "From $270 ",
       value: analyticData?.subscription?.cancellations?.Plan360 || 0,
-      color: "#FF2D2D",
+      color: "#000000",
     },
     {
-      name: "Plan720",
+      name: "From $480 ",
       value: analyticData?.subscription?.cancellations?.Plan720 || 0,
-      color: "#009C5B",
+      color: "#FF2D2D",
     },
   ];
 
@@ -306,6 +331,8 @@ function AdminSubscriptions() {
                     setSubscriptionStartDate("2025-01-01");
                     setSelectedSubRange("All Time");
                     getAdminAnalytics(false);
+                    setShowCustomRange(false)
+
                   }}
                 >
                   All Time
@@ -325,24 +352,25 @@ function AdminSubscriptions() {
 
           {/* Show filters here in a row*/}
           {
-            subscriptionStartDate != "2025-01-01" && subscriptionEndDate != moment(currantDate).format("YYYY-MM-DD") &&
+            showCustomRange &&
             <div className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto"
               style={{ scrollbarColor: "#00000000", scrollbarWidth: "none" }}
             >
-
               <div
                 className="px-4 py-2 bg-[#402FFF10] text-purple flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
                 style={{ fontWeight: "500", fontSize: 15 }}
               >
-                {`${subscriptionStartDate} - ${subscriptionEndDate}`}
+                {`${moment(subscriptionStartDate).format("MM-DD-YYYY")} - ${moment(subscriptionEndDate).format("MM-DD-YYYY")}`}
 
                 {/* Remove Filter Button */}
                 <button
                   className="outline-none"
                   onClick={() => {
-                    setSubscriptionEndDate( moment(currantDate).format("YYYY-MM-DD"))
+                    setSubscriptionEndDate(moment(currantDate).format("YYYY-MM-DD"))
                     setSubscriptionStartDate("2025-01-01")
+                    setSelectedSubRange("All Time")
                     getAdminAnalytics(false)
+                    setShowCustomRange(false)
                   }}
                 >
                   <Image
@@ -390,77 +418,14 @@ function AdminSubscriptions() {
                     <div
                       style={{ fontSize: 48, fontWeight: "300", color: "#000" }}
                     >
-                      11,728
-                    </div>
-
-                    <div className="flex flex-row items-start gap-1">
-                      <Image
-                        src={"svgIcons/greenUpArrow.svg"}
-                        height={16}
-                        width={16}
-                        alt="*"
-                      />
-                      <div
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "700",
-                          color: "#009C5B",
-                        }}
-                      >
-                        8%{" "}
-                        <span
-                          style={{
-                            fontSize: 15,
-                            fontWeight: "500",
-                            color: "#A5ABB4",
-                            marginLeft: "5px",
-                          }}
-                        >
-                          {" "}
-                          vs last month
-                        </span>
-                      </div>
+                      {totalNewSubscriptions}
                     </div>
                   </div>
 
                   <div className="w-full flex flex-row items-center gap-4 justify-end">
 
 
-                    {/* Plan Type Dropdown */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          className="
-                                                            px-4 py-2 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                                            flex flex-row items-center gap-1
-                                                            "
-                        >
-                          <p>Plan Type</p>
-                          <Image
-                            src={"/svgIcons/downArrow.svg"}
-                            height={20}
-                            width={24}
-                            alt="*"
-                          />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        className="bg-white border rounded-lg shadow-md"
-                        style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                      >
-                        <DropdownMenuGroup style={{ cursor: "pointer" }}>
-                          <DropdownMenuItem className="hover:bg-gray-100 px-3">
-                            Monthly
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="hover:bg-gray-100 px-3">
-                            Weekly
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="hover:bg-gray-100 px-3">
-                            Yearly
-                          </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+
                   </div>
                 </div>
               </div>
@@ -523,8 +488,8 @@ function AdminSubscriptions() {
                     axisLine={false}
                     tickMargin={10}
                     tick={{ fontSize: 12, fill: "#6b7280" }}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                  />
+                    tickFormatter={(value) => moment(value, "MMM DD").format("MMM DD")} // ✅ Ensure correct formatting
+                    />
 
                   {/* Y-Axis */}
                   <YAxis
@@ -552,7 +517,7 @@ function AdminSubscriptions() {
                   {/* Lines */}
                   <Line
                     type="monotone"
-                    dataKey="Trail"
+                    dataKey="Trial"
                     stroke="#8E24AA"
                     strokeWidth={2}
                     dot={false}
@@ -604,42 +569,7 @@ function AdminSubscriptions() {
                     </div>
 
 
-                    {/* Plan Dropdown */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          className="
-                            px-4 py-2 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                            flex flex-row items-center gap-1
-                          "
-                        >
-                          <p>January</p>
-                          <Image
-                            src={"/svgIcons/downArrow.svg"}
-                            height={20}
-                            width={24}
-                            alt="*"
-                          />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        className="bg-white border rounded-lg shadow-md"
-                        style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                      >
-                        <DropdownMenuGroup
-                          style={{ cursor: "pointer", zIndex: 50 }}
-                        >
-                          {months.map((month, index) => (
-                            <DropdownMenuItem
-                              key={index}
-                              className="hover:bg-gray-100 px-3"
-                            >
-                              {month}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuGroup>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+
                   </div>
 
                   <BarChart
@@ -726,42 +656,7 @@ function AdminSubscriptions() {
                         Churned users who return
                       </div>
                     </div>
-                    {/* Plan Dropdown */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          className="
-                                            px-4 py-2 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                            flex flex-row items-center gap-1
-                                            "
-                        >
-                          <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                          <Image
-                            src={"/svgIcons/downArrow.svg"}
-                            height={20}
-                            width={24}
-                            alt="*"
-                          />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        className="bg-white border rounded-lg shadow-md"
-                        style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                      >
-                        <DropdownMenuGroup
-                          style={{ cursor: "pointer", zIndex: 50 }}
-                        >
-                          {months.map((month, index) => (
-                            <DropdownMenuItem
-                              key={index}
-                              className="hover:bg-gray-100 px-3"
-                            >
-                              {month}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuGroup>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+
                   </div>
 
                   <BarChart
@@ -851,41 +746,7 @@ function AdminSubscriptions() {
 
                 <div className="w-full flex flex-row justify-end items-center gap-4">
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        className="
-                          px-4 py-2 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                          flex flex-row items-center gap-1
-                        "
-                      >
-                        <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                        <Image
-                          src={"/svgIcons/downArrow.svg"}
-                          height={20}
-                          width={24}
-                          alt="*"
-                        />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      className="bg-white border rounded-lg shadow-md"
-                      style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                    >
-                      <DropdownMenuGroup
-                        style={{ cursor: "pointer", zIndex: 50 }}
-                      >
-                        {months.map((month, index) => (
-                          <DropdownMenuItem
-                            key={index}
-                            className="hover:bg-gray-100 px-3"
-                          >
-                            {month}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuGroup>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+
                 </div>
 
                 <div className="w-full flex flex-row gap-4 items-center mt-4">
@@ -905,95 +766,188 @@ function AdminSubscriptions() {
                     </button>
                   ))}
                 </div>
+                {
+                  selectedManu.id === 1 ? (
+                    <div className="w-full flex flex-row items-start gap- mt-8">
+                      <PieChart width={150} height={150}>
+                        <Pie
+                          data={UpgateRateData}
+                          innerRadius={60}
+                          outerRadius={65}
+                          dataKey="value"
+                          startAngle={90}
+                          endAngle={-270}
+                          paddingAngle={1}
+                        >
+                          {UpgateRateData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
 
-                <div className="w-full flex flex-row items-start gap- mt-8">
-                  <PieChart width={150} height={150}>
-                    <Pie
-                      data={UpgateRateData}
-                      innerRadius={60}
-                      outerRadius={65}
-                      dataKey="value"
-                      startAngle={90}
-                      endAngle={-270}
-                      paddingAngle={1}
-                    >
-                      {UpgateRateData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex flex-row items-center gap-">
+                          <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#8E24AA] border border-white"></div>
+                          <p
+                            style={{
+                              fontSize: 15,
+                              fontWeight: "500",
+                              color: "#000",
+                            }}
+                          >
+                            Trial to Plan30 -{" "}
+                            {analyticData?.subscription?.upgradeBreakdown?.[
+                              "Trial to Plan30"
+                            ] || 0}{" "}
+                            users
+                          </p>
+                        </div>
 
-                  <div className="flex flex-col gap-2">
-                    <div className="flex flex-row items-center gap-">
-                      <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#8E24AA] border border-white"></div>
-                      <p
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "500",
-                          color: "#000",
-                        }}
-                      >
-                        Trial to Plan30 -{" "}
-                        {analyticData?.subscription?.upgradeBreakdown?.[
-                          "Trial to Plan30"
-                        ] || 0}{" "}
-                        users
-                      </p>
+                        <div className="flex flex-row items-center gap-">
+                          <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#FF6600] border border-white"></div>
+                          <p
+                            style={{
+                              fontSize: 15,
+                              fontWeight: "500",
+                              color: "#000",
+                            }}
+                          >
+                            Trial to Plan120 -{" "}
+                            {analyticData?.subscription?.upgradeBreakdown?.[
+                              "Trial to Plan120"
+                            ] || 0}{" "}
+                            users
+                          </p>
+                        </div>
+
+                        <div className="flex flex-row items-center gap-">
+                          <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#402FFF] border border-white"></div>
+                          <p
+                            style={{
+                              fontSize: 15,
+                              fontWeight: "500",
+                              color: "#000",
+                            }}
+                          >
+                            Trial to Plan360 -{" "}
+                            {analyticData?.subscription?.upgradeBreakdown?.[
+                              "Trial to Plan360"
+                            ] || 0}{" "}
+                            users
+                          </p>
+                        </div>
+
+                        <div className="flex flex-row items-center gap-">
+                          <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#FF2D2D] border border-white"></div>
+                          <p
+                            style={{
+                              fontSize: 15,
+                              fontWeight: "500",
+                              color: "#000",
+                            }}
+                          >
+                            Trial to Plan720 -{" "}
+                            {analyticData?.subscription?.upgradeBreakdown?.[
+                              "Trial to Plan720"
+                            ] || 0}{" "}
+                            users
+                          </p>
+                        </div>
+                      </div>
                     </div>
+                  ) : (
+                    <div className="w-full flex flex-row items-start gap- mt-8">
+                      <PieChart width={150} height={150}>
+                        <Pie
+                          data={UpgateRateData2}
+                          innerRadius={60}
+                          outerRadius={65}
+                          dataKey="value"
+                          startAngle={90}
+                          endAngle={-270}
+                          paddingAngle={1}
+                        >
+                          {UpgateRateData2.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
 
-                    <div className="flex flex-row items-center gap-">
-                      <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#FF6600] border border-white"></div>
-                      <p
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "500",
-                          color: "#000",
-                        }}
-                      >
-                        Trial to Plan120 -{" "}
-                        {analyticData?.subscription?.upgradeBreakdown?.[
-                          "Trial to Plan120"
-                        ] || 0}{" "}
-                        users
-                      </p>
-                    </div>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex flex-row items-center gap-">
+                          <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#8E24AA] border border-white"></div>
+                          <p
+                            style={{
+                              fontSize: 15,
+                              fontWeight: "500",
+                              color: "#000",
+                            }}
+                          >
+                            Trial to Plan30 -{" "}
+                            {analyticData?.plan30Upgrades[
+                              "Trial to Plan30"
+                            ] || 0}{" "}
+                            users
+                          </p>
+                        </div>
 
-                    <div className="flex flex-row items-center gap-">
-                      <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#402FFF] border border-white"></div>
-                      <p
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "500",
-                          color: "#000",
-                        }}
-                      >
-                        Trial to Plan360 -{" "}
-                        {analyticData?.subscription?.upgradeBreakdown?.[
-                          "Trial to Plan360"
-                        ] || 0}{" "}
-                        users
-                      </p>
-                    </div>
+                        <div className="flex flex-row items-center gap-">
+                          <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#FF6600] border border-white"></div>
+                          <p
+                            style={{
+                              fontSize: 15,
+                              fontWeight: "500",
+                              color: "#000",
+                            }}
+                          >
+                            Plan30 to Plan120 -{" "}
+                            {analyticData?.plan30Upgrades[
+                              "Trial to Plan120"
+                            ] || 0}{" "}
+                            users
+                          </p>
+                        </div>
 
-                    <div className="flex flex-row items-center gap-">
-                      <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#FF2D2D] border border-white"></div>
-                      <p
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "500",
-                          color: "#000",
-                        }}
-                      >
-                        Trial to Plan720 -{" "}
-                        {analyticData?.subscription?.upgradeBreakdown?.[
-                          "Trial to Plan720"
-                        ] || 0}{" "}
-                        users
-                      </p>
+                        <div className="flex flex-row items-center gap-">
+                          <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#402FFF] border border-white"></div>
+                          <p
+                            style={{
+                              fontSize: 15,
+                              fontWeight: "500",
+                              color: "#000",
+                            }}
+                          >
+                            Plan30 to Plan360 -{" "}
+                            {analyticData?.plan30Upgrades[
+                              "Trial to Plan360"
+                            ] || 0}{" "}
+                            users
+                          </p>
+                        </div>
+
+                        <div className="flex flex-row items-center gap-">
+                          <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#FF2D2D] border border-white"></div>
+                          <p
+                            style={{
+                              fontSize: 15,
+                              fontWeight: "500",
+                              color: "#000",
+                            }}
+                          >
+                            Plan30 to Plan720 -{" "}
+                            {analyticData?.plan30Upgrades[
+                              "Trial to Plan720"
+                            ] || 0}{" "}
+                            users
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  )
+                }
+
               </div>
             </div>
 
@@ -1021,41 +975,6 @@ function AdminSubscriptions() {
                     </div>
                   </div>
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        className="
-                                            px-4 py-2 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                            flex flex-row items-center gap-1
-                                            "
-                      >
-                        <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                        <Image
-                          src={"/svgIcons/downArrow.svg"}
-                          height={20}
-                          width={24}
-                          alt="*"
-                        />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      className="bg-white border rounded-lg shadow-md"
-                      style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                    >
-                      <DropdownMenuGroup
-                        style={{ cursor: "pointer", zIndex: 50 }}
-                      >
-                        {months.map((month, index) => (
-                          <DropdownMenuItem
-                            key={index}
-                            className="hover:bg-gray-100 px-3"
-                          >
-                            {month}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuGroup>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
                 </div>
 
                 <div className="w-full flex flex-row items-start gap- mt-8">
@@ -1079,35 +998,17 @@ function AdminSubscriptions() {
                   <div className="flex flex-col gap-2">
                     <div className="flex flex-row items-center gap-">
                       <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#8E24AA] border border-white"></div>
-                      Trial -{" "}
-                      {analyticData?.subscription?.cancellations?.["trial"] ||
-                        0}{" "}
-                      users
-                    </div>
-
-                    <div className="flex flex-row items-center gap-">
-                      <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#8E24AA] border border-white"></div>
-                      Trial to Plan30 -{" "}
-                      {analyticData?.subscription?.cancellations?.["trial"] ||
+                      From trial  -{" "}
+                      {analyticData?.subscription?.cancellations?.trial ||
                         0}{" "}
                       users
                     </div>
 
                     <div className="flex flex-row items-center gap-">
                       <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#FF6600] border border-white"></div>
-                      <p
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "500",
-                          color: "#000",
-                        }}
-                      >
-                        Trial to Plan120 -{" "}
-                        {analyticData?.subscription?.cancellations?.[
-                          "Trial to Plan120"
-                        ] || 0}{" "}
-                        users
-                      </p>
+                      From $45 -{" "}
+                      {analyticData?.subscription?.cancellations?.Plan30 || 0}{" "}
+                      users
                     </div>
 
                     <div className="flex flex-row items-center gap-">
@@ -1119,10 +1020,23 @@ function AdminSubscriptions() {
                           color: "#000",
                         }}
                       >
-                        Trial to Plan360 -{" "}
-                        {analyticData?.subscription?.cancellations?.[
-                          "Trial to Plan7236"
-                        ] || 0}{" "}
+                        From $99 -{" "}
+                        {analyticData?.subscription?.cancellations?.Plan120 || 0}{" "}
+                        users
+                      </p>
+                    </div>
+
+                    <div className="flex flex-row items-center gap-">
+                      <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#000000] border border-white"></div>
+                      <p
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          color: "#000",
+                        }}
+                      >
+                        From $270 -{" "}
+                        {analyticData?.subscription?.cancellations?.Plan360 || 0}{" "}
                         users
                       </p>
                     </div>
@@ -1136,10 +1050,8 @@ function AdminSubscriptions() {
                           color: "#000",
                         }}
                       >
-                        Trial to Plan720 -{" "}
-                        {analyticData?.subscription?.cancellations?.[
-                          "Trial to Plan720"
-                        ] || 0}{" "}
+                        From $480 -{" "}
+                        {analyticData?.subscription?.cancellations?.Plan720 || 0}{" "}
                         users
                       </p>
                     </div>
@@ -1161,41 +1073,6 @@ function AdminSubscriptions() {
                     Referal Code Rate
                   </div>
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        className="
-                                            px-4 py-2 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                            flex flex-row items-center gap-1
-                                            "
-                      >
-                        <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                        <Image
-                          src={"/svgIcons/downArrow.svg"}
-                          height={20}
-                          width={24}
-                          alt="*"
-                        />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      className="bg-white border rounded-lg shadow-md"
-                      style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                    >
-                      <DropdownMenuGroup
-                        style={{ cursor: "pointer", zIndex: 50 }}
-                      >
-                        {months.map((month, index) => (
-                          <DropdownMenuItem
-                            key={index}
-                            className="hover:bg-gray-100 px-3"
-                          >
-                            {month}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuGroup>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
                 </div>
 
                 <div style={{ fontSize: 48, fontWeight: 300, color: "#000" }}>
@@ -1215,39 +1092,7 @@ function AdminSubscriptions() {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-purple">CLV</h3>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="
-                                            px-3 py-1 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                            flex flex-row items-center gap-1
-                                            "
-                  >
-                    <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                    <Image
-                      src={"/svgIcons/downArrow.svg"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="bg-white border rounded-lg shadow-md"
-                  style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                >
-                  <DropdownMenuGroup style={{ cursor: "pointer", zIndex: 50 }}>
-                    {months.map((month, index) => (
-                      <DropdownMenuItem
-                        key={index}
-                        className="hover:bg-gray-100 px-3"
-                      >
-                        {month}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+
             </div>
 
             {/* Value */}
@@ -1278,39 +1123,7 @@ function AdminSubscriptions() {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-purple">MRR</h3>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="
-                                            px-3 py-1 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                            flex flex-row items-center gap-1
-                                            "
-                  >
-                    <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                    <Image
-                      src={"/svgIcons/downArrow.svg"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="bg-white border rounded-lg shadow-md"
-                  style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                >
-                  <DropdownMenuGroup style={{ cursor: "pointer", zIndex: 50 }}>
-                    {months.map((month, index) => (
-                      <DropdownMenuItem
-                        key={index}
-                        className="hover:bg-gray-100 px-3"
-                      >
-                        {month}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+
             </div>
 
             {/* Value */}
@@ -1341,39 +1154,7 @@ function AdminSubscriptions() {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-purple">ARR</h3>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="
-                                            px-3 py-1 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                            flex flex-row items-center gap-1
-                                            "
-                  >
-                    <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                    <Image
-                      src={"/svgIcons/downArrow.svg"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="bg-white border rounded-lg shadow-md"
-                  style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                >
-                  <DropdownMenuGroup style={{ cursor: "pointer", zIndex: 50 }}>
-                    {months.map((month, index) => (
-                      <DropdownMenuItem
-                        key={index}
-                        className="hover:bg-gray-100 px-3"
-                      >
-                        {month}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+
             </div>
 
             {/* Value */}
@@ -1403,39 +1184,7 @@ function AdminSubscriptions() {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-purple">NRR</h3>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="
-                                            px-3 py-1 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                            flex flex-row items-center gap-1
-                                            "
-                  >
-                    <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                    <Image
-                      src={"/svgIcons/downArrow.svg"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="bg-white border rounded-lg shadow-md"
-                  style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                >
-                  <DropdownMenuGroup style={{ cursor: "pointer", zIndex: 50 }}>
-                    {months.map((month, index) => (
-                      <DropdownMenuItem
-                        key={index}
-                        className="hover:bg-gray-100 px-3"
-                      >
-                        {month}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+
             </div>
 
             {/* Value */}
@@ -1472,39 +1221,6 @@ function AdminSubscriptions() {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-purple">CAC</h3>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="
-                                            px-3 py-1 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                            flex flex-row items-center gap-1
-                                            "
-                  >
-                    <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                    <Image
-                      src={"/svgIcons/downArrow.svg"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="bg-white border rounded-lg shadow-md"
-                  style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                >
-                  <DropdownMenuGroup style={{ cursor: "pointer", zIndex: 50 }}>
-                    {months.map((month, index) => (
-                      <DropdownMenuItem
-                        key={index}
-                        className="hover:bg-gray-100 px-3"
-                      >
-                        {month}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
 
             {/* Value */}
@@ -1542,39 +1258,7 @@ function AdminSubscriptions() {
                 />
               </div>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="
-                                            px-3 py-1 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                                            flex flex-row items-center gap-1
-                                            "
-                  >
-                    <p style={{ whiteSpace: "nowrap" }}>This Year</p>
-                    <Image
-                      src={"/svgIcons/downArrow.svg"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="bg-white border rounded-lg shadow-md"
-                  style={{ minWidth: "8rem", width: "100%" }} // Match button width
-                >
-                  <DropdownMenuGroup style={{ cursor: "pointer", zIndex: 50 }}>
-                    {months.map((month, index) => (
-                      <DropdownMenuItem
-                        key={index}
-                        className="hover:bg-gray-100 px-3"
-                      >
-                        {month}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+
             </div>
 
             {/* Value */}
@@ -1637,6 +1321,7 @@ function AdminSubscriptions() {
                 <button
                   onClick={() => {
                     setShowCustomRangePopup(null);
+                    setSelectedSubRange("All Time")
                   }}
                 >
                   <Image
@@ -1678,6 +1363,7 @@ function AdminSubscriptions() {
                 onClick={() => {
                   getAdminAnalytics(true);
                   setShowCustomRangePopup(null);
+                  setShowCustomRange(true)
                 }}
               >
                 Continue

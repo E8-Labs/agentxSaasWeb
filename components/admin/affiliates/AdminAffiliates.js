@@ -72,7 +72,7 @@ function AdminAffiliates({ selectedUser }) {
 
   const [showAffiliateDrawer, setShowAffiliateDrawer] = useState(false);
 
-  useEffect(() => {});
+  useEffect(() => { });
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -550,8 +550,16 @@ function AdminAffiliates({ selectedUser }) {
                   </div>
                   <div className="w-2/12  h-full border-r-2 border-[#15151510] pl-4">
                     {/* (item.LeadModel?.phone) */}
+
                     <div style={styles.text2}>
-                      {item.totalUsers ? item?.totalUsers : "-"}
+                      <button 
+                        onClick={()=>{
+                          setShowUsersModal(true)
+                          setSelectedAffiliate(item)
+                        }}
+                      >
+                        {item.totalUsers ? item?.totalUsers : "-"}
+                      </button>
                     </div>
                   </div>
                   <div className="w-3/12  h-full border-r-2 border-[#15151510] pl-4">
@@ -564,7 +572,7 @@ function AdminAffiliates({ selectedUser }) {
                   </div>
                   <div className="w-2/12  h-full border-r-2 border-[#15151510]">
                     <div style={styles.text2}>
-                      {item.Revenue ? item.Revenue : "-"}
+                      {item.Revenue ? `$${item.Revenue}` : "-"}
                     </div>
                   </div>
                   <div className="w-2/12 pl-4">
@@ -610,7 +618,7 @@ function AdminAffiliates({ selectedUser }) {
       />
 
       {/* open user detail popup */}
-      {/* 
+
       <Modal
         open={showUsersModal}
         onClose={() => setShowUsersModal(false)}
@@ -645,8 +653,8 @@ function AdminAffiliates({ selectedUser }) {
                     fontSize: 17,
                   }}
                 >
-                  {selectedAffiliate?.name.slice(0, 1).toUpperCase() +
-                    selectedAffiliate?.name.slice(1)}{" "}
+                  {selectedAffiliate?.name}
+                    
                 </div>
                 <button
                   onClick={() => {
@@ -662,40 +670,37 @@ function AdminAffiliates({ selectedUser }) {
                 </button>
               </div>
               <div
-                className="max-h-[92%] overflow-auto"
+                // className="max-h-[92%] overflow-auto"
                 style={{
+                  // borderWidth:1,
                   scrollbarWidth: "none",
                 }}
               >
-                <div className="w-full flex flex-row  mt-4">
+                <div className="w-full flex flex-row">
                   <div className="w-3/12">
-                    <div style={styles.text}>Name</div>
+                    <div style={{fontSize:14,color:"black",fontWeight:'500'}}>Name</div>
                   </div>
                   <div className="w-2/12">
-                    <div style={styles.text}>Email</div>
+                    <div style={{fontSize:14,color:"black",fontWeight:'500'}}>Email</div>
                   </div>
                   <div className="w-2/12">
-                    <div style={styles.text}>Contact Number</div>
+                    <div style={{fontSize:14,color:"black",fontWeight:'500'}}>Contact Number</div>
                   </div>
                   <div className="w-2/12">
-                    <div style={styles.text}>Unique Url</div>
+                    <div style={{fontSize:14,color:"black",fontWeight:'500'}}>Unique Url</div>
                   </div>
 
                   <div className="w-1/12">
-                    <div style={styles.text}>Total Users</div>
+                    <div style={{fontSize:14,color:"black",fontWeight:'500'}}>Revenue</div>
                   </div>
 
-                  <div className="w-1/12">
-                    <div style={styles.text}>Revenue</div>
-                  </div>
-
-                  <div className="w-1/12">
-                    <div style={styles.text}>Date</div>
+                  <div className="w-2/12">
+                    <div style={{fontSize:14,color:"black",fontWeight:'500'}}>Date</div>
                   </div>
                 </div>
 
                 <div
-                  className="h-[60svh] overflow-auto pb-[100px] mt-6"
+                  className="h-[60svh] overflow-auto pb-[100px] mt-2"
                   id="scrollableDiv1"
                   style={{ scrollbarWidth: "none" }}
                 >
@@ -734,20 +739,14 @@ function AdminAffiliates({ selectedUser }) {
                               {item.uniqueUrl ? item.uniqueUrl : "-"}
                             </div>
                           </div>
-                          <div className="w-1/12">
-                            <button onClick={() => {
-                             
-                            }}>
-                              <div style={styles.text2}>{item.totalUsers}</div>
-                            </button>
-                          </div>
+                         
                           <div className="w-1/12">
                             <div style={styles.text2}>
                               {item.totalSpent ? `$${item.totalSpent}` : "-"}
                             </div>
                           </div>
 
-                          <div className="w-1/12">
+                          <div className="w-2/12">
                             <div style={styles.text2}>
                               {GetFormattedDateString(item.createdAt)}
                             </div>
@@ -764,7 +763,7 @@ function AdminAffiliates({ selectedUser }) {
             </div>
           </div>
         </Box>
-      </Modal> */}
+      </Modal>
 
       {/* add affiliate popup */}
       <Modal
@@ -791,7 +790,7 @@ function AdminAffiliates({ selectedUser }) {
               style={{
                 backgroundColor: "#ffffff",
 
-                borderRadius: "13px",
+              Radius: "13px",
               }}
             >
               <div className="flex flex-row justify-between">
@@ -921,7 +920,7 @@ function AdminAffiliates({ selectedUser }) {
                         overflowY: "auto",
                       }}
                       countryCodeEditable={true}
-                      // defaultMask={locationLoader ? "Loading..." : undefined}
+                    // defaultMask={locationLoader ? "Loading..." : undefined}
                     />
                   </div>
                 </div>
@@ -978,14 +977,14 @@ function AdminAffiliates({ selectedUser }) {
                     marginTop: 20,
                     backgroundColor:
                       !name ||
-                      !email ||
-                      !phone ||
-                      //   emailCheckResponse?.status !== true ||
-                      //   checkPhoneResponse?.status !== true ||
-                      !!urlError ||
-                      //   !!urlError2 ||
-                      !uniqueUrl ||
-                      !officeHourUrl
+                        !email ||
+                        !phone ||
+                        //   emailCheckResponse?.status !== true ||
+                        //   checkPhoneResponse?.status !== true ||
+                        !!urlError ||
+                        //   !!urlError2 ||
+                        !uniqueUrl ||
+                        !officeHourUrl
                         ? "#00000020"
                         : "",
                   }}
@@ -1019,8 +1018,8 @@ function AdminAffiliates({ selectedUser }) {
                       color:
                         !name || !email || !phone
                           ? // emailCheckResponse?.status !== true ||
-                            // checkPhoneResponse?.status !== true
-                            "#000000"
+                          // checkPhoneResponse?.status !== true
+                          "#000000"
                           : "#ffffff",
                     }}
                   >

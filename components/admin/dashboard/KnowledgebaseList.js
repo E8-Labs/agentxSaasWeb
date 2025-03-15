@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { CircularProgress } from "@mui/material";
 
-const KnowledgeBaseList = ({ kbList, onDelete, onAddKnowledge }) => {
+const KnowledgeBaseList = ({ kbList, onDelete, onAddKnowledge, isLoading }) => {
   return (
     <div className="">
       <div className="flex flex-row justify-between mb-2">
@@ -33,21 +34,30 @@ const KnowledgeBaseList = ({ kbList, onDelete, onAddKnowledge }) => {
 
       <div className="flex flex-col gap-4">
         {kbList.map((kb, index) => (
-          <KBCard key={index} kb={kb} onDelete={() => onDelete(index)} />
+
+
+          <KBCard key={index} kb={kb} onDelete={() => onDelete(kb)} />
         ))}
       </div>
     </div>
   );
 };
 
-const KBCard = ({ kb, onDelete }) => {
+const KBCard = ({ kb, onDelete ,isLoading}) => {
   return (
     <div className="p-4 border rounded-lg shadow-sm bg-white relative ">
       <div className="flex justify-between items-center mb-2">
         <span className="text-sm font-medium text-gray-500">{kb.type}</span>
-        <button onClick={onDelete} className="text-gray-400 hover:text-red-500">
-          <Trash2 size={18} />
-        </button>
+        {
+          !isLoading === kb.id ? (
+            <CircularProgress size={25} />
+          ) : (
+            <button onClick={onDelete} className="text-gray-400 hover:text-red-500">
+              <Trash2 size={18} />
+            </button>
+          )
+        }
+
       </div>
 
       {kb.type === "Document" && <DocumentCard kb={kb} />}

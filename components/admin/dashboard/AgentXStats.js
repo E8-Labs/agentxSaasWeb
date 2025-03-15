@@ -49,8 +49,10 @@ function AgentXStats({ user }) {
   const [showAllUsersWithAgents, setShowAllUsersWithAgents] = useState(false);
   const [showAllUsersWithTeam, setShowAllUsersWithTeam] = useState(false);
   const [showAllUsersWithLeads, setShowAllUsersWithLeads] = useState(false);
-  const [showAllUsersWithPipelines, setShowAllUsersWithPipelines] = useState(false);
-  const [showAllUsersWithCalender, setShowAllUsersWithCalender] = useState(false);
+  const [showAllUsersWithPipelines, setShowAllUsersWithPipelines] =
+    useState(false);
+  const [showAllUsersWithCalender, setShowAllUsersWithCalender] =
+    useState(false);
 
   useEffect(() => {
     // Example usage:
@@ -85,9 +87,10 @@ function AgentXStats({ user }) {
     }
   };
 
+  //All bottom cards >2 agents, >1 pipelines etc
   function GetStatView(title, percentage, count, icon) {
     return (
-      <Card className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center  w-[14vw] ">
+      <Card className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center   ">
         <TopVoicesModal
           topVoices={stats?.topVoices || []}
           open={showAllVoices}
@@ -154,7 +157,7 @@ function AgentXStats({ user }) {
 
   return (
     <div
-      className=" flex flex-col justify-start items-start pl-32 h-[90svh] gap-4 pb-8"
+      className=" flex flex-col justify-start items-start pl-32 h-[90svh] gap-4 pb-8 "
       style={{ overflow: "auto", scrollbarWidth: "none" }}
     >
       {/*  Stats  */}
@@ -167,7 +170,7 @@ function AgentXStats({ user }) {
 
       {/*  DAU MAU  */}
       <div
-        className=" cursor-pointer grid gap-6 grid-cols-4 md:grid-cols-4 lg:grid-cols-4 bg-white px-8 rounded-lg"
+        className=" cursor-pointer grid gap-6 grid-cols-4 md:grid-cols-4 lg:grid-cols-4 bg-red px-8 rounded-lg w-[96%]"
         style={{
           backgroundImage: "url('/daustatback.svg')",
           backgroundSize: "cover",
@@ -277,23 +280,27 @@ function AgentXStats({ user }) {
       {/*  Voices  */}
 
       {/* <div className=" h-[15%] grid gap-6 grid-cols-3 md:grid-cols-3 lg:grid-cols-3 "> */}
-      <VoicesComponent
-        stats={stats}
-        voiceIds={stats?.topVoices}
-        onViewAll={() => {
-          setShowAllVoices(true);
-        }}
-        onViewUniqueNumbers={() => {
-          setShowAllUsersWithUniqueNumbers(true);
-        }}
-      />
+      <div className="w-[96%] rounded-lg bg-red">
+        <VoicesComponent
+          stats={stats}
+          voiceIds={stats?.topVoices}
+          onViewAll={() => {
+            setShowAllVoices(true);
+          }}
+          onViewUniqueNumbers={() => {
+            setShowAllUsersWithUniqueNumbers(true);
+          }}
+        />
+      </div>
       {/* </div> */}
 
-      <div className=" grid gap-4 grid-cols-5 md:grid-cols-5 lg:grid-cols-5  rounded-lg">
+      <div className=" grid gap-3 grid-cols-5 md:grid-cols-5 lg:grid-cols-5  rounded-lg w-[96%]">
         {/* Top Metrics */}
-        <button onClick={() => {
-          setShowAllUsersWithAgents(true)
-        }}>
+        <button
+          onClick={() => {
+            setShowAllUsersWithAgents(true);
+          }}
+        >
           {GetStatView(
             "> 2 agents",
             stats?.pipelineUsers.percentage,
@@ -302,9 +309,11 @@ function AgentXStats({ user }) {
           )}
         </button>
 
-        <button onClick={() => {
-          setShowAllUsersWithPipelines(true)
-        }}>
+        <button
+          onClick={() => {
+            setShowAllUsersWithPipelines(true);
+          }}
+        >
           {GetStatView(
             "> 1 pipeline",
             stats?.agentUsers.percentage,
@@ -313,9 +322,11 @@ function AgentXStats({ user }) {
           )}
         </button>
 
-        <button onClick={() => {
-          setShowAllUsersWithLeads(true)
-        }}>
+        <button
+          onClick={() => {
+            setShowAllUsersWithLeads(true);
+          }}
+        >
           {GetStatView(
             "Uploaded Leads",
             stats?.leadsUsers.percentage,
@@ -324,9 +335,11 @@ function AgentXStats({ user }) {
           )}
         </button>
 
-        <button onClick={() => {
-          setShowAllUsersWithTeam(true)
-        }}>
+        <button
+          onClick={() => {
+            setShowAllUsersWithTeam(true);
+          }}
+        >
           {GetStatView(
             "Invited Teams",
             stats?.teamsUsers.percentage,
@@ -335,9 +348,11 @@ function AgentXStats({ user }) {
           )}
         </button>
 
-        <button onClick={() => {
-          setShowAllUsersWithCalender(true)
-        }}>
+        <button
+          onClick={() => {
+            setShowAllUsersWithCalender(true);
+          }}
+        >
           {GetStatView(
             "Added calendar",
             stats?.calendarUsers.percentage,
@@ -406,7 +421,7 @@ function VoicesComponent({
       color = "bg-pink-500/80";
     }
     return (
-      <Card className="cursor-pointer  w-[11vw] h-[160px] border-white relative  border border-white shadow-[0px_4px_31.5px_0px_rgba(121,2,223,0.04)] rounded-2xl p-6 flex flex-col items-center text-center bg-white/60 overflow-hidden">
+      <Card className="cursor-pointer  h-[160px] border-white relative  border border-white shadow-[0px_4px_31.5px_0px_rgba(121,2,223,0.04)] rounded-2xl p-6 flex flex-col items-center text-center bg-white/60 overflow-hidden">
         <div
           className={`cursor-pointer absolute top-0 left-1/2 transform -translate-x-1/2 w-28 h-20 ${color} rounded-full blur-2xl`}
         />
@@ -430,8 +445,8 @@ function VoicesComponent({
   }
 
   return (
-    <div className=" grid gap-3 grid-cols-6 md:grid-cols-6 lg:grid-cols-6 w-[70vw] bg-white pt-2 rounded-lg ">
-      <Card className="cursor-pointer border-none flex flex-col items-center justify-center shadow-none w-[11vw]">
+    <div className=" grid gap-3 grid-cols-6 md:grid-cols-6 lg:grid-cols-6  bg-white pt-2 rounded-lg ">
+      <Card className="cursor-pointer border-none flex flex-col items-center justify-center shadow-none w-[13vw]">
         <CardContent>
           <h2 className="cursor-pointer text-2xl font-regular">Top</h2>
         </CardContent>
@@ -462,7 +477,7 @@ function VoicesComponent({
         </CardContent>
       </Card>
 
-      <Card className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center  w-[14vw]">
+      <Card className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center  w-[13vw]">
         <div className="cursor-pointer flex items-center justify-between w-full  mb-2">
           <img
             src="/invtedteamsiocn.png"
@@ -492,7 +507,7 @@ function VoicesComponent({
 
 function SubscriptionsStatsComponent({ stats }) {
   return (
-    <div className="  grid gap-2 grid-cols-7 md:grid-cols-7 lg:grid-cols-7 bg-white px-4 rounded-lg">
+    <div className="  grid gap-2 grid-cols-7 md:grid-cols-7 lg:grid-cols-7 bg-white px-4 rounded-lg w-[96%]">
       {/* Top Metrics */}
       <Card className="cursor-pointer border-none shadow-none w-[11vw]">
         <CardHeader>
@@ -512,12 +527,15 @@ function SubscriptionsStatsComponent({ stats }) {
           <CardTitle>No Plan</CardTitle>
         </CardHeader>
         <CardContent>
-          <h2 className="cursor-pointer text-2xl font-regular">-</h2>
+          <h2 className="cursor-pointer text-2xl font-regular">
+            {stats?.usersOnPlans['No Plan'].count}
+
+          </h2>
           {/* <Progress value={27} /> */}
         </CardContent>
         <CardContent>
           <p className="cursor-pointer text-lg font-regular text-gray-500">
-            -
+            {`${stats?.usersOnPlans['No Plan'].percentage}`}%
           </p>
         </CardContent>
       </Card>

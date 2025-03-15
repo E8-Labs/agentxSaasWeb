@@ -1,5 +1,15 @@
 import Apis from "@/components/apis/Apis";
-import { Box, CircularProgress, FormControl, FormControlLabel, Modal, Radio, RadioGroup } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  FormControl,
+  FormControlLabel,
+  Modal,
+  Radio,
+  RadioGroup,
+  Switch,
+  Typography,
+} from "@mui/material";
 import { CalendarDots, CaretLeft } from "@phosphor-icons/react";
 import axios from "axios";
 import moment from "moment";
@@ -55,7 +65,6 @@ const AssignLead = ({
 
   const [hasUserSelectedDate, setHasUserSelectedDate] = useState(false);
   const [isDncChecked, setIsDncChecked] = useState(false);
-
 
   useEffect(() => {
     if (errorMessage) {
@@ -359,7 +368,7 @@ const AssignLead = ({
         startTimeDifFromNow: timer,
         batchSize: batchSize,
         selectedAll: selectedAll,
-        dncCheck: isDncChecked ? true : false
+        dncCheck: isDncChecked ? true : false,
       };
 
       console.log("Api data ", Apidata);
@@ -372,6 +381,7 @@ const AssignLead = ({
           startTimeDifFromNow: timer,
           batchSize: batchSize,
           selectedAll: selectedAll,
+          dncCheck: isDncChecked,
           ...filters,
         };
       }
@@ -745,7 +755,7 @@ const AssignLead = ({
                 >
                   One last thing
                 </div>
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-start">
                   <div
                     className="text-purple"
                     style={{ fontSize: 12, fontWeight: "600" }}
@@ -753,24 +763,34 @@ const AssignLead = ({
                     {getLeadSelectedCount()} Contacts Selected
                   </div>
 
-                  <div>
-                    <FormControl>
-                      <FormControlLabel
-                        control={
-                          <Radio
-                          sx={{
-                            color: "#A0A0A0", // Gray when unchecked
-                            "&.Mui-checked": {
-                              color: "#7902DF", // Turns purple when checked
-                            },
-                          }}
-                            checked={isDncChecked}
-                            onClick={()=>setIsDncChecked((prev) => !prev)}
-                          />
-                        }
-                        label="Check DNC list"
-                      />
-                    </FormControl>
+                  <div className="flex flex-row items-center  -mt-2">
+                    <div
+                      style={{
+                        fontSize: 12,
+                        fontWeight: "600",
+                        color: "#00000080",
+                      }}
+                    >
+                      Check DNC List
+                    </div>
+                    <Switch
+                      checked={isDncChecked}
+                      // color="#7902DF"
+                      // exclusive
+                      onChange={(event) => {
+                        setIsDncChecked(event.target.checked);
+                      }}
+                      sx={{
+                        "& .MuiSwitch-switchBase.Mui-checked": {
+                          color: "#7902DF",
+                        },
+                        "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
+                          {
+                            backgroundColor: "#7902DF",
+                          },
+                        margin: 0,
+                      }}
+                    />
                   </div>
                 </div>
               </div>
@@ -780,17 +800,20 @@ const AssignLead = ({
               </div>
 
               <div className="flex flex-row items-center gap-8 mt-4">
-
                 <input
                   className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
                   style={{
-                    border: `${isFocustedCustomLeads ? "2px solid #7902Df" : "2px solid #00000040"}`,
+                    border: `${
+                      isFocustedCustomLeads
+                        ? "2px solid #7902Df"
+                        : "1px solid #00000040"
+                    }`,
                     height: "50px",
                   }}
                   value={customLeadsToSend}
                   onFocus={() => {
                     setNoOfLeadsToSend("");
-                    setisFocustedCustomLeads(true)
+                    setisFocustedCustomLeads(true);
                   }}
                   onChange={(e) => {
                     let value = e.target.value;
@@ -810,7 +833,7 @@ const AssignLead = ({
                   onClick={() => {
                     setNoOfLeadsToSend(totalLeads);
                     setCustomLeadsToSend("");
-                    setisFocustedCustomLeads(false)
+                    setisFocustedCustomLeads(false);
                   }}
                 >
                   All {getLeadSelectedCount()}
@@ -1045,7 +1068,9 @@ const AssignLead = ({
               ) : (
                 <div className="w-full">
                   {(NoOfLeadsToSend || customLeadsToSend) &&
-                    (CallNow || (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
+                  (CallNow ||
+                    (CallLater && selectedDateTime && hasUserSelectedDate)) &&
+                  isDncChecked ? (
                     <button
                       className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {

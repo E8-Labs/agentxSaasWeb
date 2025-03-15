@@ -590,23 +590,17 @@ const DebtCollectorAgentSignUp = ({
               </div>
 
               <input
-                placeholder="Email address"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userEmail}
+                type="text"
+                placeholder="Email address"
+                id="random-est-fld"
+                autoComplete="off" // Corrected
+                name="random-est-fld-xyz" // Use a less common name
                 onChange={(e) => {
                   let value = e.target.value;
                   setUserEmail(value);
-
-                  // if (value) {
-                  //   const timer = setTimeout(() => {
-                  //     checkEmail(value);
-                  //    // console.log("I am hit now")
-                  //   }, 1000);
-                  //   return (() => clearTimeout(timer));
-                  // } else {
-                  //   setEmailCheckResponse(null);
-                  // }
 
                   if (timerRef.current) {
                     clearTimeout(timerRef.current);
@@ -615,28 +609,19 @@ const DebtCollectorAgentSignUp = ({
                   setEmailCheckResponse(null);
 
                   if (!value) {
-                    // console.log("Should set the value to null");
                     setValidEmail("");
                     return;
                   }
 
                   if (!validateEmail(value)) {
-                    // console.log("Invalid pattern");
                     setValidEmail("Invalid");
                   } else {
-                    // console.log("No trigered");
-                    if (value) {
-                      // Set a new timeout
-                      timerRef.current = setTimeout(() => {
-                        checkEmail(value);
-                      }, 300);
-                    } else {
-                      // Reset the response if input is cleared
-                      setEmailCheckResponse(null);
-                      setValidEmail("");
-                    }
+                    timerRef.current = setTimeout(() => {
+                      checkEmail(value);
+                    }, 300);
                   }
                 }}
+                onFocus={(e) => e.target.setAttribute("autocomplete", "off")} // Extra force
               />
 
               <div className="flex flex-row items-center justify-between w-full mt-6">

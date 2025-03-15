@@ -64,6 +64,8 @@ import VideoCard from "@/components/createagent/VideoCard";
 import { UserTypes } from "@/constants/UserTypes";
 import Knowledgebase from "@/components/dashboard/myagentX/Knowledgebase";
 import { ArrowDropDownIcon } from "@mui/x-date-pickers";
+import { PauseCircle } from "@mui/icons-material";
+import { EditPhoneNumberModal } from "@/components/dashboard/myagentX/EditPhoneNumberPopup";
 
 function Page() {
   const timerRef = useRef();
@@ -234,7 +236,33 @@ function Page() {
 
   const [showModelLoader, setShowModelLoader] = useState(false);
 
+
+  const [preview, setPreview] = useState(null);
+  const [audio, setAudio] = useState(null);
+
+  const [showEditNumberPopup, setShowEditNumberPopup] = useState(null)
+  const [selectedNumber, setSelectedNumber] = useState("")
+
+  const [loading, setLoading] = useState(false)
+
+  const playVoice = (url) => {
+    if (audio) {
+      audio.pause();
+    }
+    const ad = new Audio(url); // Create a new Audio object with the preview URL
+    ad.play();
+    setAudio(ad); // Play the audio
+  };
+
+
+
   const models = [
+    {
+      name: "AgentX",
+      value: "synthflow",
+      icon: "/agentXOrb.gif",
+      disabled: false,
+    },
     {
       name: "GPT-4o",
       value: "gpt-4o",
@@ -332,6 +360,17 @@ function Page() {
       getAvailabePhoneNumbers();
     }
   }, [showDrawerSelectedAgent]);
+
+  useEffect(() => {
+    let d = localStorage.getItem("TestAiCredentials");
+    console.log("d", d);
+    if (d) {
+      let cr = JSON.parse(d);
+      console.log("d", cr);
+      setName(cr?.name);
+      setPhone(cr?.phone);
+    }
+  }, [openTestAiModal]);
 
   ////// console.log("showDrawerSelectedAgent", showDrawerSelectedAgent);
 
@@ -1220,6 +1259,19 @@ function Page() {
               voiceData.callRecordingPermition
             );
           }
+
+          if (voiceData.liveTransferNumber) {
+            formData.append(
+              "liveTransferNumber",
+              voiceData.liveTransferNumber
+            );
+          }
+          if (voiceData.callbackNumber) {
+            formData.append(
+              "callbackNumber",
+              voiceData.callbackNumber
+            );
+          }
         }
 
         if (showDrawerSelectedAgent) {
@@ -1645,6 +1697,7 @@ function Page() {
       setTestAIloader(true);
       let AuthToken = null;
       const userData = localStorage.getItem("User");
+
       if (userData) {
         const localData = JSON.parse(userData);
         //console.log("Authtoken is:", localData.token);
@@ -1663,6 +1716,8 @@ function Page() {
         phone: phone,
         extraColumns: newArray,
       };
+
+      localStorage.setItem("TestAiCredentials", JSON.stringify(ApiData));
 
       const ApiPath = Apis.testAI;
 
@@ -2089,7 +2144,7 @@ function Page() {
       </div>
 
       <div
-        className="w-full flex flex-row justify-between items-center py-4 px-10"
+        className="w-full flex flex-row justify-between items-center py-4 mt-2 px-10"
         style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>My Agents</div>
@@ -2844,23 +2899,7 @@ function Page() {
           className="flex flex-col w-full h-full  py-2 px-5 rounded-xl"
         // style={{  }}
         >
-          {/* <div
-            className="w-full flex flex-row items-center justify-between py-3"
-            style={{
-              borderBottomWidth: 1,
-            }}
-          >
-            <div style={{ fontSize: 18, fontWeight: "700" }}>More Info</div>
 
-            <button onClick={() => setShowDrawerSelectedAgent(null)}>
-              <Image
-                src={"/svgIcons/cross.svg"}
-                height={24}
-                width={24}
-                alt="*"
-              />
-            </button>
-          </div> */}
           <div
             className="w-full flex flex-col h-full"
             style={{
@@ -3143,8 +3182,8 @@ function Page() {
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`${activeTab === tab
-                      ? "text-purple border-b-2 border-purple"
-                      : "text-black-500"
+                    ? "text-purple border-b-2 border-purple"
+                    : "text-black-500"
                     }`}
                   style={{ fontSize: 15, fontWeight: "500" }}
                 >
@@ -3170,38 +3209,7 @@ function Page() {
                       Voice Options
                     </div>
                   </div>
-                  {/* <div className="flex justify-between">
-                    <div
-                      style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
-                    >
-                      Name
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 15,
-                        fontWeight: "500",
-                        color: "#000",
-                      }}
-                    >
-                      {showDrawerSelectedAgent?.name}
-                    </div>
-                  </div> */}
-                  {/* <div className="flex justify-between items-center mt-4">
-                    <div
-                      style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
-                    >
-                      Role
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 15,
-                        fontWeight: "500",
-                        color: "#000",
-                      }}
-                    >
-                      {showDrawerSelectedAgent?.agentRole}
-                    </div>
-                  </div> */}
+
                   <div className="flex w-full justify-between items-center">
                     <div
                       style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
@@ -3237,21 +3245,13 @@ function Page() {
                             displayEmpty // Enables placeholder
                             renderValue={(selected) => {
                               if (!selected) {
-                                return (
-                                  <div style={{ color: "#aaa" }}>Select</div>
-                                ); // Placeholder style
+                                return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
                               }
-                              // return selected;
                               const selectedVoice = voicesList.find(
                                 (voice) => voice.voice_id === selected
                               );
                               return selectedVoice ? (
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                  }}
-                                >
+                                <div style={{ display: "flex", alignItems: "center" }}>
                                   <Image
                                     src={selectedVoice.img}
                                     height={40}
@@ -3264,19 +3264,9 @@ function Page() {
                             }}
                             sx={{
                               border: "none", // Default border
-                              "&:hover": {
-                                border: "none", // Same border on hover
-                              },
-                              "& .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove the default outline
-                              },
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
-                              "&.MuiSelect-select": {
-                                py: 0, // Optional padding adjustments
-                              },
+                              "&:hover": { border: "none" }, // Same border on hover
+                              "& .MuiOutlinedInput-notchedOutline": { border: "none" }, // Remove the default outline
+                              "&.Mui-focused .MuiOutlinedInput-notchedOutline": { border: "none" },
                             }}
                             MenuProps={{
                               PaperProps: {
@@ -3284,38 +3274,67 @@ function Page() {
                                   maxHeight: "30vh", // Limit dropdown height
                                   overflow: "auto", // Enable scrolling in dropdown
                                   scrollbarWidth: "none",
-                                  // borderRadius: "10px"
                                 },
                               },
                             }}
                           >
                             {voicesList.map((item, index) => {
                               const selectedVoiceName = (id) => {
-                                const voiceName = voicesList.find(
-                                  (voice) => voice.voice_id === id
-                                );
-
-                                return voiceName.name;
+                                const voiceName = voicesList.find((voice) => voice.voice_id === id);
+                                return voiceName?.name || "Unknown";
                               };
+
                               return (
                                 <MenuItem
-                                  value={item?.voice_id}
+                                  style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+                                  value={item.voice_id}
                                   key={index}
                                   disabled={SelectedVoice === item.voice_id}
                                 >
-                                  <Image
-                                    // src={avatarImages[index % avatarImages.length]} // Deterministic selection
-                                    src={item.img} // Deterministic selection
-                                    height={40}
-                                    width={35}
-                                    alt="*"
-                                  />
+                                  <Image src={item.img} height={40} width={35} alt="*" />
                                   <div>{selectedVoiceName(item.voice_id)}</div>
+
+                                  {/* Play/Pause Button (Prevents dropdown close) */}
+                                  {item.preview ? (
+                                    <div //style={{marginLeft:15}}
+                                      onClick={(e) => {
+                                        e.stopPropagation(); // Prevent dropdown from closing
+                                        e.preventDefault(); // Prevent selection event
+
+                                        if (preview === item.preview) {
+                                          if (audio) {
+                                            audio.pause();
+                                          }
+                                          setPreview(null);
+                                        } else {
+                                          setPreview(item.preview);
+                                          playVoice(item.preview);
+                                        }
+                                      }}
+                                    >
+                                      {preview === item.preview ? (
+                                        <PauseCircle size={38} weight="regular" />
+                                      ) : (
+                                        <Image src={"/assets/play.png"} height={25} width={25} alt="*" />
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <div
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setShowNoAudioModal(item);
+                                      }}
+                                    >
+                                      <Image src={"/assets/play.png"} height={25} width={25} alt="*" />
+                                    </div>
+                                  )}
                                 </MenuItem>
                               );
                             })}
                           </Select>
                         </FormControl>
+
                       )}
                     </div>
                   </div>
@@ -3621,108 +3640,7 @@ function Page() {
                       )}
                     </div>
                   </div>
-                  {/* <div className="flex w-full justify-between items-center -mt-4">
-                    <div
-                      style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
-                    >
-                      Call Recording Permission
-                    </div>
 
-                    <div
-                      style={{
-                        // width: "115px",
-                        display: "flex",
-                        alignItems: "center",
-                        // borderWidth:1,
-                        marginRight: -15,
-                      }}
-                    >
-                      {showCallRecordingLoader ? (
-                        <div
-                          style={{
-                            width: "115px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <CircularProgress size={15} />
-                        </div>
-                      ) : (
-                        <FormControl>
-                          <Select
-                            value={callRecordingPermition}
-                            onChange={async (event) => {
-                              let value = event.target.value;
-                              console.log("value", value);
-                              setShowCallRecordingLoader(true);
-                              let voiceData = {
-                                callRecordingPermition: value,
-                              };
-                              await updateSubAgent(voiceData);
-                              setShowCallRecordingLoader(false);
-                              setCallRecordingPermition(value);
-                            }}
-                            displayEmpty // Enables placeholder
-                            renderValue={(selected) => {
-                              if (!selected) {
-                                return (
-                                  <div style={{ color: "#aaa" }}>
-                                    Select Permission
-                                  </div>
-                                ); // Placeholder style
-                              }
-                              const selectedVoice =
-                                callRecordingPermitionList.find(
-                                  (voice) => voice.value === selected
-                                );
-                              return selectedVoice ? selectedVoice.title : null;
-                            }}
-                            sx={{
-                              border: "none", // Default border
-                              "&:hover": {
-                                border: "none", // Same border on hover
-                              },
-                              "& .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove the default outline
-                              },
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
-                              "&.MuiSelect-select": {
-                                py: 0, // Optional padding adjustments
-                              },
-                            }}
-                            MenuProps={{
-                              PaperProps: {
-                                style: {
-                                  maxHeight: "30vh", // Limit dropdown height
-                                  overflow: "auto", // Enable scrolling in dropdown
-                                  scrollbarWidth: "none",
-                                  // borderRadius: "10px"
-                                },
-                              },
-                            }}
-                          >
-                            {callRecordingPermitionList.map((item, index) => {
-                              return (
-                                <MenuItem
-                                  value={item.value}
-                                  key={index}
-                                  disabled={
-                                    callRecordingPermition === item.value
-                                  }
-                                >
-                                  <div>{item.title}</div>
-                                </MenuItem>
-                              );
-                            })}
-                          </Select>
-                        </FormControl>
-                      )}
-                    </div>
-                  </div> */}
                 </div>
                 <div className="flex flex-col gap-1 mt-4">
                   <div
@@ -3939,18 +3857,33 @@ function Page() {
                       ></div>
                       {/* Code for popover */}
                     </div>
-                    <div
-                      style={{
-                        fontSize: 15,
-                        fontWeight: "500",
-                        color: "#000",
-                      }}
-                    >
-                      {showDrawerSelectedAgent?.callbackNumber ? (
-                        <div>{showDrawerSelectedAgent?.callbackNumber}</div>
-                      ) : (
-                        "-"
-                      )}
+
+
+                    <div className="flex flex-row items-center justify-between gap-2">
+                      <div
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          color: "#000",
+                        }}
+                      >
+                        {showDrawerSelectedAgent?.callbackNumber ? (
+                          <div>{showDrawerSelectedAgent?.callbackNumber}</div>
+                        ) : (
+                          "-"
+                        )}
+                      </div>
+
+                      <button onClick={() => {
+                        setShowEditNumberPopup(showDrawerSelectedAgent?.callbackNumber)
+                        setSelectedNumber("Callback")
+                      }}>
+                        <Image src={"/svgIcons/editIcon2.svg"}
+                          height={24}
+                          width={24}
+                          alt="*"
+                        />
+                      </button>
                     </div>
                   </div>
                   <div className="flex justify-between mt-4">
@@ -3965,16 +3898,59 @@ function Page() {
                         Call transfer number
                       </div>
                     </div>
-                    <div>
-                      {showDrawerSelectedAgent?.liveTransferNumber ? (
-                        <div>{showDrawerSelectedAgent?.liveTransferNumber}</div>
-                      ) : (
-                        "-"
-                      )}
+
+                    <div className="flex flex-row items-center justify-between gap-2">
+
+                      <div>
+                        {showDrawerSelectedAgent?.liveTransferNumber ? (
+                          <div>{showDrawerSelectedAgent?.liveTransferNumber}</div>
+                        ) : (
+                          "-"
+                        )}
+                      </div>
+                      <button onClick={() => {
+                        setShowEditNumberPopup(showDrawerSelectedAgent?.liveTransferNumber)
+                        setSelectedNumber("Calltransfer")
+                      }}>
+                        <Image src={"/svgIcons/editIcon2.svg"}
+                          height={24}
+                          width={24}
+                          alt="*"
+                        />
+                      </button>
                     </div>
                   </div>
                 </div>
+
+                <div className="w-full">
+                  <EditPhoneNumberModal
+                    open={showEditNumberPopup}
+                    close={() => setShowEditNumberPopup(null)}
+                    number={showEditNumberPopup && showEditNumberPopup}
+                    title={selectedNumber === "Callback" ? "Call back Number" : "Call transfer Number"}
+                    loading={loading}
+                    update={async (value) => {
+                      let data = ""
+                      if (selectedNumber === "Callbak") {
+                        data = {
+                          callbackNumber: value
+                        }
+                      } else {
+                        data = {
+                          liveTransferNumber: value
+                        }
+                      }
+                      setLoading(true)
+                      await updateSubAgent(data)
+                      setLoading(false)
+                      setShowEditNumberPopup(null)
+                    }}
+
+                  />
+                </div>
               </div>
+
+
             ) : activeTab === "Calendar" ? (
               <div>
                 <UserCalender
@@ -4376,7 +4352,7 @@ function Page() {
             <div className="h-[90vh]" style={{ scrollbarWidth: "none" }}>
               <div
                 style={{
-                  height: "10%",
+                  height: "8%",
                   width: "100%",
                   direction: "row",
                   display: "flex",
@@ -4413,7 +4389,7 @@ function Page() {
               </div>
 
               <div
-                className="mt-6 flex flex-row gap-6"
+                className="mt-4 flex flex-row gap-6"
                 style={{ height: "", fontWeight: "500", fontSize: 15 }}
               >
                 <button
@@ -4447,9 +4423,14 @@ function Page() {
               </div>
 
               {showScript && (
-                <div style={{ height: "82%" }}>
-                  <div style={{ height: "83%", borderWidth: 0 }}>
-                    <div className="bg-[#00000002] p-2 mt-6">
+                <div style={{ height: "73%", borderWidth: 0 }}>
+                  <div
+                    style={{
+                      height: showSaveChangesBtn ? "95%" : "100%",
+                      borderWidth: 0,
+                    }}
+                  >
+                    <div className="bg-[#00000002] p-2 mt-2">
                       <div
                         style={styles.inputStyle}
                         className="flex flex-row items-center gap-2"
@@ -4599,14 +4580,14 @@ function Page() {
 
                   <div className="" style={{ height: "" }}>
                     {showSaveChangesBtn && (
-                      <div className="w-full pb-8">
+                      <div className="w-full">
                         {UpdateAgentLoader ? (
-                          <div className="w-full flex flex-row justify-center">
+                          <div className="w-full flex flex-row mt-6 justify-center">
                             <CircularProgress size={35} />
                           </div>
                         ) : (
                           <button
-                            className="bg-purple w-full h-[50px] rounded-xl mb-4 text-white"
+                            className="bg-purple w-full h-[50px] rounded-xl text-white"
                             style={{ fontWeight: "600", fontSize: 15 }}
                             onClick={() => {
                               updateAgent();

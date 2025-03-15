@@ -110,8 +110,8 @@ export default function AffiliateDetailsDrawer({ open, onClose, affiliate }) {
                             Top Spending Clients
                         </div>
                         <div style={{ fontSize: 14, fontWeight: '500', color: '#00000060' }}>
-                            {"affiliate.nam"} <span style={{ fontSize: 14, fontWeight: '500', color: '#000000' }}>
-                                (${affiliate.amount})
+                            {affiliate.topSpender?.User?.name} <span style={{ fontSize: 14, fontWeight: '500', color: '#000000' }}>
+                                (${affiliate.topSpender?.totalSpent})
                             </span>
                         </div>
                     </div>

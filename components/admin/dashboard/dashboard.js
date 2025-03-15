@@ -48,7 +48,6 @@ export default function Dashboard() {
           <TabsTrigger value="user-activity">User Activity</TabsTrigger>
           <TabsTrigger value="engagement">Engagement</TabsTrigger>
           <TabsTrigger value="subscription">Subscription</TabsTrigger>
-          <TabsTrigger value="revenue">Revenue</TabsTrigger>
         </TabsList>
 
         <TabsContent value="user-activity">

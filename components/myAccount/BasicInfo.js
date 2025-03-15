@@ -17,7 +17,8 @@ function BasicInfo() {
   const [focusedTerritory, setFocusedTerritory] = useState(false);
   const [focusedBrokerage, setFocusedBrokerage] = useState(false);
   const [focusedCompany, setFocusedCompany] = useState(false);
-  const [focusedCompanyAffiliation, setFocusedCompanyAffiliation] = useState(false);
+  const [focusedCompanyAffiliation, setFocusedCompanyAffiliation] =
+    useState(false);
   const [focusedTransaction, setFocusedTransaction] = useState(false);
   const [focusedInstallationVolume, setFocusedInstallationVolume] =
     useState(false);
@@ -48,10 +49,9 @@ function BasicInfo() {
   const [clientType2, setClientType2] = useState("");
   const [collectionStratigy, setcollectionStratigy] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
-  const [companyAffiliation, setCompanyAffiliation] = useState("")
-  const [clientsPerMonth,setClientsPerMonth] = useState("")
-  const [CasesPerMonth,setCasessPerMonth] = useState("")
-
+  const [companyAffiliation, setCompanyAffiliation] = useState("");
+  const [clientsPerMonth, setClientsPerMonth] = useState("");
+  const [CasesPerMonth, setCasessPerMonth] = useState("");
 
   const [isNameChanged, setIsNameChanged] = useState(false);
   const [isTransactionChanged, setIsTransactionChange] = useState("");
@@ -60,7 +60,8 @@ function BasicInfo() {
   const [isServiceAreaChanged, setIsServiceAreaChanged] = useState(false);
   const [isTeritorryChanged, setIsTeritorryChanged] = useState("");
   const [isCompanyChanged, setIsCompanyChanged] = useState("");
-  const [isCompanyAffiliationChanged, setIsCompanyAffiliationChanged] = useState("");
+  const [isCompanyAffiliationChanged, setIsCompanyAffiliationChanged] =
+    useState("");
   const [isInstallationVolumechanged, setIsInstallationVolumeChanged] =
     useState("");
   const [isProjectSizeChanged, setIsprojectSizeChanged] = useState("");
@@ -112,17 +113,17 @@ function BasicInfo() {
     {
       id: 1,
       title: "Residential clients",
-      value: "residential"
+      value: "residential",
     },
     {
       id: 2,
       title: "Commercial clients",
-      value: "commercial"
+      value: "commercial",
     },
     {
       id: 3,
       title: "Both",
-      value: 'both'
+      value: "both",
     },
   ];
 
@@ -156,13 +157,16 @@ function BasicInfo() {
     {
       id: 3,
       title: "Veterans & Active Military",
-    }, {
+    },
+    {
       id: 3,
       title: "Luxury Homebuyers",
-    }, {
+    },
+    {
       id: 5,
       title: "Self-Employed & Entrepreneurs",
-    }, {
+    },
+    {
       id: 6,
       title: "Other (type here)",
     },
@@ -228,8 +232,6 @@ function BasicInfo() {
       setCompanyAffiliation(userData?.user?.firmOrCompanyAffiliation);
       setClientsPerMonth(userData?.user?.averageMonthlyClients);
       setCasessPerMonth(userData?.user?.caseVolume);
-
-
 
       setInstallationVolume(userData?.user?.projectsPerYear || "");
       setProjectSize(userData?.user?.projectSizeKw || "");
@@ -760,14 +762,13 @@ function BasicInfo() {
     }
   };
 
-
-  const choseClientType = () =>{
-      if(userType === UserTypes.LoanOfficerAgent){
-        return primaryClientTypes4
-      }else {
-        return primaryClientTypes2
-      }
-  }
+  const choseClientType = () => {
+    if (userType === UserTypes.LoanOfficerAgent) {
+      return primaryClientTypes4;
+    } else {
+      return primaryClientTypes2;
+    }
+  };
 
   return (
     <div
@@ -994,8 +995,8 @@ function BasicInfo() {
       {userRole && userRole != "Invitee" && (
         <>
           {(userType && userType === UserTypes.RealEstateAgent) ||
-            (userType && userType === UserTypes.InsuranceAgent) ||
-            (userType && userType === UserTypes.RealEstateAgent) ? (
+          (userType && userType === UserTypes.InsuranceAgent) ||
+          (userType && userType === UserTypes.RealEstateAgent) ? (
             <>
               <div
                 style={{
@@ -1052,8 +1053,7 @@ function BasicInfo() {
             (userType && userType === UserTypes.MarketerAgent) ||
             (userType && userType === UserTypes.TaxAgent) ||
             (userType && userType === UserTypes.RecruiterAgent) ||
-            (userType && userType === UserTypes.DebtCollectorAgent) 
-            ? (
+            (userType && userType === UserTypes.DebtCollectorAgent) ? (
             <>
               <div
                 style={{
@@ -1069,8 +1069,9 @@ function BasicInfo() {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${focusedServiceArea ? "#8a2be2" : "#00000010"
-                    }`,
+                  border: `1px solid ${
+                    focusedServiceArea ? "#8a2be2" : "#00000010"
+                  }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -1111,8 +1112,8 @@ function BasicInfo() {
           )}
 
           {(userType && userType === UserTypes.RealEstateAgent) ||
-            (userType && userType === UserTypes.InsuranceAgent) ||
-            (userType && userType === UserTypes.RealEstateAgent) ? (
+          (userType && userType === UserTypes.InsuranceAgent) ||
+          (userType && userType === UserTypes.RealEstateAgent) ? (
             <>
               <div
                 style={{
@@ -1128,8 +1129,9 @@ function BasicInfo() {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
                 style={{
-                  border: `1px solid ${focusedBrokerage ? "#8a2be2" : "#00000010"
-                    }`,
+                  border: `1px solid ${
+                    focusedBrokerage ? "#8a2be2" : "#00000010"
+                  }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -1168,8 +1170,7 @@ function BasicInfo() {
           ) : (userType && userType === UserTypes.SolarRep) ||
             (userType && userType === UserTypes.SalesDevRep) ||
             (userType && userType === UserTypes.MarketerAgent) ||
-            (userType && userType === UserTypes.DebtCollectorAgent)
-          ? (
+            (userType && userType === UserTypes.DebtCollectorAgent) ? (
             <>
               <div
                 style={{
@@ -1185,8 +1186,9 @@ function BasicInfo() {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
                 style={{
-                  border: `1px solid ${focusedCompany ? "#8a2be2" : "#00000010"
-                    }`,
+                  border: `1px solid ${
+                    focusedCompany ? "#8a2be2" : "#00000010"
+                  }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -1238,8 +1240,9 @@ function BasicInfo() {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
                 style={{
-                  border: `1px solid ${focusedWebsite ? "#8a2be2" : "#00000010"
-                    }`,
+                  border: `1px solid ${
+                    focusedWebsite ? "#8a2be2" : "#00000010"
+                  }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -1275,354 +1278,347 @@ function BasicInfo() {
                   ))}
               </div>
             </>
-          ) : (
-            (
-              userType && userType === UserTypes.MedSpaAgent ||
-              userType && userType === UserTypes.LawAgent ||
-              userType && userType === UserTypes.LoanOfficerAgent
+          ) : (userType && userType === UserTypes.MedSpaAgent) ||
+            (userType && userType === UserTypes.LawAgent) ||
+            (userType && userType === UserTypes.LoanOfficerAgent) ? (
+            <>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  color: "#000",
+                  marginTop: "4vh",
+                }}
+              >
+                Company Affiliation
+              </div>
 
-              ? (
-                <>
-                  <div
-                    style={{
-                      fontSize: 16,
-                      fontWeight: "700",
-                      color: "#000",
-                      marginTop: "4vh",
-                    }}
-                  >
-                    Company Affiliation
-                  </div>
-
-                  <div
-                    className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
-                    style={{
-                      border: `1px solid ${focusedCompany ? "#8a2be2" : "#00000010"
-                        }`,
-                      transition: "border-color 0.3s ease",
-                    }}
-                  >
-                    <input
-                      className="w-11/12 outline-none focus:ring-0"
-                      onFocus={() => setFocusedCompanyAffiliation(true)}
-                      onBlur={() => setFocusedCompanyAffiliation(false)}
-                      value={companyAffiliation}
-                      onChange={(event) => {
-                        setCompanyAffiliation(event.target.value);
-                        setIsCompanyAffiliationChanged(true);
+              <div
+                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
+                style={{
+                  border: `1px solid ${
+                    focusedCompany ? "#8a2be2" : "#00000010"
+                  }`,
+                  transition: "border-color 0.3s ease",
+                }}
+              >
+                <input
+                  className="w-11/12 outline-none focus:ring-0"
+                  onFocus={() => setFocusedCompanyAffiliation(true)}
+                  onBlur={() => setFocusedCompanyAffiliation(false)}
+                  value={companyAffiliation}
+                  onChange={(event) => {
+                    setCompanyAffiliation(event.target.value);
+                    setIsCompanyAffiliationChanged(true);
+                  }}
+                  type="text"
+                  placeholder="Company"
+                  style={{ border: "0px solid #000000", outline: "none" }}
+                />
+                {isCompanyAffiliationChanged &&
+                  (loading11 ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleCompanyAffiliationSave();
                       }}
-                      type="text"
-                      placeholder="Company"
-                      style={{ border: "0px solid #000000", outline: "none" }}
-                    />
-                    {isCompanyAffiliationChanged &&
-                      (loading11 ? (
-                        <CircularProgress size={20} />
-                      ) : (
-                        <button
-                          onClick={async () => {
-                            handleCompanyAffiliationSave();
-                          }}
-                          style={{
-                            color: " #8a2be2",
-                            fontSize: "14px",
-                            fontWeight: "600",
-                          }}
-                        >
-                          Save
-                        </button>
-                      ))}
-                  </div>
-                </>
-              ) : ""
-            )
+                      style={{
+                        color: " #8a2be2",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Save
+                    </button>
+                  ))}
+              </div>
+            </>
+          ) : (
+            ""
           )}
 
-          {userType && userType === UserTypes.RealEstateAgent
+          {userType && userType === UserTypes.RealEstateAgent ? (
+            <>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  color: "#000",
+                  marginTop: "4vh",
+                }}
+              >
+                How many homes did you sell last year
+              </div>
 
-            ? (
-              <>
-                <div
-                  style={{
-                    fontSize: 16,
-                    fontWeight: "700",
-                    color: "#000",
-                    marginTop: "4vh",
+              <div
+                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                style={{
+                  border: `1px solid ${
+                    focusedTransaction ? "#8a2be2" : "#00000010"
+                  }`,
+                  transition: "border-color 0.3s ease",
+                }}
+              >
+                <input
+                  type="number"
+                  className="w-11/12 outline-none focus:ring-0"
+                  onFocus={() => setFocusedTransaction(true)}
+                  onBlur={() => setFocusedTransaction(false)}
+                  value={transaction}
+                  onChange={(event) => {
+                    setTransaction(event.target.value);
+                    setIsTransactionChange(true);
                   }}
-                >
-                  Average transaction volume per year
-                </div>
-
-                <div
-                  className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                  style={{
-                    border: `1px solid ${focusedTransaction ? "#8a2be2" : "#00000010"
-                      }`,
-                    transition: "border-color 0.3s ease",
-                  }}
-                >
-                  <input
-                    type="number"
-                    className="w-11/12 outline-none focus:ring-0"
-                    onFocus={() => setFocusedTransaction(true)}
-                    onBlur={() => setFocusedTransaction(false)}
-                    value={transaction}
-                    onChange={(event) => {
-                      setTransaction(event.target.value);
-                      setIsTransactionChange(true);
-                    }}
-                    placeholder="Value"
-                    style={{ border: "0px solid #000000", outline: "none" }}
-                  />
-                  {isTransactionChanged &&
-                    (loading4 ? (
-                      <CircularProgress size={20} />
-                    ) : (
-                      <button
-                        onClick={async () => {
-                          handleTransactionSave();
-                        }}
-                        style={{
-                          color: " #8a2be2",
-                          fontSize: "14px",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Save
-                      </button>
-                    ))}
-                </div>
-              </>
-            ) : (userType && userType === UserTypes.SolarRep)
-              ? (
-                <>
-                  <div
-                    style={{
-                      fontSize: 16,
-                      fontWeight: "700",
-                      color: "#000",
-                      marginTop: "4vh",
-                    }}
-                  >
-                    Installation Volume per Year
-                  </div>
-
-                  <div
-                    className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                    style={{
-                      border: `1px solid ${focusedInstallationVolume ? "#8a2be2" : "#00000010"
-                        }`,
-                      transition: "border-color 0.3s ease",
-                    }}
-                  >
-                    <input
-                      type="number"
-                      className="w-11/12 outline-none focus:ring-0"
-                      onFocus={() => setFocusedInstallationVolume(true)}
-                      onBlur={() => setFocusedInstallationVolume(false)}
-                      value={installationVolume}
-                      onChange={(event) => {
-                        setInstallationVolume(event.target.value);
-                        setIsInstallationVolumeChanged(true);
+                  placeholder="Value"
+                  style={{ border: "0px solid #000000", outline: "none" }}
+                />
+                {isTransactionChanged &&
+                  (loading4 ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleTransactionSave();
                       }}
-                      placeholder="Value"
-                      style={{ border: "0px solid #000000", outline: "none" }}
-                    />
-                    {isInstallationVolumechanged &&
-                      (loading7 ? (
-                        <CircularProgress size={20} />
-                      ) : (
-                        <button
-                          onClick={async () => {
-                            handleInstallationVolumeSave();
-                          }}
-                          style={{
-                            color: " #8a2be2",
-                            fontSize: "14px",
-                            fontWeight: "600",
-                          }}
-                        >
-                          Save
-                        </button>
-                      ))}
-                  </div>
-                </>
-              ) : (
-                ""
-              )}
-
-          {userType && userType === UserTypes.SolarRep ||
-            (userType && userType === UserTypes.DebtCollectorAgent) ?
-
-            (
-
-              <>
-                <div
-                  style={{
-                    fontSize: 16,
-                    fontWeight: "700",
-                    color: "#000",
-                    marginTop: "4vh",
-                  }}
-                >
-                  {userType === UserTypes.DebtCollectorAgent ? " Balance Size of Debts " : "Average Project Size (kW)"}
-
-                </div>
-
-                <div
-                  className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                  style={{
-                    border: `1px solid ${focusedProjectSize ? "#8a2be2" : "#00000010"
-                      }`,
-                    transition: "border-color 0.3s ease",
-                  }}
-                >
-                  <input
-                    type="number"
-                    className="w-11/12 outline-none focus:ring-0"
-                    onFocus={() => setFocusedProjectSize(true)}
-                    onBlur={() => setFocusedProjectSize(false)}
-                    value={projectSize}
-                    onChange={(event) => {
-                      setProjectSize(event.target.value);
-                      setIsprojectSizeChanged(true);
-                    }}
-                    placeholder="Value"
-                    style={{ border: "0px solid #000000", outline: "none" }}
-                  />
-                  {isProjectSizeChanged &&
-                    (loading9 ? (
-                      <CircularProgress size={20} />
-                    ) : (
-                      <button
-                        onClick={async () => {
-                          handleProjectSizeSave();
-                        }}
-                        style={{
-                          color: " #8a2be2",
-                          fontSize: "14px",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Save
-                      </button>
-                    ))}
-                </div>
-              </>
-            ) : (
-              (
-                userType && userType === UserTypes.MedSpaAgent 
-                ? (
-                  <>
-                    <div
                       style={{
-                        fontSize: 16,
-                        fontWeight: "700",
-                        color: "#000",
-                        marginTop: "4vh",
+                        color: " #8a2be2",
+                        fontSize: "14px",
+                        fontWeight: "600",
                       }}
                     >
-                      Clients per month
-                    </div>
+                      Save
+                    </button>
+                  ))}
+              </div>
+            </>
+          ) : userType && userType === UserTypes.SolarRep ? (
+            <>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  color: "#000",
+                  marginTop: "4vh",
+                }}
+              >
+                Installation Volume per Year
+              </div>
 
-                    <div
-                      className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+              <div
+                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                style={{
+                  border: `1px solid ${
+                    focusedInstallationVolume ? "#8a2be2" : "#00000010"
+                  }`,
+                  transition: "border-color 0.3s ease",
+                }}
+              >
+                <input
+                  type="number"
+                  className="w-11/12 outline-none focus:ring-0"
+                  onFocus={() => setFocusedInstallationVolume(true)}
+                  onBlur={() => setFocusedInstallationVolume(false)}
+                  value={installationVolume}
+                  onChange={(event) => {
+                    setInstallationVolume(event.target.value);
+                    setIsInstallationVolumeChanged(true);
+                  }}
+                  placeholder="Value"
+                  style={{ border: "0px solid #000000", outline: "none" }}
+                />
+                {isInstallationVolumechanged &&
+                  (loading7 ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleInstallationVolumeSave();
+                      }}
                       style={{
-                        border: `1px solid ${focusedClientsPerMonth ? "#8a2be2" : "#00000010"
-                          }`,
-                        transition: "border-color 0.3s ease",
+                        color: " #8a2be2",
+                        fontSize: "14px",
+                        fontWeight: "600",
                       }}
                     >
-                      <input
-                        type="number"
-                        className="w-11/12 outline-none focus:ring-0"
-                        onFocus={() => setFocusedClientsPerMonth(true)}
-                        onBlur={() => setFocusedClientsPerMonth(false)}
-                        value={clientsPerMonth}
-                        onChange={(event) => {
-                          setClientsPerMonth(event.target.value);
-                          setIsClientsPerMonthChanged(true);
-                        }}
-                        placeholder="Value"
-                        style={{ border: "0px solid #000000", outline: "none" }}
-                      />
-                      {isClientsPerMonthChanged &&
-                        (loading12 ? (
-                          <CircularProgress size={20} />
-                        ) : (
-                          <button
-                            onClick={async () => {
-                              handleClientsPerMonthSave();
-                            }}
-                            style={{
-                              color: " #8a2be2",
-                              fontSize: "14px",
-                              fontWeight: "600",
-                            }}
-                          >
-                            Save
-                          </button>
-                        ))}
-                    </div>
-                  </>
-                ) : userType && userType === UserTypes.LawAgent 
-                ? (
-                  <>
-                    <div
-                      style={{
-                        fontSize: 16,
-                        fontWeight: "700",
-                        color: "#000",
-                        marginTop: "4vh",
-                      }}
-                    >
-                      Cases per month
-                    </div>
+                      Save
+                    </button>
+                  ))}
+              </div>
+            </>
+          ) : (
+            ""
+          )}
 
-                    <div
-                      className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+          {(userType && userType === UserTypes.SolarRep) ||
+          (userType && userType === UserTypes.DebtCollectorAgent) ? (
+            <>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  color: "#000",
+                  marginTop: "4vh",
+                }}
+              >
+                {userType === UserTypes.DebtCollectorAgent
+                  ? " Balance Size of Debts "
+                  : "Average Project Size (kW)"}
+              </div>
+
+              <div
+                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                style={{
+                  border: `1px solid ${
+                    focusedProjectSize ? "#8a2be2" : "#00000010"
+                  }`,
+                  transition: "border-color 0.3s ease",
+                }}
+              >
+                <input
+                  type="number"
+                  className="w-11/12 outline-none focus:ring-0"
+                  onFocus={() => setFocusedProjectSize(true)}
+                  onBlur={() => setFocusedProjectSize(false)}
+                  value={projectSize}
+                  onChange={(event) => {
+                    setProjectSize(event.target.value);
+                    setIsprojectSizeChanged(true);
+                  }}
+                  placeholder="Value"
+                  style={{ border: "0px solid #000000", outline: "none" }}
+                />
+                {isProjectSizeChanged &&
+                  (loading9 ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleProjectSizeSave();
+                      }}
                       style={{
-                        border: `1px solid ${focusedClientsPerMonth ? "#8a2be2" : "#00000010"
-                          }`,
-                        transition: "border-color 0.3s ease",
+                        color: " #8a2be2",
+                        fontSize: "14px",
+                        fontWeight: "600",
                       }}
                     >
-                      <input
-                        type="number"
-                        className="w-11/12 outline-none focus:ring-0"
-                        onFocus={() => setFocusedCasesPerMonth(true)}
-                        onBlur={() => setFocusedCasesPerMonth(false)}
-                        value={CasesPerMonth}
-                        onChange={(event) => {
-                          setCasessPerMonth(event.target.value);
-                          iscasesPerMonthChanged(true);
-                        }}
-                        placeholder="Value"
-                        style={{ border: "0px solid #000000", outline: "none" }}
-                      />
-                      {iscasesPerMonthChanged &&
-                        (loading12 ? (
-                          <CircularProgress size={20} />
-                        ) : (
-                          <button
-                            onClick={async () => {
-                              handleClientsPerMonthSave();
-                            }}
-                            style={{
-                              color: " #8a2be2",
-                              fontSize: "14px",
-                              fontWeight: "600",
-                            }}
-                          >
-                            Save
-                          </button>
-                        ))}
-                    </div>
-                  </>
-                ) : ""
-              )
-            )}
-          {(userType && userType === UserTypes.SolarRep) ? (
+                      Save
+                    </button>
+                  ))}
+              </div>
+            </>
+          ) : userType && userType === UserTypes.MedSpaAgent ? (
+            <>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  color: "#000",
+                  marginTop: "4vh",
+                }}
+              >
+                Clients per month
+              </div>
+
+              <div
+                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                style={{
+                  border: `1px solid ${
+                    focusedClientsPerMonth ? "#8a2be2" : "#00000010"
+                  }`,
+                  transition: "border-color 0.3s ease",
+                }}
+              >
+                <input
+                  type="number"
+                  className="w-11/12 outline-none focus:ring-0"
+                  onFocus={() => setFocusedClientsPerMonth(true)}
+                  onBlur={() => setFocusedClientsPerMonth(false)}
+                  value={clientsPerMonth}
+                  onChange={(event) => {
+                    setClientsPerMonth(event.target.value);
+                    setIsClientsPerMonthChanged(true);
+                  }}
+                  placeholder="Value"
+                  style={{ border: "0px solid #000000", outline: "none" }}
+                />
+                {isClientsPerMonthChanged &&
+                  (loading12 ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleClientsPerMonthSave();
+                      }}
+                      style={{
+                        color: " #8a2be2",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Save
+                    </button>
+                  ))}
+              </div>
+            </>
+          ) : userType && userType === UserTypes.LawAgent ? (
+            <>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  color: "#000",
+                  marginTop: "4vh",
+                }}
+              >
+                Cases per month
+              </div>
+
+              <div
+                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                style={{
+                  border: `1px solid ${
+                    focusedClientsPerMonth ? "#8a2be2" : "#00000010"
+                  }`,
+                  transition: "border-color 0.3s ease",
+                }}
+              >
+                <input
+                  type="number"
+                  className="w-11/12 outline-none focus:ring-0"
+                  onFocus={() => setFocusedCasesPerMonth(true)}
+                  onBlur={() => setFocusedCasesPerMonth(false)}
+                  value={CasesPerMonth}
+                  onChange={(event) => {
+                    setCasessPerMonth(event.target.value);
+                    iscasesPerMonthChanged(true);
+                  }}
+                  placeholder="Value"
+                  style={{ border: "0px solid #000000", outline: "none" }}
+                />
+                {iscasesPerMonthChanged &&
+                  (loading12 ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleClientsPerMonthSave();
+                      }}
+                      style={{
+                        color: " #8a2be2",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Save
+                    </button>
+                  ))}
+              </div>
+            </>
+          ) : (
+            ""
+          )}
+          {userType && userType === UserTypes.SolarRep ? (
             <>
               <div
                 style={{
@@ -1668,60 +1664,59 @@ function BasicInfo() {
                 })}
               </div>
             </>
+          ) : userType && userType === UserTypes.DebtCollectorAgent ? (
+            <>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  color: "#000",
+                  marginTop: "4vh",
+                }}
+              >
+                Typical Collection Strategy
+              </div>
+
+              <div
+                className="flex flex-row items-center gap-4"
+                style={{ marginTop: "8px" }}
+              >
+                {primaryClientTypes3.map((item, index) => {
+                  return (
+                    <div key={index} className="w-full">
+                      <button
+                        onClick={() => {
+                          handleSelectCollectionStretigy(item);
+                        }}
+                        className="border border-[#00000010] rounded px-4 h-[70px] outline-none focus:outline-none focus:ring-0 w-full"
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          borderRadius: "7px",
+                          borderRadius: "30px",
+                          paddingInline: index === 2 && "40px",
+                          border:
+                            collectionStratigy === item.value
+                              ? "2px solid #7902DF"
+                              : "",
+                          backgroundColor:
+                            collectionStratigy === item.value
+                              ? "#402FFF20"
+                              : "",
+                        }}
+                      >
+                        {item.title}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
           ) : (
-            userType && userType === UserTypes.DebtCollectorAgent ? (
-              <>
-                <div
-                  style={{
-                    fontSize: 16,
-                    fontWeight: "700",
-                    color: "#000",
-                    marginTop: "4vh",
-                  }}
-                >
-                  Typical Collection Strategy
-                </div>
-
-                <div
-                  className="flex flex-row items-center gap-4"
-                  style={{ marginTop: "8px" }}
-                >
-                  {primaryClientTypes3.map((item, index) => {
-                    return (
-                      <div key={index} className="w-full">
-                        <button
-                          onClick={() => {
-                            handleSelectCollectionStretigy(item);
-                          }}
-                          className="border border-[#00000010] rounded px-4 h-[70px] outline-none focus:outline-none focus:ring-0 w-full"
-                          style={{
-                            fontSize: 15,
-                            fontWeight: "500",
-                            borderRadius: "7px",
-                            borderRadius: "30px",
-                            paddingInline: index === 2 && "40px",
-                            border:
-                              collectionStratigy === item.value
-                                ? "2px solid #7902DF"
-                                : "",
-                            backgroundColor:
-                              collectionStratigy === item.value ? "#402FFF20" : "",
-                          }}
-                        >
-                          {item.title}
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </>
-            ) :
-
-
-              ""
+            ""
           )}
           {(userType && userType === UserTypes.LawAgent) ||
-            (userType && userType === UserTypes.LoanOfficerAgent) ? (
+          (userType && userType === UserTypes.LoanOfficerAgent) ? (
             <>
               <div style={styles.headingStyle} className="mt-6">
                 Client Type
@@ -1788,7 +1783,7 @@ function BasicInfo() {
                               ? "2px solid #7902DF"
                               : "",
                           backgroundColor:
-                          consoltation === item.title ? "#402FFF20" : "",
+                            consoltation === item.title ? "#402FFF20" : "",
                         }}
                       >
                         {item.title}
@@ -1840,10 +1835,11 @@ function BasicInfo() {
 
           <div className="w-9/12 flex flex-row flex-wrap gap-2">
             {agentServices.map((item, index) => {
-              console.log(
+              console
+                .log
                 // `${item.id} included in array `,
                 // serviceId.includes(item.id)
-              );
+                ();
               return (
                 <div
                   key={index}

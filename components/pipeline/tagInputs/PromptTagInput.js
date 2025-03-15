@@ -454,7 +454,8 @@ export const PromptTagInput = ({
             width: "100%",
             fontWeight: "500",
             fontSize: 15,
-            height: showSaveChangesBtn ? (window.innerHeight < 760 ? "10vh" : "17vh") : window.innerHeight < 760 ? "14vh" : "23vh",
+            height:showSaveChangesBtn ? "calc(100vh - 700px)" : "calc(100vh - 600px)",
+            // maxHeight:"28vh",
             resize: "none",
             // backgroundColor:'red'
             // border: "1px solid #00000020",
