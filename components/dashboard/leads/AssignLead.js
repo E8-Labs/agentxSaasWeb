@@ -768,7 +768,7 @@ const AssignLead = ({
                       style={{
                         fontSize: 12,
                         fontWeight: "600",
-                        color: "#00000080",
+                        color: "#000000",
                       }}
                     >
                       Check DNC List
@@ -785,9 +785,9 @@ const AssignLead = ({
                           color: "#7902DF",
                         },
                         "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                          {
-                            backgroundColor: "#7902DF",
-                          },
+                        {
+                          backgroundColor: "#7902DF",
+                        },
                         margin: 0,
                       }}
                     />
@@ -803,11 +803,10 @@ const AssignLead = ({
                 <input
                   className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
                   style={{
-                    border: `${
-                      isFocustedCustomLeads
+                    border: `${isFocustedCustomLeads
                         ? "2px solid #7902Df"
                         : "1px solid #00000040"
-                    }`,
+                      }`,
                     height: "50px",
                   }}
                   value={customLeadsToSend}
@@ -957,6 +956,56 @@ const AssignLead = ({
                                   // label="Select date and time"
                                   minDateTime={dayjs().tz(userProfile.timeZone)}
                                   //   value={value}
+                                  sx={{
+                                    // Date Picker (Large Screen)
+                                    "& .MuiPickersDay-root.Mui-selected": {
+                                      backgroundColor: "#7902DF !important", // Purple background for selected date
+                                      color: "white !important",
+                                    },
+                                    "& .MuiPickersDay-root:hover": {
+                                      backgroundColor: "#a352df !important", // Lighter purple on hover
+                                    },
+                                    "& .Mui-selected": {
+                                      backgroundColor: "#7902DF !important",
+                                      color: "#fff !important",
+                                    },
+                              
+                                    // Time Picker (Large Screen)
+                                    "& .MuiClock-pin": {
+                                      backgroundColor: "#7902DF !important", // Change clock pin color
+                                    },
+                                    "& .MuiClockPointer-root": {
+                                      backgroundColor: "#7902DF !important", // Change clock pointer color
+                                    },
+                                    "& .MuiClockPointer-thumb": {
+                                      borderColor: "#7902DF !important", // Change pointer thumb color
+                                    },
+                                    "& .MuiPickersToolbar-root": {
+                                      backgroundColor: "#7902DF !important", // Toolbar background purple
+                                    },
+                                    "& .MuiTypography-root": {
+                                      color: "#7902DF !important", // Header text color
+                                    },
+                              
+                                    // Time Selection List (Large Screen)
+                                    "& .MuiPickersTimeClock-root .Mui-selected": {
+                                      backgroundColor: "#7902DF !important", // Purple selected time
+                                      color: "white !important",
+                                    },
+                                    "& .MuiPickersTimeClock-root .MuiButtonBase-root:hover": {
+                                      backgroundColor: "#a352df !important", // Lighter purple on hover
+                                    },
+                              
+                                    // Time Picker List (Dropdown List)
+                                    "& .MuiTimeClock-root .Mui-selected": {
+                                      backgroundColor: "#7902DF !important",
+                                      color: "white !important",
+                                    },
+                                    "& .MuiTimeClock-root .MuiButtonBase-root:hover": {
+                                      backgroundColor: "#a352df !important",
+                                    },
+                                  }}
+                                
                                   onChange={handleDateChange}
                                   renderInput={(params) => (
                                     <input
@@ -1028,6 +1077,31 @@ const AssignLead = ({
                         //   value={value}
                         minDate={dayjs()}
                         onChange={handleDateChange}
+                        sx={{
+                          "& .MuiPickersDay-root.Mui-selected": {
+                            backgroundColor: "#7902DF !important", // Change selected date color to purple
+                            color: "white !important",
+                          },
+                          "& .MuiPickersDay-root:hover": {
+                            backgroundColor: "#a352df !important", // Lighter purple on hover
+                          },
+                          "& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)": {
+                            color: "#333 !important", // Default color for unselected dates
+                          },
+                          "& .Mui-selected": {
+                            backgroundColor: "#7902DF !important",
+                            color: "#fff !important",
+                          },
+                          "& .MuiClock-pin": {
+                            backgroundColor: "#7902DF !important", // Change clock pin color
+                          },
+                          "& .MuiClockPointer-root": {
+                            backgroundColor: "#7902DF !important", // Change clock pointer color
+                          },
+                          "& .MuiClockPointer-thumb": {
+                            borderColor: "#7902DF !important", // Change pointer thumb color
+                          },
+                        }}
                         renderInput={(params) => (
                           <input
                             {...params.inputProps}
@@ -1068,9 +1142,9 @@ const AssignLead = ({
               ) : (
                 <div className="w-full">
                   {(NoOfLeadsToSend || customLeadsToSend) &&
-                  (CallNow ||
-                    (CallLater && selectedDateTime && hasUserSelectedDate)) &&
-                  isDncChecked ? (
+                    (CallNow ||
+                      (CallLater && selectedDateTime && hasUserSelectedDate)) &&
+                    isDncChecked ? (
                     <button
                       className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {

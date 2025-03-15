@@ -4,6 +4,7 @@ import Apis from "@/components/apis/Apis";
 import axios from "axios";
 // import Leads1 from "@/components/dashboard/leads/Leads1";
 import Pipeline1 from "@/components/dashboardPipeline/Pipeline1";
+import PipelineLoading from "@/components/dashboardPipeline/PipelineLoading";
 // const Pipeline1 = dynamic(() =>
 //   import("../../../components/dashboardPipeline/Pipeline1.js")
 // );

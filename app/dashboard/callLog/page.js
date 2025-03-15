@@ -9,6 +9,7 @@ import Apis from "@/components/apis/Apis";
 import axios from "axios";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import { PersistanceKeys } from "@/constants/Constants";
+import LeadLoading from "@/components/dashboard/leads/LeadLoading";
 
 function Page() {
   // console.log("This is a callLOg CRash", CallLogTest);
@@ -59,6 +60,8 @@ function Page() {
           <AllCalls user={user} />
         ) : activeTab === "Scheduled" ? (
           <SheduledCalls user={user} />
+          // <LeadLoading />
+
         ) : (
           <CallActivities user={user} />
         )}
