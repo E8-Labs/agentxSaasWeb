@@ -66,10 +66,10 @@ const LeadDetails = ({
   const [showAllEmails, setShowAllEmails] = useState(false);
 
   //code for buttons of details popup
-  const [showKYCDetails, setShowKycDetails] = useState(true);
+  const [showKYCDetails, setShowKycDetails] = useState(false);
   const [showNotesDetails, setShowNotesDetails] = useState(false);
   const [showAcitivityDetails, setShowAcitivityDetails] = useState(false);
-  const [showPerplexityDetails, setShowPerpelexityDetails] = useState(false);
+  const [showPerplexityDetails, setShowPerpelexityDetails] = useState(true);
 
   //code for add stage notes
   const [showAddNotes, setShowAddNotes] = useState(false);
@@ -962,32 +962,6 @@ const LeadDetails = ({
                         </div>
 
                         <div>
-                          {selectedLeadsDetails?.teamsAssigned?.length > 0 ? (
-                            <div className="p-8">
-                              <LeadTeamsAssignedList
-                                users={selectedLeadsDetails?.teamsAssigned}
-                              />
-                            </div>
-                          ) : (
-                            <button
-                              className="text-end outline-none"
-                              style={styles.paragraph}
-                              aria-describedby={id}
-                              variant="contained"
-                              onClick={(event) => {
-                                handleShowPopup(event);
-                              }}
-                            >
-                              <Image
-                                src={"/assets/manIcon.png"}
-                                height={30}
-                                width={30}
-                                alt="man"
-                              />
-                            </button>
-                          )}
-                        </div>
-                        <div>
                           {
                             selectedLeadsDetails?.booking &&
                             <div
@@ -1135,7 +1109,7 @@ const LeadDetails = ({
                       </div>
 
 
-                      <div className="flex flex-col items-start gap-[5px]">
+                      <div className="flex flex-col items-end gap-[5px]">
                         {delLeadLoader ? (
                           <CircularProgress size={20} />
                         ) : (
@@ -1177,6 +1151,33 @@ const LeadDetails = ({
                                 />
                               </>
                             )}
+                        </div>
+
+                        <div className="mt-10">
+                          {selectedLeadsDetails?.teamsAssigned?.length > 0 ? (
+                            <div className="p-8">
+                              <LeadTeamsAssignedList
+                                users={selectedLeadsDetails?.teamsAssigned}
+                              />
+                            </div>
+                          ) : (
+                            <button
+                              className="text-end outline-none"
+                              style={styles.paragraph}
+                              aria-describedby={id}
+                              variant="contained"
+                              onClick={(event) => {
+                                handleShowPopup(event);
+                              }}
+                            >
+                              <Image
+                                src={"/assets/manIcon.png"}
+                                height={30}
+                                width={30}
+                                alt="man"
+                              />
+                            </button>
+                          )}
                         </div>
 
                       </div>
@@ -1426,10 +1427,10 @@ const LeadDetails = ({
                   </div>
 
                   <div
-                    className="flex flex-row items-center gap-4 mt-2"
+                    className="w-full flex flex-row items-center justify-between mt-2"
                     style={{
                       ...styles.paragraph,
-                      paddingInline: 30,
+                      paddingInline: 20,
                     }}
                   >
                     <button
@@ -1485,45 +1486,151 @@ const LeadDetails = ({
                         KYC
                       </div>
                     </button>
+
                     <button
-                      className="outline-none"
-                      onClick={() => {
-                        setShowPerpelexityDetails(false)
-                        setShowKycDetails(false);
-                        setShowNotesDetails(true);
-                        setShowAcitivityDetails(false);
-                      }}
+                      className="outline-none p-2 flex flex-row gap-2"
                       style={{
-                        borderBottom: showNotesDetails
-                          ? "2px solid #7902DF"
-                          : "",
+                        borderBottom: showAcitivityDetails ? "2px solid #7902DF" : "",
+                        backgroundColor: showAcitivityDetails ? "#7902DF05" : '',
                       }}
-                    >
-                      Notes
-                    </button>
-                    <button
-                      className="outline-none"
                       onClick={() => {
                         setShowPerpelexityDetails(false)
                         setShowKycDetails(false);
                         setShowNotesDetails(false);
                         setShowAcitivityDetails(true);
                       }}
+                    >
+                      <Image src={showAcitivityDetails ?
+                        '/svgIcons/selectedActivityIcon.svg' : '/svgIcons/unselectedActivityIcon.svg'
+                      }
+                        width={24} height={24} alt="*"
+                      />
+                      <div style={{
+
+                        color: showAcitivityDetails ? "#7902DF" : 'black',
+                      }}>
+                        Activity
+                      </div>
+                    </button>
+
+                    <button
+                      className="outline-none p-2 flex flex-row gap-2"
                       style={{
-                        borderBottom: showAcitivityDetails
-                          ? "2px solid #7902DF"
-                          : "",
+                        borderBottom: showNotesDetails ? "2px solid #7902DF" : "",
+                        backgroundColor: showNotesDetails ? "#7902DF05" : '',
+                      }}
+                      onClick={() => {
+                        setShowPerpelexityDetails(false)
+                        setShowKycDetails(false);
+                        setShowNotesDetails(true);
+                        setShowAcitivityDetails(false);
                       }}
                     >
-                      Activity
+                      <Image src={showNotesDetails ?
+                        '/svgIcons/selectedNotesIcon.svg' : '/svgIcons/unselectedNotesIcon.svg'
+                      }
+                        width={24} height={24} alt="*"
+                      />
+                      <div style={{
+
+                        color: showNotesDetails ? "#7902DF" : 'black',
+                      }}>
+                        Notes
+                      </div>
                     </button>
+
                   </div>
                   <div
                     className="w-full"
                     style={{ height: "1px", backgroundColor: "#15151530" }}
                   />
 
-                  <div style={{ paddingInline: 30 }}>
+                  <div style={{ paddingInline: 20 }}>
+
+                    {
+                      showPerplexityDetails && (
+                        <div className="w-full flex flex-col items-center mt-3 gap-3 h-[50vh]" style={{
+                          overflowY:'auto',scrollbarWidth:'none',overflowX:'hidden'
+                        }}>
+
+                          <div className="w-full flex flex-row justify-between items-center">
+                            <div className="w-full flex flex-row items-center gap-2">
+                              <Image src={'/svgIcons/image.svg'}
+                                height={24} width={24} alt="*" style={{ borderRadius: '50%' }}
+                              />
+
+                              <div style={{ fontsize: 22, fontWeight: '700' }}>
+                                More About Storm Johnson
+                              </div>
+                            </div>
+
+                            <div className="flex flex-row items-center gap-2 ">
+                              <Image src={'/svgIcons/confidanceIcon.svg'}
+                                height={24} width={24} alt="*"
+                              />
+
+                              <div style={{ fontsize: 22, fontWeight: '700' }}>
+                                Confidence Score: <span style={{ fontsize: 22, fontWeight: '700', color: '#7902DF' }}>
+                                  70%
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="w-full flex flex-row items-cneter gap-2 ">
+                            <div className="flex flex-col gap-2 w-[185px] h-[80px] px-2 py-2 items-center bg-[#FAFAFA] rounded">
+
+                              <div className="w-full flex flex-row items-cneter gap-2 ">
+                                <Image src={'/svgIcons/image.svg'}
+                                  height={24} width={24} alt="*" style={{ borderRadius: "50%" }}
+                                />
+
+                                <div style={{ fontsize: 13, fontWeight: '500', color: '#00000060' }}>
+                                  lifestyleandtech
+                                </div>
+                              </div>
+
+                              <div style={{ fontsize: 13, fontWeight: '500' }}>
+                                What now? With trevor noah,
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="w-full flex flex-row items-cneter gap-2 mt-5">
+                            <Image src={'/svgIcons/perpelexityIcon.svg'}
+                              height={24} width={24} alt="*"
+                            />
+
+                            <div style={{ fontsize: 16, fontWeight: '700', }}>
+                              Perplexity
+                            </div>
+                          </div>
+
+                          <div style={{ fontsize: 15, fontWeight: '500', }}>
+                            Dwayne "The Rock" Johnson is a renowned actor, producer, and former professional wrestler. He has been involved in numerous projects across various genres, including films and podcasts. Here are some recent highlights:
+                          </div>
+
+                          <div style={{ fontsize: 15, fontWeight: '500', textDecorationLine: 'underline', alignSelf: 'flex-start' }}>
+                            Dwayne "The Rock" Johnson is a renowned actor
+                          </div>
+
+                          <div style={{ fontsize: 15, fontWeight: '500', }}>
+                            Dwayne "The Rock" Johnson is a renowned actor, producer, and former professional wrestler. He has been involved in numerous projects across various genres, including films and podcasts. Here are some recent highlights:
+                          </div>
+
+                          <div className="w-full flex flex-row items-cneter gap-2 mt-5">
+                            <Image src={"/svgIcons/image.svg"}
+                              height={144} width={160} alt="*" style={{
+                                borderRadius:'20px'
+                              }}
+                            />
+                          </div>
+
+
+
+                        </div>
+                      )
+                    }
                     {showKYCDetails && (
                       <div>
                         {selectedLeadsDetails?.kycs.length < 1 ? (

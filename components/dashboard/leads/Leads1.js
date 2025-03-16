@@ -1198,8 +1198,8 @@ const Leads1 = () => {
                     </div>
 
                     <div
-                      className="h-[40vh] border overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-[55px]"
-                    // style={{ scrollbarWidth: "none" }}
+                      className="overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-[55px]"
+                    style={{ height: "calc(100vh - 500px)" }}
                     >
                       {NewColumnsObtained.map((item, index) => {
                         // const matchingValue = processedData.find((data) =>

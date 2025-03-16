@@ -1154,6 +1154,10 @@ function Page() {
         formData.append("voiceId", voiceId);
       }
 
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -1274,9 +1278,9 @@ function Page() {
           }
         }
 
-        if (showDrawerSelectedAgent) {
-          formData.append("mainAgentId", showDrawerSelectedAgent.mainAgentId);
-        }
+        // if (showDrawerSelectedAgent) {
+        //   formData.append("mainAgentId", showDrawerSelectedAgent.mainAgentId);
+        // }
 
         if (model) {
           formData.append("agentLLmModel", model);
@@ -1302,6 +1306,8 @@ function Page() {
           setShowSuccessSnack(response.data.message);
           if (response.data.status === true) {
             setIsVisibleSnack(true);
+
+            setShowDrawerSelectedAgent(response.data.data.agents[0])
 
             const localAgentsList = localStorage.getItem(
               PersistanceKeys.LocalStoredAgentsListMain
@@ -3931,7 +3937,7 @@ function Page() {
                     loading={loading}
                     update={async (value) => {
                       let data = ""
-                      if (selectedNumber === "Callbak") {
+                      if (selectedNumber === "Callback") {
                         data = {
                           callbackNumber: value
                         }
@@ -3940,6 +3946,7 @@ function Page() {
                           liveTransferNumber: value
                         }
                       }
+                      console.log('data', data)
                       setLoading(true)
                       await updateSubAgent(data)
                       setLoading(false)
