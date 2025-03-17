@@ -38,7 +38,6 @@ import { getAgentsListImage } from "@/utilities/agentUtilities";
 import { capitalize } from "@/utilities/StringUtility";
 import CloseIcon from "@mui/icons-material/Close";
 
-
 const LeadDetails = ({
   showDetailsModal,
   selectedLead,
@@ -121,8 +120,8 @@ const LeadDetails = ({
   const [getTeamLoader, setGetTeamLoader] = useState(false);
 
   useEffect(() => {
-    console.log('Lead detail modal rendered');
-  }, [])
+    console.log("Lead detail modal rendered");
+  }, []);
 
   useEffect(() => {
     if (!selectedLead) return;
@@ -136,7 +135,7 @@ const LeadDetails = ({
 
   //code for getting teammebers
   const getMyteam = async () => {
-    console.log('team getting')
+    console.log("team getting");
     try {
       setGetTeamLoader(true);
       const data = localStorage.getItem("User");
@@ -320,10 +319,9 @@ const LeadDetails = ({
 
   //function to get the stages list using pipelineId
   const getStagesList = async () => {
-
     try {
       let AuthToken = null;
-      setStagesListLoader(true)
+      setStagesListLoader(true);
       const localDetails = localStorage.getItem("User");
       if (localDetails) {
         const Data = JSON.parse(localDetails);
@@ -354,7 +352,7 @@ const LeadDetails = ({
     } catch (error) {
       console.error("Error occured in stage list api is", error);
     } finally {
-      setStagesListLoader(false)
+      setStagesListLoader(false);
       // console.log("Get stages ai call done");
     }
   };
@@ -662,8 +660,8 @@ const LeadDetails = ({
     },
     heading2: {
       fontsize: 15,
-      fontWeight: '500',
-      color: '#15151580'
+      fontWeight: "500",
+      color: "#15151580",
     },
     subHeading: {
       fontsize: 12,
@@ -724,10 +722,7 @@ const LeadDetails = ({
           },
         }}
       >
-        <div
-          className="flex flex-col w-full h-full  py-2 px-5 rounded-xl"
-
-        >
+        <div className="flex flex-col w-full h-full  py-2 px-5 rounded-xl">
           <div className="w-full flex flex-col items-center h-full">
             <AgentSelectSnackMessage
               isVisible={showSuccessSnack2}
@@ -756,21 +751,20 @@ const LeadDetails = ({
                     }}
                   >
                     <div className="w-full flex flex-row items-center justify-between pb-4 border-b">
-                      <div style={{ fontSize: 18, fontWeight: '700', }}>
+                      <div style={{ fontSize: 18, fontWeight: "700" }}>
                         More Info
                       </div>
-                      <button onClick={() => {
-                        setShowDetailsModal(false)
-                      }}>
+                      <button
+                        onClick={() => {
+                          setShowDetailsModal(false);
+                        }}
+                      >
                         <CloseIcon />
                       </button>
                     </div>
 
-
                     <div className="flex flex-row items-start justify-between mt-4">
-
                       <div className="flex flex-col items-start gap-[5px]">
-
                         <div className="flex flex-row items-center gap-4">
                           <div
                             className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
@@ -824,10 +818,11 @@ const LeadDetails = ({
                                         }}
                                       >
                                         {selectedLeadsDetails?.emails?.length >
-                                          1
-                                          ? `+${selectedLeadsDetails?.emails
-                                            ?.length - 1
-                                          }`
+                                        1
+                                          ? `+${
+                                              selectedLeadsDetails?.emails
+                                                ?.length - 1
+                                            }`
                                           : ""}
                                       </button>
                                     </div>
@@ -858,7 +853,9 @@ const LeadDetails = ({
                                           alt="*"
                                         />
                                         <div>
-                                          <span className="text-purple">New</span>{" "}
+                                          <span className="text-purple">
+                                            New
+                                          </span>{" "}
                                           {email.email}
                                         </div>
                                       </div>
@@ -868,9 +865,12 @@ const LeadDetails = ({
                                           setShowAllEmails(true);
                                         }}
                                       >
-                                        {selectedLeadsDetails?.emails?.length > 1
-                                          ? `+${selectedLeadsDetails?.emails?.length - 1
-                                          }`
+                                        {selectedLeadsDetails?.emails?.length >
+                                        1
+                                          ? `+${
+                                              selectedLeadsDetails?.emails
+                                                ?.length - 1
+                                            }`
                                           : ""}
                                       </button>
                                     </div>
@@ -881,7 +881,8 @@ const LeadDetails = ({
                         </div>
                         <div style={styles.heading2}>
                           {/* {selectedLeadsDetails?.phone} */}
-                          {formatPhoneNumber(selectedLeadsDetails?.phone) || "-"}
+                          {formatPhoneNumber(selectedLeadsDetails?.phone) ||
+                            "-"}
                         </div>
 
                         <div style={styles.heading2}>
@@ -892,7 +893,7 @@ const LeadDetails = ({
                           {selectedLeadsDetails?.tags.length > 0 ? (
                             <div
                               className="text-end flex flex-row items-center gap-2"
-                            // style={styles.paragraph}
+                              // style={styles.paragraph}
                             >
                               {
                                 // selectedLeadsDetails?.tags?.map.slice(0, 1)
@@ -911,7 +912,7 @@ const LeadDetails = ({
                                             {tag}
                                           </div>
                                           {DelTagLoader &&
-                                            tag.includes(DelTagLoader) ? (
+                                          tag.includes(DelTagLoader) ? (
                                             <div>
                                               <CircularProgress size={15} />
                                             </div>
@@ -962,22 +963,18 @@ const LeadDetails = ({
                         </div>
 
                         <div>
-                          {
-                            selectedLeadsDetails?.booking &&
-                            <div
-                              style={styles.heading2}
-                            >
+                          {selectedLeadsDetails?.booking && (
+                            <div style={styles.heading2}>
                               {/* {selectedLeadsDetails?.phone} */}
                               {GetFormattedDateString(
                                 selectedLeadsDetails.booking.datetime,
                                 true
                               )}
                             </div>
-                          }
+                          )}
                         </div>
 
                         <div>
-
                           {getExtraColumsCount(columnsLength) >= 1 && (
                             <div className="mt-2 rounded-xl p-2">
                               <button
@@ -990,7 +987,10 @@ const LeadDetails = ({
                                   {getExtraColumsCount(columnsLength) > 0 ? (
                                     <div
                                       className=""
-                                      style={{ fontsize: 15, fontWeight: "500" }}
+                                      style={{
+                                        fontsize: 15,
+                                        fontWeight: "500",
+                                      }}
                                     >
                                       +{getExtraColumsCount(columnsLength)}
                                     </div>
@@ -1002,11 +1002,12 @@ const LeadDetails = ({
                                       fontWeight: "600",
                                       fontsize: 15,
                                       color: "#15151560",
-                                      whiteSpace: 'nowrap',
-                                      textDecorationLine: 'underline'
+                                      whiteSpace: "nowrap",
+                                      textDecorationLine: "underline",
                                     }}
                                   >
-                                    {" "}Custom fields
+                                    {" "}
+                                    Custom fields
                                   </div>
                                   {showCustomVariables ? (
                                     <CaretUp
@@ -1022,9 +1023,7 @@ const LeadDetails = ({
                                     />
                                   )}
                                 </div>
-                                <div>
-
-                                </div>
+                                <div></div>
                               </button>
 
                               {showCustomVariables && (
@@ -1058,7 +1057,7 @@ const LeadDetails = ({
                                         </div>
                                         <div
                                           className="flex w-full flex-row whitespace-normal break-words overflow-hidden items-end justify-end"
-                                          style={{ alignSelf: 'flex-end' }}
+                                          style={{ alignSelf: "flex-end" }}
                                         >
                                           <div className="flex w-[85%] flex-col items-end">
                                             {getDetailsColumnData(
@@ -1070,31 +1069,33 @@ const LeadDetails = ({
                                             column,
                                             selectedLeadsDetails
                                           ) && (
-                                              <div className="flex w-[15%] items-end justify-end border">
-
-                                                <button
-                                                  style={{
-                                                    fontWeight: "600",
-                                                    fontSize: 15,
-                                                  }}
-                                                  onClick={() => {
-                                                    setExpandedCustomFields((prevFields) =>
+                                            <div className="flex w-[15%] items-end justify-end border">
+                                              <button
+                                                style={{
+                                                  fontWeight: "600",
+                                                  fontSize: 15,
+                                                }}
+                                                onClick={() => {
+                                                  setExpandedCustomFields(
+                                                    (prevFields) =>
                                                       prevFields.includes(title)
-                                                        ? prevFields.filter((field) => field !== title)
+                                                        ? prevFields.filter(
+                                                            (field) =>
+                                                              field !== title
+                                                          )
                                                         : [...prevFields, title]
-                                                    );
-                                                  }}
-                                                  className=" text-black underline w-[120px]"
-                                                >
-                                                  {expandedCustomFields.includes(title)
-                                                    ? "Read Less"
-                                                    : "Read More"}
-                                                </button>
-                                              </div>
-                                            )
-
-                                          }
-
+                                                  );
+                                                }}
+                                                className=" text-black underline w-[120px]"
+                                              >
+                                                {expandedCustomFields.includes(
+                                                  title
+                                                )
+                                                  ? "Read Less"
+                                                  : "Read More"}
+                                              </button>
+                                            </div>
+                                          )}
                                         </div>
                                       </div>
                                     );
@@ -1104,10 +1105,7 @@ const LeadDetails = ({
                             </div>
                           )}
                         </div>
-
-
                       </div>
-
 
                       <div className="flex flex-col items-end gap-[5px]">
                         {delLeadLoader ? (
@@ -1129,28 +1127,26 @@ const LeadDetails = ({
                           className="text-end flex flex-row items-center gap-1"
                           style={styles.paragraph}
                         >
-                          {
-                            stagesListLoader ? (
-                              <CircularProgress size={25} />
-                            ) : (
-                              <>
-                                <div
-                                  className="h-[10px] w-[10px] rounded-full"
-                                  style={{
-                                    backgroundColor:
-                                      selectedLeadsDetails?.stage?.defaultColor,
-                                  }}
-                                ></div>
+                          {stagesListLoader ? (
+                            <CircularProgress size={25} />
+                          ) : (
+                            <>
+                              <div
+                                className="h-[10px] w-[10px] rounded-full"
+                                style={{
+                                  backgroundColor:
+                                    selectedLeadsDetails?.stage?.defaultColor,
+                                }}
+                              ></div>
 
-
-                                <SelectStageDropdown
-                                  selectedStage={selectedStage}
-                                  handleStageChange={handleStageChange}
-                                  stagesList={stagesList}
-                                  updateLeadStage={updateLeadStage}
-                                />
-                              </>
-                            )}
+                              <SelectStageDropdown
+                                selectedStage={selectedStage}
+                                handleStageChange={handleStageChange}
+                                stagesList={stagesList}
+                                updateLeadStage={updateLeadStage}
+                              />
+                            </>
+                          )}
                         </div>
 
                         <div className="mt-10">
@@ -1179,13 +1175,8 @@ const LeadDetails = ({
                             </button>
                           )}
                         </div>
-
                       </div>
-
                     </div>
-
-
-
 
                     {/* Modal for All Emails */}
                     <Modal
@@ -1319,7 +1310,7 @@ const LeadDetails = ({
                                         {tag}
                                       </div>
                                       {DelTagLoader &&
-                                        tag.includes(DelTagLoader) ? (
+                                      tag.includes(DelTagLoader) ? (
                                         <div>
                                           <CircularProgress size={15} />
                                         </div>
@@ -1420,10 +1411,7 @@ const LeadDetails = ({
                       )}
                     </Popover>
 
-
-
                     {/* Code for custom variables */}
-
                   </div>
 
                   <div
@@ -1436,53 +1424,67 @@ const LeadDetails = ({
                     <button
                       className="outline-none p-2 flex flex-row gap-2"
                       style={{
-                        borderBottom: showPerplexityDetails ? "2px solid #7902DF" : "",
-                        backgroundColor: showPerplexityDetails ? "#7902DF05" : '',
+                        borderBottom: showPerplexityDetails
+                          ? "2px solid #7902DF"
+                          : "",
+                        backgroundColor: showPerplexityDetails
+                          ? "#7902DF05"
+                          : "",
                       }}
                       onClick={() => {
-                        setShowPerpelexityDetails(true)
+                        setShowPerpelexityDetails(true);
                         setShowKycDetails(false);
                         setShowNotesDetails(false);
                         setShowAcitivityDetails(false);
                       }}
                     >
-                      <Image src={showPerplexityDetails ?
-                        '/svgIcons/selectedPerplexityIcon.svg' : '/svgIcons/unselectedPerplexityIcon.svg'
-                      }
-                        width={24} height={24} alt="*"
+                      <Image
+                        src={
+                          showPerplexityDetails
+                            ? "/svgIcons/selectedPerplexityIcon.svg"
+                            : "/svgIcons/unselectedPerplexityIcon.svg"
+                        }
+                        width={24}
+                        height={24}
+                        alt="*"
                       />
-                      <div style={{
-
-                        color: showPerplexityDetails ? "#7902DF" : 'black',
-                      }}>
+                      <div
+                        style={{
+                          color: showPerplexityDetails ? "#7902DF" : "black",
+                        }}
+                      >
                         Perplexity
                       </div>
-
-
                     </button>
 
                     <button
                       className="outline-none p-2 flex flex-row gap-2"
                       style={{
                         borderBottom: showKYCDetails ? "2px solid #7902DF" : "",
-                        backgroundColor: showKYCDetails ? "#7902DF05" : '',
+                        backgroundColor: showKYCDetails ? "#7902DF05" : "",
                       }}
                       onClick={() => {
-                        setShowPerpelexityDetails(false)
+                        setShowPerpelexityDetails(false);
                         setShowKycDetails(true);
                         setShowNotesDetails(false);
                         setShowAcitivityDetails(false);
                       }}
                     >
-                      <Image src={showKYCDetails ?
-                        '/svgIcons/selectedKycIcon.svg' : '/svgIcons/unselectedKycIcon.svg'
-                      }
-                        width={24} height={24} alt="*"
+                      <Image
+                        src={
+                          showKYCDetails
+                            ? "/svgIcons/selectedKycIcon.svg"
+                            : "/svgIcons/unselectedKycIcon.svg"
+                        }
+                        width={24}
+                        height={24}
+                        alt="*"
                       />
-                      <div style={{
-
-                        color: showKYCDetails ? "#7902DF" : 'black',
-                      }}>
+                      <div
+                        style={{
+                          color: showKYCDetails ? "#7902DF" : "black",
+                        }}
+                      >
                         KYC
                       </div>
                     </button>
@@ -1490,25 +1492,35 @@ const LeadDetails = ({
                     <button
                       className="outline-none p-2 flex flex-row gap-2"
                       style={{
-                        borderBottom: showAcitivityDetails ? "2px solid #7902DF" : "",
-                        backgroundColor: showAcitivityDetails ? "#7902DF05" : '',
+                        borderBottom: showAcitivityDetails
+                          ? "2px solid #7902DF"
+                          : "",
+                        backgroundColor: showAcitivityDetails
+                          ? "#7902DF05"
+                          : "",
                       }}
                       onClick={() => {
-                        setShowPerpelexityDetails(false)
+                        setShowPerpelexityDetails(false);
                         setShowKycDetails(false);
                         setShowNotesDetails(false);
                         setShowAcitivityDetails(true);
                       }}
                     >
-                      <Image src={showAcitivityDetails ?
-                        '/svgIcons/selectedActivityIcon.svg' : '/svgIcons/unselectedActivityIcon.svg'
-                      }
-                        width={24} height={24} alt="*"
+                      <Image
+                        src={
+                          showAcitivityDetails
+                            ? "/svgIcons/selectedActivityIcon.svg"
+                            : "/svgIcons/unselectedActivityIcon.svg"
+                        }
+                        width={24}
+                        height={24}
+                        alt="*"
                       />
-                      <div style={{
-
-                        color: showAcitivityDetails ? "#7902DF" : 'black',
-                      }}>
+                      <div
+                        style={{
+                          color: showAcitivityDetails ? "#7902DF" : "black",
+                        }}
+                      >
                         Activity
                       </div>
                     </button>
@@ -1516,29 +1528,36 @@ const LeadDetails = ({
                     <button
                       className="outline-none p-2 flex flex-row gap-2"
                       style={{
-                        borderBottom: showNotesDetails ? "2px solid #7902DF" : "",
-                        backgroundColor: showNotesDetails ? "#7902DF05" : '',
+                        borderBottom: showNotesDetails
+                          ? "2px solid #7902DF"
+                          : "",
+                        backgroundColor: showNotesDetails ? "#7902DF05" : "",
                       }}
                       onClick={() => {
-                        setShowPerpelexityDetails(false)
+                        setShowPerpelexityDetails(false);
                         setShowKycDetails(false);
                         setShowNotesDetails(true);
                         setShowAcitivityDetails(false);
                       }}
                     >
-                      <Image src={showNotesDetails ?
-                        '/svgIcons/selectedNotesIcon.svg' : '/svgIcons/unselectedNotesIcon.svg'
-                      }
-                        width={24} height={24} alt="*"
+                      <Image
+                        src={
+                          showNotesDetails
+                            ? "/svgIcons/selectedNotesIcon.svg"
+                            : "/svgIcons/unselectedNotesIcon.svg"
+                        }
+                        width={24}
+                        height={24}
+                        alt="*"
                       />
-                      <div style={{
-
-                        color: showNotesDetails ? "#7902DF" : 'black',
-                      }}>
+                      <div
+                        style={{
+                          color: showNotesDetails ? "#7902DF" : "black",
+                        }}
+                      >
                         Notes
                       </div>
                     </button>
-
                   </div>
                   <div
                     className="w-full"
@@ -1546,91 +1565,126 @@ const LeadDetails = ({
                   />
 
                   <div style={{ paddingInline: 20 }}>
-
-                    {
-                      showPerplexityDetails && (
-                        <div className="w-full flex flex-col items-center mt-3 gap-3 h-[50vh]" style={{
-                          overflowY:'auto',scrollbarWidth:'none',overflowX:'hidden'
-                        }}>
-
-                          <div className="w-full flex flex-row justify-between items-center">
-                            <div className="w-full flex flex-row items-center gap-2">
-                              <Image src={'/svgIcons/image.svg'}
-                                height={24} width={24} alt="*" style={{ borderRadius: '50%' }}
-                              />
-
-                              <div style={{ fontsize: 22, fontWeight: '700' }}>
-                                More About Storm Johnson
-                              </div>
-                            </div>
-
-                            <div className="flex flex-row items-center gap-2 ">
-                              <Image src={'/svgIcons/confidanceIcon.svg'}
-                                height={24} width={24} alt="*"
-                              />
-
-                              <div style={{ fontsize: 22, fontWeight: '700' }}>
-                                Confidence Score: <span style={{ fontsize: 22, fontWeight: '700', color: '#7902DF' }}>
-                                  70%
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="w-full flex flex-row items-cneter gap-2 ">
-                            <div className="flex flex-col gap-2 w-[185px] h-[80px] px-2 py-2 items-center bg-[#FAFAFA] rounded">
-
-                              <div className="w-full flex flex-row items-cneter gap-2 ">
-                                <Image src={'/svgIcons/image.svg'}
-                                  height={24} width={24} alt="*" style={{ borderRadius: "50%" }}
-                                />
-
-                                <div style={{ fontsize: 13, fontWeight: '500', color: '#00000060' }}>
-                                  lifestyleandtech
-                                </div>
-                              </div>
-
-                              <div style={{ fontsize: 13, fontWeight: '500' }}>
-                                What now? With trevor noah,
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="w-full flex flex-row items-cneter gap-2 mt-5">
-                            <Image src={'/svgIcons/perpelexityIcon.svg'}
-                              height={24} width={24} alt="*"
+                    {showPerplexityDetails && (
+                      <div
+                        className="w-full flex flex-col items-center mt-3 gap-3 h-[50vh]"
+                        style={{
+                          overflowY: "auto",
+                          scrollbarWidth: "none",
+                          overflowX: "hidden",
+                        }}
+                      >
+                        <div className="w-full flex flex-row justify-between items-center">
+                          <div className="w-full flex flex-row items-center gap-2">
+                            <Image
+                              src={"/svgIcons/image.svg"}
+                              height={24}
+                              width={24}
+                              alt="*"
+                              style={{ borderRadius: "50%" }}
                             />
 
-                            <div style={{ fontsize: 16, fontWeight: '700', }}>
-                              Perplexity
+                            <div style={{ fontsize: 22, fontWeight: "700" }}>
+                              More About Storm Johnson
                             </div>
                           </div>
 
-                          <div style={{ fontsize: 15, fontWeight: '500', }}>
-                            Dwayne "The Rock" Johnson is a renowned actor, producer, and former professional wrestler. He has been involved in numerous projects across various genres, including films and podcasts. Here are some recent highlights:
-                          </div>
-
-                          <div style={{ fontsize: 15, fontWeight: '500', textDecorationLine: 'underline', alignSelf: 'flex-start' }}>
-                            Dwayne "The Rock" Johnson is a renowned actor
-                          </div>
-
-                          <div style={{ fontsize: 15, fontWeight: '500', }}>
-                            Dwayne "The Rock" Johnson is a renowned actor, producer, and former professional wrestler. He has been involved in numerous projects across various genres, including films and podcasts. Here are some recent highlights:
-                          </div>
-
-                          <div className="w-full flex flex-row items-cneter gap-2 mt-5">
-                            <Image src={"/svgIcons/image.svg"}
-                              height={144} width={160} alt="*" style={{
-                                borderRadius:'20px'
-                              }}
+                          <div className="flex flex-row items-center gap-2 ">
+                            <Image
+                              src={"/svgIcons/confidanceIcon.svg"}
+                              height={24}
+                              width={24}
+                              alt="*"
                             />
+
+                            <div style={{ fontsize: 22, fontWeight: "700" }}>
+                              Confidence Score:{" "}
+                              <span
+                                style={{
+                                  fontsize: 22,
+                                  fontWeight: "700",
+                                  color: "#7902DF",
+                                }}
+                              >
+                                70%
+                              </span>
+                            </div>
                           </div>
-
-
-
                         </div>
-                      )
-                    }
+
+                        <div className="w-full flex flex-row items-cneter gap-2 ">
+                          <div className="flex flex-col gap-2 w-[185px] h-[80px] px-2 py-2 items-center bg-[#FAFAFA] rounded">
+                            <div className="w-full flex flex-row items-cneter gap-2 ">
+                              <Image
+                                src={"/svgIcons/image.svg"}
+                                height={24}
+                                width={24}
+                                alt="*"
+                                style={{ borderRadius: "50%" }}
+                              />
+
+                              <div
+                                style={{
+                                  fontsize: 13,
+                                  fontWeight: "500",
+                                  color: "#00000060",
+                                }}
+                              >
+                                lifestyleandtech
+                              </div>
+                            </div>
+
+                            <div style={{ fontsize: 13, fontWeight: "500" }}>
+                              What now? With trevor noah,
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="w-full flex flex-row items-cneter gap-2 mt-5">
+                          <Image
+                            src={"/svgIcons/perpelexityIcon.svg"}
+                            height={24}
+                            width={24}
+                            alt="*"
+                          />
+
+                          <div style={{ fontsize: 16, fontWeight: "700" }}>
+                            Perplexity
+                          </div>
+                        </div>
+
+                        <div style={{ fontsize: 15, fontWeight: "500" }}>
+                          {`Dwayne "The Rock" Johnson is a renowned actor, producer, and former professional wrestler. He has been involved in numerous projects across various genres, including films and podcasts. Here are some recent highlights:`}
+                        </div>
+
+                        <div
+                          style={{
+                            fontsize: 15,
+                            fontWeight: "500",
+                            textDecorationLine: "underline",
+                            alignSelf: "flex-start",
+                          }}
+                        >
+                          {`Dwayne "The Rock" Johnson is a renowned actor`}
+                        </div>
+
+                        <div style={{ fontsize: 15, fontWeight: "500" }}>
+                          {`Dwayne "The Rock" Johnson is a renowned actor, producer, and former professional wrestler. He has been involved in numerous projects across various genres, including films and podcasts. Here are some recent highlights:`}
+                        </div>
+
+                        <div className="w-full flex flex-row items-cneter gap-2 mt-5">
+                          <Image
+                            src={"/svgIcons/image.svg"}
+                            height={144}
+                            width={160}
+                            alt="*"
+                            style={{
+                              borderRadius: "20px",
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
                     {showKYCDetails && (
                       <div>
                         {selectedLeadsDetails?.kycs.length < 1 ? (
@@ -1912,103 +1966,103 @@ const LeadDetails = ({
                                           {isExpandedActivity.includes(
                                             item.id
                                           ) && (
+                                            <div
+                                              className="mt-6"
+                                              style={{
+                                                border: "1px solid #00000020",
+                                                borderRadius: "10px",
+                                                padding: 10,
+                                                paddingInline: 15,
+                                              }}
+                                            >
                                               <div
-                                                className="mt-6"
+                                                className="mt-4"
                                                 style={{
-                                                  border: "1px solid #00000020",
-                                                  borderRadius: "10px",
-                                                  padding: 10,
-                                                  paddingInline: 15,
+                                                  fontWeight: "500",
+                                                  fontSize: 12,
+                                                  color: "#00000070",
                                                 }}
                                               >
+                                                Transcript
+                                              </div>
+                                              <div className="flex flex-row items-center justify-between mt-4">
                                                 <div
-                                                  className="mt-4"
                                                   style={{
                                                     fontWeight: "500",
-                                                    fontSize: 12,
-                                                    color: "#00000070",
+                                                    fontSize: 15,
                                                   }}
                                                 >
-                                                  Transcript
+                                                  {moment(
+                                                    item?.duration * 1000
+                                                  ).format("mm:ss")}{" "}
                                                 </div>
-                                                <div className="flex flex-row items-center justify-between mt-4">
+                                                <button
+                                                  onClick={() => {
+                                                    if (item?.recordingUrl) {
+                                                      setShowAudioPlay(
+                                                        item?.recordingUrl
+                                                      );
+                                                    } else {
+                                                      setShowNoAudioPlay(true);
+                                                    }
+                                                    // window.open(item.recordingUrl, "_blank")
+                                                  }}
+                                                >
+                                                  <Image
+                                                    src={"/assets/play.png"}
+                                                    height={35}
+                                                    width={35}
+                                                    alt="*"
+                                                  />
+                                                </button>
+                                              </div>
+                                              {item.transcript ? (
+                                                <div className="w-full">
                                                   <div
-                                                    style={{
-                                                      fontWeight: "500",
-                                                      fontSize: 15,
-                                                    }}
-                                                  >
-                                                    {moment(
-                                                      item?.duration * 1000
-                                                    ).format("mm:ss")}{" "}
-                                                  </div>
-                                                  <button
-                                                    onClick={() => {
-                                                      if (item?.recordingUrl) {
-                                                        setShowAudioPlay(
-                                                          item?.recordingUrl
-                                                        );
-                                                      } else {
-                                                        setShowNoAudioPlay(true);
-                                                      }
-                                                      // window.open(item.recordingUrl, "_blank")
-                                                    }}
-                                                  >
-                                                    <Image
-                                                      src={"/assets/play.png"}
-                                                      height={35}
-                                                      width={35}
-                                                      alt="*"
-                                                    />
-                                                  </button>
-                                                </div>
-                                                {item.transcript ? (
-                                                  <div className="w-full">
-                                                    <div
-                                                      className="mt-4"
-                                                      style={{
-                                                        fontWeight: "600",
-                                                        fontSize: 15,
-                                                      }}
-                                                    >
-                                                      {/* {item.transcript} */}
-                                                      {isExpanded.includes(
-                                                        item.id
-                                                      )
-                                                        ? `${item.transcript}`
-                                                        : `${initialText}...`}
-                                                    </div>
-                                                    <button
-                                                      style={{
-                                                        fontWeight: "600",
-                                                        fontSize: 15,
-                                                      }}
-                                                      onClick={() => {
-                                                        handleReadMoreToggle(
-                                                          item
-                                                        );
-                                                      }}
-                                                      className="mt-2 text-black underline"
-                                                    >
-                                                      {isExpanded.includes(
-                                                        item.id
-                                                      )
-                                                        ? "Read Less"
-                                                        : "Read more"}
-                                                    </button>
-                                                  </div>
-                                                ) : (
-                                                  <div
+                                                    className="mt-4"
                                                     style={{
                                                       fontWeight: "600",
                                                       fontSize: 15,
                                                     }}
                                                   >
-                                                    No transcript
+                                                    {/* {item.transcript} */}
+                                                    {isExpanded.includes(
+                                                      item.id
+                                                    )
+                                                      ? `${item.transcript}`
+                                                      : `${initialText}...`}
                                                   </div>
-                                                )}
-                                              </div>
-                                            )}
+                                                  <button
+                                                    style={{
+                                                      fontWeight: "600",
+                                                      fontSize: 15,
+                                                    }}
+                                                    onClick={() => {
+                                                      handleReadMoreToggle(
+                                                        item
+                                                      );
+                                                    }}
+                                                    className="mt-2 text-black underline"
+                                                  >
+                                                    {isExpanded.includes(
+                                                      item.id
+                                                    )
+                                                      ? "Read Less"
+                                                      : "Read more"}
+                                                  </button>
+                                                </div>
+                                              ) : (
+                                                <div
+                                                  style={{
+                                                    fontWeight: "600",
+                                                    fontSize: 15,
+                                                  }}
+                                                >
+                                                  No transcript
+                                                </div>
+                                              )}
+                                            </div>
+                                          )}
                                         </div>
                                       </div>
                                     </div>
