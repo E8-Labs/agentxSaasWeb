@@ -685,7 +685,7 @@ const Pipeline1 = () => {
           "Content-Type": "application/json",
         },
       });
-
+      setInitialLoader(false);
       if (response) {
         console.log("Response of getpipeline api is :", response.data.data);
 
@@ -1604,12 +1604,12 @@ const Pipeline1 = () => {
     const updatedLeadsList = LeadsList.map((item) =>
       item.leadId === lead.id
         ? {
-          ...item,
-          lead: {
-            ...item.lead,
-            teamsAssigned: [...item.lead.teamsAssigned, team],
-          },
-        }
+            ...item,
+            lead: {
+              ...item.lead,
+              teamsAssigned: [...item.lead.teamsAssigned, team],
+            },
+          }
         : item
     );
 
@@ -1726,550 +1726,560 @@ const Pipeline1 = () => {
 
   return (
     <div className="w-full flex flex-col items-start h-screen">
-      {
-        initialLoader || pipelineDetailLoader ? (
-          <div className="w-screen">
-            <PipelineLoading />
-          </div>
-        ) : (
-          <>
-            <AgentSelectSnackMessage
-              type={SnackbarTypes.Success}
-              isVisible={SuccessSnack == null || SuccessSnack == false ? false : true}
-              hide={() => setSuccessSnack(false)}
-              message={SuccessSnack}
-            />
+      {initialLoader ? (
+        <div className="w-screen">
+          <PipelineLoading />
+        </div>
+      ) : (
+        <>
+          <AgentSelectSnackMessage
+            type={SnackbarTypes.Success}
+            isVisible={
+              SuccessSnack == null || SuccessSnack == false ? false : true
+            }
+            hide={() => setSuccessSnack(false)}
+            message={SuccessSnack}
+          />
 
-            <AgentSelectSnackMessage
-              type={snackMessage?.type}
-              isVisible={snackMessage != null}
-              hide={() => setSnackMessage(null)}
-              message={snackMessage?.message}
-            />
-            <div
-              className="w-full flex flex-row justify-center"
-              style={{ borderBottom: "1px solid #15151510" }}
-            >
-              <div className="w-full">
-                <div className="flex flex-row items-center justify-between px-10 mt-4 mb-4">
-                  <div className="flex flex-row items-center gap-2">
-
-                    <span style={{ fontWeight: "700", fontSize: 25 }}>
-                      {SelectedPipeline?.title}
-                    </span>
-                    <div>
-                      {PipeLines.length > 1 && !pipelineDetailLoader && (
-                        <button
-                          className="outline-none"
-                          aria-describedby={OtherPipelineId}
-                          variant="contained"
-                          onClick={handleShowOtherPipeline}
-                        >
-                          <CaretDown size={22} weight="bold" />
-                        </button>
-                      )}
-                      <Menu
-                        id={OtherPipelineId}
-                        anchorEl={otherPipelinePopoverAnchorel}
-                        open={openOtherPipelines}
-                        onClose={handleCloseOtherPipeline}
-                        MenuListProps={{
-                          "aria-labelledby": OtherPipelineId,
-                        }}
+          <AgentSelectSnackMessage
+            type={snackMessage?.type}
+            isVisible={snackMessage != null}
+            hide={() => setSnackMessage(null)}
+            message={snackMessage?.message}
+          />
+          <div
+            className="w-full flex flex-row justify-center"
+            style={{ borderBottom: "1px solid #15151510" }}
+          >
+            <div className="w-full">
+              <div className="flex flex-row items-center justify-between px-10 mt-4 mb-4">
+                <div className="flex flex-row items-center gap-2">
+                  <span style={{ fontWeight: "700", fontSize: 25 }}>
+                    {SelectedPipeline?.title}
+                  </span>
+                  <div>
+                    {PipeLines.length > 1 && !pipelineDetailLoader && (
+                      <button
+                        className="outline-none"
+                        aria-describedby={OtherPipelineId}
+                        variant="contained"
+                        onClick={handleShowOtherPipeline}
                       >
-                        {PipeLines.map((item, index) => (
-                          <MenuItem
-                            key={index}
-                            onClick={() => {
-                              handleSelectOtherPipeline(item, index);
-                              handleCloseOtherPipeline(); // Close menu after selection
-                            }}
-                          >
-                            {item.title}
-                          </MenuItem>
-                        ))}
-                      </Menu>
-                    </div>
-                    <button
-                      aria-describedby={id}
-                      variant="contained"
-                      onClick={handleShowPipelinePopover}
-                      className="outline-none"
-                    >
-                      <DotsThree size={27} weight="bold" />
-                    </button>
-                    <Popover
-                      id={id}
-                      open={open}
-                      anchorEl={pipelinePopoverAnchorel}
-                      onClose={handlePipelineClosePopover}
-                      anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "left",
+                        <CaretDown size={22} weight="bold" />
+                      </button>
+                    )}
+                    <Menu
+                      id={OtherPipelineId}
+                      anchorEl={otherPipelinePopoverAnchorel}
+                      open={openOtherPipelines}
+                      onClose={handleCloseOtherPipeline}
+                      MenuListProps={{
+                        "aria-labelledby": OtherPipelineId,
                       }}
+                    >
+                      {PipeLines.map((item, index) => (
+                        <MenuItem
+                          key={index}
+                          onClick={() => {
+                            handleSelectOtherPipeline(item, index);
+                            handleCloseOtherPipeline(); // Close menu after selection
+                          }}
+                        >
+                          {item.title}
+                        </MenuItem>
+                      ))}
+                    </Menu>
+                  </div>
+                  <button
+                    aria-describedby={id}
+                    variant="contained"
+                    onClick={handleShowPipelinePopover}
+                    className="outline-none"
+                  >
+                    <DotsThree size={27} weight="bold" />
+                  </button>
+                  <Popover
+                    id={id}
+                    open={open}
+                    anchorEl={pipelinePopoverAnchorel}
+                    onClose={handlePipelineClosePopover}
+                    anchorOrigin={{
+                      vertical: "bottom",
+                      horizontal: "left",
+                    }}
                     // PaperProps={{
                     //     elevation: 0, // This will remove the shadow
                     //     style: {
                     //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
                     //     },
                     // }}
-                    >
-                      <div className="p-3">
+                  >
+                    <div className="p-3">
+                      <button
+                        className="flex flex-row items-center gap-4"
+                        onClick={() => {
+                          setCreatePipeline(true);
+                        }}
+                      >
+                        <Plus size={17} weight="bold" />{" "}
+                        <span style={{ fontWeight: "500", fontSize: 15 }}>
+                          New Pipeline
+                        </span>
+                      </button>
+                      <div className="w-full flex flex-row mt-4">
                         <button
-                          className="flex flex-row items-center gap-4"
+                          className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                          style={styles.paragraph}
                           onClick={() => {
-                            setCreatePipeline(true);
+                            setShowRenamePipelinePopup(true);
+                            setRenamePipeline(SelectedPipeline.title);
+                            // console.log("Selected pipeline is:", SelectedPipeline);
                           }}
                         >
-                          <Plus size={17} weight="bold" />{" "}
-                          <span style={{ fontWeight: "500", fontSize: 15 }}>
-                            New Pipeline
-                          </span>
+                          <Image
+                            src={"/assets/editPen.png"}
+                            height={15}
+                            width={15}
+                            alt="*"
+                          />
+                          Rename
                         </button>
-                        <div className="w-full flex flex-row mt-4">
-                          <button
-                            className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                            style={styles.paragraph}
-                            onClick={() => {
-                              setShowRenamePipelinePopup(true);
-                              setRenamePipeline(SelectedPipeline.title);
-                              // console.log("Selected pipeline is:", SelectedPipeline);
-                            }}
-                          >
-                            <Image
-                              src={"/assets/editPen.png"}
-                              height={15}
-                              width={15}
-                              alt="*"
-                            />
-                            Rename
-                          </button>
-                        </div>
-                        <div className="w-full flex flex-row mt-4">
-                          <button
-                            className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                            style={styles.paragraph}
-                            onClick={() => {
-                              setAddNewStageModal(true);
-                            }}
-                          >
-                            <Image
-                              src={"/svgIcons/arrowBlack.svg"}
-                              height={18}
-                              width={15}
-                              alt="*"
-                            />
-                            Add Stage
-                          </button>
-                        </div>
-                        <div className="w-full flex flex-row mt-4">
-                          {/* {
+                      </div>
+                      <div className="w-full flex flex-row mt-4">
+                        <button
+                          className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                          style={styles.paragraph}
+                          onClick={() => {
+                            setAddNewStageModal(true);
+                          }}
+                        >
+                          <Image
+                            src={"/svgIcons/arrowBlack.svg"}
+                            height={18}
+                            width={15}
+                            alt="*"
+                          />
+                          Add Stage
+                        </button>
+                      </div>
+                      <div className="w-full flex flex-row mt-4">
+                        {/* {
                                                     delStageLoader ?
                                                         <CircularProgress size={20} /> :
                                                        
                                                 } */}
-                          <button
-                            className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                            style={styles.paragraph}
-                            onClick={() => {
-                              setShowStagesPopup(true);
-                            }}
-                          >
-                            <Image
-                              src={"/assets/list.png"}
-                              height={18}
-                              width={15}
-                              alt="*"
-                            />
-                            Rearrange Stage
-                          </button>
-                        </div>
-
                         <button
-                          className="text-red flex flex-row items-center gap-4 mt-4 me-2 outline-none"
+                          className="text-black flex flex-row items-center gap-4 me-2 outline-none"
                           style={styles.paragraph}
                           onClick={() => {
-                            setShowDeletePiplinePopup(true);
+                            setShowStagesPopup(true);
                           }}
                         >
                           <Image
-                            src={"/assets/delIcon.png"}
+                            src={"/assets/list.png"}
                             height={18}
-                            width={18}
+                            width={15}
                             alt="*"
                           />
-                          Delete
+                          Rearrange Stage
                         </button>
                       </div>
-                    </Popover>
 
-                  </div>
-                  <div className="flex fex-row items-center gap-6">
-                    <div
-                      className="flex flex-row items-center justify-between w-[25vw] border h-[50px] px-4 gap-8"
-                      style={{ borderRadius: "50px" }}
-                    >
-                      <input
-                        style={{ MozOutline: "none" }}
-                        onChange={handldSearch}
-                        className="outline-none bg-transparent w-full mx-2 border-none focus:outline-none focus:ring-0"
-                        placeholder="Search by name, phone email"
-                      />
-                      <button className="outline-none">
+                      <button
+                        className="text-red flex flex-row items-center gap-4 mt-4 me-2 outline-none"
+                        style={styles.paragraph}
+                        onClick={() => {
+                          setShowDeletePiplinePopup(true);
+                        }}
+                      >
                         <Image
-                          src={"/assets/searchIcon.png"}
-                          height={24}
-                          width={24}
+                          src={"/assets/delIcon.png"}
+                          height={18}
+                          width={18}
                           alt="*"
                         />
+                        Delete
                       </button>
                     </div>
-                    <div className="flex flex-col">
-                      <NotficationsDrawer />
-                    </div>
+                  </Popover>
+                </div>
+                <div className="flex fex-row items-center gap-6">
+                  <div
+                    className="flex flex-row items-center justify-between w-[25vw] border h-[50px] px-4 gap-8"
+                    style={{ borderRadius: "50px" }}
+                  >
+                    <input
+                      style={{ MozOutline: "none" }}
+                      onChange={handldSearch}
+                      className="outline-none bg-transparent w-full mx-2 border-none focus:outline-none focus:ring-0"
+                      placeholder="Search by name, phone email"
+                    />
+                    <button className="outline-none">
+                      <Image
+                        src={"/assets/searchIcon.png"}
+                        height={24}
+                        width={24}
+                        alt="*"
+                      />
+                    </button>
+                  </div>
+                  <div className="flex flex-col">
+                    <NotficationsDrawer />
                   </div>
                 </div>
               </div>
             </div>
-            {
-              <div className="flex flex-col items-center w-full">
-                <div
-                  className="w-[95%] flex flex-col items-start overflow-x-auto  h-[85vh] mt-8
+          </div>
+          {pipelineDetailLoader ? (
+            <PipelineLoading fullScreen={false} />
+          ) : (
+            <div className="flex flex-col items-center w-full">
+              <div
+                className="w-[95%] flex flex-col items-start overflow-x-auto  h-[85vh] mt-8
             scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
             "
-                >
-                  <div className="flex flex-row items-center gap-4"></div>
+              >
+                <div className="flex flex-row items-center gap-4"></div>
 
-                  <div className="flex flex-row items-start gap-2">
-                    <div className="flex flex-row items-start gap-4">
-                      {StagesList?.map((stage, index) => (
-                        <div
-                          key={index}
-                          style={{ width: "300px" }}
-                          className="flex flex-col items-start h-full gap-8"
-                        >
-                          {/* Display the stage */}
-                          <div className="flex flex-row items-center w-full justify-between">
+                <div className="flex flex-row items-start gap-2">
+                  <div className="flex flex-row items-start gap-4">
+                    {StagesList?.map((stage, index) => (
+                      <div
+                        key={index}
+                        style={{ width: "300px" }}
+                        className="flex flex-col items-start h-full gap-8"
+                      >
+                        {/* Display the stage */}
+                        <div className="flex flex-row items-center w-full justify-between">
+                          <div
+                            className="h-[36px] flex flex-row items-center justify-center gap-8 rounded-xl px-4"
+                            style={{
+                              ...styles.heading,
+                              backgroundColor: stage.defaultColor,
+                              color: "white",
+                              // textShadow: '1px 1px 2px rgba(0, 0, 0, 0.6)',
+                            }}
+                          >
+                            <span>
+                              {stage.stageTitle.length > 15 ? (
+                                <div className="flex flex-row items-center gap-1">
+                                  {stage.stageTitle.slice(0, 15) + "..."}
+                                </div>
+                              ) : (
+                                stage.stageTitle
+                              )}
+                            </span>
                             <div
-                              className="h-[36px] flex flex-row items-center justify-center gap-8 rounded-xl px-4"
-                              style={{
-                                ...styles.heading,
-                                backgroundColor: stage.defaultColor,
-                                color: "white",
-                                // textShadow: '1px 1px 2px rgba(0, 0, 0, 0.6)',
-                              }}
+                              className="h-[23px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center text-black"
+                              style={{ ...styles.paragraph, fontSize: 14 }}
                             >
-                              <span>
-                                {stage.stageTitle.length > 15 ? (
-                                  <div className="flex flex-row items-center gap-1">
-                                    {stage.stageTitle.slice(0, 15) + "..."}
-                                  </div>
-                                ) : (
-                                  stage.stageTitle
-                                )}
-                              </span>
-                              <div
-                                className="h-[23px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center text-black"
-                                style={{ ...styles.paragraph, fontSize: 14 }}
-                              >
-                                {/* {leadCounts[stage.id] ? (
+                              {/* {leadCounts[stage.id] ? (
                             <div>{leadCounts[stage.id]}</div>
                           ) : (
                             "0"
                           )} */}
 
-                                {
-                                  LeadsList?.filter(
-                                    (lead) => lead.lead.stage === stage.id
-                                  ).length
-                                }
+                              {
+                                LeadsList?.filter(
+                                  (lead) => lead.lead.stage === stage.id
+                                ).length
+                              }
 
-                                {/* {leadCounts.map((item) => {
+                              {/* {leadCounts.map((item) => {
    
                                                 })} */}
-                              </div>
                             </div>
-
-                            <button
-                              aria-describedby={stageId}
-                              variant="contained"
-                              onClick={(evetn) => {
-                                if (stage.identifier === "new_lead") {
-                                  // console.log("donotShow del btn");
-                                  setShowDelBtn(true);
-                                } else {
-                                  setShowDelBtn(false);
-                                }
-                                // console.log("Show del btn", stage);
-                                handleShowStagePopover(evetn, stage);
-                              }}
-                              className="outline-none"
-                            >
-                              <DotsThree size={27} weight="bold" />
-                            </button>
                           </div>
-                          <Popover
-                            id={stageId}
-                            open={openStage}
-                            anchorEl={StageAnchorel}
-                            onClose={handleCloseStagePopover}
-                            anchorOrigin={{
-                              vertical: "bottom",
-                              horizontal: "right",
+
+                          <button
+                            aria-describedby={stageId}
+                            variant="contained"
+                            onClick={(evetn) => {
+                              if (stage.identifier === "new_lead") {
+                                // console.log("donotShow del btn");
+                                setShowDelBtn(true);
+                              } else {
+                                setShowDelBtn(false);
+                              }
+                              // console.log("Show del btn", stage);
+                              handleShowStagePopover(evetn, stage);
                             }}
-                            transformOrigin={{
-                              vertical: "top",
-                              horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
-                            }}
-                            PaperProps={{
-                              elevation: 0, // This will remove the shadow
-                              style: {
-                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.08)",
-                                borderRadius: "12px",
-                              },
-                            }}
+                            className="outline-none"
                           >
-                            <div className="p-3">
-                              <div className="w-full flex flex-row">
-                                <button
-                                  className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                                  style={styles.paragraph}
-                                  onClick={() => {
-                                    setShowRenamePopup(true);
-                                    // console.log("Selected stage is:", selectedStage);
-                                    setRenameStage(selectedStage.stageTitle);
-                                    setUpdateStageColor(selectedStage.defaultColor);
-                                  }} //handleRenameStage
-                                >
-                                  <Image
-                                    src={"/assets/editPen.png"}
-                                    height={15}
-                                    width={15}
-                                    alt="*"
-                                  />
-                                  Rename
-                                </button>
-                              </div>
-                              <div className="w-full flex flex-row mt-4">
-                                {/* {
+                            <DotsThree size={27} weight="bold" />
+                          </button>
+                        </div>
+                        <Popover
+                          id={stageId}
+                          open={openStage}
+                          anchorEl={StageAnchorel}
+                          onClose={handleCloseStagePopover}
+                          anchorOrigin={{
+                            vertical: "bottom",
+                            horizontal: "right",
+                          }}
+                          transformOrigin={{
+                            vertical: "top",
+                            horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+                          }}
+                          PaperProps={{
+                            elevation: 0, // This will remove the shadow
+                            style: {
+                              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.08)",
+                              borderRadius: "12px",
+                            },
+                          }}
+                        >
+                          <div className="p-3">
+                            <div className="w-full flex flex-row">
+                              <button
+                                className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                                style={styles.paragraph}
+                                onClick={() => {
+                                  setShowRenamePopup(true);
+                                  // console.log("Selected stage is:", selectedStage);
+                                  setRenameStage(selectedStage.stageTitle);
+                                  setUpdateStageColor(
+                                    selectedStage.defaultColor
+                                  );
+                                }} //handleRenameStage
+                              >
+                                <Image
+                                  src={"/assets/editPen.png"}
+                                  height={15}
+                                  width={15}
+                                  alt="*"
+                                />
+                                Rename
+                              </button>
+                            </div>
+                            <div className="w-full flex flex-row mt-4">
+                              {/* {
                                                         delStageLoader ?
                                                             <CircularProgress size={20} /> :
                                                            
                                                     } */}
-                                <div
-                                  className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                                  style={styles.paragraph}
+                              <div
+                                className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                                style={styles.paragraph}
                                 // onClick={handleDeleteStage}
+                              >
+                                <button
+                                  className="flex flex-row gap-2 outline-none"
+                                  onClick={() => colorPickerRef.current.click()}
                                 >
-                                  <button
-                                    className="flex flex-row gap-2 outline-none"
-                                    onClick={() => colorPickerRef.current.click()}
-                                  >
-                                    <Image
-                                      src={"/assets/colorDrop.png"}
-                                      height={18}
-                                      width={15}
-                                      alt="*"
-                                    />
-                                    Change Color
-                                  </button>
-                                  <div
-                                    style={{
-                                      height: "15px",
-                                      width: "15px",
-                                      borderRadius: "50%",
-                                      backgroundColor: stageColorUpdate,
-                                      cursor: "pointer", // Pointer to indicate clickable
-                                    }}
-                                    onClick={() => colorPickerRef.current.click()} // Trigger ColorPicker
+                                  <Image
+                                    src={"/assets/colorDrop.png"}
+                                    height={18}
+                                    width={15}
+                                    alt="*"
                                   />
-                                  <div
-                                    style={{
-                                      opacity: 0,
-                                      position: "absolute",
-                                      pointerEvents: "auto", // Ensure interactions still work
-                                    }}
-                                  >
-                                    <ColorPicker
-                                      ref={colorPickerRef}
-                                      setStageColor2={setStageColorUpdate}
-                                      setStageColor={setUpdateStageColor}
-                                      onlyShowColorBox={true}
-                                      updateOnchange={true}
-                                      handleUpdateColor={handleUpdateColor}
-                                      stageColor={stageColorUpdate}
-                                    />
-                                  </div>
+                                  Change Color
+                                </button>
+                                <div
+                                  style={{
+                                    height: "15px",
+                                    width: "15px",
+                                    borderRadius: "50%",
+                                    backgroundColor: stageColorUpdate,
+                                    cursor: "pointer", // Pointer to indicate clickable
+                                  }}
+                                  onClick={() => colorPickerRef.current.click()} // Trigger ColorPicker
+                                />
+                                <div
+                                  style={{
+                                    opacity: 0,
+                                    position: "absolute",
+                                    pointerEvents: "auto", // Ensure interactions still work
+                                  }}
+                                >
+                                  <ColorPicker
+                                    ref={colorPickerRef}
+                                    setStageColor2={setStageColorUpdate}
+                                    setStageColor={setUpdateStageColor}
+                                    onlyShowColorBox={true}
+                                    updateOnchange={true}
+                                    handleUpdateColor={handleUpdateColor}
+                                    stageColor={stageColorUpdate}
+                                  />
                                 </div>
                               </div>
-                              <div ref={bottomRef}></div>
+                            </div>
+                            <div ref={bottomRef}></div>
 
-                              {!showDelBtn && (
-                                <div className="w-full flex flex-row mt-4">
+                            {!showDelBtn && (
+                              <div className="w-full flex flex-row mt-4">
+                                <button
+                                  className="text-red flex flex-row items-center gap-4 me-2 outline-none"
+                                  style={styles.paragraph}
+                                  onClick={() => {
+                                    // console.log(
+                                    //   "Selected stage is:",
+                                    //   selectedStage
+                                    // );
+                                    // setSelectedStage(item);
+                                    setShowDelStageModal(true);
+                                  }}
+                                >
+                                  <Image
+                                    src={"/assets/delIcon.png"}
+                                    height={18}
+                                    width={18}
+                                    alt="*"
+                                  />
+                                  Delete
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </Popover>
+
+                        {/* Display leads matching this stage */}
+                        {LeadsList?.filter(
+                          (lead) => lead.lead.stage === stage.id
+                        ).length > 0 && (
+                          <div
+                            className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl"
+                            style={{
+                              scrollbarWidth: "none",
+                              borderWidth: 1,
+                              borderRadius: "12",
+                              borderStyle: "solid",
+                              borderColor: "#00000010",
+                            }}
+                          >
+                            {LeadsList?.filter(
+                              (lead) => lead.lead.stage === stage.id
+                            ).map((lead, leadIndex) => (
+                              <div
+                                className="px-3 h-full"
+                                style={{ width: "300px", height: 200 }}
+                                key={leadIndex}
+                              >
+                                <div className="border rounded-xl px-4 py-2 h-full">
                                   <button
-                                    className="text-red flex flex-row items-center gap-4 me-2 outline-none"
-                                    style={styles.paragraph}
+                                    className="flex flex-row items-center gap-3"
                                     onClick={() => {
                                       // console.log(
-                                      //   "Selected stage is:",
-                                      //   selectedStage
+                                      //   "Selected lead details are:",
+                                      //   lead
                                       // );
-                                      // setSelectedStage(item);
-                                      setShowDelStageModal(true);
+                                      setShowDetailsModal(true);
+                                      setSelectedLeadsDetails(lead.lead);
+                                      setPipelineId(lead.lead.pipeline.id);
+                                      setNoteDetails(lead.lead.notes);
                                     }}
                                   >
-                                    <Image
-                                      src={"/assets/delIcon.png"}
-                                      height={18}
-                                      width={18}
-                                      alt="*"
-                                    />
-                                    Delete
+                                    {/* T is center aligned */}
+                                    <div
+                                      className="bg-black text-white rounded-full flex flex-row item-center justify-center"
+                                      style={{ height: "27px", width: "27px" }}
+                                    >
+                                      {lead.lead.firstName.slice(0, 1)}
+                                    </div>
+                                    <div style={styles.paragraph}>
+                                      {lead.lead.firstName}
+                                    </div>
                                   </button>
-                                </div>
-                              )}
-                            </div>
-                          </Popover>
-
-                          {/* Display leads matching this stage */}
-                          {
-                            LeadsList?.filter((lead) => lead.lead.stage === stage.id)
-                              .length > 0 && (
-                              <div
-                                className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl"
-                                style={{
-                                  scrollbarWidth: "none",
-                                  borderWidth: 1,
-                                  borderRadius: "12",
-                                  borderStyle: "solid",
-                                  borderColor: "#00000010",
-                                }}
-                              >
-                                {LeadsList?.filter(
-                                  (lead) => lead.lead.stage === stage.id
-                                ).map((lead, leadIndex) => (
-                                  <div
-                                    className="px-3 h-full"
-                                    style={{ width: "300px", height: 200 }}
-                                    key={leadIndex}
-                                  >
-                                    <div className="border rounded-xl px-4 py-2 h-full">
-                                      <button
-                                        className="flex flex-row items-center gap-3"
-                                        onClick={() => {
-                                          // console.log(
-                                          //   "Selected lead details are:",
-                                          //   lead
-                                          // );
-                                          setShowDetailsModal(true);
-                                          setSelectedLeadsDetails(lead.lead);
-                                          setPipelineId(lead.lead.pipeline.id);
-                                          setNoteDetails(lead.lead.notes);
-                                        }}
+                                  <div className="flex flex-row items-center justify-between w-full mt-2">
+                                    <div
+                                      className="text-[#00000060]"
+                                      style={styles.agentName}
+                                    >
+                                      {(lead?.lead?.email
+                                        ? lead?.lead?.email?.slice(0, 10) +
+                                          "..."
+                                        : "") || ""}
+                                    </div>
+                                    <div className="flex flex-row items-center gap-4">
+                                      <Image
+                                        src={"/assets/colorCircle.png"}
+                                        height={24}
+                                        width={24}
+                                        alt="*"
+                                      />
+                                      <div
+                                        className="text-purple underline"
+                                        style={styles.agentName}
                                       >
-                                        {/* T is center aligned */}
-                                        <div
-                                          className="bg-black text-white rounded-full flex flex-row item-center justify-center"
-                                          style={{ height: "27px", width: "27px" }}
-                                        >
-                                          {lead.lead.firstName.slice(0, 1)}
-                                        </div>
-                                        <div style={styles.paragraph}>
-                                          {lead.lead.firstName}
-                                        </div>
-                                      </button>
-                                      <div className="flex flex-row items-center justify-between w-full mt-2">
-                                        <div
-                                          className="text-[#00000060]"
-                                          style={styles.agentName}
-                                        >
-                                          {(lead?.lead?.email
-                                            ? lead?.lead?.email?.slice(0, 10) + "..."
-                                            : "") || ""}
-                                        </div>
-                                        <div className="flex flex-row items-center gap-4">
-                                          <Image
-                                            src={"/assets/colorCircle.png"}
-                                            height={24}
-                                            width={24}
-                                            alt="*"
-                                          />
-                                          <div
-                                            className="text-purple underline"
-                                            style={styles.agentName}
-                                          >
-                                            {lead.agent.name}
-                                          </div>
-                                        </div>
+                                        {lead.agent.name}
                                       </div>
+                                    </div>
+                                  </div>
 
-                                      {lead?.lead?.booking?.date && (
-                                        <div
-                                          className="flex flex-row items-center gap-2"
-                                          style={{
-                                            // fontWeight: "500",
+                                  {lead?.lead?.booking?.date && (
+                                    <div
+                                      className="flex flex-row items-center gap-2"
+                                      style={{
+                                        // fontWeight: "500",
 
-                                            color: "#15151560",
-                                            // backgroundColor: 'red',
-                                          }}
-                                        >
-                                          <Image
-                                            src="/svgIcons/calendar.svg"
-                                            height={16}
-                                            width={16}
-                                            alt="*"
-                                            style={{ filter: "opacity(50%)" }}
-                                          />
-                                          {/* {moment(lead?.lead?.booking?.date).format(
+                                        color: "#15151560",
+                                        // backgroundColor: 'red',
+                                      }}
+                                    >
+                                      <Image
+                                        src="/svgIcons/calendar.svg"
+                                        height={16}
+                                        width={16}
+                                        alt="*"
+                                        style={{ filter: "opacity(50%)" }}
+                                      />
+                                      {/* {moment(lead?.lead?.booking?.date).format(
                                           "MMM D"
                                         ) || "-"} */}
-                                          <p
-                                            style={{ fontSize: 13, fontWeight: 500 }}
-                                          >
-                                            {GetFormattedDateString(
-                                              lead?.lead?.booking?.date,
-                                              true,
-                                              "MMM DD"
-                                            )}
-                                          </p>
+                                      <p
+                                        style={{
+                                          fontSize: 13,
+                                          fontWeight: 500,
+                                        }}
+                                      >
+                                        {GetFormattedDateString(
+                                          lead?.lead?.booking?.date,
+                                          true,
+                                          "MMM DD"
+                                        )}
+                                      </p>
 
-                                          <Image
-                                            src="/svgIcons/clock.svg"
-                                            height={16}
-                                            width={16}
-                                            alt="*"
-                                            style={{ filter: "opacity(50%)" }}
-                                          />
-                                          <p
-                                            style={{ fontSize: 13, fontWeight: 500 }}
-                                          >
-                                            {GetFormattedTimeString(
-                                              lead?.lead?.booking?.datetime
-                                            )}
-                                          </p>
+                                      <Image
+                                        src="/svgIcons/clock.svg"
+                                        height={16}
+                                        width={16}
+                                        alt="*"
+                                        style={{ filter: "opacity(50%)" }}
+                                      />
+                                      <p
+                                        style={{
+                                          fontSize: 13,
+                                          fontWeight: 500,
+                                        }}
+                                      >
+                                        {GetFormattedTimeString(
+                                          lead?.lead?.booking?.datetime
+                                        )}
+                                      </p>
 
-                                          {/* {moment(
+                                      {/* {moment(
                                           lead?.lead?.booking?.time,
                                           "HH:mm"
                                         ).format("HH:mm") || "-"} */}
-                                        </div>
-                                      )}
+                                    </div>
+                                  )}
 
-                                      <div className="w-full flex flex-row items-center justify-between mt-12">
-                                        {lead?.lead?.teamsAssigned?.length > 0 ? (
-                                          <LeadTeamsAssignedList
-                                            users={lead?.lead?.teamsAssigned}
-                                            maxVisibleUsers={1}
-                                          />
-                                        ) : (
-                                          <Image
-                                            src={"/assets/manIcon.png"}
-                                            height={32}
-                                            width={32}
-                                            alt="*"
-                                          />
-                                        )}
-                                        {/* <div className="flex flex-row items-center gap-3">
+                                  <div className="w-full flex flex-row items-center justify-between mt-12">
+                                    {lead?.lead?.teamsAssigned?.length > 0 ? (
+                                      <LeadTeamsAssignedList
+                                        users={lead?.lead?.teamsAssigned}
+                                        maxVisibleUsers={1}
+                                      />
+                                    ) : (
+                                      <Image
+                                        src={"/assets/manIcon.png"}
+                                        height={32}
+                                        width={32}
+                                        alt="*"
+                                      />
+                                    )}
+                                    {/* <div className="flex flex-row items-center gap-3">
                                                                             <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
                                                                                 Tag
                                                                             </div>
@@ -2278,471 +2288,353 @@ const Pipeline1 = () => {
                                                                             </div>
                                                                         </div> */}
 
-                                        {lead.lead.tags.length > 0 ? (
-                                          <div className="flex flex-row items-center gap-1">
-                                            {lead?.lead?.tags
-                                              .slice(0, 1)
-                                              .map((tagVal, index) => {
-                                                return (
-                                                  // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
-                                                  //     {tagVal}
-                                                  // </div>
-                                                  <div
-                                                    key={index}
-                                                    className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg"
-                                                  >
+                                    {lead.lead.tags.length > 0 ? (
+                                      <div className="flex flex-row items-center gap-1">
+                                        {lead?.lead?.tags
+                                          .slice(0, 1)
+                                          .map((tagVal, index) => {
+                                            return (
+                                              // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
+                                              //     {tagVal}
+                                              // </div>
+                                              <div
+                                                key={index}
+                                                className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg"
+                                              >
+                                                <div
+                                                  className="text-purple" //1C55FF10
+                                                >
+                                                  {tagVal.length > 4 ? (
                                                     <div
-                                                      className="text-purple" //1C55FF10
+                                                      style={{ fontSize: 13 }}
                                                     >
-                                                      {tagVal.length > 4 ? (
-                                                        <div style={{ fontSize: 13 }}>
-                                                          {tagVal.slice(0, 4)}
-                                                          {"..."}
-                                                        </div>
-                                                      ) : (
-                                                        <div style={{ fontSize: 13 }}>
-                                                          {tagVal}
-                                                        </div>
-                                                      )}
+                                                      {tagVal.slice(0, 4)}
+                                                      {"..."}
                                                     </div>
-                                                    {DelTagLoader &&
-                                                      lead.lead.id === DelTagLoader ? (
-                                                      <div>
-                                                        <CircularProgress size={15} />
-                                                      </div>
-                                                    ) : (
-                                                      <button
-                                                        onClick={() => {
-                                                          // console.log(
-                                                          //   "Tag value is",
-                                                          //   tagVal
-                                                          // );
-                                                          handleDelTag(tagVal, lead);
-                                                          let updatedTags =
-                                                            lead.lead.tags.filter(
-                                                              (tag) => tag != tagVal
-                                                            ) || [];
-                                                          lead.lead.tags =
-                                                            updatedTags;
-                                                          let newLeadCad = [];
-                                                          LeadsList.map((item) => {
-                                                            if (item.id == lead.id) {
-                                                              newLeadCad.push(lead);
-                                                            } else {
-                                                              newLeadCad.push(item);
-                                                            }
-                                                          });
-                                                          setLeadsList(newLeadCad);
-                                                        }}
-                                                      >
-                                                        <X
-                                                          size={15}
-                                                          weight="bold"
-                                                          color="#7902DF"
-                                                        />
-                                                      </button>
-                                                    )}
+                                                  ) : (
+                                                    <div
+                                                      style={{ fontSize: 13 }}
+                                                    >
+                                                      {tagVal}
+                                                    </div>
+                                                  )}
+                                                </div>
+                                                {DelTagLoader &&
+                                                lead.lead.id ===
+                                                  DelTagLoader ? (
+                                                  <div>
+                                                    <CircularProgress
+                                                      size={15}
+                                                    />
                                                   </div>
-                                                );
-                                              })}
-                                            {lead.lead.tags.length > 1 && (
-                                              <div>+{lead.lead.tags.length - 1}</div>
-                                            )}
+                                                ) : (
+                                                  <button
+                                                    onClick={() => {
+                                                      // console.log(
+                                                      //   "Tag value is",
+                                                      //   tagVal
+                                                      // );
+                                                      handleDelTag(
+                                                        tagVal,
+                                                        lead
+                                                      );
+                                                      let updatedTags =
+                                                        lead.lead.tags.filter(
+                                                          (tag) => tag != tagVal
+                                                        ) || [];
+                                                      lead.lead.tags =
+                                                        updatedTags;
+                                                      let newLeadCad = [];
+                                                      LeadsList.map((item) => {
+                                                        if (
+                                                          item.id == lead.id
+                                                        ) {
+                                                          newLeadCad.push(lead);
+                                                        } else {
+                                                          newLeadCad.push(item);
+                                                        }
+                                                      });
+                                                      setLeadsList(newLeadCad);
+                                                    }}
+                                                  >
+                                                    <X
+                                                      size={15}
+                                                      weight="bold"
+                                                      color="#7902DF"
+                                                    />
+                                                  </button>
+                                                )}
+                                              </div>
+                                            );
+                                          })}
+                                        {lead.lead.tags.length > 1 && (
+                                          <div>
+                                            +{lead.lead.tags.length - 1}
                                           </div>
-                                        ) : (
-                                          "-"
                                         )}
                                       </div>
-                                    </div>
+                                    ) : (
+                                      "-"
+                                    )}
                                   </div>
-                                ))}
+                                </div>
                               </div>
-                            )
-                          }
-                        </div>
-                      ))}
-                    </div>
-                    <div className="h-[36px] flex flex-row items-start justify-center">
-                      <button
-                        className="h-[23px] text-purple outline-none mt-2"
-                        style={{
-                          width: "200px",
-                          fontSize: "16.8",
-                          fontWeight: "700",
-                        }}
-                        onClick={() => {
-                          setAddNewStageModal(true);
-                        }}
-                      >
-                        Add Stage
-                      </button>
-                    </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="h-[36px] flex flex-row items-start justify-center">
+                    <button
+                      className="h-[23px] text-purple outline-none mt-2"
+                      style={{
+                        width: "200px",
+                        fontSize: "16.8",
+                        fontWeight: "700",
+                      }}
+                      onClick={() => {
+                        setAddNewStageModal(true);
+                      }}
+                    >
+                      Add Stage
+                    </button>
                   </div>
                 </div>
               </div>
-            }
-            {/* code for delete pipeline modal */}
+            </div>
+          )}
+          {/* code for delete pipeline modal */}
 
-            <Modal
-              open={showDeletePipelinePopup}
-              onClose={() => {
-                setShowDeletePiplinePopup(false);
-              }}
-              BackdropProps={{
-                timeout: 200,
-                sx: {
-                  backgroundColor: "#00000020",
-                  // //backdropFilter: "blur(20px)",
-                },
-              }}
+          <Modal
+            open={showDeletePipelinePopup}
+            onClose={() => {
+              setShowDeletePiplinePopup(false);
+            }}
+            BackdropProps={{
+              timeout: 200,
+              sx: {
+                backgroundColor: "#00000020",
+                // //backdropFilter: "blur(20px)",
+              },
+            }}
+          >
+            <Box
+              className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
+              sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
             >
-              <Box
-                className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
-                sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
-              >
-                <div style={{ width: "100%" }}>
+              <div style={{ width: "100%" }}>
+                <div
+                  className="max-h-[60vh] overflow-auto"
+                  style={{ scrollbarWidth: "none" }}
+                >
                   <div
-                    className="max-h-[60vh] overflow-auto"
-                    style={{ scrollbarWidth: "none" }}
+                    style={{
+                      width: "100%",
+                      direction: "row",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
                   >
+                    {/* <div style={{ width: "20%" }} /> */}
+                    <div style={{ fontWeight: "500", fontSize: 17 }}>
+                      Delete Pipeline
+                    </div>
                     <div
                       style={{
-                        width: "100%",
                         direction: "row",
                         display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
+                        justifyContent: "end",
                       }}
                     >
-                      {/* <div style={{ width: "20%" }} /> */}
-                      <div style={{ fontWeight: "500", fontSize: 17 }}>
-                        Delete Pipeline
-                      </div>
-                      <div
-                        style={{
-                          direction: "row",
-                          display: "flex",
-                          justifyContent: "end",
-                        }}
-                      >
-                        <button
-                          onClick={() => {
-                            setShowDeletePiplinePopup(false);
-                          }}
-                          className="outline-none"
-                        >
-                          <Image
-                            src={"/assets/crossIcon.png"}
-                            height={40}
-                            width={40}
-                            alt="*"
-                          />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="mt-6" style={{ fontWeight: "700", fontSize: 22 }}>
-                      Are you sure you want to delete this pipeline?
-                    </div>
-                  </div>
-
-                  <div className="flex flex-row items-center justify-center gap-4 mt-6">
-                    <button className="w-1/2 mt-[13px]">Never mind</button>
-                    <div className="w-1/2">
-                      {deletePipelineLoader ? (
-                        <div className="flex flex-row items-center w-full mt-4">
-                          <CircularProgress size={25} />
-                        </div>
-                      ) : (
-                        <button
-                          className="mt-4 outline-none bg-red"
-                          style={{
-                            color: "white",
-                            height: "50px",
-                            borderRadius: "10px",
-                            width: "100%",
-                            fontWeight: 600,
-                            fontSize: "20",
-                          }}
-                          onClick={handleDeletePipeline}
-                        >
-                          Yes! Delete
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </Box>
-            </Modal>
-            {/* Code for add stage modal */}
-            <Modal
-              open={addNewStageModal}
-              onClose={() => {
-                handleCloseAddStage();
-              }}
-              BackdropProps={{
-                timeout: 100,
-                sx: {
-                  backgroundColor: "#00000020",
-                  // //backdropFilter: "blur(20px)",
-                },
-              }}
-            >
-              <Box
-                className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
-                sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
-              >
-                <div style={{ width: "100%" }}>
-                  <div>
-                    <div
-                      style={{
-                        width: "100%",
-                        direction: "row",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      {/* <div style={{ width: "20%" }} /> */}
-                      <div style={{ fontWeight: "700", fontSize: 22 }}>
-                        Add New Stage
-                      </div>
-                      <div
-                        style={{
-                          direction: "row",
-                          display: "flex",
-                          justifyContent: "end",
-                        }}
-                      >
-                        <button
-                          onClick={() => {
-                            handleCloseAddStage();
-                          }}
-                          className="outline-none"
-                        >
-                          <Image
-                            src={"/assets/crossIcon.png"}
-                            height={40}
-                            width={40}
-                            alt="*"
-                          />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <div
-                        className="mt-4"
-                        style={{ fontWeight: "600", fontSize: 12, paddingBottom: 5 }}
-                      >
-                        Stage Title*
-                      </div>
-                      <input
-                        value={newStageTitle}
-                        onChange={(e) => {
-                          setNewStageTitle(e.target.value);
-                        }}
-                        placeholder="Enter stage title"
-                        className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
-                        style={{ border: "1px solid #00000020" }}
-                      />
-                      <div
-                        style={{
-                          marginTop: 20,
-                          fontWeight: "600",
-                          fontSize: 12,
-                          paddingBottom: 5,
-                        }}
-                      >
-                        color
-                      </div>
-                      <ColorPicker setStageColor={setStageColor} />
-                    </div>
-
-                    <div className="text-purple mt-4">
                       <button
                         onClick={() => {
-                          setShowAdvanceSettings(!showAdvanceSettings);
+                          setShowDeletePiplinePopup(false);
                         }}
-                        className="outline-none flex flex-row items-center gap-2"
+                        className="outline-none"
                       >
-                        <div style={{ fontWeight: "600", fontSize: 15 }}>
-                          Advanced Settings
-                        </div>
-                        {showAdvanceSettings ? (
-                          <CaretUp size={15} weight="bold" />
-                        ) : (
-                          <CaretDown size={15} weight="bold" />
-                        )}
+                        <Image
+                          src={"/assets/crossIcon.png"}
+                          height={40}
+                          width={40}
+                          alt="*"
+                        />
                       </button>
                     </div>
+                  </div>
 
-                    {showAdvanceSettings && (
-                      <div
-                        className="max-h-[40vh] overflow-auto"
-                        style={{ scrollbarWidth: "none" }}
+                  <div
+                    className="mt-6"
+                    style={{ fontWeight: "700", fontSize: 22 }}
+                  >
+                    Are you sure you want to delete this pipeline?
+                  </div>
+                </div>
+
+                <div className="flex flex-row items-center justify-center gap-4 mt-6">
+                  <button className="w-1/2 mt-[13px]">Never mind</button>
+                  <div className="w-1/2">
+                    {deletePipelineLoader ? (
+                      <div className="flex flex-row items-center w-full mt-4">
+                        <CircularProgress size={25} />
+                      </div>
+                    ) : (
+                      <button
+                        className="mt-4 outline-none bg-red"
+                        style={{
+                          color: "white",
+                          height: "50px",
+                          borderRadius: "10px",
+                          width: "100%",
+                          fontWeight: 600,
+                          fontSize: "20",
+                        }}
+                        onClick={handleDeletePipeline}
                       >
-                        <div className="flex flex-row items-center gap-2 mt-4">
-                          <p style={{ fontWeight: "600", fontSize: 15 }}>Action</p>
-                          {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
-                          <Image
-                            src="/svgIcons/infoIcon.svg"
-                            height={20}
-                            width={20}
-                            alt="*"
-                            aria-owns={open ? "mouse-over-popover" : undefined}
-                            aria-haspopup="true"
-                            onMouseEnter={handlePopoverOpen}
-                            onMouseLeave={handlePopoverClose}
-                          />
+                        Yes! Delete
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </Box>
+          </Modal>
+          {/* Code for add stage modal */}
+          <Modal
+            open={addNewStageModal}
+            onClose={() => {
+              handleCloseAddStage();
+            }}
+            BackdropProps={{
+              timeout: 100,
+              sx: {
+                backgroundColor: "#00000020",
+                // //backdropFilter: "blur(20px)",
+              },
+            }}
+          >
+            <Box
+              className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
+              sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+            >
+              <div style={{ width: "100%" }}>
+                <div>
+                  <div
+                    style={{
+                      width: "100%",
+                      direction: "row",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    {/* <div style={{ width: "20%" }} /> */}
+                    <div style={{ fontWeight: "700", fontSize: 22 }}>
+                      Add New Stage
+                    </div>
+                    <div
+                      style={{
+                        direction: "row",
+                        display: "flex",
+                        justifyContent: "end",
+                      }}
+                    >
+                      <button
+                        onClick={() => {
+                          handleCloseAddStage();
+                        }}
+                        className="outline-none"
+                      >
+                        <Image
+                          src={"/assets/crossIcon.png"}
+                          height={40}
+                          width={40}
+                          alt="*"
+                        />
+                      </button>
+                    </div>
+                  </div>
 
-                          <Popover
-                            id="mouse-over-popover"
-                            sx={{
-                              pointerEvents: "none",
-                            }}
-                            open={openaction}
-                            anchorEl={actionInfoEl}
-                            anchorOrigin={{
-                              vertical: "top",
-                              horizontal: "center",
-                            }}
-                            transformOrigin={{
-                              vertical: "bottom",
-                              horizontal: "left",
-                            }}
-                            PaperProps={{
-                              elevation: 1, // This will remove the shadow
-                              style: {
-                                boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
-                              },
-                            }}
-                            onClose={handlePopoverClose}
-                            disableRestoreFocus
-                          >
-                            <div className="p-2">
-                              <div className="flex flex-row items-center gap-1">
-                                <Image
-                                  src={"/svgIcons/infoIcon.svg"}
-                                  height={24}
-                                  width={24}
-                                  alt="*"
-                                />
-                                <p style={{ fontWeight: "500", fontSize: 12 }}>
-                                  Tip: Tell your AI when to move the leads to this
-                                  stage.
-                                </p>
-                              </div>
-                            </div>
-                          </Popover>
-                        </div>
-                        <input
-                          className="h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
-                          placeholder="Ex: Does the human express interest getting a CMA "
-                          style={{
-                            border: "1px solid #00000020",
-                            fontWeight: "500",
-                            fontSize: 15,
-                          }}
-                          value={action}
-                          onChange={(e) => {
-                            setAction(e.target.value);
-                          }}
+                  <div>
+                    <div
+                      className="mt-4"
+                      style={{
+                        fontWeight: "600",
+                        fontSize: 12,
+                        paddingBottom: 5,
+                      }}
+                    >
+                      Stage Title*
+                    </div>
+                    <input
+                      value={newStageTitle}
+                      onChange={(e) => {
+                        setNewStageTitle(e.target.value);
+                      }}
+                      placeholder="Enter stage title"
+                      className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
+                      style={{ border: "1px solid #00000020" }}
+                    />
+                    <div
+                      style={{
+                        marginTop: 20,
+                        fontWeight: "600",
+                        fontSize: 12,
+                        paddingBottom: 5,
+                      }}
+                    >
+                      color
+                    </div>
+                    <ColorPicker setStageColor={setStageColor} />
+                  </div>
+
+                  <div className="text-purple mt-4">
+                    <button
+                      onClick={() => {
+                        setShowAdvanceSettings(!showAdvanceSettings);
+                      }}
+                      className="outline-none flex flex-row items-center gap-2"
+                    >
+                      <div style={{ fontWeight: "600", fontSize: 15 }}>
+                        Advanced Settings
+                      </div>
+                      {showAdvanceSettings ? (
+                        <CaretUp size={15} weight="bold" />
+                      ) : (
+                        <CaretDown size={15} weight="bold" />
+                      )}
+                    </button>
+                  </div>
+
+                  {showAdvanceSettings && (
+                    <div
+                      className="max-h-[40vh] overflow-auto"
+                      style={{ scrollbarWidth: "none" }}
+                    >
+                      <div className="flex flex-row items-center gap-2 mt-4">
+                        <p style={{ fontWeight: "600", fontSize: 15 }}>
+                          Action
+                        </p>
+                        {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
+                        <Image
+                          src="/svgIcons/infoIcon.svg"
+                          height={20}
+                          width={20}
+                          alt="*"
+                          aria-owns={open ? "mouse-over-popover" : undefined}
+                          aria-haspopup="true"
+                          onMouseEnter={handlePopoverOpen}
+                          onMouseLeave={handlePopoverClose}
                         />
 
-                        <div className="flex flex-row items-center gap-2 mt-4">
-                          <p style={{ fontWeight: "600", fontSize: 15 }}>
-                            Sample Answers
-                          </p>
-                          {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
-                          <Image
-                            src="/svgIcons/infoIcon.svg"
-                            height={20}
-                            width={20}
-                            alt="*"
-                            aria-owns={open ? "mouse-over-popover2" : undefined}
-                            aria-haspopup="true"
-                            onMouseEnter={(event) => {
-                              setShowSampleTip(true);
-                              setAssigntoActionInfoEl(event.currentTarget);
-                            }}
-                            onMouseLeave={() => {
-                              handlePopoverClose();
-                              setShowSampleTip(false);
-                            }}
-                          />
-                        </div>
-
-                        <div
-                          className="max-h-[30vh] overflow-auto mt-2" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
-                          style={{ scrollbarWidth: "none" }}
-                        >
-                          {inputs.map((input, index) => (
-                            <div
-                              key={input.id}
-                              className="w-full flex flex-row items-center gap-4 mt-4"
-                            >
-                              <input
-                                className="border p-2 rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[53px]"
-                                style={{
-                                  ...styles.paragraph,
-                                  width: "95%",
-                                  borderColor: "#00000020",
-                                }}
-                                placeholder={input.placeholder}
-                                // placeholder={`
-                                //     ${index === 0 ? "Sure, i would be interested in knowing what my home is worth" :
-                                //         index === 1 ? "Yeah, how much is my home worth today?" :
-                                //         `Add sample answer ${index + 1}`
-                                //     }`}
-                                value={input.value}
-                                onChange={(e) =>
-                                  handleInputChange(input.id, e.target.value)
-                                }
-                              />
-                              {/* <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
-                                                        <Image src={"/assets/blackBgCross.png"} height={20} width={20} alt='*' />
-                                                    </button> */}
-                            </div>
-                          ))}
-                        </div>
-                        {/* <div style={{ height: "50px" }}>
-                                            {
-                                                inputs.length < 3 && (
-                                                    <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
-                                                        fontSize: 15,
-                                                        fontWeight: "700"
-                                                    }}>
-                                                        Add New
-                                                    </button>
-                                                )
-                                            }
-                                        </div> */}
-
-                        <div className="flex flex-row items-center gap-2 mt-4">
-                          <p style={{ fontWeight: "600", fontSize: 15 }}>Assign to</p>
-                          {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
-                          <Image
-                            src="/svgIcons/infoIcon.svg"
-                            height={20}
-                            width={20}
-                            alt="*"
-                            aria-owns={open ? "mouse-over-popover2" : undefined}
-                            aria-haspopup="true"
-                            onMouseEnter={(event) => {
-                              setAssigntoActionInfoEl(event.currentTarget);
-                            }}
-                            onMouseLeave={handlePopoverClose}
-                          />
-                        </div>
-
                         <Popover
-                          id="mouse-over-popover2"
+                          id="mouse-over-popover"
                           sx={{
                             pointerEvents: "none",
                           }}
-                          open={openAssigneAction}
-                          anchorEl={assigntoActionInfoEl}
+                          open={openaction}
+                          anchorEl={actionInfoEl}
                           anchorOrigin={{
                             vertical: "top",
                             horizontal: "center",
@@ -2769,15 +2661,157 @@ const Pipeline1 = () => {
                                 alt="*"
                               />
                               <p style={{ fontWeight: "500", fontSize: 12 }}>
-                                {showSampleTip
-                                  ? "What are possible answers leads will give to this question?"
-                                  : "Notify a team member when leads move here."}
+                                Tip: Tell your AI when to move the leads to this
+                                stage.
                               </p>
                             </div>
                           </div>
                         </Popover>
+                      </div>
+                      <input
+                        className="h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
+                        placeholder="Ex: Does the human express interest getting a CMA "
+                        style={{
+                          border: "1px solid #00000020",
+                          fontWeight: "500",
+                          fontSize: 15,
+                        }}
+                        value={action}
+                        onChange={(e) => {
+                          setAction(e.target.value);
+                        }}
+                      />
 
-                        {/* <button
+                      <div className="flex flex-row items-center gap-2 mt-4">
+                        <p style={{ fontWeight: "600", fontSize: 15 }}>
+                          Sample Answers
+                        </p>
+                        {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
+                        <Image
+                          src="/svgIcons/infoIcon.svg"
+                          height={20}
+                          width={20}
+                          alt="*"
+                          aria-owns={open ? "mouse-over-popover2" : undefined}
+                          aria-haspopup="true"
+                          onMouseEnter={(event) => {
+                            setShowSampleTip(true);
+                            setAssigntoActionInfoEl(event.currentTarget);
+                          }}
+                          onMouseLeave={() => {
+                            handlePopoverClose();
+                            setShowSampleTip(false);
+                          }}
+                        />
+                      </div>
+
+                      <div
+                        className="max-h-[30vh] overflow-auto mt-2" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                        style={{ scrollbarWidth: "none" }}
+                      >
+                        {inputs.map((input, index) => (
+                          <div
+                            key={input.id}
+                            className="w-full flex flex-row items-center gap-4 mt-4"
+                          >
+                            <input
+                              className="border p-2 rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[53px]"
+                              style={{
+                                ...styles.paragraph,
+                                width: "95%",
+                                borderColor: "#00000020",
+                              }}
+                              placeholder={input.placeholder}
+                              // placeholder={`
+                              //     ${index === 0 ? "Sure, i would be interested in knowing what my home is worth" :
+                              //         index === 1 ? "Yeah, how much is my home worth today?" :
+                              //         `Add sample answer ${index + 1}`
+                              //     }`}
+                              value={input.value}
+                              onChange={(e) =>
+                                handleInputChange(input.id, e.target.value)
+                              }
+                            />
+                            {/* <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
+                                                        <Image src={"/assets/blackBgCross.png"} height={20} width={20} alt='*' />
+                                                    </button> */}
+                          </div>
+                        ))}
+                      </div>
+                      {/* <div style={{ height: "50px" }}>
+                                            {
+                                                inputs.length < 3 && (
+                                                    <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
+                                                        fontSize: 15,
+                                                        fontWeight: "700"
+                                                    }}>
+                                                        Add New
+                                                    </button>
+                                                )
+                                            }
+                                        </div> */}
+
+                      <div className="flex flex-row items-center gap-2 mt-4">
+                        <p style={{ fontWeight: "600", fontSize: 15 }}>
+                          Assign to
+                        </p>
+                        {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
+                        <Image
+                          src="/svgIcons/infoIcon.svg"
+                          height={20}
+                          width={20}
+                          alt="*"
+                          aria-owns={open ? "mouse-over-popover2" : undefined}
+                          aria-haspopup="true"
+                          onMouseEnter={(event) => {
+                            setAssigntoActionInfoEl(event.currentTarget);
+                          }}
+                          onMouseLeave={handlePopoverClose}
+                        />
+                      </div>
+
+                      <Popover
+                        id="mouse-over-popover2"
+                        sx={{
+                          pointerEvents: "none",
+                        }}
+                        open={openAssigneAction}
+                        anchorEl={assigntoActionInfoEl}
+                        anchorOrigin={{
+                          vertical: "top",
+                          horizontal: "center",
+                        }}
+                        transformOrigin={{
+                          vertical: "bottom",
+                          horizontal: "left",
+                        }}
+                        PaperProps={{
+                          elevation: 1, // This will remove the shadow
+                          style: {
+                            boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
+                          },
+                        }}
+                        onClose={handlePopoverClose}
+                        disableRestoreFocus
+                      >
+                        <div className="p-2">
+                          <div className="flex flex-row items-center gap-1">
+                            <Image
+                              src={"/svgIcons/infoIcon.svg"}
+                              height={24}
+                              width={24}
+                              alt="*"
+                            />
+                            <p style={{ fontWeight: "500", fontSize: 12 }}>
+                              {showSampleTip
+                                ? "What are possible answers leads will give to this question?"
+                                : "Notify a team member when leads move here."}
+                            </p>
+                          </div>
+                        </div>
+                      </Popover>
+
+                      {/* <button
                     className="flex flex-row items-center w-full justify-between rounded-lg h-[50px] px-2 mt-1 outline-none"
                     style={{ border: "1px solid #00000020" }}
                   >
@@ -2787,361 +2821,19 @@ const Pipeline1 = () => {
                     </div>
                   </button> */}
 
-                        <div className="mt-2">
-                          <FormControl fullWidth>
-                            <Select
-                              id="demo-simple-select"
-                              value={assignToMember || ""} // Default to empty string when no value is selected
-                              onChange={handleAssignTeamMember}
-                              displayEmpty // Enables placeholder
-                              renderValue={(selected) => {
-                                if (!selected) {
-                                  return (
-                                    <div style={{ color: "#aaa" }}>
-                                      Select team member
-                                    </div>
-                                  ); // Placeholder style
-                                }
-                                return selected;
-                              }}
-                              sx={{
-                                border: "1px solid #00000020", // Default border
-                                "&:hover": {
-                                  border: "1px solid #00000020", // Same border on hover
-                                },
-                                "& .MuiOutlinedInput-notchedOutline": {
-                                  border: "none", // Remove the default outline
-                                },
-                                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                  border: "none", // Remove outline on focus
-                                },
-                                "&.MuiSelect-select": {
-                                  py: 0, // Optional padding adjustments
-                                },
-                              }}
-                              MenuProps={{
-                                PaperProps: {
-                                  style: {
-                                    maxHeight: "30vh", // Limit dropdown height
-                                    overflow: "auto", // Enable scrolling in dropdown
-                                    scrollbarWidth: "none",
-                                  },
-                                },
-                              }}
-                            >
-                              {/* <MenuItem value={myTeamAdmin?.name}>
-                          <div className="w-full flex flex-row items-center gap-2">
-                            <div>{myTeamAdmin.name}</div>
-                            <div className="bg-purple text-white text-sm px-2 rounded-full">
-                              Admin
-                            </div>
-                          </div>
-                        </MenuItem> */}
-                              {myTeamList.map((item, index) => {
-                                return (
-                                  <MenuItem
-                                    className="flex flex-row items-center gap-2"
-                                    key={index}
-                                    value={item?.invitedUser?.name}
-                                  >
-                                    {/* <Image
-                                                              src={item.invitedUser.full_profile_image || "/agentXOrb.gif"}
-                                                              width={35}
-                                                              height={35}
-                                                              alt="*"
-                                                            /> */}
-                                    {getAgentsListImage(item?.invitedUser, 42, 42)}
-                                    {item.invitedUser?.name}
-                                    {item.id === -1 && (
-                                      <div className="bg-purple text-white text-sm px-2 rounded-full">
-                                        Admin
-                                      </div>
-                                    )}
-                                  </MenuItem>
-                                );
-                              })}
-                            </Select>
-                          </FormControl>
-                        </div>
-
-                        <p
-                          className="mt-2"
-                          style={{ fontWeight: "500", fontSize: 15 }}
-                        >
-                          Tags
-                        </p>
-
-                        <div
-                          className="h-[45px] p-2 rounded-lg  items-center gap-2"
-                          style={{ border: "0px solid #00000030" }}
-                        >
-                          <TagsInput setTags={setTagsValue} />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="w-full h-[80px]">
-                    {
-                      //inputs.filter(input => input.value.trim()).length === 3 &&
-                      canProceed() ? (
-                        <div>
-                          {addStageLoader ? (
-                            <div className="flex flex-row iems-center justify-center w-full mt-4">
-                              <CircularProgress size={25} />
-                            </div>
-                          ) : (
-                            <button
-                              className="mt-4 outline-none"
-                              style={{
-                                backgroundColor: "#7902DF",
-                                color: "white",
-                                height: "50px",
-                                borderRadius: "10px",
-                                width: "100%",
-                                fontWeight: 600,
-                                fontSize: "20",
-                              }}
-                              onClick={handleAddCustomStage}
-                            >
-                              Add Stage
-                            </button>
-                          )}
-                        </div>
-                      ) : (
-                        <button
-                          disabled={true}
-                          className="mt-4 outline-none"
-                          style={{
-                            backgroundColor: "#00000020",
-                            color: "black",
-                            height: "50px",
-                            borderRadius: "10px",
-                            width: "100%",
-                            fontWeight: 600,
-                            fontSize: "20",
-                          }}
-                        >
-                          Add
-                        </button>
-                      )
-                    }
-                  </div>
-                </div>
-              </Box>
-            </Modal>
-            {/* Modal to Rename the Stage */}
-            <Modal
-              open={showRenamePopup}
-              onClose={() => {
-                setShowRenamePopup(false);
-                handleCloseStagePopover();
-              }}
-              BackdropProps={{
-                timeout: 100,
-                sx: {
-                  backgroundColor: "#00000020",
-                  //backdropFilter: "blur(20px)",
-                },
-              }}
-            >
-              <Box
-                className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
-                sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
-              >
-                <div style={{ width: "100%" }}>
-                  <div
-                    className="max-h-[60vh] overflow-auto"
-                    style={{ scrollbarWidth: "none" }}
-                  >
-                    <div
-                      style={{
-                        width: "100%",
-                        direction: "row",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      {/* <div style={{ width: "20%" }} /> */}
-                      <div style={{ fontWeight: "700", fontSize: 22 }}>
-                        Rename stage
-                      </div>
-                      <div
-                        style={{
-                          direction: "row",
-                          display: "flex",
-                          justifyContent: "end",
-                        }}
-                      >
-                        <button
-                          onClick={() => {
-                            setShowRenamePopup(false);
-                            handleCloseStagePopover();
-                          }}
-                          className="outline-none"
-                        >
-                          <Image
-                            src={"/assets/crossIcon.png"}
-                            height={40}
-                            width={40}
-                            alt="*"
-                          />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <div
-                        className="mt-4"
-                        style={{ fontWeight: "600", fontSize: 12, paddingBottom: 5 }}
-                      >
-                        Stage Title
-                      </div>
-                      <input
-                        value={renameStage}
-                        onChange={(e) => {
-                          setRenameStage(e.target.value);
-                        }}
-                        placeholder="Enter stage title"
-                        className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
-                        style={{ border: "1px solid #00000020" }}
-                      />
-                      <div
-                        style={{
-                          marginTop: 20,
-                          fontWeight: "600",
-                          fontSize: 12,
-                          paddingBottom: 5,
-                        }}
-                      >
-                        color
-                      </div>
-                      <ColorPicker
-                        setStageColor={setUpdateStageColor}
-                        stageColor={updateStageColor}
-                      />
-                    </div>
-                  </div>
-
-                  {renameStageLoader ? (
-                    <div className="flex flex-row iems-center justify-center w-full mt-4">
-                      <CircularProgress size={25} />
-                    </div>
-                  ) : (
-                    <button
-                      className="mt-4 outline-none  bg-purple"
-                      style={{
-                        // backgroundColor: "#402FFF",
-                        color: "white",
-                        height: "50px",
-                        borderRadius: "10px",
-                        width: "100%",
-                        fontWeight: 600,
-                        fontSize: "20",
-                      }}
-                      onClick={handleRenameStage}
-                    >
-                      Add
-                    </button>
-                  )}
-                </div>
-              </Box>
-            </Modal>
-            {/* Modal to delete stage */}
-            <Modal
-              open={showDelStageModal}
-              onClose={() => {
-                setShowDelStageModal(false);
-                handleCloseStagePopover();
-              }}
-              BackdropProps={{
-                timeout: 100,
-                sx: {
-                  backgroundColor: "#00000020",
-                  // //backdropFilter: "blur(20px)",
-                },
-              }}
-            >
-              <Box
-                className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
-                sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
-              >
-                <div style={{ width: "100%" }}>
-                  <div
-                    style={{
-                      width: "100%",
-                      direction: "row",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    {/* <div style={{ width: "20%" }} /> */}
-                    <div style={{ fontWeight: "700", fontSize: 22 }}>
-                      Delete Stage
-                    </div>
-                    <div
-                      style={{
-                        direction: "row",
-                        display: "flex",
-                        justifyContent: "end",
-                      }}
-                    >
-                      <button
-                        onClick={() => {
-                          setShowDelStageModal(false);
-                          handleCloseStagePopover();
-                        }}
-                        className="outline-none"
-                      >
-                        <Image
-                          src={"/assets/crossIcon.png"}
-                          height={40}
-                          width={40}
-                          alt="*"
-                        />
-                      </button>
-                    </div>
-                  </div>
-
-                  {selectedStage?.hasLeads ? (
-                    <div>
-                      <div
-                        className="max-h-[60vh] overflow-auto"
-                        style={{ scrollbarWidth: "none" }}
-                      >
-                        <div
-                          className="mt-6"
-                          style={{
-                            fontWeight: "500",
-                            fontSize: 15,
-                          }}
-                        >
-                          This stage has leads associated with it. Move this lead to
-                          another stage before deleting.
-                        </div>
-
-                        <div
-                          className="mt-6"
-                          style={{
-                            fontWeight: "700",
-                            fontSize: 15,
-                          }}
-                        >
-                          Move to
-                        </div>
-
+                      <div className="mt-2">
                         <FormControl fullWidth>
                           <Select
                             id="demo-simple-select"
-                            value={assignNextStage || ""} // Default to empty string when no value is selected
-                            onChange={handleChangeNextStage}
+                            value={assignToMember || ""} // Default to empty string when no value is selected
+                            onChange={handleAssignTeamMember}
                             displayEmpty // Enables placeholder
                             renderValue={(selected) => {
                               if (!selected) {
                                 return (
-                                  <div style={{ color: "#aaa" }}>Select Stage</div>
+                                  <div style={{ color: "#aaa" }}>
+                                    Select team member
+                                  </div>
                                 ); // Placeholder style
                               }
                               return selected;
@@ -3154,9 +2846,10 @@ const Pipeline1 = () => {
                               "& .MuiOutlinedInput-notchedOutline": {
                                 border: "none", // Remove the default outline
                               },
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove outline on focus
-                              },
+                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3171,14 +2864,38 @@ const Pipeline1 = () => {
                               },
                             }}
                           >
-                            {StagesList?.map((stage, index) => {
+                            {/* <MenuItem value={myTeamAdmin?.name}>
+                          <div className="w-full flex flex-row items-center gap-2">
+                            <div>{myTeamAdmin.name}</div>
+                            <div className="bg-purple text-white text-sm px-2 rounded-full">
+                              Admin
+                            </div>
+                          </div>
+                        </MenuItem> */}
+                            {myTeamList.map((item, index) => {
                               return (
                                 <MenuItem
+                                  className="flex flex-row items-center gap-2"
                                   key={index}
-                                  value={stage.stageTitle}
-                                  disabled={stage.id === selectedStage?.id}
+                                  value={item?.invitedUser?.name}
                                 >
-                                  {stage.stageTitle}
+                                  {/* <Image
+                                                              src={item.invitedUser.full_profile_image || "/agentXOrb.gif"}
+                                                              width={35}
+                                                              height={35}
+                                                              alt="*"
+                                                            /> */}
+                                  {getAgentsListImage(
+                                    item?.invitedUser,
+                                    42,
+                                    42
+                                  )}
+                                  {item.invitedUser?.name}
+                                  {item.id === -1 && (
+                                    <div className="bg-purple text-white text-sm px-2 rounded-full">
+                                      Admin
+                                    </div>
+                                  )}
                                 </MenuItem>
                               );
                             })}
@@ -3186,57 +2903,257 @@ const Pipeline1 = () => {
                         </FormControl>
                       </div>
 
-                      {delStageLoader2 ? (
-                        <div className="flex flex-row iems-center justify-center w-full mt-10">
-                          <CircularProgress size={25} />
-                        </div>
-                      ) : (
-                        <button
-                          className="mt-10 outline-none bg-purple"
-                          disabled={!assignNextStage}
-                          style={{
-                            color: "white",
-                            height: "50px",
-                            borderRadius: "10px",
-                            width: "100%",
-                            backgroundColor: !assignNextStage && "#00000020",
-                            color: !assignNextStage ? "#000000" : "#fff",
-                            fontWeight: 600,
-                            fontSize: "20",
-                          }}
-                          onClick={(e) => {
-                            handleDeleteStage("del2");
-                          }}
-                        >
-                          Delete
-                        </button>
-                      )}
+                      <p
+                        className="mt-2"
+                        style={{ fontWeight: "500", fontSize: 15 }}
+                      >
+                        Tags
+                      </p>
 
-                      {delStageLoader ? (
-                        <div className="flex flex-row iems-center justify-center w-full mt-4">
-                          <CircularProgress size={25} />
-                        </div>
-                      ) : (
-                        <div className="flex flex-row iems-center justify-center w-full">
-                          <button
-                            className="mt-2 outline-none"
-                            style={{
-                              color: "#00000080",
-                              fontWeight: "500",
-                              fontSize: 15,
-                              borderBottom: "1px solid #00000080",
-                            }}
-                            onClick={(e) => {
-                              handleDeleteStage("del");
-                            }}
-                          >
-                            Delete and remove leads from pipeline
-                          </button>
-                        </div>
-                      )}
+                      <div
+                        className="h-[45px] p-2 rounded-lg  items-center gap-2"
+                        style={{ border: "0px solid #00000030" }}
+                      >
+                        <TagsInput setTags={setTagsValue} />
+                      </div>
                     </div>
-                  ) : (
-                    <div>
+                  )}
+                </div>
+
+                <div className="w-full h-[80px]">
+                  {
+                    //inputs.filter(input => input.value.trim()).length === 3 &&
+                    canProceed() ? (
+                      <div>
+                        {addStageLoader ? (
+                          <div className="flex flex-row iems-center justify-center w-full mt-4">
+                            <CircularProgress size={25} />
+                          </div>
+                        ) : (
+                          <button
+                            className="mt-4 outline-none"
+                            style={{
+                              backgroundColor: "#7902DF",
+                              color: "white",
+                              height: "50px",
+                              borderRadius: "10px",
+                              width: "100%",
+                              fontWeight: 600,
+                              fontSize: "20",
+                            }}
+                            onClick={handleAddCustomStage}
+                          >
+                            Add Stage
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <button
+                        disabled={true}
+                        className="mt-4 outline-none"
+                        style={{
+                          backgroundColor: "#00000020",
+                          color: "black",
+                          height: "50px",
+                          borderRadius: "10px",
+                          width: "100%",
+                          fontWeight: 600,
+                          fontSize: "20",
+                        }}
+                      >
+                        Add
+                      </button>
+                    )
+                  }
+                </div>
+              </div>
+            </Box>
+          </Modal>
+          {/* Modal to Rename the Stage */}
+          <Modal
+            open={showRenamePopup}
+            onClose={() => {
+              setShowRenamePopup(false);
+              handleCloseStagePopover();
+            }}
+            BackdropProps={{
+              timeout: 100,
+              sx: {
+                backgroundColor: "#00000020",
+                //backdropFilter: "blur(20px)",
+              },
+            }}
+          >
+            <Box
+              className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
+              sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+            >
+              <div style={{ width: "100%" }}>
+                <div
+                  className="max-h-[60vh] overflow-auto"
+                  style={{ scrollbarWidth: "none" }}
+                >
+                  <div
+                    style={{
+                      width: "100%",
+                      direction: "row",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    {/* <div style={{ width: "20%" }} /> */}
+                    <div style={{ fontWeight: "700", fontSize: 22 }}>
+                      Rename stage
+                    </div>
+                    <div
+                      style={{
+                        direction: "row",
+                        display: "flex",
+                        justifyContent: "end",
+                      }}
+                    >
+                      <button
+                        onClick={() => {
+                          setShowRenamePopup(false);
+                          handleCloseStagePopover();
+                        }}
+                        className="outline-none"
+                      >
+                        <Image
+                          src={"/assets/crossIcon.png"}
+                          height={40}
+                          width={40}
+                          alt="*"
+                        />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div
+                      className="mt-4"
+                      style={{
+                        fontWeight: "600",
+                        fontSize: 12,
+                        paddingBottom: 5,
+                      }}
+                    >
+                      Stage Title
+                    </div>
+                    <input
+                      value={renameStage}
+                      onChange={(e) => {
+                        setRenameStage(e.target.value);
+                      }}
+                      placeholder="Enter stage title"
+                      className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
+                      style={{ border: "1px solid #00000020" }}
+                    />
+                    <div
+                      style={{
+                        marginTop: 20,
+                        fontWeight: "600",
+                        fontSize: 12,
+                        paddingBottom: 5,
+                      }}
+                    >
+                      color
+                    </div>
+                    <ColorPicker
+                      setStageColor={setUpdateStageColor}
+                      stageColor={updateStageColor}
+                    />
+                  </div>
+                </div>
+
+                {renameStageLoader ? (
+                  <div className="flex flex-row iems-center justify-center w-full mt-4">
+                    <CircularProgress size={25} />
+                  </div>
+                ) : (
+                  <button
+                    className="mt-4 outline-none  bg-purple"
+                    style={{
+                      // backgroundColor: "#402FFF",
+                      color: "white",
+                      height: "50px",
+                      borderRadius: "10px",
+                      width: "100%",
+                      fontWeight: 600,
+                      fontSize: "20",
+                    }}
+                    onClick={handleRenameStage}
+                  >
+                    Add
+                  </button>
+                )}
+              </div>
+            </Box>
+          </Modal>
+          {/* Modal to delete stage */}
+          <Modal
+            open={showDelStageModal}
+            onClose={() => {
+              setShowDelStageModal(false);
+              handleCloseStagePopover();
+            }}
+            BackdropProps={{
+              timeout: 100,
+              sx: {
+                backgroundColor: "#00000020",
+                // //backdropFilter: "blur(20px)",
+              },
+            }}
+          >
+            <Box
+              className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
+              sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+            >
+              <div style={{ width: "100%" }}>
+                <div
+                  style={{
+                    width: "100%",
+                    direction: "row",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  {/* <div style={{ width: "20%" }} /> */}
+                  <div style={{ fontWeight: "700", fontSize: 22 }}>
+                    Delete Stage
+                  </div>
+                  <div
+                    style={{
+                      direction: "row",
+                      display: "flex",
+                      justifyContent: "end",
+                    }}
+                  >
+                    <button
+                      onClick={() => {
+                        setShowDelStageModal(false);
+                        handleCloseStagePopover();
+                      }}
+                      className="outline-none"
+                    >
+                      <Image
+                        src={"/assets/crossIcon.png"}
+                        height={40}
+                        width={40}
+                        alt="*"
+                      />
+                    </button>
+                  </div>
+                </div>
+
+                {selectedStage?.hasLeads ? (
+                  <div>
+                    <div
+                      className="max-h-[60vh] overflow-auto"
+                      style={{ scrollbarWidth: "none" }}
+                    >
                       <div
                         className="mt-6"
                         style={{
@@ -3244,207 +3161,341 @@ const Pipeline1 = () => {
                           fontSize: 15,
                         }}
                       >
-                        Confirm you want to delete this stage.This action is
-                        irreversible.
+                        This stage has leads associated with it. Move this lead
+                        to another stage before deleting.
                       </div>
-                      <div className="flex flex-row items-center w-full mt-8">
-                        <div
-                          className="w-1/2 text-center"
-                          onClick={() => {
-                            setShowDelStageModal(false);
-                            handleCloseStagePopover();
-                          }}
-                        >
-                          Cancel
-                        </div>
-                        {delStageLoader ? (
-                          <div className="flex flex-row iems-center justify-center w-1/2">
-                            <CircularProgress size={25} />
-                          </div>
-                        ) : (
-                          <button
-                            className="bg-red text-white w-1/2 h-[44px] rounded-[10px]"
-                            onClick={(e) => {
-                              handleDeleteStage("del");
-                            }}
-                          >
-                            Delete
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </Box>
-            </Modal>
-            {/* Modal to rename the pipeline */}
-            <Modal
-              open={showRenamePipelinePopup}
-              onClose={() => {
-                setShowRenamePipelinePopup(false);
-                handlePipelineClosePopover();
-              }}
-              BackdropProps={{
-                timeout: 100,
-                sx: {
-                  backgroundColor: "#00000020",
-                  // //backdropFilter: "blur(20px)",
-                },
-              }}
-            >
-              <Box
-                className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
-                sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
-              >
-                <div style={{ width: "100%" }}>
-                  <div
-                    className="max-h-[60vh] overflow-auto"
-                    style={{ scrollbarWidth: "none" }}
-                  >
-                    <div
-                      style={{
-                        width: "100%",
-                        direction: "row",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      {/* <div style={{ width: "20%" }} /> */}
-                      <div style={{ fontWeight: "700", fontSize: 22 }}>
-                        Rename pipeline
-                      </div>
+
                       <div
+                        className="mt-6"
                         style={{
-                          direction: "row",
-                          display: "flex",
-                          justifyContent: "end",
+                          fontWeight: "700",
+                          fontSize: 15,
                         }}
                       >
-                        <button
-                          onClick={() => {
-                            setShowRenamePipelinePopup(false);
-                            handlePipelineClosePopover();
+                        Move to
+                      </div>
+
+                      <FormControl fullWidth>
+                        <Select
+                          id="demo-simple-select"
+                          value={assignNextStage || ""} // Default to empty string when no value is selected
+                          onChange={handleChangeNextStage}
+                          displayEmpty // Enables placeholder
+                          renderValue={(selected) => {
+                            if (!selected) {
+                              return (
+                                <div style={{ color: "#aaa" }}>
+                                  Select Stage
+                                </div>
+                              ); // Placeholder style
+                            }
+                            return selected;
                           }}
-                          className="outline-none"
+                          sx={{
+                            border: "1px solid #00000020", // Default border
+                            "&:hover": {
+                              border: "1px solid #00000020", // Same border on hover
+                            },
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              border: "none", // Remove the default outline
+                            },
+                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                              border: "none", // Remove outline on focus
+                            },
+                            "&.MuiSelect-select": {
+                              py: 0, // Optional padding adjustments
+                            },
+                          }}
+                          MenuProps={{
+                            PaperProps: {
+                              style: {
+                                maxHeight: "30vh", // Limit dropdown height
+                                overflow: "auto", // Enable scrolling in dropdown
+                                scrollbarWidth: "none",
+                              },
+                            },
+                          }}
                         >
-                          <Image
-                            src={"/assets/crossIcon.png"}
-                            height={40}
-                            width={40}
-                            alt="*"
-                          />
+                          {StagesList?.map((stage, index) => {
+                            return (
+                              <MenuItem
+                                key={index}
+                                value={stage.stageTitle}
+                                disabled={stage.id === selectedStage?.id}
+                              >
+                                {stage.stageTitle}
+                              </MenuItem>
+                            );
+                          })}
+                        </Select>
+                      </FormControl>
+                    </div>
+
+                    {delStageLoader2 ? (
+                      <div className="flex flex-row iems-center justify-center w-full mt-10">
+                        <CircularProgress size={25} />
+                      </div>
+                    ) : (
+                      <button
+                        className="mt-10 outline-none bg-purple"
+                        disabled={!assignNextStage}
+                        style={{
+                          color: "white",
+                          height: "50px",
+                          borderRadius: "10px",
+                          width: "100%",
+                          backgroundColor: !assignNextStage && "#00000020",
+                          color: !assignNextStage ? "#000000" : "#fff",
+                          fontWeight: 600,
+                          fontSize: "20",
+                        }}
+                        onClick={(e) => {
+                          handleDeleteStage("del2");
+                        }}
+                      >
+                        Delete
+                      </button>
+                    )}
+
+                    {delStageLoader ? (
+                      <div className="flex flex-row iems-center justify-center w-full mt-4">
+                        <CircularProgress size={25} />
+                      </div>
+                    ) : (
+                      <div className="flex flex-row iems-center justify-center w-full">
+                        <button
+                          className="mt-2 outline-none"
+                          style={{
+                            color: "#00000080",
+                            fontWeight: "500",
+                            fontSize: 15,
+                            borderBottom: "1px solid #00000080",
+                          }}
+                          onClick={(e) => {
+                            handleDeleteStage("del");
+                          }}
+                        >
+                          Delete and remove leads from pipeline
                         </button>
                       </div>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <div
+                      className="mt-6"
+                      style={{
+                        fontWeight: "500",
+                        fontSize: 15,
+                      }}
+                    >
+                      Confirm you want to delete this stage.This action is
+                      irreversible.
                     </div>
-
-                    <div>
+                    <div className="flex flex-row items-center w-full mt-8">
                       <div
-                        className="mt-4"
-                        style={{ fontWeight: "600", fontSize: 12, paddingBottom: 5 }}
-                      >
-                        Pipeline Title
-                      </div>
-                      <input
-                        value={renamePipeline}
-                        onChange={(e) => {
-                          setRenamePipeline(e.target.value);
+                        className="w-1/2 text-center"
+                        onClick={() => {
+                          setShowDelStageModal(false);
+                          handleCloseStagePopover();
                         }}
-                        placeholder="Enter stage title"
-                        className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
-                        style={{ border: "1px solid #00000020" }}
-                      />
+                      >
+                        Cancel
+                      </div>
+                      {delStageLoader ? (
+                        <div className="flex flex-row iems-center justify-center w-1/2">
+                          <CircularProgress size={25} />
+                        </div>
+                      ) : (
+                        <button
+                          className="bg-red text-white w-1/2 h-[44px] rounded-[10px]"
+                          onClick={(e) => {
+                            handleDeleteStage("del");
+                          }}
+                        >
+                          Delete
+                        </button>
+                      )}
                     </div>
                   </div>
-
-                  {renamePipelineLoader ? (
-                    <div className="flex flex-row iems-center justify-center w-full mt-4">
-                      <CircularProgress size={25} />
-                    </div>
-                  ) : (
-                    <button
-                      className="mt-4 outline-none"
-                      style={{
-                        backgroundColor: "#7902DF",
-                        color: "white",
-                        height: "50px",
-                        borderRadius: "10px",
-                        width: "100%",
-                        fontWeight: 600,
-                        fontSize: "20",
-                      }}
-                      onClick={handleRenamePipeline}
-                    >
-                      Update
-                    </button>
-                  )}
-                </div>
-              </Box>
-            </Modal>
-            {/* Code for creating new pipeline */}
-            <Modal
-              open={createPipeline}
-              onClose={() => {
-                setCreatePipeline(false);
-                handlePipelineClosePopover();
-              }}
-              closeAfterTransition
-              BackdropProps={{
-                timeout: 1000,
-                sx: {
-                  backgroundColor: "#00000020",
-                  // ////backdropFilter: "blur(5px)",
-                },
-              }}
+                )}
+              </div>
+            </Box>
+          </Modal>
+          {/* Modal to rename the pipeline */}
+          <Modal
+            open={showRenamePipelinePopup}
+            onClose={() => {
+              setShowRenamePipelinePopup(false);
+              handlePipelineClosePopover();
+            }}
+            BackdropProps={{
+              timeout: 100,
+              sx: {
+                backgroundColor: "#00000020",
+                // //backdropFilter: "blur(20px)",
+              },
+            }}
+          >
+            <Box
+              className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
+              sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
             >
-              <Box className="lg:w-5/12 sm:w-7/12 w-8/12" sx={styles.modalsStyle}>
-                <div className="flex flex-row justify-center w-full">
+              <div style={{ width: "100%" }}>
+                <div
+                  className="max-h-[60vh] overflow-auto"
+                  style={{ scrollbarWidth: "none" }}
+                >
                   <div
-                    className="w-full"
                     style={{
-                      backgroundColor: "#ffffff",
-                      padding: 20,
-                      borderRadius: "13px",
+                      width: "100%",
+                      direction: "row",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
                     }}
                   >
-                    <div className="flex flex-row justify-between">
-                      <div style={{ fontWeight: "600", fontSize: 22 }}>
-                        Add Pipeline
-                      </div>
+                    {/* <div style={{ width: "20%" }} /> */}
+                    <div style={{ fontWeight: "700", fontSize: 22 }}>
+                      Rename pipeline
+                    </div>
+                    <div
+                      style={{
+                        direction: "row",
+                        display: "flex",
+                        justifyContent: "end",
+                      }}
+                    >
                       <button
                         onClick={() => {
-                          setCreatePipeline(false);
+                          setShowRenamePipelinePopup(false);
                           handlePipelineClosePopover();
                         }}
+                        className="outline-none"
                       >
                         <Image
-                          src={"/assets/cross.png"}
-                          height={14}
-                          width={14}
+                          src={"/assets/crossIcon.png"}
+                          height={40}
+                          width={40}
                           alt="*"
                         />
                       </button>
                     </div>
-                    <div className="w-full">
-                      <div style={{ fontWeight: "500", fontSize: 15, marginTop: 10 }}>
-                        Pipeline Name
-                      </div>
+                  </div>
 
-                      <input
-                        value={newPipelineTitle}
-                        onChange={(e) => {
-                          setNewPipelineTitle(e.target.value);
-                        }}
-                        className="outline-none rounded-xl focus:ring-0 w-full mt-4 h-[50px]"
-                        placeholder="Type Here"
-                        style={{
-                          border: "1px solid #00000020",
-                          fontWeight: "500",
-                          fontSize: 15,
-                        }}
+                  <div>
+                    <div
+                      className="mt-4"
+                      style={{
+                        fontWeight: "600",
+                        fontSize: 12,
+                        paddingBottom: 5,
+                      }}
+                    >
+                      Pipeline Title
+                    </div>
+                    <input
+                      value={renamePipeline}
+                      onChange={(e) => {
+                        setRenamePipeline(e.target.value);
+                      }}
+                      placeholder="Enter stage title"
+                      className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
+                      style={{ border: "1px solid #00000020" }}
+                    />
+                  </div>
+                </div>
+
+                {renamePipelineLoader ? (
+                  <div className="flex flex-row iems-center justify-center w-full mt-4">
+                    <CircularProgress size={25} />
+                  </div>
+                ) : (
+                  <button
+                    className="mt-4 outline-none"
+                    style={{
+                      backgroundColor: "#7902DF",
+                      color: "white",
+                      height: "50px",
+                      borderRadius: "10px",
+                      width: "100%",
+                      fontWeight: 600,
+                      fontSize: "20",
+                    }}
+                    onClick={handleRenamePipeline}
+                  >
+                    Update
+                  </button>
+                )}
+              </div>
+            </Box>
+          </Modal>
+          {/* Code for creating new pipeline */}
+          <Modal
+            open={createPipeline}
+            onClose={() => {
+              setCreatePipeline(false);
+              handlePipelineClosePopover();
+            }}
+            closeAfterTransition
+            BackdropProps={{
+              timeout: 1000,
+              sx: {
+                backgroundColor: "#00000020",
+                // ////backdropFilter: "blur(5px)",
+              },
+            }}
+          >
+            <Box className="lg:w-5/12 sm:w-7/12 w-8/12" sx={styles.modalsStyle}>
+              <div className="flex flex-row justify-center w-full">
+                <div
+                  className="w-full"
+                  style={{
+                    backgroundColor: "#ffffff",
+                    padding: 20,
+                    borderRadius: "13px",
+                  }}
+                >
+                  <div className="flex flex-row justify-between">
+                    <div style={{ fontWeight: "600", fontSize: 22 }}>
+                      Add Pipeline
+                    </div>
+                    <button
+                      onClick={() => {
+                        setCreatePipeline(false);
+                        handlePipelineClosePopover();
+                      }}
+                    >
+                      <Image
+                        src={"/assets/cross.png"}
+                        height={14}
+                        width={14}
+                        alt="*"
                       />
+                    </button>
+                  </div>
+                  <div className="w-full">
+                    <div
+                      style={{ fontWeight: "500", fontSize: 15, marginTop: 10 }}
+                    >
+                      Pipeline Name
+                    </div>
 
-                      {/* <div style={{ fontWeight: "500", fontSize: 12, marginTop: 10, color: "#00000060" }}>
+                    <input
+                      value={newPipelineTitle}
+                      onChange={(e) => {
+                        setNewPipelineTitle(e.target.value);
+                      }}
+                      className="outline-none rounded-xl focus:ring-0 w-full mt-4 h-[50px]"
+                      placeholder="Type Here"
+                      style={{
+                        border: "1px solid #00000020",
+                        fontWeight: "500",
+                        fontSize: 15,
+                      }}
+                    />
+
+                    {/* <div style={{ fontWeight: "500", fontSize: 12, marginTop: 10, color: "#00000060" }}>
                                     Stage
                                 </div>
 
@@ -3474,448 +3525,448 @@ const Pipeline1 = () => {
                                     </button>
                                 </div> */}
 
-                      {addPipelineLoader ? (
-                        <div className="w-full flex flex-row justify-center mt-12">
-                          <CircularProgress size={30} />
-                        </div>
-                      ) : (
-                        <button
-                          className="w-full h-[50px] rounded-xl bg-purple text-white mt-12"
-                          style={{
-                            fontWeight: "600",
-                            fontSize: 16.8,
-                          }}
-                          onClick={() => {
-                            handleCreatePipeline();
-                          }}
-                        >
-                          Create Pipeline
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Can be use full to add shadow */}
-                    {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-                  </div>
-                </div>
-              </Box>
-            </Modal>
-            {/* Code for rearranging stages */}
-            <Modal
-              open={showStagesPopup}
-              onClose={() => {
-                setShowStagesPopup(false);
-                setShowReorderBtn(false);
-                handleCloseStagePopover();
-              }}
-              closeAfterTransition
-              BackdropProps={{
-                timeout: 1000,
-                sx: {
-                  backgroundColor: "#00000020",
-                  // ////backdropFilter: "blur(5px)",
-                },
-              }}
-            >
-              <Box
-                className="lg:w-6/12 sm:w-8/12 w-10/12"
-                sx={{
-                  height: "auto",
-                  bgcolor: "transparent",
-                  p: 2,
-                  mx: "auto",
-                  my: "50vh",
-                  transform: "translateY(-50%)",
-                  borderRadius: 2,
-                  border: "none",
-                  outline: "none",
-                }}
-              >
-                <div className="flex flex-row justify-center w-full h-[100%]">
-                  <div
-                    className="w-full h-[100%]"
-                    style={{
-                      backgroundColor: "#ffffff",
-                      padding: 20,
-                      borderRadius: "13px",
-                      maxHeight: "90svh",
-                    }}
-                  >
-                    <div className="flex flex-row justify-between h-[10%] w-full">
-                      <div style={{ fontWeight: "600", fontSize: 22 }}>
-                        Rearrange Stages
+                    {addPipelineLoader ? (
+                      <div className="w-full flex flex-row justify-center mt-12">
+                        <CircularProgress size={30} />
                       </div>
+                    ) : (
                       <button
+                        className="w-full h-[50px] rounded-xl bg-purple text-white mt-12"
+                        style={{
+                          fontWeight: "600",
+                          fontSize: 16.8,
+                        }}
                         onClick={() => {
-                          setShowStagesPopup(false);
-                          handleCloseStagePopover();
-                          setShowReorderBtn(false);
+                          handleCreatePipeline();
                         }}
                       >
-                        <Image
-                          src={"/assets/cross.png"}
-                          height={14}
-                          width={14}
-                          alt="*"
-                        />
+                        Create Pipeline
                       </button>
-                    </div>
-
-                    <div
-                      className="w-full h-[80%] overflow-auto"
-                      style={{ scrollbarWidth: "none" }}
-                    >
-                      <RearrangeStages
-                        // stages={StagesList}
-                        // onUpdateOrder={(stages) => {
-                        //     setStagesList(stages);
-                        // }}
-                        stages={StagesList}
-                        onUpdateOrder={(stages) => {
-                          setStagesList(stages);
-                        }}
-                        // assignedLeads={assignedLeads}
-                        // handleUnAssignNewStage={handleUnAssignNewStage}
-                        // assignNewStage={assignNewStage}
-                        // handleInputChange={handleInputChange}
-                        // rowsByIndex={rowsByIndex}
-                        // removeRow={removeRow}
-                        // addRow={addRow}
-                        nextStage={nextStage}
-                        handleSelectNextChange={handleSelectNextChange}
-                        selectedPipelineStages={StagesList}
-                        selectedPipelineItem={SelectedPipeline}
-                        handleReorderStages={handleReorder}
-                        reorderStageLoader={reorderStageLoader}
-                        setShowReorderBtn={setShowReorderBtn}
-                      />
-                    </div>
-
-                    <div className="w-full h-[10%]">
-                      {reorderStageLoader ? (
-                        <div className="w-full flex flex-row items-center h-[50px] justify-center mt-6">
-                          <CircularProgress size={25} />
-                        </div>
-                      ) : (
-                        <div>
-                          <button
-                            disabled={!showReorderBtn}
-                            className="w-full bg-purple text-white mt-6 h-[50px] rounded-xl text-xl font-[500]"
-                            onClick={() => {
-                              handleReorder();
-                            }}
-                            style={{
-                              color: !showReorderBtn ? "#000000" : "",
-                              backgroundColor: !showReorderBtn ? "#00000020" : "",
-                            }}
-                          >
-                            Reorder
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Can be use full to add shadow */}
-                    {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                    )}
                   </div>
+
+                  {/* Can be use full to add shadow */}
+                  {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
                 </div>
-              </Box>
-            </Modal>
-            {/* Modal for lead details */}
-            {showDetailsModal && (
-              <LeadDetails
-                selectedLead={selectedLeadsDetails?.id}
-                pipelineId={pipelineId && pipelineId}
-                showDetailsModal={showDetailsModal}
-                setShowDetailsModal={setShowDetailsModal}
-                isPipeline={true}
-                handleDelLead={handleDelLead}
-                leadStageUpdated={HandleUpdateStage}
-                leadAssignedTeam={HandleLeadAssignedTeam}
-              />
-            )}
-            {/* Modal for audio play */}
-            <Modal
-              open={showAudioPlay}
-              onClose={() => setShowAudioPlay(null)}
-              closeAfterTransition
-              BackdropProps={{
-                sx: {
-                  backgroundColor: "#00000020",
-                  ////backdropFilter: "blur(5px)",
-                },
+              </div>
+            </Box>
+          </Modal>
+          {/* Code for rearranging stages */}
+          <Modal
+            open={showStagesPopup}
+            onClose={() => {
+              setShowStagesPopup(false);
+              setShowReorderBtn(false);
+              handleCloseStagePopover();
+            }}
+            closeAfterTransition
+            BackdropProps={{
+              timeout: 1000,
+              sx: {
+                backgroundColor: "#00000020",
+                // ////backdropFilter: "blur(5px)",
+              },
+            }}
+          >
+            <Box
+              className="lg:w-6/12 sm:w-8/12 w-10/12"
+              sx={{
+                height: "auto",
+                bgcolor: "transparent",
+                p: 2,
+                mx: "auto",
+                my: "50vh",
+                transform: "translateY(-50%)",
+                borderRadius: 2,
+                border: "none",
+                outline: "none",
               }}
             >
-              <Box className="lg:w-3/12 sm:w-5/12 w-8/12" sx={styles.modalsStyle}>
-                <div className="flex flex-row justify-center w-full">
-                  <div
-                    className="w-full flex flex-col items-center"
-                    style={{
-                      backgroundColor: "#ffffff",
-                      padding: 20,
-                      borderRadius: "13px",
-                    }}
-                  >
-                    <audio controls>
-                      <source src={showAudioPlay} type="audio/mpeg" />
-                      Your browser does not support the audio element.
-                    </audio>
+              <div className="flex flex-row justify-center w-full h-[100%]">
+                <div
+                  className="w-full h-[100%]"
+                  style={{
+                    backgroundColor: "#ffffff",
+                    padding: 20,
+                    borderRadius: "13px",
+                    maxHeight: "90svh",
+                  }}
+                >
+                  <div className="flex flex-row justify-between h-[10%] w-full">
+                    <div style={{ fontWeight: "600", fontSize: 22 }}>
+                      Rearrange Stages
+                    </div>
                     <button
-                      className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {
-                        setShowAudioPlay(null);
-                      }}
-                      style={{ fontWeight: "600", fontSize: 15 }}
-                    >
-                      Close
-                    </button>
-
-                    {/* Can be use full to add shadow
-                            <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-                  </div>
-                </div>
-              </Box>
-            </Modal>
-            {/* Warning Modal for no voice */}
-            <Modal
-              open={showNoAudioPlay}
-              onClose={() => setShowNoAudioPlay(false)}
-              closeAfterTransition
-              BackdropProps={{
-                sx: {
-                  backgroundColor: "#00000020",
-                  ////backdropFilter: "blur(5px)",
-                },
-              }}
-            >
-              <Box className="lg:w-3/12 sm:w-5/12 w-8/12" sx={styles.modalsStyle}>
-                <div className="flex flex-row justify-center w-full">
-                  <div
-                    className="w-full flex flex-col items-center"
-                    style={{
-                      backgroundColor: "#ffffff",
-                      padding: 20,
-                      borderRadius: "13px",
-                    }}
-                  >
-                    <audio controls>
-                      <source src={showAudioPlay} type="audio/mpeg" />
-                      Your browser does not support the audio element.
-                    </audio>
-                    <button
-                      className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
-                      onClick={() => {
-                        setShowNoAudioPlay(false);
-                      }}
-                      style={{ fontWeight: "600", fontSize: 15 }}
-                    >
-                      Close
-                    </button>
-
-                    {/* Can be use full to add shadow
-                            <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-                  </div>
-                </div>
-              </Box>
-            </Modal>
-            {/* Modal to add notes */}
-            <Modal
-              open={showAddNotes}
-              onClose={() => setShowAddNotes(false)}
-              closeAfterTransition
-              BackdropProps={{
-                timeout: 1000,
-                sx: {
-                  backgroundColor: "#00000020",
-                  // //backdropFilter: "blur(20px)",
-                },
-              }}
-            >
-              <Box
-                className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh]"
-                sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
-              >
-                <div className="flex flex-row justify-center w-full h-[50vh]">
-                  <div
-                    className="w-full"
-                    style={{
-                      backgroundColor: "#ffffff",
-                      padding: 20,
-                      paddingInline: 30,
-                      borderRadius: "13px",
-                      // paddingBottom: 10,
-                      // paddingTop: 10,
-                      height: "100%",
-                    }}
-                  >
-                    <div style={{ fontWeight: "700", fontsize: 22 }}>
-                      Add your notes
-                    </div>
-                    <div
-                      className="mt-4"
-                      style={{
-                        height: "70%",
-                        overflow: "auto",
+                        setShowStagesPopup(false);
+                        handleCloseStagePopover();
+                        setShowReorderBtn(false);
                       }}
                     >
-                      <TextareaAutosize
-                        maxRows={12}
-                        className="outline-none focus:outline-none focus:ring-0 w-full"
-                        style={{
-                          fontsize: 15,
-                          fontWeight: "500",
-                          height: "250px",
-                          border: "1px solid #00000020",
-                          resize: "none",
-                          borderRadius: "13px",
-                        }}
-                        placeholder="Add notes"
-                        value={addNotesValue}
-                        onChange={(event) => {
-                          setddNotesValue(event.target.value);
-                        }}
+                      <Image
+                        src={"/assets/cross.png"}
+                        height={14}
+                        width={14}
+                        alt="*"
                       />
-                    </div>
-                    <div className="w-full mt-4 h-[20%] flex flex-row justify-center">
-                      {addLeadNoteLoader ? (
+                    </button>
+                  </div>
+
+                  <div
+                    className="w-full h-[80%] overflow-auto"
+                    style={{ scrollbarWidth: "none" }}
+                  >
+                    <RearrangeStages
+                      // stages={StagesList}
+                      // onUpdateOrder={(stages) => {
+                      //     setStagesList(stages);
+                      // }}
+                      stages={StagesList}
+                      onUpdateOrder={(stages) => {
+                        setStagesList(stages);
+                      }}
+                      // assignedLeads={assignedLeads}
+                      // handleUnAssignNewStage={handleUnAssignNewStage}
+                      // assignNewStage={assignNewStage}
+                      // handleInputChange={handleInputChange}
+                      // rowsByIndex={rowsByIndex}
+                      // removeRow={removeRow}
+                      // addRow={addRow}
+                      nextStage={nextStage}
+                      handleSelectNextChange={handleSelectNextChange}
+                      selectedPipelineStages={StagesList}
+                      selectedPipelineItem={SelectedPipeline}
+                      handleReorderStages={handleReorder}
+                      reorderStageLoader={reorderStageLoader}
+                      setShowReorderBtn={setShowReorderBtn}
+                    />
+                  </div>
+
+                  <div className="w-full h-[10%]">
+                    {reorderStageLoader ? (
+                      <div className="w-full flex flex-row items-center h-[50px] justify-center mt-6">
                         <CircularProgress size={25} />
-                      ) : (
+                      </div>
+                    ) : (
+                      <div>
                         <button
-                          className="bg-purple h-[50px] rounded-xl text-white rounded-xl w-6/12"
-                          style={{
-                            fontWeight: "600",
-                            fontsize: 16,
-                          }}
+                          disabled={!showReorderBtn}
+                          className="w-full bg-purple text-white mt-6 h-[50px] rounded-xl text-xl font-[500]"
                           onClick={() => {
-                            handleAddLeadNotes();
+                            handleReorder();
+                          }}
+                          style={{
+                            color: !showReorderBtn ? "#000000" : "",
+                            backgroundColor: !showReorderBtn ? "#00000020" : "",
                           }}
                         >
-                          Add
+                          Reorder
                         </button>
-                      )}
-                    </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Can be use full to add shadow */}
+                  {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                </div>
+              </div>
+            </Box>
+          </Modal>
+          {/* Modal for lead details */}
+          {showDetailsModal && (
+            <LeadDetails
+              selectedLead={selectedLeadsDetails?.id}
+              pipelineId={pipelineId && pipelineId}
+              showDetailsModal={showDetailsModal}
+              setShowDetailsModal={setShowDetailsModal}
+              isPipeline={true}
+              handleDelLead={handleDelLead}
+              leadStageUpdated={HandleUpdateStage}
+              leadAssignedTeam={HandleLeadAssignedTeam}
+            />
+          )}
+          {/* Modal for audio play */}
+          <Modal
+            open={showAudioPlay}
+            onClose={() => setShowAudioPlay(null)}
+            closeAfterTransition
+            BackdropProps={{
+              sx: {
+                backgroundColor: "#00000020",
+                ////backdropFilter: "blur(5px)",
+              },
+            }}
+          >
+            <Box className="lg:w-3/12 sm:w-5/12 w-8/12" sx={styles.modalsStyle}>
+              <div className="flex flex-row justify-center w-full">
+                <div
+                  className="w-full flex flex-col items-center"
+                  style={{
+                    backgroundColor: "#ffffff",
+                    padding: 20,
+                    borderRadius: "13px",
+                  }}
+                >
+                  <audio controls>
+                    <source src={showAudioPlay} type="audio/mpeg" />
+                    Your browser does not support the audio element.
+                  </audio>
+                  <button
+                    className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
+                    onClick={() => {
+                      setShowAudioPlay(null);
+                    }}
+                    style={{ fontWeight: "600", fontSize: 15 }}
+                  >
+                    Close
+                  </button>
+
+                  {/* Can be use full to add shadow
+                            <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                </div>
+              </div>
+            </Box>
+          </Modal>
+          {/* Warning Modal for no voice */}
+          <Modal
+            open={showNoAudioPlay}
+            onClose={() => setShowNoAudioPlay(false)}
+            closeAfterTransition
+            BackdropProps={{
+              sx: {
+                backgroundColor: "#00000020",
+                ////backdropFilter: "blur(5px)",
+              },
+            }}
+          >
+            <Box className="lg:w-3/12 sm:w-5/12 w-8/12" sx={styles.modalsStyle}>
+              <div className="flex flex-row justify-center w-full">
+                <div
+                  className="w-full flex flex-col items-center"
+                  style={{
+                    backgroundColor: "#ffffff",
+                    padding: 20,
+                    borderRadius: "13px",
+                  }}
+                >
+                  <audio controls>
+                    <source src={showAudioPlay} type="audio/mpeg" />
+                    Your browser does not support the audio element.
+                  </audio>
+                  <button
+                    className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
+                    onClick={() => {
+                      setShowNoAudioPlay(false);
+                    }}
+                    style={{ fontWeight: "600", fontSize: 15 }}
+                  >
+                    Close
+                  </button>
+
+                  {/* Can be use full to add shadow
+                            <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                </div>
+              </div>
+            </Box>
+          </Modal>
+          {/* Modal to add notes */}
+          <Modal
+            open={showAddNotes}
+            onClose={() => setShowAddNotes(false)}
+            closeAfterTransition
+            BackdropProps={{
+              timeout: 1000,
+              sx: {
+                backgroundColor: "#00000020",
+                // //backdropFilter: "blur(20px)",
+              },
+            }}
+          >
+            <Box
+              className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh]"
+              sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
+            >
+              <div className="flex flex-row justify-center w-full h-[50vh]">
+                <div
+                  className="w-full"
+                  style={{
+                    backgroundColor: "#ffffff",
+                    padding: 20,
+                    paddingInline: 30,
+                    borderRadius: "13px",
+                    // paddingBottom: 10,
+                    // paddingTop: 10,
+                    height: "100%",
+                  }}
+                >
+                  <div style={{ fontWeight: "700", fontsize: 22 }}>
+                    Add your notes
+                  </div>
+                  <div
+                    className="mt-4"
+                    style={{
+                      height: "70%",
+                      overflow: "auto",
+                    }}
+                  >
+                    <TextareaAutosize
+                      maxRows={12}
+                      className="outline-none focus:outline-none focus:ring-0 w-full"
+                      style={{
+                        fontsize: 15,
+                        fontWeight: "500",
+                        height: "250px",
+                        border: "1px solid #00000020",
+                        resize: "none",
+                        borderRadius: "13px",
+                      }}
+                      placeholder="Add notes"
+                      value={addNotesValue}
+                      onChange={(event) => {
+                        setddNotesValue(event.target.value);
+                      }}
+                    />
+                  </div>
+                  <div className="w-full mt-4 h-[20%] flex flex-row justify-center">
+                    {addLeadNoteLoader ? (
+                      <CircularProgress size={25} />
+                    ) : (
+                      <button
+                        className="bg-purple h-[50px] rounded-xl text-white rounded-xl w-6/12"
+                        style={{
+                          fontWeight: "600",
+                          fontsize: 16,
+                        }}
+                        onClick={() => {
+                          handleAddLeadNotes();
+                        }}
+                      >
+                        Add
+                      </button>
+                    )}
                   </div>
                 </div>
-              </Box>
-            </Modal>
-            {/* Code for side view */}
-            {importantCalls?.length > 0 && (
-              <div
-                className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${expandSideView ? "w-[506px]" : "w-[100px]"
-                  }`} //${expandSideView ? 'w-[32vw]' : 'w-[7vw]'}
-                style={{
-                  borderTopLeftRadius: expandSideView ? "0" : "40px",
-                  borderBottomLeftRadius: expandSideView ? "0" : "40px",
-                  // alignSelf: 'flex-end',
-                  position: "absolute",
-                  // transform: expandSideView ? "translateX(0)" : "translateX(100%)",
-                  bottom: 100,
-                  right: 0,
-                }}
-                onClick={() => { }}
-              >
-                {expandSideView ? (
-                  <div className="flex  items-center justify-center w-full">
-                    <div className="w-11/12 flex flex-col items-start gap-1  h-20 ">
-                      <div className="flex flex-row gap-2 w-full">
-                        <button
-                          className="flex flex-col items-center justify-center gap-1"
-                          onClick={() => {
-                            setOpenCallWorthyPopup(true);
-                          }}
-                        >
-                          <img
-                            src="/svgIcons/fireIcon.png"
-                            style={{ height: 25, width: 25 }}
-                            alt="Fire Icon"
-                          />
-                          <img
-                            src="/svgIcons/threeDots.svg"
-                            style={{ height: 5, width: 15 }}
-                            alt="Three Dots"
-                          />
-                        </button>
-
-                        <div className="flex  items-center justify-start w-full">
-                          <button
-                            onClick={() => {
-                              // setOpenCallWorthyPopup(true);
-                            }}
-                            className="flex flex-col items-start  truncate"
-                          >
-                            <div className="text-[17px] font-[600]">
-                              While you were away
-                            </div>
-                          </button>
-                          <div className="flex flex-col items-start ml-[30px] border border-purple rounded">
-                            <button
-                              className="text-purple  px-2"
-                              onClick={() => {
-                                // setExpandSideView(false);
-                                setOpenCallWorthyPopup(true);
-                              }}
-                            >
-                              Listen Now
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-[15px] font-[500] pl-8 truncate">
-                        Here are some calls that sounded important.
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-center -mt-2 -ml-2">
+              </div>
+            </Box>
+          </Modal>
+          {/* Code for side view */}
+          {importantCalls?.length > 0 && (
+            <div
+              className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${
+                expandSideView ? "w-[506px]" : "w-[100px]"
+              }`} //${expandSideView ? 'w-[32vw]' : 'w-[7vw]'}
+              style={{
+                borderTopLeftRadius: expandSideView ? "0" : "40px",
+                borderBottomLeftRadius: expandSideView ? "0" : "40px",
+                // alignSelf: 'flex-end',
+                position: "absolute",
+                // transform: expandSideView ? "translateX(0)" : "translateX(100%)",
+                bottom: 100,
+                right: 0,
+              }}
+              onClick={() => {}}
+            >
+              {expandSideView ? (
+                <div className="flex  items-center justify-center w-full">
+                  <div className="w-11/12 flex flex-col items-start gap-1  h-20 ">
+                    <div className="flex flex-row gap-2 w-full">
                       <button
-                        className="text-purple"
+                        className="flex flex-col items-center justify-center gap-1"
                         onClick={() => {
-                          setExpandSideView(false);
+                          setOpenCallWorthyPopup(true);
                         }}
                       >
                         <img
-                          src="/svgIcons/cross.svg"
-                          style={{ height: 24, width: 24 }}
+                          src="/svgIcons/fireIcon.png"
+                          style={{ height: 25, width: 25 }}
+                          alt="Fire Icon"
+                        />
+                        <img
+                          src="/svgIcons/threeDots.svg"
+                          style={{ height: 5, width: 15 }}
+                          alt="Three Dots"
                         />
                       </button>
+
+                      <div className="flex  items-center justify-start w-full">
+                        <button
+                          onClick={() => {
+                            // setOpenCallWorthyPopup(true);
+                          }}
+                          className="flex flex-col items-start  truncate"
+                        >
+                          <div className="text-[17px] font-[600]">
+                            While you were away
+                          </div>
+                        </button>
+                        <div className="flex flex-col items-start ml-[30px] border border-purple rounded">
+                          <button
+                            className="text-purple  px-2"
+                            onClick={() => {
+                              // setExpandSideView(false);
+                              setOpenCallWorthyPopup(true);
+                            }}
+                          >
+                            Listen Now
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-[15px] font-[500] pl-8 truncate">
+                      Here are some calls that sounded important.
                     </div>
                   </div>
-                ) : (
-                  <div
-                    className="w-full flex flex-row gap-4 items-center cursor-pointer h-20"
-                    onClick={() => setExpandSideView(!expandSideView)}
-                  >
-                    <div className="flex flex-col items-center justify-center gap-1">
+                  <div className="flex flex-col items-center -mt-2 -ml-2">
+                    <button
+                      className="text-purple"
+                      onClick={() => {
+                        setExpandSideView(false);
+                      }}
+                    >
                       <img
-                        src="/svgIcons/fireIcon.png"
-                        style={{ height: 25, width: 25 }}
-                        alt="Fire Icon"
+                        src="/svgIcons/cross.svg"
+                        style={{ height: 24, width: 24 }}
                       />
-                      <img
-                        src="/svgIcons/threeDots.svg"
-                        style={{ height: 5, width: 15 }}
-                        alt="Three Dots"
-                      />
-                    </div>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className="w-full flex flex-row gap-4 items-center cursor-pointer h-20"
+                  onClick={() => setExpandSideView(!expandSideView)}
+                >
+                  <div className="flex flex-col items-center justify-center gap-1">
                     <img
-                      src="/svgIcons/leftArrowIcon.svg"
-                      style={{ height: 24, width: 24 }}
+                      src="/svgIcons/fireIcon.png"
+                      style={{ height: 25, width: 25 }}
+                      alt="Fire Icon"
+                    />
+                    <img
+                      src="/svgIcons/threeDots.svg"
+                      style={{ height: 5, width: 15 }}
                       alt="Three Dots"
                     />
                   </div>
-                )}
-              </div>
-            )}
-            {/* Code for calll worthy modal */}
-            {openCallWorthyPopup && (
-              <CallWorthyReviewsPopup
-                open={openCallWorthyPopup}
-                close={() => {
-                  setOpenCallWorthyPopup(false);
-                }}
-              />
-            )}
-
-          </>
-        )}
+                  <img
+                    src="/svgIcons/leftArrowIcon.svg"
+                    style={{ height: 24, width: 24 }}
+                    alt="Three Dots"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+          {/* Code for calll worthy modal */}
+          {openCallWorthyPopup && (
+            <CallWorthyReviewsPopup
+              open={openCallWorthyPopup}
+              close={() => {
+                setOpenCallWorthyPopup(false);
+              }}
+            />
+          )}
+        </>
+      )}
     </div>
   );
 };
