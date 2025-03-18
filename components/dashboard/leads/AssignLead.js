@@ -28,6 +28,8 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { getAgentImage } from "@/utilities/agentUtilities";
 import DncConfirmationPopup from "./DncConfirmationPopup";
+import Tooltip from "@mui/material/Tooltip";
+
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -786,15 +788,40 @@ const AssignLead = ({
                   </div>
 
                   <div className="flex flex-row items-center  -mt-2">
-                    <div
-                      style={{
-                        fontSize: 12,
-                        fontWeight: "600",
-                        color: "#000000",
+                    <Tooltip
+                      title="If the lead has given consent, no need to run against DNC"
+                      arrow
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: "#ffffff", // Ensure white background
+                            color: "#333", // Dark text color
+                            fontSize: "14px",
+                            padding: "10px 15px",
+                            borderRadius: "8px",
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                          },
+                        },
+                        arrow: {
+                          sx: {
+                            color: "#ffffff", // Match tooltip background
+                          },
+                        },
                       }}
                     >
-                      Check DNC List
-                    </div>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          fontWeight: "600",
+                          color: "#000000",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Check DNC List
+                      </div>
+                    </Tooltip>
+
+
                     <Switch
                       checked={isDncChecked}
                       // color="#7902DF"
@@ -810,9 +837,9 @@ const AssignLead = ({
                           color: "#7902DF",
                         },
                         "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                          {
-                            backgroundColor: "#7902DF",
-                          },
+                        {
+                          backgroundColor: "#7902DF",
+                        },
                         margin: 0,
                       }}
                     />
@@ -828,11 +855,10 @@ const AssignLead = ({
                 <input
                   className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
                   style={{
-                    border: `${
-                      isFocustedCustomLeads
-                        ? "2px solid #7902Df"
-                        : "1px solid #00000040"
-                    }`,
+                    border: `${isFocustedCustomLeads
+                      ? "2px solid #7902Df"
+                      : "1px solid #00000040"
+                      }`,
                     height: "50px",
                   }}
                   value={customLeadsToSend}
@@ -1015,14 +1041,14 @@ const AssignLead = ({
 
                                     // Time Selection List (Large Screen)
                                     "& .MuiPickersTimeClock-root .Mui-selected":
-                                      {
-                                        backgroundColor: "#7902DF !important", // Purple selected time
-                                        color: "white !important",
-                                      },
+                                    {
+                                      backgroundColor: "#7902DF !important", // Purple selected time
+                                      color: "white !important",
+                                    },
                                     "& .MuiPickersTimeClock-root .MuiButtonBase-root:hover":
-                                      {
-                                        backgroundColor: "#a352df !important", // Lighter purple on hover
-                                      },
+                                    {
+                                      backgroundColor: "#a352df !important", // Lighter purple on hover
+                                    },
 
                                     // Time Picker List (Dropdown List)
                                     "& .MuiTimeClock-root .Mui-selected": {
@@ -1030,9 +1056,9 @@ const AssignLead = ({
                                       color: "white !important",
                                     },
                                     "& .MuiTimeClock-root .MuiButtonBase-root:hover":
-                                      {
-                                        backgroundColor: "#a352df !important",
-                                      },
+                                    {
+                                      backgroundColor: "#a352df !important",
+                                    },
                                   }}
                                   onChange={handleDateChange}
                                   renderInput={(params) => (
@@ -1114,9 +1140,9 @@ const AssignLead = ({
                             backgroundColor: "#a352df !important", // Lighter purple on hover
                           },
                           "& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)":
-                            {
-                              color: "#333 !important", // Default color for unselected dates
-                            },
+                          {
+                            color: "#333 !important", // Default color for unselected dates
+                          },
                           "& .Mui-selected": {
                             backgroundColor: "#7902DF !important",
                             color: "#fff !important",
@@ -1171,8 +1197,8 @@ const AssignLead = ({
               ) : (
                 <div className="w-full">
                   {(NoOfLeadsToSend || customLeadsToSend) &&
-                  (CallNow ||
-                    (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
+                    (CallNow ||
+                      (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
                     <button
                       className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {

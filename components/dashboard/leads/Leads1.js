@@ -824,10 +824,10 @@ const Leads1 = () => {
 
   return (
     <div className="w-full">
-      {
+      {/* {
         initialLoader ? (
-          <LeadLoading />
-        ) : (
+          // <LeadLoading />
+        ) : ( */}
           <>
             <AgentSelectSnackMessage
               isVisible={showSuccessSnack}
@@ -1898,8 +1898,8 @@ const Leads1 = () => {
               </Modal>
             </div>
           </>
-        )
-      }
+        {/* )
+      } */}
 
     </div>
   );

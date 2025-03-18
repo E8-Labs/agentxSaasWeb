@@ -121,7 +121,7 @@ const Page = () => {
       </div>
       <Image
         className=""
-        src="/assets/agentX2.png"
+        src="/svgIcons/agentX3.svg"
         style={{ height: "36px", width: "126px", resize: "contain" }}
         height={12}
         width={42}

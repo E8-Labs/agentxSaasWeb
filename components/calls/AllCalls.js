@@ -64,6 +64,9 @@ function AllCalls({ user }) {
   const [selectedPipeline, setSelectedPipeline] = useState("");
   const [selectedStageIds, setSelectedStageIds] = useState([]);
 
+    const [selectedStatus, setSelectedStatus] = useState([]);
+  
+
   //code for pagination
   const [offset, setOffset] = useState(5);
   const [hasMore, setHasMore] = useState(true);
@@ -72,16 +75,56 @@ function AllCalls({ user }) {
 
   const filterRef = useRef(null);
 
-  useEffect(() => {
-    console.log("Search value changed", searchValue);
-    // if ((selectedFromDate && selectedToDate) || selectedStageIds.length > 0) {
-    setHasMore(true);
-    setCallDetails([]);
-    setFilteredCallDetails([]);
-    setInitialLoader(true);
-    getCallLogs(0);
-    // }
-  }, [selectedToDate, selectedFromDate, selectedStageIds]);
+
+  const statusList = [
+    {
+      id: 1,
+      status: "Voicemail",
+    },
+    {
+      id: 2,
+      status: "Booked",
+    },
+    {
+      id: 3,
+      status: "Hangup",
+    },
+    {
+      id: 4,
+      status: "Hot Lead",
+    },
+    {
+      id: 5,
+      status: "Agent Goodbye",
+    },
+    {
+      id: 6,
+      status: "Human Goodbye",
+    },
+    {
+      id: 7,
+      status: "Busy",
+    },
+    {
+      id: 8,
+      status: "Failed",
+    },
+    {
+      id: 9,
+      status: "Not Interested",
+    },
+    {
+      id: 10,
+      status: "No answer",
+    },
+  ];
+
+  // useEffect(() => {
+  //   console.log("Search value changed", searchValue);
+  //   // if ((selectedFromDate && selectedToDate) || selectedStageIds.length > 0) {
+
+  //   // }
+  // }, []);
 
   useEffect(() => {
     if (filterRef.current) {
@@ -141,6 +184,13 @@ function AllCalls({ user }) {
       }
       return "";
     }
+
+
+    if (filter.key === "status") {
+      return filter.values[0]; // ✅ Fix: Just return the string value
+    }
+    console.log('filter.value', filter.value)
+
   }
 
   function GetFiltersFromSelection() {
@@ -177,6 +227,25 @@ function AllCalls({ user }) {
         });
       }
     }
+
+    if (selectedStatus.length > 0) {
+      selectedStatus.forEach((status) => {
+        filters.push({
+          key: "status",
+          values: [status], // ✅ Fix: Store each status separately
+        });
+      });
+    }
+
+      console.log('selectedStatus', selectedStatus)
+
+      // Status filters (Ensure each status is separate)
+    // selectedStatus.forEach((status) => {
+    //   filters.push({
+    //     key: "status",
+    //     values: [status], // Pass each status individually
+    //   });
+    // });
 
     return filters;
   }
@@ -283,14 +352,23 @@ function AllCalls({ user }) {
       if (offset == null) {
         offset = filteredCallDetails.length;
       }
-      if ((selectedFromDate && selectedToDate) || stages.length > 0) {
-        ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}&stageIds=${stages}&offset=${offset}`;
+      if ((selectedFromDate && selectedToDate)) {
+        ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}`;
       } else {
         ApiPath = `${Apis.getCallLogs}?offset=${offset}`; //Apis.getCallLogs;
+      }
+
+      if(stages.length > 0){
+          ApiPath = `${Apis.getCallLogs}&stageIds=${stages}&offset=${offset}`
       }
       if (searchValue && searchValue.length > 0) {
         ApiPath = `${ApiPath}&name=${searchValue}`;
       }
+
+      if (selectedStatus.length > 0) {
+        ApiPath += `&status=${selectedStatus.join(",")}`;
+      }
+
 
       // if (selectedFromDate && selectedToDate && stages.length > 0) {
       //     ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}&stageIds=${stages}&offset=${offset}&limit=10`;
@@ -298,6 +376,7 @@ function AllCalls({ user }) {
       ApiPath = `${ApiPath}&timezone=${GetTimezone()}`;
 
       console.log("Api path for calls log  is", ApiPath);
+      console.log("selected status is", selectedStatus);
 
       //// console.log("Auth token is:", AuthToken);
       // return
@@ -487,11 +566,25 @@ function AllCalls({ user }) {
                             setSelectedPipeline(null);
                             setSelectedStageIds([]);
                           }
+                          if (filter.key === "status") {
+                            // ✅ Update state first
+                            setSelectedStatus((prev) => {
+                              const updatedStatus = prev.filter((s) => s !== filter.values[0]);
+                      
+                              // ✅ Call API AFTER state update using setTimeout (ensures latest state is used)
+                              setTimeout(() => {
+                                console.log("Calling API with:", updatedStatus);
+                                getCallLogs(0);
+                              }, 0);
+                      
+                              return updatedStatus; // Update state
+                            });
+                          }
                           setInitialLoader(true);
                           setCallDetails([]);
                           setFilteredCallDetails([]);
                           setTimeout(() => {
-                            // getCallLogs(0);
+                            getCallLogs(0);
                           }, 2000);
                         }}
                       >
@@ -539,7 +632,7 @@ function AllCalls({ user }) {
 
 
           <div
-            className={`h-[75vh] overflow-auto`}
+            className={`h-[71vh] border overflow-auto`}
             id="scrollableDiv1"
             style={{ scrollbarWidth: "none" }}
           >
@@ -571,7 +664,7 @@ function AllCalls({ user }) {
               loader={
                 <div className="w-full flex flex-row justify-center mt-8">
                   {
-                    !initialLoader && ! filteredCallDetails.length == 0 && (
+                    !initialLoader && !filteredCallDetails.length == 0 && (
                       <CircularProgress size={35} />
                     )
                   }
@@ -948,6 +1041,48 @@ function AllCalls({ user }) {
                         ))}
                       </div>
                     )}
+
+                    <div
+                      style={{
+                        fontWeight: "500",
+                        fontSize: 12,
+                        color: "#00000060",
+                        marginTop: 10,
+                      }}
+                    >
+                      Status
+                    </div>
+
+                    <div className="w-full flex flex-row items-center gap-2 flex-wrap mt-4">
+                      {statusList.map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => {
+                            setSelectedStatus((prev) => {
+                              if (prev.includes(item.status)) {
+                                return prev.filter((s) => s !== item.status);
+                              } else {
+                                return [...prev, item.status];
+                              }
+                            });
+                          }}
+                        >
+                          <div
+                            className="py-2 px-3 border rounded-full"
+                            style={{
+                              color: selectedStatus.includes(item.status)
+                                ? "#fff"
+                                : "",
+                              backgroundColor: selectedStatus.includes(item.status)
+                                ? "#7902df"
+                                : "",
+                            }}
+                          >
+                            {item.status}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="flex flex-row items-center w-full justify-between mt-4 pb-8">
@@ -987,9 +1122,11 @@ function AllCalls({ user }) {
                             selectedStageIds.length > 0
                           ) {
                             localStorage.removeItem("callDetails");
-                            // setInitialLoader(true);
-                            // setCallDetails([]);
-                            // setFilteredCallDetails([]);
+                            setHasMore(true);
+                            setCallDetails([]);
+                            setFilteredCallDetails([]);
+                            setInitialLoader(true);
+                            getCallLogs(0);
                             setShowFilterModal(false);
                             // getCallLogs(0);
                           } else {

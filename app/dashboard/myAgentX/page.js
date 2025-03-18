@@ -4616,6 +4616,7 @@ function Page() {
                           tagValue={setScriptTagInput}
                           scrollOffset={scrollOffset}
                           showSaveChangesBtn={showSaveChangesBtn}
+                          saveUpdates={updateAgent} 
                         />
 
                         {/* <DynamicDropdown /> */}

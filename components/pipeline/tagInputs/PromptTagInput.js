@@ -10,7 +10,8 @@ export const PromptTagInput = ({
   kycsList,
   tagValue,
   uniqueColumns,
-  showSaveChangesBtn
+  showSaveChangesBtn,
+  saveUpdates
 }) => {
   //// console.log("Scroll Offset Parent ", scrollOffset)
   const [popupVisible, setPopupVisible] = useState(false);
@@ -454,7 +455,7 @@ export const PromptTagInput = ({
             width: "100%",
             fontWeight: "500",
             fontSize: 15,
-            height:showSaveChangesBtn ? "calc(100vh - 700px)" : "calc(100vh - 600px)",
+            height: showSaveChangesBtn ? "calc(100vh - 730px)" : "calc(100vh - 650px)",
             // maxHeight:"28vh",
             resize: "none",
             // backgroundColor:'red'
@@ -472,6 +473,9 @@ export const PromptTagInput = ({
           </button>
         </div>
       </div>
+
+
+
       {popupVisible && filteredOptions.length > 0 && (
         <div
           style={{
@@ -584,6 +588,22 @@ export const PromptTagInput = ({
                     border: "1px solid #00000020",
                   }}
                 />
+
+                {
+                  showSaveChangesBtn && (
+                    <button
+                      className="bg-purple w-full h-[50px] rounded-xl mb-4 text-white"
+                      style={{ fontWeight: "600", fontSize: 15 }}
+                      onClick={() => {
+                        setShowScriptModal(false)
+                        saveUpdates()
+                      }}
+                    >
+                      Save Changes
+                    </button>
+                  )
+                }
+
 
                 {/* <textarea
                   className="outline-none rounded-xl focus:ring-0"

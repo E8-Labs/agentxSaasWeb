@@ -155,7 +155,7 @@ const LeadDetails = ({
           setGetTeamLoader(false);
 
           if (response.data.status === true) {
-            // console.log("get team api response is", response.data);
+            console.log("get team api response is", response.data);
             setMyTeam(response.data.data);
             setMyTeamAdmin(response.data.admin);
           } else {
@@ -823,11 +823,10 @@ const LeadDetails = ({
                                         }}
                                       >
                                         {selectedLeadsDetails?.emails?.length >
-                                        1
-                                          ? `+${
-                                              selectedLeadsDetails?.emails
-                                                ?.length - 1
-                                            }`
+                                          1
+                                          ? `+${selectedLeadsDetails?.emails
+                                            ?.length - 1
+                                          }`
                                           : ""}
                                       </button>
                                     </div>
@@ -871,11 +870,10 @@ const LeadDetails = ({
                                         }}
                                       >
                                         {selectedLeadsDetails?.emails?.length >
-                                        1
-                                          ? `+${
-                                              selectedLeadsDetails?.emails
-                                                ?.length - 1
-                                            }`
+                                          1
+                                          ? `+${selectedLeadsDetails?.emails
+                                            ?.length - 1
+                                          }`
                                           : ""}
                                       </button>
                                     </div>
@@ -908,7 +906,7 @@ const LeadDetails = ({
                           {selectedLeadsDetails?.tags.length > 0 ? (
                             <div
                               className="text-end flex flex-row items-center gap-2"
-                              // style={styles.paragraph}
+                            // style={styles.paragraph}
                             >
                               {
                                 // selectedLeadsDetails?.tags?.map.slice(0, 1)
@@ -927,7 +925,7 @@ const LeadDetails = ({
                                             {tag}
                                           </div>
                                           {DelTagLoader &&
-                                          tag.includes(DelTagLoader) ? (
+                                            tag.includes(DelTagLoader) ? (
                                             <div>
                                               <CircularProgress size={15} />
                                             </div>
@@ -1083,33 +1081,33 @@ const LeadDetails = ({
                                             column,
                                             selectedLeadsDetails
                                           ) && (
-                                            <div className="flex w-[15%] items-end justify-end border">
-                                              <button
-                                                style={{
-                                                  fontWeight: "600",
-                                                  fontSize: 15,
-                                                }}
-                                                onClick={() => {
-                                                  setExpandedCustomFields(
-                                                    (prevFields) =>
-                                                      prevFields.includes(title)
-                                                        ? prevFields.filter(
+                                              <div className="flex w-[15%] items-end justify-end border">
+                                                <button
+                                                  style={{
+                                                    fontWeight: "600",
+                                                    fontSize: 15,
+                                                  }}
+                                                  onClick={() => {
+                                                    setExpandedCustomFields(
+                                                      (prevFields) =>
+                                                        prevFields.includes(title)
+                                                          ? prevFields.filter(
                                                             (field) =>
                                                               field !== title
                                                           )
-                                                        : [...prevFields, title]
-                                                  );
-                                                }}
-                                                className=" text-black underline w-[120px]"
-                                              >
-                                                {expandedCustomFields.includes(
-                                                  title
-                                                )
-                                                  ? "Read Less"
-                                                  : "Read More"}
-                                              </button>
-                                            </div>
-                                          )}
+                                                          : [...prevFields, title]
+                                                    );
+                                                  }}
+                                                  className=" text-black underline w-[120px]"
+                                                >
+                                                  {expandedCustomFields.includes(
+                                                    title
+                                                  )
+                                                    ? "Read Less"
+                                                    : "Read More"}
+                                                </button>
+                                              </div>
+                                            )}
                                         </div>
                                       </div>
                                     );
@@ -1324,7 +1322,7 @@ const LeadDetails = ({
                                         {tag}
                                       </div>
                                       {DelTagLoader &&
-                                      tag.includes(DelTagLoader) ? (
+                                        tag.includes(DelTagLoader) ? (
                                         <div>
                                           <CircularProgress size={15} />
                                         </div>
@@ -1380,12 +1378,23 @@ const LeadDetails = ({
                       >
                         <div className="p-2 w-full flex flex-row items-center justify-start gap-2 ">
                           <div className="">
-                            {getAgentsListImage(
-                              myTeamAdmin?.invitedUser,
-                              32,
-                              32,
-                              false
-                            )}
+                            {
+                              myTeamAdmin?.thumb_profile_image ? (
+
+                                <Image className="rounded-full"  src={myTeamAdmin.thumb_profile_image}
+                                  height={32} width={32} alt="*" style = {{
+                                    borderRaduis : 50
+                                  }}
+                                />
+                              ) : (
+                                <div
+                                  className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                                  onClick={() => handleToggleClick(item.id)}
+                                >
+                                  {myTeamAdmin?.name.slice(0, 1)}
+                                </div>
+                              )
+                            }
                           </div>
                           <div className="">{myTeamAdmin?.name}</div>
                           <div className="bg-purple text-white text-sm px-2 rounded-full">
@@ -1408,12 +1417,23 @@ const LeadDetails = ({
                                     handleAssignLeadToTeammember(item);
                                   }}
                                 >
-                                  {getAgentsListImage(
-                                    myTeamAdmin?.invitedUser,
-                                    32,
-                                    32,
-                                    false
-                                  )}
+                                  {
+                                    item?.invitedUser?.thumb_profile_image ? (
+
+                                      <Image className="rounded-full" src={item.invitedUser?.thumb_profile_image}
+                                        height={32} width={32} alt="*" style = {{
+                                          
+                                        }}
+                                      />
+                                    ) : (
+                                      <div
+                                        className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                                        onClick={() => handleToggleClick(item.id)}
+                                      >
+                                        {item?.name.slice(0, 1)}
+                                      </div>
+                                    )
+                                  }
                                   {item.name}
                                 </button>
                               </div>
@@ -1467,7 +1487,7 @@ const LeadDetails = ({
                           color: showPerplexityDetails ? "#7902DF" : "black",
                         }}
                       >
-                        Perplexity
+                        Lead Insights
                       </div>
                     </button>
 
@@ -1980,103 +2000,103 @@ const LeadDetails = ({
                                           {isExpandedActivity.includes(
                                             item.id
                                           ) && (
-                                            <div
-                                              className="mt-6"
-                                              style={{
-                                                border: "1px solid #00000020",
-                                                borderRadius: "10px",
-                                                padding: 10,
-                                                paddingInline: 15,
-                                              }}
-                                            >
                                               <div
-                                                className="mt-4"
+                                                className="mt-6"
                                                 style={{
-                                                  fontWeight: "500",
-                                                  fontSize: 12,
-                                                  color: "#00000070",
+                                                  border: "1px solid #00000020",
+                                                  borderRadius: "10px",
+                                                  padding: 10,
+                                                  paddingInline: 15,
                                                 }}
                                               >
-                                                Transcript
-                                              </div>
-                                              <div className="flex flex-row items-center justify-between mt-4">
                                                 <div
+                                                  className="mt-4"
                                                   style={{
                                                     fontWeight: "500",
-                                                    fontSize: 15,
+                                                    fontSize: 12,
+                                                    color: "#00000070",
                                                   }}
                                                 >
-                                                  {moment(
-                                                    item?.duration * 1000
-                                                  ).format("mm:ss")}{" "}
+                                                  Transcript
                                                 </div>
-                                                <button
-                                                  onClick={() => {
-                                                    if (item?.recordingUrl) {
-                                                      setShowAudioPlay(
-                                                        item?.recordingUrl
-                                                      );
-                                                    } else {
-                                                      setShowNoAudioPlay(true);
-                                                    }
-                                                    // window.open(item.recordingUrl, "_blank")
-                                                  }}
-                                                >
-                                                  <Image
-                                                    src={"/assets/play.png"}
-                                                    height={35}
-                                                    width={35}
-                                                    alt="*"
-                                                  />
-                                                </button>
-                                              </div>
-                                              {item.transcript ? (
-                                                <div className="w-full">
+                                                <div className="flex flex-row items-center justify-between mt-4">
                                                   <div
-                                                    className="mt-4"
                                                     style={{
-                                                      fontWeight: "600",
+                                                      fontWeight: "500",
                                                       fontSize: 15,
                                                     }}
                                                   >
-                                                    {/* {item.transcript} */}
-                                                    {isExpanded.includes(
-                                                      item.id
-                                                    )
-                                                      ? `${item.transcript}`
-                                                      : `${initialText}...`}
+                                                    {moment(
+                                                      item?.duration * 1000
+                                                    ).format("mm:ss")}{" "}
                                                   </div>
                                                   <button
+                                                    onClick={() => {
+                                                      if (item?.recordingUrl) {
+                                                        setShowAudioPlay(
+                                                          item?.recordingUrl
+                                                        );
+                                                      } else {
+                                                        setShowNoAudioPlay(true);
+                                                      }
+                                                      // window.open(item.recordingUrl, "_blank")
+                                                    }}
+                                                  >
+                                                    <Image
+                                                      src={"/assets/play.png"}
+                                                      height={35}
+                                                      width={35}
+                                                      alt="*"
+                                                    />
+                                                  </button>
+                                                </div>
+                                                {item.transcript ? (
+                                                  <div className="w-full">
+                                                    <div
+                                                      className="mt-4"
+                                                      style={{
+                                                        fontWeight: "600",
+                                                        fontSize: 15,
+                                                      }}
+                                                    >
+                                                      {/* {item.transcript} */}
+                                                      {isExpanded.includes(
+                                                        item.id
+                                                      )
+                                                        ? `${item.transcript}`
+                                                        : `${initialText}...`}
+                                                    </div>
+                                                    <button
+                                                      style={{
+                                                        fontWeight: "600",
+                                                        fontSize: 15,
+                                                      }}
+                                                      onClick={() => {
+                                                        handleReadMoreToggle(
+                                                          item
+                                                        );
+                                                      }}
+                                                      className="mt-2 text-black underline"
+                                                    >
+                                                      {isExpanded.includes(
+                                                        item.id
+                                                      )
+                                                        ? "Read Less"
+                                                        : "Read more"}
+                                                    </button>
+                                                  </div>
+                                                ) : (
+                                                  <div
                                                     style={{
                                                       fontWeight: "600",
                                                       fontSize: 15,
                                                     }}
-                                                    onClick={() => {
-                                                      handleReadMoreToggle(
-                                                        item
-                                                      );
-                                                    }}
-                                                    className="mt-2 text-black underline"
                                                   >
-                                                    {isExpanded.includes(
-                                                      item.id
-                                                    )
-                                                      ? "Read Less"
-                                                      : "Read more"}
-                                                  </button>
-                                                </div>
-                                              ) : (
-                                                <div
-                                                  style={{
-                                                    fontWeight: "600",
-                                                    fontSize: 15,
-                                                  }}
-                                                >
-                                                  No transcript
-                                                </div>
-                                              )}
-                                            </div>
-                                          )}
+                                                    No transcript
+                                                  </div>
+                                                )}
+                                              </div>
+                                            )}
                                         </div>
                                       </div>
                                     </div>
