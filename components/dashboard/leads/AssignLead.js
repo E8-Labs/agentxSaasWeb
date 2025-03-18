@@ -27,6 +27,7 @@ import dayjs from "dayjs"; // Import Day.js
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { getAgentImage } from "@/utilities/agentUtilities";
+import DncConfirmationPopup from "./DncConfirmationPopup";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -39,6 +40,8 @@ const AssignLead = ({
   totalLeads = 0,
   userProfile, // this is the .user object doesn't include token
 }) => {
+  const [showDncConfirmationPopup, setShowDncConfirmationPopup] =
+    useState(false);
   const [initialLoader, setInitialLoader] = useState(false);
   const [agentsList, setAgentsList] = useState([]);
   const [stages, setStages] = useState([]);
@@ -506,6 +509,25 @@ const AssignLead = ({
           setErrorMessage(null);
         }}
       />
+
+      {showDncConfirmationPopup && (
+        <DncConfirmationPopup
+          open={showDncConfirmationPopup}
+          onClose={() => {
+            setShowDncConfirmationPopup(false);
+            //
+          }}
+          onCancel={() => {
+            setShowDncConfirmationPopup(false);
+            //Unset the dncToggle
+            setIsDncChecked(false);
+          }}
+          onConfirm={() => {
+            setShowDncConfirmationPopup(false);
+          }}
+          leadsCount={leadIs.length}
+        />
+      )}
       {/* Snackbar for invalid time */}
 
       <div className="flex flex-row items-center justify-between mt-4">
@@ -779,15 +801,18 @@ const AssignLead = ({
                       // exclusive
                       onChange={(event) => {
                         setIsDncChecked(event.target.checked);
+                        if (event.target.checked) {
+                          setShowDncConfirmationPopup(true);
+                        }
                       }}
                       sx={{
                         "& .MuiSwitch-switchBase.Mui-checked": {
                           color: "#7902DF",
                         },
                         "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                        {
-                          backgroundColor: "#7902DF",
-                        },
+                          {
+                            backgroundColor: "#7902DF",
+                          },
                         margin: 0,
                       }}
                     />
@@ -803,10 +828,11 @@ const AssignLead = ({
                 <input
                   className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
                   style={{
-                    border: `${isFocustedCustomLeads
+                    border: `${
+                      isFocustedCustomLeads
                         ? "2px solid #7902Df"
                         : "1px solid #00000040"
-                      }`,
+                    }`,
                     height: "50px",
                   }}
                   value={customLeadsToSend}
@@ -969,7 +995,7 @@ const AssignLead = ({
                                       backgroundColor: "#7902DF !important",
                                       color: "#fff !important",
                                     },
-                              
+
                                     // Time Picker (Large Screen)
                                     "& .MuiClock-pin": {
                                       backgroundColor: "#7902DF !important", // Change clock pin color
@@ -986,26 +1012,28 @@ const AssignLead = ({
                                     "& .MuiTypography-root": {
                                       color: "#7902DF !important", // Header text color
                                     },
-                              
+
                                     // Time Selection List (Large Screen)
-                                    "& .MuiPickersTimeClock-root .Mui-selected": {
-                                      backgroundColor: "#7902DF !important", // Purple selected time
-                                      color: "white !important",
-                                    },
-                                    "& .MuiPickersTimeClock-root .MuiButtonBase-root:hover": {
-                                      backgroundColor: "#a352df !important", // Lighter purple on hover
-                                    },
-                              
+                                    "& .MuiPickersTimeClock-root .Mui-selected":
+                                      {
+                                        backgroundColor: "#7902DF !important", // Purple selected time
+                                        color: "white !important",
+                                      },
+                                    "& .MuiPickersTimeClock-root .MuiButtonBase-root:hover":
+                                      {
+                                        backgroundColor: "#a352df !important", // Lighter purple on hover
+                                      },
+
                                     // Time Picker List (Dropdown List)
                                     "& .MuiTimeClock-root .Mui-selected": {
                                       backgroundColor: "#7902DF !important",
                                       color: "white !important",
                                     },
-                                    "& .MuiTimeClock-root .MuiButtonBase-root:hover": {
-                                      backgroundColor: "#a352df !important",
-                                    },
+                                    "& .MuiTimeClock-root .MuiButtonBase-root:hover":
+                                      {
+                                        backgroundColor: "#a352df !important",
+                                      },
                                   }}
-                                
                                   onChange={handleDateChange}
                                   renderInput={(params) => (
                                     <input
@@ -1085,9 +1113,10 @@ const AssignLead = ({
                           "& .MuiPickersDay-root:hover": {
                             backgroundColor: "#a352df !important", // Lighter purple on hover
                           },
-                          "& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)": {
-                            color: "#333 !important", // Default color for unselected dates
-                          },
+                          "& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)":
+                            {
+                              color: "#333 !important", // Default color for unselected dates
+                            },
                           "& .Mui-selected": {
                             backgroundColor: "#7902DF !important",
                             color: "#fff !important",
@@ -1142,9 +1171,9 @@ const AssignLead = ({
               ) : (
                 <div className="w-full">
                   {(NoOfLeadsToSend || customLeadsToSend) &&
-                    (CallNow ||
-                      (CallLater && selectedDateTime && hasUserSelectedDate)) &&
-                    isDncChecked ? (
+                  (CallNow ||
+                    (CallLater && selectedDateTime && hasUserSelectedDate)) &&
+                  isDncChecked ? (
                     <button
                       className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {

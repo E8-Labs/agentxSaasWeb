@@ -10,11 +10,12 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
-export default function XBarConfirmationModal({
-  plan,
+export default function DncConfirmationPopup({
   open,
   onClose,
+  onCancel,
   onConfirm,
+  leadsCount,
 }) {
   return (
     <Dialog
@@ -44,24 +45,34 @@ export default function XBarConfirmationModal({
 
       {/* Modal Title */}
       <DialogTitle sx={{ fontWeight: "bold", fontSize: "18px", mt: 1 }}>
-        X Bar Services
+        Confirm DNC charges
       </DialogTitle>
 
       {/* Modal Content */}
       <DialogContent>
-        <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
-          Confirm <span style={{ color: "black" }}>{`${plan}`}</span>
+        <Typography sx={{ color: "#000", fontSize: "16px" }}>
+          DNC Checklist is $0.03 per number. If less than 34 leads it's $1.
+        </Typography>
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: "bold", mb: 1, color: "transparent" }}
+        >
+          Hello
+        </Typography>
+
+        <Typography sx={{ color: "#000", fontSize: "16px" }}>
+          Total leads = {leadsCount}
         </Typography>
         <Typography sx={{ color: "#000", fontSize: "16px" }}>
-          Please confirm you’d like to proceed with the service option you’ve
-          selected.
+          Total cost to check ={" "}
+          {leadsCount < 34 ? "$1" : `$${leadsCount * 0.03}`}
         </Typography>
       </DialogContent>
 
       {/* Buttons */}
       <DialogActions sx={{ justifyContent: "center", gap: 2, mt: 2 }}>
         <Button
-          onClick={onClose}
+          onClick={onCancel}
           variant="outlined"
           sx={{
             borderColor: "#ddd",
@@ -87,9 +98,10 @@ export default function XBarConfirmationModal({
             width: "45%",
             paddingY: "0.8rem",
             "&:hover": { backgroundColor: "#6901C3" },
+            color: "white !important", // Force white text
           }}
         >
-          Continue
+          Confirm
         </Button>
       </DialogActions>
     </Dialog>

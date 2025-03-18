@@ -1370,7 +1370,7 @@ function BasicInfo() {
                     setTransaction(event.target.value);
                     setIsTransactionChange(true);
                   }}
-                  placeholder="Value"
+                  placeholder="Type here"
                   style={{ border: "0px solid #000000", outline: "none" }}
                 />
                 {isTransactionChanged &&

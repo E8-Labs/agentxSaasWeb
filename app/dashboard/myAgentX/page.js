@@ -236,14 +236,13 @@ function Page() {
 
   const [showModelLoader, setShowModelLoader] = useState(false);
 
-
   const [preview, setPreview] = useState(null);
   const [audio, setAudio] = useState(null);
 
-  const [showEditNumberPopup, setShowEditNumberPopup] = useState(null)
-  const [selectedNumber, setSelectedNumber] = useState("")
+  const [showEditNumberPopup, setShowEditNumberPopup] = useState(null);
+  const [selectedNumber, setSelectedNumber] = useState("");
 
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   const playVoice = (url) => {
     if (audio) {
@@ -253,8 +252,6 @@ function Page() {
     ad.play();
     setAudio(ad); // Play the audio
   };
-
-
 
   const models = [
     {
@@ -819,7 +816,8 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(item.phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -1265,16 +1263,10 @@ function Page() {
           }
 
           if (voiceData.liveTransferNumber) {
-            formData.append(
-              "liveTransferNumber",
-              voiceData.liveTransferNumber
-            );
+            formData.append("liveTransferNumber", voiceData.liveTransferNumber);
           }
           if (voiceData.callbackNumber) {
-            formData.append(
-              "callbackNumber",
-              voiceData.callbackNumber
-            );
+            formData.append("callbackNumber", voiceData.callbackNumber);
           }
         }
 
@@ -1307,7 +1299,7 @@ function Page() {
           if (response.data.status === true) {
             setIsVisibleSnack(true);
 
-            setShowDrawerSelectedAgent(response.data.data.agents[0])
+            setShowDrawerSelectedAgent(response.data.data.agents[0]);
 
             const localAgentsList = localStorage.getItem(
               PersistanceKeys.LocalStoredAgentsListMain
@@ -1406,7 +1398,8 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -2287,8 +2280,8 @@ function Page() {
                           >
                             {user.user.userType == UserTypes.RealEstateAgent
                               ? `${item.agentObjective
-                                ?.slice(0, 1)
-                                .toUpperCase()}${item.agentObjective?.slice(
+                                  ?.slice(0, 1)
+                                  .toUpperCase()}${item.agentObjective?.slice(
                                   1
                                 )}`
                               : `${item.agentRole}`}
@@ -2791,7 +2784,7 @@ function Page() {
                       overflowY: "auto",
                     }}
                     countryCodeEditable={true}
-                  // defaultMask={loading ? 'Loading...' : undefined}
+                    // defaultMask={loading ? 'Loading...' : undefined}
                   />
                 </div>
 
@@ -2822,8 +2815,9 @@ function Page() {
                       <input
                         placeholder="Type here"
                         // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                          }`}
+                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
+                          index === scriptKeys?.length - 1 ? "mb-16" : ""
+                        }`}
                         style={{
                           ...styles.inputStyle,
                           border: "1px solid #00000010",
@@ -2903,9 +2897,8 @@ function Page() {
       >
         <div
           className="flex flex-col w-full h-full  py-2 px-5 rounded-xl"
-        // style={{  }}
+          // style={{  }}
         >
-
           <div
             className="w-full flex flex-col h-full"
             style={{
@@ -3121,7 +3114,7 @@ function Page() {
                 name="Calls"
                 value={
                   showDrawerSelectedAgent?.calls &&
-                    showDrawerSelectedAgent?.calls > 0 ? (
+                  showDrawerSelectedAgent?.calls > 0 ? (
                     <div>{showDrawerSelectedAgent?.calls}</div>
                   ) : (
                     "-"
@@ -3135,7 +3128,7 @@ function Page() {
                 name="Convos"
                 value={
                   showDrawerSelectedAgent?.callsGt10 &&
-                    showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
                     <div>{showDrawerSelectedAgent?.callsGt10}</div>
                   ) : (
                     "-"
@@ -3163,7 +3156,7 @@ function Page() {
                 name="Mins Talked"
                 value={
                   showDrawerSelectedAgent?.totalDuration &&
-                    showDrawerSelectedAgent?.totalDuration > 0 ? (
+                  showDrawerSelectedAgent?.totalDuration > 0 ? (
                     // <div>{showDrawer?.totalDuration}</div>
                     <div>
                       {moment
@@ -3187,10 +3180,11 @@ function Page() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`${activeTab === tab
-                    ? "text-purple border-b-2 border-purple"
-                    : "text-black-500"
-                    }`}
+                  className={`${
+                    activeTab === tab
+                      ? "text-purple border-b-2 border-purple"
+                      : "text-black-500"
+                  }`}
                   style={{ fontSize: 15, fontWeight: "500" }}
                 >
                   {tab}
@@ -3251,13 +3245,20 @@ function Page() {
                             displayEmpty // Enables placeholder
                             renderValue={(selected) => {
                               if (!selected) {
-                                return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
+                                return (
+                                  <div style={{ color: "#aaa" }}>Select</div>
+                                ); // Placeholder style
                               }
                               const selectedVoice = voicesList.find(
                                 (voice) => voice.voice_id === selected
                               );
                               return selectedVoice ? (
-                                <div style={{ display: "flex", alignItems: "center" }}>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                  }}
+                                >
                                   <Image
                                     src={selectedVoice.img}
                                     height={40}
@@ -3271,8 +3272,11 @@ function Page() {
                             sx={{
                               border: "none", // Default border
                               "&:hover": { border: "none" }, // Same border on hover
-                              "& .MuiOutlinedInput-notchedOutline": { border: "none" }, // Remove the default outline
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline": { border: "none" },
+                              "& .MuiOutlinedInput-notchedOutline": {
+                                border: "none",
+                              }, // Remove the default outline
+                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                { border: "none" },
                             }}
                             MenuProps={{
                               PaperProps: {
@@ -3286,18 +3290,30 @@ function Page() {
                           >
                             {voicesList.map((item, index) => {
                               const selectedVoiceName = (id) => {
-                                const voiceName = voicesList.find((voice) => voice.voice_id === id);
+                                const voiceName = voicesList.find(
+                                  (voice) => voice.voice_id === id
+                                );
                                 return voiceName?.name || "Unknown";
                               };
 
                               return (
                                 <MenuItem
-                                  style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+                                  style={{
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                  }}
                                   value={item.voice_id}
                                   key={index}
                                   disabled={SelectedVoice === item.voice_id}
                                 >
-                                  <Image src={item.img} height={40} width={35} alt="*" />
+                                  <Image
+                                    src={item.img}
+                                    height={40}
+                                    width={35}
+                                    alt="*"
+                                  />
                                   <div>{selectedVoiceName(item.voice_id)}</div>
 
                                   {/* Play/Pause Button (Prevents dropdown close) */}
@@ -3319,9 +3335,17 @@ function Page() {
                                       }}
                                     >
                                       {preview === item.preview ? (
-                                        <PauseCircle size={38} weight="regular" />
+                                        <PauseCircle
+                                          size={38}
+                                          weight="regular"
+                                        />
                                       ) : (
-                                        <Image src={"/assets/play.png"} height={25} width={25} alt="*" />
+                                        <Image
+                                          src={"/assets/play.png"}
+                                          height={25}
+                                          width={25}
+                                          alt="*"
+                                        />
                                       )}
                                     </div>
                                   ) : (
@@ -3332,7 +3356,12 @@ function Page() {
                                         setShowNoAudioModal(item);
                                       }}
                                     >
-                                      <Image src={"/assets/play.png"} height={25} width={25} alt="*" />
+                                      <Image
+                                        src={"/assets/play.png"}
+                                        height={25}
+                                        width={25}
+                                        alt="*"
+                                      />
                                     </div>
                                   )}
                                 </MenuItem>
@@ -3340,7 +3369,6 @@ function Page() {
                             })}
                           </Select>
                         </FormControl>
-
                       )}
                     </div>
                   </div>
@@ -3409,9 +3437,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3508,9 +3536,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3612,9 +3640,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3646,7 +3674,6 @@ function Page() {
                       )}
                     </div>
                   </div>
-
                 </div>
                 <div className="flex flex-col gap-1 mt-4">
                   <div
@@ -3764,37 +3791,37 @@ function Page() {
                                     {showReassignBtn && (
                                       <div
                                         className="w-full"
-                                      // onClick={(e) => {
-                                      //   console.log(
-                                      //     "Should open confirmation modal"
-                                      //   );
-                                      //   e.stopPropagation();
-                                      //   setShowConfirmationModal(item);
-                                      // }}
+                                        // onClick={(e) => {
+                                        //   console.log(
+                                        //     "Should open confirmation modal"
+                                        //   );
+                                        //   e.stopPropagation();
+                                        //   setShowConfirmationModal(item);
+                                        // }}
                                       >
                                         {item.claimedBy && (
                                           <div className="flex flex-row items-center gap-2">
                                             {showDrawerSelectedAgent?.name !==
                                               item.claimedBy.name && (
-                                                <div>
-                                                  <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                  {reassignLoader === item ? (
-                                                    <CircularProgress size={15} />
-                                                  ) : (
-                                                    <button
-                                                      className="text-purple underline"
-                                                      onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setShowConfirmationModal(
-                                                          item
-                                                        );
-                                                      }}
-                                                    >
-                                                      Reassign
-                                                    </button>
-                                                  )}
-                                                </div>
-                                              )}
+                                              <div>
+                                                <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                                {reassignLoader === item ? (
+                                                  <CircularProgress size={15} />
+                                                ) : (
+                                                  <button
+                                                    className="text-purple underline"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      setShowConfirmationModal(
+                                                        item
+                                                      );
+                                                    }}
+                                                  >
+                                                    Reassign
+                                                  </button>
+                                                )}
+                                              </div>
+                                            )}
                                           </div>
                                         )}
                                       </div>
@@ -3853,7 +3880,7 @@ function Page() {
                           color: "#666",
                         }}
                       >
-                        Call back number
+                        Call Back number
                       </div>
                       <div
                       // aria-owns={open ? 'mouse-over-popover' : undefined}
@@ -3863,7 +3890,6 @@ function Page() {
                       ></div>
                       {/* Code for popover */}
                     </div>
-
 
                     <div className="flex flex-row items-center justify-between gap-2">
                       <div
@@ -3880,11 +3906,16 @@ function Page() {
                         )}
                       </div>
 
-                      <button onClick={() => {
-                        setShowEditNumberPopup(showDrawerSelectedAgent?.callbackNumber)
-                        setSelectedNumber("Callback")
-                      }}>
-                        <Image src={"/svgIcons/editIcon2.svg"}
+                      <button
+                        onClick={() => {
+                          setShowEditNumberPopup(
+                            showDrawerSelectedAgent?.callbackNumber
+                          );
+                          setSelectedNumber("Callback");
+                        }}
+                      >
+                        <Image
+                          src={"/svgIcons/editIcon2.svg"}
                           height={24}
                           width={24}
                           alt="*"
@@ -3906,19 +3937,25 @@ function Page() {
                     </div>
 
                     <div className="flex flex-row items-center justify-between gap-2">
-
                       <div>
                         {showDrawerSelectedAgent?.liveTransferNumber ? (
-                          <div>{showDrawerSelectedAgent?.liveTransferNumber}</div>
+                          <div>
+                            {showDrawerSelectedAgent?.liveTransferNumber}
+                          </div>
                         ) : (
                           "-"
                         )}
                       </div>
-                      <button onClick={() => {
-                        setShowEditNumberPopup(showDrawerSelectedAgent?.liveTransferNumber)
-                        setSelectedNumber("Calltransfer")
-                      }}>
-                        <Image src={"/svgIcons/editIcon2.svg"}
+                      <button
+                        onClick={() => {
+                          setShowEditNumberPopup(
+                            showDrawerSelectedAgent?.liveTransferNumber
+                          );
+                          setSelectedNumber("Calltransfer");
+                        }}
+                      >
+                        <Image
+                          src={"/svgIcons/editIcon2.svg"}
                           height={24}
                           width={24}
                           alt="*"
@@ -3933,31 +3970,32 @@ function Page() {
                     open={showEditNumberPopup}
                     close={() => setShowEditNumberPopup(null)}
                     number={showEditNumberPopup && showEditNumberPopup}
-                    title={selectedNumber === "Callback" ? "Call back Number" : "Call transfer Number"}
+                    title={
+                      selectedNumber === "Callback"
+                        ? "Call Back Number"
+                        : "Call Transfer Number"
+                    }
                     loading={loading}
                     update={async (value) => {
-                      let data = ""
+                      let data = "";
                       if (selectedNumber === "Callback") {
                         data = {
-                          callbackNumber: value
-                        }
+                          callbackNumber: value,
+                        };
                       } else {
                         data = {
-                          liveTransferNumber: value
-                        }
+                          liveTransferNumber: value,
+                        };
                       }
-                      console.log('data', data)
-                      setLoading(true)
-                      await updateSubAgent(data)
-                      setLoading(false)
-                      setShowEditNumberPopup(null)
+                      console.log("data", data);
+                      setLoading(true);
+                      await updateSubAgent(data);
+                      setLoading(false);
+                      setShowEditNumberPopup(null);
                     }}
-
                   />
                 </div>
               </div>
-
-
             ) : activeTab === "Calendar" ? (
               <div>
                 <UserCalender

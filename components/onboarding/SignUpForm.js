@@ -763,7 +763,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                 type="number"
                 spellCheck="false"
                 enterKeyHint="done"
-                placeholder="Value"
+                placeholder="Type here"
                 className="border border-[#00000010] rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={userTransaction}

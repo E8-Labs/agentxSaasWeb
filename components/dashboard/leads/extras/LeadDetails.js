@@ -779,6 +779,11 @@ const LeadDetails = ({
                             {selectedLeadsDetails?.firstName}{" "}
                             {selectedLeadsDetails?.lastName}
                           </div>
+                          {selectedLeadsDetails?.isOnDncList && (
+                            <div className="rounded-full justify-center items-center bg-red color-black p-1 px-2">
+                              DNC
+                            </div>
+                          )}
                         </div>
 
                         <div className="" style={styles.heading2}>
@@ -879,10 +884,20 @@ const LeadDetails = ({
                             </div>
                           )}
                         </div>
-                        <div style={styles.heading2}>
-                          {/* {selectedLeadsDetails?.phone} */}
-                          {formatPhoneNumber(selectedLeadsDetails?.phone) ||
-                            "-"}
+                        <div className="flex flex-row gap-2 justify-center items-center">
+                          <div style={styles.heading2}>
+                            {/* {selectedLeadsDetails?.phone} */}
+                            {formatPhoneNumber(selectedLeadsDetails?.phone) ||
+                              "-"}
+                          </div>
+                          {selectedLeadsDetails?.cell != null && (
+                            <div
+                              className="rounded-full font-medium justify-center items-center color-[#ffffff] p-1 px-2 bg-[#15151580]"
+                              style={{ color: "white" }}
+                            >
+                              {selectedLeadsDetails?.cell}
+                            </div>
+                          )}
                         </div>
 
                         <div style={styles.heading2}>
@@ -1006,8 +1021,7 @@ const LeadDetails = ({
                                       textDecorationLine: "underline",
                                     }}
                                   >
-                                    {" "}
-                                    Custom fields
+                                    {" Custom fields"}
                                   </div>
                                   {showCustomVariables ? (
                                     <CaretUp
