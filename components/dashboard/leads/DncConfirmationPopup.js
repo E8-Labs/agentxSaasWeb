@@ -51,7 +51,7 @@ export default function DncConfirmationPopup({
       {/* Modal Content */}
       <DialogContent>
         <Typography sx={{ color: "#000", fontSize: "16px" }}>
-          DNC Checklist is $0.03 per number. If less than 34 leads it's $1.
+          {`DNC Checklist is $0.03 per number. If less than 34 leads it's $1.`}
         </Typography>
         <Typography
           variant="h6"
