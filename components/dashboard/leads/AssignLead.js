@@ -1172,8 +1172,7 @@ const AssignLead = ({
                 <div className="w-full">
                   {(NoOfLeadsToSend || customLeadsToSend) &&
                   (CallNow ||
-                    (CallLater && selectedDateTime && hasUserSelectedDate)) &&
-                  isDncChecked ? (
+                    (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
                     <button
                       className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {
