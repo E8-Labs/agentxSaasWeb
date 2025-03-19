@@ -683,7 +683,7 @@ const LeadDetails = ({
     ];
     for (const c of columns) {
       if (!c.isDefault) {
-        if (!ExcludedColumns.includes(c.title.toLowerCase())) {
+        if (!ExcludedColumns.includes(c?.title?.toLowerCase() || "")) {
           count += 1;
         }
       }
@@ -973,7 +973,7 @@ const LeadDetails = ({
                         <div style={styles.heading2}>
                           {/* {selectedLeadsDetails?.phone} */}
                           {selectedLeadsDetails?.pipeline
-                            ? selectedLeadsDetails.pipeline.title
+                            ? selectedLeadsDetails?.pipeline?.title
                             : "-"}
                         </div>
 
@@ -1044,13 +1044,13 @@ const LeadDetails = ({
                                 <div className="flex flex-col gap-4 mt-4">
                                   {leadColumns.map((column, index) => {
                                     if (
-                                      column.title == "Name" ||
-                                      column.title == "Phone" ||
-                                      column.title == "address" ||
-                                      column.title == "More" ||
-                                      column.title == 0 ||
-                                      column.title == "Stage" ||
-                                      column.title == "status"
+                                      column?.title == "Name" ||
+                                      column?.title == "Phone" ||
+                                      column?.title == "address" ||
+                                      column?.title == "More" ||
+                                      column?.title == 0 ||
+                                      column?.title == "Stage" ||
+                                      column?.title == "status"
                                     ) {
                                       return (
                                         // <div key={index}></div>
@@ -1066,7 +1066,7 @@ const LeadDetails = ({
                                           {/* <Image src={"/"} */}
 
                                           <div style={styles.subHeading}>
-                                            {capitalize(column.title)}
+                                            {capitalize(column?.title || "")}
                                           </div>
                                         </div>
                                         <div
