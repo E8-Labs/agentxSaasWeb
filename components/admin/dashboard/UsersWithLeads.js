@@ -101,7 +101,17 @@ export default function UsersWithLeads({ open, onClose, user }) {
         {/* List of Voices */}
         <List sx={{ width: "100%", mt: 2, overflow: "scroll" }}>
           {users.map((user, index) => (
-            <ListItem key={user.id}>
+            <ListItem key={user.id}
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                if (user.id) {
+                  // Open a new tab with user ID as query param
+                  let url = ` admin/users?userId=${user.id}`
+                  console.log('url is', url)
+                  window.open(url, "_blank");
+                }
+              }}
+            >
               {/* Avatar */}
               <ListItemAvatar>
                 <Avatar src={user.thumb_profile_image} alt={user.name} />
@@ -116,7 +126,7 @@ export default function UsersWithLeads({ open, onClose, user }) {
                 }
                 secondary={
                   <Typography sx={{ color: "#666", fontSize: "14px" }}>
-                     Leads : {user.leadsCount}
+                    Leads : {user.leadsCount}
                   </Typography>
                 }
               />

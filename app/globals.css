@@ -88,3 +88,57 @@
   max-width: 100%; /* Ensures it fits within its column */
   display: block;
 }
+
+/* ------------- Date Picker (Selected Date) ------------- */
+.MuiPickersDay-root.Mui-selected {
+  background-color: #7902DF !important; /* Purple */
+  color: white !important;
+}
+
+/* Hover effect for unselected dates */
+.MuiPickersDay-root:hover {
+  background-color: #a352df !important; /* Light Purple */
+}
+
+/* Default color for unselected dates */
+.MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected) {
+  color: #333 !important;
+}
+
+/* ------------- Time Picker (Dropdown) ------------- */
+/* Selected hour, minutes, AM/PM in dropdown */
+.MuiClock-root .Mui-selected,
+.MuiClockNumber-root.Mui-selected,
+.MuiPickersTimeClock-root .Mui-selected,
+.MuiTimeClock-root .Mui-selected {
+  background-color: #7902DF !important;
+  color: white !important;
+}
+
+/* Hover effect for time picker items */
+.MuiClock-root .MuiButtonBase-root:hover,
+.MuiPickersTimeClock-root .MuiButtonBase-root:hover,
+.MuiTimeClock-root .MuiButtonBase-root:hover {
+  background-color: #a352df !important;
+}
+
+/* Selected AM/PM Button */
+.MuiPickersToolbar-root .Mui-selected {
+  background-color: #7902DF !important;
+  color: white !important;
+}
+
+/* ------------- OK & CANCEL Buttons ------------- */
+.MuiDialogActions-root button {
+  color: #7902DF !important;
+}
+
+/* Time picker scrollbar track */
+.MuiTimeClock-root::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
+/* Time picker scrollbar thumb */
+.MuiTimeClock-root::-webkit-scrollbar-thumb {
+  background-color: #7902DF !important;
+}

@@ -28,7 +28,7 @@ let stripePublickKey =
     : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = loadStripe(stripePublickKey);
 
-function AdminBilling({selectedUser}) {
+function AdminBilling({ selectedUser }) {
   //stroes user cards list
   const [cards, setCards] = useState([]);
 
@@ -81,7 +81,7 @@ function AdminBilling({selectedUser}) {
     {
       id: 1,
       mints: 30,
-      calls: 250,
+      calls: 125,
       details: "Great for trying out AI sales agents.",
       // originalPrice: "45",
       discountPrice: "45",
@@ -91,7 +91,7 @@ function AdminBilling({selectedUser}) {
     {
       id: 2,
       mints: 120,
-      calls: "1k",
+      calls: "500",
       details: "Perfect for lead updates and engagement.",
       originalPrice: "165",
       discountPrice: "99",
@@ -101,7 +101,7 @@ function AdminBilling({selectedUser}) {
     {
       id: 3,
       mints: 360,
-      calls: "3k",
+      calls: "1500",
       details: "Perfect for lead reactivation and prospecting.",
       originalPrice: "540",
       discountPrice: "370",
@@ -111,7 +111,7 @@ function AdminBilling({selectedUser}) {
     {
       id: 4,
       mints: 720,
-      calls: "10k",
+      calls: "5k",
       details: "Ideal for teams and reaching new GCI goals. ",
       originalPrice: "1200",
       discountPrice: "600",
@@ -153,7 +153,7 @@ function AdminBilling({selectedUser}) {
   const getProfile = async () => {
     try {
       const localData = localStorage.getItem("User");
-      let response = await AdminGetProfileDetails(selectedUser.id );
+      let response = await AdminGetProfileDetails(selectedUser.id);
       console.log("Response of get progf", response);
       if (response) {
         let plan = response.plan;
@@ -212,7 +212,7 @@ function AdminBilling({selectedUser}) {
 
       //Talabat road
 
-      const ApiPath = Apis.getCardsList + "?userId=" + selectedUser.id; 
+      const ApiPath = Apis.getCardsList + "?userId=" + selectedUser.id;
 
       // console.log("apipath for get cards list", ApiPath);
 
@@ -239,7 +239,7 @@ function AdminBilling({selectedUser}) {
 
   //function to make default cards api
   const makeDefaultCard = async (item) => {
-    setSelectedCard(item)
+    setSelectedCard(item);
     // console.log('selectedCard', item.id)
     // return
     try {
@@ -273,14 +273,13 @@ function AdminBilling({selectedUser}) {
       if (response) {
         // console.log("Response of make default card api is", response.data);
         if (response.data.status === true) {
-
           let crds = cards.forEach((card, index) => {
             if (card.isDefault) {
-              console.log('card.isDefault', card.isDefault)
-              cards[index].isDefault = false
+              console.log("card.isDefault", card.isDefault);
+              cards[index].isDefault = false;
             }
-          })
-          item.isDefault = true
+          });
+          item.isDefault = true;
         }
       }
     } catch (error) {
@@ -409,7 +408,7 @@ function AdminBilling({selectedUser}) {
         AuthToken = LocalDetails.token;
       }
 
-      const ApiPath = Apis.getPaymentHistory+"?userId="+selectedUser.id;
+      const ApiPath = Apis.getPaymentHistory + "?userId=" + selectedUser.id;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -763,9 +762,9 @@ function AdminBilling({selectedUser}) {
                                 ****{item.last4}
                               </div>
                               {
-                              // makeDefaultCardLoader ? (
-                              //   <CircularProgress size={20} />
-                              // ) :
+                                // makeDefaultCardLoader ? (
+                                //   <CircularProgress size={20} />
+                                // ) :
 
                                 item.isDefault && (
                                   <div
@@ -774,7 +773,8 @@ function AdminBilling({selectedUser}) {
                                   >
                                     Default
                                   </div>
-                                )}
+                                )
+                              }
                             </div>
                             <div
                               style={{
@@ -1154,7 +1154,7 @@ function AdminBilling({selectedUser}) {
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
                   togglePlan={""}
-                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>
@@ -1227,8 +1227,9 @@ function AdminBilling({selectedUser}) {
 
               <div className="flex flex-col items-center px-4 w-full">
                 <div
-                  className={`flex flex-row items-center gap-2 text-purple ${ScreenWidth < 1200 ? "mt-4" : "mt-6"
-                    }bg-[#402FFF10] py-2 px-4 rounded-full`}
+                  className={`flex flex-row items-center gap-2 text-purple ${
+                    ScreenWidth < 1200 ? "mt-4" : "mt-6"
+                  }bg-[#402FFF10] py-2 px-4 rounded-full`}
                   style={styles.gitTextStyle}
                 >
                   <Image
@@ -1400,7 +1401,7 @@ function AdminBilling({selectedUser}) {
                     outline: "none",
                   }}
                   onClick={handleCancelPlan}
-                // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
+                  // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
                 >
                   Yes. Cancel
                 </button>
@@ -1584,7 +1585,7 @@ function AdminBilling({selectedUser}) {
                       onClick={() => {
                         handleDelReason();
                       }}
-                    // disabled={!selectReason || !otherReasonInput || }
+                      // disabled={!selectReason || !otherReasonInput || }
                     >
                       Continue
                     </button>

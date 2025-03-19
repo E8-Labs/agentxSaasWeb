@@ -868,6 +868,9 @@ function AdminAgentX({ selectedUser }) {
       if (showDrawerSelectedAgent) {
         formData.append("mainAgentId", showDrawerSelectedAgent.mainAgentId);
       }
+      if (selectedUser) {
+        formData.append("userId", selectedUser.id);
+      }
 
       for (let [key, value] of formData.entries()) {
         //// console.log(`${key}: ${value}`);
@@ -1298,13 +1301,14 @@ function AdminAgentX({ selectedUser }) {
         name: name,
         phone: phone,
         extraColumns: newArray,
+        userId: selectedUser.id,
       };
 
       const ApiPath = Apis.testAI;
 
-      //console.log("Data sending in api is:", JSON.stringify(ApiData));
+      console.log("Data sending in api is:", JSON.stringify(ApiData));
       //console.log("Api path is:", JSON.stringify(ApiPath));
-      // return
+      // return;
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
           Authorization: "Bearer " + AuthToken,
@@ -2938,7 +2942,7 @@ function AdminAgentX({ selectedUser }) {
                           color: "#666",
                         }}
                       >
-                        Call back number
+                        Call Back number
                       </div>
                       <div
                       // aria-owns={open ? 'mouse-over-popover' : undefined}

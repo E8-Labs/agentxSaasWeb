@@ -3,6 +3,7 @@ import {
   Alert,
   Box,
   CircularProgress,
+  Drawer,
   Fade,
   FormControl,
   InputLabel,
@@ -35,6 +36,7 @@ import { AssignTeamMember } from "@/components/onboarding/services/apisServices/
 import CircularLoader from "@/utilities/CircularLoader";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
 import { capitalize } from "@/utilities/StringUtility";
+import CloseIcon from "@mui/icons-material/Close";
 
 const LeadDetails = ({
   showDetailsModal,
@@ -66,6 +68,7 @@ const LeadDetails = ({
   const [showKYCDetails, setShowKycDetails] = useState(true);
   const [showNotesDetails, setShowNotesDetails] = useState(false);
   const [showAcitivityDetails, setShowAcitivityDetails] = useState(false);
+  const [showPerplexityDetails, setShowPerpelexityDetails] = useState(false);
 
   //code for add stage notes
   const [showAddNotes, setShowAddNotes] = useState(false);
@@ -117,8 +120,8 @@ const LeadDetails = ({
   const [getTeamLoader, setGetTeamLoader] = useState(false);
 
   useEffect(() => {
-    console.log('Lead detail modal rendered');
-  }, [])
+    console.log("Lead detail modal rendered");
+  }, []);
 
   useEffect(() => {
     if (!selectedLead) return;
@@ -132,7 +135,7 @@ const LeadDetails = ({
 
   //code for getting teammebers
   const getMyteam = async () => {
-    console.log('team getting')
+    console.log("team getting");
     try {
       setGetTeamLoader(true);
       const data = localStorage.getItem("User");
@@ -152,7 +155,7 @@ const LeadDetails = ({
           setGetTeamLoader(false);
 
           if (response.data.status === true) {
-            // console.log("get team api response is", response.data);
+            console.log("get team api response is", response.data);
             setMyTeam(response.data.data);
             setMyTeamAdmin(response.data.admin);
           } else {
@@ -316,14 +319,13 @@ const LeadDetails = ({
 
   //function to get the stages list using pipelineId
   const getStagesList = async () => {
-
     try {
       let AuthToken = null;
-      setStagesListLoader(true)
+      setStagesListLoader(true);
       const localDetails = localStorage.getItem("User");
       if (localDetails) {
         const Data = JSON.parse(localDetails);
-        //// console.log("User details are", Data);
+        console.log("getting stage list");
         AuthToken = Data.token;
       }
 
@@ -341,16 +343,16 @@ const LeadDetails = ({
       });
 
       if (response) {
-        // console.log("Response of getStages list is ", response.data);
+        console.log("Response of getStages list is ", response.data);
         if (response.data.status === true) {
-          // console.log("Stages list is", response.data.data[0].stages);
-          setStagesList(response.data.data[0].stages);
+          console.log("Stages list is", response.data.data.stages);
+          setStagesList(response.data.data.stages);
         }
       }
     } catch (error) {
-      // console.error("Error occured in api is", error);
+      console.error("Error occured in stage list api is", error);
     } finally {
-      setStagesListLoader(false)
+      setStagesListLoader(false);
       // console.log("Get stages ai call done");
     }
   };
@@ -656,6 +658,11 @@ const LeadDetails = ({
       border: "none",
       outline: "none",
     },
+    heading2: {
+      fontsize: 15,
+      fontWeight: "500",
+      color: "#15151580",
+    },
     subHeading: {
       fontsize: 12,
       fontWeight: "500",
@@ -688,27 +695,34 @@ const LeadDetails = ({
 
   return (
     <div className="h-[100svh]">
-      <Modal
+      <Drawer
         open={showDetailsModal}
-        closeAfterTransition
+        anchor="right"
         onClose={() => {
           setShowDetailsModal(false);
         }}
-        BackdropProps={{
+        PaperProps={{
           sx: {
-            backgroundColor: noBackDrop ? "#00000020" : "#00000020",
-            // //backdropFilter: "blur(5px)",
+            width: "45%", // Adjust width as needed
+            borderRadius: "20px", // Rounded corners
+            padding: "0px", // Internal padding
+            boxShadow: 3, // Light shadow
+            margin: "1%", // Small margin for better appearance
+            backgroundColor: "white", // Ensure it's visible
+            height: "96.5vh",
+            overflow: "hidden",
+            scrollbarWidth: "none",
+          },
+        }}
+        BackdropProps={{
+          timeout: 100,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(20px)",
           },
         }}
       >
-        <Box
-          className="lg:w-6/12 sm:w-7/12 w-8/12 bg-white py-2 h-[95svh] overflow-y-auto"
-          sx={{
-            ...styles.modalsStyle,
-            scrollbarWidth: "none",
-            backgroundColor: "white", //overflowY: "auto"
-          }}
-        >
+        <div className="flex flex-col w-full h-full  py-2 px-5 rounded-xl">
           <div className="w-full flex flex-col items-center h-full">
             <AgentSelectSnackMessage
               isVisible={showSuccessSnack2}
@@ -722,14 +736,7 @@ const LeadDetails = ({
               message={showErrorSnack2}
               type={SnackbarTypes.Error}
             />
-            {/* <div className='flex flex-row justify-between items-center'>
-                            <div style={{ fontWeight: "500", fontSize: 16.9 }}>
-                                Details
-                            </div>
-                            <button onClick={() => { setShowDetailsModal(false) }}>
-                                <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
-                            </button>
-                        </div> */}
+
             <div className="w-full">
               {initialLoader ? (
                 <div className="w-full flex flex-row items-center justify-center mt-24">
@@ -743,64 +750,43 @@ const LeadDetails = ({
                       paddingInline: 30,
                     }}
                   >
-                    <div className="flex flex-row justify-between items-center">
-                      <div style={{ fontWeight: "500", fontSize: 16.9 }}>
-                        Details
+                    <div className="w-full flex flex-row items-center justify-between pb-4 border-b">
+                      <div style={{ fontSize: 18, fontWeight: "700" }}>
+                        More Info
                       </div>
                       <button
                         onClick={() => {
                           setShowDetailsModal(false);
                         }}
                       >
-                        <Image
-                          src={"/assets/crossIcon.png"}
-                          height={40}
-                          width={40}
-                          alt="*"
-                        />
+                        <CloseIcon />
                       </button>
                     </div>
 
-                    <div className="flex flex-row items-center justify-between mt-4">
-                      <div className="flex flex-row items-center gap-4">
-                        <div
-                          className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                          onClick={() => handleToggleClick(item.id)}
-                        >
-                          {selectedLeadsDetails?.firstName.slice(0, 1)}
-                        </div>
-                        <div
-                          className="truncate"
-                          onClick={() => handleToggleClick(item.id)}
-                        >
-                          {selectedLeadsDetails?.firstName}{" "}
-                          {selectedLeadsDetails?.lastName}
-                        </div>
-                      </div>
-                      {delLeadLoader ? (
-                        <CircularProgress size={20} />
-                      ) : (
-                        <div>
-                          {!hideDelete && (
-                            <button
-                              onClick={handleDeleteLead}
-                              className="text-red"
-                              style={{ fontsize: 15, fontWeight: "500" }}
-                            >
-                              Delete
-                            </button>
+                    <div className="flex flex-row items-start justify-between mt-4">
+                      <div className="flex flex-col items-start gap-[5px]">
+                        <div className="flex flex-row items-center gap-4">
+                          <div
+                            className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                            onClick={() => handleToggleClick(item.id)}
+                          >
+                            {selectedLeadsDetails?.firstName.slice(0, 1)}
+                          </div>
+                          <div
+                            className="truncate"
+                            onClick={() => handleToggleClick(item.id)}
+                          >
+                            {selectedLeadsDetails?.firstName}{" "}
+                            {selectedLeadsDetails?.lastName}
+                          </div>
+                          {selectedLeadsDetails?.isOnDncList && (
+                            <div className="rounded-full justify-center items-center bg-red color-black p-1 px-2">
+                              DNC
+                            </div>
                           )}
                         </div>
-                      )}
-                    </div>
 
-                    <div className="flex flex-row items-center w-full justify-between mt-4">
-                      <div className="flex flex-row items-center gap-2">
-                        <EnvelopeSimple size={20} color="#00000060" />
-                        <div style={styles.subHeading}>Email Address</div>
-                      </div>
-                      <div>
-                        <div className="text-end" style={styles.heading2}>
+                        <div className="" style={styles.heading2}>
                           {selectedLeadsDetails?.email ? (
                             selectedLeadsDetails?.email
                           ) : (
@@ -837,10 +823,11 @@ const LeadDetails = ({
                                         }}
                                       >
                                         {selectedLeadsDetails?.emails?.length >
-                                          1
-                                          ? `+${selectedLeadsDetails?.emails
-                                            ?.length - 1
-                                          }`
+                                        1
+                                          ? `+${
+                                              selectedLeadsDetails?.emails
+                                                ?.length - 1
+                                            }`
                                           : ""}
                                       </button>
                                     </div>
@@ -849,50 +836,361 @@ const LeadDetails = ({
                             </div>
                           )}
                         </div>
+                        <div>
+                          {selectedLeadsDetails?.email && (
+                            <div className="flex flex-row w-full justify-end">
+                              {selectedLeadsDetails?.emails
+                                ?.slice(0, 1)
+                                .map((email, emailIndex) => {
+                                  return (
+                                    <div
+                                      key={emailIndex}
+                                      className="flex flex-row items-center gap-2"
+                                    >
+                                      <div
+                                        className="flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]"
+                                        style={styles.paragraph}
+                                      >
+                                        <Image
+                                          src={"/assets/power.png"}
+                                          height={9}
+                                          width={7}
+                                          alt="*"
+                                        />
+                                        <div>
+                                          <span className="text-purple">
+                                            New
+                                          </span>{" "}
+                                          {email.email}
+                                        </div>
+                                      </div>
+                                      <button
+                                        className="text-purple underline"
+                                        onClick={() => {
+                                          setShowAllEmails(true);
+                                        }}
+                                      >
+                                        {selectedLeadsDetails?.emails?.length >
+                                        1
+                                          ? `+${
+                                              selectedLeadsDetails?.emails
+                                                ?.length - 1
+                                            }`
+                                          : ""}
+                                      </button>
+                                    </div>
+                                  );
+                                })}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex flex-row gap-2 justify-center items-center">
+                          <div style={styles.heading2}>
+                            {/* {selectedLeadsDetails?.phone} */}
+                            {formatPhoneNumber(selectedLeadsDetails?.phone) ||
+                              "-"}
+                          </div>
+                          {selectedLeadsDetails?.cell != null && (
+                            <div
+                              className="rounded-full font-medium justify-center items-center color-[#ffffff] p-1 px-2 bg-[#15151580]"
+                              style={{ color: "white" }}
+                            >
+                              {selectedLeadsDetails?.cell}
+                            </div>
+                          )}
+                        </div>
+
+                        <div style={styles.heading2}>
+                          {selectedLeadsDetails?.address || "-"}
+                        </div>
+
+                        <div>
+                          {selectedLeadsDetails?.tags.length > 0 ? (
+                            <div
+                              className="text-end flex flex-row items-center gap-2"
+                              // style={styles.paragraph}
+                            >
+                              {
+                                // selectedLeadsDetails?.tags?.map.slice(0, 1)
+                                selectedLeadsDetails?.tags
+                                  .slice(0, 2)
+                                  .map((tag, index) => {
+                                    return (
+                                      <div
+                                        key={index}
+                                        className="flex flex-row items-center gap-2"
+                                      >
+                                        <div className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg">
+                                          <div
+                                            className="text-purple" //1C55FF10
+                                          >
+                                            {tag}
+                                          </div>
+                                          {DelTagLoader &&
+                                          tag.includes(DelTagLoader) ? (
+                                            <div>
+                                              <CircularProgress size={15} />
+                                            </div>
+                                          ) : (
+                                            <button
+                                              onClick={() => {
+                                                handleDelTag(tag);
+                                              }}
+                                            >
+                                              <X
+                                                size={15}
+                                                weight="bold"
+                                                color="#7902DF"
+                                              />
+                                            </button>
+                                          )}
+                                        </div>
+                                      </div>
+                                    );
+                                  })
+                              }
+                              <button
+                                className="outline-none"
+                                onClick={() => {
+                                  // console.log(
+                                  //   "tags are",
+                                  //   selectedLeadsDetails?.tags
+                                  // );
+                                  setExtraTagsModal(true);
+                                }}
+                              >
+                                {selectedLeadsDetails?.tags.length > 2 && (
+                                  <div className="text-purple underline">
+                                    +{selectedLeadsDetails?.tags.length - 2}
+                                  </div>
+                                )}
+                              </button>
+                            </div>
+                          ) : (
+                            "-"
+                          )}
+                        </div>
+                        <div style={styles.heading2}>
+                          {/* {selectedLeadsDetails?.phone} */}
+                          {selectedLeadsDetails?.pipeline
+                            ? selectedLeadsDetails.pipeline.title
+                            : "-"}
+                        </div>
+
+                        <div>
+                          {selectedLeadsDetails?.booking && (
+                            <div style={styles.heading2}>
+                              {/* {selectedLeadsDetails?.phone} */}
+                              {GetFormattedDateString(
+                                selectedLeadsDetails.booking.datetime,
+                                true
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        <div>
+                          {getExtraColumsCount(columnsLength) >= 1 && (
+                            <div className="mt-2 rounded-xl p-2">
+                              <button
+                                onClick={() => {
+                                  setShowCustomVariables(!showCustomVariables);
+                                }}
+                                className="flex flex-row items-center w-1/2 justify-between outline-none"
+                              >
+                                <div className="flex flex-row items-center">
+                                  {getExtraColumsCount(columnsLength) > 0 ? (
+                                    <div
+                                      className=""
+                                      style={{
+                                        fontsize: 15,
+                                        fontWeight: "500",
+                                      }}
+                                    >
+                                      +{getExtraColumsCount(columnsLength)}
+                                    </div>
+                                  ) : (
+                                    ""
+                                  )}
+                                  <div
+                                    style={{
+                                      fontWeight: "600",
+                                      fontsize: 15,
+                                      color: "#15151560",
+                                      whiteSpace: "nowrap",
+                                      textDecorationLine: "underline",
+                                    }}
+                                  >
+                                    {" Custom fields"}
+                                  </div>
+                                  {showCustomVariables ? (
+                                    <CaretUp
+                                      size={16}
+                                      weight="bold"
+                                      color="#15151570"
+                                    />
+                                  ) : (
+                                    <CaretDown
+                                      size={16}
+                                      weight="bold"
+                                      color="#15151570"
+                                    />
+                                  )}
+                                </div>
+                                <div></div>
+                              </button>
+
+                              {showCustomVariables && (
+                                <div className="flex flex-col gap-4 mt-4">
+                                  {leadColumns.map((column, index) => {
+                                    if (
+                                      column.title == "Name" ||
+                                      column.title == "Phone" ||
+                                      column.title == "address" ||
+                                      column.title == "More" ||
+                                      column.title == 0 ||
+                                      column.title == "Stage" ||
+                                      column.title == "status"
+                                    ) {
+                                      return (
+                                        // <div key={index}></div>
+                                        ""
+                                      );
+                                    }
+                                    return (
+                                      <div
+                                        key={index}
+                                        className="flex flex-row w-1/2 items-start gap-1 justify-between"
+                                      >
+                                        <div className="flex flex-row items-center gap-4">
+                                          {/* <Image src={"/"} */}
+
+                                          <div style={styles.subHeading}>
+                                            {capitalize(column.title)}
+                                          </div>
+                                        </div>
+                                        <div
+                                          className="flex w-full flex-row whitespace-normal break-words overflow-hidden items-end justify-end"
+                                          style={{ alignSelf: "flex-end" }}
+                                        >
+                                          <div className="flex w-[85%] flex-col items-end">
+                                            {getDetailsColumnData(
+                                              column,
+                                              selectedLeadsDetails
+                                            )}
+                                          </div>
+                                          {ShowReadMoreButton(
+                                            column,
+                                            selectedLeadsDetails
+                                          ) && (
+                                            <div className="flex w-[15%] items-end justify-end border">
+                                              <button
+                                                style={{
+                                                  fontWeight: "600",
+                                                  fontSize: 15,
+                                                }}
+                                                onClick={() => {
+                                                  setExpandedCustomFields(
+                                                    (prevFields) =>
+                                                      prevFields.includes(title)
+                                                        ? prevFields.filter(
+                                                            (field) =>
+                                                              field !== title
+                                                          )
+                                                        : [...prevFields, title]
+                                                  );
+                                                }}
+                                                className=" text-black underline w-[120px]"
+                                              >
+                                                {expandedCustomFields.includes(
+                                                  title
+                                                )
+                                                  ? "Read Less"
+                                                  : "Read More"}
+                                              </button>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-end gap-[5px]">
+                        {delLeadLoader ? (
+                          <CircularProgress size={20} />
+                        ) : (
+                          <div>
+                            {!hideDelete && (
+                              <button
+                                onClick={handleDeleteLead}
+                                className="text-red"
+                                style={{ fontsize: 15, fontWeight: "500" }}
+                              >
+                                Delete
+                              </button>
+                            )}
+                          </div>
+                        )}
+                        <div
+                          className="text-end flex flex-row items-center gap-1"
+                          style={styles.paragraph}
+                        >
+                          {stagesListLoader ? (
+                            <CircularProgress size={25} />
+                          ) : (
+                            <>
+                              <div
+                                className="h-[10px] w-[10px] rounded-full"
+                                style={{
+                                  backgroundColor:
+                                    selectedLeadsDetails?.stage?.defaultColor,
+                                }}
+                              ></div>
+
+                              <SelectStageDropdown
+                                selectedStage={selectedStage}
+                                handleStageChange={handleStageChange}
+                                stagesList={stagesList}
+                                updateLeadStage={updateLeadStage}
+                              />
+                            </>
+                          )}
+                        </div>
+
+                        <div className="mt-10">
+                          {selectedLeadsDetails?.teamsAssigned?.length > 0 ? (
+                            <div className="p-8">
+                              <LeadTeamsAssignedList
+                                users={selectedLeadsDetails?.teamsAssigned}
+                              />
+                            </div>
+                          ) : (
+                            <button
+                              className="text-end outline-none"
+                              style={styles.paragraph}
+                              aria-describedby={id}
+                              variant="contained"
+                              onClick={(event) => {
+                                handleShowPopup(event);
+                              }}
+                            >
+                              <Image
+                                src={"/assets/manIcon.png"}
+                                height={30}
+                                width={30}
+                                alt="man"
+                              />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
-
-                    {selectedLeadsDetails?.email && (
-                      <div className="flex flex-row w-full justify-end">
-                        {selectedLeadsDetails?.emails
-                          ?.slice(0, 1)
-                          .map((email, emailIndex) => {
-                            return (
-                              <div
-                                key={emailIndex}
-                                className="flex flex-row items-center gap-2"
-                              >
-                                <div
-                                  className="flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]"
-                                  style={styles.paragraph}
-                                >
-                                  <Image
-                                    src={"/assets/power.png"}
-                                    height={9}
-                                    width={7}
-                                    alt="*"
-                                  />
-                                  <div>
-                                    <span className="text-purple">New</span>{" "}
-                                    {email.email}
-                                  </div>
-                                </div>
-                                <button
-                                  className="text-purple underline"
-                                  onClick={() => {
-                                    setShowAllEmails(true);
-                                  }}
-                                >
-                                  {selectedLeadsDetails?.emails?.length > 1
-                                    ? `+${selectedLeadsDetails?.emails?.length - 1
-                                    }`
-                                    : ""}
-                                </button>
-                              </div>
-                            );
-                          })}
-                      </div>
-                    )}
 
                     {/* Modal for All Emails */}
                     <Modal
@@ -1026,7 +1324,7 @@ const LeadDetails = ({
                                         {tag}
                                       </div>
                                       {DelTagLoader &&
-                                        tag.includes(DelTagLoader) ? (
+                                      tag.includes(DelTagLoader) ? (
                                         <div>
                                           <CircularProgress size={15} />
                                         </div>
@@ -1053,497 +1351,252 @@ const LeadDetails = ({
                       </Box>
                     </Modal>
 
-                    <div className="flex flex-row items--center w-full justify-between mt-4">
-                      <div className="flex flex-row items-center gap-2">
-                        {/* <EnvelopeSimple size={20} color='#00000060' /> */}
-                        <Image
-                          src={"/assets/call.png"}
-                          height={16}
-                          width={16}
-                          alt="man"
-                        />
-                        <div style={styles.subHeading}>Phone Number</div>
-                      </div>
-                      <div className="text-end" style={styles.paragraph}>
-                        {/* {selectedLeadsDetails?.phone} */}
-                        {formatPhoneNumber(selectedLeadsDetails?.phone) || "-"}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-row items--center w-full justify-between mt-4">
-                      <div className="flex flex-row items-center gap-2">
-                        {/* <EnvelopeSimple size={20} color='#00000060' /> */}
-                        <Image
-                          src={"/assets/location.png"}
-                          height={16}
-                          width={16}
-                          alt="man"
-                        />
-                        <div style={styles.subHeading}>Address</div>
-                      </div>
-                      <div className="text-end" style={styles.paragraph}>
-                        {selectedLeadsDetails?.address || "-"}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-row items-center w-full justify-between mt-4">
-                      <div className="flex flex-row items-center gap-2">
-                        <Image
-                          src={"/assets/tag.png"}
-                          height={16}
-                          width={16}
-                          alt="man"
-                        />
-                        <div style={styles.subHeading}>Tag</div>
-                      </div>
-                      {selectedLeadsDetails?.tags.length > 0 ? (
-                        <div
-                          className="text-end flex flex-row items-center gap-2"
-                        // style={styles.paragraph}
-                        >
-                          {
-                            // selectedLeadsDetails?.tags?.map.slice(0, 1)
-                            selectedLeadsDetails?.tags
-                              .slice(0, 2)
-                              .map((tag, index) => {
-                                return (
-                                  <div
-                                    key={index}
-                                    className="flex flex-row items-center gap-2"
-                                  >
-                                    <div className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg">
-                                      <div
-                                        className="text-purple" //1C55FF10
-                                      >
-                                        {tag}
-                                      </div>
-                                      {DelTagLoader &&
-                                        tag.includes(DelTagLoader) ? (
-                                        <div>
-                                          <CircularProgress size={15} />
-                                        </div>
-                                      ) : (
-                                        <button
-                                          onClick={() => {
-                                            handleDelTag(tag);
-                                          }}
-                                        >
-                                          <X
-                                            size={15}
-                                            weight="bold"
-                                            color="#7902DF"
-                                          />
-                                        </button>
-                                      )}
-                                    </div>
-                                  </div>
-                                );
-                              })
-                          }
-                          <button
-                            className="outline-none"
-                            onClick={() => {
-                              // console.log(
-                              //   "tags are",
-                              //   selectedLeadsDetails?.tags
-                              // );
-                              setExtraTagsModal(true);
-                            }}
-                          >
-                            {selectedLeadsDetails?.tags.length > 2 && (
-                              <div className="text-purple underline">
-                                +{selectedLeadsDetails?.tags.length - 2}
+                    <Popover
+                      id={id}
+                      open={open}
+                      anchorEl={anchorEl}
+                      onClose={handleClosePopup}
+                      anchorOrigin={{
+                        vertical: "bottom",
+                        horizontal: "right",
+                      }}
+                      transformOrigin={{
+                        vertical: "top",
+                        horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+                      }}
+                      PaperProps={{
+                        elevation: 0, // This will remove the shadow
+                        style: {
+                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                          borderRadius: "10px",
+                          minWidth: "120px",
+                        },
+                      }}
+                    >
+                      <button
+                        onClick={() => {
+                          handleAssignLeadToTeammember(myTeamAdmin);
+                        }}
+                      >
+                        <div className="p-2 w-full flex flex-row items-center justify-start gap-2 ">
+                          <div className="">
+                            {myTeamAdmin?.thumb_profile_image ? (
+                              <Image
+                                className="rounded-full"
+                                src={myTeamAdmin.thumb_profile_image}
+                                height={32}
+                                width={32}
+                                alt="*"
+                                style={{
+                                  borderRaduis: 50,
+                                }}
+                              />
+                            ) : (
+                              <div
+                                className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                                onClick={() => handleToggleClick(item.id)}
+                              >
+                                {myTeamAdmin?.name.slice(0, 1)}
                               </div>
                             )}
-                          </button>
+                          </div>
+                          <div className="">{myTeamAdmin?.name}</div>
+                          <div className="bg-purple text-white text-sm px-2 rounded-full">
+                            Admin
+                          </div>
                         </div>
-                      ) : (
-                        "-"
-                      )}
-                    </div>
-
-                    <div className="flex flex-row items--center w-full justify-between mt-4">
-                      <div className="flex flex-row items-center gap-2">
-                        {/* <Image src={"/otherAssets/calenderIcon.png"} height={16} width={16} alt='man' /> */}
-                        <Image
-                          src="/assets/pipelineIcon.svg"
-                          height={20}
-                          width={20}
-                          alt="*"
-                          style={{
-                            filter:
-                              "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
-                          }}
-                        />
-                        <div style={styles.subHeading}>Pipeline</div>
-                      </div>
-                      <div className="text-end" style={styles.paragraph}>
-                        {/* {selectedLeadsDetails?.phone} */}
-                        {selectedLeadsDetails?.pipeline
-                          ? selectedLeadsDetails.pipeline.title
-                          : "-"}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-row items--center w-full justify-between mt-4">
-                      <div className="flex flex-row items-center gap-2">
-                        <Image
-                          src={"/assets/arrow.png"}
-                          height={16}
-                          width={16}
-                          alt="man"
-                        />
-                        <div style={styles.subHeading}>Stage</div>
-                      </div>
-
-                      <div
-                        className="text-end flex flex-row items-center gap-1"
-                        style={styles.paragraph}
-                      >
-                        {
-                          stagesListLoader ? (
-                            <CircularProgress size={25} />
-                          ) : (
-                            <>
+                      </button>
+                      {myTeam.length > 0 ? (
+                        <div>
+                          {myTeam.map((item, index) => {
+                            return (
                               <div
-                                className="h-[10px] w-[10px] rounded-full"
-                                style={{
-                                  backgroundColor:
-                                    selectedLeadsDetails?.stage?.defaultColor,
-                                }}
-                              ></div>
-
-
-                              <SelectStageDropdown
-                                selectedStage={selectedStage}
-                                handleStageChange={handleStageChange}
-                                stagesList={stagesList}
-                                updateLeadStage={updateLeadStage}
-                              />
-                            </>
-                          )}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-row items--center w-full justify-between mt-4">
-                      <div className="flex flex-row items-center gap-2">
-                        <Image
-                          src={"/assets/manIcn.png"}
-                          height={16}
-                          width={16}
-                          alt="man"
-                        />
-                        <div style={styles.subHeading}>Assign</div>
-                      </div>
-                      {selectedLeadsDetails?.teamsAssigned?.length > 0 ? (
-                        <div className="p-8">
-                          <LeadTeamsAssignedList
-                            users={selectedLeadsDetails?.teamsAssigned}
-                          />
+                                key={index}
+                                className="p-2 flex flex-col gap-2"
+                                style={{ fontWeight: "500", fontSize: 15 }}
+                              >
+                                <button
+                                  className="text-start flex flex-row items-center justify-start gap-2"
+                                  onClick={() => {
+                                    handleAssignLeadToTeammember(item);
+                                  }}
+                                >
+                                  {item?.invitedUser?.thumb_profile_image ? (
+                                    <Image
+                                      className="rounded-full"
+                                      src={
+                                        item.invitedUser?.thumb_profile_image
+                                      }
+                                      height={32}
+                                      width={32}
+                                      alt="*"
+                                      style={{}}
+                                    />
+                                  ) : (
+                                    <div
+                                      className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                                      onClick={() => handleToggleClick(item.id)}
+                                    >
+                                      {item?.name.slice(0, 1)}
+                                    </div>
+                                  )}
+                                  {item.name}
+                                </button>
+                              </div>
+                            );
+                          })}
                         </div>
                       ) : (
-                        <button
-                          className="text-end outline-none"
-                          style={styles.paragraph}
-                          aria-describedby={id}
-                          variant="contained"
-                          onClick={(event) => {
-                            handleShowPopup(event);
-                          }}
-                        >
-                          <Image
-                            src={"/assets/manIcon.png"}
-                            height={30}
-                            width={30}
-                            alt="man"
-                          />
-                        </button>
+                        ""
                       )}
-
-                      <Popover
-                        id={id}
-                        open={open}
-                        anchorEl={anchorEl}
-                        onClose={handleClosePopup}
-                        anchorOrigin={{
-                          vertical: "bottom",
-                          horizontal: "right",
-                        }}
-                        transformOrigin={{
-                          vertical: "top",
-                          horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
-                        }}
-                        PaperProps={{
-                          elevation: 0, // This will remove the shadow
-                          style: {
-                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                            borderRadius: "10px",
-                            minWidth: "120px",
-                          },
-                        }}
-                      >
-                        <button
-                          onClick={() => {
-                            handleAssignLeadToTeammember(myTeamAdmin);
-                          }}
-                        >
-                          <div className="p-2 w-full flex flex-row items-center justify-start gap-2 ">
-                            <div className="">
-                              {getAgentsListImage(
-                                myTeamAdmin?.invitedUser,
-                                32,
-                                32,
-                                false
-                              )}
-                            </div>
-                            <div className="">{myTeamAdmin?.name}</div>
-                            <div className="bg-purple text-white text-sm px-2 rounded-full">
-                              Admin
-                            </div>
-                          </div>
-                        </button>
-                        {myTeam.length > 0 ? (
-                          <div>
-                            {myTeam.map((item, index) => {
-                              return (
-                                <div
-                                  key={index}
-                                  className="p-2 flex flex-col gap-2"
-                                  style={{ fontWeight: "500", fontSize: 15 }}
-                                >
-                                  <button
-                                    className="text-start flex flex-row items-center justify-start gap-2"
-                                    onClick={() => {
-                                      handleAssignLeadToTeammember(item);
-                                    }}
-                                  >
-                                    {getAgentsListImage(
-                                      myTeamAdmin?.invitedUser,
-                                      32,
-                                      32,
-                                      false
-                                    )}
-                                    {item.name}
-                                  </button>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          ""
-                        )}
-                      </Popover>
-                    </div>
-
-                    {selectedLeadsDetails?.booking && (
-                      <div className="flex flex-row items--center w-full justify-between mt-4">
-                        <div className="flex flex-row items-center gap-2">
-                          <Image
-                            src="/svgIcons/calendar.svg"
-                            height={14}
-                            width={14}
-                            alt="*"
-                          />
-                          <div style={styles.subHeading}>Appointment</div>
-                        </div>
-                        <div
-                          className="text-end"
-                          style={{
-                            fontsize: 13,
-                            fontWeight: "500",
-                            // color: "#15151560"
-                          }}
-                        >
-                          {/* {selectedLeadsDetails?.phone} */}
-                          {GetFormattedDateString(
-                            selectedLeadsDetails.booking.datetime,
-                            true
-                          )}
-                        </div>
-                      </div>
-                    )}
+                    </Popover>
 
                     {/* Code for custom variables */}
-
-                    {getExtraColumsCount(columnsLength) >= 1 && (
-                      <div className="mt-2 border rounded-xl p-2">
-                        <button
-                          onClick={() => {
-                            setShowCustomVariables(!showCustomVariables);
-                          }}
-                          className="flex flex-row items-center w-full justify-between outline-none"
-                        >
-                          <div className="flex flex-row items-center gap-3">
-                            <Image
-                              src={"/assets/customsIcon.svg"}
-                              alt="*"
-                              height={16}
-                              width={16}
-                            />
-                            <div
-                              style={{
-                                fontWeight: "600",
-                                fontsize: 15,
-                                color: "#15151560",
-                              }}
-                            >
-                              Custom fields
-                            </div>
-                            {showCustomVariables ? (
-                              <CaretUp
-                                size={16}
-                                weight="bold"
-                                color="#15151570"
-                              />
-                            ) : (
-                              <CaretDown
-                                size={16}
-                                weight="bold"
-                                color="#15151570"
-                              />
-                            )}
-                          </div>
-                          <div>
-                            {getExtraColumsCount(columnsLength) > 0 ? (
-                              <div
-                                className="text-purple underline"
-                                style={{ fontsize: 15, fontWeight: "500" }}
-                              >
-                                +{getExtraColumsCount(columnsLength)}
-                              </div>
-                            ) : (
-                              ""
-                            )}
-                          </div>
-                        </button>
-
-                        {showCustomVariables && (
-                          <div className="flex flex-col gap-4 mt-4">
-                            {leadColumns.map((column, index) => {
-                              if (
-                                column.title == "Name" ||
-                                column.title == "Phone" ||
-                                column.title == "address" ||
-                                column.title == "More" ||
-                                column.title == 0 ||
-                                column.title == "Stage" ||
-                                column.title == "status"
-                              ) {
-                                return (
-                                  // <div key={index}></div>
-                                  ""
-                                );
-                              }
-                              return (
-                                <div
-                                  key={index}
-                                  className="flex flex-row w-full items-start gap-1 justify-between"
-                                >
-                                  <div className="flex flex-row items-center gap-4">
-                                    {/* <Image src={"/"} */}
-                                    <div>-</div>
-                                    <div style={styles.subHeading}>
-                                      {capitalize(column.title)}
-                                    </div>
-                                  </div>
-                                  <div
-                                    className="flex w-full flex-row whitespace-normal break-words overflow-hidden items-end justify-end"
-                                    style={{ alignSelf: 'flex-end' }}
-                                  >
-                                    <div className="flex w-[85%] flex-col items-end">
-                                      {getDetailsColumnData(
-                                        column,
-                                        selectedLeadsDetails
-                                      )}
-                                    </div>
-                                    {ShowReadMoreButton(
-                                      column,
-                                      selectedLeadsDetails
-                                    ) && (
-                                        <div className="flex w-[15%] items-end justify-end border">
-
-                                          <button
-                                            style={{
-                                              fontWeight: "600",
-                                              fontSize: 15,
-                                            }}
-                                            onClick={() => {
-                                              setExpandedCustomFields((prevFields) =>
-                                                prevFields.includes(title)
-                                                  ? prevFields.filter((field) => field !== title)
-                                                  : [...prevFields, title]
-                                              );
-                                            }}
-                                            className=" text-black underline w-[120px]"
-                                          >
-                                            {expandedCustomFields.includes(title)
-                                              ? "Read Less"
-                                              : "Read More"}
-                                          </button>
-                                        </div>
-                                      )
-
-                                    }
-
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    )}
                   </div>
 
                   <div
-                    className="flex flex-row items-center gap-4 mt-2"
+                    className="w-full flex flex-row items-center justify-between mt-2"
                     style={{
                       ...styles.paragraph,
-                      paddingInline: 30,
+                      paddingInline: 20,
                     }}
                   >
-                    <button
-                      className="outline-none"
+                    {/* <button
+                      className="outline-none p-2 flex flex-row gap-2"
+                      style={{
+                        borderBottom: showPerplexityDetails
+                          ? "2px solid #7902DF"
+                          : "",
+                        backgroundColor: showPerplexityDetails
+                          ? "#7902DF05"
+                          : "",
+                      }}
                       onClick={() => {
+                        setShowPerpelexityDetails(true);
+                        setShowKycDetails(false);
+                        setShowNotesDetails(false);
+                        setShowAcitivityDetails(false);
+                      }}
+                    >
+                      <Image
+                        src={
+                          showPerplexityDetails
+                            ? "/svgIcons/selectedPerplexityIcon.svg"
+                            : "/svgIcons/unselectedPerplexityIcon.svg"
+                        }
+                        width={24}
+                        height={24}
+                        alt="*"
+                      />
+                      <div
+                        style={{
+                          color: showPerplexityDetails ? "#7902DF" : "black",
+                        }}
+                      >
+                        Lead Insights
+                      </div>
+                    </button> */}
+
+                    <button
+                      className="outline-none p-2 flex flex-row gap-2"
+                      style={{
+                        borderBottom: showKYCDetails ? "2px solid #7902DF" : "",
+                        backgroundColor: showKYCDetails ? "#7902DF05" : "",
+                      }}
+                      onClick={() => {
+                        setShowPerpelexityDetails(false);
                         setShowKycDetails(true);
                         setShowNotesDetails(false);
                         setShowAcitivityDetails(false);
                       }}
-                      style={{
-                        borderBottom: showKYCDetails ? "2px solid #7902DF" : "",
-                      }}
                     >
-                      KYC
+                      <Image
+                        src={
+                          showKYCDetails
+                            ? "/svgIcons/selectedKycIcon.svg"
+                            : "/svgIcons/unselectedKycIcon.svg"
+                        }
+                        width={24}
+                        height={24}
+                        alt="*"
+                      />
+                      <div
+                        style={{
+                          color: showKYCDetails ? "#7902DF" : "black",
+                        }}
+                      >
+                        KYC
+                      </div>
                     </button>
+
                     <button
-                      className="outline-none"
-                      onClick={() => {
-                        setShowKycDetails(false);
-                        setShowNotesDetails(true);
-                        setShowAcitivityDetails(false);
-                      }}
-                      style={{
-                        borderBottom: showNotesDetails
-                          ? "2px solid #7902DF"
-                          : "",
-                      }}
-                    >
-                      Notes
-                    </button>
-                    <button
-                      className="outline-none"
-                      onClick={() => {
-                        setShowKycDetails(false);
-                        setShowNotesDetails(false);
-                        setShowAcitivityDetails(true);
-                      }}
+                      className="outline-none p-2 flex flex-row gap-2"
                       style={{
                         borderBottom: showAcitivityDetails
                           ? "2px solid #7902DF"
                           : "",
+                        backgroundColor: showAcitivityDetails
+                          ? "#7902DF05"
+                          : "",
+                      }}
+                      onClick={() => {
+                        setShowPerpelexityDetails(false);
+                        setShowKycDetails(false);
+                        setShowNotesDetails(false);
+                        setShowAcitivityDetails(true);
                       }}
                     >
-                      Activity
+                      <Image
+                        src={
+                          showAcitivityDetails
+                            ? "/svgIcons/selectedActivityIcon.svg"
+                            : "/svgIcons/unselectedActivityIcon.svg"
+                        }
+                        width={24}
+                        height={24}
+                        alt="*"
+                      />
+                      <div
+                        style={{
+                          color: showAcitivityDetails ? "#7902DF" : "black",
+                        }}
+                      >
+                        Activity
+                      </div>
+                    </button>
+
+                    <button
+                      className="outline-none p-2 flex flex-row gap-2"
+                      style={{
+                        borderBottom: showNotesDetails
+                          ? "2px solid #7902DF"
+                          : "",
+                        backgroundColor: showNotesDetails ? "#7902DF05" : "",
+                      }}
+                      onClick={() => {
+                        setShowPerpelexityDetails(false);
+                        setShowKycDetails(false);
+                        setShowNotesDetails(true);
+                        setShowAcitivityDetails(false);
+                      }}
+                    >
+                      <Image
+                        src={
+                          showNotesDetails
+                            ? "/svgIcons/selectedNotesIcon.svg"
+                            : "/svgIcons/unselectedNotesIcon.svg"
+                        }
+                        width={24}
+                        height={24}
+                        alt="*"
+                      />
+                      <div
+                        style={{
+                          color: showNotesDetails ? "#7902DF" : "black",
+                        }}
+                      >
+                        Notes
+                      </div>
                     </button>
                   </div>
                   <div
@@ -1551,7 +1604,127 @@ const LeadDetails = ({
                     style={{ height: "1px", backgroundColor: "#15151530" }}
                   />
 
-                  <div style={{ paddingInline: 30 }}>
+                  <div style={{ paddingInline: 20 }}>
+                    {/* {showPerplexityDetails && (
+                      <div
+                        className="w-full flex flex-col items-center mt-3 gap-3 h-[50vh]"
+                        style={{
+                          overflowY: "auto",
+                          scrollbarWidth: "none",
+                          overflowX: "hidden",
+                        }}
+                      >
+                        <div className="w-full flex flex-row justify-between items-center">
+                          <div className="w-full flex flex-row items-center gap-2">
+                            <Image
+                              src={"/svgIcons/image.svg"}
+                              height={24}
+                              width={24}
+                              alt="*"
+                              style={{ borderRadius: "50%" }}
+                            />
+
+                            <div style={{ fontsize: 22, fontWeight: "700" }}>
+                              More About Storm Johnson
+                            </div>
+                          </div>
+
+                          <div className="flex flex-row items-center gap-2 ">
+                            <Image
+                              src={"/svgIcons/confidanceIcon.svg"}
+                              height={24}
+                              width={24}
+                              alt="*"
+                            />
+
+                            <div style={{ fontsize: 22, fontWeight: "700" }}>
+                              Confidence Score:{" "}
+                              <span
+                                style={{
+                                  fontsize: 22,
+                                  fontWeight: "700",
+                                  color: "#7902DF",
+                                }}
+                              >
+                                70%
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="w-full flex flex-row items-cneter gap-2 ">
+                          <div className="flex flex-col gap-2 w-[185px] h-[80px] px-2 py-2 items-center bg-[#FAFAFA] rounded">
+                            <div className="w-full flex flex-row items-cneter gap-2 ">
+                              <Image
+                                src={"/svgIcons/image.svg"}
+                                height={24}
+                                width={24}
+                                alt="*"
+                                style={{ borderRadius: "50%" }}
+                              />
+
+                              <div
+                                style={{
+                                  fontsize: 13,
+                                  fontWeight: "500",
+                                  color: "#00000060",
+                                }}
+                              >
+                                lifestyleandtech
+                              </div>
+                            </div>
+
+                            <div style={{ fontsize: 13, fontWeight: "500" }}>
+                              What now? With trevor noah,
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="w-full flex flex-row items-cneter gap-2 mt-5">
+                          <Image
+                            src={"/svgIcons/perpelexityIcon.svg"}
+                            height={24}
+                            width={24}
+                            alt="*"
+                          />
+
+                          <div style={{ fontsize: 16, fontWeight: "700" }}>
+                            Perplexity
+                          </div>
+                        </div>
+
+                        <div style={{ fontsize: 15, fontWeight: "500" }}>
+                          {`Dwayne "The Rock" Johnson is a renowned actor, producer, and former professional wrestler. He has been involved in numerous projects across various genres, including films and podcasts. Here are some recent highlights:`}
+                        </div>
+
+                        <div
+                          style={{
+                            fontsize: 15,
+                            fontWeight: "500",
+                            textDecorationLine: "underline",
+                            alignSelf: "flex-start",
+                          }}
+                        >
+                          {`Dwayne "The Rock" Johnson is a renowned actor`}
+                        </div>
+
+                        <div style={{ fontsize: 15, fontWeight: "500" }}>
+                          {`Dwayne "The Rock" Johnson is a renowned actor, producer, and former professional wrestler. He has been involved in numerous projects across various genres, including films and podcasts. Here are some recent highlights:`}
+                        </div>
+
+                        <div className="w-full flex flex-row items-cneter gap-2 mt-5">
+                          <Image
+                            src={"/svgIcons/image.svg"}
+                            height={144}
+                            width={160}
+                            alt="*"
+                            style={{
+                              borderRadius: "20px",
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )} */}
                     {showKYCDetails && (
                       <div>
                         {selectedLeadsDetails?.kycs.length < 1 ? (
@@ -1833,103 +2006,103 @@ const LeadDetails = ({
                                           {isExpandedActivity.includes(
                                             item.id
                                           ) && (
+                                            <div
+                                              className="mt-6"
+                                              style={{
+                                                border: "1px solid #00000020",
+                                                borderRadius: "10px",
+                                                padding: 10,
+                                                paddingInline: 15,
+                                              }}
+                                            >
                                               <div
-                                                className="mt-6"
+                                                className="mt-4"
                                                 style={{
-                                                  border: "1px solid #00000020",
-                                                  borderRadius: "10px",
-                                                  padding: 10,
-                                                  paddingInline: 15,
+                                                  fontWeight: "500",
+                                                  fontSize: 12,
+                                                  color: "#00000070",
                                                 }}
                                               >
+                                                Transcript
+                                              </div>
+                                              <div className="flex flex-row items-center justify-between mt-4">
                                                 <div
-                                                  className="mt-4"
                                                   style={{
                                                     fontWeight: "500",
-                                                    fontSize: 12,
-                                                    color: "#00000070",
+                                                    fontSize: 15,
                                                   }}
                                                 >
-                                                  Transcript
+                                                  {moment(
+                                                    item?.duration * 1000
+                                                  ).format("mm:ss")}{" "}
                                                 </div>
-                                                <div className="flex flex-row items-center justify-between mt-4">
+                                                <button
+                                                  onClick={() => {
+                                                    if (item?.recordingUrl) {
+                                                      setShowAudioPlay(
+                                                        item?.recordingUrl
+                                                      );
+                                                    } else {
+                                                      setShowNoAudioPlay(true);
+                                                    }
+                                                    // window.open(item.recordingUrl, "_blank")
+                                                  }}
+                                                >
+                                                  <Image
+                                                    src={"/assets/play.png"}
+                                                    height={35}
+                                                    width={35}
+                                                    alt="*"
+                                                  />
+                                                </button>
+                                              </div>
+                                              {item.transcript ? (
+                                                <div className="w-full">
                                                   <div
-                                                    style={{
-                                                      fontWeight: "500",
-                                                      fontSize: 15,
-                                                    }}
-                                                  >
-                                                    {moment(
-                                                      item?.duration * 1000
-                                                    ).format("mm:ss")}{" "}
-                                                  </div>
-                                                  <button
-                                                    onClick={() => {
-                                                      if (item?.recordingUrl) {
-                                                        setShowAudioPlay(
-                                                          item?.recordingUrl
-                                                        );
-                                                      } else {
-                                                        setShowNoAudioPlay(true);
-                                                      }
-                                                      // window.open(item.recordingUrl, "_blank")
-                                                    }}
-                                                  >
-                                                    <Image
-                                                      src={"/assets/play.png"}
-                                                      height={35}
-                                                      width={35}
-                                                      alt="*"
-                                                    />
-                                                  </button>
-                                                </div>
-                                                {item.transcript ? (
-                                                  <div className="w-full">
-                                                    <div
-                                                      className="mt-4"
-                                                      style={{
-                                                        fontWeight: "600",
-                                                        fontSize: 15,
-                                                      }}
-                                                    >
-                                                      {/* {item.transcript} */}
-                                                      {isExpanded.includes(
-                                                        item.id
-                                                      )
-                                                        ? `${item.transcript}`
-                                                        : `${initialText}...`}
-                                                    </div>
-                                                    <button
-                                                      style={{
-                                                        fontWeight: "600",
-                                                        fontSize: 15,
-                                                      }}
-                                                      onClick={() => {
-                                                        handleReadMoreToggle(
-                                                          item
-                                                        );
-                                                      }}
-                                                      className="mt-2 text-black underline"
-                                                    >
-                                                      {isExpanded.includes(
-                                                        item.id
-                                                      )
-                                                        ? "Read Less"
-                                                        : "Read more"}
-                                                    </button>
-                                                  </div>
-                                                ) : (
-                                                  <div
+                                                    className="mt-4"
                                                     style={{
                                                       fontWeight: "600",
                                                       fontSize: 15,
                                                     }}
                                                   >
-                                                    No transcript
+                                                    {/* {item.transcript} */}
+                                                    {isExpanded.includes(
+                                                      item.id
+                                                    )
+                                                      ? `${item.transcript}`
+                                                      : `${initialText}...`}
                                                   </div>
-                                                )}
-                                              </div>
-                                            )}
+                                                  <button
+                                                    style={{
+                                                      fontWeight: "600",
+                                                      fontSize: 15,
+                                                    }}
+                                                    onClick={() => {
+                                                      handleReadMoreToggle(
+                                                        item
+                                                      );
+                                                    }}
+                                                    className="mt-2 text-black underline"
+                                                  >
+                                                    {isExpanded.includes(
+                                                      item.id
+                                                    )
+                                                      ? "Read Less"
+                                                      : "Read more"}
+                                                  </button>
+                                                </div>
+                                              ) : (
+                                                <div
+                                                  style={{
+                                                    fontWeight: "600",
+                                                    fontSize: 15,
+                                                  }}
+                                                >
+                                                  No transcript
+                                                </div>
+                                              )}
+                                            </div>
+                                          )}
                                         </div>
                                       </div>
                                     </div>
@@ -1946,8 +2119,8 @@ const LeadDetails = ({
               )}
             </div>
           </div>
-        </Box>
-      </Modal>
+        </div>
+      </Drawer>
 
       {/* Modal to add notes */}
 

@@ -45,6 +45,7 @@ import AgentSelectSnackMessage, {
 import { GetFormattedDateString } from "@/utilities/utility";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fromJSON } from "postcss";
+import LeadLoading from "./LeadLoading";
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -1724,1023 +1725,1028 @@ const Userleads = ({
 
   return (
     <div className="w-full flex flex-col items-center">
-      <AgentSelectSnackMessage
-        isVisible={showsnackMessage}
-        hide={() => setShowSnackMessage(false)}
-        message={snackMessage}
-        type={messageType}
-      />
-      <div
-        className="flex flex-row items-center justify-between w-full px-10 py-4 "
-        style={{ borderBottom: "1px solid #15151510" }}
-      >
-        <div style={{ fontWeight: "600", fontSize: 24 }}>Leads</div>
-        <div className="flex fex-row items-center gap-6">
-          <button
-            style={{
-              backgroundColor:
-                selectedLeadsList.length > 0 || selectedAll ? "#7902DF" : "",
-              color:
-                selectedLeadsList.length > 0 || selectedAll
-                  ? "white"
-                  : "#000000",
-            }}
-            className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
-            onClick={() => {
-              if (userLocalData.plan) {
-                setAssignLeadModal(true);
-              } else {
-                setSnackMessage("Add payment method to continue");
-                setShowSnackMessage(true);
-                setMessageType(SnackbarTypes.Warning);
-              }
-            }}
-            disabled={!(selectedLeadsList.length > 0 || selectedAll)}
-          >
-            {selectedLeadsList.length > 0 || selectedAll ? (
-              <Image
-                src={"/assets/callBtnFocus.png"}
-                height={17}
-                width={17}
-                alt="*"
-              />
-            ) : (
-              <Image
-                src={"/assets/callBtn.png"}
-                height={17}
-                width={17}
-                alt="*"
-              />
-            )}
-            <span style={styles.heading}>Start Calling</span>
-          </button>
-          <div className="flex flex-col">
-            <NotficationsDrawer />
-          </div>
+      {initialLoader || sheetsLoader ? ( ///|| !(LeadsList.length > 0 && showNoLeadsLabel)
+        <div className="w-screen">
+          <LeadLoading />
         </div>
-      </div>
-      <div className="w-[95%] pe-12 mt-2">
-        {initialLoader ? (
-          <div className="w-full h-screen flex flex-row justify-center mt-12">
-            <CircularProgress size={35} sx={{ color: "#7902DF" }} />
+      ) : (
+        <>
+          <AgentSelectSnackMessage
+            isVisible={showsnackMessage}
+            hide={() => setShowSnackMessage(false)}
+            message={snackMessage}
+            type={messageType}
+          />
+          <div
+            className="flex flex-row items-center justify-between w-full px-10 py-4 "
+            style={{ borderBottom: "1px solid #15151510" }}
+          >
+            <div style={{ fontWeight: "600", fontSize: 24 }}>Leads</div>
+            <div className="flex fex-row items-center gap-6">
+              <button
+                style={{
+                  backgroundColor:
+                    selectedLeadsList.length > 0 || selectedAll
+                      ? "#7902DF"
+                      : "",
+                  color:
+                    selectedLeadsList.length > 0 || selectedAll
+                      ? "white"
+                      : "#000000",
+                }}
+                className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
+                onClick={() => {
+                  if (userLocalData.plan) {
+                    setAssignLeadModal(true);
+                  } else {
+                    setSnackMessage("Add payment method to continue");
+                    setShowSnackMessage(true);
+                    setMessageType(SnackbarTypes.Warning);
+                  }
+                }}
+                disabled={!(selectedLeadsList.length > 0 || selectedAll)}
+              >
+                {selectedLeadsList.length > 0 || selectedAll ? (
+                  <Image
+                    src={"/assets/callBtnFocus.png"}
+                    height={17}
+                    width={17}
+                    alt="*"
+                  />
+                ) : (
+                  <Image
+                    src={"/assets/callBtn.png"}
+                    height={17}
+                    width={17}
+                    alt="*"
+                  />
+                )}
+                <span style={styles.heading}>Start Calling</span>
+              </button>
+              <div className="flex flex-col">
+                <NotficationsDrawer />
+              </div>
+            </div>
           </div>
-        ) : (
-          <div>
-            <div className="flex flex-row items-center justify-end">
-              <div className="flex flex-row items-center gap-6">
-                {/* <div className='flex flex-row items-center gap-2'>
+          <div className="w-[95%] pe-12 mt-2">
+            <div>
+              <div className="flex flex-row items-center justify-end">
+                <div className="flex flex-row items-center gap-6">
+                  {/* <div className='flex flex-row items-center gap-2'>
                                         <Image src={"/assets/buyLeadIcon.png"} height={24} width={24} alt='*' />
                                         <span className='text-purple' style={styles.paragraph}>
                                             Buy Lead
                                         </span>
                                     </div> */}
 
-                <Modal
-                  open={AssignLeadModal}
-                  onClose={() => setAssignLeadModal(false)}
-                  closeAfterTransition
-                  BackdropProps={{
-                    timeout: 100,
-                    sx: {
-                      backgroundColor: "#00000020",
-                      // //backdropFilter: "blur(5px)",
-                    },
-                  }}
-                >
-                  <Box className="w-[80%] sm:w-[546px]" sx={styles.modalsStyle}>
-                    <div className="flex flex-row justify-center w-full">
-                      <div
-                        className="w-full"
-                        style={{
-                          backgroundColor: "#ffffff",
-                          padding: 20,
-                          borderRadius: "13px",
-                          paddingTop: 30,
-                          paddingBottom: 30,
-                        }}
-                      >
-                        <div className="flex flex-row justify-end">
-                          <button
-                            onClick={() => {
-                              setAssignLeadModal(false);
-                            }}
-                          >
-                            <Image
-                              src={"/assets/cross.png"}
-                              height={14}
-                              width={14}
-                              alt="*"
-                            />
-                          </button>
-                        </div>
-                        <div className="w-full">
-                          <AssignLead
-                            selectedLead={selectedLeadsList}
-                            handleCloseAssignLeadModal={
-                              handleCloseAssignLeadModal //(false, showSnack, disSelectLeads)
-                            }
-                            leadIs={selectedLeadsList}
-                            selectedAll={selectedAll}
-                            filters={getFiltersObject()}
-                            totalLeads={totalLeads}
-                            userProfile={userLocalData} // this is the .user object doesn't include token
-                          />
-                        </div>
-
-                        {/* Can be use full to add shadow */}
-                        {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-                      </div>
-                    </div>
-                  </Box>
-                </Modal>
-              </div>
-            </div>
-            <div className="flex flex-row items-center justify-between w-full mt-4 w-full">
-              <div className="flex flex-row items-center gap-4 overflow-none flex-shrink-0 w-[80%]">
-                <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded pe-2">
-                  <input
-                    style={styles.paragraph}
-                    className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
-                    placeholder="Search by name, email or phone"
-                    value={searchLead}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setSearchLead(e.target.value);
-                      handleSearchChange(value);
+                  <Modal
+                    open={AssignLeadModal}
+                    onClose={() => setAssignLeadModal(false)}
+                    closeAfterTransition
+                    BackdropProps={{
+                      timeout: 100,
+                      sx: {
+                        backgroundColor: "#00000020",
+                        // //backdropFilter: "blur(5px)",
+                      },
                     }}
-                  />
-                  <button className="outline-none border-none">
+                  >
+                    <Box
+                      className="w-[80%] sm:w-[546px]"
+                      sx={styles.modalsStyle}
+                    >
+                      <div className="flex flex-row justify-center w-full">
+                        <div
+                          className="w-full"
+                          style={{
+                            backgroundColor: "#ffffff",
+                            padding: 20,
+                            borderRadius: "13px",
+                            paddingTop: 30,
+                            paddingBottom: 30,
+                          }}
+                        >
+                          <div className="flex flex-row justify-end">
+                            <button
+                              onClick={() => {
+                                setAssignLeadModal(false);
+                              }}
+                            >
+                              <Image
+                                src={"/assets/cross.png"}
+                                height={14}
+                                width={14}
+                                alt="*"
+                              />
+                            </button>
+                          </div>
+                          <div className="w-full">
+                            <AssignLead
+                              selectedLead={selectedLeadsList}
+                              handleCloseAssignLeadModal={
+                                handleCloseAssignLeadModal //(false, showSnack, disSelectLeads)
+                              }
+                              leadIs={selectedLeadsList}
+                              selectedAll={selectedAll}
+                              filters={getFiltersObject()}
+                              totalLeads={totalLeads}
+                              userProfile={userLocalData} // this is the .user object doesn't include token
+                            />
+                          </div>
+
+                          {/* Can be use full to add shadow */}
+                          {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                        </div>
+                      </div>
+                    </Box>
+                  </Modal>
+                </div>
+              </div>
+              <div className="flex flex-row items-center justify-between w-full mt-4 w-full">
+                <div className="flex flex-row items-center gap-4 overflow-none flex-shrink-0 w-[80%]">
+                  <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded pe-2">
+                    <input
+                      style={styles.paragraph}
+                      className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
+                      placeholder="Search by name, email or phone"
+                      value={searchLead}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setSearchLead(e.target.value);
+                        handleSearchChange(value);
+                      }}
+                    />
+                    <button className="outline-none border-none">
+                      <Image
+                        src={"/assets/searchIcon.png"}
+                        height={24}
+                        width={24}
+                        alt="*"
+                      />
+                    </button>
+                  </div>
+                  <button
+                    className="outline-none flex-shrink-0"
+                    onClick={() => {
+                      setShowFilterModal(true);
+                    }}
+                  >
                     <Image
-                      src={"/assets/searchIcon.png"}
-                      height={24}
-                      width={24}
+                      src={"/assets/filterIcon.png"}
+                      height={16}
+                      width={16}
                       alt="*"
                     />
                   </button>
-                </div>
-                <button
-                  className="outline-none flex-shrink-0"
-                  onClick={() => {
-                    setShowFilterModal(true);
-                  }}
-                >
-                  <Image
-                    src={"/assets/filterIcon.png"}
-                    height={16}
-                    width={16}
-                    alt="*"
-                  />
-                </button>
-                {/* Show filters here in a row*/}
-                <div
-                  className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto w-[70%] "
-                  style={{
-                    scrollbarColor: "#00000000",
-                    scrollbarWidth: "none",
-                  }}
-                >
-                  {filtersSelected.map((filter, index) => {
-                    ////console.log("Showing Filter ", filter);
-                    return (
-                      <div className="flex-shrink-0" key={filter.key + index}>
-                        <div
-                          className="px-4 py-2 bg-[#402FFF10] text-purple  flex-shrink-0 [#7902DF10] rounded-[25px] flex flex-row items-center gap-2"
-                          style={{ fontWeight: "500", fontSize: 15 }}
-                        >
-                          {getFilterTitle(filter)}
-                          <button
-                            className="outline-none"
-                            onClick={() => {
-                              let filters = [];
-                              let stages = [];
-                              let pipeline = null;
-                              let fromDate = null;
-                              let toDate = null;
-                              filtersSelected.map((f, ind) => {
-                                if (index != ind) {
-                                  filters.push(f);
-                                  if (f.key == "stage") {
-                                    stages.push(f.values[0]);
-                                  }
-                                  if (f.key == "pipeline") {
-                                    pipeline = f.values[0];
-                                  }
-                                  if (f.key == "date") {
-                                    fromDate = f.values[0];
-                                    toDate = f.values[1];
-                                  }
-                                } else {
-                                }
-                              });
-
-                              ////console.log("Stage ids ", stages);
-                              ////console.log("Date ", [fromDate, toDate]);
-                              ////console.log("Pipeline ", pipeline);
-                              // console.log("Stages inheriting from", stages);
-                              setSelectedStage(stages);
-                              setSelectedFromDate(fromDate);
-                              setSelectedToDate(toDate);
-                              setSelectedPipeline(pipeline);
-                              //   setFilterLeads([]);
-                              //   setLeadsList([]);
-                              //   setTimeout(() => {
-                              //     let filterText = getFilterText();
-                              //     handleFilterLeads(0, filterText);
-                              //   }, 1000);
-
-                              //   filters.splice(index, 1);
-                              ////console.log("Removing filter at ", filters);
-                              setFiltersSelected(filters);
-                            }}
+                  {/* Show filters here in a row*/}
+                  <div
+                    className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto w-[70%] "
+                    style={{
+                      scrollbarColor: "#00000000",
+                      scrollbarWidth: "none",
+                    }}
+                  >
+                    {filtersSelected.map((filter, index) => {
+                      ////console.log("Showing Filter ", filter);
+                      return (
+                        <div className="flex-shrink-0" key={filter.key + index}>
+                          <div
+                            className="px-4 py-2 bg-[#402FFF10] text-purple  flex-shrink-0 [#7902DF10] rounded-[25px] flex flex-row items-center gap-2"
+                            style={{ fontWeight: "500", fontSize: 15 }}
                           >
-                            <Image
-                              src={"/otherAssets/crossIcon.png"}
-                              height={20}
-                              width={20}
-                              alt="*"
-                            />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+                            {getFilterTitle(filter)}
+                            <button
+                              className="outline-none"
+                              onClick={() => {
+                                let filters = [];
+                                let stages = [];
+                                let pipeline = null;
+                                let fromDate = null;
+                                let toDate = null;
+                                filtersSelected.map((f, ind) => {
+                                  if (index != ind) {
+                                    filters.push(f);
+                                    if (f.key == "stage") {
+                                      stages.push(f.values[0]);
+                                    }
+                                    if (f.key == "pipeline") {
+                                      pipeline = f.values[0];
+                                    }
+                                    if (f.key == "date") {
+                                      fromDate = f.values[0];
+                                      toDate = f.values[1];
+                                    }
+                                  } else {
+                                  }
+                                });
 
-              <div className="flex flex-row items-center gap-2 w-[15%]">
-                {selectedLeadsList.length >= 0 && (
-                  <div>
-                    {selectedAll ? (
-                      <div>
+                                ////console.log("Stage ids ", stages);
+                                ////console.log("Date ", [fromDate, toDate]);
+                                ////console.log("Pipeline ", pipeline);
+                                // console.log("Stages inheriting from", stages);
+                                setSelectedStage(stages);
+                                setSelectedFromDate(fromDate);
+                                setSelectedToDate(toDate);
+                                setSelectedPipeline(pipeline);
+                                //   setFilterLeads([]);
+                                //   setLeadsList([]);
+                                //   setTimeout(() => {
+                                //     let filterText = getFilterText();
+                                //     handleFilterLeads(0, filterText);
+                                //   }, 1000);
+
+                                //   filters.splice(index, 1);
+                                ////console.log("Removing filter at ", filters);
+                                setFiltersSelected(filters);
+                              }}
+                            >
+                              <Image
+                                src={"/otherAssets/crossIcon.png"}
+                                height={20}
+                                width={20}
+                                alt="*"
+                              />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex flex-row items-center gap-2 w-[15%]">
+                  {selectedLeadsList.length >= 0 && (
+                    <div>
+                      {selectedAll ? (
+                        <div>
+                          <div className="flex flex-row items-center gap-2">
+                            <button
+                              className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
+                              onClick={() => {
+                                setSelectedLeadsList([]);
+                                setSelectedAll(false);
+                              }}
+                            >
+                              <Image
+                                src={"/assets/whiteTick.png"}
+                                height={10}
+                                width={10}
+                                alt="*"
+                              />
+                            </button>
+                            <div style={{ fontSize: "15", fontWeight: "600" }}>
+                              Select All
+                            </div>
+
+                            <div
+                              className="text-purple"
+                              style={{ fontSize: "15", fontWeight: "600" }}
+                            >
+                              {/* {LeadsList.length} */}
+                              {getLeadSelectedCount()}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
                         <div className="flex flex-row items-center gap-2">
                           <button
-                            className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
+                            className="h-[20px] w-[20px] border-2 rounded outline-none"
                             onClick={() => {
-                              setSelectedLeadsList([]);
-                              setSelectedAll(false);
+                              //if select all then in the selectedLeads, we include the leads that are excluded
+                              //if selected all is false then in selected Leads we include the included leads
+                              setSelectedLeadsList([]); // setToggleClick(FilterLeads.map((item) => item.id));
+                              setSelectedAll(true);
                             }}
-                          >
-                            <Image
-                              src={"/assets/whiteTick.png"}
-                              height={10}
-                              width={10}
-                              alt="*"
-                            />
-                          </button>
+                          ></button>
                           <div style={{ fontSize: "15", fontWeight: "600" }}>
                             Select All
                           </div>
-
-                          <div
-                            className="text-purple"
-                            style={{ fontSize: "15", fontWeight: "600" }}
-                          >
-                            {/* {LeadsList.length} */}
-                            {getLeadSelectedCount()}
-                          </div>
                         </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-row items-center gap-2">
-                        <button
-                          className="h-[20px] w-[20px] border-2 rounded outline-none"
-                          onClick={() => {
-                            //if select all then in the selectedLeads, we include the leads that are excluded
-                            //if selected all is false then in selected Leads we include the included leads
-                            setSelectedLeadsList([]); // setToggleClick(FilterLeads.map((item) => item.id));
-                            setSelectedAll(true);
-                          }}
-                        ></button>
-                        <div style={{ fontSize: "15", fontWeight: "600" }}>
-                          Select All
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
+                      )}
+                    </div>
+                  )}
 
-                {/* <button className='flex flex-row items-center justify-center gap-2 bg-none outline-none border h-[43px] w-[101px] rounded'>
+                  {/* <button className='flex flex-row items-center justify-center gap-2 bg-none outline-none border h-[43px] w-[101px] rounded'>
                                         <span>
                                             Import
                                         </span>
                                         <Image src={"/assets/downloadIcon.png"} height={15} width={15} alt='*' />
                                     </button> */}
+                </div>
               </div>
-            </div>
 
-            <div
-              className="flex flex-row items-center mt-8 gap-2"
-              style={styles.paragraph}
-              // className="flex flex-row items-center mt-8 gap-2"
-              // style={{ ...styles.paragraph, overflowY: "hidden" }}
-            >
               <div
-                className="flex flex-row items-center gap-2 w-full"
-                style={{
-                  ...styles.paragraph,
-                  overflowY: "hidden",
-                  scrollbarWidth: "none", // For Firefox
-                  msOverflowStyle: "none", // For Internet Explorer and Edge
-                }}
-              >
-                <style jsx>
-                  {`
-                    div::-webkit-scrollbar {
-                      display: none; /* For Chrome, Safari, and Opera */
-                    }
-                  `}
-                </style>
-                {SheetsList.map((item, index) => {
-                  return (
-                    <div
-                      key={index}
-                      className="flex flex-row items-center gap-1 px-3"
-                      style={{
-                        borderBottom:
-                          SelectedSheetId === item.id
-                            ? "2px solid #7902DF"
-                            : "",
-                        color: SelectedSheetId === item.id ? "#7902DF" : "",
-                        whiteSpace: "nowrap", // Prevent text wrapping
-                      }}
-                      // className='flex flex-row items-center gap-1 px-3'
-                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
-                    >
-                      <button
-                        style={styles.paragraph}
-                        className="outline-none w-full"
-                        onClick={() => {
-                          setSearchLead("");
-                          setSelectedSheetId(item.id);
-                          setParamsInSearchBar(index);
-                          setSelectedLeadsList([]);
-                          setSelectedAll(false);
-                          setSelectedLeadsList([]);
-                          //   getLeads(item, 0);
-                        }}
-                      >
-                        {item.sheetName}
-                      </button>
-                      <button
-                        className="outline-none"
-                        aria-describedby={id}
-                        variant="contained"
-                        onClick={(event) => {
-                          handleShowPopup(event, item);
-                        }}
-                      >
-                        <DotsThree weight="bold" size={25} color="black" />
-                      </button>
-                      <Popover
-                        id={id}
-                        open={open}
-                        anchorEl={anchorEl}
-                        onClose={handleClosePopup}
-                        anchorOrigin={{
-                          vertical: "bottom",
-                          horizontal: "right",
-                        }}
-                        transformOrigin={{
-                          vertical: "top",
-                          horizontal: "left", // Ensures the Popover's top right corner aligns with the anchor point
-                        }}
-                        PaperProps={{
-                          elevation: 0, // This will remove the shadow
-                          style: {
-                            boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
-                            borderRadius: "10px",
-                            width: "120px",
-                          },
-                        }}
-                      >
-                        <div
-                          className="p-2 flex flex-col gap-2"
-                          style={{ fontWeight: "500", fontSize: 15 }}
-                        >
-                          {delSmartListLoader ? (
-                            <CircularProgress
-                              size={15}
-                              sx={{ color: "#7902DF" }}
-                            />
-                          ) : (
-                            <button
-                              className="text-red flex flex-row items-center gap-1"
-                              onClick={handleDeleteSmartList}
-                            >
-                              <Image
-                                src={"/assets/delIcon.png"}
-                                height={18}
-                                width={18}
-                                alt="*"
-                              />
-                              <p
-                                className="text-red"
-                                style={{ fontWeight: "00", fontSize: 16 }}
-                              >
-                                Delete
-                              </p>
-                            </button>
-                          )}
-                        </div>
-                      </Popover>
-                    </div>
-                  );
-                })}
-              </div>
-              <button
-                className="flex flex-row items-center gap-1 text-purple flex-shrink-0"
+                className="flex flex-row items-center mt-8 gap-2"
                 style={styles.paragraph}
-                // onClick={() => { setShowAddNewSheetModal(true) }}
-                onClick={() => {
-                  handleShowAddLeadModal(true);
-                }}
+                // className="flex flex-row items-center mt-8 gap-2"
+                // style={{ ...styles.paragraph, overflowY: "hidden" }}
               >
-                <Plus size={15} color="#7902DF" weight="bold" />
-                <span>New Leads</span>
-              </button>
-            </div>
-
-            {/* <div className='w-full flex flex-row items-center mt-4' style={{ ...styles.paragraph, color: "#00000060" }}>
-                                <div className='w-2/12'>Name</div>
-                                <div className='w-2/12'>Email</div>
-                                <div className='w-2/12'>Phone Number</div>
-                                <div className='w-2/12'>Address</div>
-                                <div className='w-2/12'>Tag</div>
-                                <div className='w-2/12 flex flex-row items-center'>
-                                    <div className='w-5/12'>Stage</div>
-                                    <div className='w-5/12'>Date</div>
-                                    <div className='w-2/12'>More</div>
-                                </div>
-                            </div> */}
-
-            {sheetsLoader ? (
-              <div className="w-full flex flex-row justify-center mt-12">
-                <CircularProgress sx={{ color: "#7902DF" }} />
-              </div>
-            ) : LeadsList.length > 0 ? (
-              <div
-                className="h-[70svh] overflow-auto pb-[100px] mt-6"
-                id="scrollableDiv1"
-                style={{ scrollbarWidth: "none" }}
-              >
-                <InfiniteScroll
-                  className="flex flex-col w-full"
-                  endMessage={
-                    <p
-                      style={{
-                        textAlign: "center",
-                        paddingTop: "10px",
-                        fontWeight: "400",
-                        fontFamily: "inter",
-                        fontSize: 16,
-                        color: "#00000060",
-                      }}
-                    >
-                      {`You're all caught up`}
-                    </p>
-                  }
-                  scrollableTarget="scrollableDiv1"
-                  dataLength={FilterLeads.length}
-                  next={() => {
-                    let filterText = getFilterText();
-                    handleFilterLeads(FilterLeads.length, filterText);
+                <div
+                  className="flex flex-row items-center gap-2 w-full"
+                  style={{
+                    ...styles.paragraph,
+                    overflowY: "hidden",
+                    scrollbarWidth: "none", // For Firefox
+                    msOverflowStyle: "none", // For Internet Explorer and Edge
                   }}
-                  hasMore={hasMore}
-                  loader={
-                    <div className="w-full flex flex-row justify-center mt-8">
-                      {moreLeadsLoader && (
-                        <CircularProgress size={35} sx={{ color: "#7902DF" }} />
-                      )}
-                    </div>
-                  }
-                  style={{ overflow: "unset" }}
                 >
-                  <table className="table-auto w-full border-collapse border border-none">
-                    <thead>
-                      <tr style={{ fontWeight: "500" }}>
-                        {leadColumns.map((column, index) => {
-                          const isMoreColumn = column.title === "More";
-                          const columnWidth = isMoreColumn ? "200px" : "150px";
-                          return (
-                            <th
-                              key={index}
-                              className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${
-                                isMoreColumn ? "sticky right-0 bg-white" : ""
-                              }`}
-                              style={{
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                zIndex: isMoreColumn ? 1 : "auto",
-                                maxWidth: columnWidth,
-                              }}
-                            >
-                              {column.title.charAt(0).toUpperCase() +
-                                column.title.slice(1)}
-                            </th>
-                          );
-                        })}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {FilterLeads.map((item, index) => (
-                        <tr key={index} className="hover:bg-gray-50">
-                          {leadColumns.map((column, colIndex) => (
-                            <td
-                              key={colIndex}
-                              className={`border-none px-4 py-2 max-w-[330px] whitespace-normal break-words overflow-hidden text-ellipsis ${
-                                column.title === "More"
-                                  ? "sticky right-0 bg-white"
-                                  : ""
-                              }`}
-                              style={{
-                                whiteSpace: "nowrap",
-                                zIndex: column.title === "More" ? 1 : "auto",
-                                // width: "200px",
-                              }}
-                            >
-                              {getColumnData(column, item)}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </InfiniteScroll>
-              </div>
-            ) : showNoLeadsLabel ? (
-              <div className="text-xl text-center mt-8 font-bold text-[22px]">
-                No leads found
-              </div>
-            ) : (
-              <div className="w-full flex justify-center items-center">
-                <CircularProgress size={35} sx={{ color: "#7902DF" }} />
-              </div>
-            )}
-
-            <Modal
-              open={showFilterModal}
-              closeAfterTransition
-              BackdropProps={{
-                sx: {
-                  backgroundColor: "#00000020",
-                  maxHeight: "100%",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  // //backdropFilter: "blur(5px)",
-                },
-              }}
-            >
-              <Box
-                className="flex flex-row justify-center items-start lg:w-4/12 sm:w-7/12 w-8/12 py-2 px-6 bg-white max-h-[75svh]  overflow-auto md:overflow-auto"
-                sx={{
-                  ...styles.modalsStyle,
-                  scrollbarWidth: "none",
-                  backgroundColor: "white",
-                }}
-              >
-                <div className="w-full flex flex-col items-center justify-start ">
-                  <div className="flex flex-row items-center justify-between w-full">
-                    <div>Filter</div>
-                    <button
-                      onClick={() => {
-                        setShowFilterModal(false);
-                      }}
-                    >
-                      <Image
-                        src={"/assets/cross.png"}
-                        height={17}
-                        width={17}
-                        alt="*"
-                      />
-                    </button>
-                  </div>
-                  <div className="mt-2 w-full overflow-auto h-[85%]">
-                    <div className="flex flex-row items-start gap-4">
-                      <div className="w-1/2 h-full">
-                        <div
-                          className="h-full"
-                          style={{
-                            fontWeight: "500",
-                            fontSize: 12,
-                            color: "#00000060",
-                            marginTop: 10,
+                  <style jsx>
+                    {`
+                      div::-webkit-scrollbar {
+                        display: none; /* For Chrome, Safari, and Opera */
+                      }
+                    `}
+                  </style>
+                  {SheetsList.map((item, index) => {
+                    return (
+                      <div
+                        key={index}
+                        className="flex flex-row items-center gap-1 px-3"
+                        style={{
+                          borderBottom:
+                            SelectedSheetId === item.id
+                              ? "2px solid #7902DF"
+                              : "",
+                          color: SelectedSheetId === item.id ? "#7902DF" : "",
+                          whiteSpace: "nowrap", // Prevent text wrapping
+                        }}
+                        // className='flex flex-row items-center gap-1 px-3'
+                        // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
+                      >
+                        <button
+                          style={styles.paragraph}
+                          className="outline-none w-full"
+                          onClick={() => {
+                            setSearchLead("");
+                            setSelectedSheetId(item.id);
+                            setParamsInSearchBar(index);
+                            setSelectedLeadsList([]);
+                            setSelectedAll(false);
+                            setSelectedLeadsList([]);
+                            //   getLeads(item, 0);
                           }}
                         >
-                          From
-                        </div>
-                        <div>
-                          <button
-                            style={{ border: "1px solid #00000020" }}
-                            className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
-                            onClick={() => {
-                              setShowFromDatePicker(true);
-                            }}
+                          {item.sheetName}
+                        </button>
+                        <button
+                          className="outline-none"
+                          aria-describedby={id}
+                          variant="contained"
+                          onClick={(event) => {
+                            handleShowPopup(event, item);
+                          }}
+                        >
+                          <DotsThree weight="bold" size={25} color="black" />
+                        </button>
+                        <Popover
+                          id={id}
+                          open={open}
+                          anchorEl={anchorEl}
+                          onClose={handleClosePopup}
+                          anchorOrigin={{
+                            vertical: "bottom",
+                            horizontal: "right",
+                          }}
+                          transformOrigin={{
+                            vertical: "top",
+                            horizontal: "left", // Ensures the Popover's top right corner aligns with the anchor point
+                          }}
+                          PaperProps={{
+                            elevation: 0, // This will remove the shadow
+                            style: {
+                              boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
+                              borderRadius: "10px",
+                              width: "120px",
+                            },
+                          }}
+                        >
+                          <div
+                            className="p-2 flex flex-col gap-2"
+                            style={{ fontWeight: "500", fontSize: 15 }}
                           >
-                            <p>
-                              {selectedFromDate
-                                ? selectedFromDate.toDateString()
-                                : "Select Date"}
-                            </p>
-                            <CalendarDots weight="regular" size={25} />
-                          </button>
-
-                          <div>
-                            {showFromDatePicker && (
-                              <div>
-                                <Calendar
-                                  onChange={handleFromDateChange}
-                                  value={selectedFromDate}
-                                  locale="en-US"
-                                  onClose={() => {
-                                    setShowFromDatePicker(false);
-                                  }}
-                                  tileClassName={({ date, view }) => {
-                                    const today = new Date();
-
-                                    // Highlight the current date
-                                    if (
-                                      date.getDate() === today.getDate() &&
-                                      date.getMonth() === today.getMonth() &&
-                                      date.getFullYear() === today.getFullYear()
-                                    ) {
-                                      return "current-date"; // Add a custom class for current date
-                                    }
-
-                                    return null; // Default for other dates
-                                  }}
+                            {delSmartListLoader ? (
+                              <CircularProgress
+                                size={15}
+                                sx={{ color: "#7902DF" }}
+                              />
+                            ) : (
+                              <button
+                                className="text-red flex flex-row items-center gap-1"
+                                onClick={handleDeleteSmartList}
+                              >
+                                <Image
+                                  src={"/assets/delIcon.png"}
+                                  height={18}
+                                  width={18}
+                                  alt="*"
                                 />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="w-1/2 h-full">
-                        <div
-                          style={{
-                            fontWeight: "500",
-                            fontSize: 12,
-                            color: "#00000060",
-                            marginTop: 10,
-                          }}
-                        >
-                          To
-                        </div>
-                        <div>
-                          <button
-                            style={{ border: "1px solid #00000020" }}
-                            className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
-                            onClick={() => {
-                              setShowToDatePicker(true);
-                            }}
-                          >
-                            <p>
-                              {selectedToDate
-                                ? selectedToDate.toDateString()
-                                : "Select Date"}
-                            </p>
-                            <CalendarDots weight="regular" size={25} />
-                          </button>
-                          <div>
-                            {showToDatePicker && (
-                              <div>
-                                {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
-                                                                    <button>
-                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
-                                                                    </button>
-                                                                </div> */}
-                                <Calendar
-                                  onChange={handleToDateChange}
-                                  value={selectedToDate}
-                                  locale="en-US"
-                                  onClose={() => {
-                                    setShowToDatePicker(false);
-                                  }}
-                                  tileClassName={({ date, view }) => {
-                                    const today = new Date();
-
-                                    // Highlight the current date
-                                    if (
-                                      date.getDate() === today.getDate() &&
-                                      date.getMonth() === today.getMonth() &&
-                                      date.getFullYear() === today.getFullYear()
-                                    ) {
-                                      return "current-date"; // Add a custom class for current date
-                                    }
-
-                                    return null; // Default for other dates
-                                  }}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div
-                      className="mt-6"
-                      style={{
-                        fontWeight: "500",
-                        fontSize: 14,
-                        color: "#00000060",
-                        marginTop: 10,
-                      }}
-                    >
-                      Select Pipeline
-                    </div>
-
-                    <div className="mt-2">
-                      <FormControl fullWidth>
-                        <Select
-                          labelId="demo-simple-select-label"
-                          id="demo-simple-select"
-                          value={selectedPipeline}
-                          label="Age"
-                          onChange={handleChange}
-                          displayEmpty // Enables placeholder
-                          renderValue={(selected) => {
-                            if (!selected) {
-                              return (
-                                <div style={{ color: "#aaa" }}>Select</div>
-                              ); // Placeholder style
-                            }
-                            return selected;
-                          }}
-                          sx={{
-                            border: "1px solid #00000020", // Default border
-                            "&:hover": {
-                              border: "1px solid #00000020", // Same border on hover
-                            },
-                            "& .MuiOutlinedInput-notchedOutline": {
-                              border: "none", // Remove the default outline
-                            },
-                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                              border: "none", // Remove outline on focus
-                            },
-                            "&.MuiSelect-select": {
-                              py: 0, // Optional padding adjustments
-                            },
-                          }}
-                          MenuProps={{
-                            PaperProps: {
-                              style: {
-                                maxHeight: "30vh", // Limit dropdown height
-                                overflow: "auto", // Enable scrolling in dropdown
-                                scrollbarWidth: "none",
-                                // borderRadius: "10px"
-                              },
-                            },
-                          }}
-                        >
-                          {pipelinesList.map((item, index) => {
-                            return (
-                              <MenuItem key={index} value={item.title}>
-                                <button
-                                  onClick={() => {
-                                    ////console.log("Item passed is", item);
-                                    setSelectedStage([]);
-                                    // getStagesList(item);
-                                  }}
+                                <p
+                                  className="text-red"
+                                  style={{ fontWeight: "00", fontSize: 16 }}
                                 >
-                                  {item.title}
-                                </button>
-                              </MenuItem>
+                                  Delete
+                                </p>
+                              </button>
+                            )}
+                          </div>
+                        </Popover>
+                      </div>
+                    );
+                  })}
+                </div>
+                <button
+                  className="flex flex-row items-center gap-1 text-purple flex-shrink-0"
+                  style={styles.paragraph}
+                  // onClick={() => { setShowAddNewSheetModal(true) }}
+                  onClick={() => {
+                    handleShowAddLeadModal(true);
+                  }}
+                >
+                  <Plus size={15} color="#7902DF" weight="bold" />
+                  <span>New Leads</span>
+                </button>
+              </div>
+
+              {LeadsList.length > 0 ? (
+                <div
+                  className="h-[70svh] overflow-auto pb-[100px] mt-6"
+                  id="scrollableDiv1"
+                  style={{ scrollbarWidth: "none" }}
+                >
+                  <InfiniteScroll
+                    className="flex flex-col w-full"
+                    endMessage={
+                      <p
+                        style={{
+                          textAlign: "center",
+                          paddingTop: "10px",
+                          fontWeight: "400",
+                          fontFamily: "inter",
+                          fontSize: 16,
+                          color: "#00000060",
+                        }}
+                      >
+                        {`You're all caught up`}
+                      </p>
+                    }
+                    scrollableTarget="scrollableDiv1"
+                    dataLength={FilterLeads.length}
+                    next={() => {
+                      let filterText = getFilterText();
+                      handleFilterLeads(FilterLeads.length, filterText);
+                    }}
+                    hasMore={hasMore}
+                    loader={
+                      <div className="w-full flex flex-row justify-center mt-8">
+                        {moreLeadsLoader && (
+                          <CircularProgress
+                            size={35}
+                            sx={{ color: "#7902DF" }}
+                          />
+                        )}
+                      </div>
+                    }
+                    style={{ overflow: "unset" }}
+                  >
+                    <table className="table-auto w-full border-collapse border border-none">
+                      <thead>
+                        <tr style={{ fontWeight: "500" }}>
+                          {leadColumns.map((column, index) => {
+                            const isMoreColumn = column.title === "More";
+                            const columnWidth = isMoreColumn
+                              ? "200px"
+                              : "150px";
+                            return (
+                              <th
+                                key={index}
+                                className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${
+                                  isMoreColumn ? "sticky right-0 bg-white" : ""
+                                }`}
+                                style={{
+                                  whiteSpace: "nowrap",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  zIndex: isMoreColumn ? 1 : "auto",
+                                  maxWidth: columnWidth,
+                                }}
+                              >
+                                {column.title.charAt(0).toUpperCase() +
+                                  column.title.slice(1)}
+                              </th>
                             );
                           })}
-                        </Select>
-                      </FormControl>
-                    </div>
-
-                    <div
-                      className="mt-6"
-                      style={{
-                        fontWeight: "500",
-                        fontSize: 14,
-                        color: "#00000060",
-                        marginTop: 10,
-                      }}
-                    >
-                      Stage
-                    </div>
-
-                    {stagesLoader ? (
-                      <div className="w-full flex flex-row justify-center mt-8">
-                        <CircularProgress size={25} sx={{ color: "#7902DF" }} />
-                      </div>
-                    ) : (
-                      <div className="w-full flex flex-wrap gap-4">
-                        {stagesList?.map((item, index) => {
-                          let found = isStageSelected(item);
-                          return (
-                            <div
-                              key={index}
-                              className="flex flex-row items-center mt-2 justify-start"
-                              style={{ fontSize: 15, fontWeight: "500" }}
-                            >
-                              <button
-                                onClick={() => {
-                                  handleSelectStage(item);
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {FilterLeads.map((item, index) => (
+                          <tr key={index} className="hover:bg-gray-50">
+                            {leadColumns.map((column, colIndex) => (
+                              <td
+                                key={colIndex}
+                                className={`border-none px-4 py-2 max-w-[330px] whitespace-normal break-words overflow-hidden text-ellipsis ${
+                                  column.title === "More"
+                                    ? "sticky right-0 bg-white"
+                                    : ""
+                                }`}
+                                style={{
+                                  whiteSpace: "nowrap",
+                                  zIndex: column.title === "More" ? 1 : "auto",
+                                  // width: "200px",
                                 }}
-                                className={`p-2 border border-[#00000020] ${
-                                  found >= 0 ? `bg-purple` : "bg-transparent"
-                                } px-6
-                              ${
-                                found >= 0 ? `text-white` : "text-black"
-                              } rounded-2xl`}
                               >
-                                {item.stageTitle}
-                              </button>
-                            </div>
-                          );
-                        })}
-
-                        {/* Add "No Stage" button after the list */}
-                        <div className="flex flex-row items-center mt-2 justify-start">
-                          <button
-                            onClick={() => {
-                              setNoStageSelected(!noStageSelected);
-                            }}
-                            className={`p-2 border border-[#00000020] ${
-                              noStageSelected
-                                ? `bg-purple text-white`
-                                : "bg-transparent text-black"
-                            } px-6 rounded-2xl`}
-                          >
-                            No Stage
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex flex-row items-center w-full justify-between mt-4 pb-8">
-                    <button
-                      className="outline-none w-[105px]"
-                      style={{ fontSize: 16.8, fontWeight: "600" }}
-                      onClick={() => {
-                        // setSelectedFromDate(null);
-                        // setSelectedToDate(null);
-                        // setSelectedStage(null);
-                        // getLeads()
-                        //   window.location.reload();
-                        setFiltersSelected([]);
-                      }}
-                    >
-                      Reset
-                    </button>
-                    {sheetsLoader ? (
-                      <CircularProgress size={25} sx={{ color: "#7902DF" }} />
-                    ) : (
-                      <button
-                        className="bg-purple h-[45px] w-[140px] bg-purple text-white rounded-xl outline-none"
-                        style={{
-                          fontSize: 16.8,
-                          fontWeight: "600",
-                          // backgroundColor: selectedFromDate && selectedToDate && selectedStage.length > 0 ? "" : "#00000050"
-                        }}
-                        onClick={() => {
-                          ////console.log("Can continue");
-                          // setLeadsList([]);
-                          // setFilterLeads([]);
-                          setShowFilterModal(false);
-                          setFiltersFromSelection();
-                        }}
-                      >
-                        Apply Filter
-                      </button>
-                    )}
-                  </div>
+                                {getColumnData(column, item)}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </InfiniteScroll>
                 </div>
-              </Box>
-            </Modal>
+              ) : showNoLeadsLabel ? (
+                <div className="text-xl text-center mt-8 font-bold text-[22px]">
+                  No leads found
+                </div>
+              ) : (
+                <div className="w-full flex justify-center items-center">
+                  <LeadLoading />
+                  {/* <div>Loading..</div>
+                  <CircularProgress size={35} sx={{ color: "#7902DF" }} /> */}
+                </div>
+              )}
 
-            {/* When Thre are leads and user choose to add SmartList */}
-            <div>
               <Modal
-                open={showAddNewSheetModal}
+                open={showFilterModal}
                 closeAfterTransition
                 BackdropProps={{
                   sx: {
                     backgroundColor: "#00000020",
+                    maxHeight: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
                     // //backdropFilter: "blur(5px)",
                   },
                 }}
               >
                 <Box
-                  className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto rounded-3xl h-[70vh]"
+                  className="flex flex-row justify-center items-start lg:w-4/12 sm:w-7/12 w-8/12 py-2 px-6 bg-white max-h-[75svh]  overflow-auto md:overflow-auto"
                   sx={{
                     ...styles.modalsStyle,
                     scrollbarWidth: "none",
                     backgroundColor: "white",
                   }}
                 >
-                  <div
-                    className="w-full flex flex-col items-center h-full justify-between"
-                    style={{ backgroundColor: "white" }}
-                  >
-                    <div className="w-full">
-                      <div className="flex flex-row items-center justify-between w-full mt-4 px-2">
-                        <div style={{ fontWeight: "500", fontSize: 15 }}>
-                          New SmartList
+                  <div className="w-full flex flex-col items-center justify-start ">
+                    <div className="flex flex-row items-center justify-between w-full">
+                      <div>Filter</div>
+                      <button
+                        onClick={() => {
+                          setShowFilterModal(false);
+                        }}
+                      >
+                        <Image
+                          src={"/assets/cross.png"}
+                          height={17}
+                          width={17}
+                          alt="*"
+                        />
+                      </button>
+                    </div>
+                    <div className="mt-2 w-full overflow-auto h-[85%]">
+                      <div className="flex flex-row items-start gap-4">
+                        <div className="w-1/2 h-full">
+                          <div
+                            className="h-full"
+                            style={{
+                              fontWeight: "500",
+                              fontSize: 12,
+                              color: "#00000060",
+                              marginTop: 10,
+                            }}
+                          >
+                            From
+                          </div>
+                          <div>
+                            <button
+                              style={{ border: "1px solid #00000020" }}
+                              className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
+                              onClick={() => {
+                                setShowFromDatePicker(true);
+                              }}
+                            >
+                              <p>
+                                {selectedFromDate
+                                  ? selectedFromDate.toDateString()
+                                  : "Select Date"}
+                              </p>
+                              <CalendarDots weight="regular" size={25} />
+                            </button>
+
+                            <div>
+                              {showFromDatePicker && (
+                                <div>
+                                  <Calendar
+                                    onChange={handleFromDateChange}
+                                    value={selectedFromDate}
+                                    locale="en-US"
+                                    onClose={() => {
+                                      setShowFromDatePicker(false);
+                                    }}
+                                    tileClassName={({ date, view }) => {
+                                      const today = new Date();
+
+                                      // Highlight the current date
+                                      if (
+                                        date.getDate() === today.getDate() &&
+                                        date.getMonth() === today.getMonth() &&
+                                        date.getFullYear() ===
+                                          today.getFullYear()
+                                      ) {
+                                        return "current-date"; // Add a custom class for current date
+                                      }
+
+                                      return null; // Default for other dates
+                                    }}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <button
-                          onClick={() => {
-                            setShowAddNewSheetModal(false);
-                            setNewSheetName("");
-                            setInputs([
-                              { id: 1, value: "First Name" },
-                              { id: 2, value: "Last Name" },
-                              { id: 3, value: "Phone Number" },
-                              { id: 4, value: "" },
-                              { id: 5, value: "" },
-                              { id: 6, value: "" },
-                            ]);
-                          }}
-                        >
-                          <Image
-                            src={"/assets/cross.png"}
-                            height={15}
-                            width={15}
-                            alt="*"
-                          />
-                        </button>
+
+                        <div className="w-1/2 h-full">
+                          <div
+                            style={{
+                              fontWeight: "500",
+                              fontSize: 12,
+                              color: "#00000060",
+                              marginTop: 10,
+                            }}
+                          >
+                            To
+                          </div>
+                          <div>
+                            <button
+                              style={{ border: "1px solid #00000020" }}
+                              className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
+                              onClick={() => {
+                                setShowToDatePicker(true);
+                              }}
+                            >
+                              <p>
+                                {selectedToDate
+                                  ? selectedToDate.toDateString()
+                                  : "Select Date"}
+                              </p>
+                              <CalendarDots weight="regular" size={25} />
+                            </button>
+                            <div>
+                              {showToDatePicker && (
+                                <div>
+                                  {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
+                                                                    <button>
+                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
+                                                                    </button>
+                                                                </div> */}
+                                  <Calendar
+                                    onChange={handleToDateChange}
+                                    value={selectedToDate}
+                                    locale="en-US"
+                                    onClose={() => {
+                                      setShowToDatePicker(false);
+                                    }}
+                                    tileClassName={({ date, view }) => {
+                                      const today = new Date();
+
+                                      // Highlight the current date
+                                      if (
+                                        date.getDate() === today.getDate() &&
+                                        date.getMonth() === today.getMonth() &&
+                                        date.getFullYear() ===
+                                          today.getFullYear()
+                                      ) {
+                                        return "current-date"; // Add a custom class for current date
+                                      }
+
+                                      return null; // Default for other dates
+                                    }}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="px-4 w-full">
-                        <div className="flex flex-row items-center justify-start mt-6 gap-2">
-                          <span style={styles.paragraph}>List Name</span>
-                          {/* <Image
+                      <div
+                        className="mt-6"
+                        style={{
+                          fontWeight: "500",
+                          fontSize: 14,
+                          color: "#00000060",
+                          marginTop: 10,
+                        }}
+                      >
+                        Select Pipeline
+                      </div>
+
+                      <div className="mt-2">
+                        <FormControl fullWidth>
+                          <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={selectedPipeline}
+                            label="Age"
+                            onChange={handleChange}
+                            displayEmpty // Enables placeholder
+                            renderValue={(selected) => {
+                              if (!selected) {
+                                return (
+                                  <div style={{ color: "#aaa" }}>Select</div>
+                                ); // Placeholder style
+                              }
+                              return selected;
+                            }}
+                            sx={{
+                              border: "1px solid #00000020", // Default border
+                              "&:hover": {
+                                border: "1px solid #00000020", // Same border on hover
+                              },
+                              "& .MuiOutlinedInput-notchedOutline": {
+                                border: "none", // Remove the default outline
+                              },
+                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
+                              "&.MuiSelect-select": {
+                                py: 0, // Optional padding adjustments
+                              },
+                            }}
+                            MenuProps={{
+                              PaperProps: {
+                                style: {
+                                  maxHeight: "30vh", // Limit dropdown height
+                                  overflow: "auto", // Enable scrolling in dropdown
+                                  scrollbarWidth: "none",
+                                  // borderRadius: "10px"
+                                },
+                              },
+                            }}
+                          >
+                            {pipelinesList.map((item, index) => {
+                              return (
+                                <MenuItem key={index} value={item.title}>
+                                  <button
+                                    onClick={() => {
+                                      ////console.log("Item passed is", item);
+                                      setSelectedStage([]);
+                                      // getStagesList(item);
+                                    }}
+                                  >
+                                    {item.title}
+                                  </button>
+                                </MenuItem>
+                              );
+                            })}
+                          </Select>
+                        </FormControl>
+                      </div>
+
+                      <div
+                        className="mt-6"
+                        style={{
+                          fontWeight: "500",
+                          fontSize: 14,
+                          color: "#00000060",
+                          marginTop: 10,
+                        }}
+                      >
+                        Stage
+                      </div>
+
+                      {stagesLoader ? (
+                        <div className="w-full flex flex-row justify-center mt-8">
+                          <CircularProgress
+                            size={25}
+                            sx={{ color: "#7902DF" }}
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-full flex flex-wrap gap-4">
+                          {stagesList?.map((item, index) => {
+                            let found = isStageSelected(item);
+                            return (
+                              <div
+                                key={index}
+                                className="flex flex-row items-center mt-2 justify-start"
+                                style={{ fontSize: 15, fontWeight: "500" }}
+                              >
+                                <button
+                                  onClick={() => {
+                                    handleSelectStage(item);
+                                  }}
+                                  className={`p-2 border border-[#00000020] ${
+                                    found >= 0 ? `bg-purple` : "bg-transparent"
+                                  } px-6
+                              ${
+                                found >= 0 ? `text-white` : "text-black"
+                              } rounded-2xl`}
+                                >
+                                  {item.stageTitle}
+                                </button>
+                              </div>
+                            );
+                          })}
+
+                          {/* Add "No Stage" button after the list */}
+                          <div className="flex flex-row items-center mt-2 justify-start">
+                            <button
+                              onClick={() => {
+                                setNoStageSelected(!noStageSelected);
+                              }}
+                              className={`p-2 border border-[#00000020] ${
+                                noStageSelected
+                                  ? `bg-purple text-white`
+                                  : "bg-transparent text-black"
+                              } px-6 rounded-2xl`}
+                            >
+                              No Stage
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex flex-row items-center w-full justify-between mt-4 pb-8">
+                      <button
+                        className="outline-none w-[105px]"
+                        style={{ fontSize: 16.8, fontWeight: "600" }}
+                        onClick={() => {
+                          // setSelectedFromDate(null);
+                          // setSelectedToDate(null);
+                          // setSelectedStage(null);
+                          // getLeads()
+                          //   window.location.reload();
+                          setFiltersSelected([]);
+                        }}
+                      >
+                        Reset
+                      </button>
+                      {sheetsLoader ? (
+                        <CircularProgress size={25} sx={{ color: "#7902DF" }} />
+                      ) : (
+                        <button
+                          className="bg-purple h-[45px] w-[140px] bg-purple text-white rounded-xl outline-none"
+                          style={{
+                            fontSize: 16.8,
+                            fontWeight: "600",
+                            // backgroundColor: selectedFromDate && selectedToDate && selectedStage.length > 0 ? "" : "#00000050"
+                          }}
+                          onClick={() => {
+                            ////console.log("Can continue");
+                            // setLeadsList([]);
+                            // setFilterLeads([]);
+                            setShowFilterModal(false);
+                            setFiltersFromSelection();
+                          }}
+                        >
+                          Apply Filter
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </Box>
+              </Modal>
+
+              {/* When Thre are leads and user choose to add SmartList */}
+              <div>
+                <Modal
+                  open={showAddNewSheetModal}
+                  closeAfterTransition
+                  BackdropProps={{
+                    sx: {
+                      backgroundColor: "#00000020",
+                      // //backdropFilter: "blur(5px)",
+                    },
+                  }}
+                >
+                  <Box
+                    className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto rounded-3xl h-[70vh]"
+                    sx={{
+                      ...styles.modalsStyle,
+                      scrollbarWidth: "none",
+                      backgroundColor: "white",
+                    }}
+                  >
+                    <div
+                      className="w-full flex flex-col items-center h-full justify-between"
+                      style={{ backgroundColor: "white" }}
+                    >
+                      <div className="w-full">
+                        <div className="flex flex-row items-center justify-between w-full mt-4 px-2">
+                          <div style={{ fontWeight: "500", fontSize: 15 }}>
+                            New SmartList
+                          </div>
+                          <button
+                            onClick={() => {
+                              setShowAddNewSheetModal(false);
+                              setNewSheetName("");
+                              setInputs([
+                                { id: 1, value: "First Name" },
+                                { id: 2, value: "Last Name" },
+                                { id: 3, value: "Phone Number" },
+                                { id: 4, value: "" },
+                                { id: 5, value: "" },
+                                { id: 6, value: "" },
+                              ]);
+                            }}
+                          >
+                            <Image
+                              src={"/assets/cross.png"}
+                              height={15}
+                              width={15}
+                              alt="*"
+                            />
+                          </button>
+                        </div>
+
+                        <div className="px-4 w-full">
+                          <div className="flex flex-row items-center justify-start mt-6 gap-2">
+                            <span style={styles.paragraph}>List Name</span>
+                            {/* <Image
                             src={"/svgIcons/infoIcon.svg"}
                             height={15}
                             width={15}
                             alt="*"
                           /> */}
-                        </div>
-                        <div className="mt-4">
-                          <input
-                            value={newSheetName}
-                            onChange={(e) => {
-                              setNewSheetName(e.target.value);
-                            }}
-                            placeholder="Enter list name"
-                            className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px]"
-                            style={{
-                              ...styles.paragraph,
-                              border: "1px solid #00000020",
-                            }}
-                          />
-                        </div>
-                        <div className="mt-8" style={styles.paragraph}>
-                          Create Columns
-                        </div>
-                        <div
-                          className="max-h-[30vh] overflow-auto mt-2" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
-                          style={{ scrollbarWidth: "none" }}
-                        >
-                          {inputs.map((input, index) => (
-                            <div
-                              key={input.id}
-                              className="w-full flex flex-row items-center gap-4 mt-4"
-                            >
-                              <input
-                                className="border p-2 rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[53px]"
-                                style={{
-                                  ...styles.paragraph,
-                                  width: "95%",
-                                  borderColor: "#00000020",
-                                }}
-                                placeholder={`Column Name`}
-                                value={input.value}
-                                onChange={(e) => {
-                                  if (index > 2) {
-                                    handleInputChange(input.id, e.target.value);
-                                  }
-                                }}
-                              />
-                              <div style={{ width: "5%" }}>
-                                {index > 2 && (
-                                  <button
-                                    className="outline-none border-none"
-                                    onClick={() => handleDelete(input.id)}
-                                  >
-                                    <Image
-                                      src={"/assets/blackBgCross.png"}
-                                      height={20}
-                                      width={20}
-                                      alt="*"
-                                    />
-                                  </button>
-                                )}
+                          </div>
+                          <div className="mt-4">
+                            <input
+                              value={newSheetName}
+                              onChange={(e) => {
+                                setNewSheetName(e.target.value);
+                              }}
+                              placeholder="Enter list name"
+                              className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px]"
+                              style={{
+                                ...styles.paragraph,
+                                border: "1px solid #00000020",
+                              }}
+                            />
+                          </div>
+                          <div className="mt-8" style={styles.paragraph}>
+                            Create Columns
+                          </div>
+                          <div
+                            className="max-h-[30vh] overflow-auto mt-2" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                            style={{ scrollbarWidth: "none" }}
+                          >
+                            {inputs.map((input, index) => (
+                              <div
+                                key={input.id}
+                                className="w-full flex flex-row items-center gap-4 mt-4"
+                              >
+                                <input
+                                  className="border p-2 rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[53px]"
+                                  style={{
+                                    ...styles.paragraph,
+                                    width: "95%",
+                                    borderColor: "#00000020",
+                                  }}
+                                  placeholder={`Column Name`}
+                                  value={input.value}
+                                  onChange={(e) => {
+                                    if (index > 2) {
+                                      handleInputChange(
+                                        input.id,
+                                        e.target.value
+                                      );
+                                    }
+                                  }}
+                                />
+                                <div style={{ width: "5%" }}>
+                                  {index > 2 && (
+                                    <button
+                                      className="outline-none border-none"
+                                      onClick={() => handleDelete(input.id)}
+                                    >
+                                      <Image
+                                        src={"/assets/blackBgCross.png"}
+                                        height={20}
+                                        width={20}
+                                        alt="*"
+                                      />
+                                    </button>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          ))}
-                          {/* Dummy element for scrolling */}
-                          <div ref={bottomRef}></div>
-                        </div>
-                        <div style={{ height: "50px" }}>
-                          {/*
+                            ))}
+                            {/* Dummy element for scrolling */}
+                            <div ref={bottomRef}></div>
+                          </div>
+                          <div style={{ height: "50px" }}>
+                            {/*
                                                         inputs.length < 3 && (
                                                             <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
                                                                 fontSize: 15,
@@ -2750,154 +2756,155 @@ const Userleads = ({
                                                             </button>
                                                         )
                                                     */}
-                          <button
-                            onClick={handleAddInput}
-                            className="mt-4 p-2 outline-none border-none text-purple rounded-lg underline"
-                            style={styles.paragraph}
-                          >
-                            New Column
-                          </button>
+                            <button
+                              onClick={handleAddInput}
+                              className="mt-4 p-2 outline-none border-none text-purple rounded-lg underline"
+                              style={styles.paragraph}
+                            >
+                              New Column
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="w-full pb-8">
-                      {showaddCreateListLoader ? (
-                        <div className="flex flex-row items-center justify-center w-full h-[50px]">
-                          <CircularProgress
-                            size={25}
-                            sx={{ color: "#7902DF" }}
-                          />
-                        </div>
-                      ) : (
-                        <button
-                          className={` h-[50px] rounded-xl text-white w-full ${
-                            newSheetName && newSheetName.length > 0
-                              ? "bg-red"
-                              : ""
-                          }`}
-                          style={{
-                            fontWeight: "600",
-                            fontSize: 16.8,
-                            // backgroundColor: newSheetName ? "" : ""
-                          }}
-                          onClick={handleAddSheetNewList}
-                        >
-                          Create List
-                        </button>
-                      )}
+                      <div className="w-full pb-8">
+                        {showaddCreateListLoader ? (
+                          <div className="flex flex-row items-center justify-center w-full h-[50px]">
+                            <CircularProgress
+                              size={25}
+                              sx={{ color: "#7902DF" }}
+                            />
+                          </div>
+                        ) : (
+                          <button
+                            className={` h-[50px] rounded-xl text-white w-full ${
+                              newSheetName && newSheetName.length > 0
+                                ? "bg-red"
+                                : ""
+                            }`}
+                            style={{
+                              fontWeight: "600",
+                              fontSize: 16.8,
+                              // backgroundColor: newSheetName ? "" : ""
+                            }}
+                            onClick={handleAddSheetNewList}
+                          >
+                            Create List
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </Box>
-              </Modal>
+                  </Box>
+                </Modal>
+              </div>
             </div>
           </div>
-        )}
-      </div>
 
-      {showDetailsModal && (
-        <div
-          className="overflow-scroll"
-          style={{
-            backgroundColor: "",
-            height:
-              typeof window !== "undefined"
-                ? window.innerHeight * 0.95
-                : 1000 * 0.95,
-            width: "100%",
-          }}
-        >
-          <LeadDetails
-            selectedLead={selectedLeadsDetails?.id}
-            pipelineId={selectedLeadsDetails?.pipeline?.id}
-            showDetailsModal={showDetailsModal}
-            setShowDetailsModal={setShowDetailsModal}
-            handleDelLead={handleDeleteLead}
-            leadStageUpdated={HandleUpdateStage}
-          />
-        </div>
-      )}
-
-      {/* Modal to add notes */}
-
-      <Modal
-        open={showAddNotes}
-        onClose={() => setShowAddNotes(false)}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 1000,
-          sx: {
-            backgroundColor: "#00000020",
-          },
-        }}
-      >
-        <Box
-          className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh]"
-          sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
-        >
-          <div className="flex flex-row justify-center w-full h-[50vh]">
+          {showDetailsModal && (
             <div
-              className="w-full"
+              className="overflow-scroll"
               style={{
-                backgroundColor: "#ffffff",
-                padding: 20,
-                paddingInline: 30,
-                borderRadius: "13px",
-                // paddingBottom: 10,
-                // paddingTop: 10,
-                height: "100%",
+                backgroundColor: "",
+                height:
+                  typeof window !== "undefined"
+                    ? window.innerHeight * 0.95
+                    : 1000 * 0.95,
+                width: "100%",
               }}
             >
-              <div style={{ fontWeight: "700", fontsize: 22 }}>
-                Add your notes
-              </div>
-              <div
-                className="mt-4"
-                style={{
-                  height: "70%",
-                  overflow: "auto",
-                }}
-              >
-                <TextareaAutosize
-                  maxRows={12}
-                  className="outline-none focus:outline-none focus:ring-0 w-full"
+              <LeadDetails
+                selectedLead={selectedLeadsDetails?.id}
+                pipelineId={selectedLeadsDetails?.pipeline?.id}
+                showDetailsModal={showDetailsModal}
+                setShowDetailsModal={setShowDetailsModal}
+                handleDelLead={handleDeleteLead}
+                leadStageUpdated={HandleUpdateStage}
+              />
+            </div>
+          )}
+
+          {/* Modal to add notes */}
+
+          <Modal
+            open={showAddNotes}
+            onClose={() => setShowAddNotes(false)}
+            closeAfterTransition
+            BackdropProps={{
+              timeout: 1000,
+              sx: {
+                backgroundColor: "#00000020",
+              },
+            }}
+          >
+            <Box
+              className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh]"
+              sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
+            >
+              <div className="flex flex-row justify-center w-full h-[50vh]">
+                <div
+                  className="w-full"
                   style={{
-                    fontsize: 15,
-                    fontWeight: "500",
-                    height: "250px",
-                    border: "1px solid #00000020",
-                    resize: "none",
+                    backgroundColor: "#ffffff",
+                    padding: 20,
+                    paddingInline: 30,
                     borderRadius: "13px",
+                    // paddingBottom: 10,
+                    // paddingTop: 10,
+                    height: "100%",
                   }}
-                  placeholder="Add notes"
-                  value={addNotesValue}
-                  onChange={(event) => {
-                    setddNotesValue(event.target.value);
-                  }}
-                />
-              </div>
-              <div className="w-full mt-4 h-[20%] flex flex-row justify-center">
-                {addLeadNoteLoader ? (
-                  <CircularProgress size={25} sx={{ color: "#7902DF" }} />
-                ) : (
-                  <button
-                    className="bg-purple h-[50px] rounded-xl text-white rounded-xl w-6/12"
+                >
+                  <div style={{ fontWeight: "700", fontsize: 22 }}>
+                    Add your notes
+                  </div>
+                  <div
+                    className="mt-4"
                     style={{
-                      fontWeight: "600",
-                      fontsize: 16,
-                    }}
-                    onClick={() => {
-                      handleAddLeadNotes();
+                      height: "70%",
+                      overflow: "auto",
                     }}
                   >
-                    Add
-                  </button>
-                )}
+                    <TextareaAutosize
+                      maxRows={12}
+                      className="outline-none focus:outline-none focus:ring-0 w-full"
+                      style={{
+                        fontsize: 15,
+                        fontWeight: "500",
+                        height: "250px",
+                        border: "1px solid #00000020",
+                        resize: "none",
+                        borderRadius: "13px",
+                      }}
+                      placeholder="Add notes"
+                      value={addNotesValue}
+                      onChange={(event) => {
+                        setddNotesValue(event.target.value);
+                      }}
+                    />
+                  </div>
+                  <div className="w-full mt-4 h-[20%] flex flex-row justify-center">
+                    {addLeadNoteLoader ? (
+                      <CircularProgress size={25} sx={{ color: "#7902DF" }} />
+                    ) : (
+                      <button
+                        className="bg-purple h-[50px] rounded-xl text-white rounded-xl w-6/12"
+                        style={{
+                          fontWeight: "600",
+                          fontsize: 16,
+                        }}
+                        onClick={() => {
+                          handleAddLeadNotes();
+                        }}
+                      >
+                        Add
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </Box>
-      </Modal>
+            </Box>
+          </Modal>
+        </>
+      )}
 
       <div></div>
     </div>

@@ -204,6 +204,11 @@ function AgentXStats({ user }) {
             </h2>
             {/* <Progress value={27} /> */}
           </CardContent>
+          <CardContent>
+            <h2 className="cursor-pointer text-lg text-gray-300 font-bold">
+              {stats?.weeklySignupsPercentage}%
+            </h2>
+          </CardContent>
         </Card>
 
         <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[16vw] bg-transparent text-white">
@@ -477,15 +482,17 @@ function VoicesComponent({
         </CardContent>
       </Card>
 
-      <Card className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center  w-[13vw]">
+      <Card
+        className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center  w-[13vw]"
+        onClick={() => {
+          onViewUniqueNumbers();
+        }}
+      >
         <div className="cursor-pointer flex items-center justify-between w-full  mb-2">
           <img
             src="/invtedteamsiocn.png"
             alt="Icon"
             className="cursor-pointer h-20  -ml-2  -mt-3"
-            onClick={() => {
-              onViewUniqueNumbers();
-            }}
           />
           <div className="cursor-pointer flex flex-col mr-2 items-end">
             <h2 className="cursor-pointer text-4xl font-light">
@@ -528,14 +535,13 @@ function SubscriptionsStatsComponent({ stats }) {
         </CardHeader>
         <CardContent>
           <h2 className="cursor-pointer text-2xl font-regular">
-            {stats?.usersOnPlans['No Plan'].count}
-
+            {stats?.usersOnPlans["No Plan"].count}
           </h2>
           {/* <Progress value={27} /> */}
         </CardContent>
         <CardContent>
           <p className="cursor-pointer text-lg font-regular text-gray-500">
-            {`${stats?.usersOnPlans['No Plan'].percentage}`}%
+            {`${stats?.usersOnPlans["No Plan"].percentage}`}%
           </p>
         </CardContent>
       </Card>

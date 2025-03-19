@@ -27,6 +27,8 @@ import dayjs from "dayjs"; // Import Day.js
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { getAgentImage } from "@/utilities/agentUtilities";
+import DncConfirmationPopup from "./DncConfirmationPopup";
+import Tooltip from "@mui/material/Tooltip";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -39,6 +41,10 @@ const AssignLead = ({
   totalLeads = 0,
   userProfile, // this is the .user object doesn't include token
 }) => {
+  console.log("Total leads ", totalLeads);
+  console.log("Lead Ids ", leadIs.length);
+  const [showDncConfirmationPopup, setShowDncConfirmationPopup] =
+    useState(false);
   const [initialLoader, setInitialLoader] = useState(false);
   const [agentsList, setAgentsList] = useState([]);
   const [stages, setStages] = useState([]);
@@ -506,6 +512,25 @@ const AssignLead = ({
           setErrorMessage(null);
         }}
       />
+
+      {showDncConfirmationPopup && (
+        <DncConfirmationPopup
+          open={showDncConfirmationPopup}
+          onClose={() => {
+            setShowDncConfirmationPopup(false);
+            //
+          }}
+          onCancel={() => {
+            setShowDncConfirmationPopup(false);
+            //Unset the dncToggle
+            setIsDncChecked(false);
+          }}
+          onConfirm={() => {
+            setShowDncConfirmationPopup(false);
+          }}
+          leadsCount={selectedAll ? totalLeads - leadIs.length : leadIs.length}
+        />
+      )}
       {/* Snackbar for invalid time */}
 
       <div className="flex flex-row items-center justify-between mt-4">
@@ -764,21 +789,48 @@ const AssignLead = ({
                   </div>
 
                   <div className="flex flex-row items-center  -mt-2">
-                    <div
-                      style={{
-                        fontSize: 12,
-                        fontWeight: "600",
-                        color: "#00000080",
+                    <Tooltip
+                      title="If the lead has given consent, no need to run against DNC"
+                      arrow
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: "#ffffff", // Ensure white background
+                            color: "#333", // Dark text color
+                            fontSize: "14px",
+                            padding: "10px 15px",
+                            borderRadius: "8px",
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                          },
+                        },
+                        arrow: {
+                          sx: {
+                            color: "#ffffff", // Match tooltip background
+                          },
+                        },
                       }}
                     >
-                      Check DNC List
-                    </div>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          fontWeight: "600",
+                          color: "#000000",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Check DNC List
+                      </div>
+                    </Tooltip>
+
                     <Switch
                       checked={isDncChecked}
                       // color="#7902DF"
                       // exclusive
                       onChange={(event) => {
                         setIsDncChecked(event.target.checked);
+                        if (event.target.checked) {
+                          setShowDncConfirmationPopup(true);
+                        }
                       }}
                       sx={{
                         "& .MuiSwitch-switchBase.Mui-checked": {
@@ -957,6 +1009,58 @@ const AssignLead = ({
                                   // label="Select date and time"
                                   minDateTime={dayjs().tz(userProfile.timeZone)}
                                   //   value={value}
+                                  sx={{
+                                    // Date Picker (Large Screen)
+                                    "& .MuiPickersDay-root.Mui-selected": {
+                                      backgroundColor: "#7902DF !important", // Purple background for selected date
+                                      color: "white !important",
+                                    },
+                                    "& .MuiPickersDay-root:hover": {
+                                      backgroundColor: "#a352df !important", // Lighter purple on hover
+                                    },
+                                    "& .Mui-selected": {
+                                      backgroundColor: "#7902DF !important",
+                                      color: "#fff !important",
+                                    },
+
+                                    // Time Picker (Large Screen)
+                                    "& .MuiClock-pin": {
+                                      backgroundColor: "#7902DF !important", // Change clock pin color
+                                    },
+                                    "& .MuiClockPointer-root": {
+                                      backgroundColor: "#7902DF !important", // Change clock pointer color
+                                    },
+                                    "& .MuiClockPointer-thumb": {
+                                      borderColor: "#7902DF !important", // Change pointer thumb color
+                                    },
+                                    "& .MuiPickersToolbar-root": {
+                                      backgroundColor: "#7902DF !important", // Toolbar background purple
+                                    },
+                                    "& .MuiTypography-root": {
+                                      color: "#7902DF !important", // Header text color
+                                    },
+
+                                    // Time Selection List (Large Screen)
+                                    "& .MuiPickersTimeClock-root .Mui-selected":
+                                      {
+                                        backgroundColor: "#7902DF !important", // Purple selected time
+                                        color: "white !important",
+                                      },
+                                    "& .MuiPickersTimeClock-root .MuiButtonBase-root:hover":
+                                      {
+                                        backgroundColor: "#a352df !important", // Lighter purple on hover
+                                      },
+
+                                    // Time Picker List (Dropdown List)
+                                    "& .MuiTimeClock-root .Mui-selected": {
+                                      backgroundColor: "#7902DF !important",
+                                      color: "white !important",
+                                    },
+                                    "& .MuiTimeClock-root .MuiButtonBase-root:hover":
+                                      {
+                                        backgroundColor: "#a352df !important",
+                                      },
+                                  }}
                                   onChange={handleDateChange}
                                   renderInput={(params) => (
                                     <input
@@ -1028,6 +1132,32 @@ const AssignLead = ({
                         //   value={value}
                         minDate={dayjs()}
                         onChange={handleDateChange}
+                        sx={{
+                          "& .MuiPickersDay-root.Mui-selected": {
+                            backgroundColor: "#7902DF !important", // Change selected date color to purple
+                            color: "white !important",
+                          },
+                          "& .MuiPickersDay-root:hover": {
+                            backgroundColor: "#a352df !important", // Lighter purple on hover
+                          },
+                          "& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)":
+                            {
+                              color: "#333 !important", // Default color for unselected dates
+                            },
+                          "& .Mui-selected": {
+                            backgroundColor: "#7902DF !important",
+                            color: "#fff !important",
+                          },
+                          "& .MuiClock-pin": {
+                            backgroundColor: "#7902DF !important", // Change clock pin color
+                          },
+                          "& .MuiClockPointer-root": {
+                            backgroundColor: "#7902DF !important", // Change clock pointer color
+                          },
+                          "& .MuiClockPointer-thumb": {
+                            borderColor: "#7902DF !important", // Change pointer thumb color
+                          },
+                        }}
                         renderInput={(params) => (
                           <input
                             {...params.inputProps}
@@ -1069,8 +1199,7 @@ const AssignLead = ({
                 <div className="w-full">
                   {(NoOfLeadsToSend || customLeadsToSend) &&
                   (CallNow ||
-                    (CallLater && selectedDateTime && hasUserSelectedDate)) &&
-                  isDncChecked ? (
+                    (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
                     <button
                       className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {

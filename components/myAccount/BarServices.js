@@ -83,12 +83,11 @@ function BarServices() {
     {
       id: 1,
       PlanTitle: "Starter",
-      calls: 250,
       details: [
         `1 AgentX AI | 2hrs of Support`,
         `1 External Integration | 1 Calendar Integration`,
       ],
-      originalPrice: "1500",
+      originalPrice: "2,450",
       discountPrice: "997",
       planStatus: "40%",
       status: "",
@@ -96,12 +95,11 @@ function BarServices() {
     {
       id: 2,
       PlanTitle: "Professional",
-      calls: "1k",
       details: [
         `4 AgentX AI | 5hrs of Support`,
         `2 External Integration | 2 Calendar Integration`,
       ],
-      originalPrice: "4500",
+      originalPrice: "5,900",
       discountPrice: "2,997",
       planStatus: "50%",
       status: "Popular",
@@ -114,7 +112,7 @@ function BarServices() {
         `10 AgentX AI | 10hrs of Support`,
         `External Integration | Calendar Integration`,
       ],
-      originalPrice: "6997",
+      originalPrice: "8,200",
       discountPrice: "4,997",
       planStatus: "60%",
       status: "Best Value",

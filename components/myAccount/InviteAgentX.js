@@ -33,7 +33,7 @@ function InviteAgentX() {
     {
       id: 1,
       mints: 30,
-      calls: 250,
+      calls: 125,
       details: "Great for trying out AI sales agents.",
       originalPrice: "",
       discountPrice: "45",
@@ -43,7 +43,7 @@ function InviteAgentX() {
     {
       id: 2,
       mints: 120,
-      calls: "1k",
+      calls: "500",
       details: "Perfect for lead updates and engagement.",
       originalPrice: "165",
       discountPrice: "99",
@@ -53,7 +53,7 @@ function InviteAgentX() {
     {
       id: 3,
       mints: 360,
-      calls: "3k",
+      calls: "1500",
       details: "Perfect for lead reactivation and prospecting.",
       originalPrice: "540",
       discountPrice: "370",
@@ -63,7 +63,7 @@ function InviteAgentX() {
     {
       id: 4,
       mints: 720,
-      calls: "10k",
+      calls: "5k",
       details: "Ideal for teams and reaching new GCI goals.  ",
       originalPrice: "1200",
       discountPrice: "600",

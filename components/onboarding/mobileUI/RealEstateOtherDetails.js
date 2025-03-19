@@ -67,7 +67,7 @@ function RealEstateOtherDetails({
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
-        placeholder="Value"
+        placeholder="Type here"
         type="number"
         className="border border-[#00000010] w-full rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0"
         style={{ ...styles.inputStyle, marginTop: "8px" }}

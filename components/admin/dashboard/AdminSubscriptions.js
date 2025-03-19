@@ -98,7 +98,7 @@ function AdminSubscriptions() {
   ).map((dateKey) => {
     // Ensure proper date formatting (MMM DD)
     const formattedDate = moment(dateKey, "MMM DD, YY").format("MMM DD");
-  
+
     return {
       month: formattedDate, // Correct format for X-axis
       Trial: analyticData?.planSubscriptionStats?.Trial?.[dateKey] || 0,
@@ -489,7 +489,7 @@ function AdminSubscriptions() {
                     tickMargin={10}
                     tick={{ fontSize: 12, fill: "#6b7280" }}
                     tickFormatter={(value) => moment(value, "MMM DD").format("MMM DD")} // ✅ Ensure correct formatting
-                    />
+                  />
 
                   {/* Y-Axis */}
                   <YAxis
@@ -768,7 +768,7 @@ function AdminSubscriptions() {
                 </div>
                 {
                   selectedManu.id === 1 ? (
-                    <div className="w-full flex flex-row items-start gap- mt-8">
+                    <div className="w-full flex flex-row items-center gap- mt-8">
                       <PieChart width={150} height={150}>
                         <Pie
                           data={UpgateRateData}
@@ -857,7 +857,7 @@ function AdminSubscriptions() {
                       </div>
                     </div>
                   ) : (
-                    <div className="w-full flex flex-row items-start gap- mt-8">
+                    <div className="w-full flex flex-row items-center gap- mt-8">
                       <PieChart width={150} height={150}>
                         <Pie
                           data={UpgateRateData2}
@@ -876,7 +876,7 @@ function AdminSubscriptions() {
                       </PieChart>
 
                       <div className="flex flex-col gap-2">
-                        <div className="flex flex-row items-center gap-">
+                        {/* <div className="flex flex-row items-center gap-">
                           <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#8E24AA] border border-white"></div>
                           <p
                             style={{
@@ -891,7 +891,7 @@ function AdminSubscriptions() {
                             ] || 0}{" "}
                             users
                           </p>
-                        </div>
+                        </div> */}
 
                         <div className="flex flex-row items-center gap-">
                           <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#FF6600] border border-white"></div>
@@ -902,7 +902,7 @@ function AdminSubscriptions() {
                               color: "#000",
                             }}
                           >
-                            Plan30 to Plan120 -{" "}
+                            $45 to Plan120 -{" "}
                             {analyticData?.plan30Upgrades[
                               "Trial to Plan120"
                             ] || 0}{" "}
@@ -919,7 +919,7 @@ function AdminSubscriptions() {
                               color: "#000",
                             }}
                           >
-                            Plan30 to Plan360 -{" "}
+                            $45 to Plan360 -{" "}
                             {analyticData?.plan30Upgrades[
                               "Trial to Plan360"
                             ] || 0}{" "}
@@ -936,7 +936,7 @@ function AdminSubscriptions() {
                               color: "#000",
                             }}
                           >
-                            Plan30 to Plan720 -{" "}
+                            $45 to Plan720 -{" "}
                             {analyticData?.plan30Upgrades[
                               "Trial to Plan720"
                             ] || 0}{" "}
@@ -1070,9 +1070,8 @@ function AdminSubscriptions() {
                   <div
                     style={{ fontSize: 18, fontWeight: "700", color: "#000" }}
                   >
-                    Referal Code Rate
+                   Total Referrals
                   </div>
-
                 </div>
 
                 <div style={{ fontSize: 48, fontWeight: 300, color: "#000" }}>
@@ -1333,30 +1332,33 @@ function AdminSubscriptions() {
                 </button>
               </div>
 
-              <div
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  width: "100%",
-                  marginTop: 20,
-                }}
-              >
-                <div style={{ fontWeight: "500", fontSize: 14 }}>
-                  Start Date
-                </div>
-                <div className="mt-5">
-                  <CalendarPicker onSelectDate={handleStartDateSelect} />
-                </div>
-              </div>
+              <div className=" w-full flex flex-row items-center justify-between">
+                <div
+                  style={{
 
-              <div style={{ fontWeight: "500", fontSize: 14, marginTop: 20 }}>
-                End Date
+                    marginTop: 20,
+                  }}
+                >
+                  <div style={{ fontWeight: "500", fontSize: 14 }}>
+                    Start Date
+                  </div>
+                  <div className="mt-5">
+                    <CalendarPicker onSelectDate={handleStartDateSelect} />
+                  </div>
+                </div>
+                <div
+                  style={{
+                    marginTop: 20,
+                  }}
+                >
+                  <div style={{ fontWeight: "500", fontSize: 14,}}>
+                    End Date
+                  </div>
+                  <div className="mt-5">
+                    <CalendarPicker onSelectDate={handleEndDateSelect} />
+                  </div>
+                </div>
               </div>
-              <div className="mt-5">
-                <CalendarPicker onSelectDate={handleEndDateSelect} />
-              </div>
-
               <button
                 className="text-white bg-purple outline-none rounded-xl w-full mt-8"
                 style={{ height: "50px" }}

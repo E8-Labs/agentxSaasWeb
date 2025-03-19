@@ -95,13 +95,23 @@ export default function UsersWithAgnets({ open, onClose, user }) {
 
         {/* Modal Title */}
         <Typography variant="h6" fontWeight="bold" sx={{ mt: 1 }}>
-          Users with agents
+          {"Users with > 2 agents"}
         </Typography>
 
         {/* List of Voices */}
         <List sx={{ width: "100%", mt: 2, overflow: "scroll" }}>
           {users.map((user, index) => (
-            <ListItem key={user.id}>
+            <ListItem key={user.id}
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                if (user.id) {
+                  // Open a new tab with user ID as query param
+                  let url = ` admin/users?userId=${user.id}`
+                  console.log('url is', url)
+                  window.open(url, "_blank");
+                }
+              }}
+            >
               {/* Avatar */}
               <ListItemAvatar>
                 <Avatar src={user.thumb_profile_image} alt={user.name} />

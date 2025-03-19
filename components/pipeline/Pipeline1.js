@@ -179,7 +179,7 @@ const Pipeline1 = ({ handleContinue }) => {
   //code to get pipelines
   const getPipelines = async () => {
     try {
-      const ApiPath = Apis.getPipelines;
+      const ApiPath = Apis.getPipelines + "?liteResource=true";
       let AuthToken = null;
       const LocalData = localStorage.getItem("User");
       if (LocalData) {
