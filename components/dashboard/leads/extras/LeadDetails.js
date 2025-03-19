@@ -763,8 +763,8 @@ const LeadDetails = ({
                       </button>
                     </div>
 
-                    <div className="flex flex-row items-start justify-between mt-4">
-                      <div className="flex flex-col items-start gap-[5px]">
+                    <div className="flex flex-row items-start justify-between mt-4  w-full">
+                      <div className="flex flex-col items-start gap-[5px] ">
                         <div className="flex flex-row items-center gap-4">
                           <div
                             className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
@@ -780,7 +780,7 @@ const LeadDetails = ({
                             {selectedLeadsDetails?.lastName}
                           </div>
                           {selectedLeadsDetails?.isOnDncList && (
-                            <div className="rounded-full justify-center items-center bg-red color-black p-1 px-2">
+                            <div className="rounded-full justify-center items-center  color-black p-1 px-2">
                               DNC
                             </div>
                           )}
@@ -886,7 +886,6 @@ const LeadDetails = ({
                         </div>
                         <div className="flex flex-row gap-2 justify-center items-center">
                           <div style={styles.heading2}>
-                            {/* {selectedLeadsDetails?.phone} */}
                             {formatPhoneNumber(selectedLeadsDetails?.phone) ||
                               "-"}
                           </div>
@@ -907,7 +906,7 @@ const LeadDetails = ({
                         <div>
                           {selectedLeadsDetails?.tags.length > 0 ? (
                             <div
-                              className="text-end flex flex-row items-center gap-2"
+                              className="text-end flex flex-row items-center gap-2 "
                               // style={styles.paragraph}
                             >
                               {
@@ -971,7 +970,6 @@ const LeadDetails = ({
                           )}
                         </div>
                         <div style={styles.heading2}>
-                          {/* {selectedLeadsDetails?.phone} */}
                           {selectedLeadsDetails?.pipeline
                             ? selectedLeadsDetails?.pipeline?.title
                             : "-"}
@@ -980,7 +978,6 @@ const LeadDetails = ({
                         <div>
                           {selectedLeadsDetails?.booking && (
                             <div style={styles.heading2}>
-                              {/* {selectedLeadsDetails?.phone} */}
                               {GetFormattedDateString(
                                 selectedLeadsDetails.booking.datetime,
                                 true
@@ -989,33 +986,30 @@ const LeadDetails = ({
                           )}
                         </div>
 
-                        <div>
+                        <div className=" flex w-full">
                           {getExtraColumsCount(columnsLength) >= 1 && (
-                            <div className="mt-2 rounded-xl p-2">
+                            <div className="flex flex-col mt-2 rounded-xl p-2 w-full max-w-full overflow-hidden">
                               <button
-                                onClick={() => {
-                                  setShowCustomVariables(!showCustomVariables);
-                                }}
+                                onClick={() =>
+                                  setShowCustomVariables(!showCustomVariables)
+                                }
                                 className="flex flex-row items-center w-1/2 justify-between outline-none"
                               >
                                 <div className="flex flex-row items-center">
-                                  {getExtraColumsCount(columnsLength) > 0 ? (
+                                  {getExtraColumsCount(columnsLength) > 0 && (
                                     <div
-                                      className=""
                                       style={{
-                                        fontsize: 15,
+                                        fontSize: 15,
                                         fontWeight: "500",
                                       }}
                                     >
                                       +{getExtraColumsCount(columnsLength)}
                                     </div>
-                                  ) : (
-                                    ""
                                   )}
                                   <div
                                     style={{
                                       fontWeight: "600",
-                                      fontsize: 15,
+                                      fontSize: 15,
                                       color: "#15151560",
                                       whiteSpace: "nowrap",
                                       textDecorationLine: "underline",
@@ -1037,43 +1031,36 @@ const LeadDetails = ({
                                     />
                                   )}
                                 </div>
-                                <div></div>
                               </button>
 
                               {showCustomVariables && (
-                                <div className="flex flex-col gap-4 mt-4">
+                                <div className="flex flex-col gap-4 mt-4 w-full max-w-full overflow-hidden">
                                   {leadColumns.map((column, index) => {
                                     if (
-                                      column?.title == "Name" ||
-                                      column?.title == "Phone" ||
-                                      column?.title == "address" ||
-                                      column?.title == "More" ||
-                                      column?.title == 0 ||
-                                      column?.title == "Stage" ||
-                                      column?.title == "status"
+                                      [
+                                        "Name",
+                                        "Phone",
+                                        "address",
+                                        "More",
+                                        0,
+                                        "Stage",
+                                        "status",
+                                      ].includes(column?.title)
                                     ) {
-                                      return (
-                                        // <div key={index}></div>
-                                        ""
-                                      );
+                                      return null;
                                     }
                                     return (
                                       <div
                                         key={index}
-                                        className="flex flex-row w-1/2 items-start gap-1 justify-between"
+                                        className="flex flex-row items-start gap-1 w-full flex-wrap"
                                       >
                                         <div className="flex flex-row items-center gap-4">
-                                          {/* <Image src={"/"} */}
-
                                           <div style={styles.subHeading}>
                                             {capitalize(column?.title || "")}
                                           </div>
                                         </div>
-                                        <div
-                                          className="flex w-full flex-row whitespace-normal break-words overflow-hidden items-end justify-end"
-                                          style={{ alignSelf: "flex-end" }}
-                                        >
-                                          <div className="flex w-[85%] flex-col items-end">
+                                        <div className="flex w-full flex-row whitespace-normal break-words overflow-hidden items-end justify-end flex-wrap">
+                                          <div className="flex flex-col items-end flex-grow w-full">
                                             {getDetailsColumnData(
                                               column,
                                               selectedLeadsDetails
@@ -1083,7 +1070,7 @@ const LeadDetails = ({
                                             column,
                                             selectedLeadsDetails
                                           ) && (
-                                            <div className="flex w-[15%] items-end justify-end border">
+                                            <div className="flex items-end justify-end min-w-[120px] border">
                                               <button
                                                 style={{
                                                   fontWeight: "600",
@@ -1092,18 +1079,24 @@ const LeadDetails = ({
                                                 onClick={() => {
                                                   setExpandedCustomFields(
                                                     (prevFields) =>
-                                                      prevFields.includes(title)
+                                                      prevFields.includes(
+                                                        column?.title
+                                                      )
                                                         ? prevFields.filter(
                                                             (field) =>
-                                                              field !== title
+                                                              field !==
+                                                              column?.title
                                                           )
-                                                        : [...prevFields, title]
+                                                        : [
+                                                            ...prevFields,
+                                                            column?.title,
+                                                          ]
                                                   );
                                                 }}
-                                                className=" text-black underline w-[120px]"
+                                                className="text-black underline w-[120px]"
                                               >
                                                 {expandedCustomFields.includes(
-                                                  title
+                                                  column?.title
                                                 )
                                                   ? "Read Less"
                                                   : "Read More"}
