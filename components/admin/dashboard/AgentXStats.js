@@ -200,7 +200,7 @@ function AgentXStats({ user }) {
           </CardHeader>
           <CardContent>
             <h2 className="cursor-pointer text-2xl font-bold">
-              {stats?.weeklySignups}
+              {stats?.weeklySignups}%
             </h2>
             {/* <Progress value={27} /> */}
           </CardContent>
@@ -477,15 +477,19 @@ function VoicesComponent({
         </CardContent>
       </Card>
 
-      <Card className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center  w-[13vw]">
-        <div className="cursor-pointer flex items-center justify-between w-full  mb-2">
+      <Card className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center  w-[13vw]"
+        onClick={() => {
+          onViewUniqueNumbers();
+        }}
+      >
+        <div className="cursor-pointer flex items-center justify-between w-full  mb-2"
+
+        >
           <img
             src="/invtedteamsiocn.png"
             alt="Icon"
             className="cursor-pointer h-20  -ml-2  -mt-3"
-            onClick={() => {
-              onViewUniqueNumbers();
-            }}
+
           />
           <div className="cursor-pointer flex flex-col mr-2 items-end">
             <h2 className="cursor-pointer text-4xl font-light">

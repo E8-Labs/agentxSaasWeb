@@ -65,7 +65,7 @@ function AdminEngagments() {
         getEngagmentData()
     }, [])
 
-    const getEngagmentData = async (customRange = false,) => {
+    const getEngagmentData = async (startDate,endDate) => {
         try {
             setLoading(true);
             const data = localStorage.getItem("User");
@@ -201,7 +201,7 @@ function AdminEngagments() {
                                             );
                                             setstartDate("2025-01-01");
                                             setselectedDateRange("All Time");
-                                            getEngagmentData(false);
+                                            getEngagmentData("2025-01-01",moment(currantDate).format("YYYY-MM-DD"));
                                             setShowCustomRange(false)
                                         }}
                                     >
@@ -236,10 +236,12 @@ function AdminEngagments() {
                                     <button
                                         className="outline-none"
                                         onClick={() => {
-                                            setendDate(moment(currantDate).format("YYYY-MM-DD"))
-                                            setstartDate("2025-01-01")
-                                            getEngagmentData(false)
-                                            setselectedDateRange("All Time")
+                                            setendDate(
+                                                moment(currantDate).format("YYYY-MM-DD")
+                                            );
+                                            setstartDate("2025-01-01");
+                                            setselectedDateRange("All Time");
+                                            getEngagmentData("2025-01-01", moment(currantDate).format("YYYY-MM-DD"));
                                             setShowCustomRange(false)
 
                                         }}
@@ -501,36 +503,39 @@ function AdminEngagments() {
                                     />
                                 </button>
                             </div>
+                            <div className=" w-full flex flex-row items-center justify-between">
+                                <div
+                                    style={{
 
-                            <div
-                                style={{
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    justifyContent: "space-between",
-                                    width: "100%",
-                                    marginTop: 20,
-                                }}
-                            >
-                                <div style={{ fontWeight: "500", fontSize: 14 }}>
-                                    Start Date
+                                        marginTop: 20,
+                                    }}
+                                >
+                                    <div style={{ fontWeight: "500", fontSize: 14 }}>
+                                        Start Date
+                                    </div>
+                                    <div className="mt-5">
+                                        <CalendarPicker onSelectDate={handleStartDateSelect} />
+                                    </div>
                                 </div>
-                                <div className="mt-5">
-                                    <CalendarPicker onSelectDate={handleStartDateSelect} />
+                                <div
+                                    style={{
+
+                                        marginTop: 20,
+                                    }}
+                                >
+                                    <div style={{ fontWeight: "500", fontSize: 14,}}>
+                                        End Date
+                                    </div>
+                                    <div className="mt-5">
+                                        <CalendarPicker onSelectDate={handleEndDateSelect} />
+                                    </div>
                                 </div>
                             </div>
-
-                            <div style={{ fontWeight: "500", fontSize: 14, marginTop: 20 }}>
-                                End Date
-                            </div>
-                            <div className="mt-5">
-                                <CalendarPicker onSelectDate={handleEndDateSelect} />
-                            </div>
-
                             <button
                                 className="text-white bg-purple outline-none rounded-xl w-full mt-8"
                                 style={{ height: "50px" }}
                                 onClick={() => {
-                                    getEngagmentData(true);
+                                    getEngagmentData(startDate,endDate);
                                     setShowCustomRangePopup(false);
                                     setShowCustomRange(true)
                                 }}
