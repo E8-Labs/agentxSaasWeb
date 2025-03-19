@@ -64,8 +64,8 @@ function AllCalls({ user }) {
   const [selectedPipeline, setSelectedPipeline] = useState("");
   const [selectedStageIds, setSelectedStageIds] = useState([]);
 
-    const [selectedStatus, setSelectedStatus] = useState([]);
-  
+  const [selectedStatus, setSelectedStatus] = useState([]);
+  const [filtersChanged, setFiltersChanged] = useState(false);
 
   //code for pagination
   const [offset, setOffset] = useState(5);
@@ -74,7 +74,6 @@ function AllCalls({ user }) {
   const requestVersion = useRef(0);
 
   const filterRef = useRef(null);
-
 
   const statusList = [
     {
@@ -138,7 +137,7 @@ function AllCalls({ user }) {
       setInitialLoader(true);
       getCallLogs(0);
     }, 400);
-  }, [searchValue]);
+  }, [searchValue || filtersChanged]);
   //select pipeline
   const handleChangePipeline = (event) => {
     const selectedValue = event.target.value;
@@ -185,12 +184,10 @@ function AllCalls({ user }) {
       return "";
     }
 
-
     if (filter.key === "status") {
       return filter.values[0]; // ✅ Fix: Just return the string value
     }
-    console.log('filter.value', filter.value)
-
+    console.log("filter.value", filter.value);
   }
 
   function GetFiltersFromSelection() {
@@ -237,9 +234,9 @@ function AllCalls({ user }) {
       });
     }
 
-      console.log('selectedStatus', selectedStatus)
+    console.log("selectedStatus", selectedStatus);
 
-      // Status filters (Ensure each status is separate)
+    // Status filters (Ensure each status is separate)
     // selectedStatus.forEach((status) => {
     //   filters.push({
     //     key: "status",
@@ -352,34 +349,39 @@ function AllCalls({ user }) {
       if (offset == null) {
         offset = filteredCallDetails.length;
       }
-      if ((selectedFromDate && selectedToDate)) {
-        ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}`;
+      let separator = "?";
+      if (selectedFromDate && selectedToDate) {
+        ApiPath = `${Apis.getCallLogs}${separator}startDate=${startDate}&endDate=${endDate}`;
+        separator = "&";
       } else {
-        ApiPath = `${Apis.getCallLogs}?offset=${offset}`; //Apis.getCallLogs;
+        ApiPath = `${Apis.getCallLogs}`; //Apis.getCallLogs;
+        // separator = "&";
       }
 
-      if(stages.length > 0){
-          ApiPath = `${Apis.getCallLogs}&stageIds=${stages}&offset=${offset}`
+      if (stages.length > 0) {
+        ApiPath = `${ApiPath}${separator}stageIds=${stages}`;
+        separator = "&";
       }
       if (searchValue && searchValue.length > 0) {
-        ApiPath = `${ApiPath}&name=${searchValue}`;
+        ApiPath = `${ApiPath}${separator}name=${searchValue}`;
+        separator = "&";
       }
 
       if (selectedStatus.length > 0) {
-        ApiPath += `&status=${selectedStatus.join(",")}`;
+        ApiPath += `${separator}status=${selectedStatus.join(",")}`;
+        separator = "&";
       }
-
 
       // if (selectedFromDate && selectedToDate && stages.length > 0) {
       //     ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}&stageIds=${stages}&offset=${offset}&limit=10`;
       // }
-      ApiPath = `${ApiPath}&timezone=${GetTimezone()}`;
+      ApiPath = `${ApiPath}${separator}offset=${offset}&timezone=${GetTimezone()}`;
 
       console.log("Api path for calls log  is", ApiPath);
       console.log("selected status is", selectedStatus);
 
       //// console.log("Auth token is:", AuthToken);
-      // return
+      // return;
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: "Bearer " + AuthToken,
@@ -569,14 +571,16 @@ function AllCalls({ user }) {
                           if (filter.key === "status") {
                             // ✅ Update state first
                             setSelectedStatus((prev) => {
-                              const updatedStatus = prev.filter((s) => s !== filter.values[0]);
-                      
+                              const updatedStatus = prev.filter(
+                                (s) => s !== filter.values[0]
+                              );
+
                               // ✅ Call API AFTER state update using setTimeout (ensures latest state is used)
                               setTimeout(() => {
                                 console.log("Calling API with:", updatedStatus);
                                 getCallLogs(0);
                               }, 0);
-                      
+
                               return updatedStatus; // Update state
                             });
                           }
@@ -600,7 +604,7 @@ function AllCalls({ user }) {
                 );
               })}
             </div>
-          </div >
+          </div>
 
           <div className="w-full flex flex-row justify-between mt-2 px-10 mt-12">
             <div className="w-2/12">
@@ -628,8 +632,6 @@ function AllCalls({ user }) {
               <div style={styles.text}>More</div>
             </div>
           </div>
-
-
 
           <div
             className={`h-[71vh] border overflow-auto`}
@@ -663,11 +665,9 @@ function AllCalls({ user }) {
               hasMore={hasMore} // Check if there's more data
               loader={
                 <div className="w-full flex flex-row justify-center mt-8">
-                  {
-                    !initialLoader && !filteredCallDetails.length == 0 && (
-                      <CircularProgress size={35} />
-                    )
-                  }
+                  {!initialLoader && !filteredCallDetails.length == 0 && (
+                    <CircularProgress size={35} />
+                  )}
                 </div>
               }
               style={{ overflow: "unset" }}
@@ -708,7 +708,9 @@ function AllCalls({ user }) {
                         {/* (item.LeadModel?.phone) */}
                         <div style={styles.text2}>
                           {item.LeadModel?.phone ? (
-                            <div>{formatPhoneNumber(item?.LeadModel?.phone)}</div>
+                            <div>
+                              {formatPhoneNumber(item?.LeadModel?.phone)}
+                            </div>
                           ) : (
                             "-"
                           )}
@@ -768,7 +770,6 @@ function AllCalls({ user }) {
               )}
             </InfiniteScroll>
           </div>
-
 
           {/* Code for filter modal */}
           <div>
@@ -956,7 +957,9 @@ function AllCalls({ user }) {
                           renderValue={(selected) => {
                             if (!selected) {
                               return (
-                                <div style={{ color: "#aaa" }}>Select pipeline</div>
+                                <div style={{ color: "#aaa" }}>
+                                  Select pipeline
+                                </div>
                               ); // Placeholder style
                             }
                             return selected;
@@ -1024,16 +1027,18 @@ function AllCalls({ user }) {
                               onClick={() => {
                                 handleSelectStage(item);
                               }}
-                              className={`p-2 border border-[#00000020] ${selectedStageIds.includes(item.id)
-                                ? `bg-purple`
-                                : "bg-transparent"
-                                } px-6
-                                                                ${selectedStageIds.includes(
-                                  item.id
-                                )
-                                  ? `text-white`
-                                  : "text-black"
-                                } rounded-2xl`}
+                              className={`p-2 border border-[#00000020] ${
+                                selectedStageIds.includes(item.id)
+                                  ? `bg-purple`
+                                  : "bg-transparent"
+                              } px-6
+                                                                ${
+                                                                  selectedStageIds.includes(
+                                                                    item.id
+                                                                  )
+                                                                    ? `text-white`
+                                                                    : "text-black"
+                                                                } rounded-2xl`}
                             >
                               {item.stageTitle}
                             </button>
@@ -1073,7 +1078,9 @@ function AllCalls({ user }) {
                               color: selectedStatus.includes(item.status)
                                 ? "#fff"
                                 : "",
-                              backgroundColor: selectedStatus.includes(item.status)
+                              backgroundColor: selectedStatus.includes(
+                                item.status
+                              )
                                 ? "#7902df"
                                 : "",
                             }}
@@ -1111,7 +1118,8 @@ function AllCalls({ user }) {
                           fontWeight: "600",
                           backgroundColor:
                             (selectedFromDate && selectedToDate) ||
-                              selectedStageIds.length > 0
+                            selectedStageIds.length > 0 ||
+                            selectedStatus.length > 0
                               ? ""
                               : "#00000050",
                         }}
@@ -1119,7 +1127,8 @@ function AllCalls({ user }) {
                           // console.log("Check 1");
                           if (
                             (selectedFromDate && selectedToDate) ||
-                            selectedStageIds.length > 0
+                            selectedStageIds.length > 0 ||
+                            selectedStatus.length > 0
                           ) {
                             localStorage.removeItem("callDetails");
                             setHasMore(true);
@@ -1145,20 +1154,17 @@ function AllCalls({ user }) {
         </>
       )}
 
-
       {/* Code for details view */}
-      {
-        showDetailsModal && (
-          <LeadDetails
-            selectedLead={selectedLeadsDetails?.LeadModel?.id}
-            pipelineId={selectedLeadsDetails?.PipelineStages?.pipelineId}
-            showDetailsModal={showDetailsModal}
-            setShowDetailsModal={setShowDetailsModal}
-            hideDelete={true}
-          />
-        )
-      }
-    </div >
+      {showDetailsModal && (
+        <LeadDetails
+          selectedLead={selectedLeadsDetails?.LeadModel?.id}
+          pipelineId={selectedLeadsDetails?.PipelineStages?.pipelineId}
+          showDetailsModal={showDetailsModal}
+          setShowDetailsModal={setShowDetailsModal}
+          hideDelete={true}
+        />
+      )}
+    </div>
   );
 }
 

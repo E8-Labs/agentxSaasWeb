@@ -17,6 +17,7 @@ export default function DncConfirmationPopup({
   onConfirm,
   leadsCount,
 }) {
+  console.log("Total Leads ", leadsCount);
   return (
     <Dialog
       open={open}
