@@ -932,6 +932,7 @@ const AdminLeads1 = ({ selectedUser }) => {
       const ApiData = {
         sheetName: newSheetName,
         columns: inputs.map((columns) => columns.value),
+        userId: selectedUser.id,
       };
       // console.log("Data to send in api is:", ApiData);
 
