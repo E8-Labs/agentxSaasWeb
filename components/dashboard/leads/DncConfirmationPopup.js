@@ -72,38 +72,39 @@ export default function DncConfirmationPopup({
 
       {/* Buttons */}
       <DialogActions sx={{ justifyContent: "center", gap: 2, mt: 2 }}>
-        <Button
+        <div
+          className="cursor-pointer w-[45%] flex justify-center items-center border border-[#ddd] font-bold rounded-lg text-black text-center py-3"
           onClick={onCancel}
-          variant="outlined"
-          sx={{
+          style={{
             borderColor: "#ddd",
             color: "#000",
             fontWeight: "bold",
             textTransform: "none",
-            paddingY: "0.8rem",
+            // padding: "0.8rem",
             borderRadius: "10px",
             width: "45%",
           }}
         >
           Cancel
-        </Button>
+        </div>
 
-        <Button
+        <div
+          className="cursor-pointer w-[45%] justify-center bg-[#7902DF] font-bold rounded text-white text-center py-3"
           onClick={onConfirm}
-          variant="contained"
-          sx={{
+          // variant="contained"
+          style={{
             backgroundColor: "#7902DF",
             fontWeight: "bold",
             textTransform: "none",
             borderRadius: "10px",
             width: "45%",
-            paddingY: "0.8rem",
+            // paddingY: "0.8rem",
             "&:hover": { backgroundColor: "#6901C3" },
             color: "white !important", // Force white text
           }}
         >
           Confirm
-        </Button>
+        </div>
       </DialogActions>
     </Dialog>
   );
