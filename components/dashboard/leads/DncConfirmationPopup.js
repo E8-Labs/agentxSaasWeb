@@ -67,7 +67,7 @@ export default function DncConfirmationPopup({
       >
         <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
         <Typography sx={{ fontSize: "14px", color: "#000" }}>
-          DNC Checklist is $0.03 per number. If less than 34 leads, it's $1.
+          {`DNC Checklist is $0.03 per number. If less than 34 leads, it's $1.`}
         </Typography>
       </Box>
 
