@@ -7,8 +7,10 @@ import {
   Button,
   Typography,
   IconButton,
+  Box,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 export default function DncConfirmationPopup({
   open,
@@ -18,17 +20,18 @@ export default function DncConfirmationPopup({
   leadsCount,
 }) {
   console.log("Total Leads ", leadsCount);
+  const totalCost = leadsCount < 34 ? 1 : leadsCount * 0.03;
+
   return (
     <Dialog
       open={open}
       onClose={onClose}
       PaperProps={{
         sx: {
-          borderRadius: "20px",
-          padding: "20px",
+          borderRadius: "16px",
+          padding: "24px",
           width: "500px",
           maxWidth: "90%",
-          //   textAlign: "center",
         },
       }}
     >
@@ -39,71 +42,129 @@ export default function DncConfirmationPopup({
           position: "absolute",
           top: 12,
           right: 12,
+          color: "#000",
         }}
       >
         <CloseIcon />
       </IconButton>
 
       {/* Modal Title */}
-      <DialogTitle sx={{ fontWeight: "bold", fontSize: "18px", mt: 1 }}>
-        Confirm DNC charges
+      <DialogTitle sx={{ fontWeight: "bold", fontSize: "20px", mt: 1 }}>
+        Confirm DNC Charges
       </DialogTitle>
+
+      {/* Info Box */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1.5,
+          backgroundColor: "#F6F0FF",
+          padding: "12px 16px",
+          borderRadius: "8px",
+          mb: 3,
+        }}
+      >
+        <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
+        <Typography sx={{ fontSize: "14px", color: "#000" }}>
+          DNC Checklist is $0.03 per number. If less than 34 leads, it's $1.
+        </Typography>
+      </Box>
 
       {/* Modal Content */}
       <DialogContent>
-        <Typography sx={{ color: "#000", fontSize: "16px" }}>
-          {`DNC Checklist is $0.03 per number. If less than 34 leads it's $1.`}
-        </Typography>
-        <Typography
-          variant="h6"
-          sx={{ fontWeight: "bold", mb: 1, color: "transparent" }}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            mb: 3,
+          }}
         >
-          Hello
-        </Typography>
+          <Typography sx={{ color: "#000", fontSize: "16px" }}>
+            Total Leads
+          </Typography>
+          <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
+            {leadsCount}
+          </Typography>
+        </Box>
 
-        <Typography sx={{ color: "#000", fontSize: "16px" }}>
-          Total leads = {leadsCount}
-        </Typography>
-        <Typography sx={{ color: "#000", fontSize: "16px" }}>
-          Total cost to check ={" "}
-          {leadsCount < 34 ? "$1" : `$${leadsCount * 0.03}`}
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            mb: 2,
+          }}
+        >
+          <Typography sx={{ color: "#000", fontSize: "16px" }}>
+            Cost Per Lead
+          </Typography>
+          <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
+            $0.03
+          </Typography>
+        </Box>
+
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            mt: 2,
+            pt: 1,
+            borderTop: "1px solid #ddd",
+          }}
+        >
+          <Typography sx={{ color: "#000", fontSize: "16px" }}>
+            Total Cost
+          </Typography>
+          <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
+            ${totalCost}
+          </Typography>
+        </Box>
       </DialogContent>
 
       {/* Buttons */}
-      <DialogActions sx={{ justifyContent: "center", gap: 2, mt: 2 }}>
-        <div
-          className="cursor-pointer w-[45%] flex justify-center items-center border border-[#ddd] font-bold rounded-lg text-black text-center py-3"
+      <DialogActions sx={{ justifyContent: "space-between", mt: 3 }}>
+        <Button
           onClick={onCancel}
-          style={{
-            borderColor: "#ddd",
-            color: "#000",
-            fontWeight: "bold",
+          sx={{
             textTransform: "none",
-            // padding: "0.8rem",
-            borderRadius: "10px",
+            fontWeight: "bold",
+            color: "#7902DF",
+            fontSize: "16px",
             width: "45%",
           }}
         >
           Cancel
-        </div>
+        </Button>
 
-        <div
-          className="cursor-pointer w-[45%] justify-center bg-[#7902DF] font-bold rounded text-white text-center py-3"
+        {/* <Button
           onClick={onConfirm}
-          // variant="contained"
-          style={{
-            backgroundColor: "#7902DF",
-            fontWeight: "bold",
+          sx={{
             textTransform: "none",
-            borderRadius: "10px",
-            width: "45%",
-            // paddingY: "0.8rem",
+            fontWeight: "bold",
+            fontSize: "16px",
+            backgroundColor: "#7902DF",
+            color: "white",
+            borderRadius: "8px",
+            padding: "10px 20px",
             "&:hover": { backgroundColor: "#6901C3" },
-            color: "white !important", // Force white text
           }}
         >
-          Confirm
+          Confirm & Pay
+        </Button> */}
+        <div
+          className="cursor-pointer w-[45%] flex justify-center items-center bg-purple font-bold rounded-lg text-white text-center py-3"
+          onClick={onConfirm}
+          style={{
+            borderColor: "#ddd",
+            color: "#fff",
+            fontWeight: "bold",
+            textTransform: "none",
+            padding: "0.8rem",
+            borderRadius: "10px",
+            width: "45%",
+          }}
+        >
+          Confirm & Pay
         </div>
       </DialogActions>
     </Dialog>

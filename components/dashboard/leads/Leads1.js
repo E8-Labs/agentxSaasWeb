@@ -523,8 +523,11 @@ const Leads1 = () => {
         // Extract data from the first sheet
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
-        const data = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Header included
-
+        // const data = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Header included
+        const data = XLSX.utils.sheet_to_json(sheet, {
+          header: 1,
+          raw: false, // This forces Excel dates to be converted to readable format
+        });
         if (data.length > 1) {
           const headers = data[0]; // First row as headers
           const rows = data.slice(1); // Data without headers
