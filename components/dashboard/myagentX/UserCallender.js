@@ -39,6 +39,7 @@ const UserCalender = ({
   const [initialLoader, setInitialLoader] = useState(false);
 
   const [showAddNewCalender, setShowAddNewCalender] = useState(false);
+  const [calendarToDelete, setCalendarToDelete] = useState(null);
 
   //all calenders
   const [allCalendars, setAllCalendars] = useState([]);
@@ -55,9 +56,9 @@ const UserCalender = ({
 
   const [selectTimeZone, setSelectTimeZone] = useState("");
 
-  const [showDelBtn, setShowDelBtn] = useState(false)
-  const [showDelPopup, setShowDelPopup] = useState(false)
-  const [calenderDelLoader, setCalenderDelLoader] = useState(null)
+  const [showDelBtn, setShowDelBtn] = useState(false);
+  const [showDelPopup, setShowDelPopup] = useState(false);
+  const [calenderDelLoader, setCalenderDelLoader] = useState(null);
 
   // const [timeZones, setTimeZones] = useState([]);
   useEffect(() => {
@@ -177,7 +178,9 @@ const UserCalender = ({
                 (calendar) => calendar.title === newCalendarData.title
               );
 
-              return isDuplicate ? prevCalendars : [...prevCalendars, newCalendarData];
+              return isDuplicate
+                ? prevCalendars
+                : [...prevCalendars, newCalendarData];
             });
             setSelectCalender(newCalendarData.title);
 
@@ -235,43 +238,54 @@ const UserCalender = ({
   };
 
   const handleDeleteCalendar = async () => {
-    setCalenderDelLoader(selectCalender)
+    setCalenderDelLoader(calendarToDelete);
     try {
-      const data = localStorage.getItem("User")
+      const data = localStorage.getItem("User");
 
       if (data) {
-        let u = JSON.stringify(data)
-
+        let u = JSON.parse(data);
+        console.log("Selected Calendar ", calendarToDelete);
         let apiData = {
-          calendarId: selectCalender.id
-        }
+          calendarId: calendarToDelete.id,
+        };
+        console.log("Calendar Data", apiData);
+        // return;
 
-        let path = Apis.deleteCalendar
+        let path = Apis.deleteCalendar;
 
         const response = await axios.post(path, apiData, {
           headers: {
-            'Authorization': "Bearer " + u.token,
-            "Content-Type": 'application/json'
-          }
-        })
+            Authorization: "Bearer " + u.token,
+            "Content-Type": "application/json",
+          },
+        });
+        // setCalendarToDelete(null)
+        setCalenderDelLoader(null);
 
         if (response.data.status === true) {
-          console.log('delete calender api data is', response.data.data)
-          setAllCalendars()
+          console.log("delete calender api data is", response.data.data);
+          let newCalList = allCalendars.filter(
+            (item) => item.id != calendarToDelete.id
+          );
+          setShowDelPopup(false);
+          setAllCalendars(newCalList);
+          setCalendarToDelete(null);
+          setIsVisible(true);
+          setMessage("Calendar deleted");
+          setType(SnackbarTypes.Success);
         } else {
-          console.log('delete calender api message is', response.data.message)
+          console.log("delete calender api message is", response.data.message);
+          setIsVisible(true);
+          setMessage(response.data.message);
+          setType(SnackbarTypes.Error);
         }
       }
-
-
     } catch (e) {
-      console.log('error in delete calendar', e)
+      console.log("error in delete calendar", e);
+    } finally {
+      setCalenderDelLoader(null);
     }
-
-    finally {
-      setCalenderDelLoader(null)
-    }
-  }
+  };
 
   const styles = {
     inputStyles: {
@@ -374,12 +388,15 @@ const UserCalender = ({
                         value={item.title}
                         className="hover:bg-purple10 hover:text-black"
                         sx={{
-                          backgroundColor: selectCalender === item.title ? "#7902DF10" : "transparent",
+                          backgroundColor:
+                            selectCalender === item.title
+                              ? "#7902DF10"
+                              : "transparent",
                           "&.Mui-selected": {
                             backgroundColor: "#7902DF10",
                           },
                         }}
-                        onMouseEnter={() => setShowDelBtn(item.title)}  // Track hovered item
+                        onMouseEnter={() => setShowDelBtn(item.title)} // Track hovered item
                         onMouseLeave={() => setShowDelBtn(null)} // Hide button when not hovering
                       >
                         <div className="w-full flex flex-row items-center justify-between">
@@ -396,33 +413,34 @@ const UserCalender = ({
                           </button>
 
                           {/* Delete Button (Only Show on Hover) */}
-                          {/* {showDelBtn === item.title && (
-                            // calenderDelLoader && calenderDelLoader?.id === item.id ? (
+                          {showDelBtn === item.title && (
+                            // (calenderDelLoader &&
+                            // calendarToDelete?.id === item.id ? (
                             //   <CircularProgress size={25} />
-                            // ) : (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation(); // Prevents dropdown from closing
-                                  // setShowDelPopup(true)
-                                  setSelectCalender(item)
-                                }}
-                                className="transition-opacity px-2"
-                                style={{
-                                  background: "transparent",
-                                  border: "none",
-                                  cursor: "pointer",
-                                  color: "#7902df",
-                                  fontWeight: "500",
-                                }}
-                              >
-                                Delete
-                              </button>
-                            // )
-                          )} */}
+                            // ) :
+                            <button
+                              onClick={(e) => {
+                                // e.stopPropagation(); // Prevents dropdown from closing
+                                // setSelectCalender(item);
+                                setCalenderDelLoader(null);
+                                setCalendarToDelete(item);
+                                setShowDelPopup(true);
+                              }}
+                              className="transition-opacity px-2"
+                              style={{
+                                background: "transparent",
+                                border: "none",
+                                cursor: "pointer",
+                                color: "#7902df",
+                                fontWeight: "500",
+                              }}
+                            >
+                              Delete
+                            </button>
+                          )}
                         </div>
                       </MenuItem>
                     ))}
-
 
                     <MenuItem className="w-full" value="Custom Calender">
                       <button
@@ -692,10 +710,7 @@ const UserCalender = ({
             },
           }}
         >
-          <Box
-            className="lg:w-4/12 sm:w-4/12 w-6/12"
-            sx={styles.modalsStyle}
-          >
+          <Box className="lg:w-4/12 sm:w-4/12 w-6/12" sx={styles.modalsStyle}>
             <div className="flex flex-row justify-center w-full">
               <div
                 className="w-full"
@@ -717,14 +732,20 @@ const UserCalender = ({
                   >
                     Cancel
                   </button>
-                  <button
-                    className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
-                    onClick={() => {
-                      handleDeleteCalendar()
-                    }}
-                  >
-                    Delete
-                  </button>
+                  {calenderDelLoader ? (
+                    <div className="flex justify-center items-center w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]">
+                      <CircularProgress size={25} />
+                    </div>
+                  ) : (
+                    <button
+                      className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                      onClick={() => {
+                        handleDeleteCalendar();
+                      }}
+                    >
+                      Delete
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
