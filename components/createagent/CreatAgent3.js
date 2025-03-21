@@ -662,7 +662,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
                         fontWeight: "600",
                       }}
                     >
-                      Brokerage Plan
+                      Enterprise Plan
                     </div>
                     <div className="flex flex-row items-start justify-between w-full">
                       <div

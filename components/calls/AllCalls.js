@@ -1128,7 +1128,8 @@ function AllCalls({ user }) {
                           if (
                             (selectedFromDate && selectedToDate) ||
                             selectedStageIds.length > 0 ||
-                            selectedStatus.length > 0
+                            selectedStatus.length > 0||
+                            selectedPipeline
                           ) {
                             localStorage.removeItem("callDetails");
                             setHasMore(true);

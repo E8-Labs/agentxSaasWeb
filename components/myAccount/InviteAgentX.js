@@ -385,7 +385,7 @@ function InviteAgentX() {
                         fontWeight: "600",
                       }}
                     >
-                      {item.mints}mins | {item.calls} Calls
+                      {item.mints}mins | {item.calls} Calls*
                       {item.status && (
                         <div
                           className="flex px-2 py-1 bg-purple rounded-full text-white"

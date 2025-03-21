@@ -55,6 +55,10 @@ const UserCalender = ({
 
   const [selectTimeZone, setSelectTimeZone] = useState("");
 
+  const [showDelBtn, setShowDelBtn] = useState(false)
+  const [showDelPopup, setShowDelPopup] = useState(false)
+  const [calenderDelLoader, setCalenderDelLoader] = useState(null)
+
   // const [timeZones, setTimeZones] = useState([]);
   useEffect(() => {
     setAllCalendars(previousCalenders);
@@ -168,7 +172,13 @@ const UserCalender = ({
             // agentsListDetails = agentsList;
 
             const newCalendarData = response.data.data;
-            setAllCalendars([...allCalendars, newCalendarData]);
+            setAllCalendars((prevCalendars) => {
+              const isDuplicate = prevCalendars.some(
+                (calendar) => calendar.title === newCalendarData.title
+              );
+
+              return isDuplicate ? prevCalendars : [...prevCalendars, newCalendarData];
+            });
             setSelectCalender(newCalendarData.title);
 
             let updatedArray = [];
@@ -223,6 +233,45 @@ const UserCalender = ({
   const handleChangeTimeZone = (event) => {
     setSelectTimeZone(event.target.value);
   };
+
+  const handleDeleteCalendar = async () => {
+    setCalenderDelLoader(selectCalender)
+    try {
+      const data = localStorage.getItem("User")
+
+      if (data) {
+        let u = JSON.stringify(data)
+
+        let apiData = {
+          calendarId: selectCalender.id
+        }
+
+        let path = Apis.deleteCalendar
+
+        const response = await axios.post(path, apiData, {
+          headers: {
+            'Authorization': "Bearer " + u.token,
+            "Content-Type": 'application/json'
+          }
+        })
+
+        if (response.data.status === true) {
+          console.log('delete calender api data is', response.data.data)
+          setAllCalendars()
+        } else {
+          console.log('delete calender api message is', response.data.message)
+        }
+      }
+
+
+    } catch (e) {
+      console.log('error in delete calendar', e)
+    }
+
+    finally {
+      setCalenderDelLoader(null)
+    }
+  }
 
   const styles = {
     inputStyles: {
@@ -319,42 +368,62 @@ const UserCalender = ({
                       },
                     }}
                   >
-                    {allCalendars.map((item, index) => {
-                      return (
-                        <MenuItem
-                          className="w-full hover:bg-purple10 hover:text-black"
-                          value={item.title}
-                          key={index}
-                          selected={selectCalender === item.title} // Apply "selected" to match the selected value
-                          sx={{
-                            backgroundColor:
-                              selectCalender === item.title
-                                ? "#7902DF10"
-                                : "transparent", // Set background for selected item
-                            // color: selectCalender === item.title ? 'white' : 'inherit', // Change text color for selected item
-                            "&.Mui-selected": {
-                              backgroundColor: "#7902DF10", // Override background for selected item
-                              // color: 'white', // Change text color for selected item
-                            },
-                          }}
-                        >
+                    {allCalendars.map((item, index) => (
+                      <MenuItem
+                        key={index}
+                        value={item.title}
+                        className="hover:bg-purple10 hover:text-black"
+                        sx={{
+                          backgroundColor: selectCalender === item.title ? "#7902DF10" : "transparent",
+                          "&.Mui-selected": {
+                            backgroundColor: "#7902DF10",
+                          },
+                        }}
+                        onMouseEnter={() => setShowDelBtn(item.title)}  // Track hovered item
+                        onMouseLeave={() => setShowDelBtn(null)} // Hide button when not hovering
+                      >
+                        <div className="w-full flex flex-row items-center justify-between">
+                          {/* Calendar Name */}
                           <button
                             className="w-full text-start"
                             onClick={() => {
-                              // console.log("Selected calender is:", item);
                               setCalendarSelected(item);
                               handleAddCalender(item);
-                              // setCalenderTitle(item.title);
-                              // setCalenderApiKey(item.apiKey);
-                              // setEventId(item.eventId);
-                              // setSelectTimeZone(item.timeZone);
                             }}
+                            style={{ flexGrow: 1, textAlign: "left" }}
                           >
                             {item.title}
                           </button>
-                        </MenuItem>
-                      );
-                    })}
+
+                          {/* Delete Button (Only Show on Hover) */}
+                          {/* {showDelBtn === item.title && (
+                            // calenderDelLoader && calenderDelLoader?.id === item.id ? (
+                            //   <CircularProgress size={25} />
+                            // ) : (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevents dropdown from closing
+                                  // setShowDelPopup(true)
+                                  setSelectCalender(item)
+                                }}
+                                className="transition-opacity px-2"
+                                style={{
+                                  background: "transparent",
+                                  border: "none",
+                                  cursor: "pointer",
+                                  color: "#7902df",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                Delete
+                              </button>
+                            // )
+                          )} */}
+                        </div>
+                      </MenuItem>
+                    ))}
+
+
                     <MenuItem className="w-full" value="Custom Calender">
                       <button
                         className="text-purple underline w-full text-start"
@@ -603,6 +672,59 @@ const UserCalender = ({
                       </button>
                     )}
                   </div>
+                </div>
+              </div>
+            </div>
+          </Box>
+        </Modal>
+
+        {/* Delete calendar popup */}
+
+        <Modal
+          open={showDelPopup}
+          onClose={() => setShowDelPopup(false)}
+          closeAfterTransition
+          BackdropProps={{
+            timeout: 1000,
+            sx: {
+              backgroundColor: "#00000020",
+              // //backdropFilter: "blur(5px)",
+            },
+          }}
+        >
+          <Box
+            className="lg:w-4/12 sm:w-4/12 w-6/12"
+            sx={styles.modalsStyle}
+          >
+            <div className="flex flex-row justify-center w-full">
+              <div
+                className="w-full"
+                style={{
+                  backgroundColor: "#ffffff",
+                  padding: 20,
+                  borderRadius: "13px",
+                }}
+              >
+                <div className="font-bold text-xl mt-6">
+                  Are you sure you want to delete this calendar
+                </div>
+                <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
+                  <button
+                    className="w-1/2 font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                    onClick={() => {
+                      setShowDelPopup(false);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                    onClick={() => {
+                      handleDeleteCalendar()
+                    }}
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
             </div>

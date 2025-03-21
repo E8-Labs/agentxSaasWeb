@@ -788,56 +788,58 @@ const LeadDetails = ({
                               </div>
                             )}
                           </div>
+                          <div className="flex flex-row items-center gap-2">
+                            <EnvelopeSimple size={20} color="#00000060" />
+                            <div style={styles.heading2}>
+                              {selectedLeadsDetails?.email ? (
 
-                          <div className="" style={styles.heading2}>
-                            {selectedLeadsDetails?.email ? (
-                              selectedLeadsDetails?.email
-                            ) : (
-                              <div>
-                                {selectedLeadsDetails?.emails
-                                  ?.slice(0, 1)
-                                  .map((email, emailIndex) => {
-                                    return (
-                                      <div
-                                        key={emailIndex}
-                                        className="flex flex-row items-center gap-2"
-                                      >
+                                selectedLeadsDetails?.email
+                              ) : (
+                                <div>
+                                  {selectedLeadsDetails?.emails
+                                    ?.slice(0, 1)
+                                    .map((email, emailIndex) => {
+                                      return (
                                         <div
-                                          className="flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]"
-                                          style={styles.paragraph}
+                                          key={emailIndex}
+                                          className="flex flex-row items-center gap-2"
                                         >
-                                          <Image
-                                            src={"/assets/power.png"}
-                                            height={9}
-                                            width={7}
-                                            alt="*"
-                                          />
-                                          <div>
-                                            <span className="text-purple">
-                                              New
-                                            </span>{" "}
-                                            {email.email}
+                                          <div
+                                            className="flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]"
+                                            style={styles.paragraph}
+                                          >
+                                            <Image
+                                              src={"/assets/power.png"}
+                                              height={9}
+                                              width={7}
+                                              alt="*"
+                                            />
+                                            <div>
+                                              <span className="text-purple">
+                                                New
+                                              </span>{" "}
+                                              {email.email}
+                                            </div>
                                           </div>
-                                        </div>
-                                        <button
-                                          className="text-purple underline"
-                                          onClick={() => {
-                                            setShowAllEmails(true);
-                                          }}
-                                        >
-                                          {selectedLeadsDetails?.emails
-                                            ?.length > 1
-                                            ? `+${
-                                                selectedLeadsDetails?.emails
-                                                  ?.length - 1
+                                          <button
+                                            className="text-purple underline"
+                                            onClick={() => {
+                                              setShowAllEmails(true);
+                                            }}
+                                          >
+                                            {selectedLeadsDetails?.emails
+                                              ?.length > 1
+                                              ? `+${selectedLeadsDetails?.emails
+                                                ?.length - 1
                                               }`
-                                            : ""}
-                                        </button>
-                                      </div>
-                                    );
-                                  })}
-                              </div>
-                            )}
+                                              : ""}
+                                          </button>
+                                        </div>
+                                      );
+                                    })}
+                                </div>
+                              )}
+                            </div>
                           </div>
                           <div>
                             {selectedLeadsDetails?.email && (
@@ -875,10 +877,9 @@ const LeadDetails = ({
                                         >
                                           {selectedLeadsDetails?.emails
                                             ?.length > 1
-                                            ? `+${
-                                                selectedLeadsDetails?.emails
-                                                  ?.length - 1
-                                              }`
+                                            ? `+${selectedLeadsDetails?.emails
+                                              ?.length - 1
+                                            }`
                                             : ""}
                                         </button>
                                       </div>
@@ -888,6 +889,13 @@ const LeadDetails = ({
                             )}
                           </div>
                           <div className="flex flex-row gap-2 justify-center items-center">
+
+                            <Image
+                              src={"/assets/call.png"}
+                              height={16}
+                              width={16}
+                              alt="man"
+                            />
                             <div style={styles.heading2}>
                               {formatPhoneNumber(selectedLeadsDetails?.phone) ||
                                 "-"}
@@ -902,134 +910,165 @@ const LeadDetails = ({
                             )}
                           </div>
 
-                          <div style={styles.heading2}>
-                            {selectedLeadsDetails?.address || "-"}
+                          <div className="flex flex-row items-center gap-2">
+                            {/* <EnvelopeSimple size={20} color='#00000060' /> */}
+                            <Image
+                              src={"/assets/location.png"}
+                              height={16}
+                              width={16}
+                              alt="man"
+                            />
+                            <div style={styles.heading2}>
+                              {selectedLeadsDetails?.address || "-"}
+                            </div>
+                          </div>
+                          <div className="flex flex-row items-center gap-2">
+                            <Image
+                              src={"/assets/tag.png"}
+                              height={16}
+                              width={16}
+                              alt="man"
+                            />
+                            <div>
+                              {selectedLeadsDetails?.tags.length > 0 ? (
+                                <div
+                                  className="text-end flex flex-row items-center gap-2 "
+                                // style={styles.paragraph}
+                                >
+                                  {
+                                    // selectedLeadsDetails?.tags?.map.slice(0, 1)
+                                    selectedLeadsDetails?.tags
+                                      .slice(0, 2)
+                                      .map((tag, index) => {
+                                        return (
+                                          <div
+                                            key={index}
+                                            className="flex flex-row items-center gap-2"
+                                          >
+                                            <div className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg">
+                                              <div
+                                                className="text-purple" //1C55FF10
+                                              >
+                                                {tag}
+                                              </div>
+                                              {DelTagLoader &&
+                                                tag.includes(DelTagLoader) ? (
+                                                <div>
+                                                  <CircularProgress size={15} />
+                                                </div>
+                                              ) : (
+                                                <button
+                                                  onClick={() => {
+                                                    handleDelTag(tag);
+                                                  }}
+                                                >
+                                                  <X
+                                                    size={15}
+                                                    weight="bold"
+                                                    color="#7902DF"
+                                                  />
+                                                </button>
+                                              )}
+                                            </div>
+                                          </div>
+                                        );
+                                      })
+                                  }
+                                  <button
+                                    className="outline-none"
+                                    onClick={() => {
+                                      // console.log(
+                                      //   "tags are",
+                                      //   selectedLeadsDetails?.tags
+                                      // );
+                                      setExtraTagsModal(true);
+                                    }}
+                                  >
+                                    {selectedLeadsDetails?.tags.length > 2 && (
+                                      <div className="text-purple underline">
+                                        +{selectedLeadsDetails?.tags.length - 2}
+                                      </div>
+                                    )}
+                                  </button>
+                                </div>
+                              ) : (
+                                "-"
+                              )}
+                            </div>
                           </div>
 
-                          <div>
-                            {selectedLeadsDetails?.tags.length > 0 ? (
-                              <div
-                                className="text-end flex flex-row items-center gap-2 "
-                                // style={styles.paragraph}
-                              >
-                                {
-                                  // selectedLeadsDetails?.tags?.map.slice(0, 1)
-                                  selectedLeadsDetails?.tags
-                                    .slice(0, 2)
-                                    .map((tag, index) => {
-                                      return (
-                                        <div
-                                          key={index}
-                                          className="flex flex-row items-center gap-2"
-                                        >
-                                          <div className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg">
-                                            <div
-                                              className="text-purple" //1C55FF10
-                                            >
-                                              {tag}
-                                            </div>
-                                            {DelTagLoader &&
-                                            tag.includes(DelTagLoader) ? (
-                                              <div>
-                                                <CircularProgress size={15} />
-                                              </div>
-                                            ) : (
-                                              <button
-                                                onClick={() => {
-                                                  handleDelTag(tag);
-                                                }}
-                                              >
-                                                <X
-                                                  size={15}
-                                                  weight="bold"
-                                                  color="#7902DF"
-                                                />
-                                              </button>
-                                            )}
-                                          </div>
-                                        </div>
-                                      );
-                                    })
-                                }
-                                <button
-                                  className="outline-none"
-                                  onClick={() => {
-                                    // console.log(
-                                    //   "tags are",
-                                    //   selectedLeadsDetails?.tags
-                                    // );
-                                    setExtraTagsModal(true);
-                                  }}
-                                >
-                                  {selectedLeadsDetails?.tags.length > 2 && (
-                                    <div className="text-purple underline">
-                                      +{selectedLeadsDetails?.tags.length - 2}
-                                    </div>
-                                  )}
-                                </button>
-                              </div>
-                            ) : (
-                              "-"
-                            )}
-                          </div>
-                          <div style={styles.heading2}>
-                            {selectedLeadsDetails?.pipeline
-                              ? selectedLeadsDetails?.pipeline?.title
-                              : "-"}
+                          <div className="flex flex-row items-center gap-2">
+                            <Image
+                              src="/assets/pipelineIcon.svg"
+                              height={20}
+                              width={20}
+                              alt="*"
+                              style={{
+                                filter:
+                                  "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
+                              }}
+                            />
+                            <div style={styles.heading2}>
+                              {selectedLeadsDetails?.pipeline
+                                ? selectedLeadsDetails?.pipeline?.title
+                                : "-"}
+                            </div>
                           </div>
 
                           <div>
                             {selectedLeadsDetails?.booking && (
-                              <div style={styles.heading2}>
-                                {GetFormattedDateString(
-                                  selectedLeadsDetails.booking.datetime,
-                                  true
-                                )}
+                              <div className="flex flex-row items-center gap-2">
+                                <Image
+                                  src="/svgIcons/calendar.svg"
+                                  height={14}
+                                  width={14}
+                                  alt="*"
+                                />
+                                <div style={styles.heading2}>
+                                  {GetFormattedDateString(
+                                    selectedLeadsDetails.booking.datetime,
+                                    true
+                                  )}
+                                </div>
                               </div>
                             )}
                           </div>
                         </div>
 
                         <div className="flex flex-col items-end gap-[5px]">
-                          {delLeadLoader ? (
-                            <CircularProgress size={20} />
-                          ) : (
-                            <div>
-                              {!hideDelete && (
-                                <button
-                                  onClick={handleDeleteLead}
-                                  className="text-red"
-                                  style={{ fontsize: 15, fontWeight: "500" }}
-                                >
-                                  Delete
-                                </button>
+
+                          <div className="flex flex-row items-center gap-2">
+                            {/* <Image
+                              src={"/assets/arrow.png"}
+                              height={16}
+                              width={16}
+                              alt="man"
+                            /> */}
+                            <div
+                              className="text-end flex flex-row items-center gap-1"
+                              style={styles.paragraph}
+                            >
+                              {stagesListLoader ? (
+                                <CircularProgress size={25} />
+                              ) : (
+                                <>
+                                  <div
+                                    className="h-[10px] w-[10px] rounded-full"
+                                    style={{
+                                      backgroundColor:
+                                        selectedLeadsDetails?.stage?.defaultColor,
+                                    }}
+                                  ></div>
+
+                                  <SelectStageDropdown
+                                    selectedStage={selectedStage}
+                                    handleStageChange={handleStageChange}
+                                    stagesList={stagesList}
+                                    updateLeadStage={updateLeadStage}
+                                  />
+                                </>
                               )}
                             </div>
-                          )}
-                          <div
-                            className="text-end flex flex-row items-center gap-1"
-                            style={styles.paragraph}
-                          >
-                            {stagesListLoader ? (
-                              <CircularProgress size={25} />
-                            ) : (
-                              <>
-                                <div
-                                  className="h-[10px] w-[10px] rounded-full"
-                                  style={{
-                                    backgroundColor:
-                                      selectedLeadsDetails?.stage?.defaultColor,
-                                  }}
-                                ></div>
-
-                                <SelectStageDropdown
-                                  selectedStage={selectedStage}
-                                  handleStageChange={handleStageChange}
-                                  stagesList={stagesList}
-                                  updateLeadStage={updateLeadStage}
-                                />
-                              </>
-                            )}
                           </div>
 
                           <div className="mt-10">
@@ -1065,32 +1104,26 @@ const LeadDetails = ({
                         {getExtraColumsCount(columnsLength) >= 1 && (
                           <div className="flex flex-col mt-2 rounded-xl p-2 w-full max-w-full overflow-hidden">
                             <button
-                              onClick={() =>
-                                setShowCustomVariables(!showCustomVariables)
-                              }
-                              className="flex flex-row items-center w-1/2 justify-between outline-none"
+                              onClick={() => {
+                                setShowCustomVariables(!showCustomVariables);
+                              }}
+                              className="flex flex-row items-center w-full justify-between outline-none"
                             >
-                              <div className="flex flex-row items-center">
-                                {getExtraColumsCount(columnsLength) > 0 && (
-                                  <div
-                                    style={{
-                                      fontSize: 15,
-                                      fontWeight: "500",
-                                    }}
-                                  >
-                                    +{getExtraColumsCount(columnsLength)}
-                                  </div>
-                                )}
+                              <div className="flex flex-row items-center gap-3">
+                                <Image
+                                  src={"/assets/customsIcon.svg"}
+                                  alt="*"
+                                  height={16}
+                                  width={16}
+                                />
                                 <div
                                   style={{
                                     fontWeight: "600",
-                                    fontSize: 15,
+                                    fontsize: 15,
                                     color: "#15151560",
-                                    whiteSpace: "nowrap",
-                                    textDecorationLine: "underline",
                                   }}
                                 >
-                                  {" Custom fields"}
+                                  Custom fields
                                 </div>
                                 {showCustomVariables ? (
                                   <CaretUp
@@ -1104,6 +1137,18 @@ const LeadDetails = ({
                                     weight="bold"
                                     color="#15151570"
                                   />
+                                )}
+                              </div>
+                              <div>
+                                {getExtraColumsCount(columnsLength) > 0 ? (
+                                  <div
+                                    className="text-purple underline"
+                                    style={{ fontsize: 15, fontWeight: "500" }}
+                                  >
+                                    +{getExtraColumsCount(columnsLength)}
+                                  </div>
+                                ) : (
+                                  ""
                                 )}
                               </div>
                             </button>
@@ -1145,39 +1190,39 @@ const LeadDetails = ({
                                             column,
                                             selectedLeadsDetails
                                           ) && (
-                                            <div className="flex items-end justify-end min-w-[120px]">
-                                              <button
-                                                style={{
-                                                  fontWeight: "600",
-                                                  fontSize: 15,
-                                                }}
-                                                onClick={() => {
-                                                  setExpandedCustomFields(
-                                                    (prevFields) =>
-                                                      prevFields.includes(
-                                                        column?.title
-                                                      )
-                                                        ? prevFields.filter(
+                                              <div className="flex items-end justify-end min-w-[120px]">
+                                                <button
+                                                  style={{
+                                                    fontWeight: "600",
+                                                    fontSize: 15,
+                                                  }}
+                                                  onClick={() => {
+                                                    setExpandedCustomFields(
+                                                      (prevFields) =>
+                                                        prevFields.includes(
+                                                          column?.title
+                                                        )
+                                                          ? prevFields.filter(
                                                             (field) =>
                                                               field !==
                                                               column?.title
                                                           )
-                                                        : [
+                                                          : [
                                                             ...prevFields,
                                                             column?.title,
                                                           ]
-                                                  );
-                                                }}
-                                                className="text-black underline w-[120px]"
-                                              >
-                                                {expandedCustomFields.includes(
-                                                  column?.title
-                                                )
-                                                  ? "Read Less"
-                                                  : "Read More"}
-                                              </button>
-                                            </div>
-                                          )}
+                                                    );
+                                                  }}
+                                                  className="text-black underline w-[120px]"
+                                                >
+                                                  {expandedCustomFields.includes(
+                                                    column?.title
+                                                  )
+                                                    ? "Read Less"
+                                                    : "Read More"}
+                                                </button>
+                                              </div>
+                                            )}
                                         </div>
                                       </div>
                                     );
@@ -1322,7 +1367,7 @@ const LeadDetails = ({
                                             {tag}
                                           </div>
                                           {DelTagLoader &&
-                                          tag.includes(DelTagLoader) ? (
+                                            tag.includes(DelTagLoader) ? (
                                             <div>
                                               <CircularProgress size={15} />
                                             </div>
@@ -1735,7 +1780,7 @@ const LeadDetails = ({
                               className="flex flex-col items-center justify-center w-full mt-12"
                               style={{ fontWeight: "500", fontsize: 15 }}
                             >
-                              <div className="h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center">
+                              <div className="h-[51px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center">
                                 <Image
                                   src={"/assets/FAQ.png"}
                                   height={24}
@@ -2016,105 +2061,105 @@ const LeadDetails = ({
                                             {isExpandedActivity.includes(
                                               item.id
                                             ) && (
-                                              <div
-                                                className="mt-6"
-                                                style={{
-                                                  border: "1px solid #00000020",
-                                                  borderRadius: "10px",
-                                                  padding: 10,
-                                                  paddingInline: 15,
-                                                }}
-                                              >
                                                 <div
-                                                  className="mt-4"
+                                                  className="mt-6"
                                                   style={{
-                                                    fontWeight: "500",
-                                                    fontSize: 12,
-                                                    color: "#00000070",
+                                                    border: "1px solid #00000020",
+                                                    borderRadius: "10px",
+                                                    padding: 10,
+                                                    paddingInline: 15,
                                                   }}
                                                 >
-                                                  Transcript
-                                                </div>
-                                                <div className="flex flex-row items-center justify-between mt-4">
                                                   <div
+                                                    className="mt-4"
                                                     style={{
                                                       fontWeight: "500",
-                                                      fontSize: 15,
+                                                      fontSize: 12,
+                                                      color: "#00000070",
                                                     }}
                                                   >
-                                                    {moment(
-                                                      item?.duration * 1000
-                                                    ).format("mm:ss")}{" "}
+                                                    Transcript
                                                   </div>
-                                                  <button
-                                                    onClick={() => {
-                                                      if (item?.recordingUrl) {
-                                                        setShowAudioPlay(
-                                                          item?.recordingUrl
-                                                        );
-                                                      } else {
-                                                        setShowNoAudioPlay(
-                                                          true
-                                                        );
-                                                      }
-                                                      // window.open(item.recordingUrl, "_blank")
-                                                    }}
-                                                  >
-                                                    <Image
-                                                      src={"/assets/play.png"}
-                                                      height={35}
-                                                      width={35}
-                                                      alt="*"
-                                                    />
-                                                  </button>
-                                                </div>
-                                                {item.transcript ? (
-                                                  <div className="w-full">
+                                                  <div className="flex flex-row items-center justify-between mt-4">
                                                     <div
-                                                      className="mt-4"
                                                       style={{
-                                                        fontWeight: "600",
+                                                        fontWeight: "500",
                                                         fontSize: 15,
                                                       }}
                                                     >
-                                                      {/* {item.transcript} */}
-                                                      {isExpanded.includes(
-                                                        item.id
-                                                      )
-                                                        ? `${item.transcript}`
-                                                        : `${initialText}...`}
+                                                      {moment(
+                                                        item?.duration * 1000
+                                                      ).format("mm:ss")}{" "}
                                                     </div>
                                                     <button
+                                                      onClick={() => {
+                                                        if (item?.recordingUrl) {
+                                                          setShowAudioPlay(
+                                                            item?.recordingUrl
+                                                          );
+                                                        } else {
+                                                          setShowNoAudioPlay(
+                                                            true
+                                                          );
+                                                        }
+                                                        // window.open(item.recordingUrl, "_blank")
+                                                      }}
+                                                    >
+                                                      <Image
+                                                        src={"/assets/play.png"}
+                                                        height={35}
+                                                        width={35}
+                                                        alt="*"
+                                                      />
+                                                    </button>
+                                                  </div>
+                                                  {item.transcript ? (
+                                                    <div className="w-full">
+                                                      <div
+                                                        className="mt-4"
+                                                        style={{
+                                                          fontWeight: "600",
+                                                          fontSize: 15,
+                                                        }}
+                                                      >
+                                                        {/* {item.transcript} */}
+                                                        {isExpanded.includes(
+                                                          item.id
+                                                        )
+                                                          ? `${item.transcript}`
+                                                          : `${initialText}...`}
+                                                      </div>
+                                                      <button
+                                                        style={{
+                                                          fontWeight: "600",
+                                                          fontSize: 15,
+                                                        }}
+                                                        onClick={() => {
+                                                          handleReadMoreToggle(
+                                                            item
+                                                          );
+                                                        }}
+                                                        className="mt-2 text-black underline"
+                                                      >
+                                                        {isExpanded.includes(
+                                                          item.id
+                                                        )
+                                                          ? "Read Less"
+                                                          : "Read more"}
+                                                      </button>
+                                                    </div>
+                                                  ) : (
+                                                    <div
                                                       style={{
                                                         fontWeight: "600",
                                                         fontSize: 15,
                                                       }}
-                                                      onClick={() => {
-                                                        handleReadMoreToggle(
-                                                          item
-                                                        );
-                                                      }}
-                                                      className="mt-2 text-black underline"
                                                     >
-                                                      {isExpanded.includes(
-                                                        item.id
-                                                      )
-                                                        ? "Read Less"
-                                                        : "Read more"}
-                                                    </button>
-                                                  </div>
-                                                ) : (
-                                                  <div
-                                                    style={{
-                                                      fontWeight: "600",
-                                                      fontSize: 15,
-                                                    }}
-                                                  >
-                                                    No transcript
-                                                  </div>
-                                                )}
-                                              </div>
-                                            )}
+                                                      No transcript
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              )}
                                           </div>
                                         </div>
                                       </div>
@@ -2125,6 +2170,26 @@ const LeadDetails = ({
                             </div>
                           )}
                         </div>
+                      )}
+                    </div>
+                    <div style={{
+                      position:'absolute',bottom:20,right:20
+                    }}>
+                      {delLeadLoader ? (
+                        <CircularProgress size={20} />
+                      ) : (
+                        <div>
+                          {!hideDelete && (
+                            <button
+                              onClick={handleDeleteLead}
+                              className="text-red"
+                              style={{ fontsize: 15, fontWeight: "500" }}
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </div>
+
                       )}
                     </div>
                   </div>
