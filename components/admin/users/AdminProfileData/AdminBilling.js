@@ -104,7 +104,7 @@ function AdminBilling({ selectedUser }) {
       calls: "1500",
       details: "Perfect for lead reactivation and prospecting.",
       originalPrice: "540",
-      discountPrice: "370",
+      discountPrice: "270",
       planStatus: "50%",
       status: "Popular",
     },
@@ -882,7 +882,7 @@ function AdminBilling({ selectedUser }) {
                       fontWeight: "600",
                     }}
                   >
-                    {item.mints}mins | {item.calls} Calls
+                    {item.mints}mins | {item.calls} Calls*
                   </div>
                   {item.status && (
                     <div
@@ -941,7 +941,7 @@ function AdminBilling({ selectedUser }) {
         />
         <div>
           <div style={{ color: "#ffffff", fontSize: 20, fontWeight: "600" }}>
-            Brokerage Plan
+            Enterprise Plan
           </div>
           <div className="flex flex-row items-start justify-between w-full">
             <div

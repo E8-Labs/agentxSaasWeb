@@ -233,7 +233,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
       calls: "1500",
       details: "Perfect for lead reactivation and prospecting.",
       originalPrice: "540",
-      discountPrice: "370",
+      discountPrice: "270",
       planStatus: "50%",
       status: "Popular",
     },
@@ -280,7 +280,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
       calls: "1500",
       details: "Perfect for lead reactivation and prospecting.",
       originalPrice: "540",
-      discountPrice: "370",
+      discountPrice: "270",
       planStatus: "50%",
       status: "Popular",
     },
@@ -662,7 +662,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
                         fontWeight: "600",
                       }}
                     >
-                      Brokerage Plan
+                      Enterprise Plan
                     </div>
                     <div className="flex flex-row items-start justify-between w-full">
                       <div

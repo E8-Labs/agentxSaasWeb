@@ -56,7 +56,7 @@ function InviteAgentX() {
       calls: "1500",
       details: "Perfect for lead reactivation and prospecting.",
       originalPrice: "540",
-      discountPrice: "370",
+      discountPrice: "270",
       planStatus: "50%",
       status: "Popular",
     },
@@ -385,7 +385,7 @@ function InviteAgentX() {
                         fontWeight: "600",
                       }}
                     >
-                      {item.mints}mins | {item.calls} Calls
+                      {item.mints}mins | {item.calls} Calls*
                       {item.status && (
                         <div
                           className="flex px-2 py-1 bg-purple rounded-full text-white"

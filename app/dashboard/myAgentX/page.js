@@ -462,23 +462,27 @@ function Page() {
       setSelectedImage(imageUrl);
     }
 
+    console.log("Handling image change");
     if (file) {
+      console.log("File is there");
       try {
         // Compression options
+        console.log("Setting options");
         const options = {
           maxSizeMB: 1, // Maximum size in MB
           maxWidthOrHeight: 1920, // Max width/height
           useWebWorker: true, // Use web workers for better performance
         };
-
+        console.log("Set options");
         // Compress the image
-        const compressedFile = await imageCompression(file, options);
-        ////// console.log("Comptessed is ", compressedFile);
+        const compressedFile = file; //await imageCompression(file, options);
+        console.log("Compressed");
+        console.log("Comptessed is ");
         // Set the compressed image
         setSelectedImage2(compressedFile);
         updateAgentProfile(compressedFile);
       } catch (error) {
-        ////// console.error("Error while compressing the image:", error);
+        console.log("Error while compressing the image:", error);
       }
     }
 
@@ -536,6 +540,7 @@ function Page() {
   //function to update agent profile image
   const updateAgentProfile = async (image) => {
     try {
+      console.log("Handling Upload");
       setGlobalLoader(true);
 
       const LocalData = localStorage.getItem("User");
@@ -569,7 +574,7 @@ function Page() {
       });
 
       if (response) {
-        //// console.log("Response of update agent api is", response);
+        console.log("Response of update profile api is", response);
 
         if (response.data.status === true) {
           const localAgentsList = localStorage.getItem(
@@ -625,7 +630,7 @@ function Page() {
         }
       }
     } catch (error) {
-      //// console.error("Error occured in api is", error);
+      console.error("Error occured in api is", error);
       setGlobalLoader(false);
     } finally {
       setGlobalLoader(false);
@@ -2199,6 +2204,7 @@ function Page() {
 
                       <input
                         type="file"
+                        value={""}
                         accept="image/*"
                         ref={(el) => (fileInputRef.current[index] = el)} // Store a ref for each input
                         onChange={(e) => handleProfileImgChange(e, index)}
@@ -2597,7 +2603,7 @@ function Page() {
                   Agent Name
                 </div>
                 <input
-                  value={renameAgent}
+                  value={renameAgent || ""}
                   // value = {showRenameAgentPopup?.name}
                   onChange={(e) => {
                     setRenameAgent(e.target.value);
@@ -2743,7 +2749,7 @@ function Page() {
                     ...styles.inputStyle,
                     border: "1px solid #00000010",
                   }}
-                  value={name}
+                  value={name || ""}
                   onChange={(e) => {
                     setName(e.target.value);
                   }}
@@ -2963,6 +2969,7 @@ function Page() {
 
                   {/* Hidden file input */}
                   <input
+                    value={""}
                     type="file"
                     accept="image/*"
                     id="fileInput"
@@ -3720,7 +3727,10 @@ function Page() {
                               // onChange={handleSelectNumber}
                               onChange={(e) => {
                                 let value = e.target.value;
-                                // console.log("Assign number here: Value changed",value);
+                                console.log(
+                                  "Assign number here: Value changed",
+                                  value
+                                );
                                 // return;
                                 setAssignNumber(value);
                                 // setOpenCalimNumDropDown(false);
@@ -4339,6 +4349,7 @@ function Page() {
                 }}
                 onClick={() => {
                   setShowClaimPopup(null);
+                  setAssignNumber(showDrawerSelectedAgent?.phoneNumber || "");
                   setShowConfirmationModal(false);
                 }}
               >
@@ -4616,7 +4627,7 @@ function Page() {
                           tagValue={setScriptTagInput}
                           scrollOffset={scrollOffset}
                           showSaveChangesBtn={showSaveChangesBtn}
-                          saveUpdates={updateAgent} 
+                          saveUpdates={updateAgent}
                         />
 
                         {/* <DynamicDropdown /> */}

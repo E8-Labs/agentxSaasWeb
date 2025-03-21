@@ -57,18 +57,49 @@ export default function DncConfirmationPopup({
       <Box
         sx={{
           display: "flex",
-          alignItems: "center",
-          gap: 1.5,
+          flexDirection: "column",
+          alignItems: "start",
+          // gap: 1.5,
           backgroundColor: "#F6F0FF",
-          padding: "12px 16px",
+          padding: "8px 12px",
           borderRadius: "8px",
-          mb: 3,
+          mb: 1,
         }}
       >
-        <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
-        <Typography sx={{ fontSize: "14px", color: "#000" }}>
-          {`DNC Checklist is $0.03 per number. If less than 34 leads, it's $1.`}
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 1.5,
+            // backgroundColor: "#F6F0FF",
+            // padding: "12px 16px",
+            borderRadius: "8px",
+            mb: 0,
+          }}
+        >
+          <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
+          <Typography sx={{ fontSize: "14px", color: "#000" }}>
+            {`DNC Checklist is $0.03/number.`}
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 1.5,
+            // backgroundColor: "#F6F0FF",
+            // padding: "12px 16px",
+            borderRadius: "8px",
+            mb: 0,
+          }}
+        >
+          <InfoOutlinedIcon sx={{ color: "transparent", fontSize: 20 }} />
+          <Typography sx={{ fontSize: "14px", color: "#000" }}>
+            {`If less than 34 leads, it's $1.`}
+          </Typography>
+        </Box>
       </Box>
 
       {/* Modal Content */}
