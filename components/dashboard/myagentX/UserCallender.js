@@ -66,7 +66,7 @@ const UserCalender = ({
     // console.log("Calender details passed are", selectedAgent?.calendar?.title);
     if (selectedAgent?.calendar) {
       // console.log("Selectd agent is", selectedAgent);
-      setSelectCalender(selectedAgent.calendar.title);
+      setSelectCalender(selectedAgent.calendar);
     }
     // getCalenders();
   }, []);
@@ -100,7 +100,9 @@ const UserCalender = ({
   //code for the dropdown selection
 
   const handleChange = (event) => {
-    setSelectCalender(event.target.value);
+    console.log();
+    // setSelectCalender(event.target.value);
+    console.log("Calendar changed", event);
   };
 
   //code for add calender api
@@ -174,13 +176,14 @@ const UserCalender = ({
 
             const newCalendarData = response.data.data;
             setAllCalendars((prevCalendars) => {
-              const isDuplicate = prevCalendars.some(
-                (calendar) => calendar.title === newCalendarData.title
-              );
+              // const isDuplicate = prevCalendars.some(
+              //   (calendar) => calendar.title === newCalendarData.title
+              // );
 
-              return isDuplicate
-                ? prevCalendars
-                : [...prevCalendars, newCalendarData];
+              // return isDuplicate
+              //   ? prevCalendars
+              // :
+              return [...prevCalendars, newCalendarData];
             });
             setSelectCalender(newCalendarData.title);
 
@@ -346,15 +349,15 @@ const UserCalender = ({
                   <Select
                     labelId="demo-select-small-label"
                     id="demo-select-small"
-                    value={selectCalender}
+                    value={selectCalender.title}
                     // label="Age"
-                    onChange={handleChange}
+                    // onChange={handleChange}
                     displayEmpty // Enables placeholder
                     renderValue={(selected) => {
                       if (!selected) {
                         return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
                       }
-                      return selected;
+                      return selected.title;
                     }}
                     sx={{
                       border: "1px solid #00000020", // Default border
@@ -389,14 +392,14 @@ const UserCalender = ({
                         className="hover:bg-purple10 hover:text-black"
                         sx={{
                           backgroundColor:
-                            selectCalender === item.title
+                            selectCalender.id === item.id
                               ? "#7902DF10"
                               : "transparent",
                           "&.Mui-selected": {
                             backgroundColor: "#7902DF10",
                           },
                         }}
-                        onMouseEnter={() => setShowDelBtn(item.title)} // Track hovered item
+                        onMouseEnter={() => setShowDelBtn(item)} // Track hovered item
                         onMouseLeave={() => setShowDelBtn(null)} // Hide button when not hovering
                       >
                         <div className="w-full flex flex-row items-center justify-between">
@@ -405,6 +408,7 @@ const UserCalender = ({
                             className="w-full text-start"
                             onClick={() => {
                               setCalendarSelected(item);
+                              setSelectCalender(item);
                               handleAddCalender(item);
                             }}
                             style={{ flexGrow: 1, textAlign: "left" }}
@@ -413,7 +417,7 @@ const UserCalender = ({
                           </button>
 
                           {/* Delete Button (Only Show on Hover) */}
-                          {showDelBtn === item.title && (
+                          {showDelBtn?.id === item.id && (
                             // (calenderDelLoader &&
                             // calendarToDelete?.id === item.id ? (
                             //   <CircularProgress size={25} />
