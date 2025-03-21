@@ -26,6 +26,12 @@ const AddCalender = ({ handleContinue }) => {
   const [calenderLoader, setAddCalenderLoader] = useState(false);
   const [shouldContinue, setshouldContinue] = useState(true);
 
+  const [snackMessage, setSnackMessage] = useState({
+    type: SnackbarTypes.Success,
+    message: "Calendar added successfully!",
+    isVisible: false,
+  });
+
   const [videoPlace, setVideoPlace] = useState(null);
 
   const [calenderTitle, setCalenderTitle] = useState("");
@@ -168,7 +174,7 @@ const AddCalender = ({ handleContinue }) => {
       // }
 
       for (let [key, value] of formData.entries()) {
-        // console.log(`${key}: ${value}`);
+        console.log(`${key}: ${value}`);
       }
 
       // return
@@ -177,17 +183,33 @@ const AddCalender = ({ handleContinue }) => {
           Authorization: "Bearer " + AuthToken,
         },
       });
-
+      console.log("Response is", response);
       if (response) {
         // console.log("Response of add calender api is:", response.data.data);
 
         if (response.data.status === true) {
-          setShowSnak(true);
+          // setShowSnak(true);
+          setSnackMessage({
+            message: "Calendar added successfully!",
+            type: SnackbarTypes.Success,
+            isVisible: true,
+          });
           handleContinue();
+        } else {
+          setSnackMessage({
+            message: response.data.message,
+            type: SnackbarTypes.Error,
+            isVisible: true,
+          });
         }
       }
     } catch (error) {
-      // console.error("Error occured in api is:", error);
+      setSnackMessage({
+        message: error.message,
+        type: SnackbarTypes.Error,
+        isVisible: true,
+      });
+      console.error("Error occured in api is:", error);
     } finally {
       setAddCalenderLoader(false);
     }
@@ -223,11 +245,15 @@ const AddCalender = ({ handleContinue }) => {
       className="overflow-y-none flex flex-row justify-center items-center"
     >
       <AgentSelectSnackMessage
-        type={SnackbarTypes.Success}
-        message={"Calendar added successfully!"}
-        isVisible={showSnack}
+        type={snackMessage.type}
+        message={snackMessage.message}
+        isVisible={snackMessage.isVisible}
         hide={() => {
-          setShowSnak(false);
+          setSnackMessage({
+            message: "",
+            isVisible: false,
+            type: SnackbarTypes.Success,
+          });
         }}
       />
       <div className="bg-white rounded-2xl w-10/12 h-[91vh] py-4 flex flex-col">

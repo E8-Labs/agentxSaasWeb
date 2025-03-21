@@ -35,6 +35,7 @@ const UserCalender = ({
   const [calenderApiKey, setCalenderApiKey] = useState("");
   const [eventId, setEventId] = useState("");
 
+  const [selectedCalenderTitle, setSelectedCalenderTitle] = useState("");
   const [selectCalender, setSelectCalender] = useState("");
   const [initialLoader, setInitialLoader] = useState(false);
 
@@ -65,14 +66,17 @@ const UserCalender = ({
     setAllCalendars(previousCalenders);
     // console.log("Calender details passed are", selectedAgent?.calendar?.title);
     if (selectedAgent?.calendar) {
-      // console.log("Selectd agent is", selectedAgent);
+      console.log("Selectd agent has calendar", selectedAgent.calendar);
       setSelectCalender(selectedAgent.calendar);
+      setSelectedCalenderTitle(selectedAgent.calendar?.id || "");
+    } else {
+      console.log("This agent doesn't have calendar");
     }
     // getCalenders();
   }, []);
 
   useEffect(() => {
-    // console.log("Selected calendear is", selectCalender);
+    console.log("Selected calendear is", selectCalender);
   }, [selectCalender]);
 
   // useEffect(() => {
@@ -175,17 +179,12 @@ const UserCalender = ({
             // agentsListDetails = agentsList;
 
             const newCalendarData = response.data.data;
-            setAllCalendars((prevCalendars) => {
-              // const isDuplicate = prevCalendars.some(
-              //   (calendar) => calendar.title === newCalendarData.title
-              // );
-
-              // return isDuplicate
-              //   ? prevCalendars
-              // :
-              return [...prevCalendars, newCalendarData];
-            });
-            setSelectCalender(newCalendarData.title);
+            let calendars = allCalendars.filter(
+              (item) => item.id != newCalendarData.id
+            );
+            setAllCalendars([...calendars, newCalendarData]);
+            setSelectCalender(newCalendarData);
+            setSelectedCalenderTitle(newCalendarData?.id);
 
             let updatedArray = [];
 
@@ -349,15 +348,24 @@ const UserCalender = ({
                   <Select
                     labelId="demo-select-small-label"
                     id="demo-select-small"
-                    value={selectCalender.title}
+                    value={selectedCalenderTitle}
                     // label="Age"
                     // onChange={handleChange}
                     displayEmpty // Enables placeholder
                     renderValue={(selected) => {
+                      console.log("Selected cvalue to render ", selected);
                       if (!selected) {
                         return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
                       }
-                      return selected.title;
+                      let cals = allCalendars.filter((item) => {
+                        return item.id == selected;
+                      });
+                      console.log("Cal is ", cals);
+                      let cal = null;
+                      if (cals && cals.length == 1) {
+                        cal = cals[0];
+                      }
+                      return cal?.title || "";
                     }}
                     sx={{
                       border: "1px solid #00000020", // Default border

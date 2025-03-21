@@ -56,7 +56,7 @@ function InviteAgentX() {
       calls: "1500",
       details: "Perfect for lead reactivation and prospecting.",
       originalPrice: "540",
-      discountPrice: "370",
+      discountPrice: "270",
       planStatus: "50%",
       status: "Popular",
     },
