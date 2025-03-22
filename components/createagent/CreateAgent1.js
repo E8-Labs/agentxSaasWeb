@@ -555,7 +555,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 className="flex flex-row items-center gap-2"
                 // onClick={handleContinue}
               >
-                {`What's your AI agent's name?`}
+                {`What's this AI agent's name?`}
                 <div
                   aria-owns={open ? "mouse-over-popover" : undefined}
                   aria-haspopup="true"
@@ -615,7 +615,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
               />
 
               <div className="mt-2" style={styles.headingStyle}>
-                {`What's this agent's task?`}
+                {`What's this AI agent's task?`}
               </div>
 
               <div className="sm:flex sm:flex-row items-center gap-4">
@@ -690,7 +690,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
               </div>
 
               <div className="mt-2" style={styles.headingStyle}>
-                {`What's this agent's role?`}
+                {`What's this AI agent's title?`}
               </div>
               <input
                 autoComplete="off"

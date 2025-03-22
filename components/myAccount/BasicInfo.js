@@ -1361,7 +1361,7 @@ function BasicInfo() {
                 }}
               >
                 <input
-                  type="number"
+                  type="text"
                   className="w-11/12 outline-none focus:ring-0"
                   onFocus={() => setFocusedTransaction(true)}
                   onBlur={() => setFocusedTransaction(false)}

@@ -512,76 +512,83 @@ const Leads1 = () => {
       .replace(/[\s\-]/g, "_")
       .replace(/[^\w]/g, "");
 
-  const handleFileUpload = useCallback(
-    (file) => {
-      const reader = new FileReader();
-
-      reader.onload = (event) => {
-        const binaryStr = event.target.result;
-        const workbook = XLSX.read(binaryStr, { type: "binary" });
-
-        // Extract data from the first sheet
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
-        // const data = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Header included
-        const data = XLSX.utils.sheet_to_json(sheet, {
-          header: 1,
-          raw: false, // This forces Excel dates to be converted to readable format
-        });
-        if (data.length > 1) {
-          const headers = data[0]; // First row as headers
-          const rows = data.slice(1); // Data without headers
-
-          let mappedColumns = headers.map((header) => {
-            // Find matching column from LeadDefaultColumns
-            let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
-              LeadDefaultColumns[key].mappings.includes(header.toLowerCase())
-            );
-
-            return {
-              ColumnNameInSheet: header, // Original header from the file
-              matchedColumn: matchedColumnKey
-                ? { ...LeadDefaultColumns[matchedColumnKey] }
-                : null, // Default column if matched
-              UserFacingName: null, // Can be updated manually by user
-            };
-          });
-
-          // Transform rows based on the new column mapping
-          const transformedData = rows.map((row) => {
-            let transformedRow = {};
-            // console.log("Row is ", row);
-
-            mappedColumns.forEach((col, index) => {
-              transformedRow[col.ColumnNameInSheet] = row[index] || null;
-              // if (col.matchedColumn) {
-              //   transformedRow[col.matchedColumn.dbName] = row[index] || null;
-              // } else {
-              //   // Handle extra/unmatched columns
-              //   if (!transformedRow.extraColumns)
-              //     transformedRow.extraColumns = {};
-              //   transformedRow.extraColumns[col.ColumnNameInSheet] =
-              //     row[index] || null;
-              // }
+      const handleFileUpload = useCallback(
+        (file) => {
+          const reader = new FileReader();
+          const isCSV = file.name.toLowerCase().endsWith(".csv");
+          reader.onload = (event) => {
+            const binaryStr = event.target.result;
+            // const workbook = XLSX.read(binaryStr, { type: "binary" });
+    
+            const workbook = XLSX.read(binaryStr, {
+              type: "binary",
+              cellDates: false,
+              cellText: true, // important
+              raw: true, // VERY important for CSVs
             });
-            console.log("TransformedRow is ", transformedRow);
-
-            return transformedRow;
-          });
-
-          // Update state
-          setProcessedData(transformedData);
-          setNewColumnsObtained(mappedColumns); // Store the column mappings
-
-          console.log("Mapped Columns:", mappedColumns);
-          console.log("Transformed Data:", transformedData);
-        }
-      };
-
-      reader.readAsBinaryString(file);
-    },
-    [LeadDefaultColumns]
-  );
+    
+            // Extract data from the first sheet
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            // const data = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Header included
+            const data = XLSX.utils.sheet_to_json(sheet, {
+              header: 1,
+              raw: isCSV, // This forces Excel dates to be converted to readable format
+            });
+            if (data.length > 1) {
+              const headers = data[0]; // First row as headers
+              const rows = data.slice(1); // Data without headers
+    
+              let mappedColumns = headers.map((header) => {
+                // Find matching column from LeadDefaultColumns
+                let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
+                  LeadDefaultColumns[key].mappings.includes(header.toLowerCase())
+                );
+    
+                return {
+                  ColumnNameInSheet: header, // Original header from the file
+                  matchedColumn: matchedColumnKey
+                    ? { ...LeadDefaultColumns[matchedColumnKey] }
+                    : null, // Default column if matched
+                  UserFacingName: null, // Can be updated manually by user
+                };
+              });
+    
+              // Transform rows based on the new column mapping
+              const transformedData = rows.map((row) => {
+                let transformedRow = {};
+                // console.log("Row is ", row);
+    
+                mappedColumns.forEach((col, index) => {
+                  transformedRow[col.ColumnNameInSheet] = row[index] || null;
+                  // if (col.matchedColumn) {
+                  //   transformedRow[col.matchedColumn.dbName] = row[index] || null;
+                  // } else {
+                  //   // Handle extra/unmatched columns
+                  //   if (!transformedRow.extraColumns)
+                  //     transformedRow.extraColumns = {};
+                  //   transformedRow.extraColumns[col.ColumnNameInSheet] =
+                  //     row[index] || null;
+                  // }
+                });
+                console.log("TransformedRow is ", transformedRow);
+    
+                return transformedRow;
+              });
+    
+              // Update state
+              setProcessedData(transformedData);
+              setNewColumnsObtained(mappedColumns); // Store the column mappings
+    
+              console.log("Mapped Columns:", mappedColumns);
+              console.log("Transformed Data:", transformedData);
+            }
+          };
+    
+          reader.readAsBinaryString(file);
+        },
+        [LeadDefaultColumns]
+      );
 
   //csv file code ends
 

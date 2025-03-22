@@ -469,8 +469,9 @@ function Page() {
         user = JSON.parse(user);
         user = user.user;
       }
-      // console.log("User is ", user.id);
+      console.log("User is ", user.userRole,myTeam.length > 0);
       if (user?.userRole == "AgentX") {
+        console.log('true')
         return true;
       }
       return false;
@@ -506,7 +507,7 @@ function Page() {
           </div>
         ) : (
           <div className="w-11/12 flex flex-col items-start">
-            {canShowInviteButton() && (
+            {canShowInviteButton() && myTeam.length !== 0 && (
               <div className="w-full flex flex-row items-center justify-end">
                 <button
                   className="rounded-lg text-white bg-purple mt-8"

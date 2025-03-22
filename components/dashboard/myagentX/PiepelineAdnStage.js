@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../leads/AgentSelectSnackMessage";
+import { color } from "framer-motion";
 
 const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
   const [message, setMessage] = useState(null);
@@ -107,6 +108,11 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
     paragraph: {
       fontWeight: "500",
       fontSize: 15,
+    },
+    paragraph2: {
+      fontWeight: "400",
+      fontSize: 14,
+      color: '#00000080'
     },
   };
 
@@ -231,55 +237,76 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
                           marginTop: 15,
                         }}
                       >
+                        <div
+                          className="flex flex-row items-center gap-8 pl-20"
+                          style={styles.paragraph2}
+                        >
+                          <div
+                            className="text-center">
+                            Days
+                          </div>
+                          <div
+                            className="text-center">
+                            Hours
+                          </div>
+                          <div
+                            className="text-center">
+                            Mins
+                          </div>
+                        </div>
+
                         {stage.calls.map((item, index) => {
                           return (
-                            <div
-                              key={index}
-                              className="flex flex-row items-center gap-4"
-                              style={styles.paragraph}
-                            >
-                              <div>Wait</div>
+                            <div key={index} className="flex flex-col gap-2 items-ceter mt-2">
+
                               <div
-                                className="flex flex-row items-center w-[240px]"
-                                style={{ color: "#00000070" }}
+
+                                className="flex flex-row items-center gap-4"
+                                style={styles.paragraph}
                               >
+                                <div>Wait</div>
                                 <div
-                                  className="text-center"
-                                  style={{
-                                    width: "33%",
-                                    border: "1px solid #00000020",
-                                    borderTopLeftRadius: "7px",
-                                    borderBottomLeftRadius: "7px",
-                                    padding: 5,
-                                  }}
+                                  className="flex flex-row items-center w-[240px]"
+                                  style={{ color: "#00000070" }}
                                 >
-                                  {item.waitTimeDays}
+                                  <div
+                                    className="text-center"
+                                    style={{
+                                      width: "33%",
+                                      border: "1px solid #00000020",
+                                      borderTopLeftRadius: "7px",
+                                      borderBottomLeftRadius: "7px",
+                                      padding: 5,
+                                    }}
+                                  >
+                                    {item.waitTimeDays}
+                                  </div>
+                                  <div
+                                    className="text-center"
+                                    style={{
+                                      width: "33%",
+                                      borderBottom: "1px solid #00000020",
+                                      borderTop: "1px solid #00000020",
+                                      padding: 5,
+                                    }}
+                                  >
+                                    {item.waitTimeHours}
+                                  </div>
+                                  <div
+                                    className="text-center"
+                                    style={{
+                                      width: "33%",
+                                      border: "1px solid #00000020",
+                                      borderTopRightRadius: "7px",
+                                      borderBottomRightRadius: "7px",
+                                      padding: 5,
+                                    }}
+                                  >
+                                    {item.waitTimeMinutes}
+                                  </div>
                                 </div>
-                                <div
-                                  className="text-center"
-                                  style={{
-                                    width: "33%",
-                                    borderBottom: "1px solid #00000020",
-                                    borderTop: "1px solid #00000020",
-                                    padding: 5,
-                                  }}
-                                >
-                                  {item.waitTimeHours}
-                                </div>
-                                <div
-                                  className="text-center"
-                                  style={{
-                                    width: "33%",
-                                    border: "1px solid #00000020",
-                                    borderTopRightRadius: "7px",
-                                    borderBottomRightRadius: "7px",
-                                    padding: 5,
-                                  }}
-                                >
-                                  {item.waitTimeMinutes}
-                                </div>
+                                <div>, then Make Call</div>
                               </div>
-                              <div>, then Make Call</div>
                             </div>
                           );
                         })}
@@ -303,15 +330,17 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
                           </div>
                         </div>
                       </div>
-                    )}
+                    )
+                    }
                   </div>
                 </div>
               ))}
             </div>
           )}
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 };
 
