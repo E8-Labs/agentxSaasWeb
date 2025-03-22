@@ -216,17 +216,17 @@ function Page() {
   const [selectedRenameAgent, setSelectedRenameAgent] = useState("");
   const [renameAgentLoader, setRenameAgentLoader] = useState(false);
 
-  const [openGptManu, setOpenGptManu] = useState(null);
+  const [openGptManu, setOpenGptManu] = useState("");
   const [selectedGptManu, setSelectedGptManu] = useState({
     name: "GPT-4o",
     icon: "/svgIcons/chatgptIcon.svg", // Replace with actual icon path
   });
 
-  const [voiceExpressiveness, setVoiceExpressiveness] = useState(null);
-  const [startingPace, setStartingPace] = useState(null);
-  const [patienceValue, setPatienceValue] = useState(null);
+  const [voiceExpressiveness, setVoiceExpressiveness] = useState("");
+  const [startingPace, setStartingPace] = useState("");
+  const [patienceValue, setPatienceValue] = useState("");
 
-  const [callRecordingPermition, setCallRecordingPermition] = useState(null);
+  const [callRecordingPermition, setCallRecordingPermition] = useState("");
 
   const [showCallRecordingLoader, setShowCallRecordingLoader] = useState(false);
   const [showStartingPaceLoader, setShowStartingPaceLoader] = useState(false);

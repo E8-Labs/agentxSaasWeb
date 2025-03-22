@@ -7,13 +7,13 @@ import parsePhoneNumberFromString from "libphonenumber-js";
 
 export const EditPhoneNumberModal = ({
   title = "Call Back Number",
-  number,
+  number = "",
   open,
   close,
   loading,
   update,
 }) => {
-  console.log("number", number);
+  // console.log("number", number);
 
   const [errorMessage, setErrorMessage] = useState("");
   const [countryCode, setCountryCode] = useState("");
@@ -23,7 +23,7 @@ export const EditPhoneNumberModal = ({
   const [locationLoader, setLocationLoader] = useState(false);
 
   useEffect(() => {
-    setUserPhoneNumber(number);
+    setUserPhoneNumber(number||"");
   }, [number]);
 
   //getlocation
