@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { logout } from "@/utilities/UserUtility";
 import AdminDashboardCallLogs from "@/components/admin/CallLogs/AdminDashboardCallLogs";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
+import PhoneVerificationCodesList from "@/components/admin/verificationCodesList/PhoneVerificationCodesList";
 
 function Page() {
   const router = useRouter();
@@ -32,6 +33,10 @@ function Page() {
     },
     {
       id: 5,
+      name: "Phone Verification Codes",
+    },
+    {
+      id: 6,
       name: "Logout",
     },
   ];
@@ -96,7 +101,9 @@ function Page() {
             <AdminAffiliates />
           ) : selectedManu.name === "Call Logs" ? (
             <AdminDashboardCallLogs />
-          ) : (
+          ) :selectedManu.name === "Phone Verification Codes" ? 
+            <PhoneVerificationCodesList />
+          : (
             <div>
               <Dashboard />
             </div>
