@@ -581,169 +581,83 @@ const AdminLeads1 = ({ selectedUser }) => {
       .replace(/[\s\-]/g, "_")
       .replace(/[^\w]/g, "");
 
-  const handleFileUpload = (file) => {
-    const reader = new FileReader();
-
-    reader.onload = (event) => {
-      const binaryStr = event.target.result;
-
-      // Use XLSX to parse the file
-      const workbook = XLSX.read(binaryStr, { type: "binary" });
-
-      // Extract data from the first sheet
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
-      const data = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Header included
-      // setSheetName(sheetName);
-
-      if (data.length > 1) {
-        const headers = data[0]; // First row as headers
-        const rows = data.slice(1); // Data without headers
-
-        const columnMappings = {};
-        const extraColumns = [];
-        const mappingsList = [];
-
-        // Map headers to default columns or extra columns
-        let allColumns = [];
-
-        let matched = [];
-        headers.forEach((header) => {
-          const matchedColumn = matchColumn(header, defaultColumns, allColumns);
-          // console.log(`Matched Col For Header ${header}`, matchedColumn);
-          if (matchedColumn) {
-            if (!matched.includes(matchedColumn)) {
-              let col = defaultColumns[matchedColumn];
-              col.ColumnNameInSheet = header;
-              allColumns.push(col);
-              matched.push(matchedColumn);
-            } else {
-              ////console.log("Already matched");
-              allColumns.push({
-                UserFacingName: null,
-                mappings: [header],
-                ColumnNameInSheet: header,
-                dbName: null,
-              });
-            }
-
-            // defaultColumns[matchedColumn].ColumnNameInSheet = header;
-            // columnMappings[matchedColumn] = header;
-            // mappingsList.push({
-            // columnNameInSheet: header,
-            // columnNameTransformed: matchedColumn,
-            // });
-          } else {
-            allColumns.push({
-              UserFacingName: null,
-              mappings: [header],
-              ColumnNameInSheet: header,
-              dbName: null,
+ const handleFileUpload = useCallback(
+        (file) => {
+          const reader = new FileReader();
+          const isCSV = file.name.toLowerCase().endsWith(".csv");
+          reader.onload = (event) => {
+            const binaryStr = event.target.result;
+            // const workbook = XLSX.read(binaryStr, { type: "binary" });
+    
+            const workbook = XLSX.read(binaryStr, {
+              type: "binary",
+              cellDates: false,
+              cellText: true, // important
+              raw: true, // VERY important for CSVs
             });
-
-            // const transformedName = null; //toSnakeCase(header);
-            // extraColumns.push({
-            // columnNameInSheet: header,
-            // columnNameTransformed: transformedName,
-            // });
-            // mappingsList.push({
-            // columnNameInSheet: header,
-            // columnNameTransformed: transformedName,
-            // });
-          }
-        });
-        // console.clear();
-        // columnMappings["extraColumns"] = extraColumns;
-
-        // Transform data rows based on column mappings
-
-        const transformedData = rows.map((row) => {
-          const transformedRow = {};
-          allColumns = [];
-          matched = [];
-
-          headers.forEach((header, index) => {
-            //console.log("----------------------------------------\n\n");
-            const matchedColumn = matchColumn(
-              header,
-              defaultColumns,
-              allColumns
-            );
-            //console.log("----------------------------------------\n\n");
-
-            // ////console.log("-------------------------------------\n\n");
-            //// console.log("Matching column ", header);
-            //// console.log("Matched column ", matchedColumn);
-            //// console.log("Already Matched Cols ", matched);
-
-            if (matchedColumn) {
-              // If matchedColumn is found and hasn't been added to matched array yet
-              if (!matched.includes(matchedColumn)) {
-                ////console.log(`First Time pushing data ${index} => ${header}`);
-                // matched.push(matchedColumn); // Mark this column as matched
-
-                transformedRow[matchedColumn] = row[index] || null;
-
-                let col = defaultColumns[matchedColumn];
-                col.ColumnNameInSheet = header;
-                allColumns.push(col);
-                matched.push(matchedColumn);
-              } else {
-                //console.log(`Already Found data ${index} => ${header}`);
-                const transformedName = header; // Or use toSnakeCase(header);
-                if (!transformedRow["extraColumns"]) {
-                  transformedRow["extraColumns"] = {};
-                }
-                // Add to extraColumns if it's the first time
-                transformedRow["extraColumns"][transformedName] =
-                  row[index] || null;
-                // If it's already matched, add to the main object
-                allColumns.push({
-                  UserFacingName: null,
-                  mappings: [header],
-                  ColumnNameInSheet: header,
-                  dbName: null,
-                });
-              }
-            } else {
-              // If no match is found, add to extraColumns
-              const transformedName = header; // Or use toSnakeCase(header);
-              if (!transformedRow["extraColumns"]) {
-                transformedRow["extraColumns"] = {};
-              }
-              transformedRow["extraColumns"][transformedName] =
-                row[index] || null;
-
-              allColumns.push({
-                UserFacingName: null,
-                mappings: [header],
-                ColumnNameInSheet: header,
-                dbName: null,
+    
+            // Extract data from the first sheet
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            // const data = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Header included
+            const data = XLSX.utils.sheet_to_json(sheet, {
+              header: 1,
+              raw: isCSV, // This forces Excel dates to be converted to readable format
+            });
+            if (data.length > 1) {
+              const headers = data[0]; // First row as headers
+              const rows = data.slice(1); // Data without headers
+    
+              let mappedColumns = headers.map((header) => {
+                // Find matching column from LeadDefaultColumns
+                let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
+                  LeadDefaultColumns[key].mappings.includes(header.toLowerCase())
+                );
+    
+                return {
+                  ColumnNameInSheet: header, // Original header from the file
+                  matchedColumn: matchedColumnKey
+                    ? { ...LeadDefaultColumns[matchedColumnKey] }
+                    : null, // Default column if matched
+                  UserFacingName: null, // Can be updated manually by user
+                };
               });
+    
+              // Transform rows based on the new column mapping
+              const transformedData = rows.map((row) => {
+                let transformedRow = {};
+                // console.log("Row is ", row);
+    
+                mappedColumns.forEach((col, index) => {
+                  transformedRow[col.ColumnNameInSheet] = row[index] || null;
+                  // if (col.matchedColumn) {
+                  //   transformedRow[col.matchedColumn.dbName] = row[index] || null;
+                  // } else {
+                  //   // Handle extra/unmatched columns
+                  //   if (!transformedRow.extraColumns)
+                  //     transformedRow.extraColumns = {};
+                  //   transformedRow.extraColumns[col.ColumnNameInSheet] =
+                  //     row[index] || null;
+                  // }
+                });
+                console.log("TransformedRow is ", transformedRow);
+    
+                return transformedRow;
+              });
+    
+              // Update state
+              setProcessedData(transformedData);
+              setNewColumnsObtained(mappedColumns); // Store the column mappings
+    
+              console.log("Mapped Columns:", mappedColumns);
+              console.log("Transformed Data:", transformedData);
             }
-
-            ////console.log("-------------------------------------\n\n");
-          });
-
-          return transformedRow;
-        });
-
-        // console.log("Transformed data ", transformedData);
-        // Update state
-        setProcessedData(transformedData);
-        // setColumnMappingsList(mappingsList);
-
-        ////console.log("Default Cols:", allColumns);
-        setNewColumnsObtained(allColumns);
-        ////console.log("Processed Data", transformedData);
-
-        // Example API Call
-        // sendLeadsToAPI(transformedData, mappingsList);
-      }
-    };
-
-    reader.readAsBinaryString(file);
-  };
+          };
+    
+          reader.readAsBinaryString(file);
+        },
+        [LeadDefaultColumns]
+      );
   //csv file code ends
 
   //restrict user to only edit name of csv file
