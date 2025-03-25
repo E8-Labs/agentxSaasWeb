@@ -28,6 +28,7 @@ import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import VideoCard from "@/components/createagent/VideoCard";
 import { HowtoVideos } from "@/constants/Constants";
 import AdminLeads from "./AdminLeads";
+import { LeadDefaultColumns } from "@/constants/DefaultLeadColumns";
 
 const AdminLeads1 = ({ selectedUser }) => {
   const addColRef = useRef(null);

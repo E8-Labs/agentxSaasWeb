@@ -409,12 +409,13 @@ const AddCalender = ({ handleContinue }) => {
                   </FormControl>
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center mt-5 gap-3">
+                <div className="flex flex-col w-6/12 items-center justify-center mt-5 gap-3">
                   <Image
                     src={"svgIcons/noCalenderIcon.svg"}
                     height={100}
                     width={113}
                     alt="No Calender"
+                    style={{borderWidth:0,alignSelf:'center',marginRight:"2vw"}}
                   />
 
                   <div

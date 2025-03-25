@@ -214,7 +214,7 @@ function AdminUsers() {
       </div>
       {/* Scrollable Table Wrapper */}
       <div
-        className="h-[90svh] overflow-auto pb-[100px] w-full"
+        className="h-[90svh] border overflow-auto pb-[100px] w-full"
         style={{ scrollbarWidth: "none" }}
       >
         <InfiniteScroll
@@ -247,7 +247,7 @@ function AdminUsers() {
           hasMore={hasMore}
           loader={
             <div className="w-full flex flex-row justify-center mt-8">
-              {loading && (
+              {loading && hasMore && (
                 <CircularProgress size={35} sx={{ color: "#7902DF" }} />
               )}
             </div>

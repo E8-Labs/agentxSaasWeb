@@ -194,7 +194,7 @@ const Page = () => {
                 }}
               >
                 {" "}
-                Making outbound calls
+                Making Outbound Calls
               </button>
             </div>
             <div
@@ -250,7 +250,7 @@ const Page = () => {
               fontWeight: "600",
             }}
           >
-            {`What's this agent's primary obgective during the call`}
+            {`What's this AI agent's primary objective during the call?`}
           </div>
           <div
             style={{

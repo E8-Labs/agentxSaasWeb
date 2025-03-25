@@ -898,7 +898,7 @@ const AssignLead = ({
 
               <div className="flex flex-row items-center gap-8 mt-4">
                 <button
-                  className="w-1/2 flex flex-col justify-between p-4 rounded-2xl"
+                  className="w-1/2 flex flex-col justify-between items-start p-4 rounded-2xl"
                   style={{
                     border: CallNow
                       ? "2px solid #7902DF"
@@ -906,6 +906,7 @@ const AssignLead = ({
                     height: "119px",
                   }}
                   onClick={() => {
+                    setHasUserSelectedDate(false)
                     const currentDateTime = new Date();
                     const currentHour = currentDateTime.getHours(); // Get the current hour (0-23)
                     // if (currentHour >= 5 && currentHour < 19) {
@@ -937,9 +938,9 @@ const AssignLead = ({
                 </button>
                 <div className="w-1/2">
                   <button
-                    className="w-full flex flex-col justify-between p-4 rounded-2xl"
+                    className="w-full flex flex-col items-start justify-between p-4 rounded-2xl"
                     style={{
-                      border: CallLater
+                      border: CallLater && selectedDateTime && hasUserSelectedDate
                         ? "2px solid #7902DF"
                         : "1px solid #00000040",
                       height: "119px",

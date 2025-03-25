@@ -147,7 +147,7 @@ export default function DncConfirmationPopup({
             Total Cost
           </Typography>
           <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-            ${totalCost}
+            ${totalCost.toFixed(2)}
           </Typography>
         </Box>
       </DialogContent>

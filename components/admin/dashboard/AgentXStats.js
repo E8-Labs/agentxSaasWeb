@@ -196,7 +196,7 @@ function AgentXStats({ user }) {
 
         <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none  w-[16vw] bg-transparent text-white">
           <CardHeader>
-            <CardTitle>Weekly Sign Ups</CardTitle>
+            <CardTitle>Avg Weekly Sign Ups</CardTitle>
           </CardHeader>
           <CardContent>
             <h2 className="cursor-pointer text-2xl font-bold">
@@ -213,7 +213,7 @@ function AgentXStats({ user }) {
 
         <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[16vw] bg-transparent text-white">
           <CardHeader>
-            <CardTitle>Monthly Active Users (MAU)</CardTitle>
+            <CardTitle>Monthly Active Users</CardTitle>
           </CardHeader>
           <CardContent>
             <h2 className="cursor-pointer text-2xl font-bold">
@@ -443,7 +443,7 @@ function VoicesComponent({
           {FindVoice(voiceIds[index].voiceId).name}
         </h2>
         <p className="cursor-pointer mt-4 text-black opacity-60 text-md font-medium leading-tight">
-          {voiceIds[index].count} users
+          {voiceIds[index].count} agents
         </p>
       </Card>
     );

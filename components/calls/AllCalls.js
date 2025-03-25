@@ -297,7 +297,7 @@ function AllCalls({ user }) {
       });
 
       if (response) {
-        // console.log("Response of getPipelines api is :--", response.data.data);
+        console.log("Response of getPipelines api is :--", response.data.data);
 
         if (response.data.status === true) {
           setPipelinesList(response.data.data);
@@ -342,7 +342,7 @@ function AllCalls({ user }) {
 
       // console.log("Check 3");
       const stages = selectedStageIds.join(",");
-      // console.log("Sages selected are ", stages);
+      console.log("selected pipelines are ", selectedPipeline);
       // console.log("Check 4");
       let ApiPath = null;
       // console.log("Check 5");
@@ -353,10 +353,18 @@ function AllCalls({ user }) {
       if (selectedFromDate && selectedToDate) {
         ApiPath = `${Apis.getCallLogs}${separator}startDate=${startDate}&endDate=${endDate}`;
         separator = "&";
-      } else {
+      }
+      
+      else {
         ApiPath = `${Apis.getCallLogs}`; //Apis.getCallLogs;
         // separator = "&";
       }
+      if(selectedPipeline){
+        let pipeline = pipelinesList.filter((pipeline)=>selectedPipeline ===pipeline.title )
+        console.log('selected pipeline is', pipeline)
+        ApiPath = ApiPath +separator +"pipelineId="+pipeline[0].id
+      }
+
 
       if (stages.length > 0) {
         ApiPath = `${ApiPath}${separator}stageIds=${stages}`;
@@ -664,8 +672,8 @@ function AllCalls({ user }) {
               }} // Fetch more when scrolled
               hasMore={hasMore} // Check if there's more data
               loader={
-                <div className="w-full flex flex-row justify-center mt-8">
-                  {!initialLoader && !filteredCallDetails.length == 0 && (
+                <div className="w-full flex flex-row justify-center">
+                  {(
                     <CircularProgress size={35} />
                   )}
                 </div>

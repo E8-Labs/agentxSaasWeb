@@ -84,7 +84,7 @@ function MyPhoneNumber() {
                 phone: selectedNumber
             }
 
-           // console.log("Api data is", ApiData);
+           console.log("Api data is", ApiData);
 
             const ApiPath = Apis.delNumber;
 
@@ -99,7 +99,7 @@ function MyPhoneNumber() {
             });
 
             if (response) {
-               // console.log("Response of del number api is", response);
+               console.log("Response of del number api is", response);
                 if (response.data.status === true) {
                     setNumbers((prevNumbers) =>
                         prevNumbers.filter((item) => item.phoneNumber !== selectedNumber)
@@ -114,7 +114,7 @@ function MyPhoneNumber() {
             }
 
         } catch (error) {
-           // console.error("Error occured in api is", error);
+           console.error("Error occured in api is", error);
             setSnackMsg(error);
             setErrType(SnackbarTypes.Error);
         } finally {

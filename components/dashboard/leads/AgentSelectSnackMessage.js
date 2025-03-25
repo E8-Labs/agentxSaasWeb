@@ -98,7 +98,7 @@ export default function AgentSelectSnackMessage({
             <p
               className={`${!title ? "text-lg" : "text-sm"} text-gray-600`}
               style={{
-                fontWeight: !title ? "600" : "500",
+                fontWeight: !title ? "600" : "500",textTransform:'capitalize'
               }}
             >
               {title && message}

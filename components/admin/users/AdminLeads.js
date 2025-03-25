@@ -44,6 +44,7 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
 import { useRouter, useSearchParams } from "next/navigation";
+import AdminLeadDetails from "./AdminLeadDetails";
 
 const AdminLeads = ({
   handleShowAddLeadModal,
@@ -2634,7 +2635,7 @@ const AdminLeads = ({
             width: "100%",
           }}
         >
-          <LeadDetails
+          <AdminLeadDetails
             selectedLead={selectedLeadsDetails?.id}
             pipelineId={selectedLeadsDetails?.pipeline?.id}
             showDetailsModal={showDetailsModal}
