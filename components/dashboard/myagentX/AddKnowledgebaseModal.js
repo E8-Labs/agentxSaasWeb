@@ -21,6 +21,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
 
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
+  const [docTitle, setDocTitle] = useState("");
   const [text, setText] = useState("");
   const [url, setUrl] = useState("");
   const [youtube, setYoutube] = useState("");
@@ -137,77 +138,94 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
   };
 
   async function addKnowledgebaseEntry() {
-    // setTitle("");
-    // setUrl("");
-    // setSelectedDocument(null);
-    // setSelectedFileName("");
-    // setFileName("");
-    // fileInputRef.current.value = "";
-    // // setSelectedType("Text");
-    // setText("");
-
-    // return;
-    // const link = "/api/kb/addkb"; // Adjust the API route if necessary
-    const link = Apis.AddKnowledgebase; // Adjust the API route if necessary
-
-    let originalContent = "";
-    let documentName = "";
     const formData = new FormData();
-    formData.append("type", selectedType);
-    formData.append("title", title);
-    formData.append("agentId", agent.id);
-    formData.append("mainAgentId", agent.mainAgentId);
-    if (selectedType == "Text") {
-      originalContent = text;
+    const kbs = [];
+  
+    // Text KB
+    if (text.trim() && title.trim() && selectedType === "Text") {
+      kbs.push({
+        agentId: agent.id,
+        mainAgentId: agent.mainAgentId,
+        title:title,
+        type: "Text",
+        originalContent: text,
+      });
     }
-    if (selectedType == "Document") {
-      originalContent = "";
-      documentName = selectedFileName;
+  
+    // URL KB
+    if (url.trim() && isValidUrl(url)) {
+      kbs.push({
+        agentId: agent.id,
+        mainAgentId: agent.mainAgentId,
+        title: "Link", // or allow a title field for URLs
+        type: "Url",
+        originalContent: url,
+      });
     }
-    if (selectedType == "Url") {
-      originalContent = url;
+  
+    // YouTube KB
+    if (youtube.trim() && isValidYoutubeUrl(youtube)) {
+      kbs.push({
+        agentId: agent.id,
+        mainAgentId: agent.mainAgentId,
+        title: "Youtube Video",
+        type: "Youtube",
+        originalContent: youtube,
+      });
     }
-    if (selectedType == "Youtube") {
-      originalContent = youtube;
+  
+    // Document KB
+    if (selectedDocument && selectedFileName && docTitle.trim()) {
+      kbs.push({
+        agentId: agent.id,
+        mainAgentId: agent.mainAgentId,
+        title: docTitle,
+        type: "Document",
+        documentName: selectedFileName,
+      });
+  
+      formData.append("media", selectedDocument); // Attach only if a document is present
     }
-    formData.append("originalContent", originalContent);
+  
+    // Don’t proceed if no KBs are filled
+    if (kbs.length === 0) {
+      console.log("Nothing to submit");
+      return;
+    }
 
-    if (selectedDocument) {
-      formData.append("documentName", documentName);
-      console.log("Attaching media", selectedDocument);
-      formData.append("media", selectedDocument);
-    }
-
-    console.log("FormData entries:");
-    formData.forEach((value, key) => {
-      console.log(`${key}:`, value);
-    });
-
+    let finalKbs  = JSON.stringify(kbs)
+    console.log('finalKbs', finalKbs)
+  
+    formData.append("kbs",finalKbs ); // One list inside another
+  
     setLoading(true);
     try {
-      const response = await axios.post(link, formData, {
+      const response = await axios.post(Apis.AddKnowledgebase, formData, {
         headers: {
-          Authorization: `Bearer ` + user.token, // Replace with actual token
-          // "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${user.token}`,
         },
       });
+  
       setLoading(false);
+      onClose();
+  
+      // Reset fields
       setTitle("");
+      setText("");
       setUrl("");
+      setYoutube("");
+      setDocTitle("");
       setSelectedDocument(null);
       setSelectedFileName("");
-      // setSelectedType("Text");
-      setText("");
-
+      setFileName("");
+  
       console.log("Success:", response.data);
-      return response.data;
     } catch (error) {
       setLoading(false);
-      console.error("Error:", error.response?.data || error.message);
-      console.log("Data ", error);
-      return null;
+      console.error("Error submitting KB:", error.response?.data || error.message);
     }
   }
+  
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -371,10 +389,10 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
     return (
       <div className="flex flex-col w-full gap-4">
         <input
-          value={title}
+          value={docTitle}
           // value = {showRenameAgentPopup?.name}
           onChange={(e) => {
-            setTitle(e.target.value);
+            setDocTitle(e.target.value);
           }}
           placeholder={"Title"}
           className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"

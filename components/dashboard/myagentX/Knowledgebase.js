@@ -91,7 +91,7 @@ function Knowledgebase({ user, agent }) {
     try {
       setKbDelLoader(item.id)
       const token = user.token; // Extract JWT token
-
+      setKb((prevKb) => prevKb.filter((kbItem) => kbItem.id !== item.id));
       
       let link = `${Apis.deleteKnowledgebase}`
       console.log('link', link)
@@ -110,7 +110,7 @@ function Knowledgebase({ user, agent }) {
         
       if (response.data) {
         console.log("KB delete Data:", response.data.data);
-        setKb((prevKb) => prevKb.filter((kbItem) => kbItem.id !== item.id));
+        
         
       } else {
         console.error("Failed to delete kb:", data.error);

@@ -184,12 +184,12 @@ function AgentXStats({ user }) {
           </CardHeader>
           <CardContent>
             <h2 className="cursor-pointer text-2xl font-bold">
-              {stats?.activeUsers.DAU.count}
+              {stats?.activeUsers.DAU.count.toFixed(2)}
             </h2>
           </CardContent>
           <CardContent>
             <h2 className="cursor-pointer text-lg text-gray-300 font-bold">
-              {stats?.activeUsers.DAU.percentage}%
+              {stats?.activeUsers?.DAU?.percentage}%
             </h2>
           </CardContent>
         </Card>
@@ -217,12 +217,12 @@ function AgentXStats({ user }) {
           </CardHeader>
           <CardContent>
             <h2 className="cursor-pointer text-2xl font-bold">
-              {stats?.activeUsers.MAU.count}
+              {stats?.activeUsers.MAU.count.toFixed(2)}
             </h2>
           </CardContent>
           <CardContent>
             <h2 className="cursor-pointer text-lg text-gray-300 font-bold">
-              {stats?.activeUsers.MAU.percentage}%
+              {stats?.activeUsers.MAU.percentage.toFixed(2)}%
             </h2>
           </CardContent>
         </Card>
@@ -233,7 +233,7 @@ function AgentXStats({ user }) {
           </CardHeader>
           <CardContent>
             <h2 className="cursor-pointer text-2xl font-bold">
-              {stats?.avgSessionDuration}
+              {stats?.avgSessionDuration.toFixed(2)}
             </h2>
             {/* <Progress value={48} /> */}
           </CardContent>
