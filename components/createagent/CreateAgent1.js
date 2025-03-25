@@ -708,7 +708,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
               {canShowObjectives() && (
                 <div className="mt-2" style={styles.headingStyle}>
-                  {`What's this agent's primary objective during the call`}
+                  {`What's this AI agent's primary objective during the call?`}
                 </div>
               )}
 

@@ -76,7 +76,7 @@ export default function XBarConfirmationModal({
           Cancel
         </Button>
 
-        <Button
+        {/* <Button
           onClick={onConfirm}
           variant="contained"
           sx={{
@@ -90,7 +90,23 @@ export default function XBarConfirmationModal({
           }}
         >
           Continue
-        </Button>
+        </Button> */}
+
+        <div
+          className="cursor-pointer w-[45%] flex justify-center items-center bg-purple font-bold rounded-lg text-white text-center py-3"
+          onClick={onConfirm}
+          style={{
+            borderColor: "#ddd",
+            color: "#fff",
+            fontWeight: "bold",
+            textTransform: "none",
+            padding: "0.8rem",
+            borderRadius: "10px",
+            width: "45%",
+          }}
+        >
+          Continue
+        </div>
       </DialogActions>
     </Dialog>
   );
