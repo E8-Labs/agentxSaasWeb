@@ -151,7 +151,7 @@ const UserCalender = ({
       formData.append("agentId", selectedAgent.id);
 
       for (let [key, value] of formData.entries()) {
-        // console.log(`${key}: ${value}`);
+        console.log(`${key}: ${value}`);
       }
 
       // return
@@ -162,7 +162,7 @@ const UserCalender = ({
       });
 
       if (response) {
-        // console.log("Response of add calender api is:", response);
+        console.log("Response of add calender api is:", response);
         if (calendar) {
           setIsVisible2(true);
         } else {
@@ -171,7 +171,7 @@ const UserCalender = ({
         if (response.data.status === true) {
           setType(SnackbarTypes.Success);
           setMessage("Calender added");
-          updateVariableData();
+         
           const localAgentsList = localStorage.getItem("localAgentDetails");
 
           if (localAgentsList) {
@@ -180,7 +180,7 @@ const UserCalender = ({
 
             const newCalendarData = response.data.data;
             let calendars = allCalendars.filter(
-              (item) => item.id != newCalendarData.id
+              (item) => item.apiKey != newCalendarData.apiKey
             );
             setAllCalendars([...calendars, newCalendarData]);
             setSelectCalender(newCalendarData);
@@ -207,11 +207,12 @@ const UserCalender = ({
               updatedArray.push(ag);
             }
 
-            // console.log("Updated agents list array is", updatedArray);
+            console.log("Updated agents list array is", updatedArray);
             localStorage.setItem(
               "localAgentDetails",
               JSON.stringify(updatedArray)
             );
+            updateVariableData();
             setUserDetails(updatedArray);
             setShowAddNewCalender(false);
             setShowAddNewCalender(false);
@@ -219,7 +220,7 @@ const UserCalender = ({
           }
         } else if (response.data.status === false) {
           setIsVisible(true);
-          setMessage("Calender not added");
+          setMessage(response.data.message);
           setShowAddNewCalender(false);
           setType(SnackbarTypes.Error);
         }
@@ -228,7 +229,7 @@ const UserCalender = ({
       setIsVisible(true);
       setMessage(error);
       setType(SnackbarTypes.Error);
-      // console.error("Error occured in api is:", error);
+      console.error("Error occured in api is:", error);
     } finally {
       setAddCalenderLoader(false);
     }
@@ -247,8 +248,9 @@ const UserCalender = ({
       if (data) {
         let u = JSON.parse(data);
         console.log("Selected Calendar ", calendarToDelete);
+        // return
         let apiData = {
-          calendarId: calendarToDelete.id,
+          apiKey: calendarToDelete.apiKey,
         };
         console.log("Calendar Data", apiData);
         // return;
@@ -267,7 +269,7 @@ const UserCalender = ({
         if (response.data.status === true) {
           console.log("delete calender api data is", response.data.data);
           let newCalList = allCalendars.filter(
-            (item) => item.id != calendarToDelete.id
+            (item) => item.apiKey != calendarToDelete.apiKey
           );
           setShowDelPopup(false);
           setAllCalendars(newCalList);
@@ -275,6 +277,8 @@ const UserCalender = ({
           setIsVisible(true);
           setMessage("Calendar deleted");
           setType(SnackbarTypes.Success);
+          updateVariableData();
+
         } else {
           console.log("delete calender api message is", response.data.message);
           setIsVisible(true);
@@ -667,7 +671,6 @@ const UserCalender = ({
                             >
                               <button
                                 onClick={() => {
-                                  // console.log("Selected time zone is:", item);
                                 }}
                               >
                                 {item}
@@ -696,7 +699,14 @@ const UserCalender = ({
                             : "#7902DF",
                           color: !isEnabled() ? "#000000" : "",
                         }}
-                        onClick={handleAddCalender}
+                        onClick={()=>{
+                          let calendar = {
+                            apiKey:calenderApiKey,
+                            eventId:eventId,
+                            timeZone:selectTimeZone
+                          }
+                          handleAddCalender(calendar)
+                        }}
                       >
                         Add
                       </button>

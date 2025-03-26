@@ -9,7 +9,7 @@ import AddBuyerKyc from "./AddBuyerKyc";
 import UserType from "../onboarding/UserType";
 import { UserTypes } from "@/constants/UserTypes";
 
-const KYCs = ({ kycsDetails, mainAgentId, user }) => {
+const KYCs = ({ kycsDetails, mainAgentId, user,selectedUser = null }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [BuyerAnchor, setBuyerAnchor] = useState(null);
   const [kycsData, setKycsData] = useState([]);
@@ -85,7 +85,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user }) => {
       const mainAgentData = localStorage.getItem("agentDetails");
       if (mainAgentData) {
         const Data = JSON.parse(mainAgentData);
-        // console.log("Localdat recieved is :--", Data);
+        console.log("Localdat recieved is :--", Data);
         MainAgentData = Data.id;
       }
 
@@ -785,6 +785,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user }) => {
                 SellerMotivationData={SellerMotivationData}
                 SellerUrgencyData={SellerUrgencyData}
                 allKYCs={kycsData}
+                selectedUser = {selectedUser}
               />
 
               {/* Can be use full to add shadow */}
@@ -1180,6 +1181,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user }) => {
                 BuyerMotivationData={BuyerMotivationData}
                 BuyerUrgencyData={BuyerUrgencyData}
                 mainAgentId={mainAgentId}
+                selectedUser = {selectedUser}
                 hideTitle={true}
               />
 

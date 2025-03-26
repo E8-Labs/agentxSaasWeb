@@ -1756,7 +1756,7 @@ const Userleads = ({
                 }}
                 className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
                 onClick={() => {
-                  if (userLocalData.plan) {
+                  if (userLocalData?.plan) {
                     setAssignLeadModal(true);
                   } else {
                     setSnackMessage("Add payment method to continue");

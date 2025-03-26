@@ -233,7 +233,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
       calls: "1500",
       details: "Perfect for lead reactivation and prospecting.",
       originalPrice: "540",
-      discountPrice: "270",
+      discountPrice: "299",
       planStatus: "50%",
       status: "Popular",
     },
@@ -244,7 +244,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
       calls: "5k",
       details: "Ideal for teams and reaching new GCI goals.  ",
       originalPrice: "1200",
-      discountPrice: "600",
+      discountPrice: "599",
       planStatus: "50%",
       status: "Best Value",
     },
@@ -280,7 +280,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
       calls: "1500",
       details: "Perfect for lead reactivation and prospecting.",
       originalPrice: "540",
-      discountPrice: "270",
+      discountPrice: "299",
       planStatus: "50%",
       status: "Popular",
     },
@@ -291,7 +291,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
       calls: "5k",
       details: "Ideal for teams and reaching new GCI goals.  ",
       originalPrice: "1200",
-      discountPrice: "600",
+      discountPrice: "599",
       planStatus: "50%",
       status: "Best Value",
     },
@@ -679,6 +679,12 @@ const CreatAgent3 = ({ handleContinue, user }) => {
                       <button
                         className="text-[#ffffff] pe-8"
                         style={{ fontSize: 14, fontWeight: "700" }}
+                        onClick={()=>{
+                          window.open(
+                            "https://api.leadconnectorhq.com/widget/bookings/agentx/enterprise-plan ",
+                            "_blank"
+                          );
+                        }}
                       >
                         Contact Team
                       </button>
@@ -874,7 +880,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
                     setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp}
                     handleClose={handleClose}
                     togglePlan={togglePlan}
-                    textBelowContinue="Trial is limited to 30 mins"
+                    textBelowContinue={`${selectedPlan?.mints === 30 ? "Trial is limited to 30 mins":"" }`}
                     // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>

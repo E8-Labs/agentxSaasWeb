@@ -103,7 +103,7 @@ function Billing() {
       calls: "1500",
       details: "Perfect for lead reactivation and prospecting.",
       originalPrice: "540",
-      discountPrice: "270",
+      discountPrice: "299",
       planStatus: "50%",
       status: "Popular",
     },
@@ -113,7 +113,7 @@ function Billing() {
       calls: "5k",
       details: "Ideal for teams and reaching new GCI goals. ",
       originalPrice: "1200",
-      discountPrice: "600",
+      discountPrice: "599",
       planStatus: "50%",
       status: "Best Value",
     },
@@ -153,7 +153,7 @@ function Billing() {
     try {
       const localData = localStorage.getItem("User");
       let response = await getProfileDetails();
-      // console.log("Response of get progf", response);
+      console.log("Response of get progf", response.data.data);
       if (response) {
         let plan = response?.data?.data?.plan;
         let togglePlan = plan?.type;
@@ -179,10 +179,6 @@ function Billing() {
     }
   };
 
-  useEffect(() => {
-    // console.log("User local data is", userLocalData);
-  }, [userLocalData]);
-
   //function to close the add card popup
   const handleClose = (data) => {
     // console.log("Add card details are", data);
@@ -190,6 +186,7 @@ function Billing() {
       let newCard = data.data;
       setAddPaymentPopup(false);
       setCards([newCard, ...cards]);
+      window.location.reload()
     }
   };
 
@@ -364,6 +361,9 @@ function Billing() {
         if (response.data.status === true) {
           localDetails.user.plan = response.data.data;
           // console.log("Data updated is", localDetails);
+          let user = userLocalData
+          user.plan = response.data.data
+          setUserLocalData(user)
           let response2 = await getProfileDetails();
           if (response2) {
             let togglePlan = response2?.data?.data?.plan?.type;
@@ -450,7 +450,7 @@ function Billing() {
       // console.log("Apipath is", ApiPath);
 
       const ApiData = {
-        patanai: "Sari dunya",
+        // patanai: "Sari dunya",
       };
 
       // return
@@ -462,22 +462,27 @@ function Billing() {
       });
 
       if (response) {
-        // console.log("Responmse fo cancel plan is", response.data);
+        console.log("Responmse fo cancel plan is", response.data);
         if (response.data.status === true) {
           // console.log("Response of cancel plan is true");
+          // window.location.reload();
           await getProfileDetails();
           setShowConfirmCancelPlanPopup(false);
           setGiftPopup(false);
           setTogglePlan(null);
           setCurrentPlan(null);
           setShowConfirmCancelPlanPopup2(true);
+          let user = userLocalData
+          user.plan.status = "cancelled"
+          setUserLocalData(user)
+          console.log('user after plan cancell', user)
           setSuccessSnack("Your plan was successfully cancelled");
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
         }
       }
     } catch (error) {
-      // console.error("Eror occured in cancel plan api is", error);
+      console.error("Eror occured in cancel plan api is", error);
     } finally {
       setCancelPlanLoader(false);
     }
@@ -585,6 +590,7 @@ function Billing() {
 
   //del reason api
   const handleDelReason = async () => {
+    if(!otherReasonInput || selectReason)
     try {
       setCancelReasonLoader(true);
       const localdata = localStorage.getItem("User");
@@ -611,7 +617,7 @@ function Billing() {
       });
 
       if (response) {
-        // console.log("Response of cancel plan reason api is", response);
+        console.log("Response of cancel plan reason api is", response);
         if (response.data.status === true) {
           setShowConfirmCancelPlanPopup2(false);
           setSuccessSnack(response.data.message);
@@ -622,7 +628,7 @@ function Billing() {
     } catch (error) {
       setErrorSnack(error);
       setCancelReasonLoader(false);
-      // console.error("Error occured in api is ", error);
+      console.error("Error occured in api is ", error);
     } finally {
       setCancelReasonLoader(false);
       // console.log("Del reason api done");
@@ -958,6 +964,12 @@ function Billing() {
             <button
               className="text-[#ffffff] pe-8"
               style={{ fontSize: 14, fontWeight: "700" }}
+              onClick={()=>{
+                window.open(
+                  "https://api.leadconnectorhq.com/widget/bookings/agentx/enterprise-plan ",
+                  "_blank"
+                );
+              }}
             >
               Contact Team
             </button>
@@ -1015,7 +1027,7 @@ function Billing() {
           )} */}
 
           <div className="w-9/12 flex flex-row items-center justify-center">
-            {userLocalData.plan && (
+            {userLocalData.plan?.status != "cancelled" && (
               <button
                 className="text-black  outline-none rounded-xl w-fit-content mt-3"
                 style={{

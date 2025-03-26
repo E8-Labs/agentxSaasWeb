@@ -104,7 +104,7 @@ function AdminBilling({ selectedUser }) {
       calls: "1500",
       details: "Perfect for lead reactivation and prospecting.",
       originalPrice: "540",
-      discountPrice: "270",
+      discountPrice: "299",
       planStatus: "50%",
       status: "Popular",
     },
@@ -114,7 +114,7 @@ function AdminBilling({ selectedUser }) {
       calls: "5k",
       details: "Ideal for teams and reaching new GCI goals. ",
       originalPrice: "1200",
-      discountPrice: "600",
+      discountPrice: "599",
       planStatus: "60%",
       status: "Best Value",
     },
@@ -958,6 +958,12 @@ function AdminBilling({ selectedUser }) {
             <button
               className="text-[#ffffff] pe-8"
               style={{ fontSize: 14, fontWeight: "700" }}
+              onClick={()=>{
+                window.open(
+                  "https://api.leadconnectorhq.com/widget/bookings/agentx/enterprise-plan ",
+                  "_blank"
+                );
+              }}
             >
               Contact Team
             </button>

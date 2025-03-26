@@ -21,8 +21,10 @@ const AddBuyerKyc = ({
   BuyerUrgencyData,
   mainAgentId,
   hideTitle,
+  selectedUser
 }) => {
   const router = useRouter();
+  console.log('selectedUser on add buyer', selectedUser)
 
   const [shouldSave, setShouldSave] = useState(false);
 
@@ -504,8 +506,9 @@ const AddBuyerKyc = ({
       const LocalData = localStorage.getItem("User");
       const agentDetails = localStorage.getItem("agentDetails");
       let MyAgentData = null;
+      let UserDetails;
       if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
+         UserDetails = JSON.parse(LocalData);
         AuthToken = UserDetails.token;
       }
 
@@ -605,6 +608,9 @@ const AddBuyerKyc = ({
         type: "buyer",
         mainAgentId: AgentId,
       };
+      if(UserDetails.user.userType === "admin"){
+        data.userId=selectedUser.id
+      }
       console.log("Data to send in api is", data);
       // return;
       ApiData = data;

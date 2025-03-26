@@ -72,15 +72,17 @@ function Knowledgebase({ user, agent }) {
             No knowledge base added
           </div>
 
-          <div className="flex flex-row gap-2 bg-purple p-2 px-8 rounded-lg">
+          <button className="flex flex-row gap-2 bg-purple p-2 px-8 rounded-lg"
+            onClick={() => addKnowledgebase()}
+          >
             <Plus color="white"></Plus>
-            <button
+            <div
               className="flex items-center justify-center  text-black text-white font-medium"
-              onClick={() => addKnowledgebase()} // Fixed typo
+               // Fixed typo
             >
               Add New
-            </button>
-          </div>
+            </div>
+          </button>
         </div>
       </div>
     );
@@ -91,7 +93,7 @@ function Knowledgebase({ user, agent }) {
     try {
       setKbDelLoader(item.id)
       const token = user.token; // Extract JWT token
-
+      setKb((prevKb) => prevKb.filter((kbItem) => kbItem.id !== item.id));
       
       let link = `${Apis.deleteKnowledgebase}`
       console.log('link', link)
@@ -110,7 +112,7 @@ function Knowledgebase({ user, agent }) {
         
       if (response.data) {
         console.log("KB delete Data:", response.data.data);
-        setKb((prevKb) => prevKb.filter((kbItem) => kbItem.id !== item.id));
+        
         
       } else {
         console.error("Failed to delete kb:", data.error);

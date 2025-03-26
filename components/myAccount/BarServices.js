@@ -82,7 +82,7 @@ function BarServices() {
   const plans = [
     {
       id: 1,
-      PlanTitle: "Starter",
+      PlanTitle: "Starter | 250 mins",
       details: [
         `1 AgentX AI | 2hrs of Support`,
         `1 External Integration | 1 Calendar Integration`,
@@ -94,7 +94,7 @@ function BarServices() {
     },
     {
       id: 2,
-      PlanTitle: "Professional",
+      PlanTitle: "Professional | 750 mins",
       details: [
         `4 AgentX AI | 5hrs of Support`,
         `2 External Integration | 2 Calendar Integration`,
@@ -106,7 +106,7 @@ function BarServices() {
     },
     {
       id: 3,
-      PlanTitle: "Enterprise",
+      PlanTitle: "Enterprise | 1500 mins",
       details: [
         "Dedicated Success Manager",
         `10 AgentX AI | 10hrs of Support`,
@@ -128,7 +128,7 @@ function BarServices() {
     try {
       const localData = localStorage.getItem("User");
       let response = await getProfileDetails();
-      // console.log("Response of get progf", response);
+      console.log("Response of get progf", response);
       if (response) {
         let togglePlan = response?.data?.data?.supportPlan;
         // let togglePlan = plan?.type;
@@ -143,7 +143,7 @@ function BarServices() {
         }
         // }
         setUserLocalData(response?.data?.data);
-        // console.log("Get Profile Toggle plan is ", planType);
+        console.log("Get Profile Toggle plan is ", planType);
         setTogglePlan(planType);
         setCurrentPlan(planType);
       }

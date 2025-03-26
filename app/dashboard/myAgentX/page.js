@@ -52,6 +52,7 @@ import ClaimNumber from "@/components/dashboard/myagentX/ClaimNumber";
 import {
   AgentLLmModels,
   Constants,
+  fromatMessageName,
   HowtoVideos,
   PersistanceKeys,
 } from "@/constants/Constants";
@@ -216,17 +217,17 @@ function Page() {
   const [selectedRenameAgent, setSelectedRenameAgent] = useState("");
   const [renameAgentLoader, setRenameAgentLoader] = useState(false);
 
-  const [openGptManu, setOpenGptManu] = useState(null);
+  const [openGptManu, setOpenGptManu] = useState("");
   const [selectedGptManu, setSelectedGptManu] = useState({
     name: "GPT-4o",
     icon: "/svgIcons/chatgptIcon.svg", // Replace with actual icon path
   });
 
-  const [voiceExpressiveness, setVoiceExpressiveness] = useState(null);
-  const [startingPace, setStartingPace] = useState(null);
-  const [patienceValue, setPatienceValue] = useState(null);
+  const [voiceExpressiveness, setVoiceExpressiveness] = useState("");
+  const [startingPace, setStartingPace] = useState("");
+  const [patienceValue, setPatienceValue] = useState("");
 
-  const [callRecordingPermition, setCallRecordingPermition] = useState(null);
+  const [callRecordingPermition, setCallRecordingPermition] = useState("");
 
   const [showCallRecordingLoader, setShowCallRecordingLoader] = useState(false);
   const [showStartingPaceLoader, setShowStartingPaceLoader] = useState(false);
@@ -305,13 +306,13 @@ function Page() {
     },
     {
       id: 2,
-      title: "🎙️ Balanced",
+      title: "⚖️ Balanced",
       value: "Balanced",
     },
     {
       id: 3,
-      title: "🤚 Steady",
-      value: "Steady",
+      title: "😌 Calm",
+      value: "Calm",
     },
   ];
 
@@ -1062,7 +1063,9 @@ function Page() {
           setShowRenameAgentPopup(false);
           console.log("Response of update api is :--", response.data);
           // console.log("Respons eof update api is", response.data.data);
-          setShowSuccessSnack(response.data.message);
+          setShowSuccessSnack(
+            `${fromatMessageName(selectedRenameAgent.name)} updated`
+          );
           if (response.data.status === true) {
             setIsVisibleSnack(true);
 
@@ -1171,7 +1174,13 @@ function Page() {
       if (response) {
         //console.log("Response of update api is :--", response.data);
         console.log("Respons eof update api is", response.data);
-        setShowSuccessSnack(response.data.message);
+        setShowSuccessSnack(
+          `${fromatMessageName(
+            showDrawerSelectedAgent
+              ? showDrawerSelectedAgent.name
+              : showScriptModal.name
+          )} updated`
+        );
         if (response.data.status === true) {
           setIsVisibleSnack(true);
 
@@ -1215,12 +1224,6 @@ function Page() {
             // agentsListDetails = updatedArray
           }
 
-          setGreetingTagInput("");
-          setScriptTagInput("");
-          setShowScriptModal(null);
-          setShowScript(false);
-          setSeledtedScriptKYC(false);
-          setSeledtedScriptAdvanceSetting(false);
           // setShowDrawer(null);
         }
       }
@@ -1300,7 +1303,11 @@ function Page() {
             response.data.data
           );
           // console.log("Respons eof update api is", response.data.data);
-          setShowSuccessSnack(response.data.message);
+          setShowSuccessSnack(
+            `${fromatMessageName(
+              showDrawerSelectedAgent ? showDrawerSelectedAgent.name : "Agent"
+            )} updated`
+          );
           if (response.data.status === true) {
             setIsVisibleSnack(true);
 
@@ -1996,7 +2003,8 @@ function Page() {
 
     if (agentLocalDetails) {
       const agentData = JSON.parse(agentLocalDetails);
-      //// console.log("Data on LocalStorage", agentData);
+      console.log("Data on LocalStorage", agentData);
+      getCalenders()
       setMainAgentsList(agentData);
     } else {
       //// console.log("No data of agents");
@@ -3384,7 +3392,7 @@ function Page() {
                     <div
                       style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
                     >
-                      Expression
+                      Personality
                     </div>
 
                     <div
@@ -3752,8 +3760,8 @@ function Page() {
                               }}
                             >
                               {previousNumber?.map((item, index) => {
-                                console.log("Assigned Number ", assignNumber);
-                                console.log("Item Number ", item.phoneNumber);
+                                // console.log("Assigned Number ", assignNumber);
+                                // console.log("Item Number ", item.phoneNumber);
                                 return (
                                   <MenuItem
                                     key={index}
@@ -3890,7 +3898,7 @@ function Page() {
                           color: "#666",
                         }}
                       >
-                        Call Back number
+                        Call back number
                       </div>
                       <div
                       // aria-owns={open ? 'mouse-over-popover' : undefined}
@@ -4646,8 +4654,14 @@ function Page() {
                           <button
                             className="bg-purple w-full h-[50px] rounded-xl text-white"
                             style={{ fontWeight: "600", fontSize: 15 }}
-                            onClick={() => {
-                              updateAgent();
+                            onClick={async () => {
+                              await updateAgent();
+                              setShowScriptModal(null);
+                              setGreetingTagInput("");
+                              setScriptTagInput("");
+                              setShowScript(false);
+                              setSeledtedScriptKYC(false);
+                              setSeledtedScriptAdvanceSetting(false);
                             }}
                           >
                             Save Changes

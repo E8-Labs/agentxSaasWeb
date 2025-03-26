@@ -140,7 +140,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     {
       id: 1,
       icon: "",
-      title: "Call absentee owners",
+      title: "Call Absentee Owners",
       details:
         "Reach out to property owners who may not live in the property to discuss potential selling or investment opportunities.",
       focusIcn: "/svgIcons/obj1F.svg",
@@ -149,7 +149,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     {
       id: 2,
       icon: "",
-      title: "Circle prospecting",
+      title: "Circle Prospecting",
       details:
         "Call homeowners in a specific farm to inform them about recent property activities, and gauge their interest in selling or buying.",
       focusIcn: "/svgIcons/obj2F.svg",
@@ -158,7 +158,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     {
       id: 3,
       icon: "",
-      title: "Community update",
+      title: "Community Update",
       details:
         "Provide local homeowners with relevant updates on a property like just listed, just sold, in escrow or something else. ",
       focusIcn: "/svgIcons/obj3F.svg",
@@ -167,7 +167,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     {
       id: 4,
       icon: "",
-      title: "Lead reactivation",
+      title: "Lead Reactivation",
       details:
         "Reconnect with past leads who previously expressed interest but did not convert, to reignite their interest in your services.",
       focusIcn: "/svgIcons/obj4F.svg",
@@ -652,7 +652,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                       // scale: "0.9"
                     }}
                   >
-                    Making outbound calls
+                    Making Outbound Calls
                   </div>
                 </div>
                 <div
@@ -708,7 +708,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
               {canShowObjectives() && (
                 <div className="mt-2" style={styles.headingStyle}>
-                  {`What's this agent's primary objective during the call`}
+                  {`What's this AI agent's primary objective during the call?`}
                 </div>
               )}
 

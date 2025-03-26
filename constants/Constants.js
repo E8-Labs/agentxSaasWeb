@@ -56,6 +56,12 @@ export const isValidYoutubeUrl = (url) => {
   return urlPattern.test(url);
 };
 
+export const fromatMessageName = (name) =>{
+  let formatedName = name?.slice(0, 1).toUpperCase(0) + name?.slice(1)
+    // console.log('fromatedName', formatedName)
+  return formatedName
+}
+
 
 export const AgentLLmModels = {
   Gpt4o: "gpt-4o",

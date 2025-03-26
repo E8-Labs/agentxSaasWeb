@@ -44,10 +44,10 @@ function CallWorthyReviewsPopup({ open, close }) {
 
         if (response) {
           if (response.data.status === true) {
-           // console.log(
-            //   "response of get imporatant calls api is",
-            //   response.data.data
-            // );
+           console.log(
+              "response of get imporatant calls api is",
+              response.data.data
+            );
             setImportantCalls(response.data.data);
             setSelectedCall(response.data.data[0]);
           } else {

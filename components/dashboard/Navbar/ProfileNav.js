@@ -67,7 +67,7 @@ let plansWithoutTrial = [
     calls: "1500",
     details: "Perfect for lead reactivation and prospecting.",
     originalPrice: "540",
-    discountPrice: "270",
+    discountPrice: "299",
     planStatus: "50%",
     status: "Popular",
   },
@@ -77,7 +77,7 @@ let plansWithoutTrial = [
     calls: "5k",
     details: "Ideal for teams and reaching new GCI goals.  ",
     originalPrice: "1200",
-    discountPrice: "600",
+    discountPrice: "599",
     planStatus: "50%",
     status: "Best Value",
   },
@@ -115,7 +115,7 @@ let plansWitTrial = [
     calls: "1500",
     details: "Perfect for lead reactivation and prospecting.",
     originalPrice: "540",
-    discountPrice: "270",
+    discountPrice: "299",
     planStatus: "50%",
     status: "Popular",
   },
@@ -126,7 +126,7 @@ let plansWitTrial = [
     calls: "5k",
     details: "Ideal for teams and reaching new GCI goals.  ",
     originalPrice: "1200",
-    discountPrice: "600",
+    discountPrice: "599",
     planStatus: "50%",
     status: "Best Value",
   },
@@ -358,7 +358,7 @@ const ProfileNav = () => {
     {
       id: 1,
       name: "Users",
-      href: "/dashboard/admin/users",
+      href: "/admin/",
       selected: "/svgIcons/selectdDashboardIcon.svg",
       uneselected: "/svgIcons/unSelectedDashboardIcon.svg",
     },
@@ -368,7 +368,7 @@ const ProfileNav = () => {
   const getProfile = async () => {
     try {
       let response = await getProfileDetails();
-      console.log("Response of profile api ", response.data);
+      // console.log("Response of profile api ", response.data);
       if (response.status == 404) {
         console.log("User has been deleted");
         // logout();
@@ -708,7 +708,7 @@ const ProfileNav = () => {
 
         <div className="w-full mt-8 flex flex-col items-center gap-3">
           {showLinks().map((item) => (
-            <div key={item.id} className="w-9/12 flex flex-col gap-3 ">
+            <div key={item.id} className="w-full flex flex-col gap-3 pl-3">
               <Link
                 sx={{ cursor: "pointer", textDecoration: "none" }}
                 href={item.href}

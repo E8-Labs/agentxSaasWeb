@@ -270,7 +270,7 @@ const AdminPipeline1 = ({selectedUser}) => {
   const [selectedCall, setSelectedCall] = useState("");
 
   useEffect(() => {
-    getImportantCalls();
+    // getImportantCalls();
     getMyTeam();
     const pipelineIndex = searchParams.get("pipeline"); // Get the value of 'tab'
     let number = Number(pipelineIndex) || 0;
@@ -342,9 +342,6 @@ const AdminPipeline1 = ({selectedUser}) => {
     }
   };
 
-  useEffect(() => {
-   // console.log("Selected Lead Details changed", selectedLeadsDetails);
-  }, [selectedLeadsDetails]);
   const getImportantCalls = async () => {
     try {
       const data = localStorage.getItem("User");
@@ -483,9 +480,11 @@ const AdminPipeline1 = ({selectedUser}) => {
 
       const formData = new FormData();
       formData.append("title", newPipelineTitle);
+      formData.append("userId", selectedUser.id);
+
 
       for (let [key, value] of formData.entries()) {
-       // console.log(`${key} ${value} `);
+       console.log(`${key} ${value} `);
       }
 
       const ApiPath = Apis.createPipeLine;
@@ -498,7 +497,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // console.log("Response of add pipeline api is:", response);
+       console.log("Response of add pipeline api is:", response);
         if (response.data.status === true) {
           let updatedPipelinesList = [];
           setPipeLines([...PipeLines, response.data.data]);
@@ -641,6 +640,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       const ApiData = {
         leadId: lead.lead.id,
         tag: tag,
+        userId:selectedUser.id
       };
 
       const ApiPath = Apis.delLeadTag;
@@ -757,6 +757,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         // mainAgentId: mainAgent.id,
         tags: tagsValue,
         teams: assignLeadToMember,
+        userId:selectedUser.id
       };
      // console.log("Data sending in api is:", ApiData);
 
@@ -833,6 +834,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       const formData = new FormData();
       formData.append("pipelineId", SelectedPipeline.id);
       formData.append("stageId", selectedStage.id);
+      formData.append("userId", selectedUser.id);
       if (assignNextStageId) {
         formData.append("moveToStage", assignNextStageId);
       }
@@ -892,6 +894,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       formData.append("stageTitle", renameStage);
       formData.append("stageId", selectedStage.id);
       formData.append("color", updateStageColor);
+      formData.append("userId", selectedUser.id);
 
       //// console.log("data sending in api si:", ApiData);
 
@@ -939,6 +942,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       const ApiData = {
         title: renamePipeline,
         pipelineId: SelectedPipeline.id,
+        userId:selectedUser.id
       };
 
      // console.log("data sending in api si:", ApiData);
@@ -997,6 +1001,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       // formData.append("stageTitle", renameStage);
       formData.append("stageId", selectedStage?.id);
       formData.append("color", stageColorUpdate);
+      formData.append("userId",selectedUser.id)
 
       //// console.log("data sending in api si:", ApiData);
 
@@ -1044,6 +1049,7 @@ const AdminPipeline1 = ({selectedUser}) => {
 
       const formData = new FormData();
       formData.append("pipelineId", SelectedPipeline.id);
+      formData.append("userId",selectedUser.id)
 
       for (let [key, value] of formData.entries()) {
        // console.log(`${key}: ${value}`);
@@ -1125,6 +1131,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       const ApiData = {
         sheetName: newSheetName,
         columns: inputs.map((columns) => columns.value),
+        userId:selectedUser.id
       };
      // console.log("Data to send in api is:", ApiData);
 
@@ -1184,6 +1191,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       const updateStages = StagesList.map((stage, index) => ({
         id: stage.id,
         order: stage.order,
+        userId:selectedUser.id
       }));
 
      // console.log("Updated stages order is :", updateStages);
@@ -1358,6 +1366,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       const ApiData = {
         note: addNotesValue,
         leadId: selectedLeadsDetails.id,
+        userId:selectedUser.id
       };
 
      // console.log("api data is:", ApiData);

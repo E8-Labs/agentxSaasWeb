@@ -2942,7 +2942,7 @@ function AdminAgentX({ selectedUser }) {
                           color: "#666",
                         }}
                       >
-                        Call Back number
+                        Call back number
                       </div>
                       <div
                       // aria-owns={open ? 'mouse-over-popover' : undefined}
@@ -3761,6 +3761,7 @@ function AdminAgentX({ selectedUser }) {
                     kycsDetails={setKycsData}
                     mainAgentId={MainAgentId}
                     user={user && user}
+                    selectedUser = {selectedUser}
                   />
                 </div>
               )}
