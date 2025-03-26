@@ -171,7 +171,7 @@ const UserCalender = ({
         if (response.data.status === true) {
           setType(SnackbarTypes.Success);
           setMessage("Calender added");
-          updateVariableData();
+         
           const localAgentsList = localStorage.getItem("localAgentDetails");
 
           if (localAgentsList) {
@@ -212,6 +212,7 @@ const UserCalender = ({
               "localAgentDetails",
               JSON.stringify(updatedArray)
             );
+            updateVariableData();
             setUserDetails(updatedArray);
             setShowAddNewCalender(false);
             setShowAddNewCalender(false);
@@ -276,6 +277,8 @@ const UserCalender = ({
           setIsVisible(true);
           setMessage("Calendar deleted");
           setType(SnackbarTypes.Success);
+          updateVariableData();
+
         } else {
           console.log("delete calender api message is", response.data.message);
           setIsVisible(true);

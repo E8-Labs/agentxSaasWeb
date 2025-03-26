@@ -2003,7 +2003,8 @@ function Page() {
 
     if (agentLocalDetails) {
       const agentData = JSON.parse(agentLocalDetails);
-      //// console.log("Data on LocalStorage", agentData);
+      console.log("Data on LocalStorage", agentData);
+      getCalenders()
       setMainAgentsList(agentData);
     } else {
       //// console.log("No data of agents");
@@ -3759,8 +3760,8 @@ function Page() {
                               }}
                             >
                               {previousNumber?.map((item, index) => {
-                                console.log("Assigned Number ", assignNumber);
-                                console.log("Item Number ", item.phoneNumber);
+                                // console.log("Assigned Number ", assignNumber);
+                                // console.log("Item Number ", item.phoneNumber);
                                 return (
                                   <MenuItem
                                     key={index}

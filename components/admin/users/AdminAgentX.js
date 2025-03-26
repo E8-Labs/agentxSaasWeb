@@ -3761,6 +3761,7 @@ function AdminAgentX({ selectedUser }) {
                     kycsDetails={setKycsData}
                     mainAgentId={MainAgentId}
                     user={user && user}
+                    selectedUser = {selectedUser}
                   />
                 </div>
               )}

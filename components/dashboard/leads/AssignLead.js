@@ -1133,6 +1133,26 @@ const AssignLead = ({
                         //   value={value}
                         minDate={dayjs()}
                         onChange={handleDateChange}
+                        slotProps={{
+                          textField: {
+                            variant: "outlined",
+                            sx: {
+                              "& .MuiOutlinedInput-root": {
+                                borderRadius: "10px",
+                                "& fieldset": {
+                                  borderColor: hasUserSelectedDate ? "#7902df" : "#00000050", // Purple if selected, red otherwise
+                                  borderWidth: "2px",
+                                },
+                                "&:hover fieldset": {
+                                  borderColor: hasUserSelectedDate ? "#7902df" : "#00000050",
+                                },
+                                "&.Mui-focused fieldset": {
+                                  borderColor: hasUserSelectedDate ? "#7902df" : "#00000050",
+                                },
+                              },
+                            },
+                          },
+                        }}
                         sx={{
                           "& .MuiPickersDay-root.Mui-selected": {
                             backgroundColor: "#7902DF !important", // Change selected date color to purple
@@ -1163,7 +1183,7 @@ const AssignLead = ({
                           <input
                             {...params.inputProps}
                             style={{
-                              border: "none", // Disable border
+                              border: "red", // Disable border
                               outline: "none",
                               padding: "8px",
                               backgroundColor: "#f9f9f9", // Optional: subtle background for better visibility

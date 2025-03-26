@@ -654,7 +654,13 @@ function SheduledCalls({ user }) {
                                       {getAgentsListImage(agent?.agents[0])}
                                     </div>
 
-                                    <div style={styles.text2}>{agent.name}</div>
+                                    <div style={styles.text2}>{
+                                    agent?.agents[0].agentType === "outbound"? (
+                                      agent?.agents[0].name
+                                    ):(
+                                      agent?.agents[1].name
+                                    )
+                                    }</div>
                                   </div>
                                   <div className="w-2/12 ">
                                     {user.user.userType == UserTypes.RealEstateAgent

@@ -368,7 +368,7 @@ const ProfileNav = () => {
   const getProfile = async () => {
     try {
       let response = await getProfileDetails();
-      console.log("Response of profile api ", response.data);
+      // console.log("Response of profile api ", response.data);
       if (response.status == 404) {
         console.log("User has been deleted");
         // logout();
@@ -708,7 +708,7 @@ const ProfileNav = () => {
 
         <div className="w-full mt-8 flex flex-col items-center gap-3">
           {showLinks().map((item) => (
-            <div key={item.id} className="w-9/12 flex flex-col gap-3 ">
+            <div key={item.id} className="w-full flex flex-col gap-3 pl-3">
               <Link
                 sx={{ cursor: "pointer", textDecoration: "none" }}
                 href={item.href}

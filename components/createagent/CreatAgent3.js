@@ -880,7 +880,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
                     setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp}
                     handleClose={handleClose}
                     togglePlan={togglePlan}
-                    textBelowContinue="Trial is limited to 30 mins"
+                    textBelowContinue={`${selectedPlan?.mints === 30 ? "Trial is limited to 30 mins":"" }`}
                     // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>

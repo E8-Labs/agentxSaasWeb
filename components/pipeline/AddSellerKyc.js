@@ -25,8 +25,11 @@ const AddSellerKyc = ({
   SellerUrgencyData,
   mainAgentId,
   allKYCs,
+  selectedUser
 }) => {
   console.log("Satus of passed is", allKYCs);
+  console.log('selectedUser on add buyer', selectedUser)
+
 
   const router = useRouter();
 
@@ -344,6 +347,7 @@ const AddSellerKyc = ({
 
   //function to add kyc
   const handleAddKycQuestion = () => {
+    console.log('check 1')
     const sampleAnswers = inputs.map((input) => input.value);
     let newKYCQuestion = {
       id: needKYCQuestions.length + 1,
@@ -506,6 +510,7 @@ const AddSellerKyc = ({
 
   //api call to add kyc
   const handleAddNewKyc = async () => {
+    console.log('check 1')
     // Get only the selected questions
     const selectedNeedQuestions = needKYCQuestions.filter((question) =>
       selectedNeedKYC.some((selectedItem) => selectedItem.id === question.id)
@@ -529,8 +534,9 @@ const AddSellerKyc = ({
       const LocalData = localStorage.getItem("User");
       const agentDetails = localStorage.getItem("agentDetails");
       let MyAgentData = null;
+      let UserDetails = ""
       if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
+        UserDetails = JSON.parse(LocalData);
         AuthToken = UserDetails.token;
       }
 
@@ -632,7 +638,7 @@ const AddSellerKyc = ({
       // let kycs = allKYCs.filter((item) => item.category != "motivation")
       // kycs = [...kycs, ...updatedKycs]
 
-      const data = {
+      let data = {
         kycQuestions: updatedKycs.map((item) => ({
           question: item.question,
           category: item.category,
@@ -641,7 +647,11 @@ const AddSellerKyc = ({
         })),
         type: "seller",
         mainAgentId: AgentId,
+        
       };
+      if(UserDetails.user.userType === "admin"){
+        data.userId=selectedUser.id
+      }
       console.log("Data to send in api is", data);
       // return;
       ApiData = data;

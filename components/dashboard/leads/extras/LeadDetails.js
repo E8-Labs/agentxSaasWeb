@@ -1021,12 +1021,13 @@ const LeadDetails = ({
                           </div>
 
                           <div>
+                          
                             {selectedLeadsDetails?.booking && (
                               <div className="flex flex-row items-center gap-2">
                                 <Image
                                   src="/svgIcons/calendar.svg"
-                                  height={14}
-                                  width={14}
+                                  height={20}
+                                  width={20}
                                   alt="*"
                                 />
                                 <div style={styles.heading2}>
