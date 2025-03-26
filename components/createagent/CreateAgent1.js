@@ -226,13 +226,13 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     if (!user) {
       return false;
     }
-    console.log("Details ", {
-      agentName,
-      agentRole,
-      agentObjective,
-      InBoundCalls,
-      OutBoundCalls,
-    });
+    // console.log("Details ", {
+    //   agentName,
+    //   agentRole,
+    //   agentObjective,
+    //   InBoundCalls,
+    //   OutBoundCalls,
+    // });
     if (user.user.userType == UserTypes.RealEstateAgent) {
       if (
         agentName &&

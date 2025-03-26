@@ -136,7 +136,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
       // console.log("Response of sub api ", response);
 
       if (response) {
-        console.log("Response of subscribe plan api is", response);
+        // console.log("Response of subscribe plan api is", response);
         if (response.data.status === true) {
           // handleClose();
           let screenWidth = 1000;
@@ -149,7 +149,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
             // console.log("This is a small size screen");
             router.push("/createagent/desktop");
           } else {
-            console.log("This is a large size screen");
+            // console.log("This is a large size screen");
             handleContinue();
           }
         }
@@ -1236,7 +1236,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
                         windowWidth = window.innerWidth;
                       }
                       if (togglePlan2 === 1) {
-                        console.log("Toggle plan 1");
+                        // console.log("Toggle plan 1");
                         if (windowWidth < 640) {
                           setSubscribePlanLoader(true);
                           router.push("/createagent/desktop");
@@ -1244,7 +1244,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
                           handleContinue();
                         }
                       } else {
-                        console.log("Toggle plan else");
+                        // console.log("Toggle plan else");
                         handleSubScribePlan();
                       }
                     }}

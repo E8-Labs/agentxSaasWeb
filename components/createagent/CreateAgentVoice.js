@@ -103,12 +103,12 @@ const CreateAgentVoice = ({ handleBack, user }) => {
       if (response) {
         // console.log("Response of update api is :", response.data);
         if (response.data.status === true) {
-          console.log("User type is ", user);
+          // console.log("User type is ", user);
           if (user.user.userType == UserTypes.RealEstateAgent) {
-            console.log("Routing to seller kyc");
+            // console.log("Routing to seller kyc");
             router.push("/sellerskycquestions");
           } else {
-            console.log("Routing to customer kyc");
+            // console.log("Routing to customer kyc");
             router.push("/customerkycquestions");
           }
 

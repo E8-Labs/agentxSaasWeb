@@ -52,6 +52,7 @@ import {
   GetFormattedTimeString,
 } from "@/utilities/utility";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
+import AdminLeadDetails from "../AdminLeadDetails";
 
 const AdminPipeline1 = ({selectedUser}) => {
   const bottomRef = useRef();
@@ -3470,7 +3471,7 @@ const AdminPipeline1 = ({selectedUser}) => {
 
       {/* Modal for lead details */}
       {showDetailsModal && (
-        <LeadDetails
+        <AdminLeadDetails
           selectedLead={selectedLeadsDetails?.id}
           pipelineId={pipelineId && pipelineId}
           showDetailsModal={showDetailsModal}

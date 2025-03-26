@@ -590,49 +590,49 @@ function Billing() {
 
   //del reason api
   const handleDelReason = async () => {
-    if(!otherReasonInput || selectReason)
-    try {
-      setCancelReasonLoader(true);
-      const localdata = localStorage.getItem("User");
-      let AuthToken = null;
-      if (localdata) {
-        const D = JSON.parse(localdata);
-        AuthToken = D.token;
-      }
-
-      const ApiData = {
-        reason: otherReasonInput || selectReason,
-      };
-
-      // console.log("Api data is", ApiData);
-
-      const ApiPath = Apis.calcelPlanReason;
-      // console.log("Api Path is", ApiPath);
-
-      const response = await axios.post(ApiPath, ApiData, {
-        headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response) {
-        console.log("Response of cancel plan reason api is", response);
-        if (response.data.status === true) {
-          setShowConfirmCancelPlanPopup2(false);
-          setSuccessSnack(response.data.message);
-        } else if (response.data.status === true) {
-          setErrorSnack(response.data.message);
+    if (!otherReasonInput || selectReason)
+      try {
+        setCancelReasonLoader(true);
+        const localdata = localStorage.getItem("User");
+        let AuthToken = null;
+        if (localdata) {
+          const D = JSON.parse(localdata);
+          AuthToken = D.token;
         }
+
+        const ApiData = {
+          reason: otherReasonInput || selectReason,
+        };
+
+        // console.log("Api data is", ApiData);
+
+        const ApiPath = Apis.calcelPlanReason;
+        // console.log("Api Path is", ApiPath);
+
+        const response = await axios.post(ApiPath, ApiData, {
+          headers: {
+            Authorization: "Bearer " + AuthToken,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response) {
+          console.log("Response of cancel plan reason api is", response);
+          if (response.data.status === true) {
+            setShowConfirmCancelPlanPopup2(false);
+            setSuccessSnack(response.data.message);
+          } else if (response.data.status === true) {
+            setErrorSnack(response.data.message);
+          }
+        }
+      } catch (error) {
+        setErrorSnack(error);
+        setCancelReasonLoader(false);
+        console.error("Error occured in api is ", error);
+      } finally {
+        setCancelReasonLoader(false);
+        // console.log("Del reason api done");
       }
-    } catch (error) {
-      setErrorSnack(error);
-      setCancelReasonLoader(false);
-      console.error("Error occured in api is ", error);
-    } finally {
-      setCancelReasonLoader(false);
-      // console.log("Del reason api done");
-    }
   };
 
   return (
@@ -964,7 +964,7 @@ function Billing() {
             <button
               className="text-[#ffffff] pe-8"
               style={{ fontSize: 14, fontWeight: "700" }}
-              onClick={()=>{
+              onClick={() => {
                 window.open(
                   "https://api.leadconnectorhq.com/widget/bookings/agentx/enterprise-plan ",
                   "_blank"
@@ -1186,7 +1186,7 @@ function Billing() {
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
                   togglePlan={""}
-                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>
@@ -1259,9 +1259,8 @@ function Billing() {
 
               <div className="flex flex-col items-center px-4 w-full">
                 <div
-                  className={`flex flex-row items-center gap-2 text-purple ${
-                    ScreenWidth < 1200 ? "mt-4" : "mt-6"
-                  }bg-[#402FFF10] py-2 px-4 rounded-full`}
+                  className={`flex flex-row items-center gap-2 text-purple ${ScreenWidth < 1200 ? "mt-4" : "mt-6"
+                    }bg-[#402FFF10] py-2 px-4 rounded-full`}
                   style={styles.gitTextStyle}
                 >
                   <Image
@@ -1433,7 +1432,7 @@ function Billing() {
                     outline: "none",
                   }}
                   onClick={handleCancelPlan}
-                  // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
+                // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
                 >
                   Yes. Cancel
                 </button>
@@ -1524,7 +1523,10 @@ function Billing() {
               <div className="w-full flex flex-row items-center justify-center">
                 <div className="mt-9 w-10/12">
                   {cancelPlanReasons.map((item, index) => (
-                    <div
+                    <button
+                      onClick={() => {
+                        handleSelectReason(item);
+                      }}
                       key={index}
                       style={{
                         fontWeight: "500",
@@ -1534,10 +1536,8 @@ function Billing() {
                       }}
                       className="flex flex-row items-center gap-2"
                     >
-                      <button
-                        onClick={() => {
-                          handleSelectReason(item);
-                        }}
+                      <div
+                        
                         className="rounded-full flex flex-row items-center justify-center"
                         style={{
                           border:
@@ -1559,9 +1559,9 @@ function Billing() {
                             width: "12px",
                           }}
                         />
-                      </button>
+                      </div>
                       <div>{item.reason}</div>
-                    </div>
+                    </button>
                   ))}
                   {showOtherReasonInput && (
                     <div className="w-full mt-4">
@@ -1606,19 +1606,23 @@ function Billing() {
                     </div>
                   ) : (
                     <button
-                      className="w-full flex flex-row items-center h-[50px] rounded-lg bg-purple text-white justify-center mt-10"
+                      className="w-full flex flex-row items-center h-[50px] rounded-lg text-white justify-center mt-10"
                       style={{
                         fontWeight: "600",
                         fontSize: 16.8,
                         outline: "none",
-                        // backgroundColor: !otherReasonInput || !selectReason && "#00000060",
-                        // color: !otherReasonInput || !selectReason && "red",
+                        backgroundColor: (selectReason && (selectReason !== "Others" || otherReasonInput))
+                        ? "#7902df"
+                        : "#00000050",
+                        color: selectReason && (selectReason !== "Others" || otherReasonInput)
+                        ? "#ffffff"
+                        : "#000000",
                       }}
                       onClick={() => {
                         handleDelReason();
                       }}
-                      // disabled={!selectReason || !otherReasonInput || }
-                    >
+                      disabled={! selectReason && (selectReason !== "Others" || otherReasonInput)}
+                      >
                       Continue
                     </button>
                   )}

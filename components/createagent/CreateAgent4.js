@@ -354,7 +354,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
   //get main agent id
   const AssignNumber = async () => {
-    console.log("Calling assign number");
+    // console.log("Calling assign number");
     // const isInboundOnly = isInboundOnly()
     try {
       setAssignLoader(true);
@@ -388,7 +388,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       const ApiPath = Apis.asignPhoneNumber;
 
       for (let [key, value] of formData.entries()) {
-        console.log(`${key} ${value}`);
+        // console.log(`${key} ${value}`);
       }
 
       // return;
@@ -552,7 +552,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       // onChange={handleSelectNumber}
                       onChange={(e) => {
                         let value = e.target.value;
-                        console.log("Changing phone here", e.target.value);
+                        // console.log("Changing phone here", e.target.value);
                         setSelectNumber(value);
                         setOpenCalimNumDropDown(false);
                       }}

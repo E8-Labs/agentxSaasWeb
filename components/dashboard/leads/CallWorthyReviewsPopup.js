@@ -333,7 +333,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                       <div className="flex flex-row items-center gap-4">
                                         <EnvelopeSimple
                                           size={20}
-                                          color="#00000060"
+                                          color="#000000"
                                         />
                                         <div style={styles.subHeading}>
                                           Email Address
@@ -468,9 +468,10 @@ function CallWorthyReviewsPopup({ open, close }) {
                                       <div className="flex flex-row items-center gap-2">
                                         {/* <Image src={"/otherAssets/calenderIcon.png"} height={16} width={16} alt='man' /> */}
                                         <Image
+
                                           src="/assets/pipelineIcon.svg"
-                                          height={20}
-                                          width={20}
+                                          height={16}
+                                          width={16}
                                           alt="*"
                                           style={{
                                             filter:
@@ -498,6 +499,9 @@ function CallWorthyReviewsPopup({ open, close }) {
                                           height={16}
                                           width={16}
                                           alt="man"
+                                          style={{
+                                            filter: "brightness(0) saturate(100%)", // Forces black look
+                                          }}
                                         />
                                         <div style={styles.subHeading}>
                                           Stage
@@ -625,8 +629,8 @@ function CallWorthyReviewsPopup({ open, close }) {
                                       >
                                         <Image
                                           src={"/assets/manIcon.png"}
-                                          height={30}
-                                          width={30}
+                                          height={16}
+                                          width={16}
                                           alt="man"
                                         />
                                       </div>
@@ -1033,6 +1037,6 @@ const styles = {
   subHeading: {
     fontsize: 12,
     fontWeight: "500",
-    color: "#15151560",
+    color: "#151515",
   },
 };

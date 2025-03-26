@@ -100,10 +100,10 @@ const AddCalender = ({ handleContinue }) => {
           let agent = JSON.parse(ag)
 
           console.log('agent from local is', agent)
-          let apiPath = Apis.getAgentDetails+"?mainAgentId="+agent?.id
+          let apiPath = Apis.getAgentDetails + "?mainAgentId=" + agent?.id
 
           console.log('apiPath', apiPath)
-          
+
           const response = await axios.get(apiPath, {
             headers: {
               "Authorization": "Bearer " + u.token
@@ -128,10 +128,16 @@ const AddCalender = ({ handleContinue }) => {
   }
 
   //code for the dropdown selection
-
   const handleChange = (event) => {
-    setSelectCalender(event.target.value);
+    const selectedTitle = event.target.value;
+    setSelectCalender(selectedTitle);
+  
+    const selected = previousCalenders.find(cal => cal.title === selectedTitle);
+    setCalendarSelected(selected || null);
   };
+  
+
+
 
   const getCalenders = async () => {
     try {
@@ -417,7 +423,7 @@ const AddCalender = ({ handleContinue }) => {
                               },
                             }}
                           >
-                            <button
+                            {/* <button
                               className="w-full text-start"
                               onClick={() => {
                                 // console.log("Selected calender is:", item);
@@ -427,9 +433,9 @@ const AddCalender = ({ handleContinue }) => {
                                 // setEventId(item.eventId);
                                 // setSelectTimeZone(item.timeZone);
                               }}
-                            >
-                              {item.title}
-                            </button>
+                            > */}
+                            {item.title}
+                            {/* </button> */}
                           </MenuItem>
                         );
                       })}
@@ -437,12 +443,9 @@ const AddCalender = ({ handleContinue }) => {
                         <button
                           className="text-purple underline w-full text-start"
                           onClick={() => {
-                            // console.log("Show show the modal");
+                            e.stopPropagation(); // prevent triggering Select's onChange
+                            setSelectCalender(""); // clear selection
                             setCalendarSelected(null);
-                            // setCalenderTitle("");
-                            // setCalenderApiKey("");
-                            // setEventId("");
-                            // setSelectTimeZone("");
                             setShowAddNewCalender(true);
                           }}
                         >
