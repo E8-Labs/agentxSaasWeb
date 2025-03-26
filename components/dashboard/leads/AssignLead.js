@@ -940,7 +940,7 @@ const AssignLead = ({
                   <button
                     className="w-full flex flex-col items-start justify-between p-4 rounded-2xl"
                     style={{
-                      border: CallLater && selectedDateTime && hasUserSelectedDate
+                      border: CallLater
                         ? "2px solid #7902DF"
                         : "1px solid #00000040",
                       height: "119px",
