@@ -143,6 +143,7 @@ const Apis = {
   deleteProfile: `${BasePath}api/user/deleteProfile`,
   deleteCalendar: `${BasePath}api/calendar/deleteCalendar`,
   getVerificationCodes: `${BasePath}api/admin/getVerificationCodes`,
+  getAgentDetails: `${BasePath}api/agent/getAgentDetails`,
 
 };
 

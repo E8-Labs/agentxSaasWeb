@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Modal,
   Box,
@@ -40,6 +40,12 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
   //General App Logic Functions
 
   //code to select document
+
+  useEffect(()=>{
+    console.log('docTitle', docTitle)
+    console.log('selectedFileName', selectedFileName)
+    console.log('selectedDocument', selectedDocument)
+  },[selectedDocument,selectedDocument,docTitle])
 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
@@ -142,7 +148,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
     const kbs = [];
   
     // Text KB
-    if (text.trim() && title.trim() && selectedType === "Text") {
+    if (text.trim() && title.trim()) {
       kbs.push({
         agentId: agent.id,
         mainAgentId: agent.mainAgentId,
@@ -335,8 +341,6 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
               console.log("URL is valid:", isValid);
               setIsUrlValid(isValid ? 1 : 0);
             }
-
-            setTitle(""); // Ensure this is correctly handled in your state
           }}
           placeholder="Enter URL"
           className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
@@ -371,7 +375,6 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
               setIsUrlValid(isValid ? 1 : 0);
             }
 
-            setTitle(""); // Ensure this is correctly handled in your state
           }}
           placeholder="Enter URL"
           className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
@@ -532,6 +535,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
                 }
                 // setSelectedType("Text");
                 setText("");
+                setDocTitle("")
                 onClose();
               }}
             >

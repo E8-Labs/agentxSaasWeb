@@ -17,7 +17,7 @@ import Image from "next/image";
 import timeZones from "@/utilities/Timezones";
 import VideoCard from "../createagent/VideoCard";
 import IntroVideoModal from "../createagent/IntroVideoModal";
-import { HowtoVideos } from "@/constants/Constants";
+import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../dashboard/leads/AgentSelectSnackMessage";
@@ -52,6 +52,7 @@ const AddCalender = ({ handleContinue }) => {
   const [selectTimeZone, setSelectTimeZone] = useState("");
 
   useEffect(() => {
+    getAgentDetails()
     let screenwidth = window.innerWidth;
     if (screenwidth < 640) {
       setVideoPlace(false);
@@ -80,6 +81,49 @@ const AddCalender = ({ handleContinue }) => {
     } else {
       // console.log("false calenarSelected");
       return false;
+    }
+  }
+
+
+  const getAgentDetails = async () => {
+    console.log('trying to get agent details ')
+    try {
+      const data = localStorage.getItem("User")
+
+      if (data) {
+        let u = JSON.parse(data)
+        // console.log('u.token', u.token)
+
+        let ag = localStorage.getItem(PersistanceKeys.LocalSavedAgentDetails)
+
+        if (ag) {
+          let agent = JSON.parse(ag)
+
+          console.log('agent from local is', agent)
+          let apiPath = Apis.getAgentDetails+"?mainAgentId="+agent?.id
+
+          console.log('apiPath', apiPath)
+          
+          const response = await axios.get(apiPath, {
+            headers: {
+              "Authorization": "Bearer " + u.token
+            }
+          })
+          console.log('get agent details api response is', response)
+
+          if (response.data) {
+            console.log('get agent details api response is', response.data)
+            if (response.data.status === true) {
+              localStorage.setItem(
+                PersistanceKeys.LocalSavedAgentDetails,
+                JSON.stringify(response.data.data)
+              );
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.log('error in get agent details api is', e)
     }
   }
 
@@ -291,7 +335,7 @@ const AddCalender = ({ handleContinue }) => {
             <div>
               <div
                 style={{ fontWeight: "700", fontSize: 38, textAlign: "center" }}
-                // onClick={() => { handleAddCalender() }}
+              // onClick={() => { handleAddCalender() }}
               >
                 Add a Calendar
               </div>
@@ -415,7 +459,7 @@ const AddCalender = ({ handleContinue }) => {
                     height={100}
                     width={113}
                     alt="No Calender"
-                    style={{borderWidth:0,alignSelf:'center',marginRight:"2vw"}}
+                    style={{ borderWidth: 0, alignSelf: 'center', marginRight: "2vw" }}
                   />
 
                   <div
@@ -457,9 +501,9 @@ const AddCalender = ({ handleContinue }) => {
 
         <Modal
           open={showAddNewCalender}
-          // onClose={() => {
-          // setShowAddNewCalender(false);
-          // }}
+        // onClose={() => {
+        // setShowAddNewCalender(false);
+        // }}
         >
           <Box
             className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
