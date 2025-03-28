@@ -361,34 +361,34 @@ function Page() {
 
   useEffect(() => {
     let d = localStorage.getItem("TestAiCredentials");
-    console.log("d", d);
+    //console.log;
     if (d) {
       let cr = JSON.parse(d);
-      console.log("d", cr);
+      //console.log;
       setName(cr?.name);
       setPhone(cr?.phone);
     }
   }, [openTestAiModal]);
 
-  ////// console.log("showDrawerSelectedAgent", showDrawerSelectedAgent);
+  ////// //console.log;
 
   //code for scroll ofset
   useEffect(() => {
     getUniquesColumn();
     getAvailabePhoneNumbers();
     let loc = getLocalLocation();
-    ////// console.log("Location getting is", loc);
+    ////// //console.log;
     setCountryCode(loc);
-    //////console.log("Setting scroll offset")
+    ////////console.log
     const handleScroll = () => {
-      //console.log("Div scrolled", containerRef.current.scrollTop)
+      ////console.log
       if (containerRef.current) {
         setScrollOffset({
           scrollTop: containerRef.current.scrollTop,
           scrollLeft: containerRef.current.scrollLeft,
         });
       } else {
-        //////console.log("No ref div")
+        ////////console.log
       }
     };
 
@@ -406,25 +406,32 @@ function Page() {
 
   //check if need to show the save btn or not
   useEffect(() => {
-    ////// console.log("New tag  length", scriptTagInput?.length);
-    ////// console.log("Old tag length", OldScriptTagInput?.length);
-    //console.log("olde tag 3 length", scriptTagInput?.length)
+    ////// //console.log;
+    ////// //console.log;
+    ////console.log
     if (
-      oldObjective !== objective ||
       oldGreetingTagInput !== greetingTagInput ||
       OldScriptTagInput !== scriptTagInput
     ) {
-      //console.log(greetingTagInput);
-      //console.log(oldGreetingTagInput)
-      //console.log("not same")
+      //console.log;
+      //console.log
+
+      ////console.log
       setShowSaveChangesBtn(true);
-      setShowObjectionsSaveBtn(true);
     } else {
-      //console.log("hde save")
+      ////console.log
       setShowSaveChangesBtn(false);
-      setShowObjectionsSaveBtn(false);
     }
-  }, [greetingTagInput, scriptTagInput, objective]); //scriptTagInput
+  }, [greetingTagInput, scriptTagInput]); //scriptTagInput
+
+
+  useEffect(() => {
+    if (objective !== oldObjective) {
+      setShowObjectionsSaveBtn(true)
+    } else {
+      setShowObjectionsSaveBtn(false)
+    }
+  }, [objective])
 
   //function for numbers width
 
@@ -463,27 +470,27 @@ function Page() {
       setSelectedImage(imageUrl);
     }
 
-    console.log("Handling image change");
+    //console.log;
     if (file) {
-      console.log("File is there");
+      //console.log;
       try {
         // Compression options
-        console.log("Setting options");
+        //console.log;
         const options = {
           maxSizeMB: 1, // Maximum size in MB
           maxWidthOrHeight: 1920, // Max width/height
           useWebWorker: true, // Use web workers for better performance
         };
-        console.log("Set options");
+        //console.log;
         // Compress the image
         const compressedFile = file; //await imageCompression(file, options);
-        console.log("Compressed");
-        console.log("Comptessed is ");
+        //console.log;
+        //console.log;
         // Set the compressed image
         setSelectedImage2(compressedFile);
         updateAgentProfile(compressedFile);
       } catch (error) {
-        console.log("Error while compressing the image:", error);
+        //console.log;
       }
     }
 
@@ -495,7 +502,7 @@ function Page() {
     setDragging(false);
     const file = event.dataTransfer.files[0];
 
-    ////// console.log("Selected` file is", file);
+    ////// //console.log;
 
     if (file && file.type.startsWith("image/")) {
       const imageUrl = URL.createObjectURL(file);
@@ -513,7 +520,7 @@ function Page() {
 
         // Compress the image
         const compressedFile = await imageCompression(file, options);
-        ////// console.log("Comptessed is ", compressedFile);
+        ////// //console.log;
         // Set the compressed image
         setSelectedImage2(compressedFile);
         updateAgentProfile(compressedFile);
@@ -541,7 +548,7 @@ function Page() {
   //function to update agent profile image
   const updateAgentProfile = async (image) => {
     try {
-      console.log("Handling Upload");
+      //console.log;
       setGlobalLoader(true);
 
       const LocalData = localStorage.getItem("User");
@@ -550,7 +557,7 @@ function Page() {
 
       if (LocalData) {
         const userData = JSON.parse(LocalData);
-        //// console.log("Local data recieved is", userData);
+        //// //console.log;
         AuthToken = userData.token;
       }
 
@@ -562,10 +569,10 @@ function Page() {
       formData.append("agentId", showDrawerSelectedAgent.id);
 
       for (let [key, value] of formData.entries()) {
-        //// console.log(`${key} :- ${value}`);
+        //// //console.log;
       }
 
-      //// console.log("Apipath is", ApiPath);
+      //// //console.log;
 
       // return
       const response = await axios.post(ApiPath, formData, {
@@ -575,7 +582,7 @@ function Page() {
       });
 
       if (response) {
-        console.log("Response of update profile api is", response);
+        //console.log;
 
         if (response.data.status === true) {
           const localAgentsList = localStorage.getItem(
@@ -588,7 +595,7 @@ function Page() {
 
             const updateAgentData = response.data.data;
 
-            //// console.log("Agents list is", agentsList);
+            //// //console.log;
 
             // const updatedArray = agentsList.map((localItem) => {
             //   const apiItem =
@@ -608,7 +615,7 @@ function Page() {
                     : subAgent; // Leave the others unchanged
                 });
 
-                //// console.log("Updated sub agents", updatedSubAgents);
+                //// //console.log;
 
                 // Return the updated agent with the updated subAgents
                 return { ...localItem, agents: updatedSubAgents };
@@ -618,7 +625,7 @@ function Page() {
               return localItem;
             });
 
-            //// console.log("Updated agents list array is", updatedArray);
+            //// //console.log;
             localStorage.setItem(
               PersistanceKeys.LocalStoredAgentsListMain,
               JSON.stringify(updatedArray)
@@ -627,7 +634,7 @@ function Page() {
             // agentsListDetails = updatedArray
           }
         } else if (response.data.status === false) {
-          //// console.log("Status is false");
+          //// //console.log;
         }
       }
     } catch (error) {
@@ -640,7 +647,7 @@ function Page() {
 
   //function to open drawer
   const handleShowDrawer = (item) => {
-    console.log("item", item);
+    //console.log;
     // return
     setAssignNumber(item?.phoneNumber);
     setSelectedVoice(item?.voiceId);
@@ -648,7 +655,7 @@ function Page() {
     setCallRecordingPermition(item.consentRecording);
     setVoiceExpressiveness(item.voiceStability);
     setStartingPace(item.initialPauseSeconds);
-    console.log("Patience Level is ", item.patienceLevel);
+    //console.log;
     setPatienceValue(item.patienceLevel);
 
     let modelValue = item.agentLLmModel;
@@ -665,14 +672,14 @@ function Page() {
     const comparedAgent = mainAgentsList.find((mainAgent) =>
       mainAgent.agents.some((subAgent) => subAgent.id === item.id)
     );
-    //console.log("Agent selected details are", comparedAgent);
+    ////console.log;
 
     setCalendarDetails(comparedAgent);
 
-    //console.log("")
+    ////console.log
     setShowDrawerSelectedAgent(item);
     setSelectedImage(item?.thumb_profile_image);
-    //// console.log("Selected agent is:", item);
+    //// //console.log;
     if (item.agentType === "inbound") {
       setShowReassignBtn(true);
       setShowGlobalBtn(false);
@@ -724,7 +731,7 @@ function Page() {
   //     const phoneNumber = parsePhoneNumberFromString(
   //       rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
   //     );
-  //     // //console.log("Raw number is", rawNumber);
+  //     // ////console.log;
   //     return phoneNumber
   //       ? phoneNumber.formatInternational()
   //       : "No phone number";
@@ -751,7 +758,7 @@ function Page() {
         AuthToken = UserDetails.token;
       }
 
-      //console.log("Apipath is :--", ApiPath);
+      ////console.log;
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -761,7 +768,7 @@ function Page() {
       });
 
       if (response) {
-        //console.log("Response of find number api is :--", response.data);
+        ////console.log;
         if (response.data.status === true) {
           setFoundeNumbers(response.data.data);
         }
@@ -776,7 +783,7 @@ function Page() {
   //code for reassigning the number api
   const handleReassignNumber = async (item) => {
     try {
-      //// console.log("Phonenumber is:", item);
+      //// //console.log;
       // return;
       setReassignLoader(item);
       let AuthToken = null;
@@ -789,9 +796,9 @@ function Page() {
       }
 
       if (agentDetails) {
-        //console.log("trying")
+        ////console.log
         const agentData = JSON.parse(agentDetails);
-        //console.log("Agent details are :--", agentData);
+        ////console.log;
         MyAgentData = agentData;
       }
 
@@ -802,11 +809,11 @@ function Page() {
         phoneNumber: item.phoneNumber,
         newAgentId: showDrawerSelectedAgent.id,
       };
-      //console.log("I a just trigered")
+      ////console.log
 
-      //// console.log("Data sending in api is:", ApiData);
-      //console.log("Api path is:", ApiPath);
-      //console.log("Authtoken is:", AuthToken);
+      //// //console.log;
+      ////console.log;
+      ////console.log;
 
       // return
       const response = await axios.post(ApiPath, ApiData, {
@@ -818,12 +825,11 @@ function Page() {
 
       if (response) {
         getAvailabePhoneNumbers();
-        //// console.log("Respose of reassign api is:", response.data.data);
+        //// //console.log;
         if (response.data.status === true) {
           setAssignNumber(item.phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -853,12 +859,12 @@ function Page() {
               if (ag.phoneNumber == item.phoneNumber) {
                 if (ag.agentType == "inbound") {
                   ag.phoneNumber = "";
-                  //// console.log("Removing phone number from ", ag.name);
+                  //// //console.log;
                 }
               } else {
                 if (ag.id == showDrawerSelectedAgent.id) {
                   ag.phoneNumber = item.phoneNumber;
-                  //// console.log("Assigning phone number to ", ag.name);
+                  //// //console.log;
                 }
               }
               newAgents.push(ag);
@@ -882,7 +888,7 @@ function Page() {
         return;
 
         // Update the agent's phone number and ensure no other agents have the same phone number
-        //// console.log("Agents Content is ", agentsListSeparated);
+        //// //console.log;
         let agents = [];
         let mainAgents = []; //Main agents not subagents list
 
@@ -890,30 +896,30 @@ function Page() {
           if (ag.phoneNumber == item.phoneNumber) {
             if (ag.agentType == "inbound") {
               ag.phoneNumber = "";
-              //// console.log("Removing phone number from ", ag.name);
+              //// //console.log;
             }
           } else {
             if (ag.id == showDrawerSelectedAgent.id) {
               ag.phoneNumber = item.phoneNumber;
-              //// console.log("Assigning phone number to ", ag.name);
+              //// //console.log;
             }
           }
           agents.push(ag);
         }
-        //// console.log("Total agents after updating ", agents.length);
+        //// //console.log;
         setAgentsListSeparated(agents);
         localStorage.setItem(
           PersistanceKeys.LocalStoredAgentsListMain,
           JSON.stringify(agents)
         );
 
-        //// console.log("Updated agent list is after changing phone", agents);
+        //// //console.log;
       }
     } catch (error) {
       //// console.error("Error occured in reassign the number api:", error);
     } finally {
       setReassignLoader(null);
-      //console.log("reassign api completed")
+      ////console.log
     }
   };
 
@@ -930,18 +936,18 @@ function Page() {
         AuthToken = UserDetails.token;
       }
 
-      //console.log("Authtoken is:", AuthToken);
+      ////console.log;
 
       if (agentDetails) {
-        //console.log("trying")
+        ////console.log
         const agentData = JSON.parse(agentDetails);
-        //console.log("Agent details are :--", agentData);
+        ////console.log;
         MyAgentData = agentData;
       }
 
       const ApiPath = Apis.purchaseNumber;
-      //console.log("Apipath is :--", ApiPath);
-      // //console.log("Number selected is:", selectedPurchasedNumber);
+      ////console.log;
+      // ////console.log;
       const formData = new FormData();
       formData.append("phoneNumber", selectedPurchasedNumber.phoneNumber);
       // formData.append("phoneNumber", "+14062040550");
@@ -949,7 +955,7 @@ function Page() {
       formData.append("mainAgentId", MyAgentData.id);
 
       for (let [key, value] of formData.entries()) {
-        //console.log(`${key} ${value} `);
+        ////console.log;
       }
 
       // localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
@@ -970,7 +976,7 @@ function Page() {
       });
 
       if (response) {
-        //console.log("Response of purchase number api is :--", response.data);
+        ////console.log;
         if (response.data.status === true) {
           localStorage.setItem(
             "purchasedNumberDetails",
@@ -993,7 +999,7 @@ function Page() {
 
   //function to select the number to purchase
   const handlePurchaseNumberClick = (item, index) => {
-    //console.log("Item Selected is :---", item);
+    ////console.log;
     setSelectedPurchasedNumber((prevId) => (prevId === item ? null : item));
     setSelectedPurchasedIndex((prevId) => (prevId === index ? null : index));
   };
@@ -1009,9 +1015,9 @@ function Page() {
         const UserDetails = JSON.parse(LocalData);
         AuthToken = UserDetails.token;
       }
-      //console.log("initial api authtoken is:", AuthToken);
+      ////console.log;
       const ApiPath = Apis.userAvailablePhoneNumber;
-      //console.log("Apipath", ApiPath);
+      ////console.log;
 
       // return
       const response = await axios.get(ApiPath, {
@@ -1021,14 +1027,14 @@ function Page() {
       });
 
       if (response) {
-        // console.log("Response of numbers api is :", response.data);
-        ////// console.log("PArsed data is ", response.data.data);
+        // //console.log;
+        ////// //console.log;
         setPreviousNumber(response.data.data);
       }
     } catch (error) {
       //// console.error("Error occured in: ", error);
     } finally {
-      //console.log("Api cal completed")
+      ////console.log
     }
   };
 
@@ -1045,13 +1051,13 @@ function Page() {
 
         const ApiPath = Apis.updateSubAgent;
 
-        console.log("selectedRenameAgent", selectedRenameAgent);
+        //console.log;
 
         let apidata = {
           agentId: selectedRenameAgent.id,
           name: renameAgent, //selectedRenameAgent?.name,
         };
-        console.log("apidata", apidata);
+        //console.log;
 
         const response = await axios.post(ApiPath, apidata, {
           headers: {
@@ -1061,8 +1067,8 @@ function Page() {
 
         if (response) {
           setShowRenameAgentPopup(false);
-          console.log("Response of update api is :--", response.data);
-          // console.log("Respons eof update api is", response.data.data);
+          //console.log;
+          // //console.log;
           setShowSuccessSnack(
             `${fromatMessageName(selectedRenameAgent.name)} updated`
           );
@@ -1087,7 +1093,7 @@ function Page() {
               });
               // let updatedSubAgent = null
 
-              //// console.log("Updated agents list array is", updatedArray);
+              //// //console.log;
               localStorage.setItem(
                 PersistanceKeys.LocalStoredAgentsListMain,
                 JSON.stringify(updatedArray)
@@ -1103,13 +1109,13 @@ function Page() {
       //// console.error("Error occured in api is", error);
       setRenameAgentLoader(false);
     } finally {
-      //console.log("Api call completed");
+      ////console.log;
       setRenameAgentLoader(false);
     }
   };
 
   const updateAgent = async (voiceId) => {
-    console.log("voiceData", voiceId);
+    //console.log;
     // return
     try {
       // return
@@ -1120,7 +1126,7 @@ function Page() {
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-        //////console.log("Localdat recieved is :--", Data);
+        ////////console.log;
         AuthToken = Data.token;
       }
 
@@ -1128,11 +1134,11 @@ function Page() {
 
       const formData = new FormData();
 
-      console.log("Agent to update is:", showDrawerSelectedAgent);
+      //console.log;
       // return;
       if (showDrawerSelectedAgent) {
         if (showDrawerSelectedAgent.agentType === "inbound") {
-          //console.log("Is inbound true");
+          ////console.log;
           formData.append("inboundGreeting", greetingTagInput);
           formData.append("inboundPrompt", scriptTagInput);
           formData.append("inboundObjective", objective);
@@ -1144,7 +1150,7 @@ function Page() {
         formData.append("mainAgentId", showDrawerSelectedAgent.mainAgentId);
       } else if (showScriptModal) {
         if (showScriptModal.agentType === "inbound") {
-          //console.log("Is inbound true");
+          ////console.log;
           formData.append("inboundGreeting", greetingTagInput);
           formData.append("inboundPrompt", scriptTagInput);
           formData.append("inboundObjective", objective);
@@ -1161,7 +1167,7 @@ function Page() {
       }
 
       for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
+        //console.log;
       }
 
       // return
@@ -1172,8 +1178,8 @@ function Page() {
       });
 
       if (response) {
-        //console.log("Response of update api is :--", response.data);
-        console.log("Respons eof update api is", response.data);
+        ////console.log;
+        //console.log;
         setShowSuccessSnack(
           `${fromatMessageName(
             showDrawerSelectedAgent
@@ -1215,7 +1221,7 @@ function Page() {
               }
             }
 
-            //// console.log("Updated agents list array is", updatedArray);
+            //// //console.log;
             localStorage.setItem(
               PersistanceKeys.LocalStoredAgentsListMain,
               JSON.stringify(updatedArray)
@@ -1231,14 +1237,14 @@ function Page() {
       console.error("Error occured in api is", error);
       setGlobalLoader(false);
     } finally {
-      console.log("Api call completed");
+      //console.log;
       setUpdateAgentLoader(false);
       setGlobalLoader(false);
     }
   };
 
   const updateSubAgent = async (voiceData = null, model = null) => {
-    console.log("modal", model);
+    //console.log;
 
     // return
     try {
@@ -1287,7 +1293,7 @@ function Page() {
         }
 
         for (let [key, value] of formData.entries()) {
-          console.log(`${key}: ${value}`);
+          //console.log;
         }
 
         const response = await axios.post(ApiPath, formData, {
@@ -1302,7 +1308,7 @@ function Page() {
             "Response of update sub agent api is :--",
             response.data.data
           );
-          // console.log("Respons eof update api is", response.data.data);
+          // //console.log;
           setShowSuccessSnack(
             `${fromatMessageName(
               showDrawerSelectedAgent ? showDrawerSelectedAgent.name : "Agent"
@@ -1331,7 +1337,7 @@ function Page() {
               });
               // let updatedSubAgent = null
 
-              //// console.log("Updated agents list array is", updatedArray);
+              //// //console.log;
               localStorage.setItem(
                 PersistanceKeys.LocalStoredAgentsListMain,
                 JSON.stringify(updatedArray)
@@ -1347,7 +1353,7 @@ function Page() {
       console.error("Error occured in update sub agent api is", error);
       setRenameAgentLoader(false);
     } finally {
-      //console.log("Api call completed");
+      ////console.log;
       setRenameAgentLoader(false);
     }
   };
@@ -1364,7 +1370,7 @@ function Page() {
       return;
     }
     try {
-      //// console.log("Updated number is", phoneNumber);
+      //// //console.log;
 
       // setGlobalLoader(true);
       // setAssignLoader(true);
@@ -1393,7 +1399,7 @@ function Page() {
       const ApiPath = Apis.asignPhoneNumber;
 
       for (let [key, value] of formData.entries()) {
-        //// console.log(`${key} ${value}`);
+        //// //console.log;
       }
 
       const response = await axios.post(ApiPath, formData, {
@@ -1406,12 +1412,11 @@ function Page() {
       getAvailabePhoneNumbers();
       setShowPhoneLoader(false);
       if (response) {
-        console.log("Response of update number api is", response.data.data);
+        //console.log;
         if (response.data.status === true) {
           setAssignNumber(phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -1429,7 +1434,7 @@ function Page() {
             const agentsList = JSON.parse(localAgentsList);
             const updateAgentData = showDrawerSelectedAgent;
 
-            //// console.log("Agents list is", agentsList);
+            //// //console.log;
             const updatedArray = agentsList.map((localItem) => {
               if (updateAgentData.mainAgentId === localItem.id) {
                 const updatedSubAgents = localItem.agents.map((subAgent) => {
@@ -1438,7 +1443,7 @@ function Page() {
                     : subAgent;
                 });
 
-                //// console.log("Updated sub agents", updatedSubAgents);
+                //// //console.log;
 
                 return { ...localItem, agents: updatedSubAgents };
               }
@@ -1467,7 +1472,7 @@ function Page() {
       setIsVisibleSnack2(true);
       setGlobalLoader(false);
     } finally {
-      //console.log("Assign Number Api call completed");
+      ////console.log;
       setGlobalLoader(false);
     }
   };
@@ -1523,27 +1528,27 @@ function Page() {
 
   //function ot compare the selected agent wiith the main agents list
   const matchingAgent = (agent) => {
-    //// console.log();
+    //// //console.log;
     const agentData = mainAgentsList.filter((prevAgent) => {
-      //// console.log(`Matching ${prevAgent.id} = ${agent.mainAgentId}`);
+      //// //console.log;
       if (prevAgent.id === agent.mainAgentId) {
         return true;
       } else {
         return false;
       }
     });
-    //// console.log("Agent Data in match ", agentData);
+    //// //console.log;
     if (typeof agentData == undefined || agentData == null) {
       return;
     }
-    //console.log("Agent matcing grretings are:", agentData);
+    ////console.log;
     setKYCList(agentData[0].kyc);
 
-    //console.log("Pipeline of selected agent", agentData[0].pipeline);
-    //// console.log("Received Agent ", agent);
+    ////console.log;
+    //// //console.log;
     setMainAgentId(agentData[0].id);
     let firstAgent = agentData[0];
-    //// console.log("First Agent ", firstAgent);
+    //// //console.log;
     setUserPipeline(firstAgent.pipeline);
     // if (
     //   firstAgent.agents?.length === 2
@@ -1582,10 +1587,10 @@ function Page() {
         AuthToken = UserDetails.token;
       }
 
-      //////console.log("Auth token is :--", AuthToken);
+      ////////console.log;
 
       const ApiPath = Apis.uniqueColumns;
-      //////console.log("Api path is ", ApiPath);
+      ////////console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -1595,7 +1600,7 @@ function Page() {
       });
 
       if (response) {
-        //console.log("Response of getColumns api is:", response.data);
+        ////console.log;
         if (response.data.status === true) {
           setUniqueColumns(response.data.data);
         }
@@ -1628,20 +1633,20 @@ function Page() {
       const userData = localStorage.getItem("User");
       if (userData) {
         const localData = JSON.parse(userData);
-        //console.log("Authtoken is:", localData.token);
+        ////console.log;
         AuthToken = localData.token;
       }
 
       const ApiData = {
         agentId: showDrawerSelectedAgent.id,
       };
-      //// console.log("Data sending in del agent api is:", ApiData);
+      //// //console.log;
 
-      //// console.log("Current agent selected is", showDrawerSelectedAgent);
+      //// //console.log;
 
       // return
       const ApiPath = Apis.DelAgent;
-      //console.log("Apipath is:", ApiPath);
+      ////console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -1651,7 +1656,7 @@ function Page() {
       });
 
       if (response) {
-        //// console.log("Response of del agent api is:", response);
+        //// //console.log;
         setAgentsListSeparated(
           agentsListSeparated.filter(
             (item) => item.id !== showDrawerSelectedAgent.id
@@ -1687,7 +1692,7 @@ function Page() {
             return agentGroup; // Return the item as is if 'agents' is not an array
           });
 
-          //// console.log("Updated agents list array is", updatedAgentsList);
+          //// //console.log;
           localStorage.setItem(
             PersistanceKeys.LocalStoredAgentsListMain,
             JSON.stringify(updatedAgentsList)
@@ -1711,15 +1716,15 @@ function Page() {
 
       if (userData) {
         const localData = JSON.parse(userData);
-        //console.log("Authtoken is:", localData.token);
+        ////console.log;
         AuthToken = localData.token;
       }
 
       const newArray = scriptKeys.map((key, index) => ({
         [key]: inputValues[index] || "", // Use the input value or empty string if not set
       }));
-      //console.log("New array created is:", newArray);
-      //console.log("New array created is:", JSON.stringify(newArray));
+      ////console.log;
+      ////console.log);
 
       const ApiData = {
         agentId: selectedAgent.id,
@@ -1732,8 +1737,8 @@ function Page() {
 
       const ApiPath = Apis.testAI;
 
-      //console.log("Data sending in api is:", JSON.stringify(ApiData));
-      //console.log("Api path is:", JSON.stringify(ApiPath));
+      ////console.log);
+      ////console.log);
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -1743,7 +1748,7 @@ function Page() {
       });
 
       if (response) {
-        //console.log("Response of test AI api is :", response);
+        ////console.log;
         setShowSuccessSnack(response.data.message);
         setIsVisibleSnack(true);
         if (response.data.status === true) {
@@ -1755,7 +1760,7 @@ function Page() {
     } catch (error) {
       //// console.error("Error occured in test api is", error);
     } finally {
-      //console.log("Test ai call api done");
+      ////console.log;
       setTestAIloader(false);
     }
   };
@@ -1789,7 +1794,7 @@ function Page() {
       }
 
       // setCheckPhoneResponse(null);
-      //console.log("Trigered")
+      ////console.log
     }
   };
 
@@ -1801,10 +1806,10 @@ function Page() {
 
     if (agentLocalDetails) {
       const agentData = JSON.parse(agentLocalDetails);
-      //// console.log("Data on LocalStorage", agentData);
+      //// //console.log;
       setMainAgentsList(agentData);
     } else {
-      //// console.log("No data of agents");
+      //// //console.log;
     }
 
     const userData = localStorage.getItem("User");
@@ -1853,10 +1858,10 @@ function Page() {
       }
       const ApiPath = `${Apis.getAgents}`; //?agentType=outbound
 
-      //console.log("Api path is: ", ApiPath);
+      ////console.log;
 
       const AuthToken = userData.token;
-      //console.log("Auth token is", AuthToken);
+      ////console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -1866,7 +1871,7 @@ function Page() {
       });
 
       if (response) {
-        console.log("Response of get agents api is:", response.data);
+        //console.log;
         localStorage.setItem(
           PersistanceKeys.LocalStoredAgentsListMain,
           JSON.stringify(response.data.data)
@@ -1891,7 +1896,7 @@ function Page() {
   };
 
   const handlePopoverOpen = (event, item) => {
-    ////// console.log("Hovered index is", item);
+    ////// //console.log;
     setActionInfoEl(event.currentTarget);
     setHoveredIndexStatus(item.status);
     setHoveredIndexAddress(item.address);
@@ -1908,7 +1913,7 @@ function Page() {
   useEffect(() => {
     let agents = [];
 
-    //// console.log("Again setting data in array");
+    //// //console.log;
 
     const localAgentsData = localStorage.getItem(
       PersistanceKeys.LocalStoredAgentsListMain
@@ -1924,7 +1929,7 @@ function Page() {
       if (item.agents && item.agents?.length > 0) {
         for (let i = 0; i < item.agents?.length; i++) {
           const agent = item.agents[i];
-          //console.log("Agent spilting data is:", agent);
+          ////console.log;
           // Add a condition here if needed  //.agentType === 'outbound'
           if (agent) {
             agents.push(agent);
@@ -1936,14 +1941,14 @@ function Page() {
     });
     setAgentsListSeparated(agents);
 
-    //console.log("Agents data in updated array is", agentsContent);
+    //console.log;
   }, [mainAgentsList]);
 
   //code for voices droopdown
   const [SelectedVoice, setSelectedVoice] = useState("");
   const [VoicesList, setVoicesList] = useState([]);
 
-  //console.log("Voices list is", voicesList.slice(0, 10));
+  ////console.log);
 
   const handleChangeVoice = async (event) => {
     setShowVoiceLoader(true);
@@ -1971,11 +1976,11 @@ function Page() {
         AuthToken = UserDetails.token;
       }
 
-      //// console.log("Authtoken is:", AuthToken);
+      //// //console.log;
 
       const ApiPath = Apis.getCalenders;
 
-      //// console.log("Apipath is:", ApiPath);
+      //// //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -1985,13 +1990,13 @@ function Page() {
       });
 
       if (response) {
-        //// console.log("Response of get calender api is:", response);
+        //// //console.log;
         setPreviousCalenders(response.data.data);
       }
     } catch (error) {
       //// console.error("Error occured in the api is ", error);
     } finally {
-      //// console.log("Api cal for getting calenders done");
+      //// //console.log;
     }
   };
 
@@ -2003,11 +2008,11 @@ function Page() {
 
     if (agentLocalDetails) {
       const agentData = JSON.parse(agentLocalDetails);
-      console.log("Data on LocalStorage", agentData);
+      //console.log;
       getCalenders()
       setMainAgentsList(agentData);
     } else {
-      //// console.log("No data of agents");
+      //// //console.log;
     }
   };
 
@@ -2063,7 +2068,7 @@ function Page() {
     },
   };
 
-  // //console.log("Current agent selected is:", showDrawer)
+  // ////console.log
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -2238,7 +2243,7 @@ function Page() {
                       <div className="flex flex-row gap-3 items-center">
                         <button
                           onClick={() => {
-                            //console.log("Drawer details are:", item);
+                            ////console.log;
                             handleShowDrawer(item);
                           }}
                         >
@@ -2294,8 +2299,8 @@ function Page() {
                           >
                             {user.user.userType == UserTypes.RealEstateAgent
                               ? `${item.agentObjective
-                                  ?.slice(0, 1)
-                                  .toUpperCase()}${item.agentObjective?.slice(
+                                ?.slice(0, 1)
+                                .toUpperCase()}${item.agentObjective?.slice(
                                   1
                                 )}`
                               : `${item.agentRole}`}
@@ -2312,7 +2317,7 @@ function Page() {
                       >
                         <button
                           onClick={() => {
-                            //// console.log("Grreting sending ", item);
+                            //// //console.log;
                             setGreetingTagInput(item?.prompt?.greeting);
                             setOldGreetingTagInput(item?.prompt?.greeting);
                             setScriptTagInput(item?.prompt?.callScript);
@@ -2333,10 +2338,10 @@ function Page() {
 
                         <button
                           onClick={() => {
-                            //// console.log("Selected agen is", item);
+                            //// //console.log;
                             handleShowDrawer(item);
                             // matchingAgent(item);
-                            ////// console.log("Item details are", item);
+                            ////// //console.log;
                           }}
                         >
                           <div>More info</div>
@@ -2371,7 +2376,7 @@ function Page() {
                     <button
                       className="bg-purple px-4 py-2 rounded-lg"
                       onClick={() => {
-                        //console.log("Selected agent for test ai is:", item);
+                        ////console.log;
                         if (!item.phoneNumber) {
                           setShowWarningModal(item);
                         } else {
@@ -2380,7 +2385,7 @@ function Page() {
                         let callScript =
                           item.prompt.callScript + " " + item.prompt.greeting;
 
-                        // //console.log("Keys extracted are", callScript);
+                        // ////console.log;
 
                         //function for extracting the keys
                         const regex = /\{(.*?)\}/g;
@@ -2400,7 +2405,7 @@ function Page() {
                         let kyc = (mainAgent?.kyc || []).map(
                           (kyc) => kyc.question
                         );
-                        //console.log("Main agent selected ", mainAgent)
+                        ////console.log
                         while ((match = regex.exec(callScript)) !== null) {
                           // "Email", "Address",
                           let defaultVariables = [
@@ -2429,7 +2434,7 @@ function Page() {
                           // Add the variable name (without braces) to the array
                         }
                         setScriptKeys(keys);
-                        //console.log("Keys extracted are", keys);
+                        ////console.log;
                         setSelectedAgent(item);
                       }}
                     >
@@ -2454,11 +2459,9 @@ function Page() {
                     <Card
                       name="Calls"
                       value={
-                        item.calls && item.calls > 0 ? (
-                          <div>{item.calls}</div>
-                        ) : (
-                          "-"
-                        )
+
+                        <div>{item.calls}</div>
+
                       }
                       icon="/svgIcons/selectedCallIcon.svg"
                       bgColor="bg-blue-100"
@@ -2467,11 +2470,9 @@ function Page() {
                     <Card
                       name="Convos"
                       value={
-                        item.callsGt10 && item.callsGt10 > 0 ? (
-                          <div>{item.callsGt10}</div>
-                        ) : (
-                          "-"
-                        )
+
+                        <div>{item.callsGt10}</div>
+
                       }
                       icon="/svgIcons/convosIcon2.svg"
                       bgColor="bg-purple-100"
@@ -2479,7 +2480,7 @@ function Page() {
                     />
                     <Card
                       name="Hot Leads"
-                      value={item.hotleads ? item.hotleads : "-"}
+                      value={item.hotleads}
                       icon="/otherAssets/hotLeadsIcon2.png"
                       bgColor="bg-orange-100"
                       iconColor="text-orange-500"
@@ -2487,7 +2488,7 @@ function Page() {
 
                     <Card
                       name="Booked Meetings"
-                      value={item.booked ? item.booked : "-"}
+                      value={item.booked}
                       icon="/otherAssets/greenCalenderIcon.png"
                       bgColor="green"
                       iconColor="text-orange-500"
@@ -2496,15 +2497,13 @@ function Page() {
                     <Card
                       name="Mins Talked"
                       value={
-                        item.totalDuration && item.totalDuration > 0 ? (
-                          <div>
-                            {moment
-                              .utc((item?.totalDuration || 0) * 1000)
-                              .format("HH:mm:ss")}
-                          </div>
-                        ) : (
-                          "-"
-                        )
+
+                        <div>
+                          {moment
+                            .utc((item?.totalDuration || 0) * 1000)
+                            .format("HH:mm:ss")}
+                        </div>
+
                       }
                       icon="/otherAssets/minsCounter.png"
                       bgColor="green"
@@ -2798,7 +2797,7 @@ function Page() {
                       overflowY: "auto",
                     }}
                     countryCodeEditable={true}
-                    // defaultMask={loading ? 'Loading...' : undefined}
+                  // defaultMask={loading ? 'Loading...' : undefined}
                   />
                 </div>
 
@@ -2829,9 +2828,8 @@ function Page() {
                       <input
                         placeholder="Type here"
                         // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
-                          index === scriptKeys?.length - 1 ? "mb-16" : ""
-                        }`}
+                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
+                          }`}
                         style={{
                           ...styles.inputStyle,
                           border: "1px solid #00000010",
@@ -2911,7 +2909,7 @@ function Page() {
       >
         <div
           className="flex flex-col w-full h-full  py-2 px-5 rounded-xl"
-          // style={{  }}
+        // style={{  }}
         >
           <div
             className="w-full flex flex-col h-full"
@@ -3129,7 +3127,7 @@ function Page() {
                 name="Calls"
                 value={
                   showDrawerSelectedAgent?.calls &&
-                  showDrawerSelectedAgent?.calls > 0 ? (
+                    showDrawerSelectedAgent?.calls > 0 ? (
                     <div>{showDrawerSelectedAgent?.calls}</div>
                   ) : (
                     "-"
@@ -3143,7 +3141,7 @@ function Page() {
                 name="Convos"
                 value={
                   showDrawerSelectedAgent?.callsGt10 &&
-                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                    showDrawerSelectedAgent?.callsGt10 > 0 ? (
                     <div>{showDrawerSelectedAgent?.callsGt10}</div>
                   ) : (
                     "-"
@@ -3155,14 +3153,18 @@ function Page() {
               />
               <Card
                 name="Hot Leads"
-                value="-"
+                value={
+                  <div>{showDrawerSelectedAgent?.hotleads}</div>
+                }
                 icon="/otherAssets/hotLeadsIcon2.png"
                 bgColor="bg-orange-100"
                 iconColor="text-orange-500"
               />
               <Card
                 name="Booked"
-                value="-"
+                value={
+                  <div>{showDrawerSelectedAgent?.booked}</div>
+                }
                 icon="/otherAssets/greenCalenderIcon.png"
                 bgColor="bg-green-100"
                 iconColor="text-green-500"
@@ -3171,7 +3173,7 @@ function Page() {
                 name="Mins Talked"
                 value={
                   showDrawerSelectedAgent?.totalDuration &&
-                  showDrawerSelectedAgent?.totalDuration > 0 ? (
+                    showDrawerSelectedAgent?.totalDuration > 0 ? (
                     // <div>{showDrawer?.totalDuration}</div>
                     <div>
                       {moment
@@ -3195,11 +3197,10 @@ function Page() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`${
-                    activeTab === tab
-                      ? "text-purple border-b-2 border-purple"
-                      : "text-black-500"
-                  }`}
+                  className={`${activeTab === tab
+                    ? "text-purple border-b-2 border-purple"
+                    : "text-black-500"
+                    }`}
                   style={{ fontSize: 15, fontWeight: "500" }}
                 >
                   {tab}
@@ -3422,7 +3423,7 @@ function Page() {
                             onChange={async (event) => {
                               setShowVoiceExpressivenessLoader(true);
                               let value = event.target.value;
-                              console.log("value", value);
+                              //console.log;
                               let voiceData = {
                                 voiceExpressiveness: value,
                               };
@@ -3452,9 +3453,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3521,7 +3522,7 @@ function Page() {
                             onChange={async (event) => {
                               setShowStartingPaceLoader(true);
                               let value = event.target.value;
-                              console.log("value", value);
+                              //console.log;
                               let voiceData = {
                                 startingPace: value,
                               };
@@ -3551,9 +3552,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3621,7 +3622,7 @@ function Page() {
                             onChange={async (event) => {
                               setShowPatienceLoader(true);
                               let value = event.target.value;
-                              console.log("value", value);
+                              //console.log;
                               let voiceData = {
                                 patienceLevel: value,
                               };
@@ -3655,9 +3656,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3760,8 +3761,8 @@ function Page() {
                               }}
                             >
                               {previousNumber?.map((item, index) => {
-                                // console.log("Assigned Number ", assignNumber);
-                                // console.log("Item Number ", item.phoneNumber);
+                                // //console.log;
+                                // //console.log;
                                 return (
                                   <MenuItem
                                     key={index}
@@ -3773,7 +3774,7 @@ function Page() {
                                       item.phoneNumber.replace("+", "")
                                     }
                                     onClick={(e) => {
-                                      console.log("Menu item clicked ");
+                                      //console.log;
                                       // return;
                                       if (showReassignBtn && item?.claimedBy) {
                                         e.stopPropagation();
@@ -3784,7 +3785,7 @@ function Page() {
                                         );
                                         // AssignNumber
                                       } else {
-                                        console.log("Hit reassign number api");
+                                        //console.log;
                                         //// console.log(
                                         //   "Should call assign number api"
                                         // );
@@ -3809,37 +3810,37 @@ function Page() {
                                     {showReassignBtn && (
                                       <div
                                         className="w-full"
-                                        // onClick={(e) => {
-                                        //   console.log(
-                                        //     "Should open confirmation modal"
-                                        //   );
-                                        //   e.stopPropagation();
-                                        //   setShowConfirmationModal(item);
-                                        // }}
+                                      // onClick={(e) => {
+                                      //   console.log(
+                                      //     "Should open confirmation modal"
+                                      //   );
+                                      //   e.stopPropagation();
+                                      //   setShowConfirmationModal(item);
+                                      // }}
                                       >
                                         {item.claimedBy && (
                                           <div className="flex flex-row items-center gap-2">
                                             {showDrawerSelectedAgent?.name !==
                                               item.claimedBy.name && (
-                                              <div>
-                                                <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                {reassignLoader === item ? (
-                                                  <CircularProgress size={15} />
-                                                ) : (
-                                                  <button
-                                                    className="text-purple underline"
-                                                    onClick={(e) => {
-                                                      e.stopPropagation();
-                                                      setShowConfirmationModal(
-                                                        item
-                                                      );
-                                                    }}
-                                                  >
-                                                    Reassign
-                                                  </button>
-                                                )}
-                                              </div>
-                                            )}
+                                                <div>
+                                                  <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                                  {reassignLoader === item ? (
+                                                    <CircularProgress size={15} />
+                                                  ) : (
+                                                    <button
+                                                      className="text-purple underline"
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setShowConfirmationModal(
+                                                          item
+                                                        );
+                                                      }}
+                                                    >
+                                                      Reassign
+                                                    </button>
+                                                  )}
+                                                </div>
+                                              )}
                                           </div>
                                         )}
                                       </div>
@@ -4005,7 +4006,7 @@ function Page() {
                           liveTransferNumber: value,
                         };
                       }
-                      console.log("data", data);
+                      //console.log;
                       setLoading(true);
                       await updateSubAgent(data);
                       setLoading(false);
@@ -4381,7 +4382,7 @@ function Page() {
                     }}
                     onClick={() => {
                       handleReassignNumber(showConfirmationModal);
-                      //console.log("test")
+                      ////console.log
                     }}
                   >
                     {`I'm sure`}
@@ -4635,7 +4636,11 @@ function Page() {
                           tagValue={setScriptTagInput}
                           scrollOffset={scrollOffset}
                           showSaveChangesBtn={showSaveChangesBtn}
-                          saveUpdates={updateAgent}
+                          saveUpdates={async () => {
+                            await updateAgent()
+                            setShowSaveChangesBtn(false)
+                            setOldScriptTagInput(scriptTagInput)
+                          }}
                         />
 
                         {/* <DynamicDropdown /> */}
@@ -4662,6 +4667,8 @@ function Page() {
                               setShowScript(false);
                               setSeledtedScriptKYC(false);
                               setSeledtedScriptAdvanceSetting(false);
+                              setShowSaveChangesBtn(false)
+                              setShowObjectionsSaveBtn(false)
                             }}
                           >
                             Save Changes
@@ -4763,7 +4770,12 @@ function Page() {
                             uniqueColumns={uniqueColumns}
                             tagValue={setObjective}
                             scrollOffset={scrollOffset}
-                            showSaveChangesBtn={showSaveChangesBtn}
+                            showSaveChangesBtn={showObjectionsSaveBtn}
+                            saveUpdates={async () => {
+                              await updateAgent()
+                              setShowObjectionsSaveBtn(false)
+                              setOldObjective(objective)
+                            }}
                           />
 
                           {/* <DynamicDropdown /> */}
@@ -4780,8 +4792,10 @@ function Page() {
                                 <button
                                   className="bg-purple w-full h-[50px] rounded-xl mb-4 text-white"
                                   style={{ fontWeight: "600", fontSize: 15 }}
-                                  onClick={() => {
-                                    updateAgent();
+                                  onClick={async () => {
+                                    await updateAgent();
+                                    setShowObjectionsSaveBtn(false)
+                                    setOldObjective(objective)
                                   }}
                                 >
                                   Save Changes

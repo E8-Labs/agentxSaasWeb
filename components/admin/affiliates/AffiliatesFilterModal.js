@@ -144,7 +144,7 @@ export function AffiliatesFilterModal({
                             defaultValue={users}
                             label="X-Bar"
                             onChange={(value) => {
-                                console.log("Selected Users:", value)
+                                //console.log
                                 setXBar(value)
 
                             }}
@@ -157,7 +157,7 @@ export function AffiliatesFilterModal({
                             defaultValue={users}
                             label="Users"
                             onChange={(value) => {
-                                console.log("Selected Users:", value)
+                                //console.log
                                 setusers(value)
 
                             }}
@@ -170,7 +170,7 @@ export function AffiliatesFilterModal({
                             defaultValue={users}
                             label="Revenue"
                             onChange={(value) => {
-                                console.log("Selected Users:", value)
+                                //console.log
                                 setrevenue(value)
 
                             }}

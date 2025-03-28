@@ -39,10 +39,10 @@ function NotficationsDrawer({ close }) {
     // let data = localStorage.getItem("User")
     // if(data){
     // let u = JSON.parse(data)
-    //// console.log('object', object)
+    //// //console.log
     // }
     let data = await getProfileDetails();
-    // console.log("user unread messages are ", data.data.data.unread);
+    // //console.log;
     setUnread(data.data.data.unread);
     // setUnread(12);
   };
@@ -55,7 +55,7 @@ function NotficationsDrawer({ close }) {
       const not = localStorage.getItem("userNotifications");
       if (not) {
         const D = JSON.parse(not);
-        // console.log("Notification Local list is", D);
+        // //console.log;
         setNotifications(D);
       }
 
@@ -72,7 +72,7 @@ function NotficationsDrawer({ close }) {
 
       if (user) {
         let u = JSON.parse(user);
-        // console.log("user data from local is", u.user);
+        // //console.log;
 
         // if (hasMore === true) {
         if (!notifications.length > 0 && !not) {
@@ -80,7 +80,7 @@ function NotficationsDrawer({ close }) {
         }
 
         const ApiPath = `${Apis.getNotifications}?offset=${offset}`;
-        // console.log("Api path is", ApiPath);
+        // //console.log;
 
         const response = await axios.get(ApiPath, {
           headers: {
@@ -91,7 +91,7 @@ function NotficationsDrawer({ close }) {
         if (response) {
           setLoading(false);
           if (response.data.status === true) {
-            // console.log("notifications list is", response.data.data);
+            // //console.log;
             // setNotifications(response.data.data.notifications);
             localStorage.setItem(
               "userNotifications",
@@ -120,18 +120,18 @@ function NotficationsDrawer({ close }) {
               setHasMore(false);
             }
           } else {
-            // console.log("notification api message is", response.data.message);
+            // //console.log;
           }
         }
       }
     } catch (e) {
       setLoading(false);
-      // console.log("error in get notifications is ", e);
+      // //console.log;
     }
   };
 
   useEffect(() => {
-    // console.log("Has more status is", hasMore);
+    // //console.log;
   }, [hasMore]);
 
   //function to get support
@@ -405,7 +405,7 @@ function NotficationsDrawer({ close }) {
   };
 
   const handleShowDetails = useCallback((item) => {
-    console.log("Opening Lead Details Modal: ", item);
+    //console.log;
     if (
       item.pipelineId === null ||
       item.id === undefined ||
@@ -804,7 +804,7 @@ function NotficationsDrawer({ close }) {
                   scrollableTarget="scrollableDiv1"
                   dataLength={notifications.length}
                   next={() => {
-                    // console.log("Loading more data");
+                    // //console.log;
                     getNotifications();
                   }} // Fetch more when scrolled
                   hasMore={hasMore} // Check if there's more data

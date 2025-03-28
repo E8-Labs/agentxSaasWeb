@@ -9,12 +9,12 @@ const getProfileDetails = async () => {
 
     if (localData) {
       const Data = JSON.parse(localData);
-      // console.log("User localdetails are", Data);
+      // //console.log;
       localDetails = Data;
       Authtoken = Data.token;
     }
 
-    // console.log("Auth otk is", Authtoken);
+    // //console.log;
 
     const ApiPath = Apis.getProfileData;
 
@@ -26,10 +26,10 @@ const getProfileDetails = async () => {
     });
 
     if (response) {
-      // console.log("Response of get profile api is", response.data);
+      // //console.log;
       if (response?.data?.status === true) {
         localDetails.user = response.data.data;
-        console.log("Data to updated", localDetails);
+        //console.log;
         localStorage.setItem("User", JSON.stringify(localDetails));
         return response;
       }

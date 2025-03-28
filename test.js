@@ -120,7 +120,7 @@ const OtherDetails = ({
     inputsFields.current[0]?.focus();
     if (registerationDetails) {
       const registerationData = JSON.parse(registerationDetails);
-      // console.log("User registeration data is :--", registerationData);
+      // //console.log;
       setUserData(registerationData);
     } else {
       // alert("Add details to continue");
@@ -210,7 +210,7 @@ const OtherDetails = ({
 
   //select client type function
   const handleSelectClientType = (item) => {
-    // console.log("Select client type", item);
+    // //console.log;
     setClientType(item.title);
   };
 
@@ -227,7 +227,7 @@ const OtherDetails = ({
   //code to get user location
 
   const getLocation = () => {
-    // console.log("getlocation trigered");
+    // //console.log;
     // let registerationData = null;
     setLocationLoader(true);
 
@@ -277,11 +277,11 @@ const OtherDetails = ({
       }
 
       // setCheckPhoneResponse(null);
-      // console.log("Trigered");
+      // //console.log;
 
       timerRef.current = setTimeout(() => {
         checkPhoneNumber(phoneNumber);
-        // console.log("I am hit now");
+        // //console.log;
       }, 300);
     }
   };
@@ -314,7 +314,7 @@ const OtherDetails = ({
       let response = await SendVerificationCode(userDetails.phone, true);
       setResponse(response);
       setIsVisible(true);
-      // console.log("Response recieved is", response);
+      // //console.log;
     } catch (error) {
       // console.error("Error occured", error);
     } finally {
@@ -382,7 +382,7 @@ const OtherDetails = ({
 
   //code for number verification
   const handleVerifyCode = () => {
-    // console.log("Verify code is :", VerifyCode.join(""));
+    // //console.log);
     setPhoneVerifiedSuccessSnack(true);
     handleRegister();
   };
@@ -441,20 +441,20 @@ const OtherDetails = ({
       );
       formData.append("verificationCode", VerifyCode.join(""));
 
-      // console.log("Data for user registeration is :-----");
+      // //console.log;
       for (let [key, value] of formData.entries()) {
-        // console.log(`${key}: ${value}`);
+        // //console.log;
       }
 
       // return;
       const response = await axios.post(ApiPath, formData);
       if (response) {
-        // console.log("Response of register api is:--", response);
+        // //console.log;
         let result = response.data;
         setResponse(result);
         setIsVisible(true);
         if (response.data.status === true) {
-          // console.log("Status is :---", response.data.status);
+          // //console.log;
           localStorage.removeItem(PersistanceKeys.RegisterDetails);
           localStorage.setItem("User", JSON.stringify(response.data.data));
           //set cokie on locastorage to run middle ware
@@ -475,9 +475,9 @@ const OtherDetails = ({
 
           if (screenWidth <= SM_SCREEN_SIZE) {
             setCongratsPopup(true);
-            // console.log("This is a small size screen");
+            // //console.log;
           } else {
-            // console.log("This is a large size screen");
+            // //console.log;
             handleContinue();
           }
         }
@@ -502,7 +502,7 @@ const OtherDetails = ({
         email: value,
       };
 
-      // console.log("Api data is :", ApiData);
+      // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -511,9 +511,9 @@ const OtherDetails = ({
       });
 
       if (response) {
-        // console.log("Response of check email api is :", response);
+        // //console.log;
         if (response.data.status === true) {
-          // console.log("Response message is :", response.data.message);
+          // //console.log;
           setEmailCheckResponse(response.data);
         } else {
           setEmailCheckResponse(response.data);
@@ -535,7 +535,7 @@ const OtherDetails = ({
         phone: value,
       };
 
-      // console.log("Api data is :", ApiData);
+      // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -544,9 +544,9 @@ const OtherDetails = ({
       });
 
       if (response) {
-        // console.log("Response of check phone api is :", response);
+        // //console.log;
         if (response.data.status === true) {
-          // console.log("Response message is :", response.data.message);
+          // //console.log;
           setCheckPhoneResponse(response.data);
         } else {
           setCheckPhoneResponse(response.data);

@@ -9,12 +9,12 @@ export const config = {
 
 export async function POST(req) {
   try {
-    console.log("✅ API Route Hit - Processing Request");
+    //console.log;
 
     // Extract token from request headers
     const authHeader = req.headers.get("Authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      console.log("❌ Unauthorized Request");
+      //console.log;
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const token = authHeader.split(" ")[1];
@@ -35,15 +35,15 @@ export async function POST(req) {
     formDataApi.append("documentName", documentName);
     formDataApi.append("originalContent", originalContent);
     if (media) {
-      console.log("Media found in server function ", media);
+      //console.log;
       formDataApi.append("media", media);
     }
 
-    console.log("📥 Received Data:", { type, title, originalContent, media });
+    //console.log;
 
     // Validate required fields
     if (!type) {
-      console.log("❌ Missing Required Fields");
+      //console.log;
       return NextResponse.json(
         { message: "Missing required parameters", status: false },
         { status: 400 }
@@ -56,7 +56,7 @@ export async function POST(req) {
     //   const arrayBuffer = await media.arrayBuffer();
     //   const buffer = Buffer.from(arrayBuffer);
 
-    //   console.log("✅ File Received:", media.name, "Size:", buffer.length);
+    //   //console.log;
 
     //   // Example: You could upload the file to S3, store it in a DB, etc.
     //   uploadedFilePath = `/uploads/${media.name}`;
@@ -73,7 +73,7 @@ export async function POST(req) {
     });
 
     const externalData = await externalApiResponse.json();
-    console.log("📩 External API Response:", externalData);
+    //console.log;
 
     return NextResponse.json({ message: "Success", data: externalData });
   } catch (error) {

@@ -24,20 +24,20 @@ const Page = () => {
 
   // Function to proceed to the next step
   const handleContinue = () => {
-    console.log("Component indexchanged ", index);
+    //console.log;
     //Call the api here
     handleAddCadence();
   };
 
   const handleBack = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index - 1);
   };
 
   const handleAddCadence = async () => {
     try {
       //   setLoader(true);
-      ////console.log("");
+      //////console.log;
       let cadence = null;
       const cadenceData = localStorage.getItem("AddCadenceDetails");
       if (cadenceData) {
@@ -53,7 +53,7 @@ const Page = () => {
       const mainAgentData = localStorage.getItem("agentDetails");
       if (mainAgentData) {
         const Data = JSON.parse(mainAgentData);
-        console.log("Localdat recieved is :--", Data);
+        //console.log;
         mainAgentId = Data.id;
       }
 
@@ -61,13 +61,13 @@ const Page = () => {
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-        ////console.log("Localdat recieved is :--", Data);
+        //////console.log;
         AuthToken = Data.token;
       }
 
-      console.log("Authtoke for add cadence api is :", AuthToken);
+      //console.log;
 
-      console.log("Main agent id is :", mainAgentId);
+      //console.log;
 
       const ApiData = {
         pipelineId: cadence.pipelineID,
@@ -76,7 +76,7 @@ const Page = () => {
       };
 
       const ApiPath = Apis.createPipeLineCadence;
-      ////console.log("Api path is :", ApiPath);
+      //////console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -86,7 +86,7 @@ const Page = () => {
       });
 
       if (response) {
-        console.log("Response of create pipeline api is :---", response);
+        //console.log;
         if (response.data.status === true) {
           localStorage.removeItem("AddCadenceDetails");
           router.push("/dashboard/leads");

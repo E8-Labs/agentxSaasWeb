@@ -160,25 +160,25 @@ const Pipeline1 = () => {
 
   const handleChangeNextStage = (event) => {
     let value = event.target.value;
-    //// console.log("Value to set is :", value);
+    //// //console.log;
     setAssignNextStage(event.target.value);
 
     const selectedItem = StagesList.find((item) => item.stageTitle === value);
     setAssignNextStageId(selectedItem.id);
 
-    // console.log("Selected inext stage is:", selectedItem);
+    // //console.log;
   };
 
   //new teammeber
   // const handleAssignTeamMember = (event) => {
   //   let value = event.target.value;
-  //   //// console.log("Value to set is :", value);
+  //   //// //console.log;
   //   setAssignToMember(event.target.value);
 
   //   const selectedItem = myTeamList.find(
   //     (item) => item.invitedUser.name === value
   //   );
-  //  // console.log("Selected teammeber is:", selectedItem);
+  //  // //console.log;
   //   setAssignToMember(
   //     selectedItem.invitedUser.name || myTeamAdmin.invitedUser.name
   //   ); //
@@ -187,18 +187,18 @@ const Pipeline1 = () => {
   //     selectedItem.invitedUser.id || myTeamAdmin.invitedUser.id,
   //   ]); //
 
-  //  // console.log("Selected teammeber is:", selectedItem);
+  //  // //console.log;
   // };
 
   const handleAssignTeamMember = (event) => {
     let value = event.target.value;
-    // console.log("Value to set is :", value);
+    // //console.log;
     setAssignToMember(event.target.value);
 
     const selectedItem = myTeamList.find(
       (item) => item?.invitedUser?.name === value
     );
-    // console.log("Selected teammeber is:", selectedItem);
+    // //console.log;
     setAssignToMember(
       selectedItem?.invitedUser?.name || myTeamAdmin.invitedUser?.name
     ); //
@@ -207,7 +207,7 @@ const Pipeline1 = () => {
       selectedItem?.invitedUser?.id || myTeamAdmin.invitedUser?.id,
     ]); //
 
-    // console.log("Selected teammeber is:", selectedItem);
+    // //console.log;
   };
 
   //renaame the stage
@@ -277,7 +277,7 @@ const Pipeline1 = () => {
     getMyTeam();
     const pipelineIndex = searchParams.get("pipeline"); // Get the value of 'tab'
     let number = Number(pipelineIndex) || 0;
-    console.log("Pipeline index from url is ", number);
+    //console.log;
     selectedPipelineIndex = number;
     if (!pipelineIndex) {
       setParamsInSearchBar(number);
@@ -300,8 +300,8 @@ const Pipeline1 = () => {
   }, [SelectedPipeline]);
 
   const setParamsInSearchBar = (index = 0, from = "default") => {
-    console.log("From function ", from);
-    console.log("Settign index for pipeline", index);
+    //console.log;
+    //console.log;
     // Create a new URLSearchParams object to modify
     const params = new URLSearchParams(searchParams.toString());
     params.set("pipeline", index); // Set or update the 'tab' parameter
@@ -309,14 +309,14 @@ const Pipeline1 = () => {
     // Push the updated URL
     router.push(`/dashboard/pipeline?${params.toString()}`);
 
-    // console.log("Rerendering tab with selected tab: ", index);
+    // //console.log;
   };
 
   // const getMyTeam = async () => {
   //   try {
   //     let response = await getTeamsList();
   //     if (response) {
-  //      // console.log("Response recieved is", response);
+  //      // //console.log;
   //       let teams = [];
   //       if (response.data && response.data.length > 0) {
   //         for (const t of response.data) {
@@ -337,7 +337,7 @@ const Pipeline1 = () => {
     try {
       let response = await getTeamsList();
       if (response) {
-        // console.log("Team Response recieved is", response);
+        // //console.log;
         let teams = [];
         if (response.admin) {
           let admin = response.admin;
@@ -352,7 +352,7 @@ const Pipeline1 = () => {
           }
         }
 
-        // console.log("My teams list", teams);
+        // //console.log;
 
         setMyTeamList(teams);
         setMyTeamAdmin(response.admin);
@@ -363,7 +363,7 @@ const Pipeline1 = () => {
   };
 
   useEffect(() => {
-    // console.log("Selected Lead Details changed", selectedLeadsDetails);
+    // //console.log;
   }, [selectedLeadsDetails]);
   const getImportantCalls = async () => {
     try {
@@ -371,8 +371,8 @@ const Pipeline1 = () => {
       if (data) {
         const u = JSON.parse(data);
         let path = Apis.getImportantCalls;
-        console.log("Apipath for getcall", path);
-        // console.log("Authtoken for getcall", u.token);
+        //console.log;
+        // //console.log;
         const response = await axios.get(path, {
           headers: {
             Authorization: `Bearer ${u.token}`,
@@ -396,7 +396,7 @@ const Pipeline1 = () => {
         }
       }
     } catch (e) {
-      console.log("error in get important calls api is", e);
+      //console.log;
     }
   };
 
@@ -405,11 +405,11 @@ const Pipeline1 = () => {
 
   //     if (showAdvanceSettings) {
   //         if (!newStageTitle || !action || inputs.filter(input => input.value.trim() !== "").length < 3) {
-  //            // console.log("Shoukd hide ")
+  //            // //console.log
   //             setShowAddStageBtn(false);
   //         }
   //         else if (newStageTitle && action && inputs.filter(input => input.value.trim() !== "").length === 3) {
-  //            // console.log("Show continue to add stage")
+  //            // //console.log
   //             setShowAddStageBtn(true);
   //         }
   //     }
@@ -446,9 +446,9 @@ const Pipeline1 = () => {
   }, []);
 
   useEffect(() => {
-    // console.log("Update stage UseEffect", stageColorUpdate);
+    // //console.log;
     const timer = setTimeout(() => {
-      //// console.log("I am trigerred after 1second");
+      //// //console.log;
       if (stageColorUpdate) {
         handleUpdateColor();
       }
@@ -461,17 +461,17 @@ const Pipeline1 = () => {
   //     let previousStages = oldStages.map((item) => item.id);
   //     let updatedStages = StagesList.map((item) => item.id);
 
-  //    // console.log("Old stages list is reorder stages:", previousStages);
-  //    // console.log("Updated stages list is reorder stages:", updatedStages);
+  //    // //console.log;
+  //    // //console.log;
 
   //     // Compare arrays
   //     const areArraysEqual = previousStages.length === updatedStages.length &&
   //         previousStages.every((item, index) => item === updatedStages[index]);
 
   //     if (areArraysEqual) {
-  //        // console.log("Should not reorder stages");
+  //        // //console.log;
   //     } else {
-  //        // console.log("Should reorder stages");
+  //        // //console.log;
   //         handleReorder();
   //     }
   // }, [StagesList]);
@@ -496,16 +496,16 @@ const Pipeline1 = () => {
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-        // console.log("Local details are :", UserDetails);
+        // //console.log;
       }
 
-      // console.log("Auth token is:", AuthToken);
+      // //console.log;
 
       const formData = new FormData();
       formData.append("title", newPipelineTitle);
 
       for (let [key, value] of formData.entries()) {
-        // console.log(`${key} ${value} `);
+        // //console.log;
       }
 
       const ApiPath = Apis.createPipeLine;
@@ -518,13 +518,13 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        // console.log("Response of add pipeline api is:", response);
+        // //console.log;
         if (response.data.status === true) {
           let updatedPipelinesList = [];
           setPipeLines([...PipeLines, response.data.data]);
           updatedPipelinesList = [...PipeLines, response.data.data];
           let reversePipelinesList = updatedPipelinesList.reverse();
-          // console.log("Updated list of pipelines is:", reversePipelinesList);
+          // //console.log;
           // setSelectedPipeline(reversePipelinesList[0]);
           // setStagesList(reversePipelinesList[0].stages);
 
@@ -555,7 +555,7 @@ const Pipeline1 = () => {
     let data = localStorage.getItem(PersistanceKeys.LocalStoragePipelines);
     if (data) {
       let jsonData = JSON.parse(data);
-      console.log("jsonData", jsonData);
+      //console.log;
       setPipeLines(jsonData);
       if (jsonData.length > 0) {
         let index = 0;
@@ -567,7 +567,7 @@ const Pipeline1 = () => {
           index = -1;
         }
 
-        // console.log("Pipeline Index selected is ", selectedPipelineIndex);
+        // //console.log;
 
         if (index != -1) {
           setPipeLines(jsonData);
@@ -575,7 +575,7 @@ const Pipeline1 = () => {
           setStagesList(jsonData[index].stages);
           setOldStages(jsonData[index].stages);
           setLeadsList(jsonData[index].leads);
-          // console.log("Leads lis is :", jsonData[index].leads);
+          // //console.log;
         }
         // setSelectedPipeline(jsonData[selectedPipelineIndex]);
         // setStagesList(jsonData[selectedPipelineIndex].stages);
@@ -588,7 +588,7 @@ const Pipeline1 = () => {
   }
 
   async function getPipelineDetails(pipeline) {
-    console.log("Calling getpipeline details");
+    //console.log;
     console.log(
       "Pipeline index from getpipelinedetails is ",
       selectedPipelineIndex
@@ -599,12 +599,12 @@ const Pipeline1 = () => {
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-        // console.log("Local details are :", UserDetails);
+        // //console.log;
       }
 
-      // console.log("Auth token is :--", AuthToken);
+      // //console.log;
       const ApiPath = Apis.getPipelineById + "?pipelineId=" + pipeline.id;
-      console.log("Api path of pipeline details is :", ApiPath);
+      //console.log;
       setPipelineDetailLoader(true);
       const response = await axios.get(ApiPath, {
         headers: {
@@ -625,8 +625,8 @@ const Pipeline1 = () => {
         let updatedPipelines = PipeLines?.map((p) =>
           p.id === pipeline.id ? { ...p, ...pipelineDetails } : p
         );
-        console.log("Pipeline id", pipeline.id);
-        console.log("Pipeline Selected index", selectedPipelineIndex);
+        //console.log;
+        //console.log;
         setPipeLines(updatedPipelines);
         if (
           selectedPipelineIndex.current == -1 ||
@@ -640,7 +640,7 @@ const Pipeline1 = () => {
           setStagesList(pipelineDetails.stages);
           setLeadsList(pipelineDetails.leads);
         } else {
-          console.log("Current selected pipeline is different");
+          //console.log;
         }
         // Save updated pipelines list to localStorage
         localStorage.setItem(
@@ -653,7 +653,7 @@ const Pipeline1 = () => {
     } catch (error) {
       // console.error("Error occured in api is:", error);
     } finally {
-      // console.log("Api call completed");
+      // //console.log;
       setInitialLoader(false);
     }
   }
@@ -662,7 +662,7 @@ const Pipeline1 = () => {
   const getPipelines = async () => {
     try {
       let data = false; //GetPipelinesCached();
-      console.log("data from local", data);
+      //console.log;
       if (!data) {
         setInitialLoader(true);
       }
@@ -672,12 +672,12 @@ const Pipeline1 = () => {
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-        // console.log("Local details are :", UserDetails);
+        // //console.log;
       }
 
-      // console.log("Auth token is :--", AuthToken);
+      // //console.log;
       const ApiPath = Apis.getPipelines + "?liteResource=true";
-      console.log("Api path get pipeline is :", ApiPath);
+      //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -687,7 +687,7 @@ const Pipeline1 = () => {
       });
       setInitialLoader(false);
       if (response) {
-        console.log("Response of getpipeline api is :", response.data.data);
+        //console.log;
 
         localStorage.setItem(
           PersistanceKeys.LocalStoragePipelines,
@@ -725,13 +725,13 @@ const Pipeline1 = () => {
         //   setSelectedPipeline(pipeline);
         //   getPipelineDetails(pipeline)
 
-        //   // console.log("Leads lis is :", response.data.data[index].leads);
+        //   // //console.log;
         // }
       }
     } catch (error) {
       // console.error("Error occured in api is:", error);
     } finally {
-      // console.log("Api call completed");
+      // //console.log;
       // setInitialLoader(false);
     }
   };
@@ -742,7 +742,7 @@ const Pipeline1 = () => {
     try {
       setDelTagLoader(lead.lead.id);
 
-      // console.log("Lead selected is", lead);
+      // //console.log;
 
       let AuthToken = null;
 
@@ -752,7 +752,7 @@ const Pipeline1 = () => {
         AuthToken = localData.token;
       }
 
-      // console.log("Auth token is:", AuthToken);
+      // //console.log;
 
       const ApiData = {
         leadId: lead.lead.id,
@@ -760,9 +760,9 @@ const Pipeline1 = () => {
       };
 
       const ApiPath = Apis.delLeadTag;
-      // console.log("Leads list is", LeadsList);
-      // console.log("Data sending in api is:", ApiData);
-      // console.log("Api path is:", ApiPath);
+      // //console.log;
+      // //console.log;
+      // //console.log;
 
       // return
       const response = await axios.post(ApiPath, ApiData, {
@@ -773,9 +773,9 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        // console.log("Response of del tag api is:", response.data);
+        // //console.log;
         if (response.data.status === true) {
-          // console.log("Staus is true");
+          // //console.log;
           // const updatedTags = LeadsList.lead.tags.filter(
           //   (item) => item !== tag
           // );
@@ -825,14 +825,14 @@ const Pipeline1 = () => {
     // getPipelineDetails(item);
     setSelectedPipeline(item);
 
-    // console.log("Other pipeline selected is :", item);
+    // //console.log;
     // setSelectedPipeline(item);
     // setSelectedPipeline(item);
     setStagesList(item.stages);
     setLeadsList(item?.leads || []);
     handleCloseOtherPipeline();
     selectedPipelineIndex = index;
-    console.log("Pipeline index from url is ", index);
+    //console.log;
     setParamsInSearchBar(index, "handleSelectOtherPipeline");
   };
 
@@ -845,27 +845,27 @@ const Pipeline1 = () => {
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-        // console.log("Local details are :", UserDetails);
+        // //console.log;
       }
 
       let mainAgent = null;
 
       const mainAgentData = localStorage.getItem("agentDetails");
-      // console.log("Check at 0 clear");
+      // //console.log;
 
       if (mainAgentData) {
         const mainAgentDetails = JSON.parse(mainAgentData);
-        // console.log("Check clear");
-        // console.log("Main agent detals are :", mainAgentDetails);
+        // //console.log;
+        // //console.log;
         mainAgent = mainAgentDetails;
       }
 
       // return
 
-      // console.log("Auth token is :--", AuthToken);
+      // //console.log;
 
       const ApiPath = Apis.addCustomStage;
-      // console.log("Api path is:", ApiPath);
+      // //console.log;
 
       const ApiData = {
         stageTitle: newStageTitle,
@@ -877,7 +877,7 @@ const Pipeline1 = () => {
         tags: tagsValue,
         teams: assignLeadToMember,
       };
-      // console.log("Data sending in api is:", ApiData);
+      // //console.log;
 
       // return
 
@@ -889,7 +889,7 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        console.log("Response of add stage title :", response);
+        //console.log;
         if (response.data.status === true) {
           setStagesList(response.data.data.stages);
           handleCloseAddStage();
@@ -928,7 +928,7 @@ const Pipeline1 = () => {
     if (data) {
       let d = JSON.parse(data);
 
-      console.log("pipelinesList from local is", d);
+      //console.log;
     }
   }, []);
 
@@ -936,10 +936,10 @@ const Pipeline1 = () => {
   const handleDeleteStage = async (value) => {
     try {
       if (value === "del2") {
-        // console.log("Loader 2", value);
+        // //console.log;
         setDelStageLoader2(true);
       } else if (value === "del") {
-        // console.log("Loader 1", value);
+        // //console.log;
         setDelStageLoader(true);
       }
       const localData = localStorage.getItem("User");
@@ -947,10 +947,10 @@ const Pipeline1 = () => {
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-        //// console.log("Local details are :", UserDetails);
+        //// //console.log;
       }
 
-      // console.log("Auth token is :--", AuthToken);
+      // //console.log;
 
       const ApiData = {
         pipelineId: SelectedPipeline.id,
@@ -966,12 +966,12 @@ const Pipeline1 = () => {
       }
 
       for (let [key, value] of formData) {
-        // console.log(`${key}, ${value}`);
+        // //console.log;
       }
 
       // return
       const ApiPath = Apis.deleteStage;
-      // console.log("Apipath is:", ApiPath);
+      // //console.log;
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -981,7 +981,7 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        console.log("response of del stage api is:", response.data);
+        //console.log;
         if (response.data.status === true) {
           setStagesList(response.data.data.stages);
           setSuccessSnack(response.data.message);
@@ -1005,13 +1005,13 @@ const Pipeline1 = () => {
               return pipeline; // Return unchanged pipeline for others
             });
 
-            console.log("updatedPipelines", updatedPipelines);
+            //console.log;
             localStorage.setItem(
               "pipelinesList",
               JSON.stringify(updatedPipelines)
             );
           } else {
-            console.log("no pipeline list found from local");
+            //console.log;
           }
         }
       }
@@ -1034,7 +1034,7 @@ const Pipeline1 = () => {
         AuthToken = UserDetails.token;
       }
 
-      // console.log("Auth token is :--", AuthToken);
+      // //console.log;
 
       // const ApiData = {
       //     stageTitle: renameStage,
@@ -1047,15 +1047,15 @@ const Pipeline1 = () => {
       formData.append("stageId", selectedStage.id);
       formData.append("color", updateStageColor);
 
-      //// console.log("data sending in api si:", ApiData);
+      //// //console.log;
 
       for (let [key, value] of formData.entries()) {
-        // console.log(`${key}: ${value}`);
+        // //console.log;
       }
 
       const ApiPath = Apis.UpdateStage;
 
-      // console.log("Api path is 826:", ApiPath);
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -1065,13 +1065,13 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        // console.log("Response of updates stage api is response :", response);
+        // //console.log;
         setStagesList(response.data.data.stages);
         setShowRenamePopup(false);
         handleCloseStagePopover();
       }
     } catch (error) {
-      // console.log("Error occured in rename stage api is:", error);
+      // //console.log;
     } finally {
       setRenameStageLoader(false);
     }
@@ -1088,17 +1088,17 @@ const Pipeline1 = () => {
         AuthToken = UserDetails.token;
       }
 
-      // console.log("Auth token is :--", AuthToken);
+      // //console.log;
 
       const ApiData = {
         title: renamePipeline,
         pipelineId: SelectedPipeline.id,
       };
 
-      // console.log("data sending in api si:", ApiData);
+      // //console.log;
       const ApiPath = Apis.updatePipeline;
 
-      // console.log("Api path is:", ApiPath);
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -1108,7 +1108,7 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        // console.log("Response of updates pipeline api is response :", response);
+        // //console.log;
         // setPipeLines()
         setPipeLines((prevPipelines) =>
           prevPipelines.map((pipeline) =>
@@ -1122,7 +1122,7 @@ const Pipeline1 = () => {
         handlePipelineClosePopover();
       }
     } catch (error) {
-      // console.log("Error occured in rename pipeline api is:", error);
+      // //console.log;
     } finally {
       setRenamePipelineLoader(false);
     }
@@ -1139,7 +1139,7 @@ const Pipeline1 = () => {
         AuthToken = UserDetails.token;
       }
 
-      // console.log("Auth token is :--", AuthToken);
+      // //console.log;
 
       // const ApiData = {
       //     stageTitle: renameStage,
@@ -1152,15 +1152,15 @@ const Pipeline1 = () => {
       formData.append("stageId", selectedStage?.id);
       formData.append("color", stageColorUpdate);
 
-      //// console.log("data sending in api si:", ApiData);
+      //// //console.log;
 
       for (let [key, value] of formData.entries()) {
-        // console.log(`${key}: ${value}`);
+        // //console.log;
       }
 
       const ApiPath = Apis.UpdateStage;
 
-      // console.log("Api path is: 931", ApiPath);
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -1170,13 +1170,13 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        // console.log("Response of updates stage api is response :", response);
+        // //console.log;
         setStagesList(response.data.data.stages);
         // setShowRenamePopup(false);
         // handleCloseStagePopover();
       }
     } catch (error) {
-      // console.log("Error occured in update color api is:", error);
+      // //console.log;
     } finally {
       setRenameStageLoader(false);
     }
@@ -1194,19 +1194,19 @@ const Pipeline1 = () => {
         AuthToken = UserDetails.token;
       }
 
-      // console.log("Auth token is :--", AuthToken);
+      // //console.log;
 
       const formData = new FormData();
       formData.append("pipelineId", SelectedPipeline.id);
 
       for (let [key, value] of formData.entries()) {
-        // console.log(`${key}: ${value}`);
+        // //console.log;
       }
 
-      //// console.log("data sending in api si:", ApiData);
+      //// //console.log;
       const ApiPath = Apis.deletePipeline;
 
-      // console.log("Api path is:", ApiPath);
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -1216,7 +1216,7 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        // console.log("Response of updates pipeline api is response :", response);
+        // //console.log;
         if (response.data.status === true) {
           let updatedPipelines = [];
           setPipeLines(
@@ -1231,7 +1231,7 @@ const Pipeline1 = () => {
             JSON.stringify(updatedPipelines)
           );
 
-          // console.log("Updated list of pipelines is:", updatedPipelines);
+          // //console.log;
           setSelectedPipeline(updatedPipelines[0]);
           setStagesList(updatedPipelines[0].stages);
           setLeadsList(updatedPipelines[0].leads);
@@ -1241,7 +1241,7 @@ const Pipeline1 = () => {
         }
       }
     } catch (error) {
-      // console.log("Error occured in delete pipeline api is:", error);
+      // //console.log;
     } finally {
       setDeletePipelineLoader(false);
     }
@@ -1280,16 +1280,16 @@ const Pipeline1 = () => {
         AuthToken = UserDetails.token;
       }
 
-      // console.log("Auth token is :--", AuthToken);
+      // //console.log;
 
       const ApiData = {
         sheetName: newSheetName,
         columns: inputs.map((columns) => columns.value),
       };
-      // console.log("Data to send in api is:", ApiData);
+      // //console.log;
 
       const ApiPath = Apis.addSmartList;
-      // console.log("Api Path is", ApiPath);
+      // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -1299,7 +1299,7 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        // console.log("Response of add new smart list api is :", response);
+        // //console.log;
         if (response.data.status) {
           setShowAddNewSheetModal(false);
         }
@@ -1326,7 +1326,7 @@ const Pipeline1 = () => {
       (item) => item.stageTitle === selectedValue
     );
 
-    // console.log(`Index ${index} Selected Item:`, selectedItem);
+    // //console.log;
 
     // Update the selected next stage for the specific index
     setSelectedNextStage((prev) => ({
@@ -1337,7 +1337,7 @@ const Pipeline1 = () => {
 
   //code to rearrange stages list
   const handleReorder = async () => {
-    //// console.log("Update stage test");
+    //// //console.log;
     // return;
     try {
       setReorderStageLoader(true);
@@ -1346,7 +1346,7 @@ const Pipeline1 = () => {
         order: stage.order,
       }));
 
-      // console.log("Updated stages order is :", updateStages);
+      // //console.log;
 
       const ApiPath = Apis.reorderStages;
       let AuthToken = null;
@@ -1355,14 +1355,14 @@ const Pipeline1 = () => {
         const UserDetails = JSON.parse(LocalData);
         AuthToken = UserDetails.token;
       }
-      //// console.log("Selected pipeline id is: ", selectedPipelineItem.id);
+      //// //console.log;
       const ApiData = {
         pipelineId: SelectedPipeline.id,
         reorderedStages: updateStages,
       };
 
-      //// console.log("Auth token is :", AuthToken);
-      // console.log("Api data is :", ApiData);
+      //// //console.log;
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -1372,7 +1372,7 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        // console.log("Response of updated stages is:", response.data);
+        // //console.log;
         if (response.data.status === true) {
           setShowStagesPopup(false);
           setShowReorderBtn(false);
@@ -1385,7 +1385,7 @@ const Pipeline1 = () => {
     } catch (error) {
       // console.error("Error occured in rearrange order api is:", error);
     } finally {
-      // console.log("api call completed");
+      // //console.log;
       setReorderStageLoader(false);
     }
   };
@@ -1434,7 +1434,7 @@ const Pipeline1 = () => {
     const phoneNumber = parsePhoneNumberFromString(
       rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
     );
-    //// console.log("Raw number is", rawNumber);
+    //// //console.log;
     return phoneNumber
       ? phoneNumber.formatInternational()
       : "Invalid phone number";
@@ -1467,19 +1467,19 @@ const Pipeline1 = () => {
         //   "Status is completed with the following additional information:"
         // );
         if (item.hotlead === true) {
-          // console.log("Hot Lead");
+          // //console.log;
           callStatus = "Hot Lead";
         }
         if (item.humancalldrop === true) {
-          // console.log("Human Call Drop");
+          // //console.log;
           callStatus = "Human Call Drop";
         }
         if (item.dnd === true) {
-          // console.log("DND");
+          // //console.log;
           callStatus = "DND";
         }
         if (item.notinterested) {
-          // console.log("Not interested");
+          // //console.log;
           callStatus = "Not Interested";
         }
       } else {
@@ -1513,14 +1513,14 @@ const Pipeline1 = () => {
         AuthToken = UserDetails.token;
       }
 
-      // console.log("Auth token is :--", AuthToken);
+      // //console.log;
 
       const ApiData = {
         note: addNotesValue,
         leadId: selectedLeadsDetails.id,
       };
 
-      // console.log("api data is:", ApiData);
+      // //console.log;
 
       const ApiPath = Apis.addLeadNote;
       // return
@@ -1532,7 +1532,7 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        // console.log("Response of add api is:", response);
+        // //console.log;
         // setNoteDetails()
         if (response.data.status === true) {
           setShowAddNotes(false);
@@ -1563,7 +1563,7 @@ const Pipeline1 = () => {
     });
     setLeadsList(updatedLeads);
 
-    // console.log("Updated leads are", updatedLeads);
+    // //console.log;
 
     const updatedPipelines = PipeLines.map((pipeline) => {
       return {
@@ -1584,9 +1584,9 @@ const Pipeline1 = () => {
       };
     });
 
-    // console.log("Updated Pipelines ", updatedPipelines);
+    // //console.log;
 
-    // console.log("Selected pipeline is", SelectedPipeline);
+    // //console.log;
 
     // let leadesList = [];
 
@@ -1597,9 +1597,9 @@ const Pipeline1 = () => {
 
   function HandleLeadAssignedTeam(team, lead) {
     //code to add team members to the lead data
-    // console.log("Lead is", lead);
-    // console.log("Item is", team);
-    // console.log("Leads list is", LeadsList);
+    // //console.log;
+    // //console.log;
+    // //console.log;
 
     const updatedLeadsList = LeadsList.map((item) =>
       item.leadId === lead.id
@@ -1613,7 +1613,7 @@ const Pipeline1 = () => {
         : item
     );
 
-    // console.log("Updated leads list", updatedLeadsList);
+    // //console.log;
 
     setLeadsList(updatedLeadsList);
   }
@@ -1621,16 +1621,16 @@ const Pipeline1 = () => {
   const handleDelLead = async () => {
     try {
       const leadToDelete = selectedLeadsDetails;
-      // console.log("Lead to delete is", leadToDelete);
-      // console.log("Leads list is", LeadsList);
-      // console.log("Pipelines are", PipeLines);
+      // //console.log;
+      // //console.log;
+      // //console.log;
       // return;
       const filteredLeads = LeadsList?.filter((lead) => {
-        // console.log(`Checking lead: ${lead.leadId} against ${leadToDelete.id}`);
+        // //console.log;
         return lead.leadId !== leadToDelete.id;
       });
 
-      // console.log("Filtered leads are", filteredLeads);
+      // //console.log;
 
       const filteredPipelines = PipeLines.map((pipeline) => {
         return {
@@ -1641,28 +1641,28 @@ const Pipeline1 = () => {
         };
       });
 
-      // console.log("Filtered pipelines are", filteredPipelines);
-      //// console.log("Filtered pipelines 12 are", fP)
+      // //console.log;
+      //// //console.log
       setPipeLines(filteredPipelines);
       setLeadsList(filteredLeads);
       setShowDetailsModal(false);
     } catch (error) {
       // console.error("Error occuren in api is", error);
     } finally {
-      // console.log("Api call done");
+      // //console.log;
     }
   };
 
   function handldSearch(e) {
     let pipeline = SelectedPipeline;
     let search = e.target.value.toLowerCase();
-    // console.log("Searching lead ", e.target.value);
+    // //console.log;
 
     if (search == "") {
       setLeadsList(pipeline.leads);
     } else {
       const filteredLeads = pipeline.leads.filter((lead) => {
-        //// console.log(`Checking lead: ${lead.leadId} against ${leadToDelete.id}`);
+        //// //console.log;
         let firstName = lead.lead.firstName?.toLowerCase() || "";
         let lastName = lead.lead.lastName?.toLowerCase() || "";
         let fullName = (firstName || "") + " " + (lastName || "");
@@ -1833,7 +1833,7 @@ const Pipeline1 = () => {
                           onClick={() => {
                             setShowRenamePipelinePopup(true);
                             setRenamePipeline(SelectedPipeline.title);
-                            // console.log("Selected pipeline is:", SelectedPipeline);
+                            // //console.log;
                           }}
                         >
                           <Image
@@ -1996,12 +1996,12 @@ const Pipeline1 = () => {
                             variant="contained"
                             onClick={(evetn) => {
                               if (stage.identifier === "new_lead") {
-                                // console.log("donotShow del btn");
+                                // //console.log;
                                 setShowDelBtn(true);
                               } else {
                                 setShowDelBtn(false);
                               }
-                              // console.log("Show del btn", stage);
+                              // //console.log;
                               handleShowStagePopover(evetn, stage);
                             }}
                             className="outline-none"
@@ -2037,7 +2037,7 @@ const Pipeline1 = () => {
                                 style={styles.paragraph}
                                 onClick={() => {
                                   setShowRenamePopup(true);
-                                  // console.log("Selected stage is:", selectedStage);
+                                  // //console.log;
                                   setRenameStage(selectedStage.stageTitle);
                                   setUpdateStageColor(
                                     selectedStage.defaultColor

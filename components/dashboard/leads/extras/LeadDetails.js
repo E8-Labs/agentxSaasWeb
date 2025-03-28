@@ -52,8 +52,8 @@ const LeadDetails = ({
   leadStageUpdated,
   leadAssignedTeam,
 }) => {
-  // console.log("Pipeline id passed is", pipelineId);
-  // console.log("Lead details are ", selectedLead);
+  // //console.log;
+  // //console.log;
 
   const [columnsLength, setcolumnsLength] = useState([]);
 
@@ -122,14 +122,14 @@ const LeadDetails = ({
   const [getTeamLoader, setGetTeamLoader] = useState(false);
 
   useEffect(() => {
-    console.log("Lead detail modal rendered");
+    //console.log;
   }, []);
 
   useEffect(() => {
     if (!selectedLead) return;
     getLeadDetails(selectedLead);
     if (pipelineId) {
-      // console.log("Get stages api called", pipelineId);
+      // //console.log;
       getStagesList(selectedLead);
     }
     getMyteam();
@@ -137,7 +137,7 @@ const LeadDetails = ({
 
   //code for getting teammebers
   const getMyteam = async () => {
-    console.log("team getting");
+    //console.log;
     try {
       setGetTeamLoader(true);
       const data = localStorage.getItem("User");
@@ -157,25 +157,25 @@ const LeadDetails = ({
           setGetTeamLoader(false);
 
           if (response.data.status === true) {
-            console.log("get team api response is", response.data);
+            //console.log;
             setMyTeam(response.data.data);
             setMyTeamAdmin(response.data.admin);
           } else {
-            // console.log("get team api message is", response.data.message);
+            // //console.log;
           }
         }
       }
     } catch (e) {
       setGetTeamLoader(false);
 
-      // console.log("error in get team api is", e);
+      // //console.log;
     }
   };
 
   //function to assign lead to the team
   const handleAssignLeadToTeammember = async (item) => {
     try {
-      console.log("Check 1 clear", item);
+      //console.log;
       handleClosePopup();
       setGlobalLoader(true);
       let response = await AssignTeamMember(selectedLeadsDetails.id, item.invitingUserId);
@@ -188,7 +188,7 @@ const LeadDetails = ({
         });
         leadAssignedTeam(item, selectedLeadsDetails);
       }
-      console.log("Response of api is", response);
+      //console.log;
     } catch (error) {
       // console.error("Error occured is", error);
     } finally {
@@ -199,7 +199,7 @@ const LeadDetails = ({
 
   //function to handle stages dropdown selection
   const handleStageChange = (event) => {
-    //// console.log("Event papsse dis", event)
+    //// //console.log
     setSelectedStage(event.target.value);
     // updateLeadStage();
   };
@@ -207,13 +207,13 @@ const LeadDetails = ({
   //function to update stage
   const updateLeadStage = async (stage) => {
     try {
-      // console.log("I am trigered", selectedLead);
+      // //console.log;
       let AuthToken = null;
 
       const localDetails = localStorage.getItem("User");
       if (localDetails) {
         const Data = JSON.parse(localDetails);
-        //// console.log("User details are", Data);
+        //// //console.log;
         AuthToken = Data.token;
       }
 
@@ -222,7 +222,7 @@ const LeadDetails = ({
         stageId: stage.id,
       };
 
-      // console.log("Api data sending is", ApiData);
+      // //console.log;
 
       const ApiPath = Apis.updateLeadStageApi;
       // return
@@ -234,7 +234,7 @@ const LeadDetails = ({
       });
 
       if (response) {
-        // console.log("response of update api is", response.data);
+        // //console.log;
         if (response.data.status === true) {
           setShowSuccessSnack(response.data.message);
           setShowSuccessSnack2(true);
@@ -247,7 +247,7 @@ const LeadDetails = ({
     } catch (error) {
       // console.error("Error occured in api is", error);
     } finally {
-      // console.log("Update api done");
+      // //console.log;
     }
   };
 
@@ -255,7 +255,7 @@ const LeadDetails = ({
 
   const handleShowPopup = (event) => {
     setAnchorEl(event.currentTarget);
-    //// console.log("Selected item details are ", item);
+    //// //console.log;
   };
 
   const handleClosePopup = () => {
@@ -269,21 +269,21 @@ const LeadDetails = ({
   const getLeadDetails = async (selectedLead) => {
     try {
       setInitialLoader(true);
-      // console.log("I am trigered");
+      // //console.log;
       let AuthToken = null;
 
       const localDetails = localStorage.getItem("User");
       if (localDetails) {
         const Data = JSON.parse(localDetails);
-        //// console.log("User details are", Data);
+        //// //console.log;
         AuthToken = Data.token;
       }
 
-      // console.log("Auth token is", AuthToken);
+      // //console.log;
 
       const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedLead}`;
 
-      // console.log("Apipath is", ApiPath);
+      // //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -293,7 +293,7 @@ const LeadDetails = ({
       });
 
       if (response) {
-        console.log("Lead details Response of api is", response.data);
+        //console.log;
         let dynamicColumns = [];
         dynamicColumns = [
           ...response?.data?.columns,
@@ -305,7 +305,7 @@ const LeadDetails = ({
         ];
         // setLeadColumns(response.data.columns);
         setSelectedLeadsDetails(response.data.data);
-        //// console.log("Selected stage is", response?.data?.data?.stage?.stageTitle)
+        //// //console.log
         setSelectedStage(response?.data?.data?.stage?.stageTitle);
         // setSelectedStage(response?.data?.data?.stage?.stageTitle);
         setLeadColumns(dynamicColumns);
@@ -316,7 +316,7 @@ const LeadDetails = ({
       // console.error("Error occured in api is", error);
     } finally {
       setInitialLoader(false);
-      // console.log("Api call completed");
+      // //console.log;
     }
   };
 
@@ -328,15 +328,15 @@ const LeadDetails = ({
       const localDetails = localStorage.getItem("User");
       if (localDetails) {
         const Data = JSON.parse(localDetails);
-        console.log("getting stage list");
+        //console.log;
         AuthToken = Data.token;
       }
 
-      // console.log("Auth token is", AuthToken);
+      // //console.log;
 
       const ApiPath = `${Apis.getStagesList}?pipelineId=${pipelineId}`;
 
-      // console.log("Apipath is", ApiPath);
+      // //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -346,9 +346,9 @@ const LeadDetails = ({
       });
 
       if (response) {
-        console.log("Response of getStages list is ", response.data);
+        //console.log;
         if (response.data.status === true) {
-          console.log("Stages list is", response.data.data.stages);
+          //console.log;
           setStagesList(response.data.data.stages);
         }
       }
@@ -356,7 +356,7 @@ const LeadDetails = ({
       console.error("Error occured in stage list api is", error);
     } finally {
       setStagesListLoader(false);
-      // console.log("Get stages ai call done");
+      // //console.log;
     }
   };
 
@@ -371,14 +371,14 @@ const LeadDetails = ({
         AuthToken = UserDetails.token;
       }
 
-      // console.log("Auth token is :--", AuthToken);
+      // //console.log;
 
       const ApiData = {
         note: addNotesValue,
         leadId: selectedLeadsDetails.id,
       };
 
-      // console.log("api data is:", ApiData);
+      // //console.log;
 
       const ApiPath = Apis.addLeadNote;
       // return
@@ -390,7 +390,7 @@ const LeadDetails = ({
       });
 
       if (response) {
-        // console.log("Response of add api is:", response);
+        // //console.log;
         // setNoteDetails()
         if (response.data.status === true) {
           setShowAddNotes(false);
@@ -411,7 +411,7 @@ const LeadDetails = ({
     const phoneNumber = parsePhoneNumberFromString(
       rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
     );
-    //// console.log("Raw number is", rawNumber);
+    //// //console.log;
     return phoneNumber
       ? phoneNumber.formatInternational()
       : "Invalid phone number";
@@ -429,19 +429,19 @@ const LeadDetails = ({
         //   "Status is completed with the following additional information:"
         // );
         if (item.hotlead === true) {
-          // console.log("Hot Lead");
+          // //console.log;
           callStatus = "Hot Lead";
         }
         if (item.humancalldrop === true) {
-          // console.log("Human Call Drop");
+          // //console.log;
           callStatus = "Human Call Drop";
         }
         if (item.dnd === true) {
-          // console.log("DND");
+          // //console.log;
           callStatus = "DND";
         }
         if (item.notinterested) {
-          // console.log("Not interested");
+          // //console.log;
           callStatus = "Not Interested";
         }
       } else {
@@ -503,7 +503,7 @@ const LeadDetails = ({
           return item.stage ? item.stage.stageTitle : "No Stage";
         default:
           const value = `${item[title]}`;
-          console.log("Value is ", value);
+          //console.log;
           if (typeof value === "object" && value !== null) {
             // Handle objects gracefully
             return JSON.stringify(value); // Convert to string or handle as needed
@@ -538,7 +538,7 @@ const LeadDetails = ({
   //code for del tag api
   const handleDelTag = async (tag) => {
     try {
-      // console.log("Selected lead details are", selectedLeadsDetails);
+      // //console.log;
       setDelTagLoader(tag);
 
       let AuthToken = null;
@@ -549,7 +549,7 @@ const LeadDetails = ({
         AuthToken = localData.token;
       }
 
-      // console.log("Auth token is:", AuthToken);
+      // //console.log;
 
       const ApiData = {
         tag: tag,
@@ -557,8 +557,8 @@ const LeadDetails = ({
       };
 
       const ApiPath = Apis.delLeadTag;
-      // console.log("Data sending in api is:", ApiData);
-      // console.log("Api path is:", ApiPath);
+      // //console.log;
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -568,9 +568,9 @@ const LeadDetails = ({
       });
 
       if (response) {
-        // console.log("Response of del tag api is:", response.data);
+        // //console.log;
         if (response.data.status === true) {
-          // console.log("Staus is true");
+          // //console.log;
 
           const updatedTags = selectedLeadsDetails.tags.filter(
             (item) => item !== tag
@@ -622,7 +622,7 @@ const LeadDetails = ({
         isPipeline: isPipeline,
       };
 
-      // console.log("Data sending in api is", ApiData);
+      // //console.log;
 
       const ApiPath = Apis.deleteLead;
 
@@ -637,7 +637,7 @@ const LeadDetails = ({
       });
 
       if (response) {
-        // console.log("Response of del lead api is", response);
+        // //console.log;
         if (response.data.status === true) {
           handleDelLead(selectedLeadsDetails);
         }
@@ -674,7 +674,7 @@ const LeadDetails = ({
   };
 
   function getExtraColumsCount(columns) {
-    // console.log('columns', columns)
+    // //console.log
     let count = 0;
     let ExcludedColumns = [
       "name",
@@ -691,7 +691,7 @@ const LeadDetails = ({
         }
       }
     }
-    // console.log("Total columns to show ", count);
+    // //console.log;
 
     return count;
   }

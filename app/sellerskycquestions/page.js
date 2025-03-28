@@ -5,7 +5,7 @@ import SellerKycs from "@/components/kycQuestions/SellerKycs";
 import React, { useState } from "react";
 
 const Page = () => {
-  // console.log("This is ", hello);
+  // //console.log;
   const [index, setIndex] = useState(0);
   let components = [SellerKycs];
 
@@ -13,12 +13,12 @@ const Page = () => {
 
   // Function to proceed to the next step
   const handleContinue = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index + 1);
   };
 
   const handleBack = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index - 1);
   };
 

@@ -15,9 +15,9 @@ const TagsInput = ({ setTags }) => {
     const [value, setValue] = useState([]);
 
     useEffect(() => {
-       // console.log("tags", value);
+       // //console.log;
         const updatedTagsArray = value.map(tag => tag.value);
-       // console.log("Updated tags array is:", updatedTagsArray);
+       // //console.log;
         setTags(updatedTagsArray);
     }, [value])
 

@@ -28,7 +28,7 @@ const UserService = ({ handleContinue, handleBack }) => {
     );
     if (selectedServiceID) {
       const serviceIds = JSON.parse(selectedServiceID);
-      //// console.log("Userdetails are", serviceIds);
+      //// //console.log;
       setServiceId(serviceIds.serviceID);
     }
   }, []);
@@ -40,13 +40,13 @@ const UserService = ({ handleContinue, handleBack }) => {
     //     // <DefaultData setServicesData={setServicesData} />
     //     // setServicesData(servicesData);
     // } else {
-    //    // console.log("Default data already exists")
+    //    // //console.log
     // }
   }, []);
 
   useEffect(() => {
     if (serviceId.length > 0) {
-      // console.log("service id is ::", serviceId);
+      // //console.log;
       setShouldContinue(false);
     } else if (serviceId.length === 0) {
       setShouldContinue(true);
@@ -63,15 +63,15 @@ const UserService = ({ handleContinue, handleBack }) => {
       let AgentTypeTitle = null;
       if (selectedServiceID) {
         const serviceIds = JSON.parse(selectedServiceID);
-        // console.log("Userdetails are", serviceIds);
+        // //console.log;
         AgentTypeTitle = serviceIds.userTypeTitle;
       }
       let servicesLocal = GetServicesForUser(AgentTypeTitle);
       setServicesData(servicesLocal);
 
-      // console.log("Check 1 clear !!!");
+      // //console.log;
       const ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`;
-      // console.log("Api link is:--", ApiPath);
+      // //console.log;
       const response = await axios.get(ApiPath, {
         headers: {
           "Content-Type": "application/json",
@@ -79,7 +79,7 @@ const UserService = ({ handleContinue, handleBack }) => {
       });
 
       if (response) {
-        // console.log("Response of api is : -----", response.data);
+        // //console.log;
         setServicesData(response.data.data.agentServices);
       } else {
         // alert(response.data);

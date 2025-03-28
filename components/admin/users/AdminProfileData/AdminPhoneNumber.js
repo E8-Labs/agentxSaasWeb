@@ -51,15 +51,15 @@ function AdminPhoneNumber({selectedUser}) {
                 if (response) {
                     setLoading(false)
                     if (response.data.status === true) {
-                       console.log('user numbers are', response.data.data)
+                       //console.log
                         setNumbers(response.data.data)
                     } else {
-                       console.log('user numbers api message is', response.data.message)
+                       //console.log
                     }
                 }
             } catch (e) {
                 setLoading(false)
-               console.log('error in get numbers api', e)
+               //console.log
             }
         }
     }
@@ -77,7 +77,7 @@ function AdminPhoneNumber({selectedUser}) {
             let AuthToken = null;
             if (localData) {
                 const D = JSON.parse(localData);
-               // console.log("Local details are", D);
+               // //console.log;
                 AuthToken = D.token
             }
 
@@ -85,11 +85,11 @@ function AdminPhoneNumber({selectedUser}) {
                 phone: selectedNumber
             }
 
-           // console.log("Api data is", ApiData);
+           // //console.log;
 
             const ApiPath = Apis.delNumber;
 
-           // console.log("Apipath is", ApiPath);
+           // //console.log;
 
             // return
             const response = await axios.post(ApiPath, ApiData, {
@@ -100,7 +100,7 @@ function AdminPhoneNumber({selectedUser}) {
             });
 
             if (response) {
-               // console.log("Response of del number api is", response);
+               // //console.log;
                 if (response.data.status === true) {
                     setNumbers((prevNumbers) =>
                         prevNumbers.filter((item) => item.phoneNumber !== selectedNumber)
@@ -253,7 +253,7 @@ function AdminPhoneNumber({selectedUser}) {
                                                     onClick={(event) => {
                                                         setOpenMoreDropdown(true);
                                                         setMoreDropdown(event.currentTarget);
-                                                       // console.log("Current no is", item)
+                                                       // //console.log
                                                         setSelectedNumber(item.phoneNumber)
                                                     }}>
                                                     <Image src={"/otherAssets/threeDotsIcon.png"}

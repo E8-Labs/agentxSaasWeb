@@ -159,11 +159,11 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
       }
 
       // setCheckPhoneResponse(null);
-      // console.log("Trigered");
+      // //console.log;
 
       timerRef.current = setTimeout(() => {
         checkPhoneNumber(phoneNumber);
-        // console.log("I am hit now");
+        // //console.log;
       }, 300);
     }
   };
@@ -191,7 +191,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
       let response = await SendVerificationCode(userPhoneNumber, true);
       setResponse(response);
       setIsVisible(true);
-      // console.log("Response recieved is", response);
+      // //console.log;
     } catch (error) {
       // console.error("Error occured", error);
     } finally {
@@ -265,7 +265,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
 
   //code for number verification
   const handleVerifyCode = () => {
-    // console.log("Verify code is :", VerifyCode.join(""));
+    // //console.log);
     setPhoneVerifiedSuccessSnack(true);
     handleRegister();
   };
@@ -303,20 +303,20 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
       );
       formData.append("verificationCode", VerifyCode.join(""));
 
-      // console.log("Data for user registeration is :-----");
+      // //console.log;
       for (let [key, value] of formData.entries()) {
-        // console.log(`${key}: ${value}`);
+        // //console.log;
       }
 
       // return;
       const response = await axios.post(ApiPath, formData);
       if (response) {
-        console.log("Response of register api is:--", response);
+        //console.log;
         let result = response.data;
         setResponse(result);
         setIsVisible(true);
         if (response.data.status === true) {
-          console.log("Status is :---", response.data.status);
+          //console.log;
           localStorage.removeItem(PersistanceKeys.RegisterDetails);
           localStorage.setItem("User", JSON.stringify(response.data.data));
 
@@ -329,12 +329,12 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
             screenWidth = window.innerWidth; // Get current screen width
           }
           const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
-          console.log("Here RealEstate");
+          //console.log;
           if (screenWidth <= SM_SCREEN_SIZE) {
             setCongratsPopup(true);
-            // console.log("This is a small size screen");
+            // //console.log;
           } else {
-            console.log("This is a large size screen SignUpForm.js");
+            //console.log;
             handleContinue();
           }
         }
@@ -359,7 +359,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
         email: value,
       };
 
-      // console.log("Api data is :", ApiData);
+      // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -368,9 +368,9 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
       });
 
       if (response) {
-        // console.log("Response of check email api is :", response);
+        // //console.log;
         if (response.data.status === true) {
-          // console.log("Response message is :", response.data.message);
+          // //console.log;
           setEmailCheckResponse(response.data);
         } else {
           setEmailCheckResponse(response.data);
@@ -392,7 +392,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
         phone: value,
       };
 
-      // console.log("Api data is :", ApiData);
+      // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -401,9 +401,9 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
       });
 
       if (response) {
-        // console.log("Response of check phone api is :", response);
+        // //console.log;
         if (response.data.status === true) {
-          // console.log("Response message is :", response.data.message);
+          // //console.log;
           setCheckPhoneResponse(response.data);
         } else {
           setCheckPhoneResponse(response.data);
@@ -554,7 +554,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                   // if (value) {
                   //   const timer = setTimeout(() => {
                   //     checkEmail(value);
-                  //    // console.log("I am hit now")
+                  //    // //console.log
                   //   }, 1000);
                   //   return (() => clearTimeout(timer));
                   // } else {
@@ -568,16 +568,16 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                   setEmailCheckResponse(null);
 
                   if (!value) {
-                    // console.log("Should set the value to null");
+                    // //console.log;
                     setValidEmail("");
                     return;
                   }
 
                   if (!validateEmail(value)) {
-                    // console.log("Invalid pattern");
+                    // //console.log;
                     setValidEmail("Invalid");
                   } else {
-                    // console.log("No trigered");
+                    // //console.log;
                     if (value) {
                       // Set a new timeout
                       timerRef.current = setTimeout(() => {

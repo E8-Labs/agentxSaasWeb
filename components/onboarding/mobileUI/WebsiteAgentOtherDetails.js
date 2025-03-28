@@ -12,11 +12,11 @@ function WebsiteAgentOtherDetails({
 
       useEffect(() => {
         let timer = setTimeout(() => {
-          console.log("url timerfinished", isValidUrl(websiteUrl));
+          //console.log);
           if (websiteUrl) {
             if (isValidUrl(websiteUrl)) {
                 setUrlErrorMessage("")
-              console.log("url valid");
+              //console.log;
             } else {
               setUrlErrorMessage("Invalid");
             }

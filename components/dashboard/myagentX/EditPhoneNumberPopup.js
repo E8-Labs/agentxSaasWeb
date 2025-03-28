@@ -13,7 +13,7 @@ export const EditPhoneNumberModal = ({
   loading,
   update,
 }) => {
-  // console.log("number", number);
+  // //console.log;
 
   const [errorMessage, setErrorMessage] = useState("");
   const [countryCode, setCountryCode] = useState("");

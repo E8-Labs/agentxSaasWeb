@@ -5,27 +5,27 @@ import axios from "axios";
 //api call to assign lead to teamm members
 export const AssignTeamMember = async (leadId, teamMemberUserId) => {
   try {
-    // console.log("I am trigered")
+    // //console.log
     let AuthToken = null;
     const localData = localStorage.getItem("User");
-    // console.log("Check 2 clear")
+    // //console.log
     if (localData) {
       const Data = JSON.parse(localData);
-      //// console.log("Local details are", Data);
+      //// //console.log;
       AuthToken = Data.token;
       // return Data.token
     }
-    // console.log("Check 3 clear")
+    // //console.log
     const ApiData = {
       // leadId: selectedLeadsDetails.id,
       // teamMemberUserId: item?.id
       leadId: leadId,
       teamMemberUserId: teamMemberUserId,
     };
-    // console.log("Check 4 clear", ApiData);
+    // //console.log;
 
     const ApiPath = Apis.AssignLeadToTeam;
-    // console.log("Apipath is", ApiPath)
+    // //console.log
     // return
     const response = await axios.post(ApiPath, ApiData, {
       headers: {
@@ -40,7 +40,7 @@ export const AssignTeamMember = async (leadId, teamMemberUserId) => {
   } catch (error) {
     // console.error("Error occured in assign lead to teammeber api is", error);
   } finally {
-    // console.log("Assign lead to teammeber api done");
+    // //console.log;
   }
 };
 
@@ -53,7 +53,7 @@ export const checkPhoneNumber = async (value) => {
       phone: value,
     };
 
-    // console.log("Api data is :", ApiData);
+    // //console.log;
 
     const response = await axios.post(ApiPath, ApiData, {
       headers: {
@@ -81,25 +81,25 @@ export const getLocation = () => {
         const { latitude, longitude } = position.coords;
         localStorage.setItem("CompleteLocation", JSON.stringify(position));
         try {
-          // console.log("Api Loc Check 1")
+          // //console.log
           // Fetch country code based on latitude and longitude
           const response = await fetch(
             `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
           );
-          // console.log("Api Loc Check 2")
+          // //console.log
           const data = await response.json();
-          // console.log("Api Loc Check 3")
+          // //console.log
 
           // Set the country code if the API returns it
           const locationData = {
             location: data.countryCode.toLowerCase(),
           };
-          // console.log("Api Loc Check 4")
+          // //console.log
           if (data && data.countryCode) {
             localStorage.setItem("userLocation", JSON.stringify(locationData));
-            // console.log("Api Loc Check 5")
+            // //console.log
             getLocalLocation();
-            // console.log("Api Loc Check 6")
+            // //console.log
           } else {
             // console.error("Unable to fetch country code.");
           }
@@ -118,14 +118,14 @@ export const getLocation = () => {
 };
 
 export const getLocalLocation = () => {
-  // console.log("LCheck 1")
+  // //console.log
   const loc = localStorage.getItem("userLocation");
-  // console.log("LCheck 2")
+  // //console.log
 
   if (loc) {
     const L = JSON.parse(loc);
     if (L) {
-      // console.log("LCheck 3")
+      // //console.log
     }
     return L?.location;
   } else if (!loc) {
@@ -151,10 +151,10 @@ export const getTeamsList = async () => {
 
       if (response) {
         if (response.data.status === true) {
-          // console.log("get team api response is", response.data);
+          // //console.log;
           return response.data;
         } else {
-          // console.log("get team api message is", response.data.message);
+          // //console.log;
           // return response.data.data
         }
       }
@@ -162,6 +162,6 @@ export const getTeamsList = async () => {
   } catch (error) {
     // console.error("Error occured in api is", error);
   } finally {
-    // console.log("Get teams list done");
+    // //console.log;
   }
 };

@@ -7,7 +7,7 @@ const AddressPicker = ({ onPlaceSelect }) => {
   const inputRef = useRef(null);
   const places = useMapsLibrary("places");
 
- // console.log("Inside address picker");
+ // //console.log;
   // Initialize Places Autocomplete
   useEffect(() => {
     if (!places || !inputRef.current) return;
@@ -18,7 +18,7 @@ const AddressPicker = ({ onPlaceSelect }) => {
 
     autocomplete.addListener("place_changed", () => {
       const selectedPlace = autocomplete.getPlace();
-     // console.log("Selected Place:", selectedPlace);
+     // //console.log;
       if (selectedPlace.geometry) {
         onPlaceSelect(selectedPlace);
       }

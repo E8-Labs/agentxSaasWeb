@@ -53,7 +53,7 @@ const Page = ({ length = 6, onComplete }) => {
 
   useEffect(() => {
     if (params && params.username) {
-      // console.log("Username is ", params.username);
+      // //console.log;
       if (typeof window !== "undefined") {
         localStorage.setItem(
           PersistanceKeys.LocalStorageCampaignee,
@@ -68,7 +68,7 @@ const Page = ({ length = 6, onComplete }) => {
   useEffect(() => {
     const localData = localStorage.getItem("User");
     if (localData) {
-      // console.log("user login details are :", localData);
+      // //console.log;
       router.push("/dashboard");
     }
     const localLoc = localStorage.getItem("userLocation");
@@ -85,7 +85,7 @@ const Page = ({ length = 6, onComplete }) => {
 
     // const localAgentData = localStorage.getItem("agentDetails");
     // if (localAgentData) {
-    //   console.log("user agent details are :", localAgentData);
+    //   //console.log;
     //   // router.push("/dashboard");
     // }
   }, []);
@@ -93,7 +93,7 @@ const Page = ({ length = 6, onComplete }) => {
   //action detects inner width
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // console.log("Window inner width is", window.innerWidth);
+      // //console.log;
       setInnerWidth(window.innerWidth);
     }
   }, [InnerWidth]);
@@ -141,7 +141,7 @@ const Page = ({ length = 6, onComplete }) => {
       }
 
       // setCheckPhoneResponse(null);
-      // console.log("Trigered");
+      // //console.log;
 
       timerRef.current = setTimeout(() => {
         checkPhoneNumber(phoneNumber);
@@ -162,11 +162,11 @@ const Page = ({ length = 6, onComplete }) => {
     try {
       setSendcodeLoader(true);
       let response = await SendVerificationCode(userPhoneNumber, true);
-      // console.log("Number for sending code is", userPhoneNumber);
+      // //console.log;
       // return
       setResponse(response);
       setIsVisible(true);
-      // console.log("Response recieved is", response);
+      // //console.log;
     } catch (error) {
       // console.error("Error occured", error);
     } finally {
@@ -190,7 +190,7 @@ const Page = ({ length = 6, onComplete }) => {
         verificationCode: VerifyCode.join(""),
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       };
-      console.log("Api data for login api is :", AipData);
+      //console.log;
 
       const response = await axios.post(ApiPath, AipData, {
         headers: {
@@ -212,7 +212,7 @@ const Page = ({ length = 6, onComplete }) => {
           //   response.data.data.user.userRole !== "Invitee"
           // ) {
           if (response.data.data.user.waitlist) {
-            // console.log("Pushing user to wait list");
+            // //console.log;
 
             const twoHoursFromNow = new Date();
             twoHoursFromNow.setTime(twoHoursFromNow.getTime() + 2 * 60 * 1000);
@@ -221,11 +221,11 @@ const Page = ({ length = 6, onComplete }) => {
               router.push("/onboarding/WaitList");
             }
           } else {
-            // console.log("Here Else");
+            // //console.log;
             localStorage.setItem("User", JSON.stringify(response.data.data));
             //set cokie on locastorage to run middle ware
             if (typeof document !== "undefined") {
-              // console.log("Here Not undefined");
+              // //console.log;
 
               setCookie(response.data.data.user, document);
               let w = 1000;
@@ -233,14 +233,14 @@ const Page = ({ length = 6, onComplete }) => {
                 window.innerWidth;
               }
               if (w < 540) {
-                // console.log("It is mobile view");
+                // //console.log;
                 router.push("/createagent/desktop");
               } else if (w > 540) {
-                // console.log("It is desktop view");
+                // //console.log;
                 router.push("/dashboard/leads");
               }
             } else {
-              // console.log("Here undefined");
+              // //console.log;
             }
           }
         }
@@ -262,7 +262,7 @@ const Page = ({ length = 6, onComplete }) => {
         phone: value,
       };
 
-      // console.log("Api data is :", ApiData);
+      // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -271,9 +271,9 @@ const Page = ({ length = 6, onComplete }) => {
       });
 
       if (response) {
-        // console.log("Response of check phone api is :", response);
+        // //console.log;
         if (response.data.status === true) {
-          // console.log("Response message is :", response.data.message);
+          // //console.log;
           setCheckPhoneResponse(response.data.status);
         } else if (response.data.status === false) {
           setCheckPhoneResponse(response.data.status);
@@ -366,7 +366,7 @@ const Page = ({ length = 6, onComplete }) => {
   };
 
   const handleVerifyCode = () => {
-    // console.log("Verify code is :", VerifyCode.join(""));
+    // //console.log);
     // setPhoneVerifiedSuccessSnack(true);
     handleLogin();
   };

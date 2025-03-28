@@ -27,8 +27,8 @@ const AddSellerKyc = ({
   allKYCs,
   selectedUser
 }) => {
-  console.log("Satus of passed is", allKYCs);
-  console.log('selectedUser on add buyer', selectedUser)
+  //console.log;
+  //console.log
 
 
   const router = useRouter();
@@ -47,8 +47,8 @@ const AddSellerKyc = ({
   //code for need kyc
   const [selectedNeedKYC, setSelectedNeedKYC] = useState([]);
   const [oldSelectedNeedKYC, setOldSelectedNeedKYC] = useState([]);
-  // console.log("Old kycs length", SellerNeedData);
-  // console.log("new kycs length", selectedNeedKYC);
+  // //console.log;
+  // //console.log;
   //code for motivation KYC
   const [selectedMotivationKyc, setSelectedMotivationKYC] = useState([]);
   const [oldSelectedMotivationKyc, setOldSelectedMotivationKYC] = useState([]);
@@ -150,14 +150,14 @@ const AddSellerKyc = ({
   );
 
   useEffect(() => {
-    // console.log("Here in user set");
+    // //console.log;
     let AuthToken = null,
       user = null;
     const localData = localStorage.getItem("User");
     if (localData) {
       user = JSON.parse(localData);
       setUser(user);
-      // console.log("Localdat recieved is :--", Data);
+      // //console.log;
       AuthToken = user.token;
     }
     if (user) {
@@ -182,20 +182,20 @@ const AddSellerKyc = ({
 
   //check for the save and continue btn
   useEffect(() => {
-    // console.log("Should check btn status");
+    // //console.log;
     if (
       oldSelectedNeedKYC.length !== selectedNeedKYC.length ||
       selectedMotivationKyc.length !== oldSelectedMotivationKyc.length ||
       selectedUrgencyKyc.length !== oldSelectedUrgencyKyc.length
     ) {
-      // console.log("Should show save btn");
+      // //console.log;
       setShouldSave(true);
     } else if (
       oldSelectedNeedKYC.length === selectedNeedKYC.length ||
       selectedMotivationKyc.length !== oldSelectedMotivationKyc.length ||
       selectedUrgencyKyc.length !== oldSelectedUrgencyKyc.length
     ) {
-      // console.log("Should not show save btn");
+      // //console.log;
       setShouldSave(false);
     }
   }, [
@@ -234,7 +234,7 @@ const AddSellerKyc = ({
     }
 
     if (SellerNeedData.length > 0) {
-      console.log("Data passed is", SellerNeedData);
+      //console.log;
       setNeedKYCQuestions((prevNeedKycs) => [
         ...prevNeedKycs.filter(
           (existing) =>
@@ -269,7 +269,7 @@ const AddSellerKyc = ({
       ]);
     }
     if (SellerMotivationData.length > 0) {
-      // console.log("Data passed is", SellerNeedData);
+      // //console.log;
       setMotivationKycQuestions((prevNeedKycs) => [
         ...prevNeedKycs.filter(
           (existing) =>
@@ -308,7 +308,7 @@ const AddSellerKyc = ({
       ]);
     }
     if (SellerUrgencyData.length > 0) {
-      // console.log("Data passed is", SellerNeedData);
+      // //console.log;
       setUrgencyKycQuestions((prevNeedKycs) => [
         ...prevNeedKycs.filter(
           (existing) =>
@@ -347,7 +347,7 @@ const AddSellerKyc = ({
 
   //function to add kyc
   const handleAddKycQuestion = () => {
-    console.log('check 1')
+    //console.log
     const sampleAnswers = inputs.map((input) => input.value);
     let newKYCQuestion = {
       id: needKYCQuestions.length + 1,
@@ -365,10 +365,10 @@ const AddSellerKyc = ({
         )
       ) {
         setShowErrorSnack("Question already exists!!!");
-        // console.log("Question Already exists");
+        // //console.log;
         return;
       } else {
-        //// console.log("New question");
+        //// //console.log;
         setNeedKYCQuestions((prevQuestions) => {
           const updatedQuestions = [
             ...prevQuestions,
@@ -392,7 +392,7 @@ const AddSellerKyc = ({
         )
       ) {
         setShowErrorSnack("Question already exists!!!");
-        // console.log("Question Already exists");
+        // //console.log;
         return;
       } else {
         setMotivationKycQuestions((prevQuestions) => {
@@ -417,7 +417,7 @@ const AddSellerKyc = ({
         )
       ) {
         setShowErrorSnack("Question already exists!!!");
-        // console.log("Question Already exists");
+        // //console.log;
         return;
       } else {
         setUrgencyKycQuestions((prevQuestions) => {
@@ -510,7 +510,7 @@ const AddSellerKyc = ({
 
   //api call to add kyc
   const handleAddNewKyc = async () => {
-    console.log('check 1')
+    //console.log
     // Get only the selected questions
     const selectedNeedQuestions = needKYCQuestions.filter((question) =>
       selectedNeedKYC.some((selectedItem) => selectedItem.id === question.id)
@@ -543,9 +543,9 @@ const AddSellerKyc = ({
       let AgentId = null;
 
       if (agentDetails) {
-        // console.log("trying");
+        // //console.log;
         const agentData = JSON.parse(agentDetails);
-        // console.log("ActualAgent details are :--", agentData);
+        // //console.log;
         MyAgentData = agentData;
       }
 
@@ -575,7 +575,7 @@ const AddSellerKyc = ({
 
       let newArray = [];
 
-      // console.log("Alll kycs are", allKYCs);
+      // //console.log;
 
       for (let i = 0; i < allKYCs.length; i++) {
         const itemA = allKYCs[i];
@@ -609,7 +609,7 @@ const AddSellerKyc = ({
         }
       }
 
-      // console.log("Final array is", newArray);
+      // //console.log;
 
       // let kycs = allKYCs.filter((item) => item.category != "motivation")
       // kycs = [...kycs, ...selectedMotivationQuestions]
@@ -633,7 +633,7 @@ const AddSellerKyc = ({
         })),
       ];
 
-      console.log("Updated kycs", updatedKycs);
+      //console.log;
 
       // let kycs = allKYCs.filter((item) => item.category != "motivation")
       // kycs = [...kycs, ...updatedKycs]
@@ -652,7 +652,7 @@ const AddSellerKyc = ({
       if(UserDetails.user.userType === "admin"){
         data.userId=selectedUser.id
       }
-      console.log("Data to send in api is", data);
+      //console.log;
       // return;
       ApiData = data;
 
@@ -664,7 +664,7 @@ const AddSellerKyc = ({
       });
 
       if (response) {
-        // console.log("Response of add KYC api is :--", response.data);
+        // //console.log;
         if (response.data.status === true) {
           handleCloseSellerKyc();
           handleAddSellerKycData(response.data.data);

@@ -33,7 +33,7 @@ const ClaimNumber = ({
 
   //code to select Purchase number
   const handlePurchaseNumberClick = (item, index) => {
-    // console.log("Item Selected is :---", item);
+    // //console.log;
     localStorage.setItem("numberPurchased", JSON.stringify(item));
     setSelectedPurchasedNumber((prevId) => (prevId === item ? null : item));
     setSelectedPurchasedIndex((prevId) => (prevId === index ? null : index));
@@ -52,18 +52,18 @@ const ClaimNumber = ({
         AuthToken = UserDetails.token;
       }
 
-      // console.log("Authtoken is:", AuthToken);
+      // //console.log;
 
       if (agentDetails) {
-        // console.log("trying");
+        // //console.log;
         const agentData = JSON.parse(agentDetails);
-        // console.log("Agent details are :--", agentData);
+        // //console.log;
         MyAgentData = agentData;
       }
 
       const ApiPath = Apis.purchaseNumber;
-      // console.log("Apipath is :--", ApiPath);
-      //// console.log("Number selected is:", selectedPurchasedNumber);
+      // //console.log;
+      //// //console.log;
       const formData = new FormData();
       formData.append("phoneNumber", selectedPurchasedNumber.phoneNumber);
       // formData.append("phoneNumber", "+14062040550");
@@ -73,7 +73,7 @@ const ClaimNumber = ({
       }
 
       for (let [key, value] of formData.entries()) {
-        // console.log(`${key} ${value} `);
+        // //console.log;
       }
 
       //for testing
@@ -98,7 +98,7 @@ const ClaimNumber = ({
       });
 
       if (response) {
-        // console.log("Response of purchase number api is :--", response.data);
+        // //console.log;
         if (response.data.status === true) {
           setOpenPurchaseSuccessModal(true);
           localStorage.setItem(
@@ -141,7 +141,7 @@ const ClaimNumber = ({
         AuthToken = UserDetails.token;
       }
 
-      // console.log("Apipath is :--", ApiPath);
+      // //console.log;
       // return
 
       const response = await axios.get(ApiPath, {
@@ -152,7 +152,7 @@ const ClaimNumber = ({
       });
 
       if (response) {
-        // console.log("Response of find number api is :--", response.data);
+        // //console.log;
         // Only update state if this request is still the latest one
         if (currentRequest === requestCounter.current) {
           if (response?.data?.status) {
@@ -282,7 +282,7 @@ const ClaimNumber = ({
                           handleFindeNumbers(value);
                         }, 300);
                       } else {
-                        // console.log("Should not search");
+                        // //console.log;
                         return;
                       }
                     }}

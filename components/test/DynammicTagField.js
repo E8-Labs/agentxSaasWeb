@@ -24,7 +24,7 @@ const DynamicDropdown = () => {
         const inputElement = textFieldRef.current.querySelector('textarea') || textFieldRef.current;
         const caretCoords = getCaretCoordinates(inputElement, cursorPos);
 
-       // console.log('Caret Coordinates:', caretCoords);
+       // //console.log;
 
         setDropdownPosition({
             top: caretCoords.top + 24, // Adjust for dropdown below caret

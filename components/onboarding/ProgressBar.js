@@ -6,7 +6,7 @@ const ProgressBar = ({ value }) => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-   // console.log("Value of progress is :", value);
+   // //console.log;
     setProgress(value);
   }, [value]);
 

@@ -8,16 +8,16 @@ const ColorPicker = forwardRef(({ setStageColor, setStageColor2, stageColor, onl
     const [showColorBox, setShowColorBox] = useState(true);
 
     const handleColorChange = (e) => {
-       // console.log("Updated color value is:", e.target.value);
+       // //console.log;
         setColor(e.target.value);
         setStageColor(e.target.value);
         if (setStageColor2) {
             setStageColor2(e.target.value);
         }
-       // console.log("Log 1");
+       // //console.log;
 
         // setTimeout(() => {
-        //    // console.log("Log 2");
+        //    // //console.log;
         //     if (updateOnchange) {
         //         handleUpdateColor();
         //     }

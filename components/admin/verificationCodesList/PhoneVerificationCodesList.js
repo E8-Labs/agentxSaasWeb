@@ -19,7 +19,7 @@ function PhoneVerificationCodesList() {
     const getCodes = async (offset = 0) => {
         try {
             setLoading(true);
-            // console.log("Check 1 ");
+            // //console.log;
             let AuthToken = null;
             const localData = localStorage.getItem("User");
             if (localData) {
@@ -30,9 +30,9 @@ function PhoneVerificationCodesList() {
             let ApiPath = Apis.getVerificationCodes + "?offset=" + offset
 
 
-            console.log("Api path for calls log  is", ApiPath);
+            //console.log;
 
-            //// console.log("Auth token is:", AuthToken);
+            //// //console.log;
             // return
             const response = await axios.get(ApiPath, {
                 headers: {
@@ -43,7 +43,7 @@ function PhoneVerificationCodesList() {
             setLoading(false);
 
             if (response.data) {
-                console.log("response of get codes api is :", response.data);
+                //console.log;
                 setVerificationCodes(response.data.data)
             }
 
@@ -58,7 +58,7 @@ function PhoneVerificationCodesList() {
         const phoneNumber = parsePhoneNumberFromString(
             rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
         );
-        //// console.log("Raw number is", rawNumber);
+        //// //console.log;
         return phoneNumber
             ? phoneNumber.formatInternational()
             : "Invalid phone number";

@@ -202,7 +202,7 @@ function AdminBasicInfo({ selectedUser }) {
 
   //fetching the data
   useEffect(() => {
-    // console.log("Selected user on basic info is ", selectedUser);
+    // //console.log;
     getProfile();
   }, [selectedUser]);
 
@@ -214,7 +214,7 @@ function AdminBasicInfo({ selectedUser }) {
       if (LocalData) {
         const userData = LocalData;
         await getAgentDefaultData(userData);
-        console.log("Should set data is", userData);
+        //console.log;
 
         setUserRole(userData?.userRole);
         setUserType(userData?.userType);
@@ -242,8 +242,8 @@ function AdminBasicInfo({ selectedUser }) {
         setInstallationVolume(userData?.projectsPerYear || "");
         setProjectSize(userData?.projectSizeKw || "");
 
-        // console.log("Installation Volume: ", userData?.projectsPerYear);
-        // console.log("Project Size: ", userData?.projectSizeKw);
+        // //console.log;
+        // //console.log;
 
         // Initialize arrays to hold services and areas of focus
         const industriesArray = [];
@@ -271,11 +271,11 @@ function AdminBasicInfo({ selectedUser }) {
         setSelectedArea(focusAreasArray);
         setOriginalSelectedArea(focusAreasArray); // Save the initial state
 
-        console.log("Services array", servicesArray);
+        //console.log;
         setServiceId(servicesArray);
         setOriginalSelectedService(servicesArray);
       } else {
-        console.log("no data");
+        //console.log;
       }
     } catch (error) {
       console.error("Error occured in api is error", error);
@@ -289,10 +289,10 @@ function AdminBasicInfo({ selectedUser }) {
       if (data) {
         let d = JSON.parse(data);
         let AgentTypeTitle = userData.userType;
-        console.log("AgentTypeTitle is", AgentTypeTitle);
+        //console.log;
 
         const ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`;
-        // console.log("Api link is:--", ApiPath);
+        // //console.log;
         const response = await axios.get(ApiPath, {
           headers: {
             "Content-Type": "application/json",
@@ -300,7 +300,7 @@ function AdminBasicInfo({ selectedUser }) {
         });
 
         if (response) {
-          console.log("Response of services api is : -----", response.data);
+          //console.log;
           setAgentServices(response.data.data.agentServices);
           setAgentAreasOfFocus(response.data.data.areaOfFocus);
           setAgentIndustries(response.data.data.userIndustry);

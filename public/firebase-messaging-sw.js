@@ -36,7 +36,7 @@ messaging.onBackgroundMessage((payload) => {
 //test code for psuh notifications when web is open
 
 self.addEventListener('push', (event) => {
-   // console.log('[firebase-messaging-sw.js] Push event triggered', event);
+   // //console.log;
 
     if (event.data) {
         const payload = event.data.json();
@@ -56,7 +56,7 @@ self.addEventListener('push', (event) => {
 
 // Handle notification click
 self.addEventListener('notificationclick', (event) => {
-   // console.log('[firebase-messaging-sw.js] Notification click Received.');
+   // //console.log;
 
     event.notification.close(); // Close the notification
 

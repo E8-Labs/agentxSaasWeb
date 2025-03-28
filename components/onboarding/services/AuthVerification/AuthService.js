@@ -2,7 +2,7 @@ import Apis from "@/components/apis/Apis";
 import axios from "axios";
 
 const SendVerificationCode = async (phone, login = true, verifyApiResponse) => {
-   // console.log("Sending code to ", phone)
+   // //console.log
     try {
 
         const ApiData = {
@@ -10,7 +10,7 @@ const SendVerificationCode = async (phone, login = true, verifyApiResponse) => {
             phone: phone
         }
 
-        //// console.log("sendd ver")
+        //// //console.log
 
         const ApiPath = Apis.sendVerificationCode;
         let result = await axios.post(ApiPath, ApiData, {
@@ -20,7 +20,7 @@ const SendVerificationCode = async (phone, login = true, verifyApiResponse) => {
         })
 
         let response = result.data;
-       // console.log("Response of send ver code is ", response)
+       // //console.log
         verifyApiResponse = response;
         return response
 

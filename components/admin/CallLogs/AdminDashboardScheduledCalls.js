@@ -49,8 +49,8 @@ function AdminDashboardScheduledCalls({ }) {
   //code to show popover
   const handleShowPopup = (event, item, agent) => {
     setAnchorEl(event.currentTarget);
-    // console.log("Selected item details are ", item);
-    // console.log("Selected agent  details are ", agent);
+    // //console.log;
+    // //console.log;
     localStorage.setItem("curentCalllogItem", JSON.stringify(item));
     localStorage.setItem("currentCalllogAgent", JSON.stringify(agent));
     setSelectedAgent(agent);
@@ -66,8 +66,8 @@ function AdminDashboardScheduledCalls({ }) {
 
   //code for showing the selected agent leads
   const handleShowLeads = (agent, item) => {
-    // console.log("Agent selected is:", agent);
-    // console.log("Item selected is:", item);
+    // //console.log;
+    // //console.log;
     setSelectedAgent(agent);
     setSelectedItem(item);
     setSelectedLeadsList(item.leads);
@@ -78,7 +78,7 @@ function AdminDashboardScheduledCalls({ }) {
   //code to filter slected agent leads
   const handleLeadsSearchChange = (value) => {
     if (value.trim() === "") {
-      //// console.log("Should reset to original");
+      //// //console.log;
       // Reset to original list when input is empty
       setFilteredSelectedLeadsList(selectedLeadsList);
       return;
@@ -107,18 +107,18 @@ function AdminDashboardScheduledCalls({ }) {
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-        // console.log("Localdat recieved is :--", Data);
+        // //console.log;
         AuthToken = Data.token;
       }
 
-      // console.log("Auth token is:", AuthToken);
+      // //console.log;
 
       let mainAgent = null;
       const localAgent = localStorage.getItem("agentDetails");
       if (localAgent) {
         const agentDetails = JSON.parse(localAgent);
-        // console.log("Check 1 cleear");
-        // console.log("Agent details are:", agentDetails);
+        // //console.log;
+        // //console.log;
         mainAgent = agentDetails;
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
@@ -126,7 +126,7 @@ function AdminDashboardScheduledCalls({ }) {
 
       ApiPath = ApiPath
 
-      // console.log("Api path is: ", ApiPath);
+      // //console.log;
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -136,7 +136,7 @@ function AdminDashboardScheduledCalls({ }) {
       });
 
       if (response) {
-        // console.log("Response of get Scheduled api is:", response.data.data);
+        // //console.log;
 
         setFilteredAgentsList(response.data.data);
         setCallDetails(response.data.data);
@@ -152,11 +152,11 @@ function AdminDashboardScheduledCalls({ }) {
   //code to show call log details popup
 
   const handleShowDetails = () => {
-    //// console.log("Details of item are:", SelectedItem)
+    //// //console.log
     // const AgentId = filteredAgentsList.map((item) => item.id);
-    //// console.log("Agent id is:", AgentId);
-    //// console.log("selected agent is:", SelectedAgent);
-    // console.log("Call log details are :", callDetails);
+    //// //console.log;
+    //// //console.log;
+    // //console.log;
     let updatedCallDetails = callDetails.map((item) => item.agentCalls);
     let CallsArray = [];
 
@@ -166,7 +166,7 @@ function AdminDashboardScheduledCalls({ }) {
     //     }
     // });
 
-    //// console.log("Calls of this agent are :", CallsArray);
+    //// //console.log;
 
     const calls = SelectedItem.agentCalls.map((item) =>
       item.calls.map((item) => item.leadId)
@@ -181,8 +181,8 @@ function AdminDashboardScheduledCalls({ }) {
         );
       return lead;
     });
-    // console.log("Leadcall matching data", matchingCallLeadsData);
-    // console.log("Lead id are", calls);
+    // //console.log;
+    // //console.log;
 
     setSheduledCalllogs(matchingCallLeadsData);
     setFilteredSheduledCallDetails(matchingCallLeadsData);
@@ -192,7 +192,7 @@ function AdminDashboardScheduledCalls({ }) {
   //code for details search field
   const handleDetailsSearchChange = (value) => {
     if (value.trim() === "") {
-      //// console.log("Should reset to original");
+      //// //console.log;
       // Reset to original list when input is empty
       setFilteredSheduledCallDetails(sheduledCalllogs);
       return;
@@ -214,7 +214,7 @@ function AdminDashboardScheduledCalls({ }) {
 
   const handleSearchChange = (value) => {
     if (value.trim() === "") {
-      //// console.log("Should reset to original");
+      //// //console.log;
       // Reset to original list when input is empty
       setFilteredAgentsList(agentsList);
       return;
@@ -237,28 +237,28 @@ function AdminDashboardScheduledCalls({ }) {
 
   //code to pause the agent
   const pauseAgents = async () => {
-    // console.log("Selected agent is:", SelectedItem);
+    // //console.log;
 
     try {
       setPauseLoader(true);
       const ApiPath = Apis.pauseAgent;
 
-      // console.log("Api path is: ", ApiPath);
+      // //console.log;
 
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-        // console.log("Localdat recieved is :--", Data);
+        // //console.log;
         AuthToken = Data.token;
       }
 
-      // console.log("Auth token is:", AuthToken);
+      // //console.log;
       const ApiData = {
         // mainAgentId: SelectedItem.id
         batchId: SelectedItem.id,
       };
-      // console.log("Apidata is", ApiData);
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -268,7 +268,7 @@ function AdminDashboardScheduledCalls({ }) {
       });
 
       if (response) {
-        // console.log("Response of get agents api is:", response.data);
+        // //console.log;
         if (response.data.status === true) {
           setShowConfirmationPopup(null);
           let currentStatus = filteredAgentsList.map((item) => {
@@ -282,7 +282,7 @@ function AdminDashboardScheduledCalls({ }) {
             // Return the item unchanged
             return item;
           });
-          // console.log("Current status is:", currentStatus);
+          // //console.log;
 
           setFilteredAgentsList(currentStatus);
           handleClosePopup();
@@ -299,29 +299,29 @@ function AdminDashboardScheduledCalls({ }) {
 
   //function to resume calls
   const resumeCalls = async () => {
-    // console.log("Selected agent is:", SelectedItem);
-    // console.log("Resume call api trigered")
+    // //console.log;
+    // //console.log
     // return
     try {
       setPauseLoader(true);
       const ApiPath = Apis.resumeCalls;
 
-      // console.log("Api path is: ", ApiPath);
+      // //console.log;
 
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-        // console.log("Localdat recieved is :--", Data);
+        // //console.log;
         AuthToken = Data.token;
       }
 
-      // console.log("Auth token is:", AuthToken);
+      // //console.log;
       const ApiData = {
         // mainAgentId: SelectedItem.id
         batchId: SelectedItem.id,
       };
-      // console.log("Apidata is", ApiData);
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -331,7 +331,7 @@ function AdminDashboardScheduledCalls({ }) {
       });
 
       if (response) {
-        // console.log("Response of get agents api is:", response.data);
+        // //console.log;
         if (response.data.status === true) {
           setShowConfirmationPopup(null);
           let currentStatus = filteredAgentsList.map((item) => {
@@ -345,7 +345,7 @@ function AdminDashboardScheduledCalls({ }) {
             // Return the item unchanged
             return item;
           });
-          // console.log("Current status is:", currentStatus);
+          // //console.log;
 
           setFilteredAgentsList(currentStatus);
           handleClosePopup();
@@ -444,7 +444,7 @@ function AdminDashboardScheduledCalls({ }) {
                                 if (item?.user?.id) {
                                   // Open a new tab with user ID as query param
                                   let url = ` admin/users?userId=${item?.user?.id}`
-                                  console.log('url is', url)
+                                  //console.log
                                   window.open(url, "_blank");
                                 }
                               }}
@@ -591,15 +591,15 @@ function AdminDashboardScheduledCalls({ }) {
                                           onClick={() => {
 
                                             if (SelectedItem?.status == "Paused") {
-                                              //// console.log("Calls are paused")
+                                              //// //console.log
                                               setColor(true);
                                               setShowConfirmationPopup("resume Calls")
                                             } else {
-                                              //// console.log("Calls are active")
+                                              //// //console.log
                                               setShowConfirmationPopup("pause Calls")
                                               setColor(false);
                                             }
-                                            // console.log("Cha")
+                                            // //console.log
                                           }}
                                         >
                                           {SelectedItem?.status == "Paused"

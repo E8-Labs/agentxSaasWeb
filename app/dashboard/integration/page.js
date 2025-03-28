@@ -231,15 +231,15 @@ function Page() {
   }, [search]);
 
   const getMyApiKeys = async () => {
-    // console.log("trying to get my api keys");
+    // //console.log;
     try {
       const data = localStorage.getItem("User");
       setKeyLoader(true);
       let u = JSON.parse(data);
-      // console.log("user data from local is", u.user);
+      // //console.log;
 
       let path = Apis.myApiKeys;
-      // console.log("path", path);
+      // //console.log;
 
       const response = await axios.get(path, {
         headers: {
@@ -251,15 +251,15 @@ function Page() {
         setKeyLoader(false);
 
         if (response.data.status) {
-          // console.log("response of get my api keys is", response.data.data);
+          // //console.log;
           setMyKeys(response.data.data);
         } else {
-          // console.log("get my api keys api message is", response.data.message);
+          // //console.log;
         }
       }
     } catch (e) {
       setKeyLoader(false);
-      // console.log("error in get my api keys is", e);
+      // //console.log;
     }
   };
 
@@ -268,7 +268,7 @@ function Page() {
       const data = localStorage.getItem("User");
 
       let u = JSON.parse(data);
-      // console.log("user data from local is", u.user);
+      // //console.log;
 
       let apidata = {
         email: u.email,
@@ -296,7 +296,7 @@ function Page() {
         setGenrateeyLoader2(false);
 
         if (response.data.status) {
-          // console.log("response of genrate api keys is", response.data.data);
+          // //console.log;
           setShowCopySnak("Api key generated successfully");
           setMyKeys((prevKeys) => [...prevKeys, response.data.data]);
         } else {
@@ -310,7 +310,7 @@ function Page() {
       setGenrateeyLoader2(false);
       setGenrateeyLoader(false);
 
-      // console.log("error in genrate api keys is", e);
+      // //console.log;
     }
   };
 
@@ -346,8 +346,8 @@ function Page() {
 
   const maskId = (id) => {
     const maskedId = id.slice(0, -4).replace(/./g, "*") + id.slice(-4);
-    // console.log("length of mask id is", maskedId.length);
-    // console.log("length of id is", id);
+    // //console.log;
+    // //console.log;
     return maskedId;
   };
 
@@ -424,8 +424,8 @@ function Page() {
 
                       const maskId = (id) => {
                         const maskedId = id.slice(0, -4).replace(/./g, '*') + id.slice(-4);
-                        console.log("length of mask id is", maskedId.length);
-                        console.log("length of id is", id);
+                        //console.log;
+                        //console.log;
                         return maskedId;
                       }
 

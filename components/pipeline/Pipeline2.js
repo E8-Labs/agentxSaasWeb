@@ -94,7 +94,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
   // };
 
   // const handleGreetingsTagChange = (tag) => {
-  //     ////console.log("Tage is :", tag);
+  //     //////console.log;
   //     const beforeCursor = greetingTagInput.slice(0, cursorPosition);
   //     const afterCursor = greetingTagInput.slice(cursorPosition);
 
@@ -131,16 +131,16 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
   }, []);
 
   useEffect(() => {
-    ////console.log("Setting scroll offset")
+    //////console.log
     const handleScroll = () => {
-      // console.log("Div scrolled", containerRef.current.scrollTop);
+      // //console.log;
       if (containerRef.current) {
         setScrollOffset({
           scrollTop: containerRef.current.scrollTop,
           scrollLeft: containerRef.current.scrollLeft,
         });
       } else {
-        ////console.log("No ref div")
+        //////console.log
       }
     };
 
@@ -217,8 +217,8 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
   const [kYCSDropDown, setKYCSDropDown] = useState(false);
   const [promptCursorPosition, setPromptCursorPosition] = useState(0);
   const textFieldRef = useRef(null); // Reference to the TextField element
-  //console.log("Tag value is :", scriptTagInput);
-  // console.log("Window current height is:", window.innerHeight);
+  ////console.log;
+  // //console.log;
   const tags1 = ["name", "Agent Name", "Brokerage Name", "Client Name"];
 
   const handlePromptChange = (e) => {
@@ -284,7 +284,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     const agentDetailsLocal = localStorage.getItem("agentDetails");
     if (agentDetailsLocal) {
       const localAgentData = JSON.parse(agentDetailsLocal);
-      // console.log("Locla agent details are :-", localAgentData);
+      // //console.log;
       setAgentDetails(localAgentData);
       if (
         localAgentData.agents.length === 2 ||
@@ -303,7 +303,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         setScriptTagInput(outBoundAgent[0]?.prompt?.callScript);
         setObjective(outBoundAgent[0]?.prompt?.objective);
       } else if (localAgentData.agents[0].agentType === "inbound") {
-        // console.log("Check case it is inbound data set");
+        // //console.log;
         setGreetingTagInput(localAgentData?.agents[0]?.prompt?.greeting);
         setScriptTagInput(localAgentData?.agents[0]?.prompt?.callScript);
         setObjective(localAgentData?.agents[0]?.prompt?.objective);
@@ -313,7 +313,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
   }, []);
 
   useEffect(() => {
-    // console.log("Value of script tag is:", scriptTagInput);
+    // //console.log;
   }, [scriptTagInput]);
 
   //code for getting uniqueCcolumns
@@ -327,10 +327,10 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         AuthToken = UserDetails.token;
       }
 
-      ////console.log("Auth token is :--", AuthToken);
+      //////console.log;
 
       const ApiPath = Apis.uniqueColumns;
-      ////console.log("Api path is ", ApiPath);
+      //////console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -340,7 +340,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       });
 
       if (response) {
-        // console.log("Response of getColumns api is:", response.data);
+        // //console.log;
         if (response.data.status === true) {
           setUniqueColumns(response.data.data);
         }
@@ -374,9 +374,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
   //             AuthToken = userDetails.token;
   //         }
 
-  //        // console.log("Authtoken is :", AuthToken);
+  //        // //console.log;
 
-  //        // console.log("Unique column api path is :", ApiPath);
+  //        // //console.log;
 
   //         const response = await axios.get(ApiPath, {
   //             headers: {
@@ -386,7 +386,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
   //         });
 
   //         if (response) {
-  //            // console.log("Response of get unique columns is :", response.data);
+  //            // //console.log;
   //         }
 
   //     } catch (error) {
@@ -398,9 +398,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     e.preventDefault();
     // router.push("/dashboard");
 
-    // ////console.log("Greeting value is :", greetingTagInput);
+    // //////console.log;
 
-    // ////console.log("Promt details are :", scriptTagInput);
+    // //////console.log;
 
     // return
     try {
@@ -410,7 +410,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-        ////console.log("Localdat recieved is :--", Data);
+        //////console.log;
         AuthToken = Data.token;
       }
 
@@ -427,7 +427,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       const mainAgentData = localStorage.getItem("agentDetails");
       if (mainAgentData) {
         const Data = JSON.parse(mainAgentData);
-        // console.log("Local agent dat recieved is :--", Data);
+        // //console.log;
         mainAgentId = Data.id;
         AgentObjective = Data.agents[0].agentObjective;
         AgentDescription = Data.agents[0].agentObjectiveDescription;
@@ -456,10 +456,10 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         }
       }
 
-      ////console.log("Auth token is :--", AuthToken);
+      //////console.log;
 
       const ApiPath = Apis.updateAgent;
-      ////console.log("Api path is :--", ApiPath);
+      //////console.log;
 
       const formData = new FormData();
 
@@ -478,9 +478,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         formData.append("greeting", greetingTagInput);
       }
 
-      ////console.log("Update agent details are is :-----");
+      //////console.log;
       for (let [key, value] of formData.entries()) {
-        // console.log(`${key}: ${value}`);
+        // //console.log;
       }
       // return
       const response = await axios.post(ApiPath, formData, {
@@ -490,7 +490,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       });
 
       if (response) {
-        ////console.log("Response of update api is :--", response);
+        //////console.log;
         if (response.data.status === true) {
           handleAddCadence();
           // router.push("/dashboard");
@@ -500,14 +500,14 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       // console.error("Error occured in update agent api is:", error);
       setLoader(false);
     } finally {
-      ////console.log("update agent api completed");
+      //////console.log;
     }
   };
 
   const handleAddCadence = async () => {
     try {
       setLoader(true);
-      ////console.log("");
+      //////console.log;
       let cadence = null;
       const cadenceData = localStorage.getItem("AddCadenceDetails");
       if (cadenceData) {
@@ -523,7 +523,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       const mainAgentData = localStorage.getItem("agentDetails");
       if (mainAgentData) {
         const Data = JSON.parse(mainAgentData);
-        ////console.log("Localdat recieved is :--", Data);
+        //////console.log;
         mainAgentId = Data.id;
       }
 
@@ -531,13 +531,13 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-        ////console.log("Localdat recieved is :--", Data);
+        //////console.log;
         AuthToken = Data.token;
       }
 
-      ////console.log("Authtoke for add cadence api is :", AuthToken);
+      //////console.log;
 
-      ////console.log("Main agent id is :", mainAgentId);
+      //////console.log;
 
       const ApiData = {
         pipelineId: cadence.pipelineID,
@@ -546,7 +546,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       };
 
       const ApiPath = Apis.createPipeLineCadence;
-      ////console.log("Api path is :", ApiPath);
+      //////console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -556,7 +556,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       });
 
       if (response) {
-        ////console.log("Response of create pipeline api is :---", response);
+        //////console.log;
         if (response.data.status === true) {
           localStorage.removeItem("AddCadenceDetails");
           router.push("/dashboard/leads");

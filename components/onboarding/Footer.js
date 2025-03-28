@@ -3,7 +3,7 @@ import React from 'react'
 import LoaderAnimation from '../animations/LoaderAnimation'
 
 const Footer = ({ handleContinue, handleBack, donotShowBack, registerLoader, shouldContinue }) => {
-    // console.log("Status of continue is :", shouldContinue);
+    // //console.log;
     return (
         <div>
             <div className='px-4 flex flex-row justify-between items-center pt-4'>

@@ -74,7 +74,7 @@ function BarServices() {
     if (typeof window !== "undefined") {
       screenWidth = window.innerWidth;
     }
-    // console.log("Window width is", screenWidth);
+    // //console.log;
     setScreenWidth(screenWidth);
   }, []);
 
@@ -128,7 +128,7 @@ function BarServices() {
     try {
       const localData = localStorage.getItem("User");
       let response = await getProfileDetails();
-      console.log("Response of get progf", response);
+      //console.log;
       if (response) {
         let togglePlan = response?.data?.data?.supportPlan;
         // let togglePlan = plan?.type;
@@ -143,7 +143,7 @@ function BarServices() {
         }
         // }
         setUserLocalData(response?.data?.data);
-        console.log("Get Profile Toggle plan is ", planType);
+        //console.log;
         setTogglePlan(planType);
         setCurrentPlan(planType);
       }
@@ -153,7 +153,7 @@ function BarServices() {
   };
 
   useEffect(() => {
-    // console.log("User local data is", userLocalData);
+    // //console.log;
   }, [userLocalData]);
 
   //functions for selecting plans
@@ -168,7 +168,7 @@ function BarServices() {
     try {
       let planType = null;
 
-      //// console.log("Selected plan is:", togglePlan);
+      //// //console.log;
 
       if (togglePlan === 1) {
         planType = "Starter";
@@ -178,7 +178,7 @@ function BarServices() {
         planType = "Enterprise";
       }
 
-      // console.log("Current plan is", planType);
+      // //console.log;
 
       setSubscribePlanLoader(true);
       let AuthToken = null;
@@ -189,7 +189,7 @@ function BarServices() {
         localDetails = LocalDetails;
         AuthToken = LocalDetails.token;
         if (cards.length > 0) {
-          // console.log("Already have cards");
+          // //console.log;
         } else {
           //   setErrorSnack("No payment method added");
           setAddPaymentPopup(true);
@@ -197,16 +197,16 @@ function BarServices() {
         }
       }
 
-      // console.log("Authtoken is", AuthToken);
+      // //console.log;
 
       const ApiData = {
         supportPlan: planType,
       };
 
-      // console.log("Api data is", ApiData);
+      // //console.log;
 
       const ApiPath = Apis.purchaseSupportPlan;
-      // console.log("Apipath is", ApiPath);
+      // //console.log;
 
       // return
 
@@ -218,10 +218,10 @@ function BarServices() {
       });
 
       if (response) {
-        // console.log("Response of subscribe plan api is", response);
+        // //console.log;
         if (response.data.status === true) {
           localDetails.user = response.data.data;
-          // console.log("Data updated is", localDetails);
+          // //console.log;
 
           //   if (response2) {
           let togglePlan = response?.data?.data?.supportPlan;
@@ -249,7 +249,7 @@ function BarServices() {
     }
   };
   const handleClose = (data) => {
-    // console.log("Add card details are", data);
+    // //console.log;
     if (data.status === true) {
       let newCard = data.data;
       setAddPaymentPopup(false);
@@ -271,13 +271,13 @@ function BarServices() {
         AuthToken = Data.token;
       }
 
-      // console.log("Authtoken is", AuthToken);
+      // //console.log;
 
       //Talabat road
 
       const ApiPath = Apis.getCardsList;
 
-      // console.log("apipath for get cards list", ApiPath);
+      // //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -287,15 +287,15 @@ function BarServices() {
       });
 
       if (response) {
-        // console.log("Response of get cards api is", response.data);
+        // //console.log;
         if (response.data.status === true) {
           setCards(response.data.data);
         }
       }
     } catch (error) {
-      // console.log("Error occured", error);
+      // //console.log;
     } finally {
-      // console.log("Get cards done");
+      // //console.log;
       setGetCardLoader(false);
     }
   };
@@ -413,7 +413,7 @@ function BarServices() {
               <button
                 className="px-4 py-2 rounded-lg bg-white text-purple font-medium"
                 onClick={(e) => {
-                  console.log("Clicked on Speak to genius");
+                  //console.log;
                   let url = PersistanceKeys.GlobalConsultationUrl;
                   if (typeof window !== "undefined") {
                     window.open(url, "_blank");

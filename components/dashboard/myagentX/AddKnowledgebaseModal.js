@@ -42,14 +42,14 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
   //code to select document
 
   useEffect(()=>{
-    console.log('docTitle', docTitle)
-    console.log('selectedFileName', selectedFileName)
-    console.log('selectedDocument', selectedDocument)
+    //console.log
+    //console.log
+    //console.log
   },[selectedDocument,selectedDocument,docTitle])
 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
-    console.log("File change event");
+    //console.log;
     if (file) {
       setFileName(file.name);
       setSelectedFileName(file.name);
@@ -62,13 +62,13 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
         // Set the compressed document
         setSelectedDocument(compressedFile);
 
-        console.log("Original file:", file);
-        console.log("Compressed file:", compressedFile);
+        //console.log;
+        //console.log;
       } catch (error) {
         console.error("Error compressing the document:", error);
       }
     } else {
-      console.log("File not selected");
+      //console.log;
     }
   };
 
@@ -90,8 +90,8 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
         // Set the compressed document
         setSelectedDocument(compressedFile);
 
-        console.log("Original file:", file);
-        console.log("Compressed file:", compressedFile);
+        //console.log;
+        //console.log;
       } catch (error) {
         console.error("Error compressing the document:", error);
       }
@@ -195,12 +195,12 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
   
     // Don’t proceed if no KBs are filled
     if (kbs.length === 0) {
-      console.log("Nothing to submit");
+      //console.log;
       return;
     }
 
     let finalKbs  = JSON.stringify(kbs)
-    console.log('finalKbs', finalKbs)
+    //console.log
   
     formData.append("kbs",finalKbs ); // One list inside another
   
@@ -225,7 +225,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
       setSelectedFileName("");
       setFileName("");
   
-      console.log("Success:", response.data);
+      //console.log;
     } catch (error) {
       setLoading(false);
       console.error("Error submitting KB:", error.response?.data || error.message);
@@ -338,7 +338,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
               setIsUrlValid(-1);
             } else {
               const isValid = isValidUrl(inputValue);
-              console.log("URL is valid:", isValid);
+              //console.log;
               setIsUrlValid(isValid ? 1 : 0);
             }
           }}
@@ -371,7 +371,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
               setIsUrlValid(-1);
             } else {
               const isValid = isValidYoutubeUrl(inputValue);
-              console.log("URL is valid:", isValid);
+              //console.log;
               setIsUrlValid(isValid ? 1 : 0);
             }
 

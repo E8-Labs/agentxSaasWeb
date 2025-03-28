@@ -113,8 +113,8 @@ function getBackgroundColor(index) {
 function VoiceCard({ voice, index }) {
   const color = getBackgroundColor(index);
   let foundVoice = FindVoice(voice.voiceId);
-  console.log("Showing voice ", voice);
-  console.log("Found voice ", foundVoice);
+  //console.log;
+  //console.log;
   return (
     <Card className="cursor-pointer w-full max-w-[200px] h-[160px] border-white relative border border-white shadow-[0px_4px_31.5px_0px_rgba(121,2,223,0.04)] rounded-2xl p-6 flex flex-col items-center text-center bg-white/60 overflow-hidden">
       {/* Blurred Background */}

@@ -7,7 +7,7 @@ const SnackMessages = ({ message, isVisible, setIsVisible, success = true }) => 
     const [showSuccessSnack, setShowSuccessSnack] = useState(null);
     const [showErrorSnack, setShowErrorSnack] = useState(null);
 
-   // console.log("Is snack visible ", isVisible)
+   // //console.log
 
     return (
         <div>

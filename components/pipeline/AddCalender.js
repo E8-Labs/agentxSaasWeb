@@ -72,47 +72,47 @@ const AddCalender = ({ handleContinue }) => {
 
   function isEnabled() {
     if (calendarSelected) {
-      // console.log("True because calenarSelected");
+      // //console.log;
       return true;
     }
     if (calenderTitle && calenderApiKey && eventId && selectTimeZone) {
-      // console.log("True because all values are there");
+      // //console.log;
       return true;
     } else {
-      // console.log("false calenarSelected");
+      // //console.log;
       return false;
     }
   }
 
 
   const getAgentDetails = async () => {
-    console.log('trying to get agent details ')
+    //console.log
     try {
       const data = localStorage.getItem("User")
 
       if (data) {
         let u = JSON.parse(data)
-        // console.log('u.token', u.token)
+        // //console.log
 
         let ag = localStorage.getItem(PersistanceKeys.LocalSavedAgentDetails)
 
         if (ag) {
           let agent = JSON.parse(ag)
 
-          console.log('agent from local is', agent)
+          //console.log
           let apiPath = Apis.getAgentDetails + "?mainAgentId=" + agent?.id
 
-          console.log('apiPath', apiPath)
+          //console.log
 
           const response = await axios.get(apiPath, {
             headers: {
               "Authorization": "Bearer " + u.token
             }
           })
-          console.log('get agent details api response is', response)
+          //console.log
 
           if (response.data) {
-            console.log('get agent details api response is', response.data)
+            //console.log
             if (response.data.status === true) {
               localStorage.setItem(
                 PersistanceKeys.LocalSavedAgentDetails,
@@ -123,7 +123,7 @@ const AddCalender = ({ handleContinue }) => {
         }
       }
     } catch (e) {
-      console.log('error in get agent details api is', e)
+      //console.log
     }
   }
 
@@ -150,11 +150,11 @@ const AddCalender = ({ handleContinue }) => {
         AuthToken = UserDetails.token;
       }
 
-      // console.log("Authtoken is:", AuthToken);
+      // //console.log;
 
       const ApiPath = Apis.getCalenders;
 
-      // console.log("Apipath is for get calender ", ApiPath);
+      // //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -163,7 +163,7 @@ const AddCalender = ({ handleContinue }) => {
       });
 
       if (response) {
-        // console.log("Response of get calender api is:", response);
+        // //console.log;
         setPreviousCalenders(response.data.data);
       }
     } catch (error) {
@@ -190,13 +190,13 @@ const AddCalender = ({ handleContinue }) => {
       const agentDetails = localStorage.getItem("agentDetails");
       if (agentDetails) {
         const agentData = JSON.parse(agentDetails);
-        // console.log("Recieved from are :--", agentData);
+        // //console.log;
         currentAgentDetails = agentData;
       }
 
-      // console.log("Auth token is:", AuthToken);
+      // //console.log;
       const ApiPath = Apis.addCalender;
-      // console.log("Api path is:", ApiPath);
+      // //console.log;
 
       const formData = new FormData();
 
@@ -224,7 +224,7 @@ const AddCalender = ({ handleContinue }) => {
       // }
 
       for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
+        //console.log;
       }
 
       // return
@@ -233,9 +233,9 @@ const AddCalender = ({ handleContinue }) => {
           Authorization: "Bearer " + AuthToken,
         },
       });
-      console.log("Response is", response);
+      //console.log;
       if (response) {
-        // console.log("Response of add calender api is:", response.data.data);
+        // //console.log;
 
         if (response.data.status === true) {
           // setShowSnak(true);
@@ -426,7 +426,7 @@ const AddCalender = ({ handleContinue }) => {
                             {/* <button
                               className="w-full text-start"
                               onClick={() => {
-                                // console.log("Selected calender is:", item);
+                                // //console.log;
                                 setCalendarSelected(item);
                                 // setCalenderTitle(item.title);
                                 // setCalenderApiKey(item.apiKey);
@@ -669,7 +669,7 @@ const AddCalender = ({ handleContinue }) => {
                             >
                               <button
                                 onClick={() => {
-                                  // console.log("Selected time zone is:", item);
+                                  // //console.log;
                                 }}
                               >
                                 {item}

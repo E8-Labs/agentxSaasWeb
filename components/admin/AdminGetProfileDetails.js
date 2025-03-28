@@ -9,17 +9,17 @@ const AdminGetProfileDetails = async (id) => {
 
     if (localData) {
       const Data = JSON.parse(localData);
-      // console.log("User localdetails are", selectedUser);
+      // //console.log;
       localDetails = Data;
       Authtoken = Data.token;
     }
 
-    console.log("Auth otk is");
+    //console.log;
 
     let ApiPath = Apis.getProfileFromId;
     ApiPath = ApiPath + "?id=" +id
 
-    console.log('apiPath', ApiPath)
+    //console.log
 
     const response = await axios.get(ApiPath, {
       headers: {
@@ -30,13 +30,13 @@ const AdminGetProfileDetails = async (id) => {
     if (response) {
       if (response?.data?.status === true) {
         localDetails.user = response.data.data;
-        console.log("Response of get profile api is", response);
+        //console.log;
 
-        // console.log("Data to updated", localDetails);
+        // //console.log;
         // localStorage.setItem("User", JSON.stringify(localDetails));
         return response.data.data
       }else{
-        console.log("message of get profile api is", response.data.message);
+        //console.log;
       }
     }
     // return response;

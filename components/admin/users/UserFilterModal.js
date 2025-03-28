@@ -74,7 +74,7 @@ const styles = {
 
 
 
-// console.log('filter modal trigered')
+// //console.log
 
 
 export function UserFilterModal({
@@ -172,12 +172,12 @@ export function UserFilterModal({
         });
 
         if (response.data.status === true) {
-          console.log('response.data.data', response.data.data)
+          //console.log
           setAffiliatesList(response.data.data);
         }
       }
     } catch (e) {
-      console.log("Error fetching affiliates:", e);
+      //console.log;
     }
   };
 

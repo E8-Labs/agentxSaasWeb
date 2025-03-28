@@ -56,14 +56,14 @@ const Page = () => {
   }, []);
 
   useEffect(() => {
-    // console.log("Stats details ar", statsDetails);
-    // console.log("Comparison details", statsComparisonDetails);
+    // //console.log;
+    // //console.log;
   }, [statsDetails, statsComparisonDetails]);
 
   useEffect(() => {
     setInitialLoader(true);
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    console.log(`User's timezone: ${timezone}`);
+    //console.log;
     getDashboardData();
     getProfile();
   }, []);
@@ -83,7 +83,7 @@ const Page = () => {
     try {
       let response = await getProfileDetails();
 
-      // console.log("Data recieved from get profile api", response);
+      // //console.log;
       if (response) {
         let user = response?.data?.data;
         if (user) {
@@ -106,20 +106,20 @@ const Page = () => {
   function GetDashboardDataFromLocalStorage(api) {
     let d = localStorage.getItem(api);
     if (d) {
-      // console.log("Data found for dashboard on local");
+      // //console.log;
       let json = JSON.parse(d);
       let stats = json.stats;
       let comp = json.statsComparison;
       setStatsDetails(stats);
       setStatsComparisonDetails(comp);
     } else {
-      // console.log("No data for dashboard on local");
+      // //console.log;
     }
   }
 
   const getDashboardData = async (duration) => {
     try {
-      // console.log("Status of initial load is", isinItiallyLoaded);
+      // //console.log;
       let durationValue = 1;
 
       if (duration === "24 hrs") {
@@ -132,7 +132,7 @@ const Page = () => {
         durationValue = 365;
       }
 
-      // console.log("details to show are:", durationValue);
+      // //console.log;
 
       const ApiPath = `${Apis.getDashboardData}?duration=${durationValue}`;
       GetDashboardDataFromLocalStorage(ApiPath);
@@ -144,16 +144,16 @@ const Page = () => {
       let AuthToken = null;
       if (localData) {
         const UserDetails = JSON.parse(localData);
-        // console.log("User details are", UserDetails);
+        // //console.log;
         setUserDetails(UserDetails.user);
         AuthToken = UserDetails.token;
       }
 
-      // console.log("Auth token is :--", AuthToken);
+      // //console.log;
 
       // let durationDetails = null;
 
-      // console.log("Api path is:", ApiPath);
+      // //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -163,9 +163,9 @@ const Page = () => {
       });
 
       if (response) {
-        // console.log("Response of get Dashboard data api is:", response.data);
+        // //console.log;
         if (response.data.status === true) {
-          // console.log("Getting details are", response.data.data.stats);
+          // //console.log;
           setStatsDetails(response.data.data.stats);
           setStatsComparisonDetails(response.data.data.statsComparison);
 
@@ -175,13 +175,13 @@ const Page = () => {
     } catch (error) {
       // console.error("Error occured in api is", error);
     } finally {
-      // console.log("Get dashb0ard api completed");
+      // //console.log;
       setInitialLoader(false);
     }
   };
 
   useEffect(() => {
-    console.log("Status of initially loadded", isinItiallyLoaded);
+    //console.log;
   }, [isinItiallyLoaded]);
 
   //function to handle the dropdown
@@ -649,7 +649,7 @@ const Page = () => {
                         if (typeof window !== "undefined") {
                           let url = userDetails?.campaignee ? userDetails?.campaignee.officeHoursUrl :
                             PersistanceKeys.GlobalWebinarUrl
-                          console.log("webinar url is", url)
+                          //console.log
                           window.open(url, "_blank");
                         }
                       }}

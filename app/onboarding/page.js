@@ -40,9 +40,9 @@ const Page = ({ params }) => {
   let windowSize = 1000;
   if (typeof window !== "undefined") {
     windowSize = window.innerWidth;
-    // console.log("Window with ", windowSize);
+    // //console.log;
   } else {
-    // console.log("Window width is less");
+    // //console.log;
   }
 
   const [components, setComponents] = useState([
@@ -68,7 +68,7 @@ const Page = ({ params }) => {
 
   //function stores the agentDetails
   const handleDetails = (userName, userEmail, userPhoneNumber) => {
-    // console.log(`Agent name is`);
+    // //console.log;
     setUserDetails({
       name: userName,
       email: userEmail,
@@ -77,7 +77,7 @@ const Page = ({ params }) => {
   };
 
   useEffect(() => {
-    console.log("🔥 useEffect is running...");
+    //console.log;
     let screenWidth = 1000;
     if (typeof window !== "undefined") {
       screenWidth = window.innerWidth;
@@ -85,7 +85,7 @@ const Page = ({ params }) => {
 
     if (screenWidth < 640) {
       let comps = getMobileComponent();
-      console.log("Setting mobile UI");
+      //console.log;
       if (userType) {
         setComponents(comps.filter(Boolean));
 
@@ -117,7 +117,7 @@ const Page = ({ params }) => {
       }
     } else {
       let comps = getComponentToRender();
-      // console.log("Setting components", comps.length);
+      // //console.log;
       // console.log(
       //   "🚀 Components from getComponentToRender:",
       //   comps.map((c) => c?.name || "undefined")
@@ -127,9 +127,9 @@ const Page = ({ params }) => {
   }, [userType]);
   // registerDetails  {"serviceID":[102],"focusAreaId":[406],"userType":4,"userTypeTitle":"InsuranceAgent","areaFocusTitle":"What area of insurance do you focus on?","otherFocusArea":""}
   function getComponentToRender() {
-    console.log("Inside get components");
+    //console.log;
     let agentTitle = userType; //userData?.userTypeTitle || null;
-    console.log("Agent title  = ", agentTitle);
+    //console.log;
 
     const agentComponents = {
       [UserTypes.RealEstateAgent]: SignUpForm,
@@ -161,9 +161,9 @@ const Page = ({ params }) => {
   }
 
   function getMobileComponent() {
-    console.log("Inside get mobile components");
+    //console.log;
     let agentTitle = userType; //userData?.userTypeTitle || null;
-    console.log("Agent title  = ", agentTitle);
+    //console.log;
 
     const agentComponents = {
       [UserTypes.RealEstateAgent]: BasicDetails,
@@ -201,87 +201,87 @@ const Page = ({ params }) => {
 
   // Function to proceed to the next step
   const handleContinue = () => {
-    console.log("Component indexchanged ", index + 1);
+    //console.log;
     setIndex(index + 1);
   };
 
   //sals dev
   const handleSalesAgentContinue = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index + 3);
   };
 
   const handleSalesAgentBack = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index - 3);
   };
 
   //solar rep
   const handleSolarAgentContinue = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index + 4);
   };
 
   const handleSolarAgentBack = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index - 4);
   };
 
   // insurance
   const handleInsuranceContinue = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index + 5);
   };
 
   const handleInsuranceBack = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index - 5);
   };
 
   // marketer
   const handleMarketerAgentContinue = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index + 6);
   };
 
   const handleMarketerAgentBack = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index - 6);
   };
 
   // website owners
   const handleWebsiteAgentContinue = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index + 7);
   };
 
   const handleWebsiteAgentBack = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index - 7);
   };
   // recruiter agent
   const handleRecruiterAgentContinue = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index + 8);
   };
 
   const handleRecruiterAgentBack = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index - 8);
   };
   // tax agent
   const handleTaxAgentContinue = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index + 9);
   };
 
   const handleTaxAgentBack = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index - 9);
   };
 
   const handleBack = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index - 1);
   };
 
@@ -291,7 +291,7 @@ const Page = ({ params }) => {
   };
 
   const handleUserTypeChange = (userType) => {
-    console.log("User type has changed");
+    //console.log;
     setUserType(userType);
   };
 

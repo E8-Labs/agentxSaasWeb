@@ -10,7 +10,7 @@ export function GetCampaigneeNameIfAvailable(window) {
 
 export const getSupportUrlFor = (user) => {
   if (user?.campaignee && user?.campaignee?.officeHoursUrl) {
-    // console.log("Response", user.campaignee.officeHoursUrl);
+    // //console.log;
     let campaigneeLink = user.campaignee.officeHoursUrl;
     return campaigneeLink;
   } else {
@@ -29,9 +29,9 @@ export function logout() {
     let userLocation = localStorage.getItem(
       PersistanceKeys.LocalStorageUserLocation
     );
-    console.log("User location is ", userLocation);
+    //console.log;
     localStorage.clear();
-    console.log("Setting back user location", userLocation);
+    //console.log;
 
     localStorage.setItem(
       PersistanceKeys.LocalStorageUserLocation,

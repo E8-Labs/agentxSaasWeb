@@ -84,11 +84,11 @@ function AdminAffiliates({ selectedUser }) {
 
   useEffect(() => {
     let timer = setTimeout(() => {
-      console.log("url timerfinished", isValidUrl(officeHourUrl));
+      //console.log);
       if (officeHourUrl) {
         if (isValidUrl(officeHourUrl)) {
           setUrlError("");
-          console.log("url valid");
+          //console.log;
         } else {
           setUrlError("Invalid");
         }
@@ -103,7 +103,7 @@ function AdminAffiliates({ selectedUser }) {
   }, [selectedAffiliate]);
 
   const getUsersForAffiliate = async (offset = 0) => {
-    console.log("selected affiliate is ", selectedAffiliate);
+    //console.log;
     try {
       setAffiliateUsersLoader(true);
       let data = localStorage.getItem(PersistanceKeys.LocalStorageUser);
@@ -139,17 +139,17 @@ function AdminAffiliates({ selectedUser }) {
     } catch (e) {
       setAffiliateUsersLoader(false);
 
-      console.log("error in get users api is ", e);
+      //console.log;
     }
   };
 
   //   useEffect(() => {
   //     let timer = setTimeout(() => {
-  //       console.log("url timerfinished", isValidUrl(uniqueUrl));
+  //       //console.log);
   //       if (uniqueUrl) {
   //         if (isValidUrl(uniqueUrl)) {
   //           setUrlError2("");
-  //           console.log("url valid");
+  //           //console.log;
   //         } else {
   //             setUrlError2("")
   //             //   setUrlError2("Invalid");
@@ -170,7 +170,7 @@ function AdminAffiliates({ selectedUser }) {
         let u = JSON.parse(data);
 
         let path = Apis.getAffiliate + "?offset=" + offset;
-        console.log("u", u);
+        //console.log;
         if (filter) {
           if (filter.users) {
             path = `${path}&minUsers=${filter.users[0]}&maxUsers=${filter.users[1]}`;
@@ -179,7 +179,7 @@ function AdminAffiliates({ selectedUser }) {
             path = `${path}&minRevenue=${filter.revenue[0]}&maxRevenue=${filter.revenue[1]}`;
           }
         }
-        console.log("path", path);
+        //console.log;
 
         const response = await axios.get(path, {
           headers: {
@@ -189,26 +189,26 @@ function AdminAffiliates({ selectedUser }) {
 
         if (response) {
           setGetAffiliatesLoader(false);
-          console.log("get affiliate api data is", response.data.data);
+          //console.log;
 
           if (response.data.status === true) {
             setAffiliatesList(response.data.data);
             setFilteredAffiliates(response.data.data);
           } else {
-            console.log("get team api message is", response.data.message);
+            //console.log;
           }
         }
       }
     } catch (e) {
       setGetAffiliatesLoader(false);
 
-      console.log("error in get team api is", e);
+      //console.log;
     }
   };
 
   //funcion to invitem tem member
   const addAffiliate = async (item) => {
-    console.log("data", item);
+    //console.log;
     // return
     if (
       !item.name ||
@@ -236,7 +236,7 @@ function AdminAffiliates({ selectedUser }) {
           uniqueUrl: item.uniqueUrl,
         };
 
-        console.log("apidata", apidata);
+        //console.log;
 
         const response = await axios.post(path, apidata, {
           headers: {
@@ -247,19 +247,19 @@ function AdminAffiliates({ selectedUser }) {
         if (response) {
           setAddAffiliateLoader(false);
           if (response.data.status === true) {
-            console.log("add affiliate api response is", response.data.data);
+            //console.log;
             let newMember = response.data.data;
-            // console.log("newMember", newMember);
-            // console.log("--------------------------------");
+            // //console.log;
+            // //console.log;
             setAffiliatesList((prev) => {
-              // console.log("previous member", prev);
-              // console.log("--------------------------------");
+              // //console.log;
+              // //console.log;
               const isAlreadyPresent = prev.some(
                 (member) => member.id === newMember.id
               ); // Check by unique ID
-              // console.log("isAlreadyPresant", isAlreadyPresent);
+              // //console.log;
               if (isAlreadyPresent) {
-                // console.log("member already presant");
+                // //console.log;
                 return prev;
               }
               return [...prev, newMember];
@@ -274,13 +274,13 @@ function AdminAffiliates({ selectedUser }) {
             setOfficeHourUrl("");
             // getMyteam()
           } else {
-            console.log("invite team api message is", response.data.message);
+            //console.log;
           }
         }
       }
     } catch (e) {
       setAddAffiliateLoader(false);
-      console.log("error in invite team api is", e);
+      //console.log;
     }
   };
 
@@ -329,7 +329,7 @@ function AdminAffiliates({ selectedUser }) {
     //     try {
     //         setCheckPhoneLoader("Checking...");
     //         let response = await checkPhoneNumber(phoneNumber);
-    //         // console.log("Response of check number api is", response);
+    //         // //console.log;
     //         // setErrorMessage(null)
     //         setCheckPhoneResponse(response.data);
     //         if (response.data.status === false) {
@@ -345,7 +345,7 @@ function AdminAffiliates({ selectedUser }) {
     //     }
 
     //     // setCheckPhoneResponse(null);
-    //     // console.log("Trigered");
+    //     // //console.log;
     // }
   };
 
@@ -413,7 +413,7 @@ function AdminAffiliates({ selectedUser }) {
             setShowFilterModal(false);
           }}
           updateFilters={(filter) => {
-            console.log("Filters selected", filter);
+            //console.log;
             // let f = { ...filters, filter }
             setFilters(filter);
             if (filter?.finalUpdate === true) {
@@ -452,7 +452,7 @@ function AdminAffiliates({ selectedUser }) {
               <button
                 className="outline-none flex-shrink-0"
                 onClick={() => {
-                  console.log("show filter true");
+                  //console.log;
                   setShowFilterModal(true);
                 }}
               >
@@ -848,13 +848,13 @@ function AdminAffiliates({ selectedUser }) {
                   setShowError(false);
 
                   if (!value) {
-                    // console.log("Should set the value to null");
+                    // //console.log;
                     setValidEmail("");
                     return;
                   }
 
                   if (!validateEmail(value)) {
-                    // console.log("Invalid pattern");
+                    // //console.log;
                     setValidEmail("Invalid");
                   } else {
                     setValidEmail("");

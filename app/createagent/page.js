@@ -39,7 +39,7 @@ function EmptyPage() {
 }
 
 const Page = () => {
-  // console.log("This is a crash", crash);
+  // //console.log;
   const [user, setUser] = useState(null);
   const [index, setIndex] = useState(0);
   const [components, setComponents] = useState([
@@ -64,27 +64,27 @@ const Page = () => {
       size = window.innerWidth;
       setWindowSize(size);
     } else {
-      // console.log("Window is undefined");
+      // //console.log;
     }
     let user = localStorage.getItem(PersistanceKeys.LocalStorageUser);
     if (user) {
       let parsed = JSON.parse(user);
       setUser(parsed);
     }
-    // console.log("Window size is ", size);
+    // //console.log;
   }, []);
 
   useEffect(() => {
-    // console.log("Window size changed", windowSize);
+    // //console.log;
     const localData = localStorage.getItem("User");
 
     if (localData) {
       const Data = JSON.parse(localData);
-      // console.log("Window size is", windowSize);
-      // console.log("Data is", Data);
+      // //console.log;
+      // //console.log;
       if (Data.user.plan) {
         if (windowSize < 640) {
-          console.log("Data should be set", Data.user.plan);
+          //console.log;
           setComponents([
             BuildAgentName,
             BuildAgentTask,
@@ -128,17 +128,17 @@ const Page = () => {
 
   // Function to proceed to the next step
   const handleContinue = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index + 1);
   };
 
   const handleBack = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index - 1);
   };
 
   const handleSkipAddPayment = () => {
-    // console.log("Component indexchanged ", index);
+    // //console.log;
     setIndex(index + 2);
   };
 
@@ -150,7 +150,7 @@ const Page = () => {
   });
 
   const getAgentDetails = (agentName, agentRole, agentType) => {
-    // console.log("I am hit");
+    // //console.log;
     // console.log(
     //   `"Agent Name is": ${agentName} ----- "Agent Role is" ${agentRole} ------ "Agent Type is" ${agentType}`
     // );

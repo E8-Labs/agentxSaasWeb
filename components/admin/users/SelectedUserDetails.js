@@ -18,7 +18,7 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/l
 
 function SelectedUserDetails({ selectedUser,handleDel }) {
 
-    console.log('selectedUser on user details modal is', selectedUser)
+    //console.log
 
     const manuBar = [
         {
@@ -101,18 +101,18 @@ function SelectedUserDetails({ selectedUser,handleDel }) {
 
                 if (response.data) {
                     if (response.data.status === true) {
-                        console.log('add minutes api response is', response.data.data)
+                        //console.log
                         setShowSnackMessage(response.data.messag)
                         setShowAddMinutesModal(false)
                     } else {
-                        console.log('add minutes api message is', response.data.message)
+                        //console.log
                         setShowSnackMessage(response.data.message)
 
                     }
                 }
             }
         } catch (e) {
-            console.log('error in add minutes api is', e)
+            //console.log
         }
         finally {
             setloading(false)
@@ -133,7 +133,7 @@ function SelectedUserDetails({ selectedUser,handleDel }) {
                     userId: selectedUser.id,
                     
                 }
-                console.log('apidata', apidata)
+                //console.log
 
                 const response = await axios.post(path, apidata, {
                     headers: {
@@ -143,19 +143,19 @@ function SelectedUserDetails({ selectedUser,handleDel }) {
 
                 if (response.data) {
                     if (response.data.status === true) {
-                        console.log('delete profile api response is', response.data.data)
+                        //console.log
                         setShowSnackMessage(response.data.messag)
                         setShowDeleteModal(false)
                         handleDel()
                     } else {
-                        console.log('delete profile api message is', response.data.message)
+                        //console.log
                         setShowSnackMessage(response.data.message)
 
                     }
                 }
             }
         } catch (e) {
-            console.log('error in delete profile api is', e)
+            //console.log
         }
         finally {
             setDelLoader(false)
@@ -184,7 +184,7 @@ function SelectedUserDetails({ selectedUser,handleDel }) {
                                     if (selectedUser?.id) {
                                         // Open a new tab with user ID as query param
                                         let url = ` admin/users?userId=${selectedUser.id}`
-                                        console.log('url is', url)
+                                        //console.log
                                         window.open(url, "_blank");
                                     }
                                 }}
