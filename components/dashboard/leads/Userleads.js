@@ -281,7 +281,10 @@ const Userleads = ({
     // Scroll to the bottom when inputs change
     setFilterLeads([]);
     setLeadsList([]);
+    // console.log("Hello here");
+    // return;
     let filterText = getFilterText();
+
     // //console.log;
     handleFilterLeads(0, filterText);
     setShowNoLeadsLabel(false);
@@ -697,8 +700,8 @@ const Userleads = ({
         const formtFromDate = moment(filter.values[0]).format("MM/DD/YYYY");
         const formtToDate = moment(filter.values[1]).format("MM/DD/YYYY");
         // string = `${string}&fromDate=${formtFromDate}&toDate=${formtToDate}`;
-        filters["fromDate"] = fromDate;
-        filters["toDate"] = toDate;
+        filters["fromDate"] = formtFromDate;
+        filters["toDate"] = formtToDate;
       }
       if (filter.key == "stage") {
         stageIds = `${stageIds}${stageSeparator}${filter.values[0].id}`;
