@@ -21,13 +21,13 @@ export default function DraftMentions() {
     }, []);
 
     const onSearchChange = ({ value }) => {
-       // console.log("Search Value:", value);
+       // //console.log;
         const filteredSuggestions = defaultSuggestionsFilter(value, mentions);
-       // console.log("Filtered Suggestions:", filteredSuggestions);
+       // //console.log;
         setSuggestions(filteredSuggestions);
     };
     const onOpenChange = useCallback((_open) => {
-       // console.log("Open cahgned ", _open)
+       // //console.log
         setOpen(_open);
       }, []);
       

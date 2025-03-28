@@ -41,7 +41,7 @@ export const Constants = {
 };
 
 export const isValidUrl = (url) => {
-  console.log("Checking url ", url);
+  //console.log;
   const urlPattern =
     /^(https?:\/\/)?([\w-]+\.)+[a-zA-Z]{2,63}(\/[\w\-./?%&=]*)?$/;
 
@@ -49,7 +49,7 @@ export const isValidUrl = (url) => {
 };
 
 export const isValidYoutubeUrl = (url) => {
-  console.log("Checking url ", url);
+  //console.log;
   const urlPattern =
    /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})(.*)$/;
 
@@ -58,7 +58,7 @@ export const isValidYoutubeUrl = (url) => {
 
 export const fromatMessageName = (name) =>{
   let formatedName = name?.slice(0, 1).toUpperCase(0) + name?.slice(1)
-    // console.log('fromatedName', formatedName)
+    // //console.log
   return formatedName
 }
 

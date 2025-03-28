@@ -54,7 +54,7 @@ const AdminCallDetails = ({
 
 
 
-  console.log('selectedLead', selectedLead)
+  //console.log
 
   const styles = {
     modalsStyle: {
@@ -83,21 +83,21 @@ const AdminCallDetails = ({
   const getLeadDetails = async (selectedLead) => {
     try {
       setInitialLoader(true);
-      // console.log("I am trigered");
+      // //console.log;
       let AuthToken = null;
 
       const localDetails = localStorage.getItem("User");
       if (localDetails) {
         const Data = JSON.parse(localDetails);
-        //// console.log("User details are", Data);
+        //// //console.log;
         AuthToken = Data.token;
       }
 
-      // console.log("Auth token is", AuthToken);
+      // //console.log;
 
       const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedLead.LeadModel.id}`;
 
-      // console.log("Apipath is", ApiPath);
+      // //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -107,7 +107,7 @@ const AdminCallDetails = ({
       });
 
       if (response) {
-        console.log("Lead details Response of api is", response.data);
+        //console.log;
 
         // setLeadColumns(response.data.columns);
         setSelectedLeadsDetails(response.data.data);
@@ -116,7 +116,7 @@ const AdminCallDetails = ({
       // console.error("Error occured in api is", error);
     } finally {
       setInitialLoader(false);
-      // console.log("Api call completed");
+      // //console.log;
     }
   };
 

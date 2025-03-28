@@ -7,7 +7,7 @@ const SelectStageDropdown = ({
   stagesList,
   updateLeadStage,
 }) => {
- // console.log("Stages in component ", stagesList);
+ // //console.log;
   return (
     <FormControl size="fit-content">
       <Select

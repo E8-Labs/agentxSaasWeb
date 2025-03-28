@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 
 export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, uniqueColumns }) => {
-    //console.log("Scroll Offset Parent ", scrollOffset)
+    ////console.log
     const [popupVisible, setPopupVisible] = useState(false);
     const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
     const [options, setOptions] = useState(["First Name", "Last Name", "Address", "Email", "Phone"]);
@@ -39,7 +39,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
             document.body.appendChild(mirrorDiv);
         }
         mirrorDivRef.current = mirrorDiv;
-       // console.log("MirrorDiv", mirrorDiv.getBoundingClientRect());
+       // //console.log);
 
         return () => {
             if (
@@ -62,7 +62,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
         if (textFieldRef.current) {
             const scrollTop = textFieldRef.current.scrollTop;
             const scrollLeft = textFieldRef.current.scrollLeft;
-           // console.log("Scroll Offset - Top:", scrollTop, "Left:", scrollLeft);
+           // //console.log;
             return { scrollTop, scrollLeft };
         }
         return { scrollTop: 0, scrollLeft: 0 };
@@ -122,11 +122,11 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
             popupTop = viewportHeight - popupHeight;
         }
 
-       // console.log("Text Offset: ", textOffset);
-       // console.log("Marker Rect: ", markerRect);
-       // console.log("Input Rect: ", inputRect);
-       // console.log("Popup Left: ", popupLeft);
-       // console.log("Popup Top: ", popupTop);
+       // //console.log;
+       // //console.log;
+       // //console.log;
+       // //console.log;
+       // //console.log;
 
         setPopupPosition({ top: popupTop, left: popupLeft });
     };
@@ -134,8 +134,8 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
     let mergedArray = [];
 
     useEffect(() => {
-       // console.log("Unique columns list is:", uniqueColumns);
-       // console.log("Unique columns list2 is:", kycsList);
+       // //console.log;
+       // //console.log;
 
         let questions = [];
         if (kycsList) {
@@ -143,7 +143,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
         }
         mergedArray = [...uniqueColumns, ...questions];
 
-       // console.log("Merged array data is:", mergedArray);
+       // //console.log;
     }, [])
 
     const handleKeyUp = (e) => {
@@ -166,7 +166,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
                     }
                 }
                 );
-                //console.log("Filered kyc ", filtered)
+                ////console.log
                 setFilteredOptions(filtered);
             }
             else {

@@ -64,19 +64,19 @@ const UserCalender = ({
   // const [timeZones, setTimeZones] = useState([]);
   useEffect(() => {
     setAllCalendars(previousCalenders);
-    // console.log("Calender details passed are", selectedAgent?.calendar?.title);
+    // //console.log;
     if (selectedAgent?.calendar) {
-      console.log("Selectd agent has calendar", selectedAgent.calendar);
+      //console.log;
       setSelectCalender(selectedAgent.calendar);
       setSelectedCalenderTitle(selectedAgent.calendar?.id || "");
     } else {
-      console.log("This agent doesn't have calendar");
+      //console.log;
     }
     // getCalenders();
   }, []);
 
   useEffect(() => {
-    console.log("Selected calendear is", selectCalender);
+    //console.log;
   }, [selectCalender]);
 
   // useEffect(() => {
@@ -89,14 +89,14 @@ const UserCalender = ({
 
   function isEnabled() {
     if (calendarSelected) {
-      // console.log("True because calenarSelected");
+      // //console.log;
       return true;
     }
     if (calenderTitle && calenderApiKey && eventId && selectTimeZone) {
-      // console.log("True because all values are there");
+      // //console.log;
       return true;
     } else {
-      // console.log("false  calenarSelected");
+      // //console.log;
       return false;
     }
   }
@@ -104,9 +104,9 @@ const UserCalender = ({
   //code for the dropdown selection
 
   const handleChange = (event) => {
-    console.log();
+    //console.log;
     // setSelectCalender(event.target.value);
-    console.log("Calendar changed", event);
+    //console.log;
   };
 
   //code for add calender api
@@ -126,13 +126,13 @@ const UserCalender = ({
       const agentDetails = localStorage.getItem("agentDetails");
       if (agentDetails) {
         const agentData = JSON.parse(agentDetails);
-        // console.log("Recieved from are :--", agentData);
+        // //console.log;
         currentAgentDetails = agentData;
       }
 
-      // console.log("Auth token is:", AuthToken);
+      // //console.log;
       const ApiPath = Apis.addCalender;
-      // console.log("Api path is:", ApiPath);
+      // //console.log;
 
       const formData = new FormData();
 
@@ -151,7 +151,7 @@ const UserCalender = ({
       formData.append("agentId", selectedAgent.id);
 
       for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
+        //console.log;
       }
 
       // return
@@ -162,7 +162,7 @@ const UserCalender = ({
       });
 
       if (response) {
-        console.log("Response of add calender api is:", response);
+        //console.log;
         if (calendar) {
           setIsVisible2(true);
         } else {
@@ -207,7 +207,7 @@ const UserCalender = ({
               updatedArray.push(ag);
             }
 
-            console.log("Updated agents list array is", updatedArray);
+            //console.log;
             localStorage.setItem(
               "localAgentDetails",
               JSON.stringify(updatedArray)
@@ -247,12 +247,12 @@ const UserCalender = ({
 
       if (data) {
         let u = JSON.parse(data);
-        console.log("Selected Calendar ", calendarToDelete);
+        //console.log;
         // return
         let apiData = {
           apiKey: calendarToDelete.apiKey,
         };
-        console.log("Calendar Data", apiData);
+        //console.log;
         // return;
 
         let path = Apis.deleteCalendar;
@@ -267,7 +267,7 @@ const UserCalender = ({
         setCalenderDelLoader(null);
 
         if (response.data.status === true) {
-          console.log("delete calender api data is", response.data.data);
+          //console.log;
           let newCalList = allCalendars.filter(
             (item) => item.apiKey != calendarToDelete.apiKey
           );
@@ -280,14 +280,14 @@ const UserCalender = ({
           updateVariableData();
 
         } else {
-          console.log("delete calender api message is", response.data.message);
+          //console.log;
           setIsVisible(true);
           setMessage(response.data.message);
           setType(SnackbarTypes.Error);
         }
       }
     } catch (e) {
-      console.log("error in delete calendar", e);
+      //console.log;
     } finally {
       setCalenderDelLoader(null);
     }
@@ -357,14 +357,14 @@ const UserCalender = ({
                     // onChange={handleChange}
                     displayEmpty // Enables placeholder
                     renderValue={(selected) => {
-                      console.log("Selected cvalue to render ", selected);
+                      //console.log;
                       if (!selected) {
                         return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
                       }
                       let cals = allCalendars.filter((item) => {
                         return item.id == selected;
                       });
-                      console.log("Cal is ", cals);
+                      //console.log;
                       let cal = null;
                       if (cals && cals.length == 1) {
                         cal = cals[0];
@@ -462,7 +462,7 @@ const UserCalender = ({
                       <button
                         className="text-purple underline w-full text-start"
                         onClick={() => {
-                          // console.log("Show show the modal");
+                          // //console.log;
                           setCalendarSelected(null);
                           // setCalenderTitle("");
                           // setCalenderApiKey("");
@@ -502,7 +502,7 @@ const UserCalender = ({
           <NoCalendarView
             showVideo={true}
             addCalendarAction={() => {
-              // console.log("Add New Calendar here hamza. Show popup");
+              // //console.log;
               setShowAddNewCalender(true);
             }}
           />

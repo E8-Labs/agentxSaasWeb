@@ -71,7 +71,7 @@ function Billing() {
     if (typeof window !== "undefined") {
       screenWidth = window.innerWidth;
     }
-    // console.log("Window width is", screenWidth);
+    // //console.log;
     setScreenWidth(screenWidth);
   }, []);
 
@@ -153,7 +153,7 @@ function Billing() {
     try {
       const localData = localStorage.getItem("User");
       let response = await getProfileDetails();
-      console.log("Response of get progf", response.data.data);
+      //console.log;
       if (response) {
         let plan = response?.data?.data?.plan;
         let togglePlan = plan?.type;
@@ -170,7 +170,7 @@ function Billing() {
           }
         }
         setUserLocalData(response?.data?.data);
-        // console.log("Get Profile Toggle plan is ", planType);
+        // //console.log;
         setTogglePlan(planType);
         setCurrentPlan(planType);
       }
@@ -181,7 +181,7 @@ function Billing() {
 
   //function to close the add card popup
   const handleClose = (data) => {
-    // console.log("Add card details are", data);
+    // //console.log;
     if (data.status === true) {
       let newCard = data.data;
       setAddPaymentPopup(false);
@@ -204,13 +204,13 @@ function Billing() {
         AuthToken = Data.token;
       }
 
-      // console.log("Authtoken is", AuthToken);
+      // //console.log;
 
       //Talabat road
 
       const ApiPath = Apis.getCardsList;
 
-      // console.log("apipath for get cards list", ApiPath);
+      // //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -220,15 +220,15 @@ function Billing() {
       });
 
       if (response) {
-        // console.log("Response of get cards api is", response.data);
+        // //console.log;
         if (response.data.status === true) {
           setCards(response.data.data);
         }
       }
     } catch (error) {
-      // console.log("Error occured", error);
+      // //console.log;
     } finally {
-      // console.log("Get cards done");
+      // //console.log;
       setGetCardLoader(false);
     }
   };
@@ -236,7 +236,7 @@ function Billing() {
   //function to make default cards api
   const makeDefaultCard = async (item) => {
     setSelectedCard(item);
-    // console.log('selectedCard', item.id)
+    // //console.log
     // return
     try {
       setMakeDefaultCardLoader(true);
@@ -249,7 +249,7 @@ function Billing() {
         const Data = JSON.parse(localData);
         AuthToken = Data.token;
       }
-      // console.log('authToken', AuthToken)
+      // //console.log
 
       const ApiPath = Apis.makeDefaultCard;
 
@@ -257,7 +257,7 @@ function Billing() {
         paymentMethodId: item.id,
       };
 
-      // console.log('apiData', ApiData)
+      // //console.log
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -267,11 +267,11 @@ function Billing() {
       });
 
       if (response) {
-        // console.log("Response of make default card api is", response.data);
+        // //console.log;
         if (response.data.status === true) {
           let crds = cards.forEach((card, index) => {
             if (card.isDefault) {
-              console.log("card.isDefault", card.isDefault);
+              //console.log;
               cards[index].isDefault = false;
             }
           });
@@ -305,7 +305,7 @@ function Billing() {
     try {
       let planType = null;
 
-      //// console.log("Selected plan is:", togglePlan);
+      //// //console.log;
 
       if (togglePlan === 1) {
         planType = "Plan30";
@@ -317,7 +317,7 @@ function Billing() {
         planType = "Plan720";
       }
 
-      // console.log("Current plan is", planType);
+      // //console.log;
 
       setSubscribePlanLoader(true);
       let AuthToken = null;
@@ -328,24 +328,24 @@ function Billing() {
         localDetails = LocalDetails;
         AuthToken = LocalDetails.token;
         if (localDetails?.user?.cards?.length > 0) {
-          // console.log("Already have cards");
+          // //console.log;
         } else {
           setErrorSnack("No payment method added");
           return;
         }
       }
 
-      // console.log("Authtoken is", AuthToken);
+      // //console.log;
 
       const ApiData = {
         plan: planType,
         payNow: true,
       };
 
-      // console.log("Api data is", ApiData);
+      // //console.log;
 
       const ApiPath = Apis.subscribePlan;
-      // console.log("Apipath is", ApiPath);
+      // //console.log;
 
       // return
 
@@ -357,10 +357,10 @@ function Billing() {
       });
 
       if (response) {
-        // console.log("Response of subscribe plan api is", response);
+        // //console.log;
         if (response.data.status === true) {
           localDetails.user.plan = response.data.data;
-          // console.log("Data updated is", localDetails);
+          // //console.log;
           let user = userLocalData
           user.plan = response.data.data
           setUserLocalData(user)
@@ -417,7 +417,7 @@ function Billing() {
       });
 
       if (response) {
-        // console.log("Response of get payment history", response.data.data);
+        // //console.log;
         if (response.data.status === true) {
           setPaymentHistoryData(response.data.data);
         }
@@ -444,10 +444,10 @@ function Billing() {
 
       const ApiPath = Apis.cancelPlan;
 
-      // console.log("Auth token ", AuthToken);
+      // //console.log;
 
-      //// console.log("Api data is", Apidata);
-      // console.log("Apipath is", ApiPath);
+      //// //console.log;
+      // //console.log;
 
       const ApiData = {
         // patanai: "Sari dunya",
@@ -462,9 +462,9 @@ function Billing() {
       });
 
       if (response) {
-        console.log("Responmse fo cancel plan is", response.data);
+        //console.log;
         if (response.data.status === true) {
-          // console.log("Response of cancel plan is true");
+          // //console.log;
           // window.location.reload();
           await getProfileDetails();
           setShowConfirmCancelPlanPopup(false);
@@ -475,7 +475,7 @@ function Billing() {
           let user = userLocalData
           user.plan.status = "cancelled"
           setUserLocalData(user)
-          console.log('user after plan cancell', user)
+          //console.log
           setSuccessSnack("Your plan was successfully cancelled");
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
@@ -490,7 +490,7 @@ function Billing() {
 
   //function to call redeem api
   const handleRedeemPlan = async () => {
-    console.log("Trying to redeem plan");
+    //console.log;
     try {
       setRedeemLoader(true);
 
@@ -516,9 +516,9 @@ function Billing() {
       });
 
       if (response) {
-        // console.log("Response of redeem api is", response.data);
+        // //console.log;
         let response2 = await getProfileDetails();
-        // console.log("Response if");
+        // //console.log;
         if (response2) {
           let togglePlan = response2?.data?.data?.plan?.type;
           let planType = null;
@@ -574,7 +574,7 @@ function Billing() {
   const [cancelReasonLoader, setCancelReasonLoader] = useState(false);
   //function to select the cancel plan reason
   const handleSelectReason = async (item) => {
-    // console.log("Item is", item);
+    // //console.log;
     setSelectReason(item.reason);
     if (item.reason === "Others") {
       setShowOtherReasonInput(true);
@@ -590,49 +590,49 @@ function Billing() {
 
   //del reason api
   const handleDelReason = async () => {
-    if(!otherReasonInput || selectReason)
-    try {
-      setCancelReasonLoader(true);
-      const localdata = localStorage.getItem("User");
-      let AuthToken = null;
-      if (localdata) {
-        const D = JSON.parse(localdata);
-        AuthToken = D.token;
-      }
-
-      const ApiData = {
-        reason: otherReasonInput || selectReason,
-      };
-
-      // console.log("Api data is", ApiData);
-
-      const ApiPath = Apis.calcelPlanReason;
-      // console.log("Api Path is", ApiPath);
-
-      const response = await axios.post(ApiPath, ApiData, {
-        headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response) {
-        console.log("Response of cancel plan reason api is", response);
-        if (response.data.status === true) {
-          setShowConfirmCancelPlanPopup2(false);
-          setSuccessSnack(response.data.message);
-        } else if (response.data.status === true) {
-          setErrorSnack(response.data.message);
+    if (!otherReasonInput || selectReason)
+      try {
+        setCancelReasonLoader(true);
+        const localdata = localStorage.getItem("User");
+        let AuthToken = null;
+        if (localdata) {
+          const D = JSON.parse(localdata);
+          AuthToken = D.token;
         }
+
+        const ApiData = {
+          reason: otherReasonInput || selectReason,
+        };
+
+        // //console.log;
+
+        const ApiPath = Apis.calcelPlanReason;
+        // //console.log;
+
+        const response = await axios.post(ApiPath, ApiData, {
+          headers: {
+            Authorization: "Bearer " + AuthToken,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response) {
+          //console.log;
+          if (response.data.status === true) {
+            setShowConfirmCancelPlanPopup2(false);
+            setSuccessSnack(response.data.message);
+          } else if (response.data.status === true) {
+            setErrorSnack(response.data.message);
+          }
+        }
+      } catch (error) {
+        setErrorSnack(error);
+        setCancelReasonLoader(false);
+        console.error("Error occured in api is ", error);
+      } finally {
+        setCancelReasonLoader(false);
+        // //console.log;
       }
-    } catch (error) {
-      setErrorSnack(error);
-      setCancelReasonLoader(false);
-      console.error("Error occured in api is ", error);
-    } finally {
-      setCancelReasonLoader(false);
-      // console.log("Del reason api done");
-    }
   };
 
   return (
@@ -964,7 +964,7 @@ function Billing() {
             <button
               className="text-[#ffffff] pe-8"
               style={{ fontSize: 14, fontWeight: "700" }}
-              onClick={()=>{
+              onClick={() => {
                 window.open(
                   "https://api.leadconnectorhq.com/widget/bookings/agentx/enterprise-plan ",
                   "_blank"
@@ -1042,15 +1042,15 @@ function Billing() {
                     userLocalData?.isTrial === false &&
                     userLocalData?.cancelPlanRedemptions === 0
                   ) {
-                    // console.log("Show gift pop");
+                    // //console.log;
                     setGiftPopup(true);
                   } // if (userLocalData?.isTrial === true && userLocalData?.cancelPlanRedemptions !== 0)
                   else {
-                    // console.log("Show confirmation pop");
+                    // //console.log;
                     setShowConfirmCancelPlanPopup(true);
                   }
-                  //// console.log("Show satus", userLocalData?.isTrial)
-                  //// console.log("Show redemptions", userLocalData?.cancelPlanRedemptions)
+                  //// //console.log
+                  //// //console.log
                 }}
               >
                 Cancel AgentX
@@ -1186,7 +1186,7 @@ function Billing() {
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
                   togglePlan={""}
-                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>
@@ -1259,9 +1259,8 @@ function Billing() {
 
               <div className="flex flex-col items-center px-4 w-full">
                 <div
-                  className={`flex flex-row items-center gap-2 text-purple ${
-                    ScreenWidth < 1200 ? "mt-4" : "mt-6"
-                  }bg-[#402FFF10] py-2 px-4 rounded-full`}
+                  className={`flex flex-row items-center gap-2 text-purple ${ScreenWidth < 1200 ? "mt-4" : "mt-6"
+                    }bg-[#402FFF10] py-2 px-4 rounded-full`}
                   style={styles.gitTextStyle}
                 >
                   <Image
@@ -1433,7 +1432,7 @@ function Billing() {
                     outline: "none",
                   }}
                   onClick={handleCancelPlan}
-                  // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
+                // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
                 >
                   Yes. Cancel
                 </button>
@@ -1524,7 +1523,10 @@ function Billing() {
               <div className="w-full flex flex-row items-center justify-center">
                 <div className="mt-9 w-10/12">
                   {cancelPlanReasons.map((item, index) => (
-                    <div
+                    <button
+                      onClick={() => {
+                        handleSelectReason(item);
+                      }}
                       key={index}
                       style={{
                         fontWeight: "500",
@@ -1534,10 +1536,8 @@ function Billing() {
                       }}
                       className="flex flex-row items-center gap-2"
                     >
-                      <button
-                        onClick={() => {
-                          handleSelectReason(item);
-                        }}
+                      <div
+                        
                         className="rounded-full flex flex-row items-center justify-center"
                         style={{
                           border:
@@ -1559,9 +1559,9 @@ function Billing() {
                             width: "12px",
                           }}
                         />
-                      </button>
+                      </div>
                       <div>{item.reason}</div>
-                    </div>
+                    </button>
                   ))}
                   {showOtherReasonInput && (
                     <div className="w-full mt-4">
@@ -1606,19 +1606,23 @@ function Billing() {
                     </div>
                   ) : (
                     <button
-                      className="w-full flex flex-row items-center h-[50px] rounded-lg bg-purple text-white justify-center mt-10"
+                      className="w-full flex flex-row items-center h-[50px] rounded-lg text-white justify-center mt-10"
                       style={{
                         fontWeight: "600",
                         fontSize: 16.8,
                         outline: "none",
-                        // backgroundColor: !otherReasonInput || !selectReason && "#00000060",
-                        // color: !otherReasonInput || !selectReason && "red",
+                        backgroundColor: (selectReason && (selectReason !== "Others" || otherReasonInput))
+                        ? "#7902df"
+                        : "#00000050",
+                        color: selectReason && (selectReason !== "Others" || otherReasonInput)
+                        ? "#ffffff"
+                        : "#000000",
                       }}
                       onClick={() => {
                         handleDelReason();
                       }}
-                      // disabled={!selectReason || !otherReasonInput || }
-                    >
+                      disabled={! selectReason && (selectReason !== "Others" || otherReasonInput)}
+                      >
                       Continue
                     </button>
                   )}

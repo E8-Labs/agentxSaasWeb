@@ -6,12 +6,12 @@ const PurchaseNumberSuccess = ({ handleContinue, selectedNumber }) => {
     const [purchaseNumber, setPurchaseNumber] = useState(null);
 
     useEffect(() => {
-       // console.log("I am hit now")
+       // //console.log
         const Data = localStorage.getItem("numberPurchased");
         if (Data) {
             const localData = JSON.parse(Data);
             setPurchaseNumber(localData);
-           // console.log("Purchased number details are : --", localData);
+           // //console.log;
         }
     }, []);
 

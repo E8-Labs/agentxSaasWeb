@@ -37,8 +37,8 @@ const AddCardDetails = ({
 }) => {
   const stripeReact = useStripe();
   const elements = useElements();
-  //console.log("From Build AI Screen ", fromBuildAiScreen)
-  //console.log("From Build AI Screen Selected Plan", selectedPlan)
+  ////console.log
+  ////console.log
 
   const [inviteCode, setInviteCode] = useState("");
 
@@ -60,9 +60,9 @@ const AddCardDetails = ({
 
   // Autofocus the first field when the component mounts
   useEffect(() => {
-   // console.log("Trying to focus check 2");
+   // //console.log;
     if (cardNumberRef.current) {
-     // console.log("Trying to focus check 1");
+     // //console.log;
       cardNumberRef.current.focus();
     }
   }, []);
@@ -76,12 +76,12 @@ const AddCardDetails = ({
   // const [selectedUserPlan, setSelectedUserPlan] = useState(null);
 
   if (!stripeReact || !elements) {
-    //console.log("Stripe error here");
-    //console.log("Stripe error ", stripeReact)
-    //console.log("Stripe error 2 ", elements)
+    ////console.log;
+    ////console.log
+    ////console.log
     return <div>Loading stripe</div>;
   } else {
-    //console.log("No stripe err");
+    ////console.log;
   }
   const handleBackClick = (e) => {
     e.preventDefault();
@@ -99,7 +99,7 @@ const AddCardDetails = ({
   //         // setIsHighScreen(window.innerHeight >= 640);
 
   //         // Log the updated state values for debugging (Optional)
-  //        // console.log("isWideScreen: ", window.innerWidth >= 500);
+  //        // //console.log;
   //     };
 
   //     handleResize(); // Set initial state
@@ -132,11 +132,11 @@ const AddCardDetails = ({
   //code for adding card api
 
   // useEffect(()=>{
-  //    // console.log("Selected Plan changed", selectedPlan)
+  //    // //console.log
   // }, [selectedPlan])
 
   // useEffect(() => {})
-  //console.log("Sending back plan ", selectedPlan)
+  ////console.log
   // let selPlan = null;
 
   //function to add card
@@ -158,12 +158,12 @@ const AddCardDetails = ({
     // handleClose4(e);
     // return
     if (!stripeReact || !elements) {
-      //console.log("Stripe error here");
-      //console.log("Stripe error ", stripeReact)
-      //console.log("Stripe error 2 ", elements)
+      ////console.log;
+      ////console.log
+      ////console.log
       return;
     } else {
-      //console.log("No stripe err");
+      ////console.log;
     }
 
     const cardNumberElement = elements.getElement(CardNumberElement);
@@ -174,11 +174,11 @@ const AddCardDetails = ({
         setCredentialsErr(true);
         setAddCardLoader(false);
       } else if (tok.token.id) {
-       // console.log("Token generating for card number :", tok.token.id);
+       // //console.log;
         const tokenId = tok.token.id;
-       // console.log("card number :");
+       // //console.log;
         const ApiPath = Apis.addCard;
-       // console.log("Api path is", ApiPath);
+       // //console.log;
 
         let AddCardData = null;
 
@@ -193,23 +193,23 @@ const AddCardDetails = ({
           };
         }
 
-       // console.log("Data for card number :", AddCardData);
+       // //console.log;
         // return
         try {
           const LocalData = localStorage.getItem("User");
           const D = JSON.parse(LocalData);
-         // console.log("Local data is", D);
+         // //console.log;
           const AuthToken = D.token;
           // const AuthToken = "bgabgakjhaslidfhgkerhiuhkmxvnidfuhgiehlmklhn";
-         // console.log("Token for add card ", D.token);
+         // //console.log;
 
-         // console.log("Data sending in api is :", AddCardData);
+         // //console.log;
           // return
 
           //can be useful when user want to add card from dashboard
 
           // const fromBuyStatus = localStorage.getItem("fromBuyScreen");
-          //// console.log("Data of fromBuyscreen", JSON.parse(fromBuyStatus));
+          //// //console.log);
           // let newTab = null;
           // if (fromBuyStatus) {
           //     newTab = window.open('about:blank'); // Open a new blank tab
@@ -222,7 +222,7 @@ const AddCardDetails = ({
             },
           });
           if (response) {
-           // console.log("Response of add card api is", response.data);
+           // //console.log;
           }
           if (response.status === 200) {
             // setAddCardDetails(response.data.message);
@@ -231,7 +231,7 @@ const AddCardDetails = ({
               setAddCardErrtxt(response.data.message);
               return;
             } else if (response.data.status === true) {
-              //console.log("Here in subscribe plan else", fromBuildAiScreen)
+              ////console.log
               setAddCardSuccess(true);
 
               if (!togglePlan) {
@@ -241,7 +241,7 @@ const AddCardDetails = ({
               if (togglePlan) {
                 handleSubscribePlan();
               }
-              //console.log("Testing build screen data",);
+              ////console.log;
             }
           } else {
             setAddCardFailure(true);
@@ -253,7 +253,7 @@ const AddCardDetails = ({
         } finally {
           setAddCardLoader(false);
           // if (fromBuildAiScreen) {
-          //    // console.log("reached end");
+          //    // //console.log;
           //     subscribeLoader(false);
           // }
         }
@@ -266,7 +266,7 @@ const AddCardDetails = ({
     try {
       let planType = null;
 
-      //// console.log("Selected plan is:", togglePlan);
+      //// //console.log;
 
       if (togglePlan === 1) {
         planType = "Plan30";
@@ -278,7 +278,7 @@ const AddCardDetails = ({
         planType = "Plan720";
       }
 
-     // console.log("Current plan is", planType);
+     // //console.log;
 
       setAddCardLoader(true);
       let AuthToken = null;
@@ -288,16 +288,16 @@ const AddCardDetails = ({
         AuthToken = LocalDetails.token;
       }
 
-     // console.log("Authtoken is", AuthToken);
+     // //console.log;
 
       const ApiData = {
         plan: planType,
       };
 
-     // console.log("Api data is", ApiData);
+     // //console.log;
 
       const ApiPath = Apis.subscribePlan;
-     // console.log("Apipath is", ApiPath);
+     // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -370,7 +370,7 @@ const AddCardDetails = ({
             onChange={(event) => {
               handleFieldChange(event, cardExpiryRef);
               if (event.complete) {
-               // console.log("Card Number is complete");
+               // //console.log;
                 setCardAdded(true);
               } else {
                 setCardAdded(false);
@@ -413,7 +413,7 @@ const AddCardDetails = ({
               onChange={(event) => {
                 handleFieldChange(event, cardCvcRef);
                 if (event.complete) {
-                 // console.log("Card expiry is complete");
+                 // //console.log;
                   setCardExpiry(true);
                 } else {
                   setCardExpiry(false);
@@ -458,7 +458,7 @@ const AddCardDetails = ({
               onChange={(event) => {
                 // handleFieldChange(event, cardCvcRef);
                 if (event.complete) {
-                 // console.log("CVC is complete");
+                 // //console.log;
                   setCVC(true);
                 } else {
                   setCVC(false);

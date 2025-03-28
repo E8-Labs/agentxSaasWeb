@@ -185,7 +185,7 @@ const ProfileNav = () => {
         );
 
         // if (response) {
-        //  // console.log("Response of send not api is", response);
+        //  // //console.log;
         // }
       } catch (error) {
         // console.error("Error occured in test not is"), error;
@@ -226,7 +226,7 @@ const ProfileNav = () => {
 
   useEffect(() => {
     const handleUpdateProfile = (event) => {
-      // console.log("Update profile event received:", event.detail);
+      // //console.log;
       getUserProfile(); // Refresh the profile data
     };
 
@@ -257,15 +257,15 @@ const ProfileNav = () => {
   //function to get the notification permissione
   const requestNotificationPermission = () => {
     // setShowNotificationLoader(true);
-    // console.log("Check 1 clear");
-    // console.log("Requesting permission...");
+    // //console.log;
+    // //console.log;
     Notification.requestPermission()
       .then((permission) => {
         if (permission === "granted") {
-          // console.log("Notification permission granted.");
+          // //console.log;
           requestToken((FCMToken) => {
             if (FCMToken) {
-              // console.log("Token for fcm is", FCMToken);
+              // //console.log;
               let apidata = {
                 fcm_token: FCMToken,
               };
@@ -277,7 +277,7 @@ const ProfileNav = () => {
                 apidata.lat = parsedLocation.latitude;
                 apidata.lang = parsedLocation.longitude;
               }
-              console.log("Token sending in api is", apidata);
+              //console.log;
               // UpdateProfile()
             } else {
               alert("FCM token not generated!!!");
@@ -368,20 +368,20 @@ const ProfileNav = () => {
   const getProfile = async () => {
     try {
       let response = await getProfileDetails();
-      // console.log("Response of profile api ", response.data);
+      // //console.log;
       if (response.status == 404) {
-        console.log("User has been deleted");
+        //console.log;
         // logout();
         // router.push("/");
         return;
       }
 
-      // console.log("Data recieved from get profile api", response);
+      // //console.log;
 
       const userlocalData = localStorage.getItem("User");
       if (userlocalData) {
         const response = JSON.parse(userlocalData);
-        // console.log("User FCM token is", response.user.fcm_token);
+        // //console.log;
       }
 
       let Data = response?.data?.data;
@@ -393,9 +393,9 @@ const ProfileNav = () => {
       );
 
       if (response) {
-        // console.log("Inside response ", response?.data?.status);
+        // //console.log;
         if (response?.data?.status) {
-          // console.log("User is logged in", response?.data?.status);
+          // //console.log;
           setUserType(response?.data?.data.userType);
           if (response?.data?.data.userType != "admin") {
             if (
@@ -429,13 +429,13 @@ const ProfileNav = () => {
             setTogglePlan(planType);
           }
         } else {
-          console.log("User is not available");
+          //console.log;
           //Logout user
           logout();
           router.push("/");
         }
       } else {
-        console.log("No response");
+        //console.log;
       }
     } catch (error) {
       console.error("Error occured in api is error", error);
@@ -475,13 +475,13 @@ const ProfileNav = () => {
         AuthToken = Data.token;
       }
 
-      // console.log("Authtoken is", AuthToken);
+      // //console.log;
 
       //Talabat road
 
       const ApiPath = Apis.getCardsList;
 
-      // console.log("apipath for get cards list", ApiPath);
+      // //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -491,7 +491,7 @@ const ProfileNav = () => {
       });
 
       if (response) {
-        // console.log("Response of get cards api is", response.data);
+        // //console.log;
         if (response.data.status === true) {
           if (response.data.data.length === 0) {
             setAddPaymentPopup(true);
@@ -499,9 +499,9 @@ const ProfileNav = () => {
         }
       }
     } catch (error) {
-      // console.log("Error occured", error);
+      // //console.log;
     } finally {
-      // console.log("Get cards done");
+      // //console.log;
       // setGetCardLoader(false);
     }
   };
@@ -518,7 +518,7 @@ const ProfileNav = () => {
       // return;
       let planType = null;
 
-      //// console.log("Selected plan is:", togglePlan);
+      //// //console.log;
 
       if (togglePlan === 1) {
         planType = "Plan30";
@@ -530,7 +530,7 @@ const ProfileNav = () => {
         planType = "Plan720";
       }
 
-      // console.log("Current plan is", planType);
+      // //console.log;
 
       setSubscribePlanLoader(true);
       let AuthToken = null;
@@ -546,17 +546,17 @@ const ProfileNav = () => {
       //   return;
       // }
 
-      // console.log("Authtoken is", AuthToken);
+      // //console.log;
 
       const ApiData = {
         plan: planType,
         payNow: true,
       };
 
-      // console.log("Api data is", ApiData);
+      // //console.log;
 
       const ApiPath = Apis.subscribePlan;
-      // console.log("Apipath is", ApiPath);
+      // //console.log;
 
       // return
 
@@ -568,10 +568,10 @@ const ProfileNav = () => {
       });
 
       if (response) {
-        // console.log("Response of subscribe plan api is", response);
+        // //console.log;
         if (response.data.status === true) {
           localDetails.user.plan = response.data.data;
-          // console.log("Data updated is", localDetails);
+          // //console.log;
           // getProfile();
           localStorage.setItem("User", JSON.stringify(localDetails));
           setSuccessSnack(response.data.message);
@@ -591,7 +591,7 @@ const ProfileNav = () => {
   };
 
   const handleClose = (data) => {
-    // console.log("Add card details are", data);
+    // //console.log;
     if (data.status === true) {
       let newCard = data.data;
       setAddPaymentPopup(false);

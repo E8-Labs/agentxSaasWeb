@@ -18,7 +18,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
   const [ShowModal, setShowModal] = useState(false);
   const [shouldContinue, setShouldContinue] = useState(true);
 
-  // console.log("This is my crash", crash);
+  // //console.log;
   //variable stores height
   const [screenHeight, setScreenHeight] = useState(null);
 
@@ -72,7 +72,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       otherFocusArea: "",
     };
 
-    // console.log("Data seting in api is", userData);
+    // //console.log;
 
     // return
 

@@ -44,12 +44,12 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
   useEffect(() => {
     const guadrailsList = localStorage.getItem("GuadrailsList");
     if (guadrailsList) {
-      // console.log("Should not call api");
+      // //console.log;
       const guardrailsData = JSON.parse(guadrailsList);
-      // console.log("guardrails details recieved from locastorage are :", guardrailsData);
+      // //console.log;
       setGuardrailsList(guardrailsData);
     } else {
-      // console.log("calling api");
+      // //console.log;
       getGuadrails();
     }
   }, []);
@@ -72,7 +72,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
       // const agentDetailsLocal = localStorage.getItem("agentDetails");
       // if (agentDetailsLocal) {
       //   const localAgentData = JSON.parse(agentDetailsLocal);
-      //  // console.log("Locla agent details are :-", localAgentData);
+      //  // //console.log;
       //   mainAgent = localAgentData;
       // }
 
@@ -84,15 +84,15 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
         const localAgent = localStorage.getItem("agentDetails");
         if (localAgent) {
           const agentDetails = JSON.parse(localAgent);
-          // console.log("Agent details are:", agentDetails);
+          // //console.log;
           mainAgentId = agentDetails.id;
         }
       }
 
-      // console.log("Auth token is:", AuthToken);
+      // //console.log;
 
       const ApiPath = `${Apis.getObjectionGuardrial}?mainAgentId=${mainAgentId}`;
-      // console.log("Apipath is:", ApiPath);
+      // //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -102,7 +102,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
       });
 
       if (response) {
-        // console.log("Response is:", response);
+        // //console.log;
         setGuardrailsList(response.data.data.guardrails);
         localStorage.setItem(
           "GuadrailsList",
@@ -125,7 +125,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
       // const agentDetailsLocal = localStorage.getItem("agentDetails");
       // if (agentDetailsLocal) {
       //   const localAgentData = JSON.parse(agentDetailsLocal);
-      //  // console.log("Locla agent details are :-", localAgentData);
+      //  // //console.log;
       //   mainAgent = localAgentData;
       // }
 
@@ -137,7 +137,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
         const localAgent = localStorage.getItem("agentDetails");
         if (localAgent) {
           const agentDetails = JSON.parse(localAgent);
-          // console.log("Agent details are:", agentDetails);
+          // //console.log;
           mainAgentId = agentDetails.id;
         }
       }
@@ -149,7 +149,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
         AuthToken = UserDetails.token;
       }
 
-      // console.log("Auth token is:", AuthToken);
+      // //console.log;
 
       const ApiData = {
         title: addObjTitle,
@@ -158,10 +158,10 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
         mainAgentId: mainAgentId,
       };
 
-      // console.log("Api data is :", ApiData);
+      // //console.log;
 
       const ApiPath = Apis.addObjectionGuardrial;
-      // console.log("Apipath is", ApiPath);
+      // //console.log;
 
       // return
       const response = await axios.post(ApiPath, ApiData, {
@@ -172,7 +172,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
       });
 
       if (response) {
-        // console.log("Response of add guardrails api is:", response);
+        // //console.log;
         if (response.data.status === true) {
           setGuardrailsList(response.data.data.guardrails);
           localStorage.setItem(
@@ -209,7 +209,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
 
   //functions for del popover
   const handleClick = (event, item) => {
-    // console.log("Selected item is", item);
+    // //console.log;
     setSelectedGuardrail(item);
     setAnchorEl(event.currentTarget);
   };
@@ -231,13 +231,13 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
         AuthToken = UserDetails.token;
       }
 
-      // console.log("Authtoken is", AuthToken);
+      // //console.log;
 
       const formData = new FormData();
       formData.append("id", SelectedGuardrail.id);
 
       for (let [key, value] of formData.entries()) {
-        // console.log(`${key}: ${value}`)
+        // //console.log
       }
 
       const ApiPath = Apis.DelObjectGuard;
@@ -250,7 +250,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
       });
 
       if (response) {
-        // console.log("Response of del guardrails is", response);
+        // //console.log;
         if (response.data.status === true) {
           setGuardrailsList(response.data.data.guardrails);
           setShowSuccessSnack(response.data.message);
@@ -267,7 +267,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
       // console.error("Error occured in api is", error);
     } finally {
       setDelLoader(false);
-      // console.log("Api call done");
+      // //console.log;
     }
   };
 

@@ -9,7 +9,7 @@ export function convertUTCToTimezone(utcTimestamp, timezone = null) {
   if (timezone == null) {
     timezone = GetTimezone();
   }
-  // console.log("Time zone to convert to is ", timezone);
+  // //console.log;
   return DateTime.fromISO(utcTimestamp, { zone: "utc" })
     .setZone(timezone)
     .toFormat("yyyy-MM-dd h:mm:ss");
@@ -24,7 +24,7 @@ export function GetFormattedDateString(
     return dateString;
   }
   let formatted = "";
-  // console.log("Created At servertz", dateString);
+  // //console.log;
   let dateFormat = RequiredDateFormat ? RequiredDateFormat : "MMM DD, YYYY";
   if (time) {
     dateFormat = RequiredDateFormat
@@ -34,7 +34,7 @@ export function GetFormattedDateString(
   try {
     // Check if the date string ends with "Z" (indicating UTC)
     if (dateString.endsWith("Z")) {
-      // console.log("The date string is in UTC.");
+      // //console.log;
 
       // Parse the date string as UTC and convert to local timezone
       const dateInLocalTz = moment.utc(dateString).local();
@@ -42,7 +42,7 @@ export function GetFormattedDateString(
       // Format the date as "Jan 02, 2025 12:30 PM"
       formatted = dateInLocalTz.format(dateFormat);
     } else {
-      // console.log("The date string is not in UTC.");
+      // //console.log;
 
       // Assume the date string is already in the local timezone
       const dateInLocalTz = moment(dateString);
@@ -53,7 +53,7 @@ export function GetFormattedDateString(
   } catch (error) {
     console.error("Error parsing or formatting date:", error);
   }
-  // console.log("Created At localtz", formatted);
+  // //console.log;
   return formatted;
 }
 export function GetFormattedTimeString(dateString) {

@@ -83,9 +83,9 @@ function AdminEngagments() {
                         endDate
 
                 }
-                console.log("u", u);
+                //console.log;
 
-                console.log("path", path);
+                //console.log;
 
                 const response = await axios.get(path, {
                     headers: {
@@ -95,24 +95,24 @@ function AdminEngagments() {
 
                 if (response) {
                     setLoading(false);
-                    console.log("get engagment data api data is", response.data.data);
+                    //console.log;
 
                     if (response.data.status === true) {
                         setEngagmentData(response.data.data);
                     } else {
-                        console.log("get engagment data api message is", response.data.message);
+                        //console.log;
                     }
                 }
             }
         } catch (e) {
             setLoading(false);
 
-            console.log("error in get engagment data api is", e);
+            //console.log;
         }
     };
 
     const handleStartDateSelect = (date) => {
-        console.log("date", date);
+        //console.log;
 
         let formatedDate = moment(date).format("YYYY-MM-DD");
 
@@ -122,7 +122,7 @@ function AdminEngagments() {
     };
 
     const handleEndDateSelect = (date) => {
-        console.log("date", date);
+        //console.log;
 
         let formatedDate = moment(date).format("YYYY-MM-DD");
 

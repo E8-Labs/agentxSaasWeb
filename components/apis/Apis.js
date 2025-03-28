@@ -1,6 +1,6 @@
 // const BasePath = process.env.NEXT_PUBLIC_REACT_APP_BASE_URL;
 
-// console.log("Base url ", BasePath);
+// //console.log;
 const BasePath =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
     ? "https://www.blindcircle.com/agentx/"

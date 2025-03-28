@@ -42,15 +42,15 @@ const Objection = ({ showTitle, selectedAgentId }) => {
   const [showSuccessSnack, setShowSuccessSnack] = useState(null);
 
   useEffect(() => {
-    // console.log("Check 1 clear")
+    // //console.log
     const objectionsList = localStorage.getItem("ObjectionsList");
     if (objectionsList) {
-      // console.log("Should not call api");
+      // //console.log;
       const objectionsData = JSON.parse(objectionsList);
-      // console.log("Objection details recieved from locastorage are :", objectionsData);
+      // //console.log;
       setObjectionsList(objectionsData);
     } else {
-      // console.log("calling api");
+      // //console.log;
       getObjections();
     }
   }, []);
@@ -67,27 +67,27 @@ const Objection = ({ showTitle, selectedAgentId }) => {
       }
 
       let mainAgentId = null;
-      // console.log("Selected agent details are", selectedAgentId);
+      // //console.log;
 
       if (selectedAgentId) {
-        // console.log("id sending in api is:", selectedAgentId);
+        // //console.log;
         mainAgentId = selectedAgentId.mainAgentId; //selectedAgentId.id
       } else {
-        // console.log("id sending in new local agent is:", mainAgentId);
+        // //console.log;
         const localAgent = localStorage.getItem("agentDetails");
         if (localAgent) {
           const agentDetails = JSON.parse(localAgent);
-          // console.log("Agent details are:", agentDetails);
+          // //console.log;
           mainAgentId = agentDetails.id;
         }
       }
 
-      // console.log("Main agent id is:", mainAgentId)
+      // //console.log
 
-      // console.log("Auth token is:", AuthToken);
+      // //console.log;
 
       const ApiPath = `${Apis.getObjectionGuardrial}?mainAgentId=${mainAgentId}`;
-      // console.log("Apipath is:", ApiPath);
+      // //console.log;
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -97,7 +97,7 @@ const Objection = ({ showTitle, selectedAgentId }) => {
       });
 
       if (response) {
-        // console.log("Response is:", response);
+        // //console.log;
         localStorage.setItem(
           "ObjectionsList",
           JSON.stringify(response.data.data.objections)
@@ -120,7 +120,7 @@ const Objection = ({ showTitle, selectedAgentId }) => {
       // const agentDetailsLocal = localStorage.getItem("agentDetails");
       // if (agentDetailsLocal) {
       //   const localAgentData = JSON.parse(agentDetailsLocal);
-      //  // console.log("Locla agent details are :-", localAgentData);
+      //  // //console.log;
       //   mainAgent = localAgentData;
       // }
 
@@ -132,7 +132,7 @@ const Objection = ({ showTitle, selectedAgentId }) => {
         const localAgent = localStorage.getItem("agentDetails");
         if (localAgent) {
           const agentDetails = JSON.parse(localAgent);
-          // console.log("Agent details are:", agentDetails);
+          // //console.log;
           mainAgentId = agentDetails.id;
         }
       }
@@ -144,7 +144,7 @@ const Objection = ({ showTitle, selectedAgentId }) => {
         AuthToken = UserDetails.token;
       }
 
-      // console.log("Auth token is:", AuthToken);
+      // //console.log;
 
       const ApiData = {
         title: addObjTitle,
@@ -153,10 +153,10 @@ const Objection = ({ showTitle, selectedAgentId }) => {
         mainAgentId: mainAgentId,
       };
 
-      // console.log("Api data is :", ApiData);
+      // //console.log;
       // return
       const ApiPath = Apis.addObjectionGuardrial;
-      // console.log("Apipath is", ApiPath);
+      // //console.log;
 
       // return
       const response = await axios.post(ApiPath, ApiData, {
@@ -167,7 +167,7 @@ const Objection = ({ showTitle, selectedAgentId }) => {
       });
 
       if (response) {
-        // console.log("Response of add objection api is:", response);
+        // //console.log;
         if (response.data.status === true) {
           setObjectionsList(response.data.data.objections);
           localStorage.setItem(
@@ -204,7 +204,7 @@ const Objection = ({ showTitle, selectedAgentId }) => {
 
   //functions for del popover
   const handleClick = (event, item) => {
-    // console.log("Selected item is", item);
+    // //console.log;
     setSelectedObjection(item);
     setAnchorEl(event.currentTarget);
   };
@@ -225,13 +225,13 @@ const Objection = ({ showTitle, selectedAgentId }) => {
         AuthToken = UserDetails.token;
       }
 
-      // console.log("Authtoken is", AuthToken);
+      // //console.log;
 
       const formData = new FormData();
       formData.append("id", SelectedObjection.id);
 
       for (let [key, value] of formData.entries()) {
-        // console.log(`${key}: ${value}`)
+        // //console.log
       }
 
       const ApiPath = Apis.DelObjectGuard;
@@ -244,7 +244,7 @@ const Objection = ({ showTitle, selectedAgentId }) => {
       });
 
       if (response) {
-        // console.log("Response of del guardrails is", response);
+        // //console.log;
         if (response.data.status === true) {
           setObjectionsList(response.data.data.objections);
           setShowSuccessSnack(response.data.message);
@@ -261,7 +261,7 @@ const Objection = ({ showTitle, selectedAgentId }) => {
       // console.error("Error occured in api is", error);
     } finally {
       setDelLoader(false);
-      // console.log("Api call done");
+      // //console.log;
     }
   };
 

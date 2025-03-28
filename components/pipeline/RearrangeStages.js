@@ -131,14 +131,14 @@ const RearrangeStages = ({
         !action ||
         inputs.filter((input) => input.value.trim() !== "").length < 3
       ) {
-        // console.log("Shoukd hide ");
+        // //console.log;
         setShowAddStageBtn(false);
       } else if (
         newStageTitle &&
         action &&
         inputs.filter((input) => input.value.trim() !== "").length === 3
       ) {
-        // console.log("Show continue to add stage");
+        // //console.log;
         setShowAddStageBtn(true);
       }
     } else if (!showAdvanceSettings) {
@@ -156,26 +156,26 @@ const RearrangeStages = ({
   const handleDeleteStage = async () => {
     try {
       setDelStageLoader(true);
-      // console.log("Selected pipeline is:", selectedPipelineItem);
+      // //console.log;
       const localData = localStorage.getItem("User");
       let AuthToken = null;
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-        //// console.log("Local details are :", UserDetails);
+        //// //console.log;
       }
 
-      // console.log("Auth token is :--", AuthToken);
+      // //console.log;
 
       const ApiData = {
         pipelineId: selectedPipelineItem.id,
         stageId: showDelStagePopup.id,
       };
 
-      // console.log("Api dta is:", ApiData);
+      // //console.log;
       // return
       const ApiPath = Apis.deleteStage;
-      // console.log("Apipath is:", ApiPath);
+      // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -185,7 +185,7 @@ const RearrangeStages = ({
       });
 
       if (response) {
-        // console.log("response of del stage api is:", response.data);
+        // //console.log;
         if (response.data.status === true) {
           setPipelineStages(response.data.data.stages);
           setSuccessSnack(response.data.message);
@@ -206,11 +206,11 @@ const RearrangeStages = ({
               return pipeline; // Return unchanged pipeline for others
             });
 
-            console.log('updatedPipelines', updatedPipelines)
+            //console.log
             localStorage.setItem("pipelinesList", JSON.stringify(updatedPipelines));
 
           } else {
-            console.log('no pipeline list found from local')
+            //console.log
           }
           // setStageAnchorel(null);
         }
@@ -226,13 +226,13 @@ const RearrangeStages = ({
   //new teammeber
   // const handleAssignTeamMember = (event) => {
   //   let value = event.target.value;
-  //   //// console.log("Value to set is :", value);
+  //   //// //console.log;
   //   setAssignToMember(event.target.value);
 
   //   const selectedItem = myTeamList.find(
   //     (item) => item.invitedUser.name === value
   //   );
-  //  // console.log("Selected teammeber is:", selectedItem);
+  //  // //console.log;
   //   setAssignToMember(
   //     selectedItem.invitedUser.name || myTeamAdmin.invitedUser.name
   //   ); //
@@ -241,18 +241,18 @@ const RearrangeStages = ({
   //     selectedItem.invitedUser.id || myTeamAdmin.invitedUser.id,
   //   ]); //
 
-  //  // console.log("Selected teammeber is:", selectedItem);
+  //  // //console.log;
   // };
 
   const handleAssignTeamMember = (event) => {
     let value = event.target.value;
-    // console.log("Value to set is :", value);
+    // //console.log;
     setAssignToMember(event.target.value);
 
     const selectedItem = myTeamList.find(
       (item) => item?.invitedUser?.name === value
     );
-    // console.log("Selected teammeber is:", selectedItem);
+    // //console.log;
     setAssignToMember(
       selectedItem?.invitedUser?.name || myTeamAdmin.invitedUser?.name
     ); //
@@ -261,14 +261,14 @@ const RearrangeStages = ({
       selectedItem?.invitedUser?.id || myTeamAdmin.invitedUser?.id,
     ]); //
 
-    // console.log("Selected teammeber is:", selectedItem);
+    // //console.log;
   };
 
   const getMyTeam = async () => {
     try {
       let response = await getTeamsList();
       // if (response) {
-      //  // console.log("Response recieved is", response);
+      //  // //console.log;
       //   let teams = [];
       //   if (response.data && response.data.length > 0) {
       //     for (const t of response.data) {
@@ -282,7 +282,7 @@ const RearrangeStages = ({
       // }
 
       if (response) {
-        // console.log("Team Response recieved is", response);
+        // //console.log;
         let teams = [];
         if (response.admin) {
           let admin = response.admin;
@@ -348,13 +348,13 @@ const RearrangeStages = ({
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-        // console.log("Local details are :", UserDetails);
+        // //console.log;
       }
 
-      // console.log("Auth token is :--", AuthToken);
+      // //console.log;
 
       const ApiPath = Apis.addCustomStage;
-      // console.log("Api path is:", ApiPath);
+      // //console.log;
 
       const ApiData = {
         stageTitle: newStageTitle,
@@ -365,7 +365,7 @@ const RearrangeStages = ({
         tags: tagsValue,
       };
 
-      // console.log("Data sending in api is:", ApiData);
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -375,7 +375,7 @@ const RearrangeStages = ({
       });
 
       if (response) {
-        // console.log("Response of add stage title :", response);
+        // //console.log;
         if (response.data.status === true) {
           setPipelineStages(response.data.data.stages);
           setAddNewStageModal(false);

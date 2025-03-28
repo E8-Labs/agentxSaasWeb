@@ -59,8 +59,8 @@ function AdminActiveCalls({selectedUser}) {
   //code to show popover
   const handleShowPopup = (event, item, agent) => {
     setAnchorEl(event.currentTarget);
-    // console.log("Selected item details are ", item);
-    // console.log("Selected agent  details are ", agent);
+    // //console.log;
+    // //console.log;
     setSelectedAgent(agent);
     setSelectedItem(item);
   };
@@ -74,8 +74,8 @@ function AdminActiveCalls({selectedUser}) {
 
   //code for showing the selected agent leads
   const handleShowLeads = (agent, item) => {
-    // console.log("Agent selected is:", agent);
-    // console.log("Item selected is:", item);
+    // //console.log;
+    // //console.log;
     setSelectedAgent(agent);
     setSelectedItem(item);
     // setSelectedLeadsList([]);
@@ -86,7 +86,7 @@ function AdminActiveCalls({selectedUser}) {
   //code to filter slected agent leads
   const handleLeadsSearchChange = (value) => {
     if (value.trim() === "") {
-      //// console.log("Should reset to original");
+      //// //console.log;
       // Reset to original list when input is empty
       setFilteredSelectedLeadsList(selectedLeadsList);
       return;
@@ -115,24 +115,24 @@ function AdminActiveCalls({selectedUser}) {
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-        // console.log("Localdat recieved is :--", Data);
+        // //console.log;
         AuthToken = Data.token;
       }
 
-      // console.log("Auth token is:", AuthToken);
+      // //console.log;
 
       let mainAgent = null;
       const localAgent = localStorage.getItem("agentDetails");
       if (localAgent) {
         const agentDetails = JSON.parse(localAgent);
-        // console.log("Check 1 cleear");
-        // console.log("Agent details are:", agentDetails);
+        // //console.log;
+        // //console.log;
         mainAgent = agentDetails;
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
       let ApiPath = `${Apis.getSheduledCallLogs}?scheduled=false`;
       ApiPath = ApiPath+"&userId="+selectedUser.id
-      // console.log("Api path is: ", ApiPath); //scheduled
+      // //console.log; //scheduled
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -142,7 +142,7 @@ function AdminActiveCalls({selectedUser}) {
       });
 
       if (response) {
-        console.log("Response of get sheduled api is:", response.data.data);
+        //console.log;
 
         setFilteredAgentsList(response.data.data);
         setCallDetails(response.data.data);
@@ -174,7 +174,7 @@ function AdminActiveCalls({selectedUser}) {
   //code to filter slected agent leads
   const handleDetailsSearchChange = (value) => {
     if (value.trim() === "") {
-      //// console.log("Should reset to original");
+      //// //console.log;
       // Reset to original list when input is empty
       setFilteredSheduledCalllogs(sheduledCalllogs);
       return;
@@ -197,17 +197,17 @@ function AdminActiveCalls({selectedUser}) {
   //main page search
   const handleSearchChange = (value) => {
     if (value.trim() === "") {
-      //// console.log("Should reset to original");
+      //// //console.log;
       // Reset to original list when input is empty
       setFilteredAgentsList(agentsList);
       return;
     }
 
-    //// console.log("Value is", value);
+    //// //console.log;
 
     const filtered = agentsList.filter((item) => {
       const term = value.toLowerCase();
-      //// console.log("Item to lower case is", term)
+      //// //console.log
       return (
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
@@ -223,28 +223,28 @@ function AdminActiveCalls({selectedUser}) {
   const [PauseLoader, setPauseLoader] = useState(false);
   //code to pause the agent
   const pauseAgents = async () => {
-    // console.log("Selected agent is:", SelectedItem);
+    // //console.log;
 
     try {
       setPauseLoader(true);
       const ApiPath = Apis.pauseAgent;
 
-      // console.log("Api path is: ", ApiPath);
+      // //console.log;
 
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-        // console.log("Localdat recieved is :--", Data);
+        // //console.log;
         AuthToken = Data.token;
       }
 
-      // console.log("Auth token is:", AuthToken);
+      // //console.log;
       const ApiData = {
         // mainAgentId: SelectedItem.id
         batchId: SelectedItem.id,
       };
-      // console.log("Apidata is", ApiData);
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -254,7 +254,7 @@ function AdminActiveCalls({selectedUser}) {
       });
 
       if (response) {
-        // console.log("Response of get agents api is:", response.data);
+        // //console.log;
         if (response.data.status === true) {
           setShowConfirmationPopup(null);
           let currentStatus = filteredAgentsList.map((item) => {
@@ -268,7 +268,7 @@ function AdminActiveCalls({selectedUser}) {
             // Return the item unchanged
             return item;
           });
-          // console.log("Current status is:", currentStatus);
+          // //console.log;
 
           setFilteredAgentsList(currentStatus);
           handleClosePopup();
@@ -285,29 +285,29 @@ function AdminActiveCalls({selectedUser}) {
 
   //function to resume calls
   const resumeCalls = async () => {
-    // console.log("Selected agent is:", SelectedItem);
-    // console.log("Resume call api trigered")
+    // //console.log;
+    // //console.log
     // return
     try {
       setPauseLoader(true);
       const ApiPath = Apis.resumeCalls;
 
-      // console.log("Api path is: ", ApiPath);
+      // //console.log;
 
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-        // console.log("Localdat recieved is :--", Data);
+        // //console.log;
         AuthToken = Data.token;
       }
 
-      // console.log("Auth token is:", AuthToken);
+      // //console.log;
       const ApiData = {
         // mainAgentId: SelectedItem.id
         batchId: SelectedItem.id,
       };
-      // console.log("Apidata is", ApiData);
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -317,7 +317,7 @@ function AdminActiveCalls({selectedUser}) {
       });
 
       if (response) {
-        // console.log("Response of get agents api is:", response.data);
+        // //console.log;
         if (response.data.status === true) {
           setShowConfirmationPopup(null);
           let currentStatus = filteredAgentsList.map((item) => {
@@ -331,7 +331,7 @@ function AdminActiveCalls({selectedUser}) {
             // Return the item unchanged
             return item;
           });
-          // console.log("Current status is:", currentStatus);
+          // //console.log;
 
           setFilteredAgentsList(currentStatus);
           handleClosePopup();
@@ -347,7 +347,7 @@ function AdminActiveCalls({selectedUser}) {
   };
 
   const fetchLeadsInBatch = async (batch) => {
-    console.log("Get leads for batch", batch);
+    //console.log;
     try {
       let firstCall = false;
       setLeadsLoading(true);
@@ -357,15 +357,15 @@ function AdminActiveCalls({selectedUser}) {
       if (selectedLeadsList.length == 0) {
         firstCall = false;
         if (leadsInBatchLocalData) {
-          console.log("Data in localStorage for leads batch");
+          //console.log;
           let leads = JSON.parse(leadsInBatchLocalData);
-          console.log("Leads ", leads.length);
+          //console.log;
           setSelectedLeadsList(leads);
           setFilteredSelectedLeadsList(leads);
           setLeadsLoading(false);
           // return;
         } else {
-          console.log("No data in local storage lead batch");
+          //console.log;
         }
       }
 
@@ -386,7 +386,7 @@ function AdminActiveCalls({selectedUser}) {
       const data = await response.json();
 
       if (response.ok) {
-        console.log("Leads In Batch:", data);
+        //console.log;
         // setSelectedLeadsList(data.data);
         // setFilteredSelectedLeadsList(data.data);
         // localStorage.setItem(
@@ -423,7 +423,7 @@ function AdminActiveCalls({selectedUser}) {
   };
 
   const fetchCallsInBatch = async (batch) => {
-    console.log("Get calls for batch", batch);
+    //console.log;
     try {
       let firstCall = false;
       setCallsLoading(true);
@@ -433,21 +433,21 @@ function AdminActiveCalls({selectedUser}) {
         //   PersistanceKeys.CallsInBatch + `${batch.id}`
         // );
         // if (leadsInBatchLocalData) {
-        //   // console.log("Data in localStorage for leads batch");
+        //   // //console.log;
         //   let calls = JSON.parse(leadsInBatchLocalData);
-        //   console.log("Leads ", calls.length);
+        //   //console.log;
         //   setSheduledCalllogs(calls);
         //   setFilteredSheduledCalllogs(calls);
         //   setShowDetailsModal(true);
         //   setCallsLoading(false);
         //   // return;
         // } else {
-        //   console.log("No data in local storage lead batch");
+        //   //console.log;
         // }
       }
 
       const token = user.token; // Extract JWT token
-      console.log("Here");
+      //console.log;
       const response = await fetch(
         "/api/calls/callsInABatch" +
           `?batchId=${batch.id}&offset=${sheduledCalllogs.length}`,
@@ -459,12 +459,12 @@ function AdminActiveCalls({selectedUser}) {
           },
         }
       );
-      console.log("Here 2", response);
+      //console.log;
       setCallsLoading(false);
       const data = await response.json();
 
       if (response.ok) {
-        console.log("Calls In Batch:", data);
+        //console.log;
         if (firstCall) {
           setSheduledCalllogs(data.data.pastCalls);
           setFilteredSheduledCalllogs(data.data.pastCalls);
@@ -540,15 +540,15 @@ function AdminActiveCalls({selectedUser}) {
                 className="text-start outline-none"
                 onClick={() => {
                   if (SelectedItem?.status == "Paused") {
-                    //// console.log("Calls are paused")
+                    //// //console.log
                     setColor(true);
                     setShowConfirmationPopup("resume Calls");
                   } else {
-                    //// console.log("Calls are active")
+                    //// //console.log
                     setShowConfirmationPopup("pause Calls");
                     setColor(false);
                   }
-                  // console.log("Cha")
+                  // //console.log
                 }}
               >
                 {SelectedItem?.status == "Paused" ? "Run Calls" : "Pause Calls"}
@@ -821,7 +821,7 @@ function AdminActiveCalls({selectedUser}) {
                         scrollableTarget="scrollableDiv1"
                         dataLength={filteredSheduledCalllogs.length}
                         next={() => {
-                          console.log("Fetch more calls here");
+                          //console.log;
                           fetchCallsInBatch(SelectedItem);
                         }}
                         hasMore={hasMoreCalls}

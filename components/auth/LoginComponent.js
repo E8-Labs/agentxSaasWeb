@@ -63,17 +63,17 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   useEffect(() => {
     const redirect = searchParams.get("redirect"); // Get the value of 'tab'
     // let number = Number(tab) || 6;
-    // console.log("redirect value is ", redirect);
+    // //console.log;
     setRedirect(redirect);
   }, []);
 
   useEffect(() => {
-    console.log("User Phone changed ", userPhoneNumber);
+    //console.log;
     userPhoneNumberRef.current = userPhoneNumber;
   }, [userPhoneNumber]);
   useEffect(() => {
     if (params && params.username) {
-      // console.log("Username is ", params.username);
+      // //console.log;
       if (typeof window !== "undefined") {
         localStorage.setItem(
           PersistanceKeys.LocalStorageCampaignee,
@@ -86,15 +86,15 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   }, [params]);
 
   useEffect(() => {
-    // console.log("Country code is", countryCode);
+    // //console.log;
   }, [countryCode]);
 
   useEffect(() => {
-    // console.log("User phone number is ", userPhoneNumber);
+    // //console.log;
     const localData = localStorage.getItem("User");
     if (localData) {
       let d = JSON.parse(localData);
-      // console.log("user login details are :", d.user.userType);
+      // //console.log;
 
       // set user type in global variable
 
@@ -125,16 +125,16 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   const getLocation2 = async () => {
     // setLocationLoader(true);
     try {
-      console.log("Before getCurrentLocation: ", userPhoneNumber);
+      //console.log;
       const location = await getCurrentLocation();
-      console.log("After getCurrentLocation: ", userPhoneNumber);
+      //console.log;
       const { latitude, longitude } = location;
       localStorage.setItem("CompleteLocation", JSON.stringify(location));
       const response = await fetch(
         `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
       );
       const data = await response.json();
-      console.log("Location Decoded Data ", data);
+      //console.log;
       localStorage.setItem(
         PersistanceKeys.LocalStorageCompleteLocation,
         JSON.stringify(data)
@@ -151,18 +151,18 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         setCountryCode(data.countryCode.toLowerCase());
       }
 
-      // console.log("Api Loc Check 4");
+      // //console.log;
       if (data && data.countryCode) {
         localStorage.setItem("userLocation", JSON.stringify(locationData));
-        // console.log("Api Loc Check 5");
+        // //console.log;
       } else {
         // console.error("Unable to fetch country code.");
       }
 
-      console.log("Location Data:", data);
+      //console.log;
       return data; // Return the fetched data
     } catch (error) {
-      console.log("Error getting location");
+      //console.log;
       return null;
     }
   };
@@ -186,25 +186,25 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   };
 
   // useEffect(() => {
-  //   // console.log("Check 1111");
+  //   // //console.log;
 
   //   const timer = setTimeout(() => {
   //     const loc = localStorage.getItem("userLocation");
 
   //     if (loc) {
-  //       // console.log("Check 1 clear");
+  //       // //console.log;
   //       const L = JSON.parse(loc);
-  //       // console.log("Check 2 clear");
-  //       // console.log("Location received from local storage is", L);
-  //       // console.log("Check 3 clear");
+  //       // //console.log;
+  //       // //console.log;
+  //       // //console.log;
 
   //       // if (userPhoneNumber == "") {
   //       //   setCountryCode(L.location);
   //       // }
-  //       // console.log("Check 4 clear");
+  //       // //console.log;
   //     }
 
-  //     // console.log("Stopped to load data");
+  //     // //console.log;
   //   }, 300);
 
   //   return () => clearTimeout(timer);
@@ -213,13 +213,13 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   //action detects inner width
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // console.log("Window inner width is", window.innerWidth);
+      // //console.log;
       setInnerWidth(window.innerWidth);
     }
   }, [InnerWidth]);
 
   const handlePhoneNumberChange = (phone) => {
-    // console.log("Phone number changed ", phone);
+    // //console.log;
     setUserPhoneNumber(phone);
     validatePhoneNumber(phone);
     setCheckPhoneResponse(null);
@@ -249,7 +249,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       }
 
       // setCheckPhoneResponse(null);
-      // console.log("Trigered");
+      // //console.log;
 
       timerRef.current = setTimeout(() => {
         checkPhoneNumber(phoneNumber);
@@ -267,16 +267,16 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   //code to show verify popup
 
   const handleVerifyPopup = async () => {
-    console.log("button clicked");
+    //console.log;
     try {
       setShowVerifyPopup(true);
       setSendcodeLoader(true);
       let response = await SendVerificationCode(userPhoneNumber, true);
-      // console.log("Number for sending code is", userPhoneNumber);
+      // //console.log;
       // return
       // setResponse(response);
       setIsVisible(true);
-      // console.log("Response recieved is", response);
+      // //console.log;
 
       if (response.status === true) {
         setMsgType(SnackbarTypes.Success);
@@ -309,7 +309,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         verificationCode: VerifyCode.join(""),
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       };
-      // console.log("Api data for login api is :", AipData);
+      // //console.log;
 
       const response = await axios.post(ApiPath, AipData, {
         headers: {
@@ -337,7 +337,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           //   response.data.data.user.userRole !== "Invitee"
           // ) {
           if (response.data.data.user.waitlist) {
-            // console.log("Pushing user to wait list");
+            // //console.log;
 
             const twoHoursFromNow = new Date();
             twoHoursFromNow.setTime(twoHoursFromNow.getTime() + 2 * 60 * 1000);
@@ -346,21 +346,21 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               router.push("/onboarding/WaitList");
             }
           } else {
-            // console.log("Here Else");
+            // //console.log;
             // let routeTo = ""
 
             localStorage.setItem("User", JSON.stringify(response.data.data));
             //set cokie on locastorage to run middle ware
             if (typeof document !== "undefined") {
-              // console.log("Here Not undefined");
+              // //console.log;
 
               setCookie(response.data.data.user, document);
               let w = innerWidth;
               if (w < 540) {
-                // console.log("It is mobile view");
+                // //console.log;
                 router.push("/createagent/desktop");
               } else if (w > 540) {
-                // console.log("It is desktop view");
+                // //console.log;
 
                 if (redirect) {
                   router.push(redirect);
@@ -374,7 +374,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 }
               }
             } else {
-              // console.log("Here undefined");
+              // //console.log;
             }
           }
         } else {
@@ -407,9 +407,9 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       });
       // setLoginLoader(false);
       const data = await response.json();
-      console.log("Login api data is ", data);
+      //console.log;
       if (response.ok) {
-        // console.log("Login successful:", data?.data?.token);
+        // //console.log;
         // Redirect user or update state as needed
         let screenWidth = innerWidth;
 
@@ -432,7 +432,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           //   response.data.data.user.userRole !== "Invitee"
           // ) {
           if (data.data.user.waitlist) {
-            // console.log("Pushing user to wait list");
+            // //console.log;
 
             const twoHoursFromNow = new Date();
             twoHoursFromNow.setTime(twoHoursFromNow.getTime() + 2 * 60 * 1000);
@@ -441,21 +441,21 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               router.push("/onboarding/WaitList");
             }
           } else {
-            // console.log("Here Else");
+            // //console.log;
             // let routeTo = ""
 
             localStorage.setItem("User", JSON.stringify(data.data));
             //set cokie on locastorage to run middle ware
             if (typeof document !== "undefined") {
-              // console.log("Here Not undefined");
+              // //console.log;
 
               setCookie(data.data.user, document);
               let w = innerWidth;
               if (w < 540) {
-                // console.log("It is mobile view");
+                // //console.log;
                 router.push("/createagent/desktop");
               } else if (w > 540) {
-                // console.log("It is desktop view");
+                // //console.log;
 
                 if (redirect) {
                   router.push(redirect);
@@ -468,7 +468,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 }
               }
             } else {
-              // console.log("Here undefined");
+              // //console.log;
             }
           }
         } else {
@@ -492,7 +492,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         phone: value,
       };
 
-      // console.log("Api data is :", ApiData);
+      // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -501,12 +501,12 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       });
 
       if (response) {
-        // console.log("Response of check phone api is :", response);
+        // //console.log;
         if (response.data.status === true) {
-          // console.log("Response message is :", response.data.message);
+          // //console.log;
           setCheckPhoneResponse(response.data.status);
         } else if (response.data.status === false) {
-          console.log("response.data.message", response.data.message);
+          //console.log;
           setCheckPhoneResponse(response.data.status);
         }
       }
@@ -597,7 +597,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   };
 
   const handleVerifyCode = () => {
-    // console.log("Verify code is :", VerifyCode.join(""));
+    // //console.log);
     // setPhoneVerifiedSuccessSnack(true);
     handleLogin();
   };

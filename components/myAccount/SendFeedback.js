@@ -32,10 +32,10 @@ function SendFeedback() {
         feedback: feedbackDescription,
       };
 
-      // console.log("ApiData is", ApiData);
+      // //console.log;
 
       const ApiPath = Apis.sendFeedbback;
-      // console.log("Apipath is", ApiPath);
+      // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -45,7 +45,7 @@ function SendFeedback() {
       });
 
       if (response) {
-        // console.log("Response of api is", response);
+        // //console.log;
         if (response.data.status === true) {
           setFeedbackTitle("");
           setFeedbackDescription("");
@@ -61,7 +61,7 @@ function SendFeedback() {
       setFeedBackLoader(false);
     } finally {
       setFeedBackLoader(false);
-      // console.log("Send feedback done");
+      // //console.log;
     }
   };
 

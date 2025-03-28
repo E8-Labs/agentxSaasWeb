@@ -113,7 +113,7 @@ function AdminDashboardCallLogs({ }) {
   ];
 
   // useEffect(() => {
-  //   console.log("Search value changed", searchValue);
+  //   //console.log;
   //   // if ((selectedFromDate && selectedToDate) || selectedStageIds.length > 0) {
   //   setHasMore(true);
   //   setCallDetails([]);
@@ -128,7 +128,7 @@ function AdminDashboardCallLogs({ }) {
       clearTimeout(filterRef.current);
     }
     filterRef.current = setTimeout(() => {
-      console.log("Timer clicked", searchValue);
+      //console.log;
       setHasMore(true);
       setCallDetails([]);
       setFilteredCallDetails([]);
@@ -185,19 +185,19 @@ function AdminDashboardCallLogs({ }) {
 
   //code for getting call log details
   const getCallLogs = async (offset = null) => {
-    console.log("Offset passed is ", offset);
+    //console.log;
     try {
       setLoading(true);
       setInitialLoader(true);
-      // console.log("Check 1 ");
+      // //console.log;
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-        // console.log("Localdata recieved is :--", Data.token);
+        // //console.log;
         AuthToken = Data.token;
       }
-      // console.log("Check 2");
+      // //console.log;
       let startDate = "";
       let endDate = "";
 
@@ -206,9 +206,9 @@ function AdminDashboardCallLogs({ }) {
         endDate = moment(selectedToDate).format("MM-DD-YYYY");
       }
 
-      // console.log("Check 3");
+      // //console.log;
       let ApiPath = null;
-      //   // console.log("Check 5");
+      //   // //console.log;
       if (offset == null) {
         offset = filteredCallDetails.length;
       }
@@ -231,9 +231,9 @@ function AdminDashboardCallLogs({ }) {
 
       // ApiPath = Apis.adminCallLogs
 
-      console.log("Api path for calls log  is", ApiPath);
+      //console.log;
 
-      //// console.log("Auth token is:", AuthToken);
+      //// //console.log;
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -244,7 +244,7 @@ function AdminDashboardCallLogs({ }) {
       setLoading(false);
 
       if (response) {
-        console.log("response of get call logs api is :", response.data);
+        //console.log;
         // setCallDetails(response.data.data);
         // setFilteredCallDetails(response.data.data);
 
@@ -281,7 +281,7 @@ function AdminDashboardCallLogs({ }) {
     const phoneNumber = parsePhoneNumberFromString(
       rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
     );
-    //// console.log("Raw number is", rawNumber);
+    //// //console.log;
     return phoneNumber
       ? phoneNumber.formatInternational()
       : "Invalid phone number";
@@ -461,7 +461,7 @@ function AdminDashboardCallLogs({ }) {
                   scrollableTarget="scrollableDiv1"
                   dataLength={filteredCallDetails.length}
                   next={() => {
-                    console.log("Loading more data", { loading, hasMore });
+                    //console.log;
                     if (!loading && hasMore) {
                       getCallLogs(filteredCallDetails.length);
                     }
@@ -807,7 +807,7 @@ function AdminDashboardCallLogs({ }) {
                                 : "#00000050",
                           }}
                           onClick={() => {
-                            // console.log("Check 1");
+                            // //console.log;
                             if (
                               (selectedFromDate && selectedToDate) ||
                               selectedStatus.length > 0
@@ -819,7 +819,7 @@ function AdminDashboardCallLogs({ }) {
                               setShowFilterModal(false);
                               getCallLogs(0);
                             } else {
-                              // console.log("Cannot continue");
+                              // //console.log;
                             }
                           }}
                         >

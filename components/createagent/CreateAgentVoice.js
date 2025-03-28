@@ -44,18 +44,18 @@ const CreateAgentVoice = ({ handleBack, user }) => {
   }, [selectedVoiceId]);
 
   useEffect(() => {
-    // console.log("I m wrodf");
+    // //console.log;
     const localData = localStorage.getItem("agentDetails");
     if (localData) {
       const agentData = JSON.parse(localData);
-      // console.log("Response of localagent dta", agentData);
+      // //console.log;
       setAgentDetails(agentData);
     }
   }, []);
 
   const handleToggleClick = (id, item) => {
     setToggleClick((prevId) => (prevId === id ? null : id));
-    //// console.log("Selected voice is :", item.voice_id);
+    //// //console.log;
     setSelectedVoiceId(item.voice_id);
   };
 
@@ -68,29 +68,29 @@ const CreateAgentVoice = ({ handleBack, user }) => {
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-        // console.log("Localdat recieved is :--", Data);
+        // //console.log;
         AuthToken = Data.token;
       }
 
-      // console.log("Auth token is ", AuthToken);
+      // //console.log;
 
       const mainAgentData = localStorage.getItem("agentDetails");
       if (mainAgentData) {
         const Data = JSON.parse(mainAgentData);
-        // console.log("Localdat recieved is :--", Data);
+        // //console.log;
         mainAgentId = Data.id;
       }
 
       const ApiPath = Apis.updateAgent;
       // const ApiData = {}
       const formData = new FormData();
-      // console.log("selected voice id is:", selectedVoiceId);
+      // //console.log;
       formData.append("mainAgentId", mainAgentId);
       // return
       formData.append("voiceId", selectedVoiceId);
 
       for (let [key, value] of formData.entries()) {
-        // console.log(`${key} : ${value}`);
+        // //console.log;
       }
       // return
       const response = await axios.post(ApiPath, formData, {
@@ -101,14 +101,14 @@ const CreateAgentVoice = ({ handleBack, user }) => {
       });
 
       if (response) {
-        // console.log("Response of update api is :", response.data);
+        // //console.log;
         if (response.data.status === true) {
-          console.log("User type is ", user);
+          // //console.log;
           if (user.user.userType == UserTypes.RealEstateAgent) {
-            console.log("Routing to seller kyc");
+            // //console.log;
             router.push("/sellerskycquestions");
           } else {
-            console.log("Routing to customer kyc");
+            // //console.log;
             router.push("/customerkycquestions");
           }
 

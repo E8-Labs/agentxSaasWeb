@@ -35,7 +35,7 @@ export default function UsersWithPipelines({ open, onClose, user }) {
         const u = JSON.parse(d);
 
         const token = u.token; // Extract JWT token
-        console.log("Token:", token);
+        //console.log;
 
         const response = await axios.get(Apis.getUsersWithPipelines, {
           headers: {
@@ -45,7 +45,7 @@ export default function UsersWithPipelines({ open, onClose, user }) {
 
         if (response.data) {
           if (response.data.status === true) {
-            console.log("Admin users:", response.data.data);
+            //console.log;
             setUsers(response.data.data);
           } else {
             console.error("Failed to fetch admin users:", response.data.message);
@@ -106,7 +106,7 @@ export default function UsersWithPipelines({ open, onClose, user }) {
               if (user.id) {
                 // Open a new tab with user ID as query param
                 let url = ` admin/users?userId=${user.id}`
-                console.log('url is', url)
+                //console.log
                 window.open(url, "_blank");
               }
             }}>

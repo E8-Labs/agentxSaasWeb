@@ -46,7 +46,7 @@ function AdminUsers() {
       clearTimeout(filterRef.current);
     }
     filterRef.current = setTimeout(() => {
-      console.log("Timer clicked", search);
+      //console.log;
       setHasMore(true);
       setUsers([]);
       let sortData = {
@@ -60,7 +60,7 @@ function AdminUsers() {
   }, [search]);
 
   const getUsersList = async (offset = 0, filters = null, sortData = null) => {
-    console.log("filters in function are", filters);
+    //console.log;
     try {
       setLoading(true);
       const data = localStorage.getItem("User");
@@ -124,7 +124,7 @@ function AdminUsers() {
           apiPath = `${apiPath}&sort=${sortData.sort}&sortOrder=${sortData.sortOrder}`;
         }
 
-        // console.log("Url ", apiPath);
+        // //console.log;
         // return
         const response = await axios.get(apiPath, {
           headers: {
@@ -139,13 +139,13 @@ function AdminUsers() {
             setUsers((prevUsers) => [...prevUsers, ...response.data.data]);
           }
           if (response.data.data.length < LimitPerLoad) {
-            console.log("Has more", response.data.data.length);
+            //console.log;
             setHasMore(false);
           }
         }
       }
     } catch (e) {
-      console.log("Error fetching users:", e);
+      //console.log;
     } finally {
       setLoading(false);
     }
@@ -157,7 +157,7 @@ function AdminUsers() {
         showFilterModal={showFilterModal}
         filters={{}}
         updateFilters={(filter) => {
-          console.log("Filters selected", filter);
+          //console.log;
           // let f = { ...filters, filter }
           setFilters(filter);
           if (filter?.finalUpdate === true) {
@@ -199,7 +199,7 @@ function AdminUsers() {
         <button
           className="outline-none flex-shrink-0"
           onClick={() => {
-            // console.log('filter modal trigered 12')
+            // //console.log
 
             setShowFilterModal(true);
           }}
@@ -236,7 +236,7 @@ function AdminUsers() {
           scrollableTarget="scrollableDiv1"
           dataLength={users.length}
           next={() => {
-            console.log("Load more leads");
+            //console.log;
             let sortData = {
               sort: selectedSort,
               sortOrder: selectedSortOrder,
@@ -452,7 +452,7 @@ function AdminUsers() {
                     className={`hover:bg-gray-50 text-sm text-gray-900 border-b cursor-pointer ${index % 2 == 0 ? "bg-gray-100" : ""
                       }`}
                     onClick={() => {
-                      console.log("selected item", item);
+                      //console.log;
                       setSelectedUser(item);
                       // setShowUserDetails(true)
                     }}

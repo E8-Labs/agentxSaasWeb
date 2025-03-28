@@ -208,7 +208,7 @@ function BasicInfo() {
     const LocalData = localStorage.getItem("User");
     if (LocalData) {
       const userData = JSON.parse(LocalData);
-      console.log("Should set data", userData?.user);
+      //console.log;
 
       setUserRole(userData?.user?.userRole);
       setUserType(userData?.user?.userType);
@@ -236,8 +236,8 @@ function BasicInfo() {
       setInstallationVolume(userData?.user?.projectsPerYear || "");
       setProjectSize(userData?.user?.projectSizeKw || "");
 
-      console.log("Installation Volume: ", userData?.user?.projectsPerYear);
-      console.log("Project Size: ", userData?.user?.projectSizeKw);
+      //console.log;
+      //console.log;
 
       // Initialize arrays to hold services and areas of focus
       const industriesArray = [];
@@ -265,7 +265,7 @@ function BasicInfo() {
       setSelectedArea(focusAreasArray);
       setOriginalSelectedArea(focusAreasArray); // Save the initial state
 
-      console.log("Services array", servicesArray);
+      //console.log;
       setServiceId(servicesArray);
       setOriginalSelectedService(servicesArray);
     }
@@ -294,14 +294,14 @@ function BasicInfo() {
 
         apidata.append("media", imageUrl);
 
-        // console.log("Uploading image with apidata:");
+        // //console.log;
         for (let pair of apidata.entries()) {
-          // console.log(`${pair[0]}:`, pair[1]); // Debug FormData contents
+          // //console.log; // Debug FormData contents
         }
         let path = Apis.updateProfileApi;
 
-        // console.log("Authtoken is", u.token);
-        // console.log("Api Data passsed is", apidata);
+        // //console.log;
+        // //console.log;
         // return
         const response = await axios.post(path, apidata, {
           headers: {
@@ -311,12 +311,12 @@ function BasicInfo() {
 
         if (response) {
           if (response.data.status === true) {
-            // console.log("updateProfile data is", response.data);
+            // //console.log;
             u.user = response.data.data;
 
-            //// console.log('u', u)
+            //// //console.log
             localStorage.setItem("User", JSON.stringify(u));
-            // console.log("trying to send event");
+            // //console.log;
             window.dispatchEvent(
               new CustomEvent("UpdateProfile", { detail: { update: true } })
             );
@@ -325,7 +325,7 @@ function BasicInfo() {
         }
       }
     } catch (e) {
-      // console.log("error in update profile is", e);
+      // //console.log;
     }
   };
 
@@ -429,10 +429,10 @@ function BasicInfo() {
       if (data) {
         let d = JSON.parse(data);
         let AgentTypeTitle = d.user.userType;
-        // console.log("AgentTypeTitle is", AgentTypeTitle);
+        // //console.log;
 
         const ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`;
-        // console.log("Api link is:--", ApiPath);
+        // //console.log;
         const response = await axios.get(ApiPath, {
           headers: {
             "Content-Type": "application/json",
@@ -440,7 +440,7 @@ function BasicInfo() {
         });
 
         if (response) {
-          console.log("Response of services api is : -----", response.data);
+          //console.log;
           setAgentServices(response.data.data.agentServices);
           setAgentAreasOfFocus(response.data.data.areaOfFocus);
           setAgentIndustries(response.data.data.userIndustry);
@@ -464,7 +464,7 @@ function BasicInfo() {
       setloading(false);
       setIsNameChanged(false);
     } catch (e) {
-      // console.log("Error in updating", e);
+      // //console.log;
     }
   };
 
@@ -479,7 +479,7 @@ function BasicInfo() {
       setloading2(false);
       setIsFarmChanged(false);
     } catch (e) {
-      // console.log("error in updating", e);
+      // //console.log;
     }
   };
 
@@ -494,7 +494,7 @@ function BasicInfo() {
       setloading8(false);
       setIsCompanyChanged(false);
     } catch (e) {
-      // console.log("error in updating", e);
+      // //console.log;
     }
   };
 
@@ -509,7 +509,7 @@ function BasicInfo() {
       setLoading11(false);
       setIsCompanyAffiliationChanged(false);
     } catch (e) {
-      // console.log("error in updating", e);
+      // //console.log;
     }
   };
 
@@ -524,7 +524,7 @@ function BasicInfo() {
       setloading3(false);
       setIsBrokerageChanged(false);
     } catch (e) {
-      // console.log("error in updating", e);
+      // //console.log;
     }
   };
 
@@ -539,7 +539,7 @@ function BasicInfo() {
 
       setIsTransactionChange(false);
     } catch (e) {
-      // console.log("error in updating", e);
+      // //console.log;
     }
   };
 
@@ -553,7 +553,7 @@ function BasicInfo() {
       setloading7(false);
       setIsInstallationVolumeChanged(false);
     } catch (e) {
-      // console.log("error in updating", e);
+      // //console.log;
     }
   };
 
@@ -568,7 +568,7 @@ function BasicInfo() {
       setloading6(false);
       setIsServiceAreaChanged(false);
     } catch (e) {
-      // console.log("error in updating", e);
+      // //console.log;
     }
   };
   const handleProjectSizeSave = async () => {
@@ -581,7 +581,7 @@ function BasicInfo() {
       setloading9(false);
       setIsprojectSizeChanged(false);
     } catch (e) {
-      // console.log("error in updating", e);
+      // //console.log;
     }
   };
 
@@ -595,13 +595,13 @@ function BasicInfo() {
       setLoading12(false);
       setIsprojectSizeChanged(false);
     } catch (e) {
-      // console.log("error in updating", e);
+      // //console.log;
     }
   };
 
   const handleserviceId = (id) => {
-    // console.log("Id to ad is", id);
-    // console.log("Old is are", serviceId);
+    // //console.log;
+    // //console.log;
     let newIDs = [];
     if (serviceId.includes(id)) {
       // Unselect the item if it's already selected
@@ -612,12 +612,12 @@ function BasicInfo() {
     }
 
     setServiceId(newIDs);
-    // console.log("New array is", newIDs);
+    // //console.log;
   };
 
   const handleAreaSelect = (id) => {
-    // console.log("Id to ad is", id);
-    // console.log("Old is are", selectedArea);
+    // //console.log;
+    // //console.log;
     let newIDs = [];
     if (selectedArea.includes(id)) {
       // Unselect the item if it's already selected
@@ -627,7 +627,7 @@ function BasicInfo() {
       newIDs = [...selectedArea, id];
     }
     setSelectedArea(newIDs);
-    // console.log("New array is", newIDs);
+    // //console.log;
     return;
     setSelectedArea((prevIds) => {
       if (prevIds.includes(id)) {
@@ -641,8 +641,8 @@ function BasicInfo() {
   };
 
   const handleSelectAgentIndustry = (id) => {
-    // console.log("Id to ad is", id);
-    // console.log("Old is are", selectedArea);
+    // //console.log;
+    // //console.log;
     let newIDs = [];
     if (selectedIndustries.includes(id)) {
       // Unselect the item if it's already selected
@@ -652,12 +652,12 @@ function BasicInfo() {
       newIDs = [...selectedIndustries, id];
     }
     setSelectedIndustries(newIDs);
-    // console.log("New array is", newIDs);
+    // //console.log;
     return;
   };
 
   const handleSelectClientType = async (item) => {
-    // console.log("Select client type", item);
+    // //console.log;
     setClientType(item.value);
 
     let data = {
@@ -666,7 +666,7 @@ function BasicInfo() {
     await UpdateProfile(data);
   };
   const handleSelectconsoltation = async (item) => {
-    // console.log("Select client type", item);
+    // //console.log;
     setconsaltation(item.title);
 
     let data = {
@@ -676,7 +676,7 @@ function BasicInfo() {
   };
 
   const handleSelectClientType2 = async (item) => {
-    // console.log("Select client type", item);
+    // //console.log;
     setClientType(item.title);
 
     let data = {
@@ -686,7 +686,7 @@ function BasicInfo() {
   };
 
   const handleSelectCollectionStretigy = async (item) => {
-    // console.log("Select client type", item);
+    // //console.log;
     setcollectionStratigy(item.value);
 
     let data = {
@@ -701,14 +701,14 @@ function BasicInfo() {
       let data = {
         areaOfFocus: selectedArea, //[selectedArea.join()]
       };
-      console.log("data is", data);
+      //console.log;
 
       // return
       await UpdateProfile(data);
       setOriginalSelectedArea([...selectedArea]);
       setAreaLoading(false);
     } catch (e) {
-      // console.log("error in updating", e);
+      // //console.log;
     }
   };
   const handleIndustryChange = async () => {
@@ -717,14 +717,14 @@ function BasicInfo() {
       let data = {
         userIndustry: selectedIndustries, //[selectedArea.join()]
       };
-      console.log("data is", data);
+      //console.log;
 
       // return
       await UpdateProfile(data);
       setOriginalSelectedIndustries([...selectedIndustries]);
       setAreaLoading(false);
     } catch (e) {
-      // console.log("error in updating", e);
+      // //console.log;
     }
   };
 
@@ -734,14 +734,14 @@ function BasicInfo() {
       let data = {
         agentService: serviceId, //[serviceId.join()]
       };
-      console.log("Api data is", serviceId);
+      //console.log;
 
       // return
       await UpdateProfile(data);
       setOriginalSelectedService([...serviceId]);
       setServiceLoader(false);
     } catch (e) {
-      // console.log("error in updating", e);
+      // //console.log;
     }
   };
 
@@ -751,14 +751,14 @@ function BasicInfo() {
       let data = {
         website: websiteUrl,
       };
-      // console.log("Api data is", serviceId);
+      // //console.log;
 
       // return
       await UpdateProfile(data);
       setIsWebsiteUrlChanged(false);
       setLoading10(false);
     } catch (e) {
-      // console.log("error in updating", e);
+      // //console.log;
     }
   };
 
@@ -1902,7 +1902,7 @@ function BasicInfo() {
               ) : (
                 <button
                   onClick={async () => {
-                    console.log("User is ", userType);
+                    //console.log;
                     if (userType == UserTypes.RecruiterAgent) {
                       handleIndustryChange();
                     } else {

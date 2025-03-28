@@ -173,7 +173,7 @@ const SolarRepAgentSignUp = ({
 
   ///function to select client type
   const handleSelectClientType = (item) => {
-    // console.log("Select client type", item);
+    // //console.log;
     setClientType(item.title);
   };
 
@@ -196,11 +196,11 @@ const SolarRepAgentSignUp = ({
       }
 
       // setCheckPhoneResponse(null);
-      // console.log("Trigered");
+      // //console.log;
 
       timerRef.current = setTimeout(() => {
         checkPhoneNumber(phoneNumber);
-        // console.log("I am hit now");
+        // //console.log;
       }, 300);
     }
   };
@@ -226,7 +226,7 @@ const SolarRepAgentSignUp = ({
       let response = await SendVerificationCode(userPhoneNumber, true);
       setResponse(response);
       setIsVisible(true);
-      // console.log("Response recieved is", response);
+      // //console.log;
     } catch (error) {
       // console.error("Error occured", error);
     } finally {
@@ -298,7 +298,7 @@ const SolarRepAgentSignUp = ({
 
   //code for number verification
   const handleVerifyCode = () => {
-    // console.log("Verify code is :", VerifyCode.join(""));
+    // //console.log);
     setPhoneVerifiedSuccessSnack(true);
     handleRegister();
   };
@@ -344,9 +344,9 @@ const SolarRepAgentSignUp = ({
         Intl.DateTimeFormat().resolvedOptions().timeZone
       );
 
-      // console.log("Data for user registeration is :-----");
+      // //console.log;
       for (let [key, value] of formData.entries()) {
-        // console.log(`${key}: ${value}`);
+        // //console.log;
       }
 
       // return
@@ -354,7 +354,7 @@ const SolarRepAgentSignUp = ({
       if (response) {
         setResponse(response.data);
         setIsVisible(true);
-        // console.log("Response of register api is:--", response);
+        // //console.log;
         if (response.data.status === true) {
           localStorage.setItem("User", JSON.stringify(response.data.data));
 
@@ -370,9 +370,9 @@ const SolarRepAgentSignUp = ({
 
           if (screenWidth <= SM_SCREEN_SIZE) {
             setCongratsPopup(true);
-            // console.log("This is a small size screen");
+            // //console.log;
           } else {
-            // console.log("This is a large size screen");
+            // //console.log;
             handleContinue();
             // setCongratsPopup(true);
           }
@@ -398,7 +398,7 @@ const SolarRepAgentSignUp = ({
         email: value,
       };
 
-      // console.log("Api data is :", ApiData);
+      // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -407,9 +407,9 @@ const SolarRepAgentSignUp = ({
       });
 
       if (response) {
-        // console.log("Response of check email api is :", response);
+        // //console.log;
         if (response.data.status === true) {
-          // console.log("Response message is :", response.data.message);
+          // //console.log;
           setEmailCheckResponse(response.data);
         } else {
           setEmailCheckResponse(response.data);
@@ -431,7 +431,7 @@ const SolarRepAgentSignUp = ({
         phone: value,
       };
 
-      // console.log("Api data is :", ApiData);
+      // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -440,9 +440,9 @@ const SolarRepAgentSignUp = ({
       });
 
       if (response) {
-        // console.log("Response of check phone api is :", response);
+        // //console.log;
         if (response.data.status === true) {
-          // console.log("Response message is :", response.data.message);
+          // //console.log;
           setCheckPhoneResponse(response.data);
         } else {
           setCheckPhoneResponse(response.data);
@@ -578,7 +578,7 @@ const SolarRepAgentSignUp = ({
                   // if (value) {
                   //   const timer = setTimeout(() => {
                   //     checkEmail(value);
-                  //    // console.log("I am hit now")
+                  //    // //console.log
                   //   }, 1000);
                   //   return (() => clearTimeout(timer));
                   // } else {
@@ -592,16 +592,16 @@ const SolarRepAgentSignUp = ({
                   setEmailCheckResponse(null);
 
                   if (!value) {
-                    // console.log("Should set the value to null");
+                    // //console.log;
                     setValidEmail("");
                     return;
                   }
 
                   if (!validateEmail(value)) {
-                    // console.log("Invalid pattern");
+                    // //console.log;
                     setValidEmail("Invalid");
                   } else {
-                    // console.log("No trigered");
+                    // //console.log;
                     if (value) {
                       // Set a new timeout
                       timerRef.current = setTimeout(() => {

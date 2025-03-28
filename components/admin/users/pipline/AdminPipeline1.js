@@ -52,6 +52,7 @@ import {
   GetFormattedTimeString,
 } from "@/utilities/utility";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
+import AdminLeadDetails from "../AdminLeadDetails";
 
 const AdminPipeline1 = ({selectedUser}) => {
   const bottomRef = useRef();
@@ -157,25 +158,25 @@ const AdminPipeline1 = ({selectedUser}) => {
 
   const handleChangeNextStage = (event) => {
     let value = event.target.value;
-    //// console.log("Value to set is :", value);
+    //// //console.log;
     setAssignNextStage(event.target.value);
 
     const selectedItem = StagesList.find((item) => item.stageTitle === value);
     setAssignNextStageId(selectedItem.id);
 
-   // console.log("Selected inext stage is:", selectedItem);
+   // //console.log;
   };
 
   //new teammeber
   // const handleAssignTeamMember = (event) => {
   //   let value = event.target.value;
-  //   //// console.log("Value to set is :", value);
+  //   //// //console.log;
   //   setAssignToMember(event.target.value);
 
   //   const selectedItem = myTeamList.find(
   //     (item) => item.invitedUser.name === value
   //   );
-  //  // console.log("Selected teammeber is:", selectedItem);
+  //  // //console.log;
   //   setAssignToMember(
   //     selectedItem.invitedUser.name || myTeamAdmin.invitedUser.name
   //   ); //
@@ -184,18 +185,18 @@ const AdminPipeline1 = ({selectedUser}) => {
   //     selectedItem.invitedUser.id || myTeamAdmin.invitedUser.id,
   //   ]); //
 
-  //  // console.log("Selected teammeber is:", selectedItem);
+  //  // //console.log;
   // };
 
   const handleAssignTeamMember = (event) => {
     let value = event.target.value;
-   // console.log("Value to set is :", value);
+   // //console.log;
     setAssignToMember(event.target.value);
 
     const selectedItem = myTeamList.find(
       (item) => item?.invitedUser?.name === value
     );
-   // console.log("Selected teammeber is:", selectedItem);
+   // //console.log;
     setAssignToMember(
       selectedItem?.invitedUser?.name || myTeamAdmin.invitedUser?.name
     ); //
@@ -204,7 +205,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       selectedItem?.invitedUser?.id || myTeamAdmin.invitedUser?.id,
     ]); //
 
-   // console.log("Selected teammeber is:", selectedItem);
+   // //console.log;
   };
 
   //renaame the stage
@@ -274,7 +275,7 @@ const AdminPipeline1 = ({selectedUser}) => {
     getMyTeam();
     const pipelineIndex = searchParams.get("pipeline"); // Get the value of 'tab'
     let number = Number(pipelineIndex) || 0;
-   // console.log("Pipeline index is ", number);
+   // //console.log;
     selectedPipelineIndex = number;
     if (!pipelineIndex) {
       setParamsInSearchBar(number);
@@ -289,14 +290,14 @@ const AdminPipeline1 = ({selectedUser}) => {
     // Push the updated URL
     // router.push(`/dashboard/pipeline?${params.toString()}`);
 
-   // console.log("Rerendering tab with selected tab: ", index);
+   // //console.log;
   };
 
   // const getMyTeam = async () => {
   //   try {
   //     let response = await getTeamsList();
   //     if (response) {
-  //      // console.log("Response recieved is", response);
+  //      // //console.log;
   //       let teams = [];
   //       if (response.data && response.data.length > 0) {
   //         for (const t of response.data) {
@@ -317,7 +318,7 @@ const AdminPipeline1 = ({selectedUser}) => {
     try {
       let response = await getTeamsList();
       if (response) {
-       // console.log("Team Response recieved is", response);
+       // //console.log;
         let teams = [];
         if (response.admin) {
           let admin = response.admin;
@@ -332,7 +333,7 @@ const AdminPipeline1 = ({selectedUser}) => {
           }
         }
 
-       // console.log("My teams list", teams);
+       // //console.log;
 
         setMyTeamList(teams);
         setMyTeamAdmin(response.admin);
@@ -348,8 +349,8 @@ const AdminPipeline1 = ({selectedUser}) => {
       if (data) {
         const u = JSON.parse(data);
         let path = Apis.getImportantCalls;
-       // console.log("Apipath for getcall", path);
-       // console.log("Authtoken for getcall", u.token);
+       // //console.log;
+       // //console.log;
         const response = await axios.get(path, {
           headers: {
             Authorization: `Bearer ${u.token}`,
@@ -373,7 +374,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         }
       }
     } catch (e) {
-     // console.log("error in get important calls api is", e);
+     // //console.log;
     }
   };
 
@@ -382,11 +383,11 @@ const AdminPipeline1 = ({selectedUser}) => {
 
   //     if (showAdvanceSettings) {
   //         if (!newStageTitle || !action || inputs.filter(input => input.value.trim() !== "").length < 3) {
-  //            // console.log("Shoukd hide ")
+  //            // //console.log
   //             setShowAddStageBtn(false);
   //         }
   //         else if (newStageTitle && action && inputs.filter(input => input.value.trim() !== "").length === 3) {
-  //            // console.log("Show continue to add stage")
+  //            // //console.log
   //             setShowAddStageBtn(true);
   //         }
   //     }
@@ -423,9 +424,9 @@ const AdminPipeline1 = ({selectedUser}) => {
   }, [selectedUser]);
 
   useEffect(() => {
-   // console.log("Update stage UseEffect", stageColorUpdate);
+   // //console.log;
     const timer = setTimeout(() => {
-      //// console.log("I am trigerred after 1second");
+      //// //console.log;
       if (stageColorUpdate) {
         handleUpdateColor();
       }
@@ -438,17 +439,17 @@ const AdminPipeline1 = ({selectedUser}) => {
   //     let previousStages = oldStages.map((item) => item.id);
   //     let updatedStages = StagesList.map((item) => item.id);
 
-  //    // console.log("Old stages list is reorder stages:", previousStages);
-  //    // console.log("Updated stages list is reorder stages:", updatedStages);
+  //    // //console.log;
+  //    // //console.log;
 
   //     // Compare arrays
   //     const areArraysEqual = previousStages.length === updatedStages.length &&
   //         previousStages.every((item, index) => item === updatedStages[index]);
 
   //     if (areArraysEqual) {
-  //        // console.log("Should not reorder stages");
+  //        // //console.log;
   //     } else {
-  //        // console.log("Should reorder stages");
+  //        // //console.log;
   //         handleReorder();
   //     }
   // }, [StagesList]);
@@ -473,10 +474,10 @@ const AdminPipeline1 = ({selectedUser}) => {
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-       // console.log("Local details are :", UserDetails);
+       // //console.log;
       }
 
-     // console.log("Auth token is:", AuthToken);
+     // //console.log;
 
       const formData = new FormData();
       formData.append("title", newPipelineTitle);
@@ -484,7 +485,7 @@ const AdminPipeline1 = ({selectedUser}) => {
 
 
       for (let [key, value] of formData.entries()) {
-       console.log(`${key} ${value} `);
+       //console.log;
       }
 
       const ApiPath = Apis.createPipeLine;
@@ -497,13 +498,13 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       console.log("Response of add pipeline api is:", response);
+       //console.log;
         if (response.data.status === true) {
           let updatedPipelinesList = [];
           setPipeLines([...PipeLines, response.data.data]);
           updatedPipelinesList = [...PipeLines, response.data.data];
           let reversePipelinesList = updatedPipelinesList.reverse();
-         // console.log("Updated list of pipelines is:", reversePipelinesList);
+         // //console.log;
           setSelectedPipeline(reversePipelinesList[0]);
           setStagesList(reversePipelinesList[0].stages);
           setNewPipelineTitle("");
@@ -541,7 +542,7 @@ const AdminPipeline1 = ({selectedUser}) => {
           index = -1;
         }
 
-       // console.log("Pipeline Index selected is ", selectedPipelineIndex);
+       // //console.log;
 
         if (index != -1) {
           setPipeLines(jsonData);
@@ -549,7 +550,7 @@ const AdminPipeline1 = ({selectedUser}) => {
           setStagesList(jsonData[index].stages);
           setOldStages(jsonData[index].stages);
           setLeadsList(jsonData[index].leads);
-         // console.log("Leads lis is :", jsonData[index].leads);
+         // //console.log;
         }
         // setSelectedPipeline(jsonData[selectedPipelineIndex]);
         // setStagesList(jsonData[selectedPipelineIndex].stages);
@@ -573,12 +574,12 @@ const AdminPipeline1 = ({selectedUser}) => {
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-       // console.log("Local details are :", UserDetails);
+       // //console.log;
       }
 
-     // console.log("Auth token is :--", AuthToken);
+     // //console.log;
       const ApiPath = Apis.getPipelines + "?userId="+selectedUser.id;
-     console.log("get pipeline Api path is :", ApiPath);
+     //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -588,7 +589,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // console.log("Response of getpipeline api is :", response.data.data);
+       // //console.log;
         localStorage.setItem(
           PersistanceKeys.LocalStoragePipelines,
           JSON.stringify(response.data.data)
@@ -608,13 +609,13 @@ const AdminPipeline1 = ({selectedUser}) => {
           setStagesList(response.data.data[index].stages);
           setOldStages(response.data.data[index].stages);
           setLeadsList(response.data.data[index].leads);
-         // console.log("Leads lis is :", response.data.data[index].leads);
+         // //console.log;
         }
       }
     } catch (error) {
      // console.error("Error occured in api is:", error);
     } finally {
-     // console.log("Api call completed");
+     // //console.log;
       setInitialLoader(false);
     }
   };
@@ -625,7 +626,7 @@ const AdminPipeline1 = ({selectedUser}) => {
     try {
       setDelTagLoader(lead.lead.id);
 
-     // console.log("Lead selected is", lead);
+     // //console.log;
 
       let AuthToken = null;
 
@@ -635,7 +636,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         AuthToken = localData.token;
       }
 
-     // console.log("Auth token is:", AuthToken);
+     // //console.log;
 
       const ApiData = {
         leadId: lead.lead.id,
@@ -644,9 +645,9 @@ const AdminPipeline1 = ({selectedUser}) => {
       };
 
       const ApiPath = Apis.delLeadTag;
-     // console.log("Leads list is", LeadsList);
-     // console.log("Data sending in api is:", ApiData);
-     // console.log("Api path is:", ApiPath);
+     // //console.log;
+     // //console.log;
+     // //console.log;
 
       // return
       const response = await axios.post(ApiPath, ApiData, {
@@ -657,9 +658,9 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // console.log("Response of del tag api is:", response.data);
+       // //console.log;
         if (response.data.status === true) {
-         // console.log("Staus is true");
+         // //console.log;
 
           // const updatedTags = LeadsList.lead.tags.filter(
           //   (item) => item !== tag
@@ -707,7 +708,7 @@ const AdminPipeline1 = ({selectedUser}) => {
 
   //code to seect other pipeline
   const handleSelectOtherPipeline = (item, index) => {
-   // console.log("Other pipeline selected is :", item);
+   // //console.log;
     setSelectedPipeline(item);
     // setSelectedPipeline(item);
     setStagesList(item.stages);
@@ -726,27 +727,27 @@ const AdminPipeline1 = ({selectedUser}) => {
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-       // console.log("Local details are :", UserDetails);
+       // //console.log;
       }
 
       let mainAgent = null;
 
       const mainAgentData = localStorage.getItem("agentDetails");
-     // console.log("Check at 0 clear");
+     // //console.log;
 
       if (mainAgentData) {
         const mainAgentDetails = JSON.parse(mainAgentData);
-       // console.log("Check clear");
-       // console.log("Main agent detals are :", mainAgentDetails);
+       // //console.log;
+       // //console.log;
         mainAgent = mainAgentDetails;
       }
 
       // return
 
-     // console.log("Auth token is :--", AuthToken);
+     // //console.log;
 
       const ApiPath = Apis.addCustomStage;
-     // console.log("Api path is:", ApiPath);
+     // //console.log;
 
       const ApiData = {
         stageTitle: newStageTitle,
@@ -759,7 +760,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         teams: assignLeadToMember,
         userId:selectedUser.id
       };
-     // console.log("Data sending in api is:", ApiData);
+     // //console.log;
 
       // return
 
@@ -771,7 +772,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // console.log("Response of add stage title :", response);
+       // //console.log;
         if (response.data.status === true) {
           setStagesList(response.data.data.stages);
           handleCloseAddStage();
@@ -802,17 +803,17 @@ const AdminPipeline1 = ({selectedUser}) => {
   };
 
   useEffect(() => {
-   // console.log("Selected pipeline is", PipeLines);
+   // //console.log;
   }, [PipeLines]);
 
   //code ford deleting the stage
   const handleDeleteStage = async (value) => {
     try {
       if (value === "del2") {
-       // console.log("Loader 2", value);
+       // //console.log;
         setDelStageLoader2(true);
       } else if (value === "del") {
-       // console.log("Loader 1", value);
+       // //console.log;
         setDelStageLoader(true);
       }
       const localData = localStorage.getItem("User");
@@ -820,10 +821,10 @@ const AdminPipeline1 = ({selectedUser}) => {
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-        //// console.log("Local details are :", UserDetails);
+        //// //console.log;
       }
 
-     // console.log("Auth token is :--", AuthToken);
+     // //console.log;
 
       const ApiData = {
         pipelineId: SelectedPipeline.id,
@@ -840,12 +841,12 @@ const AdminPipeline1 = ({selectedUser}) => {
       }
 
       for (let [key, value] of formData) {
-       // console.log(`${key}, ${value}`);
+       // //console.log;
       }
 
       // return
       const ApiPath = Apis.deleteStage;
-     // console.log("Apipath is:", ApiPath);
+     // //console.log;
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -855,7 +856,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // console.log("response of del stage api is:", response.data);
+       // //console.log;
         if (response.data.status === true) {
           setStagesList(response.data.data.stages);
           setSuccessSnack(response.data.message);
@@ -882,7 +883,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         AuthToken = UserDetails.token;
       }
 
-     // console.log("Auth token is :--", AuthToken);
+     // //console.log;
 
       // const ApiData = {
       //     stageTitle: renameStage,
@@ -896,15 +897,15 @@ const AdminPipeline1 = ({selectedUser}) => {
       formData.append("color", updateStageColor);
       formData.append("userId", selectedUser.id);
 
-      //// console.log("data sending in api si:", ApiData);
+      //// //console.log;
 
       for (let [key, value] of formData.entries()) {
-       // console.log(`${key}: ${value}`);
+       // //console.log;
       }
 
       const ApiPath = Apis.UpdateStage;
 
-     // console.log("Api path is 826:", ApiPath);
+     // //console.log;
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -914,13 +915,13 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // console.log("Response of updates stage api is response :", response);
+       // //console.log;
         setStagesList(response.data.data.stages);
         setShowRenamePopup(false);
         handleCloseStagePopover();
       }
     } catch (error) {
-     // console.log("Error occured in rename stage api is:", error);
+     // //console.log;
     } finally {
       setRenameStageLoader(false);
     }
@@ -937,7 +938,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         AuthToken = UserDetails.token;
       }
 
-     // console.log("Auth token is :--", AuthToken);
+     // //console.log;
 
       const ApiData = {
         title: renamePipeline,
@@ -945,10 +946,10 @@ const AdminPipeline1 = ({selectedUser}) => {
         userId:selectedUser.id
       };
 
-     // console.log("data sending in api si:", ApiData);
+     // //console.log;
       const ApiPath = Apis.updatePipeline;
 
-     // console.log("Api path is:", ApiPath);
+     // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -958,7 +959,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // console.log("Response of updates pipeline api is response :", response);
+       // //console.log;
         // setPipeLines()
         setPipeLines((prevPipelines) =>
           prevPipelines.map((pipeline) =>
@@ -972,7 +973,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         handlePipelineClosePopover();
       }
     } catch (error) {
-     // console.log("Error occured in rename pipeline api is:", error);
+     // //console.log;
     } finally {
       setRenamePipelineLoader(false);
     }
@@ -989,7 +990,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         AuthToken = UserDetails.token;
       }
 
-     // console.log("Auth token is :--", AuthToken);
+     // //console.log;
 
       // const ApiData = {
       //     stageTitle: renameStage,
@@ -1003,15 +1004,15 @@ const AdminPipeline1 = ({selectedUser}) => {
       formData.append("color", stageColorUpdate);
       formData.append("userId",selectedUser.id)
 
-      //// console.log("data sending in api si:", ApiData);
+      //// //console.log;
 
       for (let [key, value] of formData.entries()) {
-       // console.log(`${key}: ${value}`);
+       // //console.log;
       }
 
       const ApiPath = Apis.UpdateStage;
 
-     // console.log("Api path is: 931", ApiPath);
+     // //console.log;
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -1021,13 +1022,13 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // console.log("Response of updates stage api is response :", response);
+       // //console.log;
         setStagesList(response.data.data.stages);
         // setShowRenamePopup(false);
         // handleCloseStagePopover();
       }
     } catch (error) {
-     // console.log("Error occured in update color api is:", error);
+     // //console.log;
     } finally {
       setRenameStageLoader(false);
     }
@@ -1045,20 +1046,20 @@ const AdminPipeline1 = ({selectedUser}) => {
         AuthToken = UserDetails.token;
       }
 
-     // console.log("Auth token is :--", AuthToken);
+     // //console.log;
 
       const formData = new FormData();
       formData.append("pipelineId", SelectedPipeline.id);
       formData.append("userId",selectedUser.id)
 
       for (let [key, value] of formData.entries()) {
-       // console.log(`${key}: ${value}`);
+       // //console.log;
       }
 
-      //// console.log("data sending in api si:", ApiData);
+      //// //console.log;
       const ApiPath = Apis.deletePipeline;
 
-     // console.log("Api path is:", ApiPath);
+     // //console.log;
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -1068,7 +1069,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // console.log("Response of updates pipeline api is response :", response);
+       // //console.log;
         if (response.data.status === true) {
           let updatedPipelines = [];
           setPipeLines(
@@ -1077,7 +1078,7 @@ const AdminPipeline1 = ({selectedUser}) => {
           updatedPipelines = PipeLines.filter(
             (pipeline) => pipeline.id !== SelectedPipeline.id
           );
-         // console.log("Updated list of pipelines is:", updatedPipelines);
+         // //console.log;
           setSelectedPipeline(updatedPipelines[0]);
           setStagesList(updatedPipelines[0].stages);
           setLeadsList(updatedPipelines[0].leads);
@@ -1087,7 +1088,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         }
       }
     } catch (error) {
-     // console.log("Error occured in delete pipeline api is:", error);
+     // //console.log;
     } finally {
       setDeletePipelineLoader(false);
     }
@@ -1126,17 +1127,17 @@ const AdminPipeline1 = ({selectedUser}) => {
         AuthToken = UserDetails.token;
       }
 
-     // console.log("Auth token is :--", AuthToken);
+     // //console.log;
 
       const ApiData = {
         sheetName: newSheetName,
         columns: inputs.map((columns) => columns.value),
         userId:selectedUser.id
       };
-     // console.log("Data to send in api is:", ApiData);
+     // //console.log;
 
       const ApiPath = Apis.addSmartList;
-     // console.log("Api Path is", ApiPath);
+     // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -1146,7 +1147,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // console.log("Response of add new smart list api is :", response);
+       // //console.log;
         if (response.data.status) {
           setShowAddNewSheetModal(false);
         }
@@ -1173,7 +1174,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       (item) => item.stageTitle === selectedValue
     );
 
-   // console.log(`Index ${index} Selected Item:`, selectedItem);
+   // //console.log;
 
     // Update the selected next stage for the specific index
     setSelectedNextStage((prev) => ({
@@ -1184,7 +1185,7 @@ const AdminPipeline1 = ({selectedUser}) => {
 
   //code to rearrange stages list
   const handleReorder = async () => {
-    //// console.log("Update stage test");
+    //// //console.log;
     // return;
     try {
       setReorderStageLoader(true);
@@ -1194,7 +1195,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         userId:selectedUser.id
       }));
 
-     // console.log("Updated stages order is :", updateStages);
+     // //console.log;
 
       const ApiPath = Apis.reorderStages;
       let AuthToken = null;
@@ -1203,14 +1204,14 @@ const AdminPipeline1 = ({selectedUser}) => {
         const UserDetails = JSON.parse(LocalData);
         AuthToken = UserDetails.token;
       }
-      //// console.log("Selected pipeline id is: ", selectedPipelineItem.id);
+      //// //console.log;
       const ApiData = {
         pipelineId: SelectedPipeline.id,
         reorderedStages: updateStages,
       };
 
-      //// console.log("Auth token is :", AuthToken);
-     // console.log("Api data is :", ApiData);
+      //// //console.log;
+     // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -1220,7 +1221,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // console.log("Response of updated stages is:", response.data);
+       // //console.log;
         if (response.data.status === true) {
           setShowStagesPopup(false);
           setShowReorderBtn(false);
@@ -1233,7 +1234,7 @@ const AdminPipeline1 = ({selectedUser}) => {
     } catch (error) {
      // console.error("Error occured in rearrange order api is:", error);
     } finally {
-     // console.log("api call completed");
+     // //console.log;
       setReorderStageLoader(false);
     }
   };
@@ -1282,7 +1283,7 @@ const AdminPipeline1 = ({selectedUser}) => {
     const phoneNumber = parsePhoneNumberFromString(
       rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
     );
-    //// console.log("Raw number is", rawNumber);
+    //// //console.log;
     return phoneNumber
       ? phoneNumber.formatInternational()
       : "Invalid phone number";
@@ -1315,19 +1316,19 @@ const AdminPipeline1 = ({selectedUser}) => {
         //   "Status is completed with the following additional information:"
         // );
         if (item.hotlead === true) {
-         // console.log("Hot Lead");
+         // //console.log;
           callStatus = "Hot Lead";
         }
         if (item.humancalldrop === true) {
-         // console.log("Human Call Drop");
+         // //console.log;
           callStatus = "Human Call Drop";
         }
         if (item.dnd === true) {
-         // console.log("DND");
+         // //console.log;
           callStatus = "DND";
         }
         if (item.notinterested) {
-         // console.log("Not interested");
+         // //console.log;
           callStatus = "Not Interested";
         }
       } else {
@@ -1361,7 +1362,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         AuthToken = UserDetails.token;
       }
 
-     // console.log("Auth token is :--", AuthToken);
+     // //console.log;
 
       const ApiData = {
         note: addNotesValue,
@@ -1369,7 +1370,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         userId:selectedUser.id
       };
 
-     // console.log("api data is:", ApiData);
+     // //console.log;
 
       const ApiPath = Apis.addLeadNote;
       // return
@@ -1381,7 +1382,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // console.log("Response of add api is:", response);
+       // //console.log;
         // setNoteDetails()
         if (response.data.status === true) {
           setShowAddNotes(false);
@@ -1412,7 +1413,7 @@ const AdminPipeline1 = ({selectedUser}) => {
     });
     setLeadsList(updatedLeads);
 
-   // console.log("Updated leads are", updatedLeads);
+   // //console.log;
 
     const updatedPipelines = PipeLines.map((pipeline) => {
       return {
@@ -1433,9 +1434,9 @@ const AdminPipeline1 = ({selectedUser}) => {
       };
     });
 
-   // console.log("Updated Pipelines ", updatedPipelines);
+   // //console.log;
 
-   // console.log("Selected pipeline is", SelectedPipeline);
+   // //console.log;
 
     // let leadesList = [];
 
@@ -1446,9 +1447,9 @@ const AdminPipeline1 = ({selectedUser}) => {
 
   function HandleLeadAssignedTeam(team, lead) {
     //code to add team members to the lead data
-   // console.log("Lead is", lead);
-   // console.log("Item is", team);
-   // console.log("Leads list is", LeadsList);
+   // //console.log;
+   // //console.log;
+   // //console.log;
 
     const updatedLeadsList = LeadsList.map((item) =>
       item.leadId === lead.id
@@ -1462,7 +1463,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         : item
     );
 
-   // console.log("Updated leads list", updatedLeadsList);
+   // //console.log;
 
     setLeadsList(updatedLeadsList);
   }
@@ -1470,16 +1471,16 @@ const AdminPipeline1 = ({selectedUser}) => {
   const handleDelLead = async () => {
     try {
       const leadToDelete = selectedLeadsDetails;
-     // console.log("Lead to delete is", leadToDelete);
-     // console.log("Leads list is", LeadsList);
-     // console.log("Pipelines are", PipeLines);
+     // //console.log;
+     // //console.log;
+     // //console.log;
       // return;
       const filteredLeads = LeadsList.filter((lead) => {
-       // console.log(`Checking lead: ${lead.leadId} against ${leadToDelete.id}`);
+       // //console.log;
         return lead.leadId !== leadToDelete.id;
       });
 
-     // console.log("Filtered leads are", filteredLeads);
+     // //console.log;
 
       const filteredPipelines = PipeLines.map((pipeline) => {
         return {
@@ -1490,28 +1491,28 @@ const AdminPipeline1 = ({selectedUser}) => {
         };
       });
 
-     // console.log("Filtered pipelines are", filteredPipelines);
-      //// console.log("Filtered pipelines 12 are", fP)
+     // //console.log;
+      //// //console.log
       setPipeLines(filteredPipelines);
       setLeadsList(filteredLeads);
       setShowDetailsModal(false);
     } catch (error) {
      // console.error("Error occuren in api is", error);
     } finally {
-     // console.log("Api call done");
+     // //console.log;
     }
   };
 
   function handldSearch(e) {
     let pipeline = SelectedPipeline;
     let search = e.target.value.toLowerCase();
-   // console.log("Searching lead ", e.target.value);
+   // //console.log;
 
     if (search == "") {
       setLeadsList(pipeline.leads);
     } else {
       const filteredLeads = pipeline.leads.filter((lead) => {
-        //// console.log(`Checking lead: ${lead.leadId} against ${leadToDelete.id}`);
+        //// //console.log;
         let firstName = lead.lead.firstName.toLowerCase();
         let lastName = lead.lead.lastName.toLowerCase();
         let fullName = (firstName || "") + " " + (lastName || "");
@@ -1667,7 +1668,7 @@ const AdminPipeline1 = ({selectedUser}) => {
                       onClick={() => {
                         setShowRenamePipelinePopup(true);
                         setRenamePipeline(SelectedPipeline.title);
-                       // console.log("Selected pipeline is:", SelectedPipeline);
+                       // //console.log;
                       }}
                     >
                       <Image
@@ -1837,12 +1838,12 @@ const AdminPipeline1 = ({selectedUser}) => {
                         variant="contained"
                         onClick={(evetn) => {
                           if (stage.identifier === "new_lead") {
-                           // console.log("donotShow del btn");
+                           // //console.log;
                             setShowDelBtn(true);
                           } else {
                             setShowDelBtn(false);
                           }
-                         // console.log("Show del btn", stage);
+                         // //console.log;
                           handleShowStagePopover(evetn, stage);
                         }}
                         className="outline-none"
@@ -1878,7 +1879,7 @@ const AdminPipeline1 = ({selectedUser}) => {
                             style={styles.paragraph}
                             onClick={() => {
                               setShowRenamePopup(true);
-                             // console.log("Selected stage is:", selectedStage);
+                             // //console.log;
                               setRenameStage(selectedStage.stageTitle);
                               setUpdateStageColor(selectedStage.defaultColor);
                             }} //handleRenameStage
@@ -3470,7 +3471,7 @@ const AdminPipeline1 = ({selectedUser}) => {
 
       {/* Modal for lead details */}
       {showDetailsModal && (
-        <LeadDetails
+        <AdminLeadDetails
           selectedLead={selectedLeadsDetails?.id}
           pipelineId={pipelineId && pipelineId}
           showDetailsModal={showDetailsModal}

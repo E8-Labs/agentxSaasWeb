@@ -112,7 +112,7 @@ function AdminSubscriptions() {
     return total + (monthData.Trial || 0) + (monthData.Plan30 || 0) + (monthData.Plan120 || 0) + (monthData.Plan360 || 0) + (monthData.Plan720 || 0);
   }, 0);
 
-  console.log("Total New Subscriptions:", totalNewSubscriptions);
+  //console.log;
 
   // Mapping Plan names to UI labels
   const planMapping = {
@@ -199,10 +199,10 @@ function AdminSubscriptions() {
   }, []);
 
   const getAdminAnalytics = async (customeRange = false) => {
-    console.log("trying to get admin analytics");
+    //console.log;
     try {
       const data = localStorage.getItem("User");
-      console.log("trying to get admin analytics2");
+      //console.log;
 
       if (data) {
         let u = JSON.parse(data);
@@ -230,33 +230,33 @@ function AdminSubscriptions() {
           // "&subscriptionUpgradeEndDate=" +
           // upgradeEndDate;
         }
-        console.log("path", path);
+        //console.log;
         const response = await axios.get(path, {
           headers: {
             Authorization: "Bearer " + u.token,
             "Content-Type": "application/json",
           },
         });
-        console.log("trying to get admin analytics3");
+        //console.log;
 
         if (response.data) {
           if (response.data.status == true) {
-            console.log("admin analytic api data is", response.data.data);
+            //console.log;
             setAnalyticData(response.data.data);
           } else {
-            console.log("admin analytic api message is", response.data.message);
+            //console.log;
           }
         }
       } else {
-        console.log("no data");
+        //console.log;
       }
     } catch (e) {
-      console.log("error in get analytics api ", e);
+      //console.log;
     }
   };
 
   const handleStartDateSelect = (date) => {
-    console.log("date", date);
+    //console.log;
 
     let formatedDate = moment(date).format("YYYY-MM-DD");
 
@@ -270,7 +270,7 @@ function AdminSubscriptions() {
   };
 
   const handleEndDateSelect = (date) => {
-    console.log("date", date);
+    //console.log;
 
     let formatedDate = moment(date).format("YYYY-MM-DD");
 

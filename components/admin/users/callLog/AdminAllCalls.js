@@ -70,7 +70,7 @@ function AdminAllCalls({selectedUser}) {
   const filterRef = useRef(null);
 
   useEffect(() => {
-    console.log("Search value changed", searchValue);
+    //console.log;
     // if ((selectedFromDate && selectedToDate) || selectedStageIds.length > 0) {
     setHasMore(true);
     setCallDetails([]);
@@ -85,7 +85,7 @@ function AdminAllCalls({selectedUser}) {
       clearTimeout(filterRef.current);
     }
     filterRef.current = setTimeout(() => {
-      console.log("Timer clicked", searchValue);
+      //console.log;
       setHasMore(true);
       setCallDetails([]);
       setFilteredCallDetails([]);
@@ -101,7 +101,7 @@ function AdminAllCalls({selectedUser}) {
     const selectedItem = pipelinesList.find(
       (item) => item.title === selectedValue
     );
-    // console.log("Selected Item:", selectedItem.stages);
+    // //console.log;
     // setSelectedPipelineItem(selectedItem);
     setStagesList(selectedItem.stages);
     // setSelectedPipelineStages(selectedItem.stages);
@@ -182,19 +182,19 @@ function AdminAllCalls({selectedUser}) {
     // const localPipelines = localStorage.getItem("pipelinesData");
     // if (localPipelines) {
     //   const PipelineDetails = JSON.parse(localPipelines);
-    //  // console.log("Pipelines recieved from localstorage are:", PipelineDetails);
+    //  // //console.log;
     //   setPipelinesList(PipelineDetails);
     //   setSelectedPipeline(PipelineDetails[0].title);
     //   setStagesList(PipelineDetails[0].stages);
     // }
 
     try {
-      // console.log("Testing teh");
+      // //console.log;
       getPipelines();
       const localCalls = localStorage.getItem("calldetails");
       if (localCalls) {
         const localCallData = JSON.parse(localCalls);
-        // console.log("Local cal details are", localCallData);
+        // //console.log;
         setCallDetails(localCallData);
         setFilteredCallDetails(localCallData);
       } else {
@@ -218,7 +218,7 @@ function AdminAllCalls({selectedUser}) {
         AuthToken = UserDetails.token;
       }
 
-      // console.log("Auth token is :", AuthToken);
+      // //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -228,7 +228,7 @@ function AdminAllCalls({selectedUser}) {
       });
 
       if (response) {
-        // console.log("Response of getPipelines api is :--", response.data.data);
+        // //console.log;
 
         if (response.data.status === true) {
           setPipelinesList(response.data.data);
@@ -239,26 +239,26 @@ function AdminAllCalls({selectedUser}) {
     } catch (error) {
       // console.error("Error occured in get pipelies api is :", error);
     } finally {
-      // console.log("Api call completed");
+      // //console.log;
     }
   };
 
   //code for getting call log details
   const getCallLogs = async (offset = null) => {
     const currentRequestVersion = ++requestVersion.current;
-    // console.log("Offset passed is ", offset);
+    // //console.log;
     try {
       setLoading(true);
       setInitialLoader(true);
-      // console.log("Check 1 ");
+      // //console.log;
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-        // console.log("Localdata recieved is :--", Data.token);
+        // //console.log;
         AuthToken = Data.token;
       }
-      // console.log("Check 2");
+      // //console.log;
       let startDate = "";
       let endDate = "";
 
@@ -267,12 +267,12 @@ function AdminAllCalls({selectedUser}) {
         endDate = moment(selectedToDate).format("MM-DD-YYYY");
       }
 
-      // console.log("Check 3");
+      // //console.log;
       const stages = selectedStageIds.join(",");
-      // console.log("Sages selected are ", stages);
-      // console.log("Check 4");
+      // //console.log;
+      // //console.log;
       let ApiPath = null;
-      // console.log("Check 5");
+      // //console.log;
       if (offset == null) {
         offset = filteredCallDetails.length;
       }
@@ -291,9 +291,9 @@ function AdminAllCalls({selectedUser}) {
       //     ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}&stageIds=${stages}&offset=${offset}&limit=10`;
       // }
 
-      console.log("Api path for calls log  is", ApiPath);
+      //console.log;
 
-      //// console.log("Auth token is:", AuthToken);
+      //// //console.log;
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -305,7 +305,7 @@ function AdminAllCalls({selectedUser}) {
 
       if (currentRequestVersion === requestVersion.current) {
         if (response) {
-          console.log("response of get call logs api is :", response.data);
+          //console.log;
           // setCallDetails(response.data.data);
           // setFilteredCallDetails(response.data.data);
 
@@ -336,7 +336,7 @@ function AdminAllCalls({selectedUser}) {
   //code to filter search
   const handleSearchChange = (value) => {
     if (value.trim() === "") {
-      //// console.log("Should reset to original");
+      //// //console.log;
       // Reset to original list when input is empty
       setFilteredCallDetails(callDetails);
       return;
@@ -387,7 +387,7 @@ function AdminAllCalls({selectedUser}) {
     const phoneNumber = parsePhoneNumberFromString(
       rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
     );
-    //// console.log("Raw number is", rawNumber);
+    //// //console.log;
     return phoneNumber
       ? phoneNumber.formatInternational()
       : "Invalid phone number";
@@ -451,7 +451,7 @@ function AdminAllCalls({selectedUser}) {
           }}
         >
           {GetFiltersFromSelection().map((filter, index) => {
-            ////console.log("Showing Filter ", filter);
+            //////console.log;
             return (
               <div className="flex-shrink-0" key={filter.key + index}>
                 <div
@@ -556,7 +556,7 @@ function AdminAllCalls({selectedUser}) {
             scrollableTarget="scrollableDiv1"
             dataLength={filteredCallDetails.length}
             next={() => {
-              console.log("Loading more data", { loading, hasMore });
+              //console.log;
               if (!loading && hasMore) {
                 getCallLogs(filteredCallDetails.length);
               }
@@ -629,7 +629,7 @@ function AdminAllCalls({selectedUser}) {
                     <div className="w-1/12">
                       <button
                         onClick={() => {
-                          // console.log("Selected item is", item);
+                          // //console.log;
                           setselectedLeadsDetails(item);
                           setShowDetailsModal(true);
                         }}
@@ -970,7 +970,7 @@ function AdminAllCalls({selectedUser}) {
                           : "#00000050",
                     }}
                     onClick={() => {
-                      // console.log("Check 1");
+                      // //console.log;
                       if (
                         (selectedFromDate && selectedToDate) ||
                         selectedStageIds.length > 0
@@ -982,7 +982,7 @@ function AdminAllCalls({selectedUser}) {
                         setShowFilterModal(false);
                         // getCallLogs(0);
                       } else {
-                        // console.log("Cannot continue");
+                        // //console.log;
                       }
                     }}
                   >

@@ -8,7 +8,7 @@ const CalendarInput = () => {
     // Handle date selection
     const handleDateChange = (date) => {
         setSelectedDate(date);
-       // console.log("Selected date:", date);
+       // //console.log;
     };
 
     return (

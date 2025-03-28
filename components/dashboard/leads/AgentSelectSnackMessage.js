@@ -15,9 +15,9 @@ export default function AgentSelectSnackMessage({
   isVisible,
   hide,
 }) {
-  // console.log("Visible Snack ", isVisible);
-  // console.log("Type passed is ", type);
-  // console.log("Message passed is", message);
+  // //console.log;
+  // //console.log;
+  // //console.log;
   function GetIcon() {
     if (type == SnackbarTypes.Error) {
       return "/assets/salmanassets/danger_conflict.svg";
@@ -37,28 +37,28 @@ export default function AgentSelectSnackMessage({
 
   useEffect(() => {
     if (type) {
-      // console.log("Type passed is ", type);
+      // //console.log;
     }
   }, [type]);
 
   useEffect(() => {
-    // console.log("UseEffect");
+    // //console.log;
 
     if (isVisible) {
       let timer = setTimeout(() => {
         // setErrorMessage(null);
-        // console.log("Timer hit");
+        // //console.log;
         hide();
       }, time);
       return () => {
-        // console.log("Clearing timer");
+        // //console.log;
         clearTimeout(timer);
       };
     }
 
     // if (isVisible) {
     //   let timer = setTimeout(() => {
-    //     console.log("Timmer is trigered")
+    //     //console.log
     //     hide()
     //   }, 4000);
     //   return (() => { clearTimeout(timer) })

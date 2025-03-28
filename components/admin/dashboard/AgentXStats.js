@@ -57,7 +57,7 @@ function AgentXStats({ user }) {
   useEffect(() => {
     // Example usage:
     if (user) {
-      // console.log("There is a logged in user");
+      // //console.log;
       fetchAdminStats();
     }
   }, [user]);
@@ -77,7 +77,7 @@ function AgentXStats({ user }) {
       const data = await response.json();
 
       if (response.ok) {
-        console.log("Admin Stats:", data.stats.data);
+        //console.log;
         setStats(data.stats.data);
       } else {
         console.error("Failed to fetch admin stats:", data.error);
@@ -468,7 +468,7 @@ function VoicesComponent({
       <Card className="cursor-pointer cursor-pointer border-white bg-white60 flex flex-col items-center justify-center  w-[11vw] shadow-[0px_4px_31.5px_0px_rgba(121,2,223,0.04)]">
         <CardContent
           onClick={() => {
-            console.log("View all clicked");
+            //console.log;
 
             onViewAll();
           }}

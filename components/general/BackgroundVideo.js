@@ -21,11 +21,11 @@ export default function BackgroundVideo({
         await video.play();
         video.remove(); // Remove the test video element
         setIsVideoSupported(true); // Autoplay supported
-        // console.log("Video is supported");
+        // //console.log;
       } catch {
         video.remove();
         setIsVideoSupported(false); // Autoplay not supported
-        // console.log("Video is not supported");
+        // //console.log;
       }
     };
 

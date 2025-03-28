@@ -1,22 +1,22 @@
 import { NextResponse } from "next/server";
 
 export function middleware(request) {
-  // console.log("Running middleware on path:", request.nextUrl.pathname);
+  // //console.log;
 
   // Allow unauthenticated access to specific paths
   const allowedPaths = ["/", "/onboarding", "/onboarding/WaitList"];
   if (allowedPaths.includes(request.nextUrl.pathname)) {
-    // console.log("Allowed path, skipping middleware:", request.nextUrl.pathname);
+    // //console.log;
     return NextResponse.next();
   }
 
   // Retrieve the user cookie
-  // console.log("All Cookies:", request.cookies);
+  // //console.log;
   const userCookie = request.cookies.get("User");
-  // console.log("User Cookie Value:", userCookie);
+  // //console.log;
 
   if (!userCookie) {
-    // console.log("No User cookie found, redirecting...");
+    // //console.log;
 
     // Check if the user is trying to access the createagent route
     if (request.nextUrl.pathname.startsWith("/createagent")) {
@@ -33,7 +33,7 @@ export function middleware(request) {
   }
 
   // Proceed to the requested page
-  // console.log("User authenticated, proceeding...");
+  // //console.log;
   return NextResponse.next();
 }
 

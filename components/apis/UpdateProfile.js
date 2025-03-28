@@ -4,26 +4,26 @@ import Apis from "./Apis";
 import { PersistanceKeys } from "@/constants/Constants";
 
 export const UpdateProfile = async (apidata) => {
-  // console.log('apidata', apidata)
+  // //console.log
 
   let SavedLocation = localStorage.getItem(
     PersistanceKeys.LocalStorageCompleteLocation
   );
   if (SavedLocation) {
-    // console.log("User location saved ", SavedLocation);
+    // //console.log;
     let parsedLocation = JSON.parse(SavedLocation);
     apidata.lat = parsedLocation.latitude;
     apidata.lang = parsedLocation.longitude;
   }
-  // console.log("Token sending in api is", apidata);
+  // //console.log;
   // UpdateProfile()
   try {
     const data = localStorage.getItem("User");
     if (data) {
       let u = JSON.parse(data);
       let path = Apis.updateProfileApi;
-      // console.log("Authtoken is", u.token);
-      console.log("Api Data passsed is", apidata)
+      // //console.log;
+      //console.log
       // return
       const response = await axios.post(path, apidata, {
         headers: {
@@ -34,12 +34,12 @@ export const UpdateProfile = async (apidata) => {
 
       if (response) {
         if (response.data.status === true) {
-          console.log('updateProfile data is', response.data)
+          //console.log
           u.user = response.data.data;
 
-          //// console.log('u', u)
+          //// //console.log
           localStorage.setItem("User", JSON.stringify(u));
-          console.log('trying to send event')
+          //console.log
           window.dispatchEvent(
             new CustomEvent("UpdateProfile", { detail: { update: true } })
           );
@@ -47,9 +47,9 @@ export const UpdateProfile = async (apidata) => {
         }
       }
     }else{
-      console.log('no data ')
+      //console.log
     }
   } catch (e) {
-    console.log('error in update profile is', e)
+    //console.log
   }
 };

@@ -35,7 +35,7 @@ function CallWorthyReviewsPopup({ open, close }) {
       if (data) {
         const u = JSON.parse(data);
         let path = Apis.getImportantCalls;
-       // console.log("Authtoken is", u.token);
+       // //console.log;
         const response = await axios.get(path, {
           headers: {
             Authorization: "Bearer " + u.token,
@@ -59,7 +59,7 @@ function CallWorthyReviewsPopup({ open, close }) {
         }
       }
     } catch (e) {
-     // console.log("error in get important calls api is", e);
+     // //console.log;
     } finally {
       setInitialLoader(false);
     }
@@ -69,7 +69,7 @@ function CallWorthyReviewsPopup({ open, close }) {
     const phoneNumber = parsePhoneNumberFromString(
       rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
     );
-    //// console.log("Raw number is", rawNumber);
+    //// //console.log;
     return phoneNumber
       ? phoneNumber.formatInternational()
       : "Invalid phone number";
@@ -333,7 +333,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                       <div className="flex flex-row items-center gap-4">
                                         <EnvelopeSimple
                                           size={20}
-                                          color="#00000060"
+                                          color="#000000"
                                         />
                                         <div style={styles.subHeading}>
                                           Email Address
@@ -353,9 +353,9 @@ function CallWorthyReviewsPopup({ open, close }) {
                                       <div className="flex flex-row items-center gap-4">
                                         {/* <EnvelopeSimple size={20} color='#00000060' /> */}
                                         <Image
-                                          src={"/assets/call.png"}
-                                          height={16}
-                                          width={16}
+                                          src={"/svgIcons/call.svg"}
+                                          height={20}
+                                          width={20}
                                           alt="man"
                                         />
                                         <div style={styles.subHeading}>
@@ -468,9 +468,10 @@ function CallWorthyReviewsPopup({ open, close }) {
                                       <div className="flex flex-row items-center gap-2">
                                         {/* <Image src={"/otherAssets/calenderIcon.png"} height={16} width={16} alt='man' /> */}
                                         <Image
+
                                           src="/assets/pipelineIcon.svg"
-                                          height={20}
-                                          width={20}
+                                          height={16}
+                                          width={16}
                                           alt="*"
                                           style={{
                                             filter:
@@ -494,10 +495,11 @@ function CallWorthyReviewsPopup({ open, close }) {
                                     <div className="flex flex-row items--center w-full justify-between mt-4">
                                       <div className="flex flex-row items-center gap-4">
                                         <Image
-                                          src={"/assets/arrow.png"}
-                                          height={16}
-                                          width={16}
+                                          src={"/svgIcons/arrow2.svg"}
+                                          height={25}
+                                          width={25}
                                           alt="man"
+                                         
                                         />
                                         <div style={styles.subHeading}>
                                           Stage
@@ -523,96 +525,16 @@ function CallWorthyReviewsPopup({ open, close }) {
                                           {selectedCall?.stage?.stageTitle}
                                         </div>
 
-                                        {/* {selectedLeadsDetails?.stage?.stageTitle || "-"}
-                                                                    <FormControl size="fit-content">
-                                                                        <Select
-                                                                            value={selectedStage}
-                                                                            onChange={handleStageChange}
-                                                                            displayEmpty // Enables placeholder
-                                                                            renderValue={(selected) => {
-                                                                                if (!selected) {
-                                                                                    return (
-                                                                                        <div style={{ color: "#aaa" }}>
-                                                                                            {stagesList?.length > 0
-                                                                                                ? "Select"
-                                                                                                : "No Stage"}
-                                                                                        </div>
-                                                                                    ); // Placeholder style
-                                                                                }
-                                                                                return selected;
-                                                                            }}
-                                                                            sx={{
-                                                                                border: "none", // Default border
-                                                                                "&:hover": {
-                                                                                    border: "none", // Same border on hover
-                                                                                },
-                                                                                "& .MuiOutlinedInput-notchedOutline": {
-                                                                                    border: "none", // Remove the default outline
-                                                                                },
-                                                                                "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                                                                {
-                                                                                    border: "none", // Remove outline on focus
-                                                                                },
-                                                                                "& .MuiSelect-select": {
-                                                                                    padding: "0 24px 0 8px", // Add padding to create space for the icon
-                                                                                    lineHeight: 1, // Align with font size
-                                                                                    minHeight: "unset", // Ensure no extra height is enforced
-                                                                                    display: "flex", // Proper alignment
-                                                                                    alignItems: "center",
-                                                                                },
-                                                                                "& .MuiSelect-icon": {
-                                                                                    right: "4px", // Adjust the position of the icon
-                                                                                    top: "50%", // Center the icon vertically
-                                                                                    transform: "translateY(-50%)", // Ensure vertical alignment
-                                                                                },
-                                                                            }}
-                                                                            MenuProps={{
-                                                                                PaperProps: {
-                                                                                    style: {
-                                                                                        maxHeight: "30vh", // Limit dropdown height
-                                                                                        overflow: "auto", // Enable scrolling in dropdown
-                                                                                        scrollbarWidth: "none",
-                                                                                        // borderRadius: "10px"
-                                                                                    },
-                                                                                },
-                                                                            }}
-                                                                        >
-                                                                            {stagesList?.length > 0 &&
-                                                                                stagesList.map((item, index) => {
-                                                                                    return (
-                                                                                        <MenuItem
-                                                                                            value={item.stageTitle}
-                                                                                            key={index}
-                                                                                            className="hover:bg-lightBlue hover:text-[#000000]"
-                                                                                        >
-                                                                                            <button
-                                                                                                className="outline-none border-none"
-                                                                                                onClick={() => {
-                                                                                                    updateLeadStage(item);
-                                                                                                }}
-                                                                                            >
-                                                                                                {item.stageTitle}
-                                                                                            </button>
-                                                                                        </MenuItem>
-                                                                                    );
-                                                                                })}
-
-                                                                            {!stagesList?.length > 0 && (
-                                                                                <MenuItem className="text-sm text-[#15151560] font-bold">
-                                                                                    No Stage
-                                                                                </MenuItem>
-                                                                            )}
-                                                                        </Select>
-                                                                    </FormControl> */}
+                                        
                                       </div>
                                     </div>
 
                                     <div className="flex flex-row items--center w-full justify-between mt-4">
                                       <div className="flex flex-row items-center gap-4">
                                         <Image
-                                          src={"/assets/manIcn.png"}
-                                          height={16}
-                                          width={16}
+                                          src={"/svgIcons/manIcon.svg"}
+                                          height={20}
+                                          width={20}
                                           alt="man"
                                         />
                                         <div style={styles.subHeading}>
@@ -625,8 +547,8 @@ function CallWorthyReviewsPopup({ open, close }) {
                                       >
                                         <Image
                                           src={"/assets/manIcon.png"}
-                                          height={30}
-                                          width={30}
+                                          height={16}
+                                          width={16}
                                           alt="man"
                                         />
                                       </div>
@@ -1033,6 +955,6 @@ const styles = {
   subHeading: {
     fontsize: 12,
     fontWeight: "500",
-    color: "#15151560",
+    color: "#151515",
   },
 };

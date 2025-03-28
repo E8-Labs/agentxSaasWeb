@@ -163,11 +163,11 @@ const voicesList = [
 export default voicesList;
 
 export function FindVoice(id) {
-  // console.log("Finding voice", id);
+  // //console.log;
 
   const voice = voicesList.find((v) => v.voice_id === id);
 
-  // console.log("Found voice:", voice);
+  // //console.log;
   return (
     voice || {
       voice_id: "yUeKuNxGTYAYe6vcplkT", //"5aOHxVGviCbvOnsHsrWn",

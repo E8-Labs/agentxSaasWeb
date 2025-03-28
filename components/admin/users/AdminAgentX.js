@@ -200,25 +200,25 @@ function AdminAgentX({ selectedUser }) {
     }
   }, [showDrawerSelectedAgent]);
 
-  ////// console.log("showDrawerSelectedAgent", showDrawerSelectedAgent);
+  ////// //console.log;
 
   //code for scroll ofset
   useEffect(() => {
     getUniquesColumn();
     getAvailabePhoneNumbers();
     let loc = getLocalLocation();
-    ////// console.log("Location getting is", loc);
+    ////// //console.log;
     setCountryCode(loc);
-    //////console.log("Setting scroll offset")
+    ////////console.log
     const handleScroll = () => {
-      //console.log("Div scrolled", containerRef.current.scrollTop)
+      ////console.log
       if (containerRef.current) {
         setScrollOffset({
           scrollTop: containerRef.current.scrollTop,
           scrollLeft: containerRef.current.scrollLeft,
         });
       } else {
-        //////console.log("No ref div")
+        ////////console.log
       }
     };
 
@@ -236,21 +236,21 @@ function AdminAgentX({ selectedUser }) {
 
   //check if need to show the save btn or not
   useEffect(() => {
-    ////// console.log("New tag  length", scriptTagInput?.length);
-    ////// console.log("Old tag length", OldScriptTagInput?.length);
-    //console.log("olde tag 3 length", scriptTagInput?.length)
+    ////// //console.log;
+    ////// //console.log;
+    ////console.log
     if (
       oldObjective !== objective ||
       oldGreetingTagInput !== greetingTagInput ||
       OldScriptTagInput !== scriptTagInput
     ) {
-      //console.log(greetingTagInput);
-      //console.log(oldGreetingTagInput)
-      //console.log("not same")
+      ////console.log;
+      ////console.log
+      ////console.log
       setShowSaveChangesBtn(true);
       setShowObjectionsSaveBtn(true);
     } else {
-      //console.log("hde save")
+      ////console.log
       setShowSaveChangesBtn(false);
       setShowObjectionsSaveBtn(false);
     }
@@ -294,7 +294,7 @@ function AdminAgentX({ selectedUser }) {
 
         // Compress the image
         const compressedFile = await imageCompression(file, options);
-        ////// console.log("Comptessed is ", compressedFile);
+        ////// //console.log;
         // Set the compressed image
         setSelectedImage2(compressedFile);
         updateAgentProfile(compressedFile);
@@ -311,7 +311,7 @@ function AdminAgentX({ selectedUser }) {
     setDragging(false);
     const file = event.dataTransfer.files[0];
 
-    ////// console.log("Selected` file is", file);
+    ////// //console.log;
 
     if (file && file.type.startsWith("image/")) {
       const imageUrl = URL.createObjectURL(file);
@@ -329,7 +329,7 @@ function AdminAgentX({ selectedUser }) {
 
         // Compress the image
         const compressedFile = await imageCompression(file, options);
-        ////// console.log("Comptessed is ", compressedFile);
+        ////// //console.log;
         // Set the compressed image
         setSelectedImage2(compressedFile);
         updateAgentProfile(compressedFile);
@@ -365,7 +365,7 @@ function AdminAgentX({ selectedUser }) {
 
       if (LocalData) {
         const userData = JSON.parse(LocalData);
-        //// console.log("Local data recieved is", userData);
+        //// //console.log;
         AuthToken = userData.token;
       }
 
@@ -377,10 +377,10 @@ function AdminAgentX({ selectedUser }) {
       formData.append("agentId", showDrawerSelectedAgent.id);
 
       for (let [key, value] of formData.entries()) {
-        //// console.log(`${key} :- ${value}`);
+        //// //console.log;
       }
 
-      //// console.log("Apipath is", ApiPath);
+      //// //console.log;
 
       // return
       const response = await axios.post(ApiPath, formData, {
@@ -390,7 +390,7 @@ function AdminAgentX({ selectedUser }) {
       });
 
       if (response) {
-        //// console.log("Response of update agent api is", response);
+        //// //console.log;
 
         if (response.data.status === true) {
           const localAgentsList = localStorage.getItem(
@@ -403,7 +403,7 @@ function AdminAgentX({ selectedUser }) {
 
             const updateAgentData = response.data.data;
 
-            //// console.log("Agents list is", agentsList);
+            //// //console.log;
 
             // const updatedArray = agentsList.map((localItem) => {
             //   const apiItem =
@@ -423,7 +423,7 @@ function AdminAgentX({ selectedUser }) {
                     : subAgent; // Leave the others unchanged
                 });
 
-                //// console.log("Updated sub agents", updatedSubAgents);
+                //// //console.log;
 
                 // Return the updated agent with the updated subAgents
                 return { ...localItem, agents: updatedSubAgents };
@@ -433,7 +433,7 @@ function AdminAgentX({ selectedUser }) {
               return localItem;
             });
 
-            //// console.log("Updated agents list array is", updatedArray);
+            //// //console.log;
             localStorage.setItem(
               PersistanceKeys.LocalStoredAgentsListMain,
               JSON.stringify(updatedArray)
@@ -442,7 +442,7 @@ function AdminAgentX({ selectedUser }) {
             // agentsListDetails = updatedArray
           }
         } else if (response.data.status === false) {
-          //// console.log("Status is false");
+          //// //console.log;
         }
       }
     } catch (error) {
@@ -462,14 +462,14 @@ function AdminAgentX({ selectedUser }) {
     const comparedAgent = mainAgentsList.find((mainAgent) =>
       mainAgent.agents.some((subAgent) => subAgent.id === item.id)
     );
-    //console.log("Agent selected details are", comparedAgent);
+    ////console.log;
 
     setCalendarDetails(comparedAgent);
 
-    //console.log("")
+    ////console.log
     setShowDrawerSelectedAgent(item);
     setSelectedImage(item?.thumb_profile_image);
-    //// console.log("Selected agent is:", item);
+    //// //console.log;
     if (item.agentType === "inbound") {
       setShowReassignBtn(true);
       setShowGlobalBtn(false);
@@ -521,7 +521,7 @@ function AdminAgentX({ selectedUser }) {
   //     const phoneNumber = parsePhoneNumberFromString(
   //       rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
   //     );
-  //     // //console.log("Raw number is", rawNumber);
+  //     // ////console.log;
   //     return phoneNumber
   //       ? phoneNumber.formatInternational()
   //       : "No phone number";
@@ -548,7 +548,7 @@ function AdminAgentX({ selectedUser }) {
         AuthToken = UserDetails.token;
       }
 
-      //console.log("Apipath is :--", ApiPath);
+      ////console.log;
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -558,7 +558,7 @@ function AdminAgentX({ selectedUser }) {
       });
 
       if (response) {
-        //console.log("Response of find number api is :--", response.data);
+        ////console.log;
         if (response.data.status === true) {
           setFoundeNumbers(response.data.data);
         }
@@ -573,7 +573,7 @@ function AdminAgentX({ selectedUser }) {
   //code for reassigning the number api
   const handleReassignNumber = async (item) => {
     try {
-      //// console.log("Phonenumber is:", item);
+      //// //console.log;
       // return;
       setReassignLoader(item);
       let AuthToken = null;
@@ -586,9 +586,9 @@ function AdminAgentX({ selectedUser }) {
       }
 
       if (agentDetails) {
-        //console.log("trying")
+        ////console.log
         const agentData = JSON.parse(agentDetails);
-        //console.log("Agent details are :--", agentData);
+        ////console.log;
         MyAgentData = agentData;
       }
 
@@ -599,11 +599,11 @@ function AdminAgentX({ selectedUser }) {
         phoneNumber: item.phoneNumber,
         newAgentId: showDrawerSelectedAgent.id,
       };
-      //console.log("I a just trigered")
+      ////console.log
 
-      //// console.log("Data sending in api is:", ApiData);
-      //console.log("Api path is:", ApiPath);
-      //console.log("Authtoken is:", AuthToken);
+      //// //console.log;
+      ////console.log;
+      ////console.log;
 
       // return
       const response = await axios.post(ApiPath, ApiData, {
@@ -614,7 +614,7 @@ function AdminAgentX({ selectedUser }) {
       });
 
       if (response) {
-        //// console.log("Respose of reassign api is:", response.data.data);
+        //// //console.log;
         if (response.data.status === true) {
           setShowSuccessSnack(
             `Phone number assigned to ${
@@ -648,12 +648,12 @@ function AdminAgentX({ selectedUser }) {
               if (ag.phoneNumber == item.phoneNumber) {
                 if (ag.agentType == "inbound") {
                   ag.phoneNumber = "";
-                  //// console.log("Removing phone number from ", ag.name);
+                  //// //console.log;
                 }
               } else {
                 if (ag.id == showDrawerSelectedAgent.id) {
                   ag.phoneNumber = item.phoneNumber;
-                  //// console.log("Assigning phone number to ", ag.name);
+                  //// //console.log;
                 }
               }
               newAgents.push(ag);
@@ -677,7 +677,7 @@ function AdminAgentX({ selectedUser }) {
         return;
 
         // Update the agent's phone number and ensure no other agents have the same phone number
-        //// console.log("Agents Content is ", agentsListSeparated);
+        //// //console.log;
         let agents = [];
         let mainAgents = []; //Main agents not subagents list
 
@@ -685,30 +685,30 @@ function AdminAgentX({ selectedUser }) {
           if (ag.phoneNumber == item.phoneNumber) {
             if (ag.agentType == "inbound") {
               ag.phoneNumber = "";
-              //// console.log("Removing phone number from ", ag.name);
+              //// //console.log;
             }
           } else {
             if (ag.id == showDrawerSelectedAgent.id) {
               ag.phoneNumber = item.phoneNumber;
-              //// console.log("Assigning phone number to ", ag.name);
+              //// //console.log;
             }
           }
           agents.push(ag);
         }
-        //// console.log("Total agents after updating ", agents.length);
+        //// //console.log;
         setAgentsListSeparated(agents);
         localStorage.setItem(
           PersistanceKeys.LocalStoredAgentsListMain,
           JSON.stringify(agents)
         );
 
-        //// console.log("Updated agent list is after changing phone", agents);
+        //// //console.log;
       }
     } catch (error) {
       //// console.error("Error occured in reassign the number api:", error);
     } finally {
       setReassignLoader(null);
-      //console.log("reassign api completed")
+      ////console.log
     }
   };
 
@@ -725,18 +725,18 @@ function AdminAgentX({ selectedUser }) {
         AuthToken = UserDetails.token;
       }
 
-      //console.log("Authtoken is:", AuthToken);
+      ////console.log;
 
       if (agentDetails) {
-        //console.log("trying")
+        ////console.log
         const agentData = JSON.parse(agentDetails);
-        //console.log("Agent details are :--", agentData);
+        ////console.log;
         MyAgentData = agentData;
       }
 
       const ApiPath = Apis.purchaseNumber;
-      //console.log("Apipath is :--", ApiPath);
-      // //console.log("Number selected is:", selectedPurchasedNumber);
+      ////console.log;
+      // ////console.log;
       const formData = new FormData();
       formData.append("phoneNumber", selectedPurchasedNumber.phoneNumber);
       // formData.append("phoneNumber", "+14062040550");
@@ -744,7 +744,7 @@ function AdminAgentX({ selectedUser }) {
       formData.append("mainAgentId", MyAgentData.id);
 
       for (let [key, value] of formData.entries()) {
-        //console.log(`${key} ${value} `);
+        ////console.log;
       }
 
       // localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
@@ -765,7 +765,7 @@ function AdminAgentX({ selectedUser }) {
       });
 
       if (response) {
-        //console.log("Response of purchase number api is :--", response.data);
+        ////console.log;
         if (response.data.status === true) {
           localStorage.setItem(
             "purchasedNumberDetails",
@@ -788,7 +788,7 @@ function AdminAgentX({ selectedUser }) {
 
   //function to select the number to purchase
   const handlePurchaseNumberClick = (item, index) => {
-    //console.log("Item Selected is :---", item);
+    ////console.log;
     setSelectedPurchasedNumber((prevId) => (prevId === item ? null : item));
     setSelectedPurchasedIndex((prevId) => (prevId === index ? null : index));
   };
@@ -804,9 +804,9 @@ function AdminAgentX({ selectedUser }) {
         const UserDetails = JSON.parse(LocalData);
         AuthToken = UserDetails.token;
       }
-      //console.log("initial api authtoken is:", AuthToken);
+      ////console.log;
       const ApiPath = Apis.userAvailablePhoneNumber;
-      //console.log("Apipath", ApiPath);
+      ////console.log;
 
       // return
       const response = await axios.get(ApiPath, {
@@ -816,14 +816,14 @@ function AdminAgentX({ selectedUser }) {
       });
 
       if (response) {
-        //// console.log("Response of numbers api is :", response.data);
-        ////// console.log("PArsed data is ", response.data.data);
+        //// //console.log;
+        ////// //console.log;
         setPreviousNumber(response.data.data);
       }
     } catch (error) {
       //// console.error("Error occured in: ", error);
     } finally {
-      //console.log("Api cal completed")
+      ////console.log
     }
   };
 
@@ -837,7 +837,7 @@ function AdminAgentX({ selectedUser }) {
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-        //////console.log("Localdat recieved is :--", Data);
+        ////////console.log;
         AuthToken = Data.token;
       }
 
@@ -845,11 +845,11 @@ function AdminAgentX({ selectedUser }) {
 
       const formData = new FormData();
 
-      // //console.log("Agent to update is:", showScriptModal);
+      // ////console.log;
 
       if (showScriptModal) {
         if (showScriptModal.agentType === "inbound") {
-          //console.log("Is inbound true");
+          ////console.log;
           formData.append("inboundGreeting", greetingTagInput);
           formData.append("inboundPrompt", scriptTagInput);
           formData.append("inboundObjective", objective);
@@ -873,7 +873,7 @@ function AdminAgentX({ selectedUser }) {
       }
 
       for (let [key, value] of formData.entries()) {
-        //// console.log(`${key}: ${value}`);
+        //// //console.log;
       }
       // return
       const response = await axios.post(ApiPath, formData, {
@@ -883,8 +883,8 @@ function AdminAgentX({ selectedUser }) {
       });
 
       if (response) {
-        //console.log("Response of update api is :--", response.data);
-        //// console.log("Respons eof update api is", response.data.data);
+        ////console.log;
+        //// //console.log;
         setShowSuccessSnack(response.data.message);
         if (response.data.status === true) {
           setIsVisibleSnack(true);
@@ -920,7 +920,7 @@ function AdminAgentX({ selectedUser }) {
               }
             }
 
-            //// console.log("Updated agents list array is", updatedArray);
+            //// //console.log;
             localStorage.setItem(
               PersistanceKeys.LocalStoredAgentsListMain,
               JSON.stringify(updatedArray)
@@ -942,7 +942,7 @@ function AdminAgentX({ selectedUser }) {
       //// console.error("Error occured in api is", error);
       setGlobalLoader(false);
     } finally {
-      //console.log("Api call completed");
+      ////console.log;
       setUpdateAgentLoader(false);
       setGlobalLoader(false);
     }
@@ -960,7 +960,7 @@ function AdminAgentX({ selectedUser }) {
       return;
     }
     try {
-      //// console.log("Updated number is", phoneNumber);
+      //// //console.log;
 
       // setGlobalLoader(true);
       // setAssignLoader(true);
@@ -989,7 +989,7 @@ function AdminAgentX({ selectedUser }) {
       const ApiPath = Apis.asignPhoneNumber;
 
       for (let [key, value] of formData.entries()) {
-        //// console.log(`${key} ${value}`);
+        //// //console.log;
       }
 
       const response = await axios.post(ApiPath, formData, {
@@ -1001,7 +1001,7 @@ function AdminAgentX({ selectedUser }) {
       // setAssignLoader(false);
       setShowPhoneLoader(false);
       if (response) {
-        //// console.log("Response of update number api is", response.data);
+        //// //console.log;
         if (response.data.status === true) {
           setShowSuccessSnack(
             `Phone number assigned to ${
@@ -1023,7 +1023,7 @@ function AdminAgentX({ selectedUser }) {
             const agentsList = JSON.parse(localAgentsList);
             const updateAgentData = showDrawerSelectedAgent;
 
-            //// console.log("Agents list is", agentsList);
+            //// //console.log;
             const updatedArray = agentsList.map((localItem) => {
               if (updateAgentData.mainAgentId === localItem.id) {
                 const updatedSubAgents = localItem.agents.map((subAgent) => {
@@ -1032,7 +1032,7 @@ function AdminAgentX({ selectedUser }) {
                     : subAgent;
                 });
 
-                //// console.log("Updated sub agents", updatedSubAgents);
+                //// //console.log;
 
                 return { ...localItem, agents: updatedSubAgents };
               }
@@ -1061,7 +1061,7 @@ function AdminAgentX({ selectedUser }) {
       setIsVisibleSnack2(true);
       setGlobalLoader(false);
     } finally {
-      //console.log("Assign Number Api call completed");
+      ////console.log;
       setGlobalLoader(false);
     }
   };
@@ -1099,27 +1099,27 @@ function AdminAgentX({ selectedUser }) {
 
   //function ot compare the selected agent wiith the main agents list
   const matchingAgent = (agent) => {
-    //// console.log();
+    //// //console.log;
     const agentData = mainAgentsList.filter((prevAgent) => {
-      //// console.log(`Matching ${prevAgent.id} = ${agent.mainAgentId}`);
+      //// //console.log;
       if (prevAgent.id === agent.mainAgentId) {
         return true;
       } else {
         return false;
       }
     });
-    //// console.log("Agent Data in match ", agentData);
+    //// //console.log;
     if (typeof agentData == undefined || agentData == null) {
       return;
     }
-    //console.log("Agent matcing grretings are:", agentData);
+    ////console.log;
     setKYCList(agentData[0].kyc);
 
-    //console.log("Pipeline of selected agent", agentData[0].pipeline);
-    //// console.log("Received Agent ", agent);
+    ////console.log;
+    //// //console.log;
     setMainAgentId(agentData[0].id);
     let firstAgent = agentData[0];
-    //// console.log("First Agent ", firstAgent);
+    //// //console.log;
     setUserPipeline(firstAgent.pipeline);
     // if (
     //   firstAgent.agents?.length === 2
@@ -1158,10 +1158,10 @@ function AdminAgentX({ selectedUser }) {
         AuthToken = UserDetails.token;
       }
 
-      //////console.log("Auth token is :--", AuthToken);
+      ////////console.log;
 
       const ApiPath = Apis.uniqueColumns;
-      //////console.log("Api path is ", ApiPath);
+      ////////console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -1171,7 +1171,7 @@ function AdminAgentX({ selectedUser }) {
       });
 
       if (response) {
-        //console.log("Response of getColumns api is:", response.data);
+        ////console.log;
         if (response.data.status === true) {
           setUniqueColumns(response.data.data);
         }
@@ -1204,20 +1204,20 @@ function AdminAgentX({ selectedUser }) {
       const userData = localStorage.getItem("User");
       if (userData) {
         const localData = JSON.parse(userData);
-        //console.log("Authtoken is:", localData.token);
+        ////console.log;
         AuthToken = localData.token;
       }
 
       const ApiData = {
         agentId: showDrawerSelectedAgent.id,
       };
-      //// console.log("Data sending in del agent api is:", ApiData);
+      //// //console.log;
 
-      //// console.log("Current agent selected is", showDrawerSelectedAgent);
+      //// //console.log;
 
       // return
       const ApiPath = Apis.DelAgent;
-      //console.log("Apipath is:", ApiPath);
+      ////console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -1227,7 +1227,7 @@ function AdminAgentX({ selectedUser }) {
       });
 
       if (response) {
-        //// console.log("Response of del agent api is:", response);
+        //// //console.log;
         setAgentsListSeparated(
           agentsListSeparated.filter(
             (item) => item.id !== showDrawerSelectedAgent.id
@@ -1263,7 +1263,7 @@ function AdminAgentX({ selectedUser }) {
             return agentGroup; // Return the item as is if 'agents' is not an array
           });
 
-          //// console.log("Updated agents list array is", updatedAgentsList);
+          //// //console.log;
           localStorage.setItem(
             PersistanceKeys.LocalStoredAgentsListMain,
             JSON.stringify(updatedAgentsList)
@@ -1286,15 +1286,15 @@ function AdminAgentX({ selectedUser }) {
       const userData = localStorage.getItem("User");
       if (userData) {
         const localData = JSON.parse(userData);
-        //console.log("Authtoken is:", localData.token);
+        ////console.log;
         AuthToken = localData.token;
       }
 
       const newArray = scriptKeys.map((key, index) => ({
         [key]: inputValues[index] || "", // Use the input value or empty string if not set
       }));
-      //console.log("New array created is:", newArray);
-      //console.log("New array created is:", JSON.stringify(newArray));
+      ////console.log;
+      ////console.log);
 
       const ApiData = {
         agentId: selectedAgent.id,
@@ -1306,8 +1306,8 @@ function AdminAgentX({ selectedUser }) {
 
       const ApiPath = Apis.testAI;
 
-      console.log("Data sending in api is:", JSON.stringify(ApiData));
-      //console.log("Api path is:", JSON.stringify(ApiPath));
+      //console.log);
+      ////console.log);
       // return;
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -1317,7 +1317,7 @@ function AdminAgentX({ selectedUser }) {
       });
 
       if (response) {
-        //console.log("Response of test AI api is :", response);
+        ////console.log;
         setShowSuccessSnack(response.data.message);
         setIsVisibleSnack(true);
         if (response.data.status === true) {
@@ -1329,7 +1329,7 @@ function AdminAgentX({ selectedUser }) {
     } catch (error) {
       //// console.error("Error occured in test api is", error);
     } finally {
-      //console.log("Test ai call api done");
+      ////console.log;
       setTestAIloader(false);
     }
   };
@@ -1363,7 +1363,7 @@ function AdminAgentX({ selectedUser }) {
       }
 
       // setCheckPhoneResponse(null);
-      //console.log("Trigered")
+      ////console.log
     }
   };
 
@@ -1375,10 +1375,10 @@ function AdminAgentX({ selectedUser }) {
 
     if (agentLocalDetails) {
       const agentData = JSON.parse(agentLocalDetails);
-      //// console.log("Data on LocalStorage", agentData);
+      //// //console.log;
       setMainAgentsList(agentData);
     } else {
-      //// console.log("No data of agents");
+      //// //console.log;
     }
 
     const userData = localStorage.getItem("User");
@@ -1427,10 +1427,10 @@ function AdminAgentX({ selectedUser }) {
       }
       const ApiPath = `${Apis.getAgents}?userId=${selectedUser.id}`; //?agentType=outbound
 
-      console.log("Api path is: ", ApiPath);
+      //console.log;
 
       const AuthToken = userData.token;
-      console.log("Auth token is", AuthToken);
+      //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -1440,7 +1440,7 @@ function AdminAgentX({ selectedUser }) {
       });
 
       if (response) {
-        console.log("Response of get agents api is:", response.data);
+        //console.log;
         localStorage.setItem(
           PersistanceKeys.LocalStoredAgentsListMain,
           JSON.stringify(response.data.data)
@@ -1465,7 +1465,7 @@ function AdminAgentX({ selectedUser }) {
   };
 
   const handlePopoverOpen = (event, item) => {
-    ////// console.log("Hovered index is", item);
+    ////// //console.log;
     setActionInfoEl(event.currentTarget);
     setHoveredIndexStatus(item.status);
     setHoveredIndexAddress(item.address);
@@ -1482,7 +1482,7 @@ function AdminAgentX({ selectedUser }) {
   useEffect(() => {
     let agents = [];
 
-    //// console.log("Again setting data in array");
+    //// //console.log;
 
     const localAgentsData = localStorage.getItem(
       PersistanceKeys.LocalStoredAgentsListMain
@@ -1498,7 +1498,7 @@ function AdminAgentX({ selectedUser }) {
       if (item.agents && item.agents?.length > 0) {
         for (let i = 0; i < item.agents?.length; i++) {
           const agent = item.agents[i];
-          //console.log("Agent spilting data is:", agent);
+          ////console.log;
           // Add a condition here if needed  //.agentType === 'outbound'
           if (agent) {
             agents.push(agent);
@@ -1510,14 +1510,14 @@ function AdminAgentX({ selectedUser }) {
     });
     setAgentsListSeparated(agents);
 
-    //console.log("Agents data in updated array is", agentsContent);
+    ////console.log;
   }, [mainAgentsList]);
 
   //code for voices droopdown
   const [SelectedVoice, setSelectedVoice] = useState("");
   const [VoicesList, setVoicesList] = useState([]);
 
-  //console.log("Voices list is", voicesList.slice(0, 10));
+  ////console.log);
 
   const handleChangeVoice = async (event) => {
     setShowVoiceLoader(true);
@@ -1545,11 +1545,11 @@ function AdminAgentX({ selectedUser }) {
         AuthToken = UserDetails.token;
       }
 
-      //// console.log("Authtoken is:", AuthToken);
+      //// //console.log;
 
       const ApiPath = Apis.getCalenders;
 
-      //// console.log("Apipath is:", ApiPath);
+      //// //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -1559,13 +1559,13 @@ function AdminAgentX({ selectedUser }) {
       });
 
       if (response) {
-        //// console.log("Response of get calender api is:", response);
+        //// //console.log;
         setPreviousCalenders(response.data.data);
       }
     } catch (error) {
       //// console.error("Error occured in the api is ", error);
     } finally {
-      //// console.log("Api cal for getting calenders done");
+      //// //console.log;
     }
   };
 
@@ -1577,10 +1577,10 @@ function AdminAgentX({ selectedUser }) {
 
     if (agentLocalDetails) {
       const agentData = JSON.parse(agentLocalDetails);
-      //// console.log("Data on LocalStorage", agentData);
+      //// //console.log;
       setMainAgentsList(agentData);
     } else {
-      //// console.log("No data of agents");
+      //// //console.log;
     }
   };
 
@@ -1636,7 +1636,7 @@ function AdminAgentX({ selectedUser }) {
     },
   };
 
-  // //console.log("Current agent selected is:", showDrawer)
+  // ////console.log
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -1806,7 +1806,7 @@ function AdminAgentX({ selectedUser }) {
                       <div className="flex flex-row gap-3 items-center">
                         <button
                           onClick={() => {
-                            //console.log("Drawer details are:", item);
+                            ////console.log;
                             handleShowDrawer(item);
                           }}
                         >
@@ -1859,7 +1859,7 @@ function AdminAgentX({ selectedUser }) {
                       >
                         <button
                           onClick={() => {
-                            //// console.log("Grreting sending ", item);
+                            //// //console.log;
                             setGreetingTagInput(item.prompt.greeting);
                             setOldGreetingTagInput(item.prompt.greeting);
                             setScriptTagInput(item.prompt.callScript);
@@ -1885,10 +1885,10 @@ function AdminAgentX({ selectedUser }) {
 
                         <button
                           onClick={() => {
-                            //// console.log("Selected agen is", item);
+                            //// //console.log;
                             handleShowDrawer(item);
                             // matchingAgent(item);
-                            ////// console.log("Item details are", item);
+                            ////// //console.log;
                           }}
                         >
                           <div>More info</div>
@@ -1923,7 +1923,7 @@ function AdminAgentX({ selectedUser }) {
                     <button
                       className="bg-purple px-4 py-2 rounded-lg"
                       onClick={() => {
-                        //console.log("Selected agent for test ai is:", item);
+                        ////console.log;
                         if (!item.phoneNumber) {
                           setShowWarningModal(item);
                         } else {
@@ -1932,7 +1932,7 @@ function AdminAgentX({ selectedUser }) {
                         let callScript =
                           item.prompt.callScript + " " + item.prompt.greeting;
 
-                        // //console.log("Keys extracted are", callScript);
+                        // ////console.log;
 
                         //function for extracting the keys
                         const regex = /\{(.*?)\}/g;
@@ -1952,7 +1952,7 @@ function AdminAgentX({ selectedUser }) {
                         let kyc = (mainAgent?.kyc || []).map(
                           (kyc) => kyc.question
                         );
-                        //console.log("Main agent selected ", mainAgent)
+                        ////console.log
                         while ((match = regex.exec(callScript)) !== null) {
                           // "Email", "Address",
                           let defaultVariables = [
@@ -1981,7 +1981,7 @@ function AdminAgentX({ selectedUser }) {
                           // Add the variable name (without braces) to the array
                         }
                         setScriptKeys(keys);
-                        //console.log("Keys extracted are", keys);
+                        ////console.log;
                         setSelectedAgent(item);
                       }}
                     >
@@ -2793,7 +2793,7 @@ function AdminAgentX({ selectedUser }) {
                               // onChange={handleSelectNumber}
                               onChange={(e) => {
                                 let value = e.target.value;
-                                //// console.log("Assign number here");
+                                //// //console.log;
                                 // return;
                                 setAssignNumber(value);
                                 setOpenCalimNumDropDown(false);
@@ -2825,13 +2825,13 @@ function AdminAgentX({ selectedUser }) {
                                   <div
                                     onClick={(e) => {
                                       if (showReassignBtn && item?.claimedBy) {
-                                        console.log("Assigned to ", item);
+                                        //console.log;
                                         e.stopPropagation();
                                         setShowConfirmationModal(item);
-                                        //// console.log("Hit release number api");
+                                        //// //console.log;
                                         // AssignNumber
                                       } else {
-                                        //// console.log("Hit reassign number api");
+                                        //// //console.log;
                                         //// console.log(
                                         //   "Should call assign number api"
                                         // );
@@ -3355,7 +3355,7 @@ function AdminAgentX({ selectedUser }) {
                     }}
                     onClick={() => {
                       handleReassignNumber(showConfirmationModal);
-                      //console.log("test")
+                      ////console.log
                     }}
                   >
                     {`I'm sure`}
@@ -3925,7 +3925,7 @@ function AdminAgentX({ selectedUser }) {
                           handleFindeNumbers(value);
                         }, 300);
                       } else {
-                        //console.log("Should not search")
+                        ////console.log
                         return;
                       }
                     }}

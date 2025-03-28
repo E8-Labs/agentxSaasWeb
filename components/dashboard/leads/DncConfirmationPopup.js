@@ -19,7 +19,7 @@ export default function DncConfirmationPopup({
   onConfirm,
   leadsCount,
 }) {
-  console.log("Total Leads ", leadsCount);
+  //console.log;
   const totalCost = leadsCount < 34 ? 1 : leadsCount * 0.03;
 
   return (

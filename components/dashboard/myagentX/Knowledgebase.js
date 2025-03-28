@@ -25,7 +25,7 @@ function Knowledgebase({ user, agent }) {
 
       // let link = `/api/kb/getkb?agentId=${agent.id}`;
       let link = `${Apis.GetKnowledgebase}?agentId=${agent.id}`
-      // console.log('link', token)
+      // //console.log
 
  
       const response = await fetch(link, {
@@ -39,7 +39,7 @@ function Knowledgebase({ user, agent }) {
       const data = await response.json();
 
       if (response.ok) {
-        console.log("KB Data:", data.data);
+        //console.log;
         setKb(data.data);
       } else {
         console.error("Failed to fetch kb:", data.error);
@@ -89,19 +89,19 @@ function Knowledgebase({ user, agent }) {
   }
 
   async function handleDeleteKb(item) {
-    console.log('item', item)
+    //console.log
     try {
       setKbDelLoader(item.id)
       const token = user.token; // Extract JWT token
       setKb((prevKb) => prevKb.filter((kbItem) => kbItem.id !== item.id));
       
       let link = `${Apis.deleteKnowledgebase}`
-      console.log('link', link)
+      //console.log
 
       let apidata = {
         kbId : item.id
       }
-      console.log('apidata', apidata)
+      //console.log
 
       const response = await axios.post(link,apidata,{
         headers: {
@@ -111,7 +111,7 @@ function Knowledgebase({ user, agent }) {
       })
         
       if (response.data) {
-        console.log("KB delete Data:", response.data.data);
+        //console.log;
         
         
       } else {

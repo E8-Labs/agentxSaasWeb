@@ -28,7 +28,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
 
   useEffect(() => {
     if (selectedAgent.agentType !== "inbound") {
-      // console.log("Trigered the get cadence api");
+      // //console.log;
       handleGetCadence();
     }
   }, []);
@@ -65,11 +65,11 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
       if (localData) {
         const Data = JSON.parse(localData);
         userDetails = Data;
-        // console.log("Localdata recieved is :--", Data);
+        // //console.log;
         AuthToken = Data.token;
       }
 
-      // console.log("Auth token is:", AuthToken);
+      // //console.log;
 
       const ApiData = {
         mainAgentId: selectedAgent.mainAgentId,
@@ -80,8 +80,8 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
 
       const ApiPath = Apis.getAgentCadence;
 
-      // console.log("Apipath is:", ApiPath);
-      // console.log("Api data s:", ApiData);
+      // //console.log;
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -163,7 +163,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
                   });
                   return;
                 }
-                console.log("Main agent is ", mainAgent);
+                //console.log;
                 localStorage.setItem(
                   PersistanceKeys.LocalSavedAgentDetails,
                   JSON.stringify(mainAgent)
@@ -187,7 +187,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
                   });
                   return;
                 }
-                console.log("Main agent is ", mainAgent);
+                //console.log;
                 localStorage.setItem(
                   PersistanceKeys.LocalSavedAgentDetails,
                   JSON.stringify(mainAgent)

@@ -3,11 +3,11 @@ import parsePhoneNumberFromString from "libphonenumber-js";
 import Image from "next/image";
 
 export const getAgentImage = (item) => {
-  //// console.log("Item passed is", item);
+  //// //console.log;
 
   // Extract subagents
   const subagents = item?.agents || [];
-  //// console.log("Sub agents are", subagents);
+  //// //console.log;
 
   // Iterate through subagents to find the first valid profile image or voice ID
   for (const subAgent of subagents) {
@@ -44,7 +44,7 @@ export const getAgentImage = (item) => {
       const selectedVoice = voicesList.find(
         (voice) => voice.voice_id === subAgent.voiceId
       );
-     // console.log("Current agent voice ", selectedVoice);
+     // //console.log;
       if (selectedVoice && selectedVoice.img) {
         return (
           <div
@@ -97,20 +97,20 @@ export const getAgentsListImage = (
   imgWidth,
   showExtraheight = true
 ) => {
-  //// console.log("Get image from agent ", subAgent);
+  //// //console.log;
 
   // Extract subagents
   // const subagents = item.agents || [];
-  //// console.log("Sub agents are", subagents);
+  //// //console.log;
 
-  //// console.log("Height is", imgHeight);
-  //// console.log("Width is", imgWidth);
+  //// //console.log;
+  //// //console.log;
 
   let height = imgHeight || 62;
   let width = imgWidth || 62;
 
-  //// console.log("Heght is", height);
-  //// console.log("Heght Width is", width);
+  //// //console.log;
+  //// //console.log;
 
   if (subAgent?.thumb_profile_image) {
     return (
@@ -144,7 +144,7 @@ export const getAgentsListImage = (
     const selectedVoice = voicesList.find(
       (voice) => voice.voice_id === subAgent.voiceId
     );
-    //// console.log("Selected voice is", selectedVoice);
+    //// //console.log;
     if (selectedVoice && selectedVoice.img) {
       return (
         // <div className="bg-white rounded-full h-[43px] flex flex-row items-center justify-center">
@@ -191,7 +191,7 @@ export const getAgentsListImage = (
 //     const phoneNumber = parsePhoneNumberFromString(
 //       rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
 //     );
-//     // //console.log("Raw number is", rawNumber);
+//     // ////console.log;
 //     return phoneNumber
 //       ? phoneNumber.formatInternational()
 //       : "No phone number";
@@ -230,10 +230,10 @@ export const formatPhoneNumber = (rawNumber) => {
 
 ////agent profile image
 export const getAgentProfileImage = (subAgent) => {
-  //// console.log("Item passed is", item);
+  //// //console.log;
 
   // Extract subagents
- // console.log("Sub agents are", subAgent);
+ // //console.log;
 
   if (subAgent?.thumb_profile_image) {
     return (
@@ -267,7 +267,7 @@ export const getAgentProfileImage = (subAgent) => {
     const selectedVoice = voicesList.find(
       (voice) => voice.voice_id === subAgent?.voiceId
     );
-   // console.log("Current agent voice ", selectedVoice);
+   // //console.log;
     if (selectedVoice && selectedVoice.img) {
       return (
         <div

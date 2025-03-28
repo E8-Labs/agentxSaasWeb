@@ -118,11 +118,11 @@ const PipelineStages = ({
 
   //     if (action) {
   //         if (!newStageTitle || !action || inputs.filter(input => input.value.trim() !== "").length < 3) {
-  //            // console.log("Shoukd hide ")
+  //            // //console.log
   //             setShowAddStageBtn(false);
   //         }
   //         else if (newStageTitle && action && inputs.filter(input => input.value.trim() !== "").length === 3) {
-  //            // console.log("Show continue to add stage")
+  //            // //console.log
   //             setShowAddStageBtn(true);
   //         }
   //     }
@@ -163,7 +163,7 @@ const PipelineStages = ({
     try {
       let response = await getTeamsList();
       if (response) {
-        // console.log("Team Response recieved is", response);
+        // //console.log;
         let teams = [];
         if (response.admin) {
           let admin = response.admin;
@@ -189,13 +189,13 @@ const PipelineStages = ({
   //new teammeber
   const handleAssignTeamMember = (event) => {
     let value = event.target.value;
-    // console.log("Value to set is :", value);
+    // //console.log;
     setAssignToMember(event.target.value);
 
     const selectedItem = myTeamList.find(
       (item) => item?.invitedUser?.name === value
     );
-    // console.log("Selected teammeber is:", selectedItem);
+    // //console.log;
     setAssignToMember(
       selectedItem?.invitedUser?.name || myTeamAdmin.invitedUser?.name
     ); //
@@ -204,7 +204,7 @@ const PipelineStages = ({
       selectedItem?.invitedUser?.id || myTeamAdmin.invitedUser?.id,
     ]); //
 
-    // console.log("Selected teammeber is:", selectedItem);
+    // //console.log;
   };
 
   const handlePopoverClose = () => {
@@ -220,9 +220,9 @@ const PipelineStages = ({
     const agentDetails = localStorage.getItem("agentDetails");
     if (agentDetails) {
       const agentData = JSON.parse(agentDetails);
-      // console.log("Current Agent Details Recieved Are :--", agentData);
+      // //console.log;
       if (agentData.agents?.length > 1) {
-        // console.log("Two agents");
+        // //console.log;
         setIsInboundAgent(false);
       } else {
         if (agentData.agents[0]?.agentType === "inbound") {
@@ -235,7 +235,7 @@ const PipelineStages = ({
   }, []);
 
   useEffect(() => {
-    // console.log("Stagesrecieved are :", stages);
+    // //console.log;
     setPipelineStages(stages);
   }, [stages]);
 
@@ -255,7 +255,7 @@ const PipelineStages = ({
         AuthToken = UserDetails.token;
       }
 
-      // console.log("Auth token is :--", AuthToken);
+      // //console.log;
 
       // const ApiData = {
       //     stageTitle: renameStage,
@@ -268,15 +268,15 @@ const PipelineStages = ({
       formData.append("stageId", selectedStage.id);
       formData.append("color", updateStageColor);
 
-      //// console.log("data sending in api si:", ApiData);
+      //// //console.log;
 
       for (let [key, value] of formData.entries()) {
-        // console.log(`${key}: ${value}`);
+        // //console.log;
       }
 
       const ApiPath = Apis.UpdateStage;
 
-      // console.log("Api path is:", ApiPath);
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -286,14 +286,14 @@ const PipelineStages = ({
       });
 
       if (response) {
-        // console.log("Response of updates stage api is response :", response);
+        // //console.log;
         setPipelineStages(response.data.data.stages);
         setShowRenamePopup(false);
         // setSuccessSnack(response.data.message);
         // handleCloseStagePopover();
       }
     } catch (error) {
-      // console.log("Error occured in rename api is:", error);
+      // //console.log;
     } finally {
       setRenameStageLoader(false);
     }
@@ -312,35 +312,35 @@ const PipelineStages = ({
 
   //code for drag and drop stages
   const handleOnDragEnd = (result) => {
-    // console.log("Data passed in drag function", result);
+    // //console.log;
     const { source, destination } = result;
-    // console.log("Check 1");
+    // //console.log;
     // if (!destination) return;
     if (!destination || source.index === 0 || destination.index === 0) {
       setShowRearrangeErr("Cannot rearrange when stage is expanded.");
       setIsVisibleSnack(true);
       setSnackType("Error");
-      // console.log("Check 2 then return");
+      // //console.log;
       return;
     }
 
     // if (!destination || source.index === destination.index) {
-    //    // console.log("Check 2 then return")
+    //    // //console.log
     //     return;
     // }
 
-    // console.log("Check 3");
+    // //console.log;
     const items = Array.from(pipelineStages);
     const [reorderedItem] = items.splice(source.index, 1);
     items.splice(destination.index, 0, reorderedItem);
 
-    // console.log("Check 4");
+    // //console.log;
     const updatedStages = items.map((stage, index) => ({
       ...stage,
       order: index + 1,
     }));
 
-    // console.log("Check 5 about to call the api");
+    // //console.log;
     setPipelineStages(updatedStages);
     onUpdateOrder(updatedStages);
     handleReOrder();
@@ -349,7 +349,7 @@ const PipelineStages = ({
   //functions to move to stage after deleting one
   const handleChangeNextStage = (event) => {
     let value = event.target.value;
-    //// console.log("Value to set is :", value);
+    //// //console.log;
     setAssignNextStage(event.target.value);
 
     const selectedItem = pipelineStages.find(
@@ -357,29 +357,29 @@ const PipelineStages = ({
     );
     setAssignNextStageId(selectedItem.id);
 
-    // console.log("Selected inext stage is:", selectedItem);
+    // //console.log;
   };
 
   //code to delete stage
   const handleDeleteStage = async (value) => {
     try {
       if (value === "del2") {
-        // console.log("Loader 2", value);
+        // //console.log;
         setDelStageLoader2(true);
       } else if (value === "del") {
-        // console.log("Loader 1", value);
+        // //console.log;
         setDelStageLoader(true);
       }
-      // console.log("Selected pipeline is:", selectedPipelineItem);
+      // //console.log;
       const localData = localStorage.getItem("User");
       let AuthToken = null;
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-        //// console.log("Local details are :", UserDetails);
+        //// //console.log;
       }
 
-      // console.log("Auth token is :--", AuthToken);
+      // //console.log;
 
       const ApiData = {
         // pipelineId: selectedPipelineItem.id,
@@ -389,10 +389,10 @@ const PipelineStages = ({
         moveToStageId: assignNextStageId,
       };
 
-      // console.log("Api dta is:", ApiData);
+      // //console.log;
       // return
       const ApiPath = Apis.deleteStage;
-      // console.log("Apipath is:", ApiPath);
+      // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -402,7 +402,7 @@ const PipelineStages = ({
       });
 
       if (response) {
-        // console.log("response of del stage api is:", response.data);
+        // //console.log;
         if (response.data.status === true) {
           setPipelineStages(response.data.data.stages);
           setSuccessSnack(response.data.message);
@@ -422,11 +422,11 @@ const PipelineStages = ({
               return pipeline; // Return unchanged pipeline for others
             });
 
-            console.log('updatedPipelines', updatedPipelines)
+            //console.log
             localStorage.setItem("pipelinesList", JSON.stringify(updatedPipelines));
 
           } else {
-            console.log('no pipeline list found from local')
+            //console.log
           }
           // setStageAnchorel(null);
         }
@@ -468,13 +468,13 @@ const PipelineStages = ({
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-        // console.log("Local details are :", UserDetails);
+        // //console.log;
       }
 
-      // console.log("Auth token is :--", AuthToken);
+      // //console.log;
 
       const ApiPath = Apis.addCustomStage;
-      // console.log("Api path is:", ApiPath);
+      // //console.log;
 
       const ApiData = {
         stageTitle: newStageTitle,
@@ -486,7 +486,7 @@ const PipelineStages = ({
         teams: assignLeadToMember,
       };
 
-      // console.log("Data sending in api is:", ApiData);
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -496,7 +496,7 @@ const PipelineStages = ({
       });
 
       if (response) {
-        // console.log("Response of add stage title :", response);
+        // //console.log;
         if (response.data.status === true) {
           setPipelineStages(response.data.data.stages);
           handleCloseAddStage();

@@ -62,7 +62,7 @@ const BuyerKycs = ({ handleContinue }) => {
   }, []);
 
   useEffect(() => {
-    // console.log("Here in user set");
+    // //console.log;
     if (user) {
       // GetTitleBasedOnUserType();
       let profile = user.user;
@@ -137,7 +137,7 @@ const BuyerKycs = ({ handleContinue }) => {
         )
       ) {
         setShowErrorSnack("Question already exists!!!");
-        // console.log("Question Already exists");
+        // //console.log;
         return;
       } else {
         setNeedKYCQuestions((prevQuestions) => {
@@ -158,7 +158,7 @@ const BuyerKycs = ({ handleContinue }) => {
         )
       ) {
         setShowErrorSnack("Question already exists!!!");
-        // console.log("Question Already exists");
+        // //console.log;
         return;
       } else {
         setMotivationKycQuestions((prevQuestions) => {
@@ -179,7 +179,7 @@ const BuyerKycs = ({ handleContinue }) => {
         )
       ) {
         setShowErrorSnack("Question already exists!!!");
-        // console.log("Question Already exists");
+        // //console.log;
         return;
       } else {
         setUrgencyKycQuestions((prevQuestions) => {
@@ -284,10 +284,10 @@ const BuyerKycs = ({ handleContinue }) => {
       selectedUrgencyKyc.some((selectedItem) => selectedItem.id === question.id)
     );
 
-    // console.log("Working");
-    //// console.log("Selected Questions are: ", selectedNeedQuestions);
-    //// console.log("Selected motivation questions are: ----", selectedMotivationQuestions);
-    //// console.log("Selected urgency questions are: ----", selectedUrgencyQuestions);
+    // //console.log;
+    //// //console.log;
+    //// //console.log;
+    //// //console.log;
     // router.push("/pipeline");
     // handleContinue();
 
@@ -331,9 +331,9 @@ const BuyerKycs = ({ handleContinue }) => {
       }
 
       if (agentDetails) {
-        // console.log("trying");
+        // //console.log;
         const agentData = JSON.parse(agentDetails);
-        // console.log("ActualAgent details are :--", agentData);
+        // //console.log;
         MyAgentData = agentData;
       }
 
@@ -347,7 +347,7 @@ const BuyerKycs = ({ handleContinue }) => {
 
       ApiData = data;
 
-      // console.log("APi data is :--", ApiData);
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -357,7 +357,7 @@ const BuyerKycs = ({ handleContinue }) => {
       });
 
       if (response) {
-        // console.log("Response of add KYC api is :--", response.data);
+        // //console.log;
         if (response.data.status === true) {
           localStorage.setItem(
             "agentDetails",

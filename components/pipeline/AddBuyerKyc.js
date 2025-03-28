@@ -24,7 +24,7 @@ const AddBuyerKyc = ({
   selectedUser
 }) => {
   const router = useRouter();
-  console.log('selectedUser on add buyer', selectedUser)
+  //console.log
 
   const [shouldSave, setShouldSave] = useState(false);
 
@@ -126,20 +126,20 @@ const AddBuyerKyc = ({
 
   //check for the save and continue btn
   useEffect(() => {
-    // console.log("Should check btn status");
+    // //console.log;
     if (
       oldSelectedNeedKYC.length !== selectedNeedKYC.length ||
       selectedMotivationKyc.length !== oldSelectedMotivationKyc.length ||
       selectedUrgencyKyc.length !== oldSelectedUrgencyKyc.length
     ) {
-      // console.log("Should show save btn");
+      // //console.log;
       setShouldSave(true);
     } else if (
       oldSelectedNeedKYC.length === selectedNeedKYC.length ||
       selectedMotivationKyc.length !== oldSelectedMotivationKyc.length ||
       selectedUrgencyKyc.length !== oldSelectedUrgencyKyc.length
     ) {
-      // console.log("Should not show save btn");
+      // //console.log;
       setShouldSave(false);
     }
   }, [
@@ -164,7 +164,7 @@ const AddBuyerKyc = ({
     }
 
     if (BuyerNeedData.length > 0) {
-      // console.log("Data passed is", BuyerNeedData);
+      // //console.log;
       setNeedKYCQuestions((prevNeedKycs) => [
         ...prevNeedKycs.filter(
           (existing) =>
@@ -199,7 +199,7 @@ const AddBuyerKyc = ({
       ]);
     }
     if (BuyerMotivationData.length > 0) {
-      // console.log("Data passed is", BuyerNeedData);
+      // //console.log;
       setMotivationKycQuestions((prevNeedKycs) => [
         ...prevNeedKycs.filter(
           (existing) =>
@@ -238,7 +238,7 @@ const AddBuyerKyc = ({
       ]);
     }
     if (BuyerUrgencyData.length > 0) {
-      // console.log("Data passed is", BuyerNeedData);
+      // //console.log;
       setUrgencyKycQuestions((prevNeedKycs) => [
         ...prevNeedKycs.filter(
           (existing) =>
@@ -318,10 +318,10 @@ const AddBuyerKyc = ({
         )
       ) {
         setShowErrorSnack("Question already exists!!!");
-        // console.log("Question Already exists");
+        // //console.log;
         return;
       } else {
-        //// console.log("New question");
+        //// //console.log;
         setNeedKYCQuestions((prevQuestions) => {
           const updatedQuestions = [
             ...prevQuestions,
@@ -380,7 +380,7 @@ const AddBuyerKyc = ({
         )
       ) {
         setShowErrorSnack("Question already exists!!!");
-        // console.log("Question Already exists");
+        // //console.log;
         return;
       } else {
         setUrgencyKycQuestions((prevQuestions) => {
@@ -491,10 +491,10 @@ const AddBuyerKyc = ({
       selectedUrgencyKyc.some((selectedItem) => selectedItem.id === question.id)
     );
 
-    // console.log("Working");
-    //// console.log("Selected Questions are: ", selectedNeedQuestions);
-    //// console.log("Selected motivation questions are: ----", selectedMotivationQuestions);
-    //// console.log("Selected urgency questions are: ----", selectedUrgencyQuestions);
+    // //console.log;
+    //// //console.log;
+    //// //console.log;
+    //// //console.log;
     // router.push("/pipeline");
     // handleContinue();
 
@@ -515,9 +515,9 @@ const AddBuyerKyc = ({
       let AgentId = null;
 
       if (agentDetails) {
-        // console.log("trying");
+        // //console.log;
         const agentData = JSON.parse(agentDetails);
-        // console.log("ActualAgent details are :--", agentData);
+        // //console.log;
         MyAgentData = agentData;
       }
 
@@ -531,7 +531,7 @@ const AddBuyerKyc = ({
       let ApiData = [];
 
       // if (selectedNeedQuestions.length > 0) {
-      //     //// console.log("#need Question details are :", selectedNeedQuestions);
+      //     //// //console.log;
       //     const data = {
       //         kycQuestions: selectedNeedQuestions.map(item => ({
       //             question: item.question,
@@ -541,10 +541,10 @@ const AddBuyerKyc = ({
       //         })),
       //         mainAgentId: MyAgentData.id
       //     };
-      //     //// console.log("Data to send in api is", data);
+      //     //// //console.log;
       //     ApiData = data;
       // } else if (selectedMotivationQuestions.length > 0) {
-      //    // console.log("#motivation Question details are :", selectedMotivationQuestions);
+      //    // //console.log;
       //     const data = {
       //         kycQuestions: selectedMotivationQuestions.map(item => ({
       //             question: item.question,
@@ -554,10 +554,10 @@ const AddBuyerKyc = ({
       //         })),
       //         mainAgentId: MyAgentData.id
       //     };
-      //     //// console.log("Data to send in api is", data);
+      //     //// //console.log;
       //     ApiData = data;
       // } else if (selectedUrgencyQuestions.length > 0) {
-      //    // console.log("#urgency Question details are :", selectedUrgencyQuestions);
+      //    // //console.log;
       //     const data = {
       //         kycQuestions: selectedUrgencyQuestions.map(item => ({
       //             question: item.question,
@@ -567,7 +567,7 @@ const AddBuyerKyc = ({
       //         })),
       //         mainAgentId: MyAgentData.id
       //     };
-      //     //// console.log("Data to send in api is", data);
+      //     //// //console.log;
       //     ApiData = data;
       // }
 
@@ -611,11 +611,11 @@ const AddBuyerKyc = ({
       if(UserDetails.user.userType === "admin"){
         data.userId=selectedUser.id
       }
-      console.log("Data to send in api is", data);
+      //console.log;
       // return;
       ApiData = data;
 
-      // console.log("APi data is :--", ApiData);
+      // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -625,7 +625,7 @@ const AddBuyerKyc = ({
       });
 
       if (response) {
-        // console.log("Response of add KYC api is :--", response.data);
+        // //console.log;
         if (response.data.status === true) {
           // router.push("/pipeline")
           handleCloseSellerKyc();

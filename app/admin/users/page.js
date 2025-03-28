@@ -23,7 +23,7 @@ export default function Page() {
   // ✅ Fetch user details when `userId` is available
   useEffect(() => {
     if (userId) {
-      console.log("Fetching user details for:", userId);
+      //console.log;
       fetchUserDetails(userId);
     }
   }, [userId]);
@@ -33,7 +33,7 @@ export default function Page() {
       const data = await AdminGetProfileDetails(userId);
       if (data) {
         setSelectedUser(data);
-        console.log("Fetched user data:", data);
+        //console.log;
       }
     } catch (error) {
       console.error("Error fetching user details:", error);

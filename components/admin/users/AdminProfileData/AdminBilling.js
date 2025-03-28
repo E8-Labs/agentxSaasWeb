@@ -72,7 +72,7 @@ function AdminBilling({ selectedUser }) {
     if (typeof window !== "undefined") {
       screenWidth = window.innerWidth;
     }
-    // console.log("Window width is", screenWidth);
+    // //console.log;
     setScreenWidth(screenWidth);
   }, []);
 
@@ -154,7 +154,7 @@ function AdminBilling({ selectedUser }) {
     try {
       const localData = localStorage.getItem("User");
       let response = await AdminGetProfileDetails(selectedUser.id);
-      console.log("Response of get progf", response);
+      //console.log;
       if (response) {
         let plan = response.plan;
         let togglePlan = plan?.type;
@@ -171,7 +171,7 @@ function AdminBilling({ selectedUser }) {
           }
         }
         setUserLocalData(response);
-        console.log("Get Profile Toggle plan is ", planType);
+        //console.log;
         setTogglePlan(planType);
         setCurrentPlan(planType);
       }
@@ -181,12 +181,12 @@ function AdminBilling({ selectedUser }) {
   };
 
   useEffect(() => {
-    // console.log("User local data is", userLocalData);
+    // //console.log;
   }, [userLocalData]);
 
   //function to close the add card popup
   const handleClose = (data) => {
-    // console.log("Add card details are", data);
+    // //console.log;
     if (data.status === true) {
       let newCard = data.data;
       setAddPaymentPopup(false);
@@ -208,13 +208,13 @@ function AdminBilling({ selectedUser }) {
         AuthToken = Data.token;
       }
 
-      // console.log("Authtoken is", AuthToken);
+      // //console.log;
 
       //Talabat road
 
       const ApiPath = Apis.getCardsList + "?userId=" + selectedUser.id;
 
-      // console.log("apipath for get cards list", ApiPath);
+      // //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -224,15 +224,15 @@ function AdminBilling({ selectedUser }) {
       });
 
       if (response) {
-        console.log("Response of get cards api is", response.data);
+        //console.log;
         if (response.data.status === true) {
           setCards(response.data.data);
         }
       }
     } catch (error) {
-      // console.log("Error occured", error);
+      // //console.log;
     } finally {
-      // console.log("Get cards done");
+      // //console.log;
       setGetCardLoader(false);
     }
   };
@@ -240,7 +240,7 @@ function AdminBilling({ selectedUser }) {
   //function to make default cards api
   const makeDefaultCard = async (item) => {
     setSelectedCard(item);
-    // console.log('selectedCard', item.id)
+    // //console.log
     // return
     try {
       setMakeDefaultCardLoader(true);
@@ -253,7 +253,7 @@ function AdminBilling({ selectedUser }) {
         const Data = JSON.parse(localData);
         AuthToken = Data.token;
       }
-      // console.log('authToken', AuthToken)
+      // //console.log
 
       const ApiPath = Apis.makeDefaultCard;
 
@@ -261,7 +261,7 @@ function AdminBilling({ selectedUser }) {
         paymentMethodId: item.id,
       };
 
-      // console.log('apiData', ApiData)
+      // //console.log
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -271,11 +271,11 @@ function AdminBilling({ selectedUser }) {
       });
 
       if (response) {
-        // console.log("Response of make default card api is", response.data);
+        // //console.log;
         if (response.data.status === true) {
           let crds = cards.forEach((card, index) => {
             if (card.isDefault) {
-              console.log("card.isDefault", card.isDefault);
+              //console.log;
               cards[index].isDefault = false;
             }
           });
@@ -309,7 +309,7 @@ function AdminBilling({ selectedUser }) {
     try {
       let planType = null;
 
-      //// console.log("Selected plan is:", togglePlan);
+      //// //console.log;
 
       if (togglePlan === 1) {
         planType = "Plan30";
@@ -321,7 +321,7 @@ function AdminBilling({ selectedUser }) {
         planType = "Plan720";
       }
 
-      // console.log("Current plan is", planType);
+      // //console.log;
 
       setSubscribePlanLoader(true);
       let AuthToken = null;
@@ -332,24 +332,24 @@ function AdminBilling({ selectedUser }) {
         localDetails = LocalDetails;
         AuthToken = LocalDetails.token;
         if (localDetails?.user?.cards?.length > 0) {
-          // console.log("Already have cards");
+          // //console.log;
         } else {
           setErrorSnack("No payment method added");
           return;
         }
       }
 
-      // console.log("Authtoken is", AuthToken);
+      // //console.log;
 
       const ApiData = {
         plan: planType,
         payNow: true,
       };
 
-      // console.log("Api data is", ApiData);
+      // //console.log;
 
       const ApiPath = Apis.subscribePlan;
-      // console.log("Apipath is", ApiPath);
+      // //console.log;
 
       // return
 
@@ -361,10 +361,10 @@ function AdminBilling({ selectedUser }) {
       });
 
       if (response) {
-        // console.log("Response of subscribe plan api is", response);
+        // //console.log;
         if (response.data.status === true) {
           localDetails.user.plan = response.data.data;
-          // console.log("Data updated is", localDetails);
+          // //console.log;
           let response2 = await getProfileDetails();
           if (response2) {
             let togglePlan = response2?.data?.data?.plan?.type;
@@ -418,7 +418,7 @@ function AdminBilling({ selectedUser }) {
       });
 
       if (response) {
-        console.log("Response of get payment history", response.data.data);
+        //console.log;
         if (response.data.status === true) {
           setPaymentHistoryData(response.data.data);
         }
@@ -445,10 +445,10 @@ function AdminBilling({ selectedUser }) {
 
       const ApiPath = Apis.cancelPlan;
 
-      // console.log("Auth token ", AuthToken);
+      // //console.log;
 
-      //// console.log("Api data is", Apidata);
-      // console.log("Apipath is", ApiPath);
+      //// //console.log;
+      // //console.log;
 
       const ApiData = {
         patanai: "Sari dunya",
@@ -463,9 +463,9 @@ function AdminBilling({ selectedUser }) {
       });
 
       if (response) {
-        // console.log("Responmse fo cancel plan is", response.data);
+        // //console.log;
         if (response.data.status === true) {
-          // console.log("Response of cancel plan is true");
+          // //console.log;
           await getProfileDetails();
           setShowConfirmCancelPlanPopup(false);
           setGiftPopup(false);
@@ -511,9 +511,9 @@ function AdminBilling({ selectedUser }) {
       });
 
       if (response) {
-        // console.log("Response of redeem api is", response.data);
+        // //console.log;
         let response2 = await getProfileDetails();
-        // console.log("Response if");
+        // //console.log;
         if (response2) {
           let togglePlan = response2?.data?.data?.plan?.type;
           let planType = null;
@@ -569,7 +569,7 @@ function AdminBilling({ selectedUser }) {
   const [cancelReasonLoader, setCancelReasonLoader] = useState(false);
   //function to select the cancel plan reason
   const handleSelectReason = async (item) => {
-    // console.log("Item is", item);
+    // //console.log;
     setSelectReason(item.reason);
     if (item.reason === "Others") {
       setShowOtherReasonInput(true);
@@ -598,10 +598,10 @@ function AdminBilling({ selectedUser }) {
         reason: otherReasonInput || selectReason,
       };
 
-      // console.log("Api data is", ApiData);
+      // //console.log;
 
       const ApiPath = Apis.calcelPlanReason;
-      // console.log("Api Path is", ApiPath);
+      // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -611,7 +611,7 @@ function AdminBilling({ selectedUser }) {
       });
 
       if (response) {
-        // console.log("Response of cancel plan reason api is", response);
+        // //console.log;
         if (response.data.status === true) {
           setShowConfirmCancelPlanPopup2(false);
           setSuccessSnack(response.data.message);
@@ -625,7 +625,7 @@ function AdminBilling({ selectedUser }) {
       // console.error("Error occured in api is ", error);
     } finally {
       setCancelReasonLoader(false);
-      // console.log("Del reason api done");
+      // //console.log;
     }
   };
 
@@ -1016,15 +1016,15 @@ function AdminBilling({ selectedUser }) {
                     userLocalData?.isTrial === false &&
                     userLocalData?.cancelPlanRedemptions === 0
                   ) {
-                    // console.log("Show gift pop");
+                    // //console.log;
                     setGiftPopup(true);
                   } // if (userLocalData?.isTrial === true && userLocalData?.cancelPlanRedemptions !== 0)
                   else {
-                    // console.log("Show confirmation pop");
+                    // //console.log;
                     setShowConfirmCancelPlanPopup(true);
                   }
-                  //// console.log("Show satus", userLocalData?.isTrial)
-                  //// console.log("Show redemptions", userLocalData?.cancelPlanRedemptions)
+                  //// //console.log
+                  //// //console.log
                 }}
               >
                 Cancel AgentX

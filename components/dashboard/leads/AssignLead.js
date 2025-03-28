@@ -41,8 +41,8 @@ const AssignLead = ({
   totalLeads = 0,
   userProfile, // this is the .user object doesn't include token
 }) => {
-  console.log("Total leads ", totalLeads);
-  console.log("Lead Ids ", leadIs.length);
+  //console.log;
+  //console.log;
   const [showDncConfirmationPopup, setShowDncConfirmationPopup] =
     useState(false);
   const [initialLoader, setInitialLoader] = useState(false);
@@ -106,14 +106,14 @@ const AssignLead = ({
   }, [SelectedAgents]);
 
   useEffect(() => {
-    // console.log("Leads asigned are :", leadIs);
+    // //console.log;
 
     let agentsList = [];
 
     const localAgents = localStorage.getItem("localAgentDetails");
     if (localAgents) {
       agentsList = JSON.parse(localAgents);
-      // console.log("Agents got from local host are", agentsList);
+      // //console.log;
       let newAgenstList = [];
 
       newAgenstList = agentsList.filter((mainAgent) => {
@@ -130,19 +130,19 @@ const AssignLead = ({
         return hasOutbound && (!hasInbound || hasInbound);
       });
 
-      // console.log("Filtered agents list is", newAgenstList);
+      // //console.log;
 
       setAgentsList(newAgenstList);
       setStages(newAgenstList.stages);
     }
     // else {
-    // console.log("Agents got from api");
+    // //console.log;
     getAgents();
     // }
   }, []);
 
   useEffect(() => {
-    // console.log("Assigned agent is", SelectedAgents);
+    // //console.log;
   }, [SelectedAgents]);
 
   //get agents api
@@ -157,10 +157,10 @@ const AssignLead = ({
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-        // console.log("USer details are :", UserDetails);
+        // //console.log;
       }
 
-      // console.log("Auth token is :--", AuthToken);
+      // //console.log;
 
       const ApiPath = Apis.getAgents;
       // return
@@ -172,13 +172,13 @@ const AssignLead = ({
       });
 
       if (response) {
-        console.log("Response of get agents api is:", response.data);
+        //console.log;
         localStorage.setItem(
           "localAgentDetails",
           JSON.stringify(response.data.data)
         );
         // let filterredAgentsList = [];
-        //// console.log("Parsed data is", JSON.parse(response.data.data));
+        //// //console.log);
         const filterredAgentsList = response.data.data.filter((mainAgent) => {
           // Check if all subagents are either outbound or both inbound and outbound
           const subAgents = mainAgent.agents;
@@ -193,14 +193,14 @@ const AssignLead = ({
           return hasOutbound && (!hasInbound || hasInbound);
         });
         setAgentsList(filterredAgentsList);
-        console.log("Filtered Agents ", filterredAgentsList);
+        //console.log;
         setStages(filterredAgentsList.stages);
       }
     } catch (error) {
       // console.error("ERrror occured in agents api is :", error);
     } finally {
       setInitialLoader(false);
-      // console.log("Api call completed");
+      // //console.log;
     }
   };
 
@@ -221,7 +221,7 @@ const AssignLead = ({
 
   //can assign stage or not
   const canAssignStage = (item) => {
-    // console.log("Id selected is:", item);
+    // //console.log;
     //0 unselected
     //1 selected
     //2 can not assign
@@ -232,7 +232,7 @@ const AssignLead = ({
 
     if (isAlreadySelected) {
       // Remove the item if it's already selected
-      // console.log("Cheak 1");
+      // //console.log;
       return 1;
       // return prevSelectedItems.filter((selectedItem) => selectedItem.id !== item.id);
     } else {
@@ -257,9 +257,9 @@ const AssignLead = ({
       }
 
       if (canAssignStage == 0) {
-        // console.log("Pipeline matches");
+        // //console.log;
       } else {
-        // console.log("Pipeline does not match");
+        // //console.log;
         if (!errorMessage) {
           setErrTitle("Pipeline Confilict");
           setErrorMessage(
@@ -269,19 +269,19 @@ const AssignLead = ({
         return 2;
       }
 
-      // console.log("Previously selected items are :", SelectedAgents);
+      // //console.log;
 
       // Check if any of the selected items have a matching stageTitle
 
-      // console.log("All agents stages are :", allSelectedAgentStages);
-      // console.log("Item.stages ==..", item.stages);
+      // //console.log;
+      // //console.log;
 
       if (item.stages) {
         item.stages.map((stage) => {
           allSelectedAgentStages.map((selectedStage) => {
-            //// console.log(Matchin stage ${stage.id} with ${JSON.stringify(selectedStage)})
+            //// //console.log})
             if (stage.id == selectedStage.id) {
-              // console.log("Agents in same stage so can not assign");
+              // //console.log;
               if (!errorMessage) {
                 setErrTitle("Conflicting Agents");
                 setErrorMessage(
@@ -297,7 +297,7 @@ const AssignLead = ({
       // item.stages.forEach((stage) => {
       //     allSelectedAgentStages.forEach((selectedStage) => {
       //         if (stage.id === selectedStage.id) {
-      //            // console.log("Agents in the same stage, so cannot assign");
+      //            // //console.log;
       //             canAssignStage = 2; // Update the flag
       //         }
       //     });
@@ -313,10 +313,10 @@ const AssignLead = ({
     const selectedDate = dayjs(selectedDateTime).tz(userTimeZone); // Convert input date to Day.js object
     const currentHour = selectedDate.hour(); // Get the current hour (0-23)
     const currentMinute = selectedDate.minute(); // Get minutes for 8:30 PM check
-    console.log("Time in user's timezone is ", selectedDate);
-    console.log("Hour in user's timezone is ", currentHour);
-    console.log("Minute in user's timezone is ", currentMinute);
-    console.log("Time in not user's timezone is ", selectedDateTime);
+    //console.log;
+    //console.log;
+    //console.log;
+    //console.log;
 
     const isAfterStartTime = currentHour >= 7; // || (selectedHour === 7 && selectedMinute >= 0); // 7:00 AM or later
     const isBeforeEndTime =
@@ -331,7 +331,7 @@ const AssignLead = ({
       );
       // setSelectedDateTime(selectedDate);
     } else {
-      console.log("❌ Current time is outside 7 AM to 8:30 PM.");
+      //console.log;
       setInvalidTimeMessage(
         "Calls only between 7am-8:30pm"
         // "Calling is only available between 7AM and 8:30PM in " + userTimeZone
@@ -362,9 +362,9 @@ const AssignLead = ({
         const minutes = differenceInMilliseconds / (1000 * 60); // Convert ms to minutes
         timer = minutes.toFixed(0); // Round to nearest integer
 
-        // console.log("Current Date:", currentDate);
-        // console.log("Future Date:", futureDate);
-        // console.log("Difference in Minutes:", timer);
+        // //console.log;
+        // //console.log;
+        // //console.log;
       }
 
       let Apidata = {
@@ -377,7 +377,7 @@ const AssignLead = ({
         dncCheck: isDncChecked ? true : false,
       };
 
-      console.log("Api data ", Apidata);
+      //console.log;
       // return;
       if (filters && selectedAll) {
         Apidata = {
@@ -392,7 +392,7 @@ const AssignLead = ({
         };
       }
 
-      console.log("Data sending in api is:", Apidata);
+      //console.log;
       // return;
       const localData = localStorage.getItem("User");
       let AuthToken = null;
@@ -401,11 +401,11 @@ const AssignLead = ({
         AuthToken = UserDetails.token;
       }
 
-      // console.log("Auth token is :--", AuthToken);
+      // //console.log;
 
       const ApiPath = Apis.assignLeadToPipeLine;
 
-      // console.log("Data sending in api is :", Apidata);
+      // //console.log;
 
       const response = await axios.post(ApiPath, Apidata, {
         headers: {
@@ -415,7 +415,7 @@ const AssignLead = ({
       });
 
       if (response) {
-        // console.log("Response of api is:", response);
+        // //console.log;
         if (response.data.status === true) {
           handleCloseAssignLeadModal({
             status: false,
@@ -443,7 +443,7 @@ const AssignLead = ({
 
   const handleDateChange = (date) => {
     if (!date) {
-      // console.log("No date selected");
+      // //console.log;
       return;
     }
 
@@ -614,13 +614,13 @@ const AssignLead = ({
                   let canAssign = canAssignStage(item);
                   if (canAssign == 0) {
                     //push to the array
-                    // console.log("Cheak 1 at 0");
+                    // //console.log;
                     setSelectedAgents([...SelectedAgents, item]);
                     // setLastStepModal(true);//loader
                     setShouldContinue(false);
                   } else if (canAssign == 1) {
                     //remove from the array
-                    // console.log("Cheak 2");
+                    // //console.log;
                     let agents = SelectedAgents.filter(
                       (selectedItem) => selectedItem.id !== item.id
                     );
@@ -910,11 +910,11 @@ const AssignLead = ({
                     const currentDateTime = new Date();
                     const currentHour = currentDateTime.getHours(); // Get the current hour (0-23)
                     // if (currentHour >= 5 && currentHour < 19) {
-                    //   console.log("✅ Current time is between 5 AM and 7 PM.");
+                    //   //console.log;
                     setCallNow(currentDateTime);
                     setCallLater(false);
                     // } else {
-                    //   console.log("❌ Current time is outside 5 AM to 7 PM.");
+                    //   //console.log;
                     //   setInvalidTimeMessage(
                     //     "❌ Current time is outside 5 AM to 7 PM."
                     //   );
