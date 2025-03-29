@@ -67,6 +67,7 @@ import Knowledgebase from "@/components/dashboard/myagentX/Knowledgebase";
 import { ArrowDropDownIcon } from "@mui/x-date-pickers";
 import { PauseCircle } from "@mui/icons-material";
 import { EditPhoneNumberModal } from "@/components/dashboard/myagentX/EditPhoneNumberPopup";
+import VoiceMailTab from "../../../components/dashboard/myagentX/VoiceMailTab";
 
 function Page() {
   const timerRef = useRef();
@@ -78,6 +79,8 @@ function Page() {
     "Calendar",
     "Pipeline | Stages",
     "Knowledge Base",
+    "Voicemail"
+
   ]);
   const [openTestAiModal, setOpenTestAiModal] = useState(false);
   const [name, setName] = useState("");
@@ -4039,7 +4042,11 @@ function Page() {
                 <Knowledgebase user={user} agent={showDrawerSelectedAgent} />
               </div>
             ) : (
-              ""
+              activeTab === "Voicemail" ? (
+                <div className="flex flex-col gap-4 w-full">
+                  <VoiceMailTab setMainAgentsList = {setMainAgentsList} agent={showDrawerSelectedAgent} setShowDrawerSelectedAgent ={setShowDrawerSelectedAgent}/>
+                </div>
+              ):""
             )}
 
             {/* Delete agent button */}
