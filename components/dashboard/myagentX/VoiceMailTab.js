@@ -9,6 +9,7 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnac
 import { PersistanceKeys } from '@/constants/Constants';
 import axios from 'axios';
 import Apis from '@/components/apis/Apis';
+import EditVoicemailModal from './EditVoicemailModal';
 
 
 function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) {
@@ -19,8 +20,10 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) 
   const [audio, setAudio] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [loading2, setLoading2] = useState(false)
   const [showMessage, setShowMessage] = useState(null)
   const [messageType, setMessageType] = useState(null)
+  const [showEditPopup, setShowEditPopup] = useState(false)
 
   const playVoice = (url) => {
     // console.log('url', url)
@@ -123,9 +126,6 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) 
           voice: data.voiceId,
           agentId: agent.id
         }
-
-        // console.log('apidata', apidata)
-
         let response = await axios.post(Apis.setVoicemaeil, apidata, {
           headers: {
             "Authorization": "Bearer " + u.token
@@ -198,6 +198,103 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) 
     }
   }
 
+  const updateVoicemail = async (data) => {
+
+    if (!data.voiceId) {
+      setShowMessage("Select a voice")
+      setMessageType(SnackbarTypes.Error)
+      return
+    }
+    if (!data.message) {
+      setShowMessage("Enter voicemail")
+      setMessageType(SnackbarTypes.Error)
+      return
+    }
+    setLoading2(true)
+    try {
+      const d = localStorage.getItem("User")
+
+      if (d) {
+        let u = JSON.parse(d)
+
+        let apidata = {
+          message: data.message,
+          voicemailId: agent.voicemail.id,
+          voice: data.voiceId,
+          agentId: agent.id
+        }
+        let response = await axios.post(Apis.updateVoicemail, apidata, {
+          headers: {
+            "Authorization": "Bearer " + u.token
+          },
+        })
+
+        if (response.data) {
+          // console.log('response of set voicemail api is', response.data)
+          if (response.data.status === true) {
+            setShowMessage(response.data.message)
+            setMessageType(SnackbarTypes.Success)
+
+
+
+
+            const localAgentsList = localStorage.getItem(
+              PersistanceKeys.LocalStoredAgentsListMain
+            );
+
+            let agentsListDetails = [];
+
+            if (localAgentsList) {
+              const agentsList = JSON.parse(localAgentsList);
+              // agentsListDetails = agentsList;
+              agent.voicemail = response.data.data
+
+              const updatedArray = agentsList.map((localItem) => {
+                const updatedAgents = localItem.agents.map(item => {
+                  return agent.id === item.id ? { ...item, ...agent } : item;
+                });
+
+                return { ...localItem, agents: updatedAgents };
+              });
+
+              // let updatedSubAgent = nul
+
+              setShowDrawerSelectedAgent(agent)
+
+
+
+              //// //console.log;
+              console.log('updateAgentData', agent)
+              console.log('updatedArray', updatedArray)
+              localStorage.setItem(
+                PersistanceKeys.LocalStoredAgentsListMain,
+                JSON.stringify(updatedArray)
+              );
+              setMainAgentsList(updatedArray);
+
+            }
+
+
+            setShowEditPopup(false)
+
+
+
+
+          } else {
+            setShowMessage(response.data.message)
+            setMessageType(SnackbarTypes.Error)
+          }
+        }
+      }
+    } catch (e) {
+      setLoading2(false)
+      console.log('error in set voice mail', e)
+    }
+    finally {
+      setLoading2(false)
+    }
+  }
+
 
   return (
     <div>
@@ -222,7 +319,11 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) 
                 Voicemail
               </div>
 
-              <button >
+              <button
+                onClick={() => {
+                  setShowEditPopup(true)
+                }}
+              >
                 <Image src={"/svgIcons/editIconPurple.svg"}
                   height={24} width={24} alt='*'
                 />
@@ -299,6 +400,16 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) 
           />
         )
       }
+
+      <EditVoicemailModal
+        showEditPopup={showEditPopup}
+        setShowEditPopup={setShowEditPopup}
+        updateVoicemail={(data) => updateVoicemail(data)}
+        agent={agent}
+        loading={loading2}
+        defaultData = {agent?.voicemail}
+       
+      />
 
     </div>
   )

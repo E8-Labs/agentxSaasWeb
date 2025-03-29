@@ -66,7 +66,7 @@ export default function EnrichModal({
 
                         <div className="w-full flex flex-col items-center justify-center mt-[90px] gap-4">
 
-                            <Image src={'/svgIcons/perpelexityIcon.svg'}
+                            <Image src={'/svgIcons/sparkles.svg'}
                                 height={37} width={37} alt="*"
                             />
 

@@ -8,41 +8,14 @@ import Apis from '@/components/apis/Apis';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
 import { PersistanceKeys } from '@/constants/Constants';
 
-function AddVoiceMail({
-    showAddNewPopup,
-    setShowAddNewPopup,
-    addVoiceMail,
+function EditVoicemailModal({
+    showEditPopup,
+    setShowEditPopup,
+    updateVoicemail,
     loading,
-    showMessage,
-    setShowMessage,
-    messageType
+    defaultData
 }) {
 
-
-    const manue = [
-
-        {
-            id: 1,
-            name: 'Solar',
-            type: "SolarRep"
-        }, {
-            id: 2,
-            name: 'Insurance Agent',
-            type: "InsuranceAgent"
-        }, {
-            id: 3,
-            name: 'Loan Officer',
-            type: "LoanOfficerAgent"
-        }, {
-            id: 4,
-            name: 'SDR/BDR Agent',
-            type: "SalesDevRep"
-        }, {
-            id: 5,
-            name: "Marketing",
-            type: "MarketerAgent"
-        },
-    ]
 
     const voices = [
         {
@@ -60,30 +33,14 @@ function AddVoiceMail({
         },
     ]
 
-    let m = `Hey, this is Sam. Just wanted to let you know your neighbor recently switched to solar and is saving big. Curious if you'd like to see how much you could save? Call me back at [your number]!`
 
-    const [selectedManu, setSelectedManu] = useState(manue[0])
-    const [selectedVoice, setSelectedVoice] = useState("")
+    const [selectedVoice, setSelectedVoice] = useState(defaultData?.voiceId)
     const [audio, setAudio] = useState(false)
     const [preview, setPreview] = useState(false)
-    const [message, setMessage] = useState(m)
+    const [message, setMessage] = useState(defaultData?.message)
 
 
-    useEffect(() => {
-        if (selectedManu.name === "Solar") {
-            m = `Hey, this is Sam. Just wanted to let you know your neighbor recently switched to solar and is saving big. Curious if you'd like to see how much you could save? Call me back at [your number]!`
-        } else if (selectedManu.name === "Insurance Agent") {
-            m = `Hi, this is Lisa. I noticed some homeowners in your area updated their coverage and lowered their rates. Let's check if you're eligible too! Call me back at [your number]. Talk soon!`
-        } else if (selectedManu.name === "Loan Officer") {
-            m = `Hey, this is Mike. Rates have recently dropped, and I wanted to see if you'd like to explore refinancing or a new loan option. It could mean big savings! Call me at [your number] to chat!`
-        } else if (selectedManu.name === "SDR/BDR Agent") {
-            m = `Hey, this is Alex. I work with companies like yours to help streamline [specific pain point]. I'd love to share how we're making a big impact. Call me back at [your number] — talk soon!`
-        } else if (selectedManu.name === "Marketing") {
-            m = `Hey, this is Jamie. I saw you filled out our form on Facebook — thanks! I'd love to chat more about how we can help with [specific service/product]. Call me back at [your number]!`
-        } 
-
-        setMessage(m)
-    },[selectedManu])
+    
 
 
     const handleToggleClick = (item) => {
@@ -103,8 +60,8 @@ function AddVoiceMail({
         <div>
 
             <Modal
-                open={showAddNewPopup}
-                onClose={() => setShowAddNewPopup(false)}
+                open={showEditPopup}
+                onClose={() => setShowEditPopup(false)}
                 closeAfterTransition
                 BackdropProps={{
                     timeout: 1000,
@@ -121,46 +78,21 @@ function AddVoiceMail({
                 >
 
                     <div
-                        className="h-[80vh] overflow-auto flex flex-col gap-3"
+                        className="h-[65vh] overflow-auto flex flex-col gap-3"
                         style={{ scrollbarWidth: "none" }}
                     >
 
                         <div className="w-full flex flex-row items-center justify-between pb-4 border-b">
                             <div style={{ fontSize: 18, fontWeight: "700" }}>
-                                New Voicemail
+                                Edit Voicemail
                             </div>
                             <button
                                 onClick={() => {
-                                    setShowAddNewPopup(false);
+                                    setShowEditPopup(false);
                                 }}
                             >
                                 <CloseIcon />
                             </button>
-                        </div>
-
-                        <div style={{ fontSize: 18, fontWeight: "700" }}>
-                            Select From Template
-                        </div>
-
-                        <div className='w-full flex-row flex items-center gap-3 h-[55px]'
-                            style={{ overflowX: 'auto', scrollbarWidth: 'none' }}
-                        >
-                            {
-                                manue.map((item) => (
-                                    <button key={item.id}
-                                        onClick={() => setSelectedManu(item === selectedManu ? "" : item)}
-                                    >
-                                        <div className='p-3 border-2 rounded-lg'
-                                            style={{
-                                                fontSize: 14, fontWeight: '500', whiteSpace: 'nowrap',
-                                                borderColor: selectedManu?.id === item.id ? "#7902df" : "#15151510"
-                                            }}
-                                        >
-                                            {item.name}
-                                        </div>
-                                    </button>
-                                ))
-                            }
                         </div>
 
                         <div className='flex flex-row w-full items-center justify-between'>
@@ -204,13 +136,6 @@ function AddVoiceMail({
 
                             }}
                         />
-
-
-                        <div style={{
-                            fontSize: 13, fontWeight: '500', color: '#15151560'
-                        }}>
-                            Insurance Selected
-                        </div>
 
 
 
@@ -303,12 +228,11 @@ function AddVoiceMail({
                                         let data = {
                                             message: message,
                                             voiceId: selectedVoice,
-                                            agentType: selectedManu.type
                                         }
-                                        addVoiceMail(data)
+                                        updateVoicemail(data)
                                     }}
                                 >
-                                    Save Voicemail
+                                    Update Voicemail
                                 </button>
                             )
                         }
@@ -320,7 +244,7 @@ function AddVoiceMail({
     )
 }
 
-export default AddVoiceMail
+export default EditVoicemailModal
 
 
 const styles = {

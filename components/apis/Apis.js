@@ -144,7 +144,10 @@ const Apis = {
   deleteCalendar: `${BasePath}api/calendar/deleteCalendar`,
   getVerificationCodes: `${BasePath}api/admin/getVerificationCodes`,
   getAgentDetails: `${BasePath}api/agent/getAgentDetails`,
-  setVoicemaeil : `${BasePath}api/agent/setVoicemail`
+  setVoicemaeil : `${BasePath}api/agent/setVoicemail`,
+  updateVoicemail:`${BasePath}api/agent/updateVoicemail`,
+
+  enrichLead :`${BasePath}api/leads/enrichLead`,
 
 };
 
