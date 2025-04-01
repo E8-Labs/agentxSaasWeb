@@ -99,6 +99,63 @@ function AdminAffiliates({ selectedUser }) {
   }, [officeHourUrl]);
 
   useEffect(() => {
+    let timer = setTimeout(() => {
+      //console.log);
+      if (uniqueUrl) {
+        checkUniqueUrl(uniqueUrl)
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [uniqueUrl]);
+
+  const checkUniqueUrl =async (url) =>{
+    try {
+      // setAffiliateUsersLoader(true);
+      let data = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+
+      if (data) {
+        let u = JSON.parse(data);
+
+        let path = Apis.chechAffiliateUniqueUrl;
+        console.log('path', path)
+
+        let apidata = {
+          uniqueUrl:url
+        }
+
+        const response = await axios.post(path,apidata, {
+          headers: {
+            Authorization: "Bearer " + u.token,
+          },
+        });
+
+        if (response.data) {
+          setAffiliateUsersLoader(false);
+
+          if (response.data.status === true) {
+            console.log(
+              "",
+              response.data.message
+            );
+          } else {
+            console.log(
+              "api messsage is",
+              response.data.message
+            );
+
+            setUrlError2(response.data.message)
+          }
+        }
+      }
+    } catch (e) {
+      setAffiliateUsersLoader(false);
+
+      //console.log;
+    }
+  }
+
+  useEffect(() => {
     getUsersForAffiliate();
   }, [selectedAffiliate]);
 
@@ -982,7 +1039,7 @@ function AdminAffiliates({ selectedUser }) {
                         //   emailCheckResponse?.status !== true ||
                         //   checkPhoneResponse?.status !== true ||
                         !!urlError ||
-                        //   !!urlError2 ||
+                          !!urlError2 ||
                         !uniqueUrl ||
                         !officeHourUrl
                         ? "#00000020"
@@ -1006,7 +1063,7 @@ function AdminAffiliates({ selectedUser }) {
                     // emailCheckResponse?.status !== true ||
                     // checkPhoneResponse?.status !== true ||
                     !!urlError ||
-                    // !!urlError2 ||
+                    !!urlError2 ||
                     !uniqueUrl ||
                     !officeHourUrl
                   }

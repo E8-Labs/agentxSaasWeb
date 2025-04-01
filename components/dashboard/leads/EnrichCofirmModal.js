@@ -45,7 +45,7 @@ export default function EnrichConfirmModal({
 
             {/* Modal Title */}
             <DialogTitle sx={{ fontWeight: "bold", fontSize: "20px", mt: 1 }}>
-                Confirm
+                Confirm Lead Enrichment
             </DialogTitle>
 
             {/* Info Box */}
@@ -134,18 +134,14 @@ export default function EnrichConfirmModal({
 
             {/* Buttons */}
             <DialogActions sx={{ justifyContent: "space-between", mt: 3 }}>
-                <Button
+                <div
                     onClick={() => setShowenrichConfirmModal(false)}
-                    sx={{
-                        textTransform: "none",
-                        fontWeight: "bold",
-                        color: "#7902DF",
-                        fontSize: "16px",
-                        width: "45%",
-                    }}
+                    className=" flex w-[45%] text-black font-bold text-[16px]  hover:text-[#7902DF] py-3 rounded-lg
+                     items-center justify-center"
+                    style={{ textTransform: "none", cursor: 'pointer' }}
                 >
                     Cancel
-                </Button>
+                </div>
                 {Loader ? (
                     <CircularProgress size={27} />
                 ) : (

@@ -183,12 +183,12 @@ function AdminSubscriptions() {
       color: "#402FFF",
     },
     {
-      name: "From $270 ",
+      name: "From $299",
       value: analyticData?.subscription?.cancellations?.Plan360 || 0,
       color: "#000000",
     },
     {
-      name: "From $480 ",
+      name: "From $599",
       value: analyticData?.subscription?.cancellations?.Plan720 || 0,
       color: "#FF2D2D",
     },
@@ -1035,7 +1035,7 @@ function AdminSubscriptions() {
                           color: "#000",
                         }}
                       >
-                        From $270 -{" "}
+                        From $299 -{" "}
                         {analyticData?.subscription?.cancellations?.Plan360 || 0}{" "}
                         users
                       </p>
@@ -1050,7 +1050,7 @@ function AdminSubscriptions() {
                           color: "#000",
                         }}
                       >
-                        From $480 -{" "}
+                        From $599 -{" "}
                         {analyticData?.subscription?.cancellations?.Plan720 || 0}{" "}
                         users
                       </p>

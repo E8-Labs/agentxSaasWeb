@@ -11,7 +11,8 @@ export const PromptTagInput = ({
   tagValue,
   uniqueColumns,
   showSaveChangesBtn,
-  saveUpdates
+  saveUpdates,
+  from
 }) => {
   //// //console.log
   const [popupVisible, setPopupVisible] = useState(false);
@@ -560,7 +561,7 @@ export const PromptTagInput = ({
                   className="text-start sm:font-24 font-16"
                   style={{ fontWeight: "700" }}
                 >
-                  Edit Prompt
+                  Edit {from}
                 </div>
               </div>
 

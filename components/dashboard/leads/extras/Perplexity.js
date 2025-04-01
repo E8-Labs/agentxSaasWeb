@@ -4,7 +4,7 @@ import Image from 'next/image'
 function Perplexity({
     enrichData,
     selectedLeadsDetails,
-    
+
 }) {
     return (
         <div
@@ -16,7 +16,7 @@ function Perplexity({
             }}
         >
             <div className="w-full flex flex-row justify-between items-center">
-                <div className="w-full flex flex-row items-center gap-2">
+                <div className="flex flex-row items-center gap-2">
                     <Image
                         src={"/svgIcons/image.svg"}
                         height={24}
@@ -25,7 +25,7 @@ function Perplexity({
                         style={{ borderRadius: "50%" }}
                     />
 
-                    <div style={{ fontsize: 22, fontWeight: "700" }}>
+                    <div style={{ fontsize: 22, fontWeight: "700", whiteSpace: 'nowrap' }}>
                         More About {selectedLeadsDetails?.firstName}
                     </div>
                 </div>
@@ -38,8 +38,8 @@ function Perplexity({
                         alt="*"
                     />
 
-                    <div style={{ fontsize: 22, fontWeight: "700" }}>
-                        Confidence Score:{" "}
+                    <div style={{ fontsize: 22, fontWeight: "700",whiteSpace:'nowrap' }}>
+                        More on {selectedLeadsDetails?.firstName}:{" "}
                         <span
                             style={{
                                 fontsize: 22,
@@ -116,9 +116,9 @@ function Perplexity({
                 {enrichData?.images || enrichData?.videos ? (
                     [...(enrichData.images || []), ...(enrichData.videos || [])].map((item, index) => (
                         <div key={index} className="h-[150px] w-[160px] rounded-lg flex-shrink-0">
-                            {item.includes('.mp4') || item.includes('.webm') || item.includes('.ogg') ? (
+                            {item.url.includes('.mp4') || item.url.includes('.webm') || item.url.includes('.ogg') ? (
                                 <video
-                                    src={item}
+                                    src={item.url}
                                     height={150}
                                     width={160}
                                     controls
@@ -126,7 +126,7 @@ function Perplexity({
                                 />
                             ) : (
                                 <img
-                                    src={item}
+                                    src={item.url}
                                     // height={150}
                                     // width={160}
                                     alt={`Item ${index + 1}`}
@@ -135,8 +135,8 @@ function Perplexity({
                             )}
                         </div>
                     ))
-                ) : (
-                    <div>No Media Available</div>
+                ) : (""
+                    // <div>No Media Available</div>
                 )}
             </div>
 

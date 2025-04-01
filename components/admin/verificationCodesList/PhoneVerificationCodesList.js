@@ -5,6 +5,7 @@ import Apis from '@/components/apis/Apis';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { CircularProgress } from '@mui/material';
 import parsePhoneNumberFromString from 'libphonenumber-js';
+import moment from 'moment';
 
 function PhoneVerificationCodesList() {
 
@@ -80,11 +81,14 @@ function PhoneVerificationCodesList() {
                 <div className="w-3/12">
                     <div style={styles.text}>Phone Number</div>
                 </div>
-                <div className="w-3/12">
+                <div className="w-2/12">
                     <div style={styles.text}>New Code</div>
                 </div>
-                <div className="w-3/12">
+                <div className="w-2/12">
                     <div style={styles.text}>Status</div>
+                </div>
+                <div className="w-2/12">
+                    <div style={styles.text}>Date</div>
                 </div>
 
             </div>
@@ -167,15 +171,20 @@ function PhoneVerificationCodesList() {
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="w-3/12">
+                                        <div className="w-2/12">
                                             <div style={styles.text2}>
                                                 {item.code}
                                             </div>
                                         </div>
 
-                                        <div className="w-3/12">
+                                        <div className="w-2/12">
                                             <div style={styles.text2}>
                                                 {item.status}
+                                            </div>
+                                        </div>
+                                        <div className="w-2/12">
+                                            <div style={styles.text2}>
+                                                {moment(item.createdAt).format("MMMM DD hh:mma")}  
                                             </div>
                                         </div>
                                     </div>

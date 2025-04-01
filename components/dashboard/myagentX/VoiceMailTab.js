@@ -15,7 +15,7 @@ import EditVoicemailModal from './EditVoicemailModal';
 function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) {
 
   const [showAddNewPopup, setShowAddNewPopup] = useState(false)
-  console.log('agent', agent)
+  // console.log('agent', agent)
 
   const [audio, setAudio] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -27,7 +27,7 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) 
 
   const playVoice = (url) => {
     // console.log('url', url)
-    if (audio) {
+    if (isPlaying) {
       audio.pause();
       audio.currentTime = 0; // Reset to the start
     }
@@ -167,8 +167,8 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) 
 
 
               //// //console.log;
-              console.log('updateAgentData', agent)
-              console.log('updatedArray', updatedArray)
+              // console.log('updateAgentData', agent)
+              // console.log('updatedArray', updatedArray)
               localStorage.setItem(
                 PersistanceKeys.LocalStoredAgentsListMain,
                 JSON.stringify(updatedArray)

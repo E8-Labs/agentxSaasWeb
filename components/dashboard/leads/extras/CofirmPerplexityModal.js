@@ -21,7 +21,7 @@ export default function ConfirmPerplexityModal({
 
 
 
-  
+
     return (
         <Dialog
             open={showConfirmPerplexity}
@@ -106,18 +106,15 @@ export default function ConfirmPerplexityModal({
 
             {/* Buttons */}
             <DialogActions sx={{ justifyContent: "space-between", mt: 3 }}>
-                <Button
+                <div
                     onClick={() => setshowConfirmPerplexity(false)}
-                    sx={{
-                        textTransform: "none",
-                        fontWeight: "bold",
-                        color: "#7902DF",
-                        fontSize: "16px",
-                        width: "45%",
-                    }}
+                    className=" flex w-[45%] text-black font-bold text-[16px] hover:text-[#7902DF] py-3 rounded-lg
+                     items-center justify-center"
+                    style={{ textTransform: "none",cursor:'pointer' }}
                 >
                     Cancel
-                </Button>
+                </div>
+
                 {loading ? (
                     <CircularProgress size={27} />
                 ) : (

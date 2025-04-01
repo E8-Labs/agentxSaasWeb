@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Drawer, Button, IconButton, Box, Typography, Modal } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import moment from "moment";
 
 export default function AffiliateDetailsDrawer({ open, onClose, affiliate }) {
 
@@ -73,7 +74,7 @@ export default function AffiliateDetailsDrawer({ open, onClose, affiliate }) {
                     </div>
 
                     <div style={{ fontSize: 15, fontWeight: '500', color: '#000' }}>
-                        Created on {affiliate.createdAt ? affiliate.createdAt : "-"}
+                        Created on {affiliate.createdAt ? moment(affiliate.createdAt).format("MMMM DD YYYY hh:mma") : "-"}
                     </div>
                 </div>
 

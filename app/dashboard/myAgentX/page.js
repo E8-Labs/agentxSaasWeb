@@ -4639,6 +4639,7 @@ function Page() {
                         <PromptTagInput
                           promptTag={scriptTagInput}
                           kycsList={kycsData}
+                          from = {"Promt"}
                           uniqueColumns={uniqueColumns}
                           tagValue={setScriptTagInput}
                           scrollOffset={scrollOffset}
@@ -4778,6 +4779,7 @@ function Page() {
                             tagValue={setObjective}
                             scrollOffset={scrollOffset}
                             showSaveChangesBtn={showObjectionsSaveBtn}
+                            from  = {"Objective"}
                             saveUpdates={async () => {
                               await updateAgent()
                               setShowObjectionsSaveBtn(false)

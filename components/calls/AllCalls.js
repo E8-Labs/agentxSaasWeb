@@ -67,6 +67,8 @@ function AllCalls({ user }) {
   const [selectedStatus, setSelectedStatus] = useState([]);
   const [filtersChanged, setFiltersChanged] = useState(false);
 
+  const [pipelineLoader, setPipelineLoader] = useState(false)
+
   //code for pagination
   const [offset, setOffset] = useState(5);
   const [hasMore, setHasMore] = useState(true);
@@ -248,6 +250,9 @@ function AllCalls({ user }) {
   }
 
   useEffect(() => {
+
+    getPipelines();
+
     // const localPipelines = localStorage.getItem("pipelinesData");
     // if (localPipelines) {
     //   const PipelineDetails = JSON.parse(localPipelines);
@@ -259,7 +264,6 @@ function AllCalls({ user }) {
 
     try {
       // //console.log;
-      getPipelines();
       const localCalls = localStorage.getItem("calldetails");
       if (localCalls) {
         const localCallData = JSON.parse(localCalls);
@@ -277,7 +281,10 @@ function AllCalls({ user }) {
 
   //function for getting pipelines
   const getPipelines = async () => {
+    console.log('trying to get pipelines')
+
     try {
+      setPipelineLoader(true)
       const ApiPath = Apis.getPipelines;
 
       let AuthToken = null;
@@ -297,7 +304,8 @@ function AllCalls({ user }) {
       });
 
       if (response) {
-        //console.log;
+        console.log("Pipelines list is ", response.data.data)
+        setPipelineLoader(false)
 
         if (response.data.status === true) {
           setPipelinesList(response.data.data);
@@ -309,6 +317,7 @@ function AllCalls({ user }) {
       // console.error("Error occured in get pipelies api is :", error);
     } finally {
       // //console.log;
+      setPipelineLoader(false)
     }
   };
 
@@ -354,17 +363,17 @@ function AllCalls({ user }) {
         ApiPath = `${Apis.getCallLogs}${separator}startDate=${startDate}&endDate=${endDate}`;
         separator = "&";
       }
-      
+
       else {
         ApiPath = `${Apis.getCallLogs}`; //Apis.getCallLogs;
         // separator = "&";
       }
-      if(selectedPipeline){
-        let pipeline = pipelinesList.filter((pipeline)=>selectedPipeline ===pipeline.title )
+      if (selectedPipeline) {
+        let pipeline = pipelinesList.filter((pipeline) => selectedPipeline === pipeline.title)
         //console.log
-        ApiPath = ApiPath +separator +"pipelineId="+pipeline[0].id
+        ApiPath = ApiPath + separator + "pipelineId=" + pipeline[0].id
+        separator = "&"
       }
-
 
       if (stages.length > 0) {
         ApiPath = `${ApiPath}${separator}stageIds=${stages}`;
@@ -385,7 +394,7 @@ function AllCalls({ user }) {
       // }
       ApiPath = `${ApiPath}${separator}offset=${offset}&timezone=${GetTimezone()}`;
 
-      //console.log;
+      console.log("api path is ",ApiPath)
       //console.log;
 
       //// //console.log;
@@ -956,59 +965,65 @@ function AllCalls({ user }) {
                     </div>
 
                     <div className="mt-4 w-full">
-                      <FormControl fullWidth>
-                        {/* <InputLabel id="demo-simple-select-label">Age</InputLabel> */}
-                        <Select
-                          value={selectedPipeline}
-                          onChange={handleChangePipeline}
-                          displayEmpty // Enables placeholder
-                          renderValue={(selected) => {
-                            if (!selected) {
-                              return (
-                                <div style={{ color: "#aaa" }}>
-                                  Select pipeline
-                                </div>
-                              ); // Placeholder style
-                            }
-                            return selected;
-                          }}
-                          sx={{
-                            border: "1px solid #00000020", // Default border
-                            "&:hover": {
-                              border: "1px solid #00000020", // Same border on hover
-                            },
-                            "& .MuiOutlinedInput-notchedOutline": {
-                              border: "none", // Remove the default outline
-                            },
-                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                              border: "none", // Remove outline on focus
-                            },
-                            "&.MuiSelect-select": {
-                              py: 0, // Optional padding adjustments
-                            },
-                          }}
-                          MenuProps={{
-                            PaperProps: {
-                              style: {
-                                maxHeight: "30vh", // Limit dropdown height
-                                overflow: "auto", // Enable scrolling in dropdown
-                                scrollbarWidth: "none",
-                                // borderRadius: "10px"
-                              },
-                            },
-                          }}
-                        >
-                          {pipelinesList.map((item, index) => (
-                            <MenuItem
-                              key={item.id}
-                              style={styles.dropdownMenu}
-                              value={item.title}
+                      {
+                        pipelineLoader ? (
+                          <CircularProgress size={25} />
+                        ) :
+                          <FormControl fullWidth>
+                            {/* <InputLabel id="demo-simple-select-label">Age</InputLabel> */}
+                            <Select
+                              value={selectedPipeline}
+                              onChange={handleChangePipeline}
+                              displayEmpty // Enables placeholder
+                              renderValue={(selected) => {
+                                if (!selected) {
+                                  return (
+                                    <div style={{ color: "#aaa" }}>
+                                      Select pipeline
+                                    </div>
+                                  ); // Placeholder style
+                                }
+                                return selected;
+                              }}
+                              sx={{
+                                border: "1px solid #00000020", // Default border
+                                "&:hover": {
+                                  border: "1px solid #00000020", // Same border on hover
+                                },
+                                "& .MuiOutlinedInput-notchedOutline": {
+                                  border: "none", // Remove the default outline
+                                },
+                                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                  border: "none", // Remove outline on focus
+                                },
+                                "&.MuiSelect-select": {
+                                  py: 0, // Optional padding adjustments
+                                },
+                              }}
+                              MenuProps={{
+                                PaperProps: {
+                                  style: {
+                                    maxHeight: "30vh", // Limit dropdown height
+                                    overflow: "auto", // Enable scrolling in dropdown
+                                    scrollbarWidth: "none",
+                                    // borderRadius: "10px"
+                                  },
+                                },
+                              }}
                             >
-                              {item.title}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
+                              {pipelinesList.map((item, index) => (
+
+                                <MenuItem
+                                  key={item.id}
+                                  style={styles.dropdownMenu}
+                                  value={item.title}
+                                >
+                                  {item.title}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                      }
                     </div>
 
                     <div
@@ -1035,18 +1050,16 @@ function AllCalls({ user }) {
                               onClick={() => {
                                 handleSelectStage(item);
                               }}
-                              className={`p-2 border border-[#00000020] ${
-                                selectedStageIds.includes(item.id)
+                              className={`p-2 border border-[#00000020] ${selectedStageIds.includes(item.id)
                                   ? `bg-purple`
                                   : "bg-transparent"
-                              } px-6
-                                                                ${
-                                                                  selectedStageIds.includes(
-                                                                    item.id
-                                                                  )
-                                                                    ? `text-white`
-                                                                    : "text-black"
-                                                                } rounded-2xl`}
+                                } px-6
+                                                                ${selectedStageIds.includes(
+                                  item.id
+                                )
+                                  ? `text-white`
+                                  : "text-black"
+                                } rounded-2xl`}
                             >
                               {item.stageTitle}
                             </button>
@@ -1126,8 +1139,8 @@ function AllCalls({ user }) {
                           fontWeight: "600",
                           backgroundColor:
                             (selectedFromDate && selectedToDate) ||
-                            selectedStageIds.length > 0 ||
-                            selectedStatus.length > 0
+                              selectedStageIds.length > 0 ||
+                              selectedStatus.length > 0
                               ? ""
                               : "#00000050",
                         }}
@@ -1136,7 +1149,7 @@ function AllCalls({ user }) {
                           if (
                             (selectedFromDate && selectedToDate) ||
                             selectedStageIds.length > 0 ||
-                            selectedStatus.length > 0||
+                            selectedStatus.length > 0 ||
                             selectedPipeline
                           ) {
                             localStorage.removeItem("callDetails");

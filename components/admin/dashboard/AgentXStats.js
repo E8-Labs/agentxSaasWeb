@@ -601,7 +601,7 @@ function SubscriptionsStatsComponent({ stats }) {
       {/* Plan 360 */}
       <Card className="cursor-pointer border-none shadow-none w-[11vw]">
         <CardHeader>
-          <CardTitle>$270 Plan</CardTitle>
+          <CardTitle>$299 Plan</CardTitle>
         </CardHeader>
         <CardContent>
           <h2 className="cursor-pointer text-2xl font-regular">
@@ -618,7 +618,7 @@ function SubscriptionsStatsComponent({ stats }) {
       {/* Plan 720 */}
       <Card className="cursor-pointer border-none shadow-none w-[11vw]">
         <CardHeader>
-          <CardTitle>$600 Plan</CardTitle>
+          <CardTitle>$599 Plan</CardTitle>
         </CardHeader>
         <CardContent>
           <h2 className="cursor-pointer text-2xl font-regular">

@@ -148,6 +148,7 @@ const Apis = {
   updateVoicemail:`${BasePath}api/agent/updateVoicemail`,
 
   enrichLead :`${BasePath}api/leads/enrichLead`,
+  chechAffiliateUniqueUrl :`${BasePath}api/admin/checkAffiliateUrl`,
 
 };
 

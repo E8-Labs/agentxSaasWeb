@@ -138,7 +138,7 @@ const LeadDetails = ({
       let user = await getProfileDetails()
       if(user){
         setUserLocalData(user.data.data)
-        console.log('user', user)
+        // console.log('user', user)
       }
     }
 
@@ -313,7 +313,7 @@ const LeadDetails = ({
       });
 
       if (response) {
-        console.log("lead details are", response.data.data)
+        // console.log("lead details are", response.data.data)
         let dynamicColumns = [];
         dynamicColumns = [
           ...response?.data?.columns,
@@ -1252,7 +1252,7 @@ const LeadDetails = ({
                             </button>
                             <div className="flex w-full ">
                               {showCustomVariables && (
-                                <div className="flex flex-col gap-4 mt-4 w-full max-w-full overflow-hidden">
+                                <div className="flex flex-col mt-4 gap-1 w-full max-w-full overflow-hidden">
                                   {leadColumns.map((column, index) => {
                                     if (
                                       [
@@ -1270,14 +1270,14 @@ const LeadDetails = ({
                                     return (
                                       <div
                                         key={index}
-                                        className="flex flex-row items-start gap-1 w-full flex-wrap"
+                                        className="flex flex-row items-start gap-1 justify-between w-full flex-wrap"
                                       >
                                         <div className="flex flex-row items-center gap-4">
                                           <div style={styles.subHeading}>
                                             {capitalize(column?.title || "")}
                                           </div>
                                         </div>
-                                        <div className="flex w-full flex-row whitespace-normal break-words overflow-hidden items-end justify-end flex-wrap">
+                                        <div className="flex flex-row whitespace-normal break-words overflow-hidden items-end flex-wrap">
                                           <div className="flex flex-col items-end flex-grow w-full">
                                             {getDetailsColumnData(
                                               column,
@@ -1637,7 +1637,7 @@ const LeadDetails = ({
                             color: showPerplexityDetails ? "#7902DF" : "black",
                           }}
                         >
-                          Lead Insights
+                          Insights
                         </div>
                       </button>
 
