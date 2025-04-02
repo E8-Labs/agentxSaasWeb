@@ -149,6 +149,8 @@ const Apis = {
 
   enrichLead :`${BasePath}api/leads/enrichLead`,
   chechAffiliateUniqueUrl :`${BasePath}api/admin/checkAffiliateUrl`,
+  getPayouts :`${BasePath}api/admin/getAffiliatePayouts`,
+  addPayouts :`${BasePath}api/admin/payAffiliate`,
 
 };
 

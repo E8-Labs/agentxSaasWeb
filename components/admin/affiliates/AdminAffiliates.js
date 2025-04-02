@@ -180,16 +180,16 @@ function AdminAffiliates({ selectedUser }) {
           setAffiliateUsersLoader(false);
 
           if (response.data.status === true) {
-            console.log(
-              "users for selected affiliate are ",
-              response.data.data
-            );
+            // console.log(
+            //   "users for selected affiliate are ",
+            //   response.data.data
+            // );
             setAffiliateUsers(response.data.data);
           } else {
-            console.log(
-              "users for selected affiliate api messsage is",
-              response.data.message
-            );
+            // console.log(
+            //   "users for selected affiliate api messsage is",
+            //   response.data.message
+            // );
           }
         }
       }
