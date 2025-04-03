@@ -134,16 +134,16 @@ const LeadDetails = ({
 
 
   useEffect(() => {
-    const getData =async () =>{
+    const getData = async () => {
       let user = await getProfileDetails()
-      if(user){
+      if (user) {
         setUserLocalData(user.data.data)
         // console.log('user', user)
       }
     }
 
     getData()
-   
+
   }, []);
 
   useEffect(() => {
@@ -776,8 +776,6 @@ const LeadDetails = ({
     }
   }
 
-
-  let enrichData = selectedLeadsDetails?.enrichData ? JSON.parse(selectedLeadsDetails?.enrichData) : ""
 
   // console.log('enrichData', enrichData)
 
@@ -1750,12 +1748,11 @@ const LeadDetails = ({
                       style={{ height: "1px", backgroundColor: "#15151530" }}
                     />
 
-                    <div style={{ paddingInline: 20 }}>
+                    <div style={{ paddingInline: 0 }}>
                       {showPerplexityDetails && (
-                        enrichData ? (
+                        selectedLeadsDetails && selectedLeadsDetails.enrichData ? (
                           <Perplexity
                             selectedLeadsDetails={selectedLeadsDetails}
-                            enrichData={enrichData}
                           />
                         ) : (
                           <NoPerplexity
