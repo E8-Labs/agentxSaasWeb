@@ -144,14 +144,16 @@ const Apis = {
   deleteCalendar: `${BasePath}api/calendar/deleteCalendar`,
   getVerificationCodes: `${BasePath}api/admin/getVerificationCodes`,
   getAgentDetails: `${BasePath}api/agent/getAgentDetails`,
-  setVoicemaeil : `${BasePath}api/agent/setVoicemail`,
-  updateVoicemail:`${BasePath}api/agent/updateVoicemail`,
+  setVoicemaeil: `${BasePath}api/agent/setVoicemail`,
+  updateVoicemail: `${BasePath}api/agent/updateVoicemail`,
 
-  enrichLead :`${BasePath}api/leads/enrichLead`,
-  chechAffiliateUniqueUrl :`${BasePath}api/admin/checkAffiliateUrl`,
-  getPayouts :`${BasePath}api/admin/getAffiliatePayouts`,
-  addPayouts :`${BasePath}api/admin/payAffiliate`,
+  enrichLead: `${BasePath}api/leads/enrichLead`,
+  chechAffiliateUniqueUrl: `${BasePath}api/admin/checkAffiliateUrl`,
+  getPayouts: `${BasePath}api/admin/getAffiliatePayouts`,
+  addPayouts: `${BasePath}api/admin/payAffiliate`,
 
+  //Stripe connect
+  connectAgencyAccount: `${BasePath}api/agency/connectAgency`,
 };
 
 export default Apis;
