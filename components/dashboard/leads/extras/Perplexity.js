@@ -12,22 +12,18 @@ function Perplexity({
 
     let profiles = enrichData?.profiles
 
-    profiles = [...profiles, ...enrichData?.images, ...enrichData?.videos, ...enrichData.citations]
+    profiles = [
+        ...profiles.length > 0 ? profiles : [],
+        ...enrichData?.images?.length > 0 ? enrichData?.images : [],
+        ...enrichData?.videos?.length > 0 ? enrichData?.videos : [],
+        ...enrichData?.citations?.length > 0 ? enrichData?.citations : []]
 
     const [isExpanded, setIsExpanded] = useState(false);
     // console.log('profiles', profiles)
 
     // enrichData.summary = "Noah Nega is a tech entrepreneur and developer managing E8 Labs, with expertise in AI, startups, and software development.Noah Nega is a tech entrepreneur and developer managing E8 Labs, with expertise in AI, startups, and software development.Noah Nega is a tech entrepreneur and developer managing E8 Labs, with expertise in AI, startups, and software development.Noah Nega is a tech entrepreneur and developer managing E8 Labs, with expertise in AI, startups, and software development.Noah Nega is a tech entrepreneur and developer managing E8 Labs, with expertise in AI, startups, and software development.Noah Nega is a tech entrepreneur and developer managing E8 Labs, with expertise in AI, startups, and software development.Noah Nega is a tech entrepreneur and developer managing E8 Labs, with expertise in AI, startups, and software development."
 
-    const initialTextLength = Math.ceil(
-        enrichData.summary?.length * 0.5
-    ); // 40% of the text
-    const initialText = enrichData.summary?.slice(
-        0,
-        initialTextLength
-    );
-
-    console.log('profiles', profiles)
+    // console.log('profiles', profiles)
 
     const getIcon = (item) => {
         if (item.icon) {
@@ -148,19 +144,21 @@ function Perplexity({
     }
 
     const calculateConfidanseScore = () => {
-        let score = 0 
+        let score = 0
         let avgScore = 0
+        if (profiles.length > 0) {
+            profiles.map((item) => {
+                if (item.confidence_score) {
+                    score += item.confidence_score
+                }
+            })
 
-        profiles.map((item)=>{
-            if(item.confidence_score){
-                score += item.confidence_score
-            }
-        })
+            avgScore = score / profiles.length
 
-        avgScore = score / profiles.length
-
+            // console.log('avgScore', avgScore)
+        }
         return avgScore
-        
+
     }
 
 
@@ -176,13 +174,13 @@ function Perplexity({
         >
             <div className="w-full flex flex-row justify-between items-center">
                 <div className="flex flex-row items-center gap-2">
-                    <Image
+                    {/* <Image
                         src={"/svgIcons/image.svg"}
                         height={24}
                         width={24}
                         alt="*"
                         style={{ borderRadius: "50%" }}
-                    />
+                    /> */}
 
                     <div style={{ fontsize: 22, fontWeight: "700", whiteSpace: 'nowrap' }}>
                         More About {selectedLeadsDetails?.firstName}
@@ -295,25 +293,34 @@ function Perplexity({
                         fontSize: 15,
                     }}
                 >
-                    {isExpanded
-                        ? `${enrichData.summary}`
-                        : `${initialText}...`}
-                </div>
+                    {
+                        enrichData?.summary?.length > 400 ? (
+                            isExpanded
+                                ? `${enrichData.summary}`
+                                : `${enrichData.summary.slice(0, 400)}...`
+                        )
+                            : enrichData.summary
+                    }
 
-                <button
-                    style={{
-                        fontWeight: "600",
-                        fontSize: 15,
-                    }}
-                    onClick={() => {
-                        setIsExpanded(!isExpanded)
-                    }}
-                    className="mt-2 text-purple underline"
-                >
-                    {isExpanded
-                        ? "Read Less"
-                        : "Read more"}
-                </button>
+                </div>
+                {
+                    enrichData?.summary?.length > 400 && (
+                        <button
+                            style={{
+                                fontWeight: "600",
+                                fontSize: 15,
+                            }}
+                            onClick={() => {
+                                setIsExpanded(!isExpanded)
+                            }}
+                            className="mt-2 text-purple underline"
+                        >
+                            {isExpanded
+                                ? "Read Less"
+                                : "Read more"}
+                        </button>
+                    )
+                }
             </div>
 
         </div>

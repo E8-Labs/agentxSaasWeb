@@ -10,12 +10,13 @@ import { PersistanceKeys } from '@/constants/Constants';
 import axios from 'axios';
 import Apis from '@/components/apis/Apis';
 import EditVoicemailModal from './EditVoicemailModal';
+import { getAgentsListImage } from '@/utilities/agentUtilities';
 
 
 function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) {
 
   const [showAddNewPopup, setShowAddNewPopup] = useState(false)
-  // console.log('agent', agent)
+  console.log('agent', agent)
 
   const [audio, setAudio] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -64,45 +65,6 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) 
   ]
 
   const saveVoiceMail = async (data) => {
-
-    // const localAgentsList = localStorage.getItem(
-    //   PersistanceKeys.LocalStoredAgentsListMain
-    // );
-
-    // let agentsListDetails = [];
-
-    // if (localAgentsList) {
-    //   const agentsList = JSON.parse(localAgentsList);
-
-    //   let d = {
-    //     agentId: 725,
-    //     agentType: "RealEstateAgent",
-    //     createdAt: "2025-03-29T00:10:47.129Z",
-    //     id: 24,
-    //     message: "Hey, this is Sam. Just wanted to let you know your neighbor recently switched to solar and is saving big. Curious if you'd like to see how much you could save? Call me back at [your number]!",
-    //     updatedAt: "2025-03-29T00:10:47.129Z",
-    //     voiceId: "Pvvx65MwYBsyOsxiwygJ",
-    //   };
-
-    //   agent.voicemail = d;
-
-    //   console.log('updated agent', agent);
-
-    //   const updatedArray = agentsList.map((localItem) => {
-    //     const updatedAgents = localItem.agents.map(item => {
-    //       return agent.id === item.id ? { ...item, ...agent } : item;
-    //     });
-
-    //     return { ...localItem, agents: updatedAgents };
-    //   });
-
-    //   console.log('updatedArray', updatedArray);
-
-    //   return updatedArray;
-    // }
-
-    // console.log('data', data)
-
     if (!data.voiceId) {
       setShowMessage("Select a voice")
       setMessageType(SnackbarTypes.Error)
@@ -339,16 +301,16 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) 
 
             <div className='w-full flex flex-row items-center justify-between mt-2'>
               <div style={{ fontSize: 15, fontWeight: '500' }}>
-                Voiceover
+                Voice
               </div>
 
-              <div className='flex flex-row items-center gap-2'>
-
+              <div className='flex flex-row items-center'>
+                {getAgentsListImage(agent,24,24)}
                 <div className='text-purple' style={{ fontSize: 15, fontWeight: '500' }}>
-                  Voiceover
+                  {agent.name}
                 </div>
 
-                <div>
+                <div className='ml-2'>
                   {isPlaying ? (
                     <div
                       onClick={() => {

@@ -8,27 +8,34 @@ function NoPerplexity({
     loading
 }) {
 
-      const [userLocalData, setUserLocalData] = useState("")
-    
+    const [userLocalData, setUserLocalData] = useState("")
 
-     useEffect(() => {
-        const getData =async () =>{
-          let user = await getProfileDetails()
-          if(user){
-            setUserLocalData(user.data.data)
-            console.log('user', user.data.data.enrichCredits)
-          }
+
+    useEffect(() => {
+        const getData = async () => {
+            let user = await getProfileDetails()
+            if (user) {
+                setUserLocalData(user.data.data)
+                console.log('user', user.data.data.enrichCredits)
+            }
         }
-    
-        getData()
-       
-      }, []);
-    return (
-        <div className="flex flex-col items-center gap-3 w-full h-[40vh]">
 
-            <div style={{fontSize:14,fontWeight:'500',color:'black',alignSelf:'flex-end',marginBottom:'100px',marginTop:'10px'}}>
-                Credits: {userLocalData?.enrichCredits}
-            </div>
+        getData()
+
+    }, []);
+    return (
+        <div className="flex flex-col items-center gap-3 w-full h-[40vh] ">
+
+            {
+                userLocalData?.enrichCredits > 0 ? (
+                    <div style={{ fontSize: 14, fontWeight: '500', color: 'black', alignSelf: 'flex-end', marginTop: '10px',marginBottom: '100px'  }}>
+                        Credits: {userLocalData?.enrichCredits}
+                    </div>
+                ) : (
+                    <div style={{ marginBottom: '100px' }}></div>
+                )
+            }
+
             {loading ? (
                 <CircularProgress size={27} />
             ) : (
@@ -50,7 +57,7 @@ function NoPerplexity({
                 </button>
             )}
             <div style={{ fontSize: 15, fontWeight: '500', width: '30vw', textAlign: 'center' }}>
-                {` By enriching this lead, you're giving your AI access to who this person is and all the data published online`}
+                {`By enriching this lead, you're giving your AI valuable context — pulling in public data to better understand who this person is and how to engage with them.`}
             </div>
 
             <div className="flex flex-row gap-2 items-center">
@@ -86,7 +93,6 @@ function NoPerplexity({
                     />
                 </Tooltip>
             </div>
-
         </div>
     )
 }

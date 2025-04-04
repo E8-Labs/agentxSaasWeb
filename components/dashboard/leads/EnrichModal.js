@@ -108,7 +108,7 @@ export default function EnrichModal({
                             </div>
 
                             <div style={{ fontSize: 15, fontWeight: '500', width: '30vw', textAlign: 'center' }}>
-                                {` By enriching this lead, you're giving your AI access to who this person is and all the data published online`}
+                                {`By enriching this lead, you're giving your AI valuable context — pulling in public data to better understand who this person is and how to engage with them.`}
                             </div>
 
 
@@ -118,7 +118,7 @@ export default function EnrichModal({
                                 {Loader ? (
                                     <CircularProgress size={27} />
                                 ) : (
-                                    <button className="h-[53px] flex w-[45%] text-[#7902DF]  text-[16px] hover:bg-[#7902DF] hover:text-white py-3 rounded-lg
+                                    <button className="h-[53px] flex w-[45%] text-[#000000]  text-[16px] hover:text-[#7902DF] py-3 rounded-lg
                      items-center justify-center"
                                         style={{}}
                                         onClick={() => {

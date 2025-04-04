@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import React from 'react'
 import AddVoiceMail from './AddVoiceMail'
+import { Plus } from 'lucide-react'
 
 function NoVoicemailView({
     openModal
@@ -20,13 +21,18 @@ function NoVoicemailView({
             </div>
 
 
-            <button onClick={openModal} className='
-            w-[197px] h-[54px] rounded-lg flex flex-col item-center justify-center bg-purple text-white
-            mt-2 
-            ' style={{ fontWeight: '500' }}>
-                Add New
+            <button className="flex h-[54px] items-center flex-row gap-2 bg-purple p-2 px-8 rounded-lg"
+                onClick={openModal}
+            >
+                <Plus color="white"></Plus>
+                <div
+                    className="flex items-center justify-center  text-black text-white font-medium"
+                // Fixed typo
+                >
+                    Add New
+                </div>
             </button>
-            
+
         </div>
     )
 }

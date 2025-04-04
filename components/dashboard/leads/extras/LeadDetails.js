@@ -660,6 +660,7 @@ const LeadDetails = ({
         // //console.log;
         if (response.data.status === true) {
           handleDelLead(selectedLeadsDetails);
+          // setShowSuccessSnack2(response.data.message)
         }
       }
     } catch (error) {
@@ -742,7 +743,7 @@ const LeadDetails = ({
           setLoading(false)
           if (response.data.status === true) {
 
-            console.log('response of enrich lead aip is', response.data.data)
+            // console.log('response of enrich lead aip is', response.data.data)
             setSelectedLeadsDetails(response.data.data)
             let credits = u.user.enrichCredits
 
@@ -2185,11 +2186,36 @@ const LeadDetails = ({
                         <div>
                           {!hideDelete && (
                             <button
-                              onClick={handleDeleteLead}
-                              className="text-red"
-                              style={{ fontsize: 15, fontWeight: "500" }}
+                              className="flex flex-row gap-2 items-center"
+                              onClick={() => {
+                               handleDeleteLead()
+                              }}
+                              style={{
+                                marginTop: 20,
+                                alignSelf: "end",
+                              }}
                             >
-                              Delete
+                              
+                              <Image
+                                src={"/otherAssets/redDeleteIcon.png"}
+                                height={24}
+                                width={24}
+                                alt="del"
+                                style={{
+                                  filter: "brightness(0) saturate(100%) opacity(0.5)", // Convert to black and make semi-transparent
+                                }}
+                              />
+
+                              <div
+                                style={{
+                                  fontSize: 15,
+                                  fontWeight: "600",
+                                  color: "#15151590",
+                                  textDecorationLine: "underline",
+                                }}
+                              >
+                                Delete
+                              </div>
                             </button>
                           )}
                         </div>

@@ -13,7 +13,7 @@ const VideoCard = ({
       className={`flex ${
         horizontal ? "flex-row items-center" : "flex-col items-start"
       } 
-    p-4 rounded-lg border border-brdColor max-w-md cursor-pointer bg-white`}
+    p-4 rounded-lg border border-purple max-w-md cursor-pointer bg-white`}
       onClick={() => {
         playVideo();
       }}

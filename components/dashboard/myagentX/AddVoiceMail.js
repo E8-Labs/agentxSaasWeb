@@ -42,6 +42,11 @@ function AddVoiceMail({
             name: "Marketing",
             type: "MarketerAgent"
         },
+        {
+            id: 6,
+            name: "Other",
+            type: "other"
+        },
     ]
 
     const voices = [
@@ -63,7 +68,7 @@ function AddVoiceMail({
     let m = `Hey, this is Sam. Just wanted to let you know your neighbor recently switched to solar and is saving big. Curious if you'd like to see how much you could save? Call me back at [your number]!`
 
     const [selectedManu, setSelectedManu] = useState(manue[0])
-    const [selectedVoice, setSelectedVoice] = useState("")
+    const [selectedVoice, setSelectedVoice] = useState(voices[0].voice_id)
     const [audio, setAudio] = useState(false)
     const [preview, setPreview] = useState(false)
     const [message, setMessage] = useState(m)
@@ -80,10 +85,14 @@ function AddVoiceMail({
             m = `Hey, this is Alex. I work with companies like yours to help streamline [specific pain point]. I'd love to share how we're making a big impact. Call me back at [your number] — talk soon!`
         } else if (selectedManu.name === "Marketing") {
             m = `Hey, this is Jamie. I saw you filled out our form on Facebook — thanks! I'd love to chat more about how we can help with [specific service/product]. Call me back at [your number]!`
-        } 
+        }else if (selectedManu.name === "Other") {
+            m = ``
+        }else{
+            m = ``
+        }
 
         setMessage(m)
-    },[selectedManu])
+    }, [selectedManu])
 
 
     const handleToggleClick = (item) => {
@@ -170,9 +179,7 @@ function AddVoiceMail({
                                 }}>
                                     Voicemail
                                 </div>
-                                <Image src={"/svgIcons/infoIcon.svg"}
-                                    height={16} width={16} alt='*'
-                                />
+
                             </div>
 
                             <button onClick={() => setMessage("")}>
@@ -195,9 +202,8 @@ function AddVoiceMail({
                                 padding: 12,
                                 height: '156px',
                                 resize: "none",
-
                             }}
-
+                            maxLength={200}
                             value={message}
                             onChange={(e) => {
                                 setMessage(e.target.value);
@@ -205,14 +211,11 @@ function AddVoiceMail({
                             }}
                         />
 
-
                         <div style={{
-                            fontSize: 13, fontWeight: '500', color: '#15151560'
+                            fontSize: 14, fontWeight: '500',marginTop: -5,color:'#00000060'
                         }}>
-                            Insurance Selected
+                            {message?.length}/200
                         </div>
-
-
 
                         <div style={{
                             fontSize: 16, fontWeight: '700',
@@ -308,7 +311,7 @@ function AddVoiceMail({
                                         addVoiceMail(data)
                                     }}
                                 >
-                                    Save Voicemail
+                                    Save
                                 </button>
                             )
                         }
@@ -316,7 +319,7 @@ function AddVoiceMail({
                 </Box>
 
             </Modal>
-        </div>
+        </div >
     )
 }
 

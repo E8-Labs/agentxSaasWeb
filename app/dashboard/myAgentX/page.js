@@ -74,14 +74,13 @@ function Page() {
   const fileInputRef = useRef([]);
   // const fileInputRef = useRef(null);
   const router = useRouter();
-  const [AgentMenuOptions] = useState([
+  let tabs = [
     "Agent Info",
     "Calendar",
     "Pipeline | Stages",
     "Knowledge Base",
-    "Voicemail"
-
-  ]);
+  ]
+  const [AgentMenuOptions,setAgentMenuOptions] = useState(tabs);
   const [openTestAiModal, setOpenTestAiModal] = useState(false);
   const [name, setName] = useState("");
   //code for phonenumber
@@ -354,6 +353,21 @@ function Page() {
       value: false,
     },
   ];
+
+
+  useEffect(()=>{
+    const updateAgentManueList = () =>{
+
+      if (showDrawerSelectedAgent?.agentType === "outbound") {
+        let newTab = "Voice Mail"
+        setAgentMenuOptions(prev => [...prev, newTab]);
+      }else{
+        setAgentMenuOptions(tabs)
+      }
+      // console.log('agent type is', showDrawerSelectedAgent?.agentType)
+    }
+    updateAgentManueList();
+  },[showDrawerSelectedAgent])
 
   //call get numbers list api
   useEffect(() => {
@@ -4042,7 +4056,7 @@ function Page() {
                 <Knowledgebase user={user} agent={showDrawerSelectedAgent} />
               </div>
             ) : (
-              activeTab === "Voicemail" ? (
+              activeTab === "Voice Mail" ? (
                 <div className="flex flex-col gap-4 w-full">
                   <VoiceMailTab setMainAgentsList = {setMainAgentsList} agent={showDrawerSelectedAgent} setShowDrawerSelectedAgent ={setShowDrawerSelectedAgent}/>
                 </div>
@@ -4058,8 +4072,8 @@ function Page() {
               style={{
                 marginTop: 20,
                 alignSelf: "end",
-                // position: "absolute",
-                // bottom: "5%",
+                position: "absolute",
+                bottom: "5%",
               }}
             >
               {/* <Image src={'/otherAssets/redDeleteIcon.png'}
