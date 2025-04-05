@@ -127,6 +127,38 @@ function AllCalls({ user }) {
   //   // }
   // }, []);
 
+
+    const fromCalendarRef = useRef(null);
+    const toCalendarRef = useRef(null);
+  
+
+
+    useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (
+          showFromDatePicker &&
+          fromCalendarRef.current &&
+          !fromCalendarRef.current.contains(event.target)
+        ) {
+          setShowFromDatePicker(false);
+        }
+  
+        if (
+          showToDatePicker &&
+          toCalendarRef.current &&
+          !toCalendarRef.current.contains(event.target)
+        ) {
+          setShowToDatePicker(false);
+        }
+      };
+  
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, [showFromDatePicker, showToDatePicker]);
+  
+
   useEffect(() => {
     if (filterRef.current) {
       clearTimeout(filterRef.current);
@@ -858,12 +890,8 @@ function AllCalls({ user }) {
 
                           <div>
                             {showFromDatePicker && (
-                              <div>
-                                {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
-                                                                    <button>
-                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
-                                                                    </button>
-                                                                </div> */}
+                             <div ref={fromCalendarRef}>
+                               
                                 <Calendar
                                   onChange={handleFromDateChange}
                                   value={selectedFromDate}
@@ -920,20 +948,8 @@ function AllCalls({ user }) {
                           </button>
                           <div>
                             {showToDatePicker && (
-                              <div>
-                                {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
-                                                                    <button>
-                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
-                                                                    </button>
-                                                                </div> */}
-                                {/* <Calendar
-                              onChange={handleToDateChange}
-                              value={selectedToDate}
-                              locale="en-US"
-                              onClose={() => {
-                                setShowToDatePicker(false);
-                              }}
-                            /> */}
+                              <div ref={toCalendarRef}>
+                               
                                 <Calendar
                                   className="react-calendar"
                                   onChange={handleToDateChange}

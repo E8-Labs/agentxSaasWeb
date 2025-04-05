@@ -235,8 +235,11 @@ function AdminAffiliates({ selectedUser }) {
           if (filter.revenue) {
             path = `${path}&minRevenue=${filter.revenue[0]}&maxRevenue=${filter.revenue[1]}`;
           }
+          if (filter.xBar) {
+            path = `${path}&minxBar=${filter.revenue[0]}&maxxBar=${filter.revenue[1]}`;
+          }
         }
-        //console.log;
+        console.log("get affiliates path is", path);
 
         const response = await axios.get(path, {
           headers: {
@@ -246,7 +249,7 @@ function AdminAffiliates({ selectedUser }) {
 
         if (response) {
           setGetAffiliatesLoader(false);
-          //console.log;
+          console.log("response is", response.data);
 
           if (response.data.status === true) {
             setAffiliatesList(response.data.data);
@@ -464,7 +467,7 @@ function AdminAffiliates({ selectedUser }) {
       )}
       {showFilterModal && (
         <AffiliatesFilterModal
-          filters={{}}
+          filters={filters}
           showFilterModal={showFilterModal}
           onDismissCallback={() => {
             setShowFilterModal(false);
