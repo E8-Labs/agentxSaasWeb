@@ -1681,6 +1681,7 @@ function Page() {
         );
 
         setShowDrawerSelectedAgent(null);
+        setActiveTab("Agent Info")
         setDelAgentModal(false);
 
         //updating data on localstorage
@@ -2902,7 +2903,10 @@ function Page() {
       <Drawer
         anchor="right"
         open={showDrawerSelectedAgent != null}
-        onClose={() => setShowDrawerSelectedAgent(null)}
+        onClose={() => {
+          setShowDrawerSelectedAgent(null)
+          setActiveTab("Agent Info")
+        }}
         PaperProps={{
           sx: {
             width: "45%", // Adjust width as needed
@@ -4670,7 +4674,7 @@ function Page() {
                     </div>
                   </div>
 
-                  <div className="" style={{ height: "" }}>
+                  <div className="" style={{}}>
                     {showSaveChangesBtn && (
                       <div className="w-full">
                         {UpdateAgentLoader ? (

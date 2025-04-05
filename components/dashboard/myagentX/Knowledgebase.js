@@ -72,7 +72,7 @@ function Knowledgebase({ user, agent }) {
             No knowledge base added
           </div>
 
-          <button className="flex flex-row gap-2 bg-purple p-2 px-8 rounded-lg"
+          <button className="flex flex-row h-[54px] items-center gap-2 bg-purple p-2 px-8 rounded-lg"
             onClick={() => addKnowledgebase()}
           >
             <Plus color="white"></Plus>

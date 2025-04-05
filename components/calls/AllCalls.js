@@ -281,7 +281,7 @@ function AllCalls({ user }) {
 
   //function for getting pipelines
   const getPipelines = async () => {
-    console.log('trying to get pipelines')
+    // console.log('trying to get pipelines')
 
     try {
       setPipelineLoader(true)
@@ -304,7 +304,7 @@ function AllCalls({ user }) {
       });
 
       if (response) {
-        console.log("Pipelines list is ", response.data.data)
+        // console.log("Pipelines list is ", response.data.data)
         setPipelineLoader(false)
 
         if (response.data.status === true) {
@@ -394,7 +394,7 @@ function AllCalls({ user }) {
       // }
       ApiPath = `${ApiPath}${separator}offset=${offset}&timezone=${GetTimezone()}`;
 
-      console.log("api path is ",ApiPath)
+      // console.log("api path is ",ApiPath)
       //console.log;
 
       //// //console.log;
@@ -574,16 +574,27 @@ function AllCalls({ user }) {
                           if (filter.key == "date") {
                             setSelectedFromDate(null);
                             setSelectedToDate(null);
+                            setFiltersChanged(prev => !prev);
+
                           }
                           if (filter.key == "stage") {
-                            const newStageIds = selectedStageIds.filter(
-                              (stageId) => stageId != filter.values[0].id
-                            );
-                            setSelectedStageIds(newStageIds);
+                            setSelectedStageIds((prev) => {
+                              const updatedstage = prev.filter(
+                                (s) => s !== filter.values[0].id
+                              );
+
+                              // ✅ Call API AFTER state update using setTimeout (ensures latest state is used
+
+                              return updatedstage; // Update state
+                            });
+                            setFiltersChanged(prev => !prev);
+
                           }
                           if (filter.key == "pipeline") {
                             setSelectedPipeline(null);
                             setSelectedStageIds([]);
+                            setFiltersChanged(prev => !prev);
+
                           }
                           if (filter.key === "status") {
                             // ✅ Update state first
@@ -591,22 +602,11 @@ function AllCalls({ user }) {
                               const updatedStatus = prev.filter(
                                 (s) => s !== filter.values[0]
                               );
-
-                              // ✅ Call API AFTER state update using setTimeout (ensures latest state is used)
-                              setTimeout(() => {
-                                //console.log;
-                                getCallLogs(0);
-                              }, 0);
-
                               return updatedStatus; // Update state
                             });
+
+                            setFiltersChanged(prev => !prev);
                           }
-                          setInitialLoader(true);
-                          setCallDetails([]);
-                          setFilteredCallDetails([]);
-                          setTimeout(() => {
-                            getCallLogs(0);
-                          }, 2000);
                         }}
                       >
                         <Image
@@ -698,7 +698,7 @@ function AllCalls({ user }) {
                       className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                     >
                       <div
-                        className="w-2/12 flex flex-row gap-2 items-center cursor-pointer"
+                        className="w-2/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
                         onClick={() => {
                           // //console.log;
                           setselectedLeadsDetails(item);
@@ -708,7 +708,7 @@ function AllCalls({ user }) {
                         <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
                           {item.LeadModel?.firstName.slice(0, 1).toUpperCase()}
                         </div>
-                        <div style={styles.text2}>
+                        <div style={{...styles.text2,...{width:"80%",}}}> 
                           {item.LeadModel?.firstName}
                         </div>
                       </div>

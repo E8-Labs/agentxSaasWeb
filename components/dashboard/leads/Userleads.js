@@ -46,6 +46,7 @@ import { GetFormattedDateString } from "@/utilities/utility";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fromJSON } from "postcss";
 import LeadLoading from "./LeadLoading";
+import { pipeline } from "zod";
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -166,7 +167,7 @@ const Userleads = ({
   const [isExpanded, setIsExpanded] = useState([]);
   const [isExpandedActivity, setIsExpandedActivity] = useState([]);
 
-  // //////console.log;
+  // console.log("pipelineId is",selectedLeadsDetails)
 
   //to date filter
   // const [showFilterModal, setShowFilterModal] = useState(false);

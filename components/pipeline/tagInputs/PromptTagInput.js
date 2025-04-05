@@ -413,28 +413,7 @@ export const PromptTagInput = ({
 
   return (
     <div style={{ position: "relative" }}>
-      {/* <textarea
-                className="outline-none rounded-xl focus:ring-0"
-                ref={textFieldRef}
-                rows="20"
-                cols="50"
-                value={text}
-                onClick={() => { setShowScriptModal(true) }}
-                onChange={handleChange}
-                onKeyUp={handleKeyUp}
-                onKeyDown={handleKeyDown}
-                placeholder="Type here..."
-                style={{
-                    fontSize: "16px",
-                    padding: "15px",
-                    width: "100%",
-                    fontWeight: "500",
-                    fontSize: 15,
-                    height: 500,
-                    resize: "none",
-                    border: "1px solid #00000020",
-                }}
-            /> */}
+
       <div
         className="flex flex-row items-start gap-2 w-full outline-none rounded-xl focus:ring-0"
         style={{
@@ -456,7 +435,7 @@ export const PromptTagInput = ({
             width: "100%",
             fontWeight: "500",
             fontSize: 15,
-            height: showSaveChangesBtn ? "calc(100vh - 730px)" : "calc(100vh - 650px)",
+            height: showSaveChangesBtn ?window.innerHeight <= 900 ? "calc(100vh - 670px)": "calc(100vh - 730px)" : "calc(100vh - 650px)",
             // maxHeight:"28vh",
             resize: "none",
             // backgroundColor:'red'

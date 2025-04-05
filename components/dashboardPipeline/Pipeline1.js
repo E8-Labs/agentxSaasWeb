@@ -290,9 +290,9 @@ const Pipeline1 = () => {
       if (SelectedPipeline && !SelectedPipeline?.leads) {
         await getPipelineDetails(SelectedPipeline);
       } else {
-        console.log(
-          `Pipeline ${SelectedPipeline?.id} already has leads ${SelectedPipeline?.leads?.length}`
-        );
+        // console.log(
+        //   `Pipeline ${SelectedPipeline?.id} already has leads ${SelectedPipeline?.leads?.length}`
+        // );
       }
     };
 
@@ -381,17 +381,17 @@ const Pipeline1 = () => {
 
         if (response) {
           if (response.data.status === true) {
-            console.log(
-              "response of get imporatant calls api is",
-              response.data.data
-            );
+            // console.log(
+            //   "response of get imporatant calls api is",
+            //   response.data.data
+            // );
             setImportantCalls(response.data.data);
             setSelectedCall(response.data.data[0]);
           } else {
-            console.log(
-              "message of get important calls api is",
-              response.data.message
-            );
+            // console.log(
+            //   "message of get important calls api is",
+            //   response.data.message
+            // );
           }
         }
       }
@@ -589,10 +589,10 @@ const Pipeline1 = () => {
 
   async function getPipelineDetails(pipeline) {
     //console.log;
-    console.log(
-      "Pipeline index from getpipelinedetails is ",
-      selectedPipelineIndex
-    );
+    // console.log(
+    //   "Pipeline index from getpipelinedetails is ",
+    //   selectedPipelineIndex
+    // );
     try {
       const localData = localStorage.getItem("User");
       let AuthToken = null;
@@ -615,10 +615,10 @@ const Pipeline1 = () => {
 
       setPipelineDetailLoader(false);
       if (response) {
-        console.log(
-          "Response of getpipeline details api is :",
-          response.data.data
-        );
+        // console.log(
+        //   "Response of getpipeline details api is :",
+        //   response.data.data
+        // );
         const pipelineDetails = response.data.data;
 
         //  Merge updated details with existing pipelines list
@@ -701,10 +701,10 @@ const Pipeline1 = () => {
         setPipeLines(pipelinesList);
 
         if (pipelinesList.length > 0) {
-          console.log(
-            "Pipeline index from getpipelines is ",
-            selectedPipelineIndex
-          );
+          // console.log(
+          //   "Pipeline index from getpipelines is ",
+          //   selectedPipelineIndex
+          // );
           let pipeline = pipelinesList[selectedPipelineIndex]; // Select first pipeline
           setSelectedPipeline(pipeline);
           // getPipelineDetails(pipeline); // Fetch details for the selected pipeline
@@ -1970,7 +1970,7 @@ const Pipeline1 = () => {
                               )}
                             </span>
                             <div
-                              className="h-[23px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center text-black"
+                              className="rounded-full px-2 py-1 bg-white flex flex-row items-center justify-center text-black"
                               style={{ ...styles.paragraph, fontSize: 14 }}
                             >
                               {/* {leadCounts[stage.id] ? (

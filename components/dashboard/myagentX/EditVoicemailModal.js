@@ -13,7 +13,10 @@ function EditVoicemailModal({
     setShowEditPopup,
     updateVoicemail,
     loading,
-    defaultData
+    defaultData,
+    showMessage,
+    setShowMessage,
+    messageType
 }) {
 
 
@@ -42,7 +45,7 @@ function EditVoicemailModal({
     // console.log('defaultData', defaultData)
 
 
-    
+
 
 
     const handleToggleClick = (item) => {
@@ -78,7 +81,11 @@ function EditVoicemailModal({
                     className="w-6/12"
                     sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
                 >
-
+                    <AgentSelectSnackMessage isVisible={showMessage != null ? true : false}
+                        message={showMessage} type={messageType} hide={() => {
+                            setShowMessage(null);
+                        }}
+                    />
                     <div
                         className="h-[65vh] overflow-auto flex flex-col gap-3"
                         style={{ scrollbarWidth: "none" }}
@@ -104,9 +111,6 @@ function EditVoicemailModal({
                                 }}>
                                     Voicemail
                                 </div>
-                                <Image src={"/svgIcons/infoIcon.svg"}
-                                    height={16} width={16} alt='*'
-                                />
                             </div>
 
                             <button onClick={() => setMessage("")}>
@@ -234,7 +238,7 @@ function EditVoicemailModal({
                                         updateVoicemail(data)
                                     }}
                                 >
-                                    Update Voicemail
+                                    Update
                                 </button>
                             )
                         }

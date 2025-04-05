@@ -85,9 +85,9 @@ function AddVoiceMail({
             m = `Hey, this is Alex. I work with companies like yours to help streamline [specific pain point]. I'd love to share how we're making a big impact. Call me back at [your number] — talk soon!`
         } else if (selectedManu.name === "Marketing") {
             m = `Hey, this is Jamie. I saw you filled out our form on Facebook — thanks! I'd love to chat more about how we can help with [specific service/product]. Call me back at [your number]!`
-        }else if (selectedManu.name === "Other") {
+        } else if (selectedManu.name === "Other") {
             m = ``
-        }else{
+        } else {
             m = ``
         }
 
@@ -111,6 +111,8 @@ function AddVoiceMail({
     return (
         <div>
 
+
+
             <Modal
                 open={showAddNewPopup}
                 onClose={() => setShowAddNewPopup(false)}
@@ -129,6 +131,11 @@ function AddVoiceMail({
                     sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
                 >
 
+                    <AgentSelectSnackMessage isVisible={showMessage != null ? true : false}
+                        message={showMessage} type={messageType} hide={() => {
+                            setShowMessage(null);
+                        }}
+                    />
                     <div
                         className="h-[80vh] overflow-auto flex flex-col gap-3"
                         style={{ scrollbarWidth: "none" }}
@@ -212,7 +219,7 @@ function AddVoiceMail({
                         />
 
                         <div style={{
-                            fontSize: 14, fontWeight: '500',marginTop: -5,color:'#00000060'
+                            fontSize: 14, fontWeight: '500', marginTop: -5, color: '#00000060'
                         }}>
                             {message?.length}/200
                         </div>

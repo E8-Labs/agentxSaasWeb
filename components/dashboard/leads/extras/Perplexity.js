@@ -153,7 +153,7 @@ function Perplexity({
                 }
             })
 
-            avgScore = score / profiles.length
+            avgScore = score / profiles.length * 100
 
             // console.log('avgScore', avgScore)
         }
@@ -183,7 +183,7 @@ function Perplexity({
                     /> */}
 
                     <div style={{ fontsize: 22, fontWeight: "700", whiteSpace: 'nowrap' }}>
-                        More About {selectedLeadsDetails?.firstName}
+                        More on {selectedLeadsDetails?.firstName}
                     </div>
                 </div>
 
@@ -196,7 +196,7 @@ function Perplexity({
                     />
 
                     <div style={{ fontsize: 22, fontWeight: "700", whiteSpace: 'nowrap' }}>
-                        More on {selectedLeadsDetails?.firstName}:{" "}
+                        Confidence Score:{" "}
                         <span
                             style={{
                                 fontsize: 22,

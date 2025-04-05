@@ -16,7 +16,7 @@ import { getAgentsListImage } from '@/utilities/agentUtilities';
 function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) {
 
   const [showAddNewPopup, setShowAddNewPopup] = useState(false)
-  console.log('agent', agent)
+  // console.log('agent', agent)
 
   const [audio, setAudio] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -226,8 +226,8 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) 
 
 
               //// //console.log;
-              console.log('updateAgentData', agent)
-              console.log('updatedArray', updatedArray)
+              // console.log('updateAgentData', agent)
+              // console.log('updatedArray', updatedArray)
               localStorage.setItem(
                 PersistanceKeys.LocalStoredAgentsListMain,
                 JSON.stringify(updatedArray)
@@ -254,6 +254,15 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) 
     }
     finally {
       setLoading2(false)
+    }
+  }
+
+  const getVoiceName = (voiceId) => {
+    let voice = voices.filter((item) => item.voice_id == voiceId)
+    if (voice.length > 0) {
+      return voice[0].name
+    } else {
+      return "Ava"
     }
   }
 
@@ -305,9 +314,9 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) 
               </div>
 
               <div className='flex flex-row items-center'>
-                {getAgentsListImage(agent,24,24)}
+
                 <div className='text-purple' style={{ fontSize: 15, fontWeight: '500' }}>
-                  {agent.name}
+                  {getVoiceName(agent?.voicemail.voiceId)}
                 </div>
 
                 <div className='ml-2'>
@@ -369,8 +378,11 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) 
         updateVoicemail={(data) => updateVoicemail(data)}
         agent={agent}
         loading={loading2}
-        defaultData = {agent?.voicemail}
-       
+        defaultData={agent?.voicemail}
+        showMessage={showMessage}
+        setShowMessage={setShowMessage}
+        messageType={messageType}
+
       />
 
     </div>

@@ -103,7 +103,7 @@ const LeadDetails = ({
   //code for stages drop down
   const [selectedStage, setSelectedStage] = useState("");
   const [stagesList, setStagesList] = useState([]);
-  const [stagesListLoader, setStagesListLoader] = useState([]);
+  const [stagesListLoader, setStagesListLoader] = useState(false);
 
   //code for snakbars
   const [showSuccessSnack, setShowSuccessSnack] = useState(null);
@@ -148,7 +148,10 @@ const LeadDetails = ({
 
   useEffect(() => {
     if (!selectedLead) return;
-    getLeadDetails(selectedLead);
+    getLeadDetails(selectedLead)
+
+    console.log('pipelineId', pipelineId)
+    
     if (pipelineId) {
       // //console.log;
       getStagesList(selectedLead);
@@ -342,6 +345,7 @@ const LeadDetails = ({
 
   //function to get the stages list using pipelineId
   const getStagesList = async () => {
+
     try {
       let AuthToken = null;
       setStagesListLoader(true);
@@ -356,7 +360,7 @@ const LeadDetails = ({
 
       const ApiPath = `${Apis.getStagesList}?pipelineId=${pipelineId}`;
 
-      // //console.log;
+      // console.log("ApiPath", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -366,10 +370,15 @@ const LeadDetails = ({
       });
 
       if (response) {
+        // setStagesListLoader(false);
         //console.log;
         if (response.data.status === true) {
-          //console.log;
+          // console.log("stages list are", response.data.data.stages);
           setStagesList(response.data.data.stages);
+        }else{
+          // setShowErrorSnack(response.data.message);
+          console.log("Error in stages list", response.data.message);
+          // setShowErrorSnack2(true);
         }
       }
     } catch (error) {
@@ -2188,14 +2197,14 @@ const LeadDetails = ({
                             <button
                               className="flex flex-row gap-2 items-center"
                               onClick={() => {
-                               handleDeleteLead()
+                                handleDeleteLead()
                               }}
                               style={{
                                 marginTop: 20,
                                 alignSelf: "end",
                               }}
                             >
-                              
+
                               <Image
                                 src={"/otherAssets/redDeleteIcon.png"}
                                 height={24}

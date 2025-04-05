@@ -71,7 +71,7 @@ export default function EnrichModal({
                             />
 
                             <div style={{ fontSize: 18, fontWeight: '700' }}>
-                                Lead Insight
+                                Enrich Lead
                             </div>
                             <div className="flex flex-row gap-2 items-center">
 
@@ -134,7 +134,7 @@ export default function EnrichModal({
                                         setShowenrichConfirmModal(true)
                                     }}
                                 >
-                                    Lead Insight
+                                    Enrich Lead
                                 </button>
 
                             </div>

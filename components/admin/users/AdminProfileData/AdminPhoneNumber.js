@@ -43,6 +43,7 @@ function AdminPhoneNumber({selectedUser}) {
             try {
                 setLoading(true)
                 let path = Apis.userAvailablePhoneNumber+"?userId="+selectedUser.id
+                console.log("path", path)
                 const response = await axios.get(path, {
                     headers: {
                         Authorization: "Bearer " + u.token,
@@ -51,7 +52,7 @@ function AdminPhoneNumber({selectedUser}) {
                 if (response) {
                     setLoading(false)
                     if (response.data.status === true) {
-                       //console.log
+                       console.log("response", response.data.data)
                         setNumbers(response.data.data)
                     } else {
                        //console.log

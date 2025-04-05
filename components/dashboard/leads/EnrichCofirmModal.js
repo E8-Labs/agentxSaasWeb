@@ -127,7 +127,7 @@ export default function EnrichConfirmModal({
                         Total Cost
                     </Typography>
                     <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-                        ${processedData?.length <= 20 ? "1" : totalCost.toFixed(2)}
+                        ${processedData?.length <= 10 ? "1" : totalCost.toFixed(2)}
                     </Typography>
                 </Box>
             </DialogContent>
