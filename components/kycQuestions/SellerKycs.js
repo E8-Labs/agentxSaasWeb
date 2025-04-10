@@ -594,7 +594,7 @@ const SellerKycs = ({ handleContinue }) => {
 
               {toggleClick === 1 ? (
                 <div
-                  className="mt-8 w-10/12 md:w-8/12 max-h-[85%] overflow-auto"
+                  className="mt-8 w-11/12 md:w-11/12 max-h-[85%] overflow-auto"
                   style={{ scrollbarWidth: "none" }}
                 >
                   {needKYCQuestions.map((item, index) => {
@@ -612,12 +612,12 @@ const SellerKycs = ({ handleContinue }) => {
                         key={index}
                         onClick={() => handleSelectNeedKYC(item)}
                       >
-                        <div style={{ width: "90%" }} className="text-start">
+                        <div style={{ width: "94%" }} className="text-start">
                           {item.question}
                         </div>
                         <div
                           className="outline-none border-none"
-                          style={{ width: "10%" }}
+                          style={{ width: "6%" }}
                         >
                           {selected ? (
                             <Image
@@ -641,7 +641,7 @@ const SellerKycs = ({ handleContinue }) => {
                 </div>
               ) : toggleClick === 2 ? (
                 <div
-                  className="mt-8 w-10/12 md:w-8/12 max-h-[85%] overflow-auto"
+                  className="mt-8 w-11/12 md:w-9/12 max-h-[85%] overflow-auto"
                   style={{ scrollbarWidth: "none" }}
                 >
                   {motivationKycQuestions.map((item, index) => {

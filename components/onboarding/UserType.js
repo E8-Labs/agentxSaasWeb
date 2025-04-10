@@ -196,6 +196,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       userType: "LoanOfficerAgent",
       roundedImage: false,
     },
+    
     {
       id: 100,
       title: "More",

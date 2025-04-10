@@ -1912,7 +1912,7 @@ const Pipeline1 = () => {
                       style={{ MozOutline: "none" }}
                       onChange={handldSearch}
                       className="outline-none bg-transparent w-full mx-2 border-none focus:outline-none focus:ring-0"
-                      placeholder="Search by name, phone email"
+                      placeholder="Search by name, phone or email"
                     />
                     <button className="outline-none">
                       <Image

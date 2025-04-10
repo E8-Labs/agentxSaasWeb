@@ -597,43 +597,62 @@ function Page() {
         </div> */}
 
         <div className="flex flex-row w-full flex-wrap gap-3 p-5">
-          {integrations.map((integration, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-lg p-3 flex flex-row gap-3 items-start border"
-            >
-              <img
-                src={integration.icon}
-                alt={integration.title}
-                className="w-12 h-12 object-contain"
-              />
-              <div className="flex flex-col gap-2">
-                <div style={{ fontSize: "1vw", fontWeight: "500" }}>
-                  {integration.title}
-                </div>
+          {
+            integrations.length > 0 ?
+              integrations.map((integration, index) => (
                 <div
-                  style={{ fontSize: "1vw", fontWeight: "500" }}
-                  className="flex-wrap text-gray-600 w-[20vw]"
+                  key={index}
+                  className="bg-white rounded-lg p-3 flex flex-row gap-3 items-start border"
                 >
-                  {integration.description}
+                  <img
+                    src={integration.icon}
+                    alt={integration.title}
+                    className="w-12 h-12 object-contain"
+                  />
+                  <div className="flex flex-col gap-2">
+                    <div style={{ fontSize: "1vw", fontWeight: "500" }}>
+                      {integration.title}
+                    </div>
+                    <div
+                      style={{ fontSize: "1vw", fontWeight: "500" }}
+                      className="flex-wrap text-gray-600 w-[20vw]"
+                    >
+                      {integration.description}
+                    </div>
+                    <button
+                      onClick={() => {
+                        // if (integration.title === "GHL") {
+                        //   setShowCopySnak("Comming soon");
+                        //   return;
+                        // }
+                        if (typeof window !== "undefined") {
+                          window.open(integration.url, "_blank");
+                        }
+                      }}
+                      className="w-full bg-purple text-white px-4 py-2 rounded-md text-sm font-medium"
+                    >
+                      Add
+                    </button>
+                  </div>
                 </div>
-                <button
-                  onClick={() => {
-                    // if (integration.title === "GHL") {
-                    //   setShowCopySnak("Comming soon");
-                    //   return;
-                    // }
-                    if (typeof window !== "undefined") {
-                      window.open(integration.url, "_blank");
-                    }
-                  }}
-                  className="w-full bg-purple text-white px-4 py-2 rounded-md text-sm font-medium"
-                >
-                  Add
-                </button>
-              </div>
-            </div>
-          ))}
+              )) : (
+
+                <div className="flex flex-col gap-4 w-full items-center mt-10">
+                  <div>
+                    {`Can't find what you're looking for.`}
+                  </div>
+
+                  <button className="w-[20wh] px-4 py-2 rounded-lg bg-purple text-white text-[16px] font-meduim"
+                    onClick={()=>{
+                      window.open("https://zapier.com/apps/myagentx/integrations","_blank")
+                    }}
+                  >
+                      Search here
+                  </button>
+                </div>
+              )
+
+          }
         </div>
 
         <div></div>

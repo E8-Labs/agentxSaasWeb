@@ -77,7 +77,27 @@ export default function EnrichConfirmModal({
                     <Typography sx={{ fontSize: "14px", color: "#000" }}>
                         {`Enrichment is $0.10 / lead `}
                     </Typography>
+
+                   
                 </Box>
+
+                <Box
+                        sx={{
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: 1.5,
+                            // backgroundColor: "#F6F0FF",
+                            // padding: "12px 16px",
+                            borderRadius: "8px",
+                            mb: 0,
+                        }}
+                    >
+                        <InfoOutlinedIcon sx={{ color: "transparent", fontSize: 20 }} />
+                        <Typography sx={{ fontSize: "14px", color: "#000" }}>
+                            {`If less than 10 leads, it's $1.`}
+                        </Typography>
+                    </Box>
 
             </Box>
 

@@ -7,6 +7,7 @@ import axios from 'axios';
 import Apis from '@/components/apis/Apis';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
 import { PersistanceKeys } from '@/constants/Constants';
+import { UserTypes } from '@/constants/UserTypes';
 
 function AddVoiceMail({
     showAddNewPopup,
@@ -23,27 +24,31 @@ function AddVoiceMail({
 
         {
             id: 1,
-            name: 'Solar',
-            type: "SolarRep"
-        }, {
+            name: 'Real Estate',
+            type: UserTypes.RealEstateAgent
+        },{
             id: 2,
-            name: 'Insurance Agent',
-            type: "InsuranceAgent"
+            name: 'Solar',
+            type: UserTypes.SolarRep
         }, {
             id: 3,
-            name: 'Loan Officer',
-            type: "LoanOfficerAgent"
+            name: 'Insurance Agent',
+            type: UserTypes.InsuranceAgent
         }, {
             id: 4,
-            name: 'SDR/BDR Agent',
-            type: "SalesDevRep"
+            name: 'Loan Officer',
+            type: UserTypes.LoanOfficerAgent
         }, {
             id: 5,
+            name: 'SDR/BDR Agent',
+            type:UserTypes.SalesDevRep
+        }, {
+            id: 6,
             name: "Marketing",
-            type: "MarketerAgent"
+            type: UserTypes.MarketerAgent
         },
         {
-            id: 6,
+            id: 7,
             name: "Other",
             type: "other"
         },
@@ -76,6 +81,8 @@ function AddVoiceMail({
 
     useEffect(() => {
         if (selectedManu.name === "Solar") {
+            m = `Hey, this is Sarah. I just helped a homeowner nearby list their property, and there's been a lot of interest in the area. If you've ever thought about selling or just want to know what your home's worth, give me a call at [your number]. Would love to chat!`
+        }else if (selectedManu.name === "Real Estate") {
             m = `Hey, this is Sam. Just wanted to let you know your neighbor recently switched to solar and is saving big. Curious if you'd like to see how much you could save? Call me back at [your number]!`
         } else if (selectedManu.name === "Insurance Agent") {
             m = `Hi, this is Lisa. I noticed some homeowners in your area updated their coverage and lowered their rates. Let's check if you're eligible too! Call me back at [your number]. Talk soon!`

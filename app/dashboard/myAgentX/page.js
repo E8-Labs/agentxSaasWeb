@@ -359,7 +359,7 @@ function Page() {
     const updateAgentManueList = () =>{
 
       if (showDrawerSelectedAgent?.agentType === "outbound") {
-        let newTab = "Voice Mail"
+        let newTab = "Voicemail"
         setAgentMenuOptions(prev => [...prev, newTab]);
       }else{
         setAgentMenuOptions(tabs)
@@ -4060,7 +4060,7 @@ function Page() {
                 <Knowledgebase user={user} agent={showDrawerSelectedAgent} />
               </div>
             ) : (
-              activeTab === "Voice Mail" ? (
+              activeTab === "Voicemail" ? (
                 <div className="flex flex-col gap-4 w-full">
                   <VoiceMailTab setMainAgentsList = {setMainAgentsList} agent={showDrawerSelectedAgent} setShowDrawerSelectedAgent ={setShowDrawerSelectedAgent}/>
                 </div>

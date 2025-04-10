@@ -154,7 +154,11 @@ const Apis = {
 
   //Stripe connect
   connectAgencyAccount: `${BasePath}api/agency/connectAgency`,
+
+  getPlansForAgency : `${BasePath}api/agency/getPlanListForAgency`,
 };
+
+
 
 export default Apis;
 

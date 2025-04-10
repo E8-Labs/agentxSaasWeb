@@ -364,6 +364,29 @@ const ProfileNav = () => {
     },
   ];
 
+  const agencyLinks = [
+    {
+      id: 1,
+      name: "Dashboard",
+      href: "/dashboard",
+      selected: "/svgIcons/selectdDashboardIcon.svg",
+      uneselected: "/svgIcons/unSelectedDashboardIcon.svg",
+    },{
+      id: 1,
+      name: "Sub Account",
+      href: "/dashboard",
+      selected: "/svgIcons/selectedSubAccountIcon.svg",
+      uneselected: "/svgIcons/unSelectedSubAccountIcon.svg",
+    },{
+      id: 1,
+      name: "Plans",
+      href: "/dashboard",
+      selected: "/svgIcons/selectPlansIcon.svg",
+      uneselected: "/svgIcons/unSelectePlansIcon.svg",
+    },
+  ];
+
+
   //function to getprofile
   const getProfile = async () => {
     try {
