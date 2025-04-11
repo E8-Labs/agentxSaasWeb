@@ -70,6 +70,7 @@ const Apis = {
   getDashboardData: `${BasePath}api/agent/dashboard`,
   delLeadTag: `${BasePath}api/leads/deleteLeadTag`,
   //apis to add card & subscribe plan
+  createSetupIntent: `${BasePath}api/user/createSetupIntent`,
   addCard: `${BasePath}api/user/addPaymentMethod`,
   subscribePlan: `${BasePath}api/user/subscribePlan`,
   purchaseSupportPlan: `${BasePath}api/user/purchaseSupportPlan`,
@@ -144,7 +145,18 @@ const Apis = {
   deleteCalendar: `${BasePath}api/calendar/deleteCalendar`,
   getVerificationCodes: `${BasePath}api/admin/getVerificationCodes`,
   getAgentDetails: `${BasePath}api/agent/getAgentDetails`,
+  setVoicemaeil: `${BasePath}api/agent/setVoicemail`,
+  updateVoicemail: `${BasePath}api/agent/updateVoicemail`,
 
+  enrichLead: `${BasePath}api/leads/enrichLead`,
+  chechAffiliateUniqueUrl: `${BasePath}api/admin/checkAffiliateUrl`,
+  getPayouts: `${BasePath}api/admin/getAffiliatePayouts`,
+  addPayouts: `${BasePath}api/admin/payAffiliate`,
+
+  //Stripe connect
+  connectAgencyAccount: `${BasePath}api/agency/connectAgency`,
+
+  getPlansForAgency: `${BasePath}api/agency/getPlanListForAgency`,
 };
 
 export default Apis;

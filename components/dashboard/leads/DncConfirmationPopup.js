@@ -154,18 +154,14 @@ export default function DncConfirmationPopup({
 
       {/* Buttons */}
       <DialogActions sx={{ justifyContent: "space-between", mt: 3 }}>
-        <Button
-          onClick={onCancel}
-          sx={{
-            textTransform: "none",
-            fontWeight: "bold",
-            color: "#7902DF",
-            fontSize: "16px",
-            width: "45%",
-          }}
+        <div
+          onClick={onClose}
+          className=" flex w-[45%] text-black font-bold text-[16px]  hover:text-[#7902DF] py-3 rounded-lg
+                     items-center justify-center"
+          style={{ textTransform: "none", cursor: 'pointer' }}
         >
           Cancel
-        </Button>
+        </div>
 
         {/* <Button
           onClick={onConfirm}

@@ -17,7 +17,7 @@ import Image from "next/image";
 import React, { use, useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import AgentSelectSnackMessage from "./AgentSelectSnackMessage";
+import AgentSelectSnackMessage, { SnackbarTypes } from "./AgentSelectSnackMessage";
 
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -45,6 +45,7 @@ const AssignLead = ({
   //console.log;
   const [showDncConfirmationPopup, setShowDncConfirmationPopup] =
     useState(false);
+  const [showSuccessSnack, setShowSuccessSnack] = useState(null)
   const [initialLoader, setInitialLoader] = useState(false);
   const [agentsList, setAgentsList] = useState([]);
   const [stages, setStages] = useState([]);
@@ -510,7 +511,9 @@ const AssignLead = ({
         hide={() => {
           //   setIsSnackVisible(false);
           setErrorMessage(null);
+          setErrTitle(null)
         }}
+        type=""
       />
 
       {showDncConfirmationPopup && (
@@ -526,6 +529,7 @@ const AssignLead = ({
             setIsDncChecked(false);
           }}
           onConfirm={() => {
+            setShowSuccessSnack("Numbers will be checked agains DNC")
             setShowDncConfirmationPopup(false);
           }}
           leadsCount={selectedAll ? totalLeads - leadIs.length : leadIs.length}
@@ -737,6 +741,16 @@ const AssignLead = ({
                 setInvalidTimeMessage(null);
               }}
             />
+
+            <AgentSelectSnackMessage
+              className=""
+              message={showSuccessSnack}
+              isVisible={showSuccessSnack === null ? false :true}
+              hide={() => {
+                setShowSuccessSnack(null);
+              }}
+              type={SnackbarTypes.Success}
+            />
             <div
               className="w-full"
               style={{
@@ -837,9 +851,9 @@ const AssignLead = ({
                           color: "#7902DF",
                         },
                         "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                          {
-                            backgroundColor: "#7902DF",
-                          },
+                        {
+                          backgroundColor: "#7902DF",
+                        },
                         margin: 0,
                       }}
                     />
@@ -855,11 +869,10 @@ const AssignLead = ({
                 <input
                   className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
                   style={{
-                    border: `${
-                      isFocustedCustomLeads
+                    border: `${isFocustedCustomLeads
                         ? "2px solid #7902Df"
                         : "1px solid #00000040"
-                    }`,
+                      }`,
                     height: "50px",
                   }}
                   value={customLeadsToSend}
@@ -1043,14 +1056,14 @@ const AssignLead = ({
 
                                     // Time Selection List (Large Screen)
                                     "& .MuiPickersTimeClock-root .Mui-selected":
-                                      {
-                                        backgroundColor: "#7902DF !important", // Purple selected time
-                                        color: "white !important",
-                                      },
+                                    {
+                                      backgroundColor: "#7902DF !important", // Purple selected time
+                                      color: "white !important",
+                                    },
                                     "& .MuiPickersTimeClock-root .MuiButtonBase-root:hover":
-                                      {
-                                        backgroundColor: "#a352df !important", // Lighter purple on hover
-                                      },
+                                    {
+                                      backgroundColor: "#a352df !important", // Lighter purple on hover
+                                    },
 
                                     // Time Picker List (Dropdown List)
                                     "& .MuiTimeClock-root .Mui-selected": {
@@ -1058,9 +1071,9 @@ const AssignLead = ({
                                       color: "white !important",
                                     },
                                     "& .MuiTimeClock-root .MuiButtonBase-root:hover":
-                                      {
-                                        backgroundColor: "#a352df !important",
-                                      },
+                                    {
+                                      backgroundColor: "#a352df !important",
+                                    },
                                   }}
                                   onChange={handleDateChange}
                                   renderInput={(params) => (
@@ -1162,9 +1175,9 @@ const AssignLead = ({
                             backgroundColor: "#a352df !important", // Lighter purple on hover
                           },
                           "& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)":
-                            {
-                              color: "#333 !important", // Default color for unselected dates
-                            },
+                          {
+                            color: "#333 !important", // Default color for unselected dates
+                          },
                           "& .Mui-selected": {
                             backgroundColor: "#7902DF !important",
                             color: "#fff !important",
@@ -1219,8 +1232,8 @@ const AssignLead = ({
               ) : (
                 <div className="w-full">
                   {(NoOfLeadsToSend || customLeadsToSend) &&
-                  (CallNow ||
-                    (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
+                    (CallNow ||
+                      (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
                     <button
                       className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {

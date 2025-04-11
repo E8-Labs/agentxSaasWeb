@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Slider, Box, Typography } from "@mui/material";
 
 export default function CustomSlider({
-  min = 0,
-  max = 1000000,
+  min = 100,
+  max = 10000,
   step = 10,
   defaultValue = [200, 700],
   label = "Users",

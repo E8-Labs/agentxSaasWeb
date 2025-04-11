@@ -13,6 +13,7 @@ import {
   Select,
   Snackbar,
   TextareaAutosize,
+  Tooltip
 } from "@mui/material";
 import {
   CaretDown,
@@ -39,6 +40,11 @@ import { capitalize } from "@/utilities/StringUtility";
 import CloseIcon from "@mui/icons-material/Close";
 
 import { Phone } from "lucide-react";
+import Perplexity from "./Perplexity";
+import NoPerplexity from "./NoPerplexity";
+import ConfirmPerplexityModal from "./CofirmPerplexityModal";
+import { setUser } from "@sentry/nextjs";
+import getProfileDetails from "@/components/apis/GetProfile";
 
 const LeadDetails = ({
   showDetailsModal,
@@ -67,10 +73,10 @@ const LeadDetails = ({
   const [showAllEmails, setShowAllEmails] = useState(false);
 
   //code for buttons of details popup
-  const [showKYCDetails, setShowKycDetails] = useState(true);
+  const [showKYCDetails, setShowKycDetails] = useState(false);
   const [showNotesDetails, setShowNotesDetails] = useState(false);
   const [showAcitivityDetails, setShowAcitivityDetails] = useState(false);
-  const [showPerplexityDetails, setShowPerpelexityDetails] = useState(false);
+  const [showPerplexityDetails, setShowPerpelexityDetails] = useState(true);
 
   //code for add stage notes
   const [showAddNotes, setShowAddNotes] = useState(false);
@@ -97,7 +103,7 @@ const LeadDetails = ({
   //code for stages drop down
   const [selectedStage, setSelectedStage] = useState("");
   const [stagesList, setStagesList] = useState([]);
-  const [stagesListLoader, setStagesListLoader] = useState([]);
+  const [stagesListLoader, setStagesListLoader] = useState(false);
 
   //code for snakbars
   const [showSuccessSnack, setShowSuccessSnack] = useState(null);
@@ -121,13 +127,31 @@ const LeadDetails = ({
   //variable for gtteam loader
   const [getTeamLoader, setGetTeamLoader] = useState(false);
 
+  const [showConfirmPerplexity, setshowConfirmPerplexity] = useState(false)
+
+  const [userLocalData, setUserLocalData] = useState("")
+  const [loading, setLoading] = useState(false)
+
+
   useEffect(() => {
-    //console.log;
+    const getData = async () => {
+      let user = await getProfileDetails()
+      if (user) {
+        setUserLocalData(user.data.data)
+        // console.log('user', user)
+      }
+    }
+
+    getData()
+
   }, []);
 
   useEffect(() => {
     if (!selectedLead) return;
-    getLeadDetails(selectedLead);
+    getLeadDetails(selectedLead)
+
+    console.log('pipelineId', pipelineId)
+    
     if (pipelineId) {
       // //console.log;
       getStagesList(selectedLead);
@@ -144,7 +168,6 @@ const LeadDetails = ({
 
       if (data) {
         let u = JSON.parse(data);
-
         let path = Apis.getTeam;
 
         const response = await axios.get(path, {
@@ -293,7 +316,7 @@ const LeadDetails = ({
       });
 
       if (response) {
-        //console.log;
+        // console.log("lead details are", response.data.data)
         let dynamicColumns = [];
         dynamicColumns = [
           ...response?.data?.columns,
@@ -322,6 +345,7 @@ const LeadDetails = ({
 
   //function to get the stages list using pipelineId
   const getStagesList = async () => {
+
     try {
       let AuthToken = null;
       setStagesListLoader(true);
@@ -336,7 +360,7 @@ const LeadDetails = ({
 
       const ApiPath = `${Apis.getStagesList}?pipelineId=${pipelineId}`;
 
-      // //console.log;
+      // console.log("ApiPath", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -346,10 +370,15 @@ const LeadDetails = ({
       });
 
       if (response) {
+        // setStagesListLoader(false);
         //console.log;
         if (response.data.status === true) {
-          //console.log;
+          // console.log("stages list are", response.data.data.stages);
           setStagesList(response.data.data.stages);
+        }else{
+          // setShowErrorSnack(response.data.message);
+          console.log("Error in stages list", response.data.message);
+          // setShowErrorSnack2(true);
         }
       }
     } catch (error) {
@@ -640,6 +669,7 @@ const LeadDetails = ({
         // //console.log;
         if (response.data.status === true) {
           handleDelLead(selectedLeadsDetails);
+          // setShowSuccessSnack2(response.data.message)
         }
       }
     } catch (error) {
@@ -695,6 +725,69 @@ const LeadDetails = ({
 
     return count;
   }
+
+
+
+  const handleEnrichLead = async () => {
+    try {
+      setLoading(true)
+      const data = localStorage.getItem("User")
+
+      if (data) {
+        let u = JSON.parse(data)
+
+        let apidata = {
+          leadId: selectedLeadsDetails.id
+        }
+        // console.log('apidata', apidata)
+        // console.log('u.token', u.token)
+
+        const response = await axios.post(Apis.enrichLead, apidata, {
+          headers: {
+            "Authorization": 'Bearer ' + u.token
+          }
+        })
+
+        if (response.data) {
+          setLoading(false)
+          if (response.data.status === true) {
+
+            // console.log('response of enrich lead aip is', response.data.data)
+            setSelectedLeadsDetails(response.data.data)
+            let credits = u.user.enrichCredits
+
+            setShowSuccessSnack(response.data.message);
+            setShowSuccessSnack2(true);
+
+            if (credits == 0) {
+              u.user.enrichCredits = 99
+            } else {
+              u.user.enrichCredits = credits - 1
+            }
+
+            localStorage.setItem("User", JSON.stringify(u))
+
+
+            setshowConfirmPerplexity(false)
+          } else {
+            setShowErrorSnack(response.data.message);
+            setShowErrorSnack2(true);
+
+            console.log('response.data.message', response.data.message)
+          }
+        }
+      }
+    } catch (e) {
+      setLoading(false)
+      console.log('error in enrich lead is', e)
+    }
+    finally {
+      setLoading(false)
+    }
+  }
+
+
+  // console.log('enrichData', enrichData)
 
   return (
     <div className="h-[100svh]">
@@ -1021,7 +1114,7 @@ const LeadDetails = ({
                           </div>
 
                           <div>
-                          
+
                             {selectedLeadsDetails?.booking && (
                               <div className="flex flex-row items-center gap-2">
                                 <Image
@@ -1167,7 +1260,7 @@ const LeadDetails = ({
                             </button>
                             <div className="flex w-full ">
                               {showCustomVariables && (
-                                <div className="flex flex-col gap-4 mt-4 w-full max-w-full overflow-hidden">
+                                <div className="flex flex-col mt-4 gap-1 w-full max-w-full overflow-hidden">
                                   {leadColumns.map((column, index) => {
                                     if (
                                       [
@@ -1185,14 +1278,14 @@ const LeadDetails = ({
                                     return (
                                       <div
                                         key={index}
-                                        className="flex flex-row items-start gap-1 w-full flex-wrap"
+                                        className="flex flex-row items-start gap-1 justify-between w-full flex-wrap"
                                       >
                                         <div className="flex flex-row items-center gap-4">
                                           <div style={styles.subHeading}>
                                             {capitalize(column?.title || "")}
                                           </div>
                                         </div>
-                                        <div className="flex w-full flex-row whitespace-normal break-words overflow-hidden items-end justify-end flex-wrap">
+                                        <div className="flex flex-row whitespace-normal break-words overflow-hidden items-end flex-wrap">
                                           <div className="flex flex-col items-end flex-grow w-full">
                                             {getDetailsColumnData(
                                               column,
@@ -1472,7 +1565,7 @@ const LeadDetails = ({
                                   className="p-2 flex flex-col gap-2"
                                   style={{ fontWeight: "500", fontSize: 15 }}
                                 >
-                                  <button 
+                                  <button
                                     className="text-start flex flex-row items-center justify-start gap-2 hover:bg-gray-50"
                                     onClick={() => {
                                       handleAssignLeadToTeammember(item);
@@ -1520,41 +1613,41 @@ const LeadDetails = ({
                         paddingInline: 20,
                       }}
                     >
-                      {/* <button
-                      className="outline-none p-2 flex flex-row gap-2"
-                      style={{
-                        borderBottom: showPerplexityDetails
-                          ? "2px solid #7902DF"
-                          : "",
-                        backgroundColor: showPerplexityDetails
-                          ? "#7902DF05"
-                          : "",
-                      }}
-                      onClick={() => {
-                        setShowPerpelexityDetails(true);
-                        setShowKycDetails(false);
-                        setShowNotesDetails(false);
-                        setShowAcitivityDetails(false);
-                      }}
-                    >
-                      <Image
-                        src={
-                          showPerplexityDetails
-                            ? "/svgIcons/selectedPerplexityIcon.svg"
-                            : "/svgIcons/unselectedPerplexityIcon.svg"
-                        }
-                        width={24}
-                        height={24}
-                        alt="*"
-                      />
-                      <div
+                      <button
+                        className="outline-none p-2 flex flex-row gap-2"
                         style={{
-                          color: showPerplexityDetails ? "#7902DF" : "black",
+                          borderBottom: showPerplexityDetails
+                            ? "2px solid #7902DF"
+                            : "",
+                          backgroundColor: showPerplexityDetails
+                            ? "#7902DF05"
+                            : "",
+                        }}
+                        onClick={() => {
+                          setShowPerpelexityDetails(true);
+                          setShowKycDetails(false);
+                          setShowNotesDetails(false);
+                          setShowAcitivityDetails(false);
                         }}
                       >
-                        Lead Insights
-                      </div>
-                    </button> */}
+                        <Image
+                          src={
+                            showPerplexityDetails
+                              ? "/svgIcons/sparklesPurple.svg"
+                              : "/svgIcons/sparkles.svg"
+                          }
+                          width={20}
+                          height={20}
+                          alt="*"
+                        />
+                        <div
+                          style={{
+                            color: showPerplexityDetails ? "#7902DF" : "black",
+                          }}
+                        >
+                          Insights
+                        </div>
+                      </button>
 
                       <button
                         className="outline-none p-2 flex flex-row gap-2"
@@ -1665,127 +1758,31 @@ const LeadDetails = ({
                       style={{ height: "1px", backgroundColor: "#15151530" }}
                     />
 
-                    <div style={{ paddingInline: 20 }}>
-                      {/* {showPerplexityDetails && (
-                      <div
-                        className="w-full flex flex-col items-center mt-3 gap-3 h-[50vh]"
-                        style={{
-                          overflowY: "auto",
-                          scrollbarWidth: "none",
-                          overflowX: "hidden",
-                        }}
-                      >
-                        <div className="w-full flex flex-row justify-between items-center">
-                          <div className="w-full flex flex-row items-center gap-2">
-                            <Image
-                              src={"/svgIcons/image.svg"}
-                              height={24}
-                              width={24}
-                              alt="*"
-                              style={{ borderRadius: "50%" }}
-                            />
-
-                            <div style={{ fontsize: 22, fontWeight: "700" }}>
-                              More About Storm Johnson
-                            </div>
-                          </div>
-
-                          <div className="flex flex-row items-center gap-2 ">
-                            <Image
-                              src={"/svgIcons/confidanceIcon.svg"}
-                              height={24}
-                              width={24}
-                              alt="*"
-                            />
-
-                            <div style={{ fontsize: 22, fontWeight: "700" }}>
-                              Confidence Score:{" "}
-                              <span
-                                style={{
-                                  fontsize: 22,
-                                  fontWeight: "700",
-                                  color: "#7902DF",
-                                }}
-                              >
-                                70%
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="w-full flex flex-row items-cneter gap-2 ">
-                          <div className="flex flex-col gap-2 w-[185px] h-[80px] px-2 py-2 items-center bg-[#FAFAFA] rounded">
-                            <div className="w-full flex flex-row items-cneter gap-2 ">
-                              <Image
-                                src={"/svgIcons/image.svg"}
-                                height={24}
-                                width={24}
-                                alt="*"
-                                style={{ borderRadius: "50%" }}
-                              />
-
-                              <div
-                                style={{
-                                  fontsize: 13,
-                                  fontWeight: "500",
-                                  color: "#00000060",
-                                }}
-                              >
-                                lifestyleandtech
-                              </div>
-                            </div>
-
-                            <div style={{ fontsize: 13, fontWeight: "500" }}>
-                              What now? With trevor noah,
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="w-full flex flex-row items-cneter gap-2 mt-5">
-                          <Image
-                            src={"/svgIcons/perpelexityIcon.svg"}
-                            height={24}
-                            width={24}
-                            alt="*"
+                    <div style={{ paddingInline: 0 }}>
+                      {showPerplexityDetails && (
+                        selectedLeadsDetails && selectedLeadsDetails.enrichData ? (
+                          <Perplexity
+                            selectedLeadsDetails={selectedLeadsDetails}
+                          />
+                        ) : (
+                          <NoPerplexity
+                            setshowConfirmPerplexity={setshowConfirmPerplexity}
+                            user={userLocalData}
+                            handleEnrichLead={handleEnrichLead}
+                            loading={loading}
                           />
 
-                          <div style={{ fontsize: 16, fontWeight: "700" }}>
-                            Perplexity
-                          </div>
-                        </div>
 
-                        <div style={{ fontsize: 15, fontWeight: "500" }}>
-                          {`Dwayne "The Rock" Johnson is a renowned actor, producer, and former professional wrestler. He has been involved in numerous projects across various genres, including films and podcasts. Here are some recent highlights:`}
-                        </div>
+                        ))}
 
-                        <div
-                          style={{
-                            fontsize: 15,
-                            fontWeight: "500",
-                            textDecorationLine: "underline",
-                            alignSelf: "flex-start",
-                          }}
-                        >
-                          {`Dwayne "The Rock" Johnson is a renowned actor`}
-                        </div>
+                      <ConfirmPerplexityModal
+                        showConfirmPerplexity={showConfirmPerplexity}
+                        setshowConfirmPerplexity={setshowConfirmPerplexity}
+                        selectedLeadsDetails={selectedLeadsDetails}
+                        handleEnrichLead={handleEnrichLead}
+                        loading={loading}
+                      />
 
-                        <div style={{ fontsize: 15, fontWeight: "500" }}>
-                          {`Dwayne "The Rock" Johnson is a renowned actor, producer, and former professional wrestler. He has been involved in numerous projects across various genres, including films and podcasts. Here are some recent highlights:`}
-                        </div>
-
-                        <div className="w-full flex flex-row items-cneter gap-2 mt-5">
-                          <Image
-                            src={"/svgIcons/image.svg"}
-                            height={144}
-                            width={160}
-                            alt="*"
-                            style={{
-                              borderRadius: "20px",
-                            }}
-                          />
-                        </div>
-                      </div>
-                    )} */}
                       {showKYCDetails && (
                         <div>
                           {selectedLeadsDetails?.kycs.length < 1 ? (
@@ -2198,11 +2195,36 @@ const LeadDetails = ({
                         <div>
                           {!hideDelete && (
                             <button
-                              onClick={handleDeleteLead}
-                              className="text-red"
-                              style={{ fontsize: 15, fontWeight: "500" }}
+                              className="flex flex-row gap-2 items-center"
+                              onClick={() => {
+                                handleDeleteLead()
+                              }}
+                              style={{
+                                marginTop: 20,
+                                alignSelf: "end",
+                              }}
                             >
-                              Delete
+
+                              <Image
+                                src={"/otherAssets/redDeleteIcon.png"}
+                                height={24}
+                                width={24}
+                                alt="del"
+                                style={{
+                                  filter: "brightness(0) saturate(100%) opacity(0.5)", // Convert to black and make semi-transparent
+                                }}
+                              />
+
+                              <div
+                                style={{
+                                  fontSize: 15,
+                                  fontWeight: "600",
+                                  color: "#15151590",
+                                  textDecorationLine: "underline",
+                                }}
+                              >
+                                Delete
+                              </div>
                             </button>
                           )}
                         </div>

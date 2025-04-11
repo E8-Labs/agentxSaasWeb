@@ -415,6 +415,7 @@ const InsuranceAgentSignUp = ({
       fontSize: 15,
       fontWeight: "500",
       borderRadius: "7px",
+
     },
     errmsg: {
       fontSize: 12,
@@ -688,7 +689,10 @@ const InsuranceAgentSignUp = ({
                 placeholder="Brokerage"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
+                name="not-a-username"
+                autoComplete="off"
                 value={userBrokage}
+               
                 onChange={(e) => {
                   setUserBrokage(e.target.value);
                 }}

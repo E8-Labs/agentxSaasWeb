@@ -301,7 +301,9 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
       return false;
     }
     if (selectedType == "Document") {
-      if (title.length > 0 && selectedDocument) return true;
+      console.log('selectedType', title)
+      console.log('selectedDocument', selectedDocument)
+      if (docTitle.length > 0 && selectedDocument) return true;
       return false;
     }
     if (selectedType == "Url") {

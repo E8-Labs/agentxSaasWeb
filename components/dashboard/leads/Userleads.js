@@ -46,6 +46,7 @@ import { GetFormattedDateString } from "@/utilities/utility";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fromJSON } from "postcss";
 import LeadLoading from "./LeadLoading";
+import { pipeline } from "zod";
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -91,6 +92,12 @@ const Userleads = ({
   const [filtersSelected, setFiltersSelected] = useState([]);
 
   const [noStageSelected, setNoStageSelected] = useState(false);
+
+
+  const fromCalendarRef = useRef(null);
+  const toCalendarRef = useRef(null);
+
+
 
   useEffect(() => {
     //console.log;
@@ -166,7 +173,7 @@ const Userleads = ({
   const [isExpanded, setIsExpanded] = useState([]);
   const [isExpandedActivity, setIsExpandedActivity] = useState([]);
 
-  // //////console.log;
+  // console.log("pipelineId is",selectedLeadsDetails)
 
   //to date filter
   // const [showFilterModal, setShowFilterModal] = useState(false);
@@ -241,6 +248,35 @@ const Userleads = ({
     getPipelines();
     getSheets();
   }, []);
+
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        showFromDatePicker &&
+        fromCalendarRef.current &&
+        !fromCalendarRef.current.contains(event.target)
+      ) {
+        setShowFromDatePicker(false);
+      }
+
+      if (
+        showToDatePicker &&
+        toCalendarRef.current &&
+        !toCalendarRef.current.contains(event.target)
+      ) {
+        setShowToDatePicker(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showFromDatePicker, showToDatePicker]);
+
+
+
 
   useEffect(() => {
     if (shouldSet === true) {
@@ -1214,7 +1250,7 @@ const Userleads = ({
                 {item.firstName.slice(0, 1)}
               </div>
               <div
-                className="truncate cursor-pointer  break-words overflow-hidden text-ellipsis"
+                className="w-[80%] truncate cursor-pointer  break-words overflow-hidden text-ellipsis"
                 onClick={() => {
                   setSelectedLeadsDetails(item); // Pass selected lead data
                   setNoteDetails(item.notes);
@@ -2041,8 +2077,8 @@ const Userleads = ({
               <div
                 className="flex flex-row items-center mt-8 gap-2"
                 style={styles.paragraph}
-                // className="flex flex-row items-center mt-8 gap-2"
-                // style={{ ...styles.paragraph, overflowY: "hidden" }}
+              // className="flex flex-row items-center mt-8 gap-2"
+              // style={{ ...styles.paragraph, overflowY: "hidden" }}
               >
                 <div
                   className="flex flex-row items-center gap-2 w-full"
@@ -2073,8 +2109,8 @@ const Userleads = ({
                           color: SelectedSheetId === item.id ? "#7902DF" : "",
                           whiteSpace: "nowrap", // Prevent text wrapping
                         }}
-                        // className='flex flex-row items-center gap-1 px-3'
-                        // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
+                      // className='flex flex-row items-center gap-1 px-3'
+                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
                       >
                         <button
                           style={styles.paragraph}
@@ -2222,9 +2258,8 @@ const Userleads = ({
                             return (
                               <th
                                 key={index}
-                                className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${
-                                  isMoreColumn ? "sticky right-0 bg-white" : ""
-                                }`}
+                                className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn ? "sticky right-0 bg-white" : ""
+                                  }`}
                                 style={{
                                   whiteSpace: "nowrap",
                                   overflow: "hidden",
@@ -2246,11 +2281,10 @@ const Userleads = ({
                             {leadColumns.map((column, colIndex) => (
                               <td
                                 key={colIndex}
-                                className={`border-none px-4 py-2 max-w-[330px] whitespace-normal break-words overflow-hidden text-ellipsis ${
-                                  column.title === "More"
-                                    ? "sticky right-0 bg-white"
-                                    : ""
-                                }`}
+                                className={`border-none px-4 py-2 max-w-[330px] whitespace-normal break-words overflow-hidden text-ellipsis ${column.title === "More"
+                                  ? "sticky right-0 bg-white"
+                                  : ""
+                                  }`}
                                 style={{
                                   whiteSpace: "nowrap",
                                   zIndex: column.title === "More" ? 1 : "auto",
@@ -2347,32 +2381,15 @@ const Userleads = ({
 
                             <div>
                               {showFromDatePicker && (
-                                <div>
+                                <div ref={fromCalendarRef}>
                                   <Calendar
                                     onChange={handleFromDateChange}
                                     value={selectedFromDate}
                                     locale="en-US"
-                                    onClose={() => {
-                                      setShowFromDatePicker(false);
-                                    }}
-                                    tileClassName={({ date, view }) => {
-                                      const today = new Date();
-
-                                      // Highlight the current date
-                                      if (
-                                        date.getDate() === today.getDate() &&
-                                        date.getMonth() === today.getMonth() &&
-                                        date.getFullYear() ===
-                                          today.getFullYear()
-                                      ) {
-                                        return "current-date"; // Add a custom class for current date
-                                      }
-
-                                      return null; // Default for other dates
-                                    }}
                                   />
                                 </div>
                               )}
+
                             </div>
                           </div>
                         </div>
@@ -2405,37 +2422,15 @@ const Userleads = ({
                             </button>
                             <div>
                               {showToDatePicker && (
-                                <div>
-                                  {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
-                                                                    <button>
-                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
-                                                                    </button>
-                                                                </div> */}
+                                <div className="w-full border" ref={toCalendarRef}>
                                   <Calendar
                                     onChange={handleToDateChange}
                                     value={selectedToDate}
                                     locale="en-US"
-                                    onClose={() => {
-                                      setShowToDatePicker(false);
-                                    }}
-                                    tileClassName={({ date, view }) => {
-                                      const today = new Date();
-
-                                      // Highlight the current date
-                                      if (
-                                        date.getDate() === today.getDate() &&
-                                        date.getMonth() === today.getMonth() &&
-                                        date.getFullYear() ===
-                                          today.getFullYear()
-                                      ) {
-                                        return "current-date"; // Add a custom class for current date
-                                      }
-
-                                      return null; // Default for other dates
-                                    }}
                                   />
                                 </div>
                               )}
+
                             </div>
                           </div>
                         </div>
@@ -2479,9 +2474,9 @@ const Userleads = ({
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -2549,12 +2544,10 @@ const Userleads = ({
                                   onClick={() => {
                                     handleSelectStage(item);
                                   }}
-                                  className={`p-2 border border-[#00000020] ${
-                                    found >= 0 ? `bg-purple` : "bg-transparent"
-                                  } px-6
-                              ${
-                                found >= 0 ? `text-white` : "text-black"
-                              } rounded-2xl`}
+                                  className={`p-2 border border-[#00000020] ${found >= 0 ? `bg-purple` : "bg-transparent"
+                                    } px-6
+                              ${found >= 0 ? `text-white` : "text-black"
+                                    } rounded-2xl`}
                                 >
                                   {item.stageTitle}
                                 </button>
@@ -2568,11 +2561,10 @@ const Userleads = ({
                               onClick={() => {
                                 setNoStageSelected(!noStageSelected);
                               }}
-                              className={`p-2 border border-[#00000020] ${
-                                noStageSelected
-                                  ? `bg-purple text-white`
-                                  : "bg-transparent text-black"
-                              } px-6 rounded-2xl`}
+                              className={`p-2 border border-[#00000020] ${noStageSelected
+                                ? `bg-purple text-white`
+                                : "bg-transparent text-black"
+                                } px-6 rounded-2xl`}
                             >
                               No Stage
                             </button>
@@ -2780,11 +2772,10 @@ const Userleads = ({
                           </div>
                         ) : (
                           <button
-                            className={` h-[50px] rounded-xl text-white w-full ${
-                              newSheetName && newSheetName.length > 0
-                                ? "bg-red"
-                                : ""
-                            }`}
+                            className={` h-[50px] rounded-xl text-white w-full ${newSheetName && newSheetName.length > 0
+                              ? "bg-red"
+                              : ""
+                              }`}
                             style={{
                               fontWeight: "600",
                               fontSize: 16.8,

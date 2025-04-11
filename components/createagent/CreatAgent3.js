@@ -952,7 +952,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
                     const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
 
                     if (screenWidth <= SM_SCREEN_SIZE) {
-                      if (selectedPlan?.id === 1) {
+                      if (selectedPlan.id === 1) {
                         setShowSubscribeplan2(true);
                       } else {
                         router.push("/createagent/desktop");
@@ -960,7 +960,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
                       // //console.log;
                     } else {
                       // //console.log;
-                      if (selectedPlan?.id === 1) {
+                      if (false) {
                         setShowSubscribeplan2(true);
                       } else {
                         handleContinue();

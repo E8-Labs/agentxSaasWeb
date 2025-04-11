@@ -20,6 +20,10 @@ const nextConfig = {
             protocol: 'https',
             hostname: 'iggi-media.s3.amazonaws.com',  // Another domain you're using
           },
+          {
+            protocol: 'https',
+            hostname: 'images.unsplash.com',
+          },
         ],
       },
 };

@@ -42,13 +42,13 @@ export default function EnrichModal({
                             backgroundColor: "#ffffff",
                             padding: 20,
                             borderRadius: "13px",
-                            height:"60vh"
+                            height: "60vh"
                         }}
                     >
                         <div className="flex flex-row justify-between w-full">
 
                             <div style={{ fontSize: 18, fontWeight: '700' }}>
-                                Enrich Leads
+                                Lead Insight
                             </div>
                             <button
                                 onClick={() => {
@@ -66,18 +66,13 @@ export default function EnrichModal({
 
                         <div className="w-full flex flex-col items-center justify-center mt-[90px] gap-4">
 
-                            <Image src={'/svgIcons/perpelexityIcon.svg'}
+                            <Image src={'/svgIcons/sparkles.svg'}
                                 height={37} width={37} alt="*"
                             />
 
                             <div style={{ fontSize: 18, fontWeight: '700' }}>
-                                Lead Insight
+                                Enrich Lead
                             </div>
-
-                            <div style={{ fontSize: 15, fontWeight: '500', width: '30vw', textAlign: 'center' }}>
-                               {` By enriching this lead, you're giving your AI access to who this person is and all the data published online`}
-                            </div>
-
                             <div className="flex flex-row gap-2 items-center">
 
                                 <div style={{ fontSize: 13, fontWeight: '500', color: '#00000060', }}>
@@ -112,24 +107,37 @@ export default function EnrichModal({
                                 </Tooltip>
                             </div>
 
-                            <button className="h-[53px] w-[143px] rounded-lg bg-purple items-center justify-center text-white"
-                                onClick={() => {
-                                    setShowenrichConfirmModal(true)
-                                }}
-                            >
-                                Enrich Lead
-                            </button>
-                            {Loader ? (
-                                <CircularProgress size={27} />
-                            ) : (
-                                <button style={{ fontSize: 13, fontWeight: '400', color: "#00000060", }}
+                            <div style={{ fontSize: 15, fontWeight: '500', width: '30vw', textAlign: 'center' }}>
+                                {`By enriching this lead, you're giving your AI valuable context — pulling in public data to better understand who this person is and how to engage with them.`}
+                            </div>
+
+
+
+                            <div className="flex flex-row items-center justify-between w-[60%]">
+
+                                {Loader ? (
+                                    <CircularProgress size={27} />
+                                ) : (
+                                    <button className="h-[53px] flex w-[45%] text-[#000000]  text-[16px] hover:text-[#7902DF] py-3 rounded-lg
+                     items-center justify-center"
+                                        style={{}}
+                                        onClick={() => {
+                                            handleAddLead(false)
+                                        }}
+                                    >
+                                        Not Interested
+                                    </button>
+                                )}
+
+                                <button className="h-[53px] text-[16px] w-[143px] rounded-lg bg-purple items-center justify-center text-white"
                                     onClick={() => {
-                                        handleAddLead(false)
+                                        setShowenrichConfirmModal(true)
                                     }}
                                 >
-                                    Not Interested
+                                    Enrich Lead
                                 </button>
-                            )}
+
+                            </div>
 
                         </div>
 

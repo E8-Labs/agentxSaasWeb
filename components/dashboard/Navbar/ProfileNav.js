@@ -364,6 +364,29 @@ const ProfileNav = () => {
     },
   ];
 
+  const agencyLinks = [
+    {
+      id: 1,
+      name: "Dashboard",
+      href: "/dashboard",
+      selected: "/svgIcons/selectdDashboardIcon.svg",
+      uneselected: "/svgIcons/unSelectedDashboardIcon.svg",
+    },{
+      id: 1,
+      name: "Sub Account",
+      href: "/dashboard",
+      selected: "/svgIcons/selectedSubAccountIcon.svg",
+      uneselected: "/svgIcons/unSelectedSubAccountIcon.svg",
+    },{
+      id: 1,
+      name: "Plans",
+      href: "/dashboard",
+      selected: "/svgIcons/selectPlansIcon.svg",
+      uneselected: "/svgIcons/unSelectePlansIcon.svg",
+    },
+  ];
+
+
   //function to getprofile
   const getProfile = async () => {
     try {
@@ -878,7 +901,17 @@ const ProfileNav = () => {
                     marginTop: 20,
                   }}
                 >
-                  {`You’ll need to select a plan to continue`}
+                  {`AI Agents from just $1.50/day`}
+                </div>
+                <div
+                  className="flex justify-center items-center"
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "500",
+                    marginTop: 10,
+                  }}
+                >
+                  {`Gets more done than coffee. Cheaper too. Cancel anytime. 😉`}
                 </div>
 
                 <div className="flex flex-row items-center justify-center ">

@@ -1,21 +1,107 @@
-import React, { useState } from "react";
-import { Drawer, Button, IconButton, Box, Typography, Modal } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Drawer, Button, IconButton, Box, Typography, Modal, CircularProgress } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import moment from "moment";
+import Apis from "@/components/apis/Apis";
+import axios from "axios";
 
 export default function AffiliateDetailsDrawer({ open, onClose, affiliate }) {
 
     const [showAddNewPayouPopup, setShowAddNewPayoutPopup] = useState(false)
 
-    const payouts = [
-        { date: "7 May 2010", amount: "1,527.73", paidAmount: "152" },
-        { date: "27 September 2011", amount: "5,440.01", paidAmount: "544" },
-        { date: "5 November 2023", amount: "6,597.00", paidAmount: "544" },
-        { date: "14 April 2006", amount: "9,983.57", paidAmount: "544" },
-        { date: "10 February 2008", amount: "4,588.92", paidAmount: "544" },
-        { date: "22 October 2022", amount: "6,011.04", paidAmount: "544" },
-        { date: "21 May 2007", amount: "7,414.90", paidAmount: "544" },
-        { date: "1 January 2021", amount: "3,265.50", paidAmount: "544" },
-    ]
+    const [payouts, setPayouts] = useState([])
+    const [amount, setAmount] = useState("")
+    const [loading, setLoading] = useState(false)
+    const [loading2, setLoading2] = useState(false)
+    const [error, setError] = useState(null)
+
+    useEffect(() => {
+        getPayout()
+    }, [affiliate])
+
+    const getPayout = async () => {
+        try {
+            setLoading2(true)
+            const data = localStorage.getItem("User")
+
+            if (data) {
+                let u = JSON.parse(data)
+
+                let apipath = Apis.getPayouts + "?affiliateId=" + affiliate.id
+                console.log('apipath', apipath)
+
+                let response = await axios.get(apipath, {
+                    headers: {
+                        "Authorization": "Bearer " + u.token
+                    }
+                })
+
+                if (response.data) {
+                    setLoading2(false)
+
+                    if (response.data.status === true) {
+                        setPayouts(response.data.data)
+                        console.log('response.data.data', response.data.data)
+                    } else {
+                        console.log('response.data.message', response.data.message)
+                    }
+                }
+
+            }
+        } catch (e) {
+            setLoading2(false)
+
+            console.log('error in get payouts is ', e)
+        }
+    }
+
+
+    const addPayout = async (amount) => {
+        if (!amount) {
+            setError("Enter amount")
+            return
+        }
+        setLoading(true)
+        try {
+            const data = localStorage.getItem("User")
+
+            if (data) {
+                let u = JSON.parse(data)
+
+                let apipath = Apis.addPayouts
+                let apidata = {
+                    affiliateId: affiliate.id,
+                    amount: amount
+                }
+                console.log('apipath', apipath)
+
+                let response = await axios.post(apipath, apidata, {
+                    headers: {
+                        "Authorization": "Bearer " + u.token
+                    }
+                })
+
+                if (response.data) {
+                    setLoading(false)
+                    if (response.data.status === true) {
+                        setPayouts((prev) => [...prev, response.data.data])
+                        console.log('response.data.data', response.data.data)
+                        setShowAddNewPayoutPopup(false)
+                        setAmount("")
+                    } else {
+                        console.log('response.data.message', response.data.message)
+                    }
+                }
+
+            }
+        } catch (e) {
+            setLoading(false)
+            console.log('error in add payouts is ', e)
+        } finally {
+            setLoading(false)
+        }
+    }
+
 
 
     return (
@@ -25,7 +111,7 @@ export default function AffiliateDetailsDrawer({ open, onClose, affiliate }) {
             onClose={onClose}
             PaperProps={{
                 sx: {
-                    width: "55%",
+                    width: "45%",
                     // maxWidth: "600px",
                     borderRadius: "12px",
                     padding: "20px",
@@ -73,7 +159,7 @@ export default function AffiliateDetailsDrawer({ open, onClose, affiliate }) {
                     </div>
 
                     <div style={{ fontSize: 15, fontWeight: '500', color: '#000' }}>
-                        Created on {affiliate.createdAt ? affiliate.createdAt : "-"}
+                        Created on {affiliate.createdAt ? moment(affiliate.createdAt).format("MMMM DD YYYY hh:mma") : "-"}
                     </div>
                 </div>
 
@@ -131,33 +217,50 @@ export default function AffiliateDetailsDrawer({ open, onClose, affiliate }) {
                     </button>
                 </div>
 
-                <div className="flex w-full flex-row h-[52px] border justify-between items-center mt-4">
-                    <div className="w-5/12 flex flex-col justify-center p-3 border-r-2 h-full border-[#15151510]">
-                        <div style={styles.text}>Date</div>
-                    </div>
-                    <div className="w-4/12 flex flex-col justify-center p-3 border-r-2 h-full border-[#15151510]">
-                        <div style={styles.text}>Revenue Amount</div>
-                    </div>
-                    <div className="w-5/12 flex flex-col justify-center p-3 border-r-2 h-full border-[#15151510]">
-                        <div style={styles.text}>Paid</div>
-                    </div>
-                </div>
-
                 {
-                    payouts.map((item, index) => (
-                        <div key={index} className="flex w-full flex-row h-[52px justify-between items-center">
-                            <div className="w-5/12 flex flex-col justify-center p-3 border-r-2 h-full border-[#15151510] ">
-                                <div style={styles.text}>{item.date}</div>
-                            </div>
-                            <div className="w-4/12 flex flex-col justify-center p-3 border-r-2 h-full border-[#15151510]">
-                                <div style={styles.text}>{item.amount}</div>
-                            </div>
-                            <div className="w-5/12 flex flex-col justify-center p-3 h-full border-[#15151510]">
-                                <div style={styles.text}>{item.paidAmount}</div>
-                            </div>
+                    loading2 ? (
+                        <div className="w-full flex items-center flex-col">
+                            <CircularProgress size={30} />
                         </div>
-                    ))
+                    ) :
+                        payouts.length > 0 ? (
+                            <>
+                                <div className="flex w-full flex-row h-[52px] border justify-between items-center mt-4">
+                                    <div className="w-5/12 flex flex-col justify-center p-3 border-r-2 h-full border-[#15151510]">
+                                        <div style={styles.text}>Date</div>
+                                    </div>
+                                    <div className="w-4/12 flex flex-col justify-center p-3 border-r-2 h-full border-[#15151510]">
+                                        <div style={styles.text}>Revenue Amount</div>
+                                    </div>
+                                    <div className="w-5/12 flex flex-col justify-center p-3 border-r-2 h-full border-[#15151510]">
+                                        <div style={styles.text}>Paid</div>
+                                    </div>
+                                </div>
+
+                                {
+                                    payouts.map((item, index) => (
+                                        <div key={index} className="flex w-full flex-row h-[52px justify-between items-center">
+                                            <div className="w-5/12 flex flex-col justify-center p-3 border-r-2 h-full border-[#15151510] ">
+                                                <div style={styles.text}>{moment(item.createdAt).format("MMMM DD YYYY")}</div>
+                                            </div>
+                                            <div className="w-4/12 flex flex-col justify-center p-3 border-r-2 h-full border-[#15151510]">
+                                                <div style={styles.text}>{"-"}</div>
+                                            </div>
+                                            <div className="w-5/12 flex flex-col justify-center p-3 h-full border-[#15151510]">
+                                                <div style={styles.text}>{item.amount}</div>
+                                            </div>
+                                        </div>
+                                    ))
+                                }
+                            </>
+                        ) : (
+                            <div style={{ fontSize: 16, fontWeight: '500' }}>
+                                No payouts
+                            </div>
+                        )
                 }
+
+
             </div>
 
 
@@ -213,31 +316,55 @@ export default function AffiliateDetailsDrawer({ open, onClose, affiliate }) {
                         >
                             <Typography
                                 sx={{
-                                    fontSize: 50,
+                                    fontSize: 30,
                                     fontWeight: "bold",
                                     display: "flex",
                                     alignItems: "center",
                                 }}
                             >
-                                <span style={{ fontSize: "32px", fontWeight: "400", marginRight: 5 }}>
+                                <span style={{ fontSize: "20px", fontWeight: "400", marginRight: 5 }}>
                                     $
                                 </span>
-                                {"amount"}
+                                <input
+                                    className="outline-none focus:ring-0 border-none"
+                                    type='number'
+                                    value={amount}
+                                    onChange={(event) => {
+                                        setAmount(event.target.value)
+                                        setError(null)
+                                    }}
+                                    placeholder="amount"
+                                />
                             </Typography>
+
                         </Box>
+
                         <Box sx={{ width: "60%", height: "1px", backgroundColor: "#ccc", my: 1 }}></Box>
+                        {
+                            error && (
+                                <div style={{ fontSize: 14, fontWeight: '400', color: 'red' }}>
+                                    {error}
+                                </div>
+                            )
+                        }
                         <Typography fontSize={14} fontWeight="500" color="gray">
                             Revenue: <span style={{ fontWeight: "bold", color: "#000" }}>${"revenue"}</span>
                         </Typography>
                     </Box>
 
                     {/* Issue Payout Button */}
+                    {
+                        loading ? (
+                            <CircularProgress size={25} />
+                        ) : (
 
-                    <button className="text-white bg-purple outline-none rounded-lg px-3 py-2 w-[175px] mt-8"
-                        onClick={() => { setShowAddNewPayoutPopup(true) }}
-                    >
-                        Issue Payout
-                    </button>
+                            <button className="text-white bg-purple outline-none rounded-lg px-3 py-2 w-[175px] mt-8"
+                                onClick={() => { addPayout(amount) }}
+                            >
+                                Issue Payout
+                            </button>
+                        )
+                    }
 
                 </Box>
             </Modal>

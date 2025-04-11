@@ -67,18 +67,20 @@ import Knowledgebase from "@/components/dashboard/myagentX/Knowledgebase";
 import { ArrowDropDownIcon } from "@mui/x-date-pickers";
 import { PauseCircle } from "@mui/icons-material";
 import { EditPhoneNumberModal } from "@/components/dashboard/myagentX/EditPhoneNumberPopup";
+import VoiceMailTab from "../../../components/dashboard/myagentX/VoiceMailTab";
 
 function Page() {
   const timerRef = useRef();
   const fileInputRef = useRef([]);
   // const fileInputRef = useRef(null);
   const router = useRouter();
-  const [AgentMenuOptions] = useState([
+  let tabs = [
     "Agent Info",
     "Calendar",
     "Pipeline | Stages",
     "Knowledge Base",
-  ]);
+  ]
+  const [AgentMenuOptions,setAgentMenuOptions] = useState(tabs);
   const [openTestAiModal, setOpenTestAiModal] = useState(false);
   const [name, setName] = useState("");
   //code for phonenumber
@@ -351,6 +353,21 @@ function Page() {
       value: false,
     },
   ];
+
+
+  useEffect(()=>{
+    const updateAgentManueList = () =>{
+
+      if (showDrawerSelectedAgent?.agentType === "outbound") {
+        let newTab = "Voicemail"
+        setAgentMenuOptions(prev => [...prev, newTab]);
+      }else{
+        setAgentMenuOptions(tabs)
+      }
+      // console.log('agent type is', showDrawerSelectedAgent?.agentType)
+    }
+    updateAgentManueList();
+  },[showDrawerSelectedAgent])
 
   //call get numbers list api
   useEffect(() => {
@@ -1664,6 +1681,7 @@ function Page() {
         );
 
         setShowDrawerSelectedAgent(null);
+        setActiveTab("Agent Info")
         setDelAgentModal(false);
 
         //updating data on localstorage
@@ -2885,7 +2903,10 @@ function Page() {
       <Drawer
         anchor="right"
         open={showDrawerSelectedAgent != null}
-        onClose={() => setShowDrawerSelectedAgent(null)}
+        onClose={() => {
+          setShowDrawerSelectedAgent(null)
+          setActiveTab("Agent Info")
+        }}
         PaperProps={{
           sx: {
             width: "45%", // Adjust width as needed
@@ -4039,7 +4060,11 @@ function Page() {
                 <Knowledgebase user={user} agent={showDrawerSelectedAgent} />
               </div>
             ) : (
-              ""
+              activeTab === "Voicemail" ? (
+                <div className="flex flex-col gap-4 w-full">
+                  <VoiceMailTab setMainAgentsList = {setMainAgentsList} agent={showDrawerSelectedAgent} setShowDrawerSelectedAgent ={setShowDrawerSelectedAgent}/>
+                </div>
+              ):""
             )}
 
             {/* Delete agent button */}
@@ -4051,8 +4076,8 @@ function Page() {
               style={{
                 marginTop: 20,
                 alignSelf: "end",
-                // position: "absolute",
-                // bottom: "5%",
+                position: "absolute",
+                bottom: "5%",
               }}
             >
               {/* <Image src={'/otherAssets/redDeleteIcon.png'}
@@ -4632,6 +4657,7 @@ function Page() {
                         <PromptTagInput
                           promptTag={scriptTagInput}
                           kycsList={kycsData}
+                          from = {"Promt"}
                           uniqueColumns={uniqueColumns}
                           tagValue={setScriptTagInput}
                           scrollOffset={scrollOffset}
@@ -4648,7 +4674,7 @@ function Page() {
                     </div>
                   </div>
 
-                  <div className="" style={{ height: "" }}>
+                  <div className="" style={{}}>
                     {showSaveChangesBtn && (
                       <div className="w-full">
                         {UpdateAgentLoader ? (
@@ -4771,6 +4797,7 @@ function Page() {
                             tagValue={setObjective}
                             scrollOffset={scrollOffset}
                             showSaveChangesBtn={showObjectionsSaveBtn}
+                            from  = {"Objective"}
                             saveUpdates={async () => {
                               await updateAgent()
                               setShowObjectionsSaveBtn(false)

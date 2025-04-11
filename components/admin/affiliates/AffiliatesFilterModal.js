@@ -83,9 +83,10 @@ export function AffiliatesFilterModal({
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
-        setusers(filters.users || [0, 1000000]);
-        setrevenue(filters.revenue || [0, 1000000]);
-        setXBar(filters.xBar || [0, 1000000]);
+        setusers(filters.users || [0, 1000]);
+        setrevenue(filters.revenue || [0, 10000]);
+        setXBar(filters.xBar || [0, 10000]);
+        console.log('filters', filters)
       }, [showFilterModal]); // Reset filters every time the modal opens
     
 
@@ -95,7 +96,7 @@ export function AffiliatesFilterModal({
         updateFilters({
             users,
             revenue,
-
+            xBar,
             finalUpdate: true  //to call api
         });
         setTimeout(() => setLoading(false), 500);
@@ -138,10 +139,10 @@ export function AffiliatesFilterModal({
                     <div className="mt-2 w-full overflow-auto h-[85%] p-4">
 
                         <CustomSlider
-                            // min={100}
-                            // max={1000}
+                            min={0}
+                            max={10000}
                             step={50}
-                            defaultValue={users}
+                            defaultValue={xBar}
                             label="X-Bar"
                             onChange={(value) => {
                                 //console.log
@@ -151,7 +152,7 @@ export function AffiliatesFilterModal({
                         />
 
                         <CustomSlider
-                            min={100}
+                            min={0}
                             max={1000}
                             step={50}
                             defaultValue={users}
@@ -164,10 +165,10 @@ export function AffiliatesFilterModal({
                         />
 
                         <CustomSlider
-                            // min={100}
-                            // max={1000}
+                            min={0}
+                            max={10000}
                             step={50}
-                            defaultValue={users}
+                            defaultValue={revenue}
                             label="Revenue"
                             onChange={(value) => {
                                 //console.log

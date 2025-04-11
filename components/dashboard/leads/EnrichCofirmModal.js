@@ -45,7 +45,7 @@ export default function EnrichConfirmModal({
 
             {/* Modal Title */}
             <DialogTitle sx={{ fontWeight: "bold", fontSize: "20px", mt: 1 }}>
-                Confirm
+                Confirm Lead Enrichment
             </DialogTitle>
 
             {/* Info Box */}
@@ -77,7 +77,27 @@ export default function EnrichConfirmModal({
                     <Typography sx={{ fontSize: "14px", color: "#000" }}>
                         {`Enrichment is $0.10 / lead `}
                     </Typography>
+
+                   
                 </Box>
+
+                <Box
+                        sx={{
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: 1.5,
+                            // backgroundColor: "#F6F0FF",
+                            // padding: "12px 16px",
+                            borderRadius: "8px",
+                            mb: 0,
+                        }}
+                    >
+                        <InfoOutlinedIcon sx={{ color: "transparent", fontSize: 20 }} />
+                        <Typography sx={{ fontSize: "14px", color: "#000" }}>
+                            {`If less than 10 leads, it's $1.`}
+                        </Typography>
+                    </Box>
 
             </Box>
 
@@ -127,25 +147,21 @@ export default function EnrichConfirmModal({
                         Total Cost
                     </Typography>
                     <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-                        ${processedData?.length <= 20 ? "1" : totalCost.toFixed(2)}
+                        ${processedData?.length <= 10 ? "1" : totalCost.toFixed(2)}
                     </Typography>
                 </Box>
             </DialogContent>
 
             {/* Buttons */}
             <DialogActions sx={{ justifyContent: "space-between", mt: 3 }}>
-                <Button
+                <div
                     onClick={() => setShowenrichConfirmModal(false)}
-                    sx={{
-                        textTransform: "none",
-                        fontWeight: "bold",
-                        color: "#7902DF",
-                        fontSize: "16px",
-                        width: "45%",
-                    }}
+                    className=" flex w-[45%] text-black font-bold text-[16px]  hover:text-[#7902DF] py-3 rounded-lg
+                     items-center justify-center"
+                    style={{ textTransform: "none", cursor: 'pointer' }}
                 >
                     Cancel
-                </Button>
+                </div>
                 {Loader ? (
                     <CircularProgress size={27} />
                 ) : (

@@ -99,6 +99,63 @@ function AdminAffiliates({ selectedUser }) {
   }, [officeHourUrl]);
 
   useEffect(() => {
+    let timer = setTimeout(() => {
+      //console.log);
+      if (uniqueUrl) {
+        checkUniqueUrl(uniqueUrl)
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [uniqueUrl]);
+
+  const checkUniqueUrl =async (url) =>{
+    try {
+      // setAffiliateUsersLoader(true);
+      let data = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+
+      if (data) {
+        let u = JSON.parse(data);
+
+        let path = Apis.chechAffiliateUniqueUrl;
+        console.log('path', path)
+
+        let apidata = {
+          uniqueUrl:url
+        }
+
+        const response = await axios.post(path,apidata, {
+          headers: {
+            Authorization: "Bearer " + u.token,
+          },
+        });
+
+        if (response.data) {
+          setAffiliateUsersLoader(false);
+
+          if (response.data.status === true) {
+            console.log(
+              "",
+              response.data.message
+            );
+          } else {
+            console.log(
+              "api messsage is",
+              response.data.message
+            );
+
+            setUrlError2(response.data.message)
+          }
+        }
+      }
+    } catch (e) {
+      setAffiliateUsersLoader(false);
+
+      //console.log;
+    }
+  }
+
+  useEffect(() => {
     getUsersForAffiliate();
   }, [selectedAffiliate]);
 
@@ -123,16 +180,16 @@ function AdminAffiliates({ selectedUser }) {
           setAffiliateUsersLoader(false);
 
           if (response.data.status === true) {
-            console.log(
-              "users for selected affiliate are ",
-              response.data.data
-            );
+            // console.log(
+            //   "users for selected affiliate are ",
+            //   response.data.data
+            // );
             setAffiliateUsers(response.data.data);
           } else {
-            console.log(
-              "users for selected affiliate api messsage is",
-              response.data.message
-            );
+            // console.log(
+            //   "users for selected affiliate api messsage is",
+            //   response.data.message
+            // );
           }
         }
       }
@@ -178,8 +235,11 @@ function AdminAffiliates({ selectedUser }) {
           if (filter.revenue) {
             path = `${path}&minRevenue=${filter.revenue[0]}&maxRevenue=${filter.revenue[1]}`;
           }
+          if (filter.xBar) {
+            path = `${path}&minxBar=${filter.revenue[0]}&maxxBar=${filter.revenue[1]}`;
+          }
         }
-        //console.log;
+        console.log("get affiliates path is", path);
 
         const response = await axios.get(path, {
           headers: {
@@ -189,7 +249,7 @@ function AdminAffiliates({ selectedUser }) {
 
         if (response) {
           setGetAffiliatesLoader(false);
-          //console.log;
+          console.log("response is", response.data);
 
           if (response.data.status === true) {
             setAffiliatesList(response.data.data);
@@ -407,7 +467,7 @@ function AdminAffiliates({ selectedUser }) {
       )}
       {showFilterModal && (
         <AffiliatesFilterModal
-          filters={{}}
+          filters={filters}
           showFilterModal={showFilterModal}
           onDismissCallback={() => {
             setShowFilterModal(false);
@@ -982,7 +1042,7 @@ function AdminAffiliates({ selectedUser }) {
                         //   emailCheckResponse?.status !== true ||
                         //   checkPhoneResponse?.status !== true ||
                         !!urlError ||
-                        //   !!urlError2 ||
+                          !!urlError2 ||
                         !uniqueUrl ||
                         !officeHourUrl
                         ? "#00000020"
@@ -1006,7 +1066,7 @@ function AdminAffiliates({ selectedUser }) {
                     // emailCheckResponse?.status !== true ||
                     // checkPhoneResponse?.status !== true ||
                     !!urlError ||
-                    // !!urlError2 ||
+                    !!urlError2 ||
                     !uniqueUrl ||
                     !officeHourUrl
                   }
