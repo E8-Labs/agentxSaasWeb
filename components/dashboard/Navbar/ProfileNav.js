@@ -901,7 +901,17 @@ const ProfileNav = () => {
                     marginTop: 20,
                   }}
                 >
-                  {`You’ll need to select a plan to continue`}
+                  {`AI Agents from just $1.50/day`}
+                </div>
+                <div
+                  className="flex justify-center items-center"
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "500",
+                    marginTop: 10,
+                  }}
+                >
+                  {`Gets more done than coffee. Cheaper too. Cancel anytime. 😉`}
                 </div>
 
                 <div className="flex flex-row items-center justify-center ">

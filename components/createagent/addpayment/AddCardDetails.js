@@ -193,7 +193,7 @@ const AddCardDetails = ({
           };
         }
 
-       // //console.log;
+       console.log("add card api data is: ",AddCardData)
         // return
         try {
           const LocalData = localStorage.getItem("User");
@@ -222,7 +222,7 @@ const AddCardDetails = ({
             },
           });
           if (response) {
-           // //console.log;
+           console.log(response)
           }
           if (response.status === 200) {
             // setAddCardDetails(response.data.message);
@@ -231,7 +231,7 @@ const AddCardDetails = ({
               setAddCardErrtxt(response.data.message);
               return;
             } else if (response.data.status === true) {
-              ////console.log
+              console.log("add card response is",response.data.data)
               setAddCardSuccess(true);
 
               if (!togglePlan) {
@@ -248,7 +248,7 @@ const AddCardDetails = ({
             setAddCardErrtxt("Some error occured !!!");
           }
         } catch (error) {
-         // console.error("Error occured in adding user card api is :", error);
+         console.error("Error occured in adding user card api is :", error);
           setAddCardLoader(false);
         } finally {
           setAddCardLoader(false);

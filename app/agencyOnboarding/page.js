@@ -5,7 +5,7 @@ import AgencyPlans from '@/components/plan/AgencyPlans'
 import Image from 'next/image'
 import React, { useState } from 'react'
 
-function page() {
+function Page() {
 
     const [currentIndex, setCurrentIndex] = useState(0)
 
@@ -45,4 +45,4 @@ function page() {
     )
 }
 
-export default page
+export default Page
