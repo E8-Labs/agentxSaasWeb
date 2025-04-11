@@ -70,6 +70,7 @@ const Apis = {
   getDashboardData: `${BasePath}api/agent/dashboard`,
   delLeadTag: `${BasePath}api/leads/deleteLeadTag`,
   //apis to add card & subscribe plan
+  createSetupIntent: `${BasePath}api/user/createSetupIntent`,
   addCard: `${BasePath}api/user/addPaymentMethod`,
   subscribePlan: `${BasePath}api/user/subscribePlan`,
   purchaseSupportPlan: `${BasePath}api/user/purchaseSupportPlan`,
@@ -155,10 +156,8 @@ const Apis = {
   //Stripe connect
   connectAgencyAccount: `${BasePath}api/agency/connectAgency`,
 
-  getPlansForAgency : `${BasePath}api/agency/getPlanListForAgency`,
+  getPlansForAgency: `${BasePath}api/agency/getPlanListForAgency`,
 };
-
-
 
 export default Apis;
 

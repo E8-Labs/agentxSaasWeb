@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
+// import stripe
 import {
   CardCvcElement,
+  CardElement,
   CardExpiryElement,
   CardNumberElement,
   useElements,
@@ -60,9 +62,9 @@ const AddCardDetails = ({
 
   // Autofocus the first field when the component mounts
   useEffect(() => {
-   // //console.log;
+    // //console.log;
     if (cardNumberRef.current) {
-     // //console.log;
+      // //console.log;
       cardNumberRef.current.focus();
     }
   }, []);
@@ -141,124 +143,111 @@ const AddCardDetails = ({
 
   //function to add card
   const handleAddCard = async (e) => {
-    // if (!fromBuildAiScreen) {
-    // }
     setAddCardLoader(true);
 
     if (stop) {
       stop(false);
     }
-
-    // return
     if (e && e.preventDefault) {
       e.preventDefault();
     }
 
-    // Close the modal
-    // handleClose4(e);
-    // return
+    const LocalData = localStorage.getItem("User");
+    const D = JSON.parse(LocalData);
+    // //console.log;
+    const AuthToken = D.token;
     if (!stripeReact || !elements) {
-      ////console.log;
-      ////console.log
-      ////console.log
       return;
     } else {
       ////console.log;
     }
 
-    const cardNumberElement = elements.getElement(CardNumberElement);
-
-    stripeReact.createToken(cardNumberElement).then(async function (tok) {
-      if (tok.error) {
-        setAddCardErrtxt(tok.error.message || "Error adding card");
-        setCredentialsErr(true);
-        setAddCardLoader(false);
-      } else if (tok.token.id) {
-       // //console.log;
-        const tokenId = tok.token.id;
-       // //console.log;
-        const ApiPath = Apis.addCard;
-       // //console.log;
-
-        let AddCardData = null;
-
-        if (inviteCode) {
-          AddCardData = {
-            source: tokenId,
-            inviteCode: inviteCode,
-          };
-        } else {
-          AddCardData = {
-            source: tokenId,
-          };
-        }
-
-       console.log("add card api data is: ",AddCardData)
-        // return
-        try {
-          const LocalData = localStorage.getItem("User");
-          const D = JSON.parse(LocalData);
-         // //console.log;
-          const AuthToken = D.token;
-          // const AuthToken = "bgabgakjhaslidfhgkerhiuhkmxvnidfuhgiehlmklhn";
-         // //console.log;
-
-         // //console.log;
-          // return
-
-          //can be useful when user want to add card from dashboard
-
-          // const fromBuyStatus = localStorage.getItem("fromBuyScreen");
-          //// //console.log);
-          // let newTab = null;
-          // if (fromBuyStatus) {
-          //     newTab = window.open('about:blank'); // Open a new blank tab
-          // }
-
-          const response = await axios.post(ApiPath, AddCardData, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + AuthToken,
-            },
-          });
-          if (response) {
-           console.log(response)
-          }
-          if (response.status === 200) {
-            // setAddCardDetails(response.data.message);
-            if (response.data.status === false) {
-              setAddCardFailure(true);
-              setAddCardErrtxt(response.data.message);
-              return;
-            } else if (response.data.status === true) {
-              console.log("add card response is",response.data.data)
-              setAddCardSuccess(true);
-
-              if (!togglePlan) {
-                handleClose(response.data);
-              }
-
-              if (togglePlan) {
-                handleSubscribePlan();
-              }
-              ////console.log;
-            }
-          } else {
-            setAddCardFailure(true);
-            setAddCardErrtxt("Some error occured !!!");
-          }
-        } catch (error) {
-         console.error("Error occured in adding user card api is :", error);
-          setAddCardLoader(false);
-        } finally {
-          setAddCardLoader(false);
-          // if (fromBuildAiScreen) {
-          //    // //console.log;
-          //     subscribeLoader(false);
-          // }
-        }
-      }
+    const res = await fetch(Apis.createSetupIntent, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${AuthToken}`,
+      },
+      body: JSON.stringify({ id: 123 }),
     });
+
+    const data = await res.json();
+    console.log("Setup intent response is ", data);
+
+    // const paymentMethodResult = await stripeReact.createPaymentMethod({
+    //   type: "card",
+    //   card: elements.getElement(CardNumberElement), // only pass the element here
+    //   billing_details: {
+    //     name: D.user.name,
+    //   },
+    // });
+
+    // console.log("Paymnt method result");
+
+    // if (paymentMethodResult.error) {
+    //   console.error(paymentMethodResult.error.message);
+    //   setAddCardErrtxt(paymentMethodResult.error.message);
+    //   setAddCardLoader(false);
+    //   return;
+    // }
+
+    // let stripe = await getStripe;
+    // const result = await stripeReact.confirmCardSetup(data.data, {
+    //   payment_method: paymentMethodResult.paymentMethod.id,
+    //   // {
+    //   //   card: elements.getElement(CardElement),
+    //   //   billing_details: { name: "User Name" },
+    //   // },
+    // });
+
+    const result = await stripeReact.confirmCardSetup(data.data, {
+      payment_method: {
+        card: elements.getElement(CardNumberElement),
+        billing_details: {
+          name: D.user.name,
+        },
+      },
+    });
+
+    console.log("Result confirm payment", result);
+
+    if (result.error) {
+      setAddCardLoader(false);
+      console.log("Error confirm payment");
+      setAddCardFailure(true);
+      setAddCardErrtxt(
+        result.error.message || "Error confirming payment method"
+      );
+      // setStatus(`Error: ${result.error.message}`);
+    } else {
+      // console.log("Result", JSON.stringify(result.setupIntent));
+      let id = result.setupIntent.payment_method;
+      // setStatus("Success! Card is ready for auto-payment.");
+      console.log("Payment method ID:", id);
+
+      // Save paymentMethod ID to your server (for later cron charging)
+      // Step 3: Send payment method ID to backend to attach to customer
+      const addCardRes = await fetch(Apis.addCard, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${AuthToken}`,
+        },
+        body: JSON.stringify({ source: id }),
+      });
+
+      const result2 = await addCardRes.json();
+      console.log("Result is ", result2);
+      setAddCardLoader(false);
+      if (result2.status) {
+        setAddCardSuccess(true);
+        if (!togglePlan) handleClose(result.data);
+        if (togglePlan) handleSubscribePlan();
+      } else {
+        setAddCardFailure(true);
+        setAddCardErrtxt(result2.message);
+      }
+    }
   };
 
   //function to subscribe plan
@@ -278,7 +267,7 @@ const AddCardDetails = ({
         planType = "Plan720";
       }
 
-     // //console.log;
+      // //console.log;
 
       setAddCardLoader(true);
       let AuthToken = null;
@@ -288,17 +277,17 @@ const AddCardDetails = ({
         AuthToken = LocalDetails.token;
       }
 
-     // //console.log;
+      // //console.log;
 
       const ApiData = {
         plan: planType,
       };
 
-     // //console.log;
+      // //console.log;
 
       const ApiPath = Apis.subscribePlan;
-     // //console.log;
-
+      // //console.log;
+      console.log("Api data", ApiData);
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
           Authorization: "Bearer " + AuthToken,
@@ -307,17 +296,14 @@ const AddCardDetails = ({
       });
 
       if (response) {
-       // console.log(
-        //   "Response of subscribe plan api is",
-        //   Object.keys(response.data)
-        // );
+        console.log("Response of subscribe plan api is", response.data);
         if (response.data.status === true) {
           handleClose(response.data);
           if (setAddPaymentSuccessPopUp) setAddPaymentSuccessPopUp(true);
         }
       }
     } catch (error) {
-     // console.error("Error occured in api is:", error);
+      // console.error("Error occured in api is:", error);
     } finally {
       setAddCardLoader(false);
     }
@@ -370,7 +356,7 @@ const AddCardDetails = ({
             onChange={(event) => {
               handleFieldChange(event, cardExpiryRef);
               if (event.complete) {
-               // //console.log;
+                // //console.log;
                 setCardAdded(true);
               } else {
                 setCardAdded(false);
@@ -413,7 +399,7 @@ const AddCardDetails = ({
               onChange={(event) => {
                 handleFieldChange(event, cardCvcRef);
                 if (event.complete) {
-                 // //console.log;
+                  // //console.log;
                   setCardExpiry(true);
                 } else {
                   setCardExpiry(false);
@@ -458,7 +444,7 @@ const AddCardDetails = ({
               onChange={(event) => {
                 // handleFieldChange(event, cardCvcRef);
                 if (event.complete) {
-                 // //console.log;
+                  // //console.log;
                   setCVC(true);
                 } else {
                   setCVC(false);
