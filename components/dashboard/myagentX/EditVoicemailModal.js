@@ -133,8 +133,8 @@ function EditVoicemailModal({
                                 padding: 12,
                                 height: '156px',
                                 resize: "none",
-
                             }}
+                            maxLength={200}
 
                             value={message}
                             onChange={(e) => {
@@ -142,6 +142,13 @@ function EditVoicemailModal({
 
                             }}
                         />
+
+                        <div style={{
+                            fontSize: 14, fontWeight: '500', marginTop: -5, color: '#00000060'
+                        }}>
+                            {message?.length}/200
+                        </div>
+
 
 
 

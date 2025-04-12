@@ -81,9 +81,9 @@ function AddVoiceMail({
 
     useEffect(() => {
         if (selectedManu.name === "Solar") {
-            m = `Hey, this is Sarah. I just helped a homeowner nearby list their property, and there's been a lot of interest in the area. If you've ever thought about selling or just want to know what your home's worth, give me a call at [your number]. Would love to chat!`
-        }else if (selectedManu.name === "Real Estate") {
             m = `Hey, this is Sam. Just wanted to let you know your neighbor recently switched to solar and is saving big. Curious if you'd like to see how much you could save? Call me back at [your number]!`
+        }else if (selectedManu.name === "Real Estate") {
+            m = `Hey, this is Sarah. I helped a homeowner list their property, and there's been interest in the area. If want to know what your home's worth, give me a call at [Your Number]. Would love to chat.`
         } else if (selectedManu.name === "Insurance Agent") {
             m = `Hi, this is Lisa. I noticed some homeowners in your area updated their coverage and lowered their rates. Let's check if you're eligible too! Call me back at [your number]. Talk soon!`
         } else if (selectedManu.name === "Loan Officer") {
@@ -165,7 +165,7 @@ function AddVoiceMail({
                             Select From Template
                         </div>
 
-                        <div className='w-full flex-row flex items-center gap-3 h-[55px]'
+                        <div className='w-full flex-row flex items-center gap-3 h-[100px]'
                             style={{ overflowX: 'auto', scrollbarWidth: 'none' }}
                         >
                             {
